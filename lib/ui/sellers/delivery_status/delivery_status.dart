@@ -65,12 +65,68 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   TextEditingController operadorController =
       TextEditingController(text: "TODO");
 
+  List data2 = [];
+  Map dataCounters2 = {};
+
+  //int total2 = 0;
+  int pageCount2 = 100;
+
+  int total2 = 0;
+  int entregados2 = 0;
+  int noEntregados2 = 0;
+  int conNovedad2 = 0;
+  int reagendados2 = 0;
+  int enRuta2 = 0;
+
+  TextEditingController fechaEntregaController =
+      TextEditingController(text: "");
+  TextEditingController codigoController = TextEditingController(text: "");
+  TextEditingController ciudadShippingController =
+      TextEditingController(text: "");
+  TextEditingController nombreShippingController =
+      TextEditingController(text: "");
+  TextEditingController direccionShippingController =
+      TextEditingController(text: "");
+  TextEditingController telefonoShippingController =
+      TextEditingController(text: "");
+  TextEditingController cantidadTotalController =
+      TextEditingController(text: "");
+  TextEditingController productoPController = TextEditingController(text: "");
+  TextEditingController productoExtraController =
+      TextEditingController(text: "");
+  TextEditingController precioTotalController = TextEditingController(text: "");
+  TextEditingController comentarioController = TextEditingController(text: "");
+  TextEditingController marcaTiController = TextEditingController(text: "");
+  TextEditingController statusController = TextEditingController(text: "TODO");
+  TextEditingController estadoInternoController =
+      TextEditingController(text: "TODO");
+  TextEditingController estadoLogisticoController =
+      TextEditingController(text: "TODO");
+  TextEditingController estadoDevolucionController =
+      TextEditingController(text: "TODO");
+  TextEditingController costoEntregaController =
+      TextEditingController(text: "");
+  TextEditingController costoDevolucionController =
+      TextEditingController(text: "");
+
   List arrayfiltersDefaultAnd = [
     {
       'filter': 'IdComercial',
       'value': sharedPrefs!.getString("idComercialMasterSeller").toString()
     }
   ];
+
+  var arrayfiltersDefaultAnd2 = [
+    {
+      'id_comercial':
+          sharedPrefs!.getString("idComercialMasterSeller").toString()
+    }
+    // {
+    //   'filter': 'id_Comercial',
+    //   'value': sharedPrefs!.getString("idComercialMasterSeller").toString()
+    // }
+  ];
+
   var arrayFiltersNotEq = [
     {'Status': 'PEDIDO PROGRAMADO'}
   ];
@@ -107,6 +163,61 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     {'filter': 'Estado_Pagado'},
   ];
 
+  List filtersOrCont2 = [
+    'fecha_entrega',
+    'numero_orden',
+    'nombre_shipping',
+    'ciudad_shipping',
+    'direccion_shipping',
+    'telefono_shipping',
+    'cantidad_total',
+    'producto_p',
+    'precio_total',
+    'observacion',
+    'comentario',
+    'status',
+    'tipo_pago',
+    'marca_t_d',
+    'marca_t_d_l',
+    'marca_t_d_t',
+    'marca_t_i',
+    'estado_pagado',
+  ];
+
+  List<String> listStatus = [
+    'TODO',
+    'PEDIDO PROGRAMADO',
+    'NOVEDAD',
+    'ENTREGADO',
+    'NO ENTREGADO',
+    'REAGENDADO',
+    'EN OFICINA',
+    'EN RUTA'
+  ];
+
+  List<String> listEstadoInterno = [
+    'TODO',
+    'CONFIRMADO',
+    'PENDIENTE',
+    'NO DESEA',
+  ];
+
+  List<String> listEstadoLogistico = [
+    'TODO',
+    'PENDIENTE',
+    'ENVIADO',
+    'IMPRESO',
+  ];
+
+  List<String> listEstadoDevolucion = [
+    'TODO',
+    'PENDIENTE',
+    'DEVOLUCION EN RUTA',
+  ];
+
+  List arrayFiltersAnd = [];
+  List arrayFiltersAnd2 = [];
+
   NumberPaginatorController paginatorController = NumberPaginatorController();
 
   @override
@@ -126,6 +237,18 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     });
 
     var responseCounters =
+        await Connections().getOrdersDashboardSellers(populate, [
+      {
+        "transportadora": {"\$not": null}
+      },
+      {
+        'IdComercial':
+            sharedPrefs!.getString("idComercialMasterSeller").toString()
+      }
+    ]);
+
+//[{"transportadora":{"not:null"}},{Id_Comercial:"74"}]
+    var responseCounters2 =
         await Connections().getOrdersDashboardSellers(populate, [
       {
         "transportadora": {"\$not": null}
@@ -163,6 +286,24 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     data = response['data'];
     total = response['meta']['total'];
     pageCount = updateTotalPages(total, pageSize);
+
+    var responseLaravel = await Connections()
+        .getOrdersForSellerStateSearchForDateSellerLaravel(
+            _controllers.searchController.text,
+            filtersOrCont2,
+            arrayfiltersDefaultAnd2,
+            arrayFiltersAnd2,
+            currentPage,
+            pageSize,
+            _controllers.searchController.text);
+
+    // valuesTransporter2 = responseValues;
+    dataCounters2 = responseCounters;
+    data2 = responseLaravel['data'];
+    total2 = responseLaravel['total'];
+    pageCount2 = updateTotalPages(total, pageSize);
+
+
 
     // print(sharedPrefs!.getString("idTransportadora").toString());
 
@@ -232,10 +373,24 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
             currentPage,
             pageSize);
 
+    var responseLar = await Connections()
+        .getOrdersForSellerStateSearchForDateSellerLaravel(
+            _controllers.searchController.text,
+            filtersOrCont2,
+            arrayfiltersDefaultAnd2,
+            arrayFiltersAnd2,
+            currentPage,
+            pageSize,
+            _controllers.searchController.text);
+
     setState(() {
       data = response['data'];
 
       pageCount = updateTotalPages(response['meta']['total'], pageSize);
+
+      data2 = responseLar['data'];
+      pageCount2 = updateTotalPages(responseLar['total'], pageSize);
+      //
     });
 
     Future.delayed(Duration(milliseconds: 500), () {
@@ -268,24 +423,28 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
 
   @override
   Widget build(BuildContext context) {
+    //unit packages
     List<Opcion> opciones = [
       Opcion(
           icono: Icon(Icons.all_inbox),
           titulo: 'Total',
           filtro: 'Total',
-          valor: total,
+          valor: total2,
+          //valor: total,
           color: Color.fromARGB(255, 108, 108, 109)),
       Opcion(
           icono: Icon(Icons.send),
           titulo: 'Entregado',
           filtro: 'Entregado',
-          valor: entregados,
+          valor: entregados2,
+          //valor: entregados,
           color: const Color.fromARGB(255, 102, 187, 106)),
       Opcion(
           icono: Icon(Icons.error),
           titulo: 'No Entregado',
           filtro: 'No Entregado',
-          valor: noEntregados,
+          valor: noEntregados2,
+          //valor: noEntregados,
           color: Color.fromARGB(255, 243, 33, 33)),
       Opcion(
           icono: Icon(Icons.ac_unit),
@@ -297,13 +456,15 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           icono: Icon(Icons.schedule),
           titulo: 'Reagendado',
           filtro: 'Reagendado',
-          valor: reagendados,
+          valor: reagendados2,
+          //valor: reagendados,
           color: Color.fromARGB(255, 227, 32, 241)),
       Opcion(
           icono: Icon(Icons.route),
           titulo: 'En Ruta',
           filtro: 'En Ruta',
-          valor: enRuta,
+          valor: enRuta2,
+          //valor: enRuta,
           color: const Color.fromARGB(255, 33, 150, 243)),
     ];
 
@@ -404,6 +565,29 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                             text: "Buscar",
                             controller: _controllers.searchController),
                       ),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          resetFilters();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color.fromRGBO(255, 66, 66, 1),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
+                        icon: Icon(
+                          Icons.filter_list, // Icono de filtro
+                          color: Colors.white,
+                        ),
+                        label: Text(
+                          'Limpiar Filtros',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+
                       // Expanded(
                       //   child: Row(
                       //     children: [
@@ -483,7 +667,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       ),
                     ],
                   ),
-                  headingRowHeight: 53,
+                  headingRowHeight: 63,
                   showBottomBorder: true,
                   headingTextStyle: const TextStyle(
                       fontWeight: FontWeight.bold, color: Colors.black),
@@ -493,149 +677,345 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       color: Colors.black),
                   columnSpacing: 12,
                   horizontalMargin: 12,
-                  minWidth: 2500,
+                  minWidth: 4500,
                   columns: [
                     DataColumn2(
-                      label: Text('Fecha de Entrega'),
-                      size: ColumnSize.M,
+                      label: InputFilter(
+                          'Fecha', fechaEntregaController, 'fecha_entrega'),
+                      //label: Text('Fecha de Entrega'),
+                      size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
                         sortFuncDate("Fecha_Entrega");
                       },
                     ),
                     DataColumn2(
-                      label: const Text('Código'),
+                      label: InputFilter(
+                          'Código', codigoController, 'numero_orden'),
+                      //label: const Text('Código'),
                       size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
                         sortFunc("NumeroOrden");
                       },
                     ),
                     DataColumn2(
-                      label: const Text('Ciudad'),
+                      label: InputFilter('Ciudad', ciudadShippingController,
+                          'ciudad_shipping'),
+                      //label: const Text('Ciudad'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
                         sortFunc("CiudadShipping");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Nombre Cliente'),
+                      label: InputFilter('Nombre Cliente',
+                          nombreShippingController, 'nombre_shipping'),
+                      //label: Text('Nombre Cliente'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
                         sortFunc("NombreShipping");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Dirección'),
+                      label: InputFilter('Dirección',
+                          direccionShippingController, 'direccion_shipping'),
+                      //label: Text('Dirección'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
                         sortFunc("DireccionShipping");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Teléfono Cliente'),
-                      size: ColumnSize.M,
+                      label: InputFilter('Teléfono Cliente',
+                          telefonoShippingController, 'telefono_shipping'),
+                      //label: Text('Teléfono Cliente'),
+                      size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
                         sortFunc("TelefonoShipping");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Cantidad'),
-                      size: ColumnSize.M,
+                      label: InputFilter('Cantidad', cantidadTotalController,
+                          'cantidad_total'),
+                      //label: Text('Cantidad'),
+                      size: ColumnSize.S,
                       numeric: true,
                       onSort: (columnIndex, ascending) {
                         sortFunc("Cantidad_Total");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Producto'),
+                      label: InputFilter(
+                          'Producto', productoPController, 'producto_p'),
+                      // label: Text('Producto'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
                         sortFunc("ProductoP");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Producto Extra'),
+                      label: InputFilter('Producto Extra',
+                          productoExtraController, 'producto_extra'),
+                      // label: Text('Producto Extra'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
                         sortFunc("ProductoExtra");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Precio Total'),
-                      size: ColumnSize.M,
+                      label: InputFilter('Precio Total', precioTotalController,
+                          'precio_total'),
+                      //label: Text('Precio Total'),
+                      size: ColumnSize.S,
                       numeric: true,
                       onSort: (columnIndex, ascending) {
                         sortFunc("PrecioTotal");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Comentario'),
+                      label: InputFilter(
+                          'Comentario', comentarioController, 'comentario'),
+                      // label: Text('Comentario'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
                         sortFunc("Comentario");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Status'),
-                      size: ColumnSize.M,
+                      label: SelectFilter2('Estado de Entrega', 'status',
+                          statusController, listStatus),
+                      // label: Text('Status'),
+                      size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
                         sortFunc("Status");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Confirmado'),
+                      label: SelectFilter2('Confirmado', 'estado_interno',
+                          estadoInternoController, listEstadoInterno),
+                      //label: Text('Confirmado'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
                         sortFunc("Estado_Interno");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Estado Logístico'),
+                      label: SelectFilter2(
+                          'Estado Logístico',
+                          'estado_logistico',
+                          estadoLogisticoController,
+                          listEstadoLogistico),
+                      //label: Text('Estado Logístico'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
                         sortFunc("Estado_Logistico");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Estado Devolución'),
+                      label: SelectFilter2(
+                          'Estado Devolución',
+                          'estado_devolucion',
+                          estadoDevolucionController,
+                          listEstadoDevolucion),
+                      //label: Text('Estado Devolución'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
                         sortFunc("Estado_Devolucion");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Costo Entrega'),
+                      label: InputFilter(
+                          'Costo Entrega',
+                          costoEntregaController,
+                          'users.vendedores.costo_envio'),
+                      // label: Text('Costo Entrega'),  //costo_envio
                       size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
                         //sortFuncCost("CostoEnvio");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Costo Devolución'),
+                      label: InputFilter(
+                          'Costo Devolución',
+                          costoDevolucionController,
+                          'users.vendedores.costo_devolucion'),
+                      // label: Text('Costo Devolución'), //costo_devolucion
                       size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
                         // sortFuncCost("CostoDevolucion");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Fecha Ingreso'),
-                      size: ColumnSize.M,
+                      label: InputFilter(
+                          'Fecha Ingreso', marcaTiController, 'marca_t_i'),
+                      //label: Text('Fecha Ingreso'),
+                      size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
                         sortFuncDate("Marca_T_I");
                       },
                     ),
                     DataColumn2(
                       label: Text('N. intentos'),
-                      size: ColumnSize.M,
+                      size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {},
                     ),
                   ],
+                  rows: List<DataRow>.generate(
+                      data2.isNotEmpty ? data2.length : [].length,
+                      (index) => DataRow(cells: [
+                            DataCell(
+                                Row(
+                                  children: [
+                                    Text(data2[index]['fecha_entrega']
+                                        .toString()),
+                                    data2[index]['status'] == 'NOVEDAD' &&
+                                            data2[index]['estado_devolucion'] ==
+                                                'PENDIENTE'
+                                        ? IconButton(
+                                            icon: Icon(Icons.schedule_outlined),
+                                            onPressed: () async {
+                                              reSchedule(data2[index]['id'],
+                                                  'REAGENDADO');
+                                            },
+                                          )
+                                        : Container(),
+                                  ],
+                                ), onTap: () {
+                              openDialog(context, index);
+                            }),
+                            DataCell(
+                                Text(
+                                    style: TextStyle(
+                                        color: GetColor(data2[index]['status']
+                                            .toString())!),
+                                    '${data2[index]['name_comercial'].toString()}-${data2[index]['numero_orden'].toString()}'),
+                                onTap: () {
+                              openDialog(context, index);
+                            }),
+                            DataCell(
+                                Text(
+                                    data2[index]['ciudad_shipping'].toString()),
+                                onTap: () {
+                              openDialog(context, index);
+                            }),
+                            DataCell(
+                                Text(
+                                    data2[index]['nombre_shipping'].toString()),
+                                onTap: () {
+                              openDialog(context, index);
+                            }),
+                            DataCell(
+                                Text(data2[index]['direccion_shipping']
+                                    .toString()), onTap: () {
+                              openDialog(context, index);
+                            }),
+                            DataCell(
+                                Text(data2[index]['telefono_shipping']
+                                    .toString()), onTap: () {
+                              openDialog(context, index);
+                            }),
+                            DataCell(
+                                Text(data2[index]['cantidad_total'].toString()),
+                                onTap: () {
+                              openDialog(context, index);
+                            }),
+                            DataCell(
+                                Text(data2[index]['producto_p'].toString()),
+                                onTap: () {
+                              openDialog(context, index);
+                            }),
+                            DataCell(
+                                Text(data2[index]['producto_extra'].toString()),
+                                onTap: () {
+                              openDialog(context, index);
+                            }),
+                            DataCell(
+                                Text(data2[index]['precio_total'].toString()),
+                                onTap: () {
+                              openDialog(context, index);
+                            }),
+                            DataCell(
+                                Text(data2[index]['comentario'].toString()),
+                                onTap: () {
+                              openDialog(context, index);
+                            }),
+                            DataCell(
+                                Text(
+                                    style: TextStyle(
+                                        color: GetColor(data2[index]['status']
+                                            .toString())!),
+                                    data2[index]['status'].toString()),
+                                onTap: () {
+                              openDialog(context, index);
+                            }),
+                            DataCell(
+                                Text(data2[index]['estado_interno'].toString()),
+                                onTap: () {
+                              openDialog(context, index);
+                            }),
+                            DataCell(
+                                Text(data2[index]['estado_logistico']
+                                    .toString()), onTap: () {
+                              openDialog(context, index);
+                            }),
+                            DataCell(
+                                Text(data2[index]['estado_devolucion']
+                                    .toString()), onTap: () {
+                              openDialog(context, index);
+                            }),
+                            DataCell(
+                                Text(data2[index]['users'] != null
+                                    ? data2[index]['status'].toString() ==
+                                                "ENTREGADO" ||
+                                            data2[index]['status'].toString() ==
+                                                "NO ENTREGADO"
+                                        ? data2[index]['users'][0]['vendedores']
+                                                [0]['costo_envio']
+                                            .toString()
+                                        : ""
+                                    : ""), onTap: () {
+                              openDialog(context, index);
+                            }),
+                            DataCell(
+                                Text(data2[index]['users'] != null
+                                    ? data2[index]['status'].toString() ==
+                                            "NOVEDAD"
+                                        ? data2[index]['estado_devolucion']
+                                                        .toString() ==
+                                                    "ENTREGADO EN OFICINA" ||
+                                                data2[index]['status']
+                                                        .toString() ==
+                                                    "EN RUTA" ||
+                                                data2[index][
+                                                            'estado_devolucion']
+                                                        .toString() ==
+                                                    "EN BODEGA"
+                                            ? data2[index]['users'][0]
+                                                        ['vendedores'][0]
+                                                    ['costo_devolucion']
+                                                .toString()
+                                            : ""
+                                        : ""
+                                    : ""), onTap: () {
+                              openDialog(context, index);
+                            }),
+                            DataCell(Text(data2[index]['marca_t_i'].toString()),
+                                onTap: () {
+                              openDialog(context, index);
+                            }),
+                            DataCell(
+                                getLengthArrayMap(data2[index]['novedades']),
+                                onTap: () {
+                              openDialog(context, index);
+                            }),
+                          ]))),
+              /*
                   rows: List<DataRow>.generate(
                       data.isNotEmpty ? data.length : [].length,
                       (index) => DataRow(cells: [
                             DataCell(
                                 Row(
                                   children: [
-                                    Text(data[index]['attributes']
+                                    Text(data[index]
                                             ['Fecha_Entrega']
                                         .toString()),
                                     data[index]['attributes']['Status'] ==
@@ -789,6 +1169,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                               openDialog(context, index);
                             }),
                           ]))),
+                    */
             ),
           ],
         ),
@@ -796,6 +1177,113 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     );
   }
 
+  Column InputFilter(String title, var controller, key) {
+    return Column(
+      children: [
+        Text(title),
+        Expanded(
+            child: Container(
+          margin: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
+          child: TextField(
+            controller: controller,
+            onChanged: (value) {
+              if (value == '') {
+                {
+                  arrayFiltersAnd2
+                      .removeWhere((element) => element.containsKey(key));
+                }
+              }
+            },
+            onSubmitted: (value) {
+              if (value != '') {
+                arrayFiltersAnd2.add({key: value});
+              }
+
+              loadData();
+            },
+            decoration: InputDecoration(
+                border: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(5)),
+            )),
+          ),
+        ))
+      ],
+    );
+  }
+
+  Column SelectFilter2(String title, filter, TextEditingController controller,
+      List<String> listOptions) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title),
+        Expanded(
+          child: Container(
+            margin: EdgeInsets.only(bottom: 4.5, top: 4.5),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5.0),
+              border: Border.all(color: Color.fromRGBO(6, 6, 6, 1)),
+            ),
+            height: 0,
+            child: DropdownButtonFormField<String>(
+              isExpanded: true,
+              value: controller.text,
+              onChanged: (String? newValue) {
+                setState(() {
+                  controller.text = newValue ?? "";
+                  arrayFiltersAnd2
+                      .removeWhere((element) => element.containsKey(filter));
+
+                  if (newValue != 'TODO') {
+                    if (filter is String) {
+                      arrayFiltersAnd2.add({filter: newValue});
+                    } else {
+                      reemplazarValor(filter, newValue!);
+                      arrayFiltersAnd2.add(filter);
+                    }
+                    print(filter);
+                  } else {}
+
+                  loadData();
+                });
+              },
+              decoration: InputDecoration(
+                  border: UnderlineInputBorder(
+                      borderRadius: BorderRadius.circular(10))),
+              items: listOptions.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value, style: TextStyle(fontSize: 15)),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void resetFilters() {
+    fechaEntregaController.clear();
+    codigoController.clear();
+    ciudadShippingController.clear();
+    nombreShippingController.clear();
+    direccionShippingController.clear();
+    telefonoShippingController.clear();
+    cantidadTotalController.clear();
+    productoPController.clear();
+    productoExtraController.clear();
+    precioTotalController.clear();
+    comentarioController.clear();
+    statusController.clear();
+    estadoInternoController.clear();
+    estadoDevolucionController.clear();
+    costoEntregaController.clear();
+    costoDevolucionController.clear();
+    arrayFiltersAnd2.clear();
+  }
+
+//money
   calculateValues() {
     totalValoresRecibidos = 0;
     costoDeEntregas = 0;
@@ -992,6 +1480,54 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       setState(() {
         sort = false;
       });
+      data2.sort((a, b) {
+        DateTime? dateA = a['attributes'][name] != null &&
+                a['attributes'][name].toString().isNotEmpty
+            ? DateFormat("d/M/yyyy").parse(a['attributes'][name].toString())
+            : null;
+        DateTime? dateB = b['attributes'][name] != null &&
+                b['attributes'][name].toString().isNotEmpty
+            ? DateFormat("d/M/yyyy").parse(b['attributes'][name].toString())
+            : null;
+        if (dateA == null && dateB == null) {
+          return 0;
+        } else if (dateA == null) {
+          return 1;
+        } else if (dateB == null) {
+          return -1;
+        } else {
+          return dateB.compareTo(dateA);
+        }
+      });
+    } else {
+      setState(() {
+        sort = true;
+      });
+      data2.sort((a, b) {
+        DateTime? dateA = a['attributes'][name] != null &&
+                a['attributes'][name].toString().isNotEmpty
+            ? DateFormat("d/M/yyyy").parse(a['attributes'][name].toString())
+            : null;
+        DateTime? dateB = b['attributes'][name] != null &&
+                b['attributes'][name].toString().isNotEmpty
+            ? DateFormat("d/M/yyyy").parse(b['attributes'][name].toString())
+            : null;
+        if (dateA == null && dateB == null) {
+          return 0;
+        } else if (dateA == null) {
+          return -1;
+        } else if (dateB == null) {
+          return 1;
+        } else {
+          return dateA.compareTo(dateB);
+        }
+      });
+    }
+    /*
+    if (sort) {
+      setState(() {
+        sort = false;
+      });
       data.sort((a, b) {
         DateTime? dateA = a['attributes'][name] != null &&
                 a['attributes'][name].toString().isNotEmpty
@@ -1035,6 +1571,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
         }
       });
     }
+    */
   }
 
   fechaFinFechaIni() {
@@ -1193,18 +1730,32 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   }
 
   updateCounters() {
+    entregados2 = 0;
+    noEntregados2 = 0;
+    conNovedad2 = 0;
+    reagendados2 = 0;
+    enRuta2 = 0;
+
     entregados = 0;
     noEntregados = 0;
     conNovedad = 0;
     reagendados = 0;
     enRuta = 0;
+
     // programado = 0;
     setState(() {
+      // entregados2 = int.parse(dataCounters2['ENTREGADO'].toString()) ?? 0;
+      // noEntregados2 = int.parse(dataCounters2['NO ENTREGADO'].toString()) ?? 0;
+      // conNovedad2 = int.parse(dataCounters2['NOVEDAD'].toString()) ?? 0;
+      // reagendados2 = int.parse(dataCounters2['REAGENDADO'].toString()) ?? 0;
+      // enRuta2 = int.parse(dataCounters2['EN RUTA'].toString()) ?? 0;
+
       entregados = int.parse(dataCounters['ENTREGADO'].toString()) ?? 0;
       noEntregados = int.parse(dataCounters['NO ENTREGADO'].toString()) ?? 0;
       conNovedad = int.parse(dataCounters['NOVEDAD'].toString()) ?? 0;
       reagendados = int.parse(dataCounters['REAGENDADO'].toString()) ?? 0;
       enRuta = int.parse(dataCounters['EN RUTA'].toString()) ?? 0;
+
       // programado = int.parse(data['EN OFICINA'].toString()) ?? 0;
       // programado = int.parse(dataCounters['PEDIDO PROGRAMADO'].toString()) ?? 0;
     });
@@ -1504,7 +2055,12 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
 
 
 
-
+// ! **************************************************************
+// ! **************************************************************
+// ! **************************************************************
+// ! **************************************************************
+// ! **************************************************************
+// ! **************************************************************
 
 
 

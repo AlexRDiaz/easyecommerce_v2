@@ -537,6 +537,7 @@ class _TransportDeliveryHistorialState
                             },
                             fechaController,
                             'pedidoFecha.fecha'),
+
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
                           sortFunc("Fecha");
@@ -545,6 +546,7 @@ class _TransportDeliveryHistorialState
                       DataColumn2(
                         label: InputFilter(
                             'Código', 'NumeroOrden', codigoController, 'numero_orden'),
+
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
                           sortFunc("NumeroOrden");
@@ -552,6 +554,7 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter('Ciudad', 'CiudadShipping',
+
                             ciudadShippingController, 'ciudad_shipping'),
                         size: ColumnSize.L,
                         onSort: (columnIndex, ascending) {
@@ -888,7 +891,7 @@ class _TransportDeliveryHistorialState
         Text(title),
         Expanded(
             child: Container(
-          margin: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
+          margin: const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
           child: TextField(
             controller: controller,
             onChanged: (value) {
@@ -897,8 +900,8 @@ class _TransportDeliveryHistorialState
                   
                   arrayFiltersAnd.removeWhere((element) => element.containsKey(key));
                   
+
                 }
-              }
             },
             onSubmitted: (value) {
               if (value != '') {
@@ -907,7 +910,7 @@ class _TransportDeliveryHistorialState
 
               loadData();
             },
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
                 border: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(5)),
             )),

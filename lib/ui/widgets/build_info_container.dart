@@ -3,16 +3,22 @@ import 'package:flutter/material.dart';
 class BuildInfoContainer extends StatelessWidget {
   final String title;
   final String value;
+  final bool isTitleOnTop;
+
   const BuildInfoContainer(
-      {super.key, required this.title, required this.value});
+      {super.key,
+      required this.title,
+      required this.value,
+      this.isTitleOnTop = false});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(10),
-      width: 150,
+      height: 85,
+      padding: const EdgeInsets.only(top: 20),
+      width: 250,
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.black),
+        border: Border.all(color: const Color(0xFF1A2B3C)),
         borderRadius: BorderRadius.circular(10),
         color: Colors.white,
         boxShadow: [
@@ -27,23 +33,56 @@ class BuildInfoContainer extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-              color: Colors.black,
+          if (isTitleOnTop)
+            Align(
+              alignment: Alignment.center,
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
             ),
-          ),
-          SizedBox(height: 5),
+           Align(
+              alignment: Alignment.center,
+              child:
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 18,
-              color: Colors.black,
+              fontSize: 30,
+              color: Color.fromARGB(255, 22, 138, 232),
             ),
-          ),
+          ),),
+          const SizedBox(height: 5),
+
+          if (!isTitleOnTop)  Align(
+              alignment: Alignment.center,
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+            ),
+
+          // Text(
+          //   title,
+          //   style: TextStyle(
+          //     fontWeight: FontWeight.bold,
+          //     fontSize: 12,
+          //     color: Colors.black,
+          //   ),
+          // ),
+          // SizedBox(height: 5),
+          // Text(
+          //   value,
+          //   style: TextStyle(
+          //     fontWeight: FontWeight.bold,
+          //     fontSize: 18,
+          //     color: Colors.black,
+          //   ),
+          // ),
         ],
       ),
     );

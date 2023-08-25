@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
+import 'package:get/get.dart';
 import 'package:get/route_manager.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -855,7 +856,8 @@ class Connections {
     try {
     print('start: ${sharedPrefs!.getString("dateDesdeLogistica")}');
     print('end: ${sharedPrefs!.getString("dateHastaLogistica")}');
-
+    // ! ↓ esta linea argega que busqueda va hacer
+    // or.add("nombre_shipping");
     var request =
         await http.post(Uri.parse("$serverLaravel/api/pedidos-shopify/filter"),
             headers: {'Content-Type': 'application/json'},
@@ -868,6 +870,7 @@ class Connections {
               "page_number": currentPage,
               "search": ""
             }));
+    print(and);
 
     var response = await request.body;
     var decodeData = json.decode(response);
@@ -941,10 +944,32 @@ class Connections {
 
     var response = await request.body;
     var decodeData = json.decode(response);
+    // print(decodeData['data']);
     return decodeData['data'];
   }
 
   getOrdersDashboardSellers(List populate, List and) async {
+    print('start: ${sharedPrefs!.getString("dateDesdeVendedor")}');
+    print('end: ${sharedPrefs!.getString("dateHastaVendedor")}');
+
+    var request =
+        await http.post(Uri.parse("$server/api/products/dashboard/logistic"),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: json.encode({
+              "start": sharedPrefs!.getString("dateDesdeVendedor"),
+              "end": sharedPrefs!.getString("dateHastaVendedor"),
+              "populate": jsonEncode(populate),
+              "and": jsonEncode(and)
+            }));
+
+    var response = await request.body;
+    var decodeData = json.decode(response);
+    return decodeData['data'];
+  }
+
+  getOrdersDashboardSellersLaravel(List populate, List and) async {
     print('start: ${sharedPrefs!.getString("dateDesdeVendedor")}');
     print('end: ${sharedPrefs!.getString("dateHastaVendedor")}');
 
@@ -2385,8 +2410,8 @@ class Connections {
         });
       }
     }
-    print(sharedPrefs!.getString("dateDesdeVendedor"));
-    print(sharedPrefs!.getString("dateHastaVendedor"));
+    // print(sharedPrefs!.getString("dateDesdeVendedor"));
+    // print(sharedPrefs!.getString("dateHastaVendedor"));
     var request = await http.post(Uri.parse(url),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
@@ -2404,6 +2429,62 @@ class Connections {
     var decodeData = json.decode(response);
     return decodeData;
   }
+
+  getOrdersForSellerStateSearchForDateSellerLaravel(
+      code,
+      arrayFiltersOrCont,
+      arrayfiltersDefaultAnd2,
+      arrayFiltersAnd2,
+      currentPage,
+      sizePage,
+      search) async {
+    int res = 0;
+
+    List<dynamic> filtersAndAll = [];
+    filtersAndAll.addAll(arrayfiltersDefaultAnd2);
+    filtersAndAll.addAll(arrayFiltersAnd2);
+
+    print(sharedPrefs!.getString("dateDesde_Vendedor"));
+    print(sharedPrefs!.getString("dateHasta_Vendedor"));
+    print("todo and: \n $filtersAndAll");
+
+    String urlnew = "$serverLaravel/api/pedidos-shopify/filter";
+
+    try {
+      var requestlaravel = await http.post(Uri.parse(urlnew),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "start": sharedPrefs!.getString("dateDesdeVendedor"),
+            "end": sharedPrefs!.getString("dateHastaVendedor"),
+            "page_size": sizePage,
+            "page_number": currentPage,
+            "or": arrayFiltersOrCont,
+            "and": filtersAndAll,
+            "search": search
+          }));
+
+      var responselaravel = await requestlaravel.body;
+      var decodeDataL = json.decode(responselaravel);
+      int totalRes = decodeDataL['total'];
+
+      var response = await requestlaravel.body;
+      var decodeData = json.decode(response);
+
+      if (requestlaravel.statusCode != 200) {
+        res = 1;
+        print("res:" + res.toString());
+      } else {
+        print('Total_L: $totalRes');
+      }
+      print("res:" + res.toString());
+      return decodeData;
+    } catch (e) {
+      print("error!!!: $e");
+      res = 2;
+      print("res:" + res.toString());
+    }
+  }
+
 
   getOrdersForSellerStateSearchForDateTransporter(
       code,
@@ -2456,9 +2537,45 @@ class Connections {
 
     var response = await request.body;
     var decodeData = json.decode(response);
+    // print(decodeData);
     return decodeData;
   }
+  //  ! LA MIA --------- ↓↓↓
 
+  getOrdersForSellerStateSearchForDateTransporterLaravel(
+      List populate, List and, List or, currentPage, sizePage, search,sortField) async {
+    try {
+      print('start: ${sharedPrefs!.getString("dateDesdeTransportadora")}');
+      print('end: ${sharedPrefs!.getString("dateHastaTransportadora")}');
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/pedidos-shopify/filter"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "start": sharedPrefs!.getString("dateDesdeTransportadora"),
+            "end": sharedPrefs!.getString("dateHastaTransportadora"),
+            "or": or,
+            "and": and,
+            "page_size": sizePage,
+            "page_number": currentPage,
+            "search": search,
+            "sort": sortField
+          }));
+      print("sort -> $sortField");
+      print(and);
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+  // ! ******************************************************************************
   getWithdrawalSellers(code) async {
     var request = await http.get(
       Uri.parse(
