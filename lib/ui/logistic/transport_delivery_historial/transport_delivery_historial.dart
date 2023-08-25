@@ -530,29 +530,24 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         //['pedido_fecha']['Fecha']
-                        label: InputFilter(
-                            'Fecha',
-                            {
-                              'pedido_fecha': {'Fecha': 'valor'}
-                            },
-                            fechaController,
-                            'pedido_fecha'),
+                        label: InputFilter('Fecha', 'pedido_fecha.fecha',
+                            fechaController, 'pedido_fecha.fecha'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
                           sortFunc("Fecha");
                         },
                       ),
                       DataColumn2(
-                        label: InputFilter(
-                            'Código', 'NumeroOrden', codigoController, 'key'),
+                        label: InputFilter('Código', 'numero_orden',
+                            codigoController, 'numero_orden'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
                           sortFunc("NumeroOrden");
                         },
                       ),
                       DataColumn2(
-                        label: InputFilter('Ciudad', 'CiudadShipping',
-                            ciudadShippingController, 'key'),
+                        label: InputFilter('Ciudad', 'ciudad_shipping',
+                            ciudadShippingController, 'ciudad_shipping'),
                         size: ColumnSize.L,
                         onSort: (columnIndex, ascending) {
                           sortFunc("CiudadShipping");
@@ -888,42 +883,34 @@ class _TransportDeliveryHistorialState
         Text(title),
         Expanded(
             child: Container(
-          margin: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
+          margin: const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
           child: TextField(
             controller: controller,
             onChanged: (value) {
-              if (value == '') {
-                {
-                  if (filter is Map) {
-                    for (Map element in arrayFiltersAnd) {
-                      if (element.containsKey(key)) {
-                        arrayFiltersAnd.remove(element);
-                      }
-                    }
-                  } else {
-                    arrayFiltersAnd
-                        .removeWhere((element) => element.containsKey(filter));
-                  }
+                if (value != '') {
+                      arrayFiltersAnd
+                          .removeWhere((element) => element.containsKey(filter));
+              
+                }else{
+                  arrayFiltersAnd
+                          .removeWhere((element) => element.containsKey(filter));
                 }
-              }
             },
             onSubmitted: (value) {
               if (value != '') {
-                if (filter is String) {
+                  // arrayFiltersAnd.clear();
                   arrayFiltersAnd.add({
-                    filter: {"\$contains": value}
-                  });
-                } else {
-                  reemplazarValor(filter, value);
-                  print(filter);
-
-                  arrayFiltersAnd.add(filter);
+                    filter: value
+                  });         
+                }else{
+                  arrayFiltersAnd
+                          .removeWhere((element) => element.containsKey(filter));
                 }
-              }
+              // }
 
               loadData();
             },
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
                 border: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(5)),
             )),

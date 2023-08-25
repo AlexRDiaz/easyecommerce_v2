@@ -7,6 +7,7 @@ import 'package:frontend/ui/transport/delivery_status_transport/Opcion.dart';
 class OptionsWidget extends StatefulWidget {
   final List<Opcion> options;
   final Function(dynamic) function;
+  // final void Function( dynamic filtro) function;
   String currentValue;
   OptionsWidget(
       {required this.options,

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
+import 'package:get/get.dart';
 import 'package:get/route_manager.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -849,6 +850,31 @@ class Connections {
     return decodeData;
   }
 
+  getOrdersForHistorialTransportByDatesLaravel(
+      List populate, List and, List or, currentPage, sizePage, search) async {
+    print('start: ${sharedPrefs!.getString("dateDesdeLogistica")}');
+    print('end: ${sharedPrefs!.getString("dateHastaLogistica")}');
+    // ! ↓ esta linea argega que busqueda va hacer
+    // or.add("nombre_shipping");
+    var request =
+        await http.post(Uri.parse("$serverLaravel/api/pedidos-shopify/filter"),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode({
+              "start": sharedPrefs!.getString("dateDesdeLogistica"),
+              "end": sharedPrefs!.getString("dateHastaLogistica"),
+              "or": or,
+              "and": and,
+              "page_size": sizePage,
+              "page_number": currentPage,
+              "search": search
+            }));
+    print(and);
+
+    var response = await request.body;
+    var decodeData = json.decode(response);
+    // print(decodeData);
+    return decodeData;
+  }
 
   getOrdersDashboard(List populate, List and) async {
     print('start: ${sharedPrefs!.getString("dateDesdeVendedor")}');
@@ -908,6 +934,7 @@ class Connections {
 
     var response = await request.body;
     var decodeData = json.decode(response);
+    // print(decodeData['data']);
     return decodeData['data'];
   }
 
@@ -2373,8 +2400,8 @@ class Connections {
         });
       }
     }
-    print(sharedPrefs!.getString("dateDesdeVendedor"));
-    print(sharedPrefs!.getString("dateHastaVendedor"));
+    // print(sharedPrefs!.getString("dateDesdeVendedor"));
+    // print(sharedPrefs!.getString("dateHastaVendedor"));
     var request = await http.post(Uri.parse(url),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
@@ -2448,6 +2475,7 @@ class Connections {
     }
   }
 
+
   getOrdersForSellerStateSearchForDateTransporter(
       code,
       arrayFiltersOrCont,
@@ -2499,9 +2527,45 @@ class Connections {
 
     var response = await request.body;
     var decodeData = json.decode(response);
+    // print(decodeData);
     return decodeData;
   }
+  //  ! LA MIA --------- ↓↓↓
 
+  getOrdersForSellerStateSearchForDateTransporterLaravel(
+      List populate, List and, List or, currentPage, sizePage, search,sortField) async {
+    try {
+      print('start: ${sharedPrefs!.getString("dateDesdeTransportadora")}');
+      print('end: ${sharedPrefs!.getString("dateHastaTransportadora")}');
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/pedidos-shopify/filter"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "start": sharedPrefs!.getString("dateDesdeTransportadora"),
+            "end": sharedPrefs!.getString("dateHastaTransportadora"),
+            "or": or,
+            "and": and,
+            "page_size": sizePage,
+            "page_number": currentPage,
+            "search": search,
+            "sort": sortField
+          }));
+      print("sort -> $sortField");
+      print(and);
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+  // ! ******************************************************************************
   getWithdrawalSellers(code) async {
     var request = await http.get(
       Uri.parse(
