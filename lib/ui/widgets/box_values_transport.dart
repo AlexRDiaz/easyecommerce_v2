@@ -12,19 +12,26 @@ class boxValuesTransport extends StatelessWidget {
   final double costoDeEntregas;
 
   @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        BuildInfoContainer(
-          title: 'Valores recibidos:',
-          value: '\$${totalValoresRecibidos.toStringAsFixed(2)}',
+Widget build(BuildContext context) {
+  return Row(
+    children: [
+      Padding(
+        padding: const EdgeInsets.all(5), // Ajusta el valor según lo que necesites
+        child: BuildInfoContainer(
+          title: 'Valores recibidos',
+          value: '\$ ${totalValoresRecibidos.toStringAsFixed(2)}',
         ),
-        SizedBox(width: 10), // Espacio entre los contenedores
-        BuildInfoContainer(
-          title: 'Costo de envío:',
-          value: '\$${costoDeEntregas.toStringAsFixed(2)}',
+      ),
+      const SizedBox(width: 10), // Espacio entre los contenedores
+      Padding(
+        padding: const EdgeInsets.all(5), // Ajusta el valor según lo que necesites
+        child: BuildInfoContainer(
+          title: 'Costo de envío',
+          value: '\$ ${costoDeEntregas.toStringAsFixed(2)}',
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
+
 }

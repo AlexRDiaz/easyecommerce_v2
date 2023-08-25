@@ -1,8 +1,8 @@
-import 'dart:js_util';
+// ignore_for_file: unnecessary_null_comparison, use_build_context_synchronously
+
 
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
@@ -17,6 +17,8 @@ import 'package:frontend/ui/widgets/loading.dart';
 import 'package:intl/intl.dart';
 import 'package:number_paginator/number_paginator.dart';
 
+import 'package:frontend/ui/widgets/transport/data_table_model.dart';
+
 class DeliveryStatusTransport extends StatefulWidget {
   const DeliveryStatusTransport({super.key});
 
@@ -26,14 +28,10 @@ class DeliveryStatusTransport extends StatefulWidget {
 }
 
 class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
-  MyOrdersPRVTransportControllers _controllers =
+  final MyOrdersPRVTransportControllers _controllers =
       MyOrdersPRVTransportControllers();
-  List allData = [];
-
   List data = [];
-  //List<String> transporterOperators = [];
-  bool isLoadingTotalOrders = false;
-  List<DateTime?> _dates = [];
+  bool search = false;
   bool sort = false;
   String currentValue = "";
   int total = 0;
@@ -49,20 +47,38 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
   int counterLoad = 0;
   String transporterOperator = 'TODO';
   int currentPage = 1;
-  int pageSize = 70;
+  int pageSize = 75;
   int pageCount = 100;
   bool isLoading = false;
   Map dataCounters = {};
   Map valuesTransporter = {};
-  List<String> listOperators = [];
-  Color currentColor = Color.fromARGB(255, 108, 108, 109);
-  List<Map<dynamic, dynamic>> arrayFiltersAndEq = [];
+  var sortField = "";
+  Color currentColor = const Color.fromARGB(255, 108, 108, 109);
   var arrayDateRanges = [];
-  var arrayFiltersNotEq = [
-    // {'Status': 'PEDIDO PROGRAMADO'}
+
+  List<String> listOperators = [
+    'TODO',
+    'Omar',
+    'Wellintong',
+    'Eduardo',
+    'Patricio',
+    'Jeison',
+    'Raul',
+    'Julio',
+    'Byron',
+    'Javier',
+    'Fernando',
+    'Guido',
+    'Kevin',
+    'Nestor',
+    'Milton Simbaña',
+    'Noe Ordoñez',
+    'Paul',
+    'jose',
+    'Ivan Ibarra',
+    'Fernando Laina',
+    'Jhonny Ati'
   ];
-  TextEditingController operadorController =
-      TextEditingController(text: "TODO");
   List populate = [
     'transportadora.operadores.user',
     'pedido_fecha',
@@ -73,181 +89,126 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
     'users.vendedores',
     'novedades'
   ];
-  List filtersDefaultAnd = [
-    {
-      "filter": 'transportadora',
-      'value': sharedPrefs!.getString("idTransportadora").toString()
-    }
-  ];
-  List arrayFiltersAnd = [
-    // {
-    //   "transportadora": {"\$not": null}
-    // }
+  List arrayFiltersAnd = [];
+  List arrayFiltersOr = [
+    'fecha_entrega',
+    'numero_orden',
+    'nombre_shipping',
+    'ciudad_shipping',
+    'direccion_shipping',
+    'telefono_shipping',
+    'cantidad_total',
+    'producto_p',
+    'producto_extra',
+    'precio_total',
+    'observacion',
+    'comentario',
+    'status',
+    'tipo_Pago',
+    'marca_t_d',
+    'marca_t_d_l',
+    'marca_t_d_t',
+    'marca_t_i',
+    'estado_pagado',
   ];
 
-  List filtersOrCont = [
-    {'filter': 'Fecha_Entrega'},
-    {'filter': 'NumeroOrden'},
-    {'filter': 'NombreShipping'},
-    {'filter': 'CiudadShipping'},
-    {'filter': 'DireccionShipping'},
-    {'filter': 'TelefonoShipping'},
-    {'filter': 'Cantidad_Total'},
-    {'filter': 'ProductoP'},
-    {'filter': 'ProductoExtra'},
-    {'filter': 'PrecioTotal'},
-    {'filter': 'Observacion'},
-    {'filter': 'Comentario'},
-    {'filter': 'Status'},
-    {'filter': 'TipoPago'},
-    {'filter': 'Marca_T_D'},
-    {'filter': 'Marca_T_D_L'},
-    {'filter': 'Marca_T_D_T'},
-    {'filter': 'Marca_T_I'},
-    {'filter': 'Estado_Pagado'},
-  ];
+  TextEditingController operadorController =
+      TextEditingController(text: "TODO");
 
   NumberPaginatorController paginatorController = NumberPaginatorController();
 
   @override
   Future<void> didChangeDependencies() async {
     initializeDates();
-
-    loadData();
-    getOperatorsList();
+    loadData(context);
+    // getOperatorsList();
     super.didChangeDependencies();
   }
 
-  Future loadData() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getLoadingModal(context, false);
-    });
-
-    var responseValues = await Connections().getValuesTrasporter(populate, [
-      {
-        "transportadora": {"\$not": null}
-      },
-      {
-        'transportadora': {
-          'id': sharedPrefs!.getString("idTransportadora").toString()
-        }
-      }
-    ]);
-
-    var responseCounters =
-        await Connections().getOrdersDashboardTransportadora(populate, [
-      {
-        "transportadora": {"\$not": null}
-      },
-      {
-        'transportadora': {
-          'id': sharedPrefs!.getString("idTransportadora").toString()
-        }
-      }
-    ]);
-
-    var response = await Connections()
-        .getOrdersForSellerStateSearchForDateTransporter(
-            _controllers.searchController.text,
-            filtersOrCont,
-            arrayFiltersAndEq,
-            arrayFiltersNotEq,
-            filtersDefaultAnd,
-            [],
-            populate,
-            currentPage,
-            pageSize);
-
-    valuesTransporter = responseValues;
-    dataCounters = responseCounters;
-    data = response['data'];
-    total = response['meta']['total'];
-    pageCount = updateTotalPages(total, pageSize);
-
-    // print(sharedPrefs!.getString("idTransportadora").toString());
-
-    //paginate();
-
-    paginatorController.navigateToPage(0);
-
-    updateCounters();
-    calculateValues();
-
-    Future.delayed(Duration(milliseconds: 500), () {
-      Navigator.pop(context);
-    });
-    setState(() {
-      isFirst = false;
-
-      isLoading = false;
-    });
-  }
-
-  getOperatorsList() async {
-    var opertators = await Connections().getOperatorsByTransport(
-        sharedPrefs!.getString("idTransportadora").toString());
-    listOperators.add('TODO');
-    for (var operator in opertators) {
-      if (operator['user'] != null) {
-        listOperators
-            .add("${operator['user']['username']}-${operator['user']['id']}");
-      }
-    }
-    //print(listOperators);
-  }
-
-  Future loadDataNoCounts(value) async {
+  loadData(context) async {
     isLoading = true;
-    setState(() {
-      isFirst = false;
-      arrayFiltersAndEq = [];
-      if (value['titulo'] != "Total") {
-        arrayFiltersAndEq.add({
-          'filter': 'Status',
-          'value': value['titulo'] == 'Programado'
-              ? "PEDIDO PROGRAMADO"
-              : value['titulo']
-        });
-      }
-      currentColor = value['color'] as Color;
-    });
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getLoadingModal(context, false);
-    });
-    var response = [];
-    var operators = [];
     currentPage = 1;
-    response = await Connections()
-        .getOrdersForSellerStateSearchForDateTransporter(
-            _controllers.searchController.text,
-            filtersOrCont,
-            arrayFiltersAndEq,
-            arrayFiltersNotEq,
-            filtersDefaultAnd,
-            [],
-            populate,
-            1,
-            75);
 
-    allData = response;
-    pageCount = updateTotalPages(allData.length, pageSize);
-    //if (allData.isEmpty) {
+    try {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
 
-    //}
-    //paginatorController.navigateToPage(0);
+      setState(() {
+        search = false;
+      });
 
-    Future.delayed(Duration(milliseconds: 500), () {
+      var response = await Connections()
+          .getOrdersForSellerStateSearchForDateTransporterLaravel(
+              populate,
+              arrayFiltersAnd,
+              arrayFiltersOr,
+              currentPage,
+              pageSize,
+              _controllers.searchController.text,
+              sortField.toString());
+
+      // ! se usa para los contadores
+      var responseValues = await Connections().getValuesTrasporter(populate, [
+        {
+          "transportadora": {"\$not": null}
+        },
+        {
+          'transportadora': {
+            'id': sharedPrefs!.getString("idTransportadora").toString()
+          }
+        }
+      ]);
+      var responseCounters =
+          await Connections().getOrdersDashboardTransportadora(populate, [
+        {
+          "transportadora": {"\$not": null}
+        },
+        {
+          'transportadora': {
+            'id': sharedPrefs!.getString("idTransportadora").toString()
+          }
+        }
+      ]);
+      valuesTransporter = responseValues;
+
+      setState(() {
+        data = [];
+        data = response['data'];
+
+        total = response['total'];
+
+        pageCount = response['last_page'];
+        // paginateData();
+        // ! se usa para los contadores
+        dataCounters = responseCounters;
+
+        paginatorController.navigateToPage(0);
+
+        // _scrollController.jumpTo(0);
+      });
+
+      // ! AQUI SE ACTUALIZAN LOS VARLORES
+      updateCounters();
+      calculateValues();
+
+      Future.delayed(const Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
+      setState(() {
+        isFirst = false;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
       Navigator.pop(context);
-    });
-    setState(() {});
-    isFirst = false;
-    isLoading = false;
+
+      // _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
+    }
   }
+
 
   initializeDates() {
     if (sharedPrefs!.getString("dateDesdeTransportadora") == null) {
@@ -267,155 +228,219 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
   }
 
   paginateData() async {
-    setState(() {
-      isLoading = true;
-    });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getLoadingModal(context, false);
-    });
+    try {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
 
-    var response = await Connections()
-        .getOrdersForSellerStateSearchForDateTransporter(
-            _controllers.searchController.text,
-            filtersOrCont,
-            arrayFiltersAndEq,
-            arrayFiltersNotEq,
-            filtersDefaultAnd,
-            [],
-            populate,
-            currentPage,
-            pageSize);
+      setState(() {
+        search = false;
+      });
 
-    setState(() {
-      data = response['data'];
+      var response = await Connections()
+          .getOrdersForSellerStateSearchForDateTransporterLaravel(
+              populate,
+              arrayFiltersAnd,
+              arrayFiltersOr,
+              currentPage,
+              pageSize,
+              _controllers.searchController.text,
+              sortField.toString());
 
-      pageCount = updateTotalPages(response['meta']['total'], pageSize);
-    });
+      setState(() {
+        data = [];
+        data = response['data'];
 
-    Future.delayed(Duration(milliseconds: 500), () {
+        // pageCount = updateTotalPages(response['meta']['total'], pageSize);
+      });
+
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
+      // setState(() {
+      //   isFirst = false;
+
+      //   // isLoading = false;
+      // });
+    } catch (e) {
       Navigator.pop(context);
-    });
-    setState(() {
-      isFirst = false;
 
-      isLoading = false;
-    });
+      _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
+    }
   }
 
-  int updateTotalPages(int totalRegistros, int registrosPorPagina) {
-    final int totalPaginas = totalRegistros ~/ registrosPorPagina;
-    final int registrosRestantes = totalRegistros % registrosPorPagina;
-
-    return registrosRestantes > 0
-        ? totalPaginas + 1
-        : totalPaginas == 0
-            ? 1
-            : totalPaginas;
+  void _showErrorSnackBar(BuildContext context, String errorMessage) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          errorMessage,
+          style: TextStyle(color: Color.fromRGBO(7, 0, 0, 1)),
+        ),
+        backgroundColor: Color.fromARGB(255, 253, 101, 90),
+        duration: Duration(seconds: 4),
+      ),
+    );
   }
 
-  String getCurrentDate() {
-    DateTime now = DateTime.now();
-    String formattedDate =
-        "${now.day}/${now.month}/20${now.year.toString().substring(2)}";
+  // int updateTotalPages(int totalRegistros, int registrosPorPagina) {
+  //   final int totalPaginas = totalRegistros ~/ registrosPorPagina;
+  //   final int registrosRestantes = totalRegistros % registrosPorPagina;
 
-    return formattedDate;
-  }
+  //   return registrosRestantes > 0
+  //       ? totalPaginas + 1
+  //       : totalPaginas == 0
+  //           ? 1
+  //           : totalPaginas;
+  // }
+
+  // String getCurrentDate() {
+  //   DateTime now = DateTime.now();
+  //   String formattedDate =
+  //       "${now.day}/${now.month}/20${now.year.toString().substring(2)}";
+
+  //   return formattedDate;
+  // }
 
   @override
   Widget build(BuildContext context) {
-    String operatorVal = transporterOperator;
+    // String operatorVal = transporterOperator;
     List<Opcion> options = [
       Opcion(
-          icono: Icon(Icons.all_inbox),
-          titulo: 'Total',
-          filtro: 'Total',
-          valor: total,
-          color: Color.fromARGB(255, 108, 108, 109)),
-      Opcion(
-          icono: Icon(Icons.send),
-          titulo: 'Entregado',
-          filtro: 'Entregado',
-          valor: entregados,
-          color: const Color.fromARGB(255, 102, 187, 106)),
-      Opcion(
-          icono: Icon(Icons.error),
-          titulo: 'No Entregado',
-          filtro: 'No Entregado',
-          valor: noEntregados,
-          color: Color.fromARGB(255, 243, 33, 33)),
-      Opcion(
-          icono: Icon(Icons.ac_unit),
-          titulo: 'Novedad',
-          filtro: 'Novedad',
-          valor: conNovedad,
-          color: const Color.fromARGB(255, 244, 225, 57)),
-      Opcion(
-          icono: Icon(Icons.schedule),
-          titulo: 'Reagendado',
-          filtro: 'Reagendado',
-          valor: reagendados,
-          color: Color.fromARGB(255, 227, 32, 241)),
-      Opcion(
-          icono: Icon(Icons.route),
+          icono: const Icon(Icons.route),
           titulo: 'En Ruta',
           filtro: 'En Ruta',
           valor: enRuta,
           color: const Color.fromARGB(255, 33, 150, 243)),
       Opcion(
-          icono: Icon(Icons.lock_clock),
+          icono: const Icon(Icons.send),
+          titulo: 'Entregado',
+          filtro: 'Entregado',
+          valor: entregados,
+          color: const Color.fromARGB(255, 102, 187, 106)),
+      Opcion(
+          icono: const Icon(Icons.schedule),
+          titulo: 'Reagendado',
+          filtro: 'Reagendado',
+          valor: reagendados,
+          color: const Color.fromARGB(255, 227, 32, 241)),
+      Opcion(
+          icono: const Icon(Icons.lock_clock),
           titulo: 'Programado',
           filtro: 'Pedido Programado',
           valor: programado,
-          color: Color.fromARGB(255, 239, 127, 14)),
+          color: const Color.fromARGB(255, 239, 127, 14)),
+      Opcion(
+          icono: const Icon(Icons.error),
+          titulo: 'No Entregado',
+          filtro: 'No Entregado',
+          valor: noEntregados,
+          color: const Color.fromARGB(255, 243, 33, 33)),
+      Opcion(
+          icono: const Icon(Icons.campaign),
+          titulo: 'Novedad',
+          filtro: 'Novedad',
+          valor: conNovedad,
+          color: const Color.fromARGB(255, 244, 225, 57)),
+      Opcion(
+          icono: const Icon(Icons.all_inbox),
+          titulo: 'Total',
+          filtro: 'Total',
+          valor: total,
+          color: const Color.fromARGB(255, 108, 108, 109)),
     ];
 
+    Column InputFilter(String title, filter, var controller) {
+      return Column(
+        children: [
+          Text(title),
+          Expanded(
+              child: Container(
+            margin: const EdgeInsets.only(bottom: 4),
+            // margin: const EdgeInsets.only(left: 4, right: 8, top: 4, bottom: 4),
+            child: TextField(
+              style: const TextStyle(fontSize: 13.0),
+              controller: controller,
+              maxLines: 1,
+              scrollPhysics: const NeverScrollableScrollPhysics(),
+              onChanged: (value) {
+                // ! hace lo mismo solo dejar una ↓
+                // if (value != '') {
+                // arrayFiltersAnd
+                // .removeWhere((element) => element.containsKey(filter));
+
+                // }else{
+                arrayFiltersAnd
+                    .removeWhere((element) => element.containsKey(filter));
+                // }
+              },
+              onSubmitted: (value) {
+                if (value != '') {
+                  // arrayFiltersAnd.clear();
+                  arrayFiltersAnd.add({filter: value});
+                } else {
+                  arrayFiltersAnd
+                      .removeWhere((element) => element.containsKey(filter));
+                }
+                // }
+
+                loadData(context);
+              },
+              decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                      borderRadius: const BorderRadius.all(Radius.circular(5)),
+                      borderSide: BorderSide(
+                          color: controller.text.toString() != ""
+                              ? Colors.green
+                              : Colors.grey))),
+            ),
+          ))
+        ],
+      );
+    }
+
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
-        color: Colors.grey[100],
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              color: Colors.white,
-              child: responsive(
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              padding:
-                                  const EdgeInsets.only(left: 15, right: 5),
-                              child: responsive(
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: fechaFinFechaIni(),
-                                  ),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: fechaFinFechaIni(),
-                                  ),
-                                  context),
-                            ),
-                          ],
-                        ),
-                      ),
-                      boxValuesTransport(
-                        totalValoresRecibidos: totalValoresRecibidos,
-                        costoDeEntregas: costoTransportadora,
-                      ),
-                    ],
+        body: Container(
+      width: double.infinity,
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+      color: Colors.grey[100],
+      child: Column(children: [
+        Container(
+          width: double.infinity,
+          color: Colors.white,
+          child: responsive(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  boxValuesTransport(
+                    totalValoresRecibidos: totalValoresRecibidos,
+                    costoDeEntregas: costoTransportadora,
                   ),
-                  Column(
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.only(left: 15, right: 5),
-                            child: responsive(
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  boxValuesTransport(
+                    totalValoresRecibidos: totalValoresRecibidos,
+                    costoDeEntregas: costoTransportadora,
+                  ),
+                ],
+              ),
+              context),
+        ),
+        Container(
+          width: double.infinity,
+          color: Colors.white,
+          child: responsive(
+              Row(
+                children: [
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.only(left: 15, right: 5),
+                          child: responsive(
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: fechaFinFechaIni(),
@@ -424,482 +449,501 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: fechaFinFechaIni(),
                               ),
-                              context,
-                            ),
-                          ),
-                        ],
-                      ),
-                      boxValuesTransport(
-                        totalValoresRecibidos: totalValoresRecibidos,
-                        costoDeEntregas: costoTransportadora,
-                      ),
-                    ],
+                              context),
+                        ),
+                      ],
+                    ),
                   ),
-                  context),
-            ),
-            responsive(
-                Container(
-                    height: MediaQuery.of(context).size.height * 0.10,
-                    child: OptionsWidget(
-                        function: addFilter,
-                        options: options,
-                        currentValue: currentValue)),
-                Container(
-                    height: MediaQuery.of(context).size.height * 0.16,
-                    child: OptionsWidget(
-                        function: addFilter,
-                        options: options,
-                        currentValue: currentValue)),
-                context),
-            Container(
-              color: currentColor.withOpacity(0.3),
-              child: responsive(
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _modelTextField(
-                            text: "Buscar",
-                            controller: _controllers.searchController),
-                      ),
-                      Container(
-                        padding: EdgeInsets.only(left: 45, right: 15),
-                        child: ElevatedButton(
-                            style: const ButtonStyle(
-                                backgroundColor: MaterialStatePropertyAll(
-                                    Color.fromARGB(255, 67, 67, 67))),
-                            onPressed: () async {
-                              await showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return ScannerDeliveryStatusTransport(
-                                      function: OpenScannerInfo,
-                                    );
-                                  });
-                              await loadData();
-                            },
-                            child: Text(
-                              "SCANNER",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            )),
-                      ),
-                      Expanded(child: numberPaginator()),
-                    ],
+                  // boxValuesTransport(
+                  //   totalValoresRecibidos: totalValoresRecibidos,
+                  //   costoDeEntregas: costoTransportadora,
+                  // ),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.only(left: 15, right: 5),
+                          child: responsive(
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: fechaFinFechaIni(),
+                              ),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: fechaFinFechaIni(),
+                              ),
+                              context),
+                        ),
+                      ],
+                    ),
                   ),
-                  Column(
-                    children: [
-                      Container(
-                        child: _modelTextField(
-                            text: "Buscar",
-                            controller: _controllers.searchController),
-                      ),
-                      Container(
-                        padding: EdgeInsets.only(left: 45, right: 15),
-                        child: ElevatedButton(
-                            onPressed: () async {
-                              await showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return ScannerDeliveryStatusTransport(
-                                      function: OpenScannerInfo,
-                                    );
-                                  });
-                              await loadData();
-                            },
-                            child: Text(
-                              "SCANNER",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            )),
-                      ),
-                      numberPaginator()
-                    ],
-                  ),
-                  context),
-            ),
-            Expanded(
-              child: DataTable2(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: const BorderRadius.all(Radius.circular(4)),
-                    border: Border.all(color: Colors.blueGrey),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.grey,
-                        offset: Offset(
-                            0, 2), // Desplazamiento en X e Y de la sombra
-                        blurRadius: 4, // Radio de desenfoque de la sombra
-                        spreadRadius: 1, // Extensión de la sombra
-                      ),
-                    ],
-                  ),
-                  headingRowHeight: 53,
-                  showBottomBorder: true,
-                  headingTextStyle: const TextStyle(
-                      fontWeight: FontWeight.bold, color: Colors.black),
-                  dataTextStyle: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black),
-                  columnSpacing: 12,
-                  horizontalMargin: 12,
-                  minWidth: 2500,
-                  columns: [
-                    DataColumn2(
-                      label: Text('Fecha'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFuncDate("Marca_Tiempo_Envio");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Fecha de Entrega'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFuncDate("Fecha_Entrega");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Código'),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("NumeroOrden");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Nombre Cliente'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("NombreShipping");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Ciudad'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("CiudadShipping");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Dirección'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("DireccionShipping");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Teléfono Cliente'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("TelefonoShipping");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Cantidad'),
-                      size: ColumnSize.M,
-                      numeric: true,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("Cantidad_Total");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Producto'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("ProductoP");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Producto Extra'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("ProductoExtra");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Precio Total'),
-                      size: ColumnSize.M,
-                      numeric: true,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("PrecioTotal");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Observación'),
-                      size: ColumnSize.M,
-                      numeric: true,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("Observacion");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Comentario'),
-                      size: ColumnSize.M,
-                      numeric: true,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("Comentario");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Status'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("Status");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Tipo de Pago'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("TipoPago");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Sub Ruta'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFuncSubRoute();
-                      },
-                    ),
-                    DataColumn2(
-                      label: SelectFilter(
-                          'Operador',
-                          'operadore',
-                          {
-                            'user': {'username': 'valor'}
-                          },
-                          operadorController,
-                          listOperators),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFuncOperator();
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Est. Dev'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("Estado_Devolucion");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('MDT. OF.'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("Marca_T_D");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('MDT. BOD'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFuncDate("Marca_T_D_L");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('MDT. RUTA'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFuncDate("Marca_T_D_T");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('MTD. INP'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFuncDate("Marca_T_I");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Estado de Pago'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("Estado_Pagado");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('N. intentos'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {},
-                    ),
-                  ],
-                  rows: List<DataRow>.generate(
-                      data.isNotEmpty ? data.length : [].length,
-                      (index) => DataRow(cells: [
-                            DataCell(
-                                Text(data[index]['attributes']
-                                        ['Marca_Tiempo_Envio']
-                                    .toString()
-                                    .split(" ")[0]), onTap: () {
-                              showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      content: Container(
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        height:
-                                            MediaQuery.of(context).size.height,
-                                        child: Column(
-                                          children: [
-                                            Align(
-                                              alignment: Alignment.centerRight,
-                                              child: GestureDetector(
-                                                onTap: () {
-                                                  Navigator.pop(context);
-                                                },
-                                                child: Icon(Icons.close),
-                                              ),
-                                            ),
-                                            Expanded(
-                                                child:
-                                                    TransportProDeliveryHistoryDetails(
-                                              id: data[index]['id'].toString(),
-                                            ))
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  });
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['Fecha_Entrega']
-                                    .toString()), onTap: () {
-                              OpenShowDialog(context, index);
-                            }),
-                            DataCell(
-                                Text(
-                                    style: TextStyle(
-                                        color: GetColor(data[index]
-                                                ['attributes']['Status']
-                                            .toString())!),
-                                    '${data[index]['attributes']['Name_Comercial'].toString()}-${data[index]['attributes']['NumeroOrden'].toString()}'),
-                                onTap: () {
-                              OpenShowDialog(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['NombreShipping']
-                                    .toString()), onTap: () {
-                              OpenShowDialog(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['CiudadShipping']
-                                    .toString()), onTap: () {
-                              OpenShowDialog(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']
-                                        ['DireccionShipping']
-                                    .toString()), onTap: () {
-                              OpenShowDialog(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']
-                                        ['TelefonoShipping']
-                                    .toString()), onTap: () {
-                              OpenShowDialog(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['Cantidad_Total']
-                                    .toString()), onTap: () {
-                              OpenShowDialog(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['ProductoP']
-                                    .toString()),
-                                onTap: () {}),
-                            DataCell(
-                                Text(data[index]['attributes']['ProductoExtra']
-                                    .toString()), onTap: () {
-                              OpenShowDialog(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['PrecioTotal']
-                                    .toString()),
-                                onTap: () {}),
-                            DataCell(
-                                Text(data[index]['attributes']['Observacion']
-                                    .toString()), onTap: () {
-                              OpenShowDialog(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['Comentario']
-                                    .toString()), onTap: () {
-                              OpenShowDialog(context, index);
-                            }),
-                            DataCell(
-                                Text(
-                                    style: TextStyle(
-                                        color: GetColor(data[index]
-                                                ['attributes']['Status']
-                                            .toString())!),
-                                    data[index]['attributes']['Status']
-                                        .toString()), onTap: () {
-                              OpenShowDialog(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['TipoPago']
-                                    .toString()), onTap: () {
-                              OpenShowDialog(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['sub_ruta'] !=
-                                        null
-                                    ? data[index]['attributes']['sub_ruta']
-                                            ['Titulo']
-                                        .toString()
-                                    : ""), onTap: () {
-                              OpenShowDialog(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['operadore'] !=
-                                        null
-                                    ? data[index]['attributes']['operadore']
-                                        ['user']['username']
-                                    : "".toString()), onTap: () {
-                              OpenShowDialog(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']
-                                        ['Estado_Devolucion']
-                                    .toString()), onTap: () {
-                              OpenShowDialog(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['Marca_T_D']
-                                    .toString()), onTap: () {
-                              OpenShowDialog(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['Marca_T_D_L']
-                                    .toString()), onTap: () {
-                              OpenShowDialog(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['Marca_T_D_T']
-                                    .toString()), onTap: () {
-                              OpenShowDialog(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['Marca_T_I']
-                                    .toString()), onTap: () {
-                              OpenShowDialog(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['Estado_Pagado']
-                                    .toString()), onTap: () {
-                              OpenShowDialog(context, index);
-                            }),
-                            DataCell(
-                                getLengthArrayMap(
-                                    data[index]['attributes']['novedades']),
-                                onTap: () {
-                              OpenShowDialog(context, index);
-                            }),
-                          ]))),
-            ),
-          ],
+                  // boxValuesTransport(
+                  //   totalValoresRecibidos: totalValoresRecibidos,
+                  //   costoDeEntregas: costoTransportadora,
+                  // ),
+                ],
+              ),
+              context),
         ),
+        responsive(
+            Container(
+                height: MediaQuery.of(context).size.height * 0.10,
+                child: OptionsWidget(
+                    function: addFilter,
+                    options: options,
+                    currentValue: currentValue)),
+            Container(
+                height: MediaQuery.of(context).size.height * 0.10,
+                child: OptionsWidget(
+                    function: addFilter,
+                    options: options,
+                    currentValue: currentValue)),
+            context),
+        Container(
+          color: currentColor.withOpacity(0.3),
+          child: responsive(
+              Row(
+                children: [
+                  Expanded(
+                    child: _modelTextField(
+                        text: "Buscar",
+                        controller: _controllers.searchController),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.only(left: 45, right: 15),
+                    child: ElevatedButton(
+                        style: const ButtonStyle(
+                            backgroundColor: MaterialStatePropertyAll(
+                                Color.fromARGB(255, 67, 67, 67))),
+                        onPressed: () async {
+                          await showDialog(
+                              context: context,
+                              builder: (context) {
+                                return ScannerDeliveryStatusTransport(
+                                  function: OpenScannerInfo,
+                                );
+                              });
+                          await loadData(context);
+                        },
+                        child: const Text(
+                          "SCANNER",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )),
+                  ),
+                  Expanded(child: numberPaginator()),
+                ],
+              ),
+              Column(
+                children: [
+                  Container(
+                    child: _modelTextField(
+                        text: "Buscar",
+                        controller: _controllers.searchController),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.only(left: 45, right: 15),
+                    child: ElevatedButton(
+                        onPressed: () async {
+                          await showDialog(
+                              context: context,
+                              builder: (context) {
+                                return ScannerDeliveryStatusTransport(
+                                  function: OpenScannerInfo,
+                                );
+                              });
+                          await loadData(context);
+                        },
+                        child: const Text(
+                          "SCANNER",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )),
+                  ),
+                  numberPaginator()
+                ],
+              ),
+              context),
+        ),
+        Expanded(
+            child: DataTableModelPrincipal(
+                columns: getColumns(InputFilter), rows: buildDataRows(data))),
+      ]),
+    ));
+  }
+
+  // ! LISTAS DE FILAS Y COLUMNAS PARA LA TABLA
+
+  List<DataRow> buildDataRows(List data) {
+    List<DataRow> rows = [];
+
+    for (int index = 0; index < data.length; index++) {
+      DataRow row = DataRow(
+        cells: [
+          DataCell(InkWell(
+              child: Text(
+                  data[index]['marca_tiempo_envio'].toString().split(" ")[0]),
+              onTap: () {
+                OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['fecha_entrega'].toString()),
+              onTap: () {
+                OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(
+                  style: TextStyle(
+                      color: GetColor(data[index]['status'].toString())!),
+                  '${data[index]['nombre_comercial'].toString()}-${data[index]['numero_orden'].toString()}'),
+              onTap: () {
+                OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['nombre_shipping'].toString()),
+              onTap: () {
+                OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['ciudad_shipping'] != null &&
+                      data[index]['ciudad_shipping'].isNotEmpty
+                  ? data[index]['ciudad_shipping'].toString()
+                  : ""),
+              onTap: () {
+                OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['direccion_shipping'].toString()),
+              onTap: () {
+                OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['telefono_shipping'].toString()),
+              onTap: () {
+                OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['cantidad_total'].toString()),
+              onTap: () {
+                OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['productop'].toString()),
+              onTap: () {
+                OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['producto_extra'].toString()),
+              onTap: () {
+                OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['precio_total'].toString()),
+              onTap: () {
+                OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['observacion'].toString()),
+              onTap: () {
+                OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['comentario'].toString()),
+              onTap: () {
+                OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(
+                  style: TextStyle(
+                      color: GetColor(data[index]['status'].toString())!),
+                  data[index]['status'].toString()),
+              onTap: () {
+                OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['tipo_pago'].toString()),
+              onTap: () {
+                OpenShowDialog(context, index);
+              })),
+          DataCell(
+              InkWell(
+                  child: Text(data[index]['sub_ruta'] != null &&
+                          data[index]['sub_ruta'].isNotEmpty
+                      ? data[index]['sub_ruta'][0]['titulo'].toString()
+                      : "")), onTap: () {
+            OpenShowDialog(context, index);
+          }),
+          DataCell(
+              InkWell(
+                child: Text(data[index]['operadore'].toString() != null &&
+                        data[index]['operadore'].toString().isNotEmpty
+                    ? data[index]['operadore'] != null &&
+                            data[index]['operadore'].isNotEmpty &&
+                            data[index]['operadore'][0]['up_users'] != null &&
+                            data[index]['operadore'][0]['up_users']
+                                .isNotEmpty &&
+                            data[index]['operadore'][0]['up_users'][0]
+                                    ['username'] !=
+                                null
+                        ? data[index]['operadore'][0]['up_users'][0]['username']
+                        : ""
+                    : ""),
+              ), onTap: () {
+            OpenShowDialog(context, index);
+          }),
+          DataCell(InkWell(
+              child: Text(data[index]['estado_devolucion'].toString()),
+              onTap: () {
+                OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['marca_t_d'].toString()),
+              onTap: () {
+                OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['marca_t_d_l'].toString()),
+              onTap: () {
+                OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['marca_t_d_t'].toString()),
+              onTap: () {
+                OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['marca_t_i'].toString()),
+              onTap: () {
+                OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['estado_pagado'].toString()),
+              onTap: () {
+                OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: getLengthArrayMap(data[index]['novedades']),
+              onTap: () {
+                OpenShowDialog(context, index);
+              })),
+        ],
+        // onSelectChanged: (isSelected) {
+        // },
+      );
+      rows.add(row);
+    }
+
+    return rows;
+  }
+
+  List<DataColumn2> getColumns(InputFilter) {
+    return [
+      DataColumn2(
+        label: InputFilter(
+            'Fecha', 'marca_tiempo_envio', _controllers.fechaController),
+        size: ColumnSize.L,
+        onSort: (columnIndex, ascending) {
+          sortFunc("marca_tiempo_envio");
+        },
       ),
-    );
+      DataColumn2(
+        label: InputFilter('Fecha de Entrega', 'fecha_entrega',
+            _controllers.fechaentregaController),
+        size: ColumnSize.L,
+        onSort: (columnIndex, ascending) {
+          sortFunc("fecha_entrega");
+        },
+      ),
+      DataColumn2(
+        label: InputFilter(
+            'Código', 'numero_orden', _controllers.codigoController),
+        size: ColumnSize.L,
+        onSort: (columnIndex, ascending) {
+          sortFunc("numero_orden");
+        },
+      ),
+      DataColumn2(
+        label: InputFilter('Nombre Cliente', 'nombre_shipping',
+            _controllers.nombreClienteController),
+        size: ColumnSize.L,
+        onSort: (columnIndex, ascending) {
+          sortFunc("nombre_shipping");
+        },
+      ),
+      DataColumn2(
+        label: InputFilter(
+            'Ciudad', 'ciudad_shipping', _controllers.ciudadClienteController),
+        size: ColumnSize.L,
+        onSort: (columnIndex, ascending) {
+          sortFunc("ciudad_shipping");
+        },
+      ),
+      DataColumn2(
+        label: InputFilter('Dirección', 'direccion_shipping',
+            _controllers.direccionClienteController),
+        size: ColumnSize.L,
+        onSort: (columnIndex, ascending) {
+          sortFunc("direccion_shipping");
+        },
+      ),
+      DataColumn2(
+        label: InputFilter('Teléfono Cliente', 'telefono_shipping',
+            _controllers.telefonoClienteController),
+        size: ColumnSize.L,
+        onSort: (columnIndex, ascending) {
+          sortFunc("telefono_shipping");
+        },
+      ),
+      DataColumn2(
+        label: InputFilter(
+            'Cantidad', 'cantidad_total', _controllers.cantidadController),
+        size: ColumnSize.M,
+        numeric: true,
+        onSort: (columnIndex, ascending) {
+          sortFunc("cantidad_total");
+        },
+      ),
+      DataColumn2(
+        label: InputFilter(
+            'Producto', 'producto_p', _controllers.productoController),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          sortFunc("producto_p");
+        },
+      ),
+      DataColumn2(
+        label: InputFilter('Producto Extra', 'producto_extra',
+            _controllers.productoextraController),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          sortFunc("producto_extra");
+        },
+      ),
+      DataColumn2(
+        label: InputFilter(
+            'Precio Total', 'precio_total', _controllers.precioTotalController),
+        size: ColumnSize.M,
+        numeric: true,
+        onSort: (columnIndex, ascending) {
+          sortFunc("precio_total");
+        },
+      ),
+      DataColumn2(
+        label: InputFilter(
+            'Observación', 'observacion', _controllers.observacionController),
+        size: ColumnSize.M,
+        numeric: true,
+        onSort: (columnIndex, ascending) {
+          sortFunc("observacion");
+        },
+      ),
+      DataColumn2(
+        label: InputFilter(
+            'Comentario', 'comentario', _controllers.comentarioController),
+        size: ColumnSize.M,
+        numeric: true,
+        onSort: (columnIndex, ascending) {
+          sortFunc("comentario");
+        },
+      ),
+      DataColumn2(
+        label: InputFilter('Status', 'status', _controllers.statusController),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          sortFunc("status");
+        },
+      ),
+      DataColumn2(
+        label: InputFilter(
+          'Tipo de Pago',
+          'tipo_pago',
+          _controllers.tipoPagoController,
+        ),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          sortFunc("tipo_pago");
+        },
+      ),
+      DataColumn2(
+        label: InputFilter(
+          'Sub Ruta',
+          'subRuta.titulo',
+          _controllers.suRutaController,
+        ),
+        // label: const Text('Sub Ruta'),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          // ! no funciona ↓
+          // sortFunc("subRuta.titulo");
+        },
+      ),
+      DataColumn2(
+        label: SelectFilter('Operador', 'operadore.up_users.username',
+            operadorController, listOperators),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          // sortFuncOperator();
+        },
+      ),
+      DataColumn2(
+        label: InputFilter(
+            'Est. Dev', 'estado_devolucion', _controllers.estDevController),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          sortFunc("estado_devolucion");
+        },
+      ),
+      DataColumn2(
+        label:
+            InputFilter('MDT. OF.', 'marca_t_d', _controllers.mdtOfController),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          sortFunc("marca_t_d");
+        },
+      ),
+      DataColumn2(
+        label: InputFilter(
+            'MDT. BOD. ', 'marca_t_d_l', _controllers.mdtBodController),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          sortFunc("marca_t_d_l");
+        },
+      ),
+      DataColumn2(
+        label: InputFilter(
+            'MDT. RUTA', 'marca_t_d_t', _controllers.mdtRutaController),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          sortFunc("marca_t_d_t");
+        },
+      ),
+      DataColumn2(
+        label:
+            InputFilter('MTD. INP', 'marca_t_i', _controllers.mtdInpController),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          sortFunc("marca_t_i");
+        },
+      ),
+      DataColumn2(
+        label: InputFilter(
+            'Estado de Pago', 'estado_pago', _controllers.estadoPagoController),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          sortFunc("estado_pago");
+        },
+      ),
+      DataColumn2(
+        label: const Text("N. intentos"),
+        // label: InputFilter(
+        // 'N. intentos', 'novedades', nIntentosController),
+        size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {},
+      ),
+    ];
   }
 
   getLengthArrayMap(List data) {
@@ -984,11 +1028,12 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
       child: TextField(
         controller: controller,
         onSubmitted: (value) {
+          // ! aqui se debe agregar el arrayFiltersAnd.add
           // sharedPrefs!.setString("dateDesdeTransportadora", '1/1/2000');
           // sharedPrefs!.setString("dateHastaTransportadora", '1/1/2200');
           // _controllers.startDateController.text = "";
           // _controllers.endDateController.text = "";
-          loadData();
+          loadData(context);
         },
         onChanged: (value) {
           setState(() {});
@@ -1006,7 +1051,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                     });
 
                     setState(() {
-                      loadData();
+                      loadData(context);
                     });
                     Navigator.pop(context);
                   },
@@ -1028,22 +1073,13 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
     OpenScannerShowDialog(context, value);
   }
 
-  sortFunc(name) {
-    if (sort) {
-      setState(() {
-        sort = false;
-      });
-      data.sort((a, b) => b['attributes'][name]
-          .toString()
-          .compareTo(a['attributes'][name].toString()));
-    } else {
-      setState(() {
-        sort = true;
-      });
-      data.sort((a, b) => a['attributes'][name]
-          .toString()
-          .compareTo(b['attributes'][name].toString()));
-    }
+  sortFunc(filtro) {
+    setState(() {
+      // final direction = isRightClick ? "ASC" : "DESC";
+      sortField = "$filtro:DESC";
+      // print(sortField);
+      loadData(context);
+    });
   }
 
   sortFuncOperator() {
@@ -1051,74 +1087,21 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
       setState(() {
         sort = false;
       });
-      data.sort((a, b) => b['attributes']['operadore']['data']['attributes']
-              ['user']['data']['attributes']['username']
+      data.sort((a, b) => b['operadore']['data']['user']['data']['username']
           .toString()
-          .compareTo(a['attributes']['operadore']['data']['attributes']['user']
-                  ['data']['attributes']['username']
-              .toString()));
+          .compareTo(
+              a['operadore']['data']['user']['data']['username'].toString()));
     } else {
       setState(() {
         sort = true;
       });
-      data.sort((a, b) => a['attributes']['operadore']['data']['attributes']
-              ['user']['data']['attributes']['username']
+      data.sort((a, b) => a['operadore']['data']['user']['data']['username']
           .toString()
-          .compareTo(b['attributes']['operadore']['data']['attributes']['user']
-                  ['data']['attributes']['username']
-              .toString()));
+          .compareTo(
+              b['operadore']['data']['user']['data']['username'].toString()));
     }
   }
 
-  sortFuncDate(name) {
-    if (sort) {
-      setState(() {
-        sort = false;
-      });
-      data.sort((a, b) {
-        DateTime? dateA = a['attributes'][name] != null &&
-                a['attributes'][name].toString().isNotEmpty
-            ? DateFormat("d/M/yyyy").parse(a['attributes'][name].toString())
-            : null;
-        DateTime? dateB = b['attributes'][name] != null &&
-                b['attributes'][name].toString().isNotEmpty
-            ? DateFormat("d/M/yyyy").parse(b['attributes'][name].toString())
-            : null;
-        if (dateA == null && dateB == null) {
-          return 0;
-        } else if (dateA == null) {
-          return 1;
-        } else if (dateB == null) {
-          return -1;
-        } else {
-          return dateB.compareTo(dateA);
-        }
-      });
-    } else {
-      setState(() {
-        sort = true;
-      });
-      data.sort((a, b) {
-        DateTime? dateA = a['attributes'][name] != null &&
-                a['attributes'][name].toString().isNotEmpty
-            ? DateFormat("d/M/yyyy").parse(a['attributes'][name].toString())
-            : null;
-        DateTime? dateB = b['attributes'][name] != null &&
-                b['attributes'][name].toString().isNotEmpty
-            ? DateFormat("d/M/yyyy").parse(b['attributes'][name].toString())
-            : null;
-        if (dateA == null && dateB == null) {
-          return 0;
-        } else if (dateA == null) {
-          return -1;
-        } else if (dateB == null) {
-          return 1;
-        } else {
-          return dateA.compareTo(dateB);
-        }
-      });
-    }
-  }
 
   fechaFinFechaIni() {
     return [
@@ -1129,6 +1112,8 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
             icon: const Icon(Icons.calendar_month),
             onPressed: () async {
               _controllers.startDateController.text = await OpenCalendar();
+              sharedPrefs!.setString("dateDesdeTransportadora",
+                  _controllers.startDateController.text);
             },
           ),
           const Text(' - '),
@@ -1137,19 +1122,87 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
             icon: Icon(Icons.calendar_month),
             onPressed: () async {
               _controllers.endDateController.text = await OpenCalendar();
+              sharedPrefs!.setString("dateHastaTransportadora",
+                  _controllers.endDateController.text);
             },
           ),
-          ElevatedButton(
-              style: const ButtonStyle(
-                  backgroundColor: MaterialStatePropertyAll(
-                      Color.fromARGB(255, 67, 67, 67))),
-              onPressed: () async {
-                await applyDateFilter();
-              },
-              child: Text('Filtrar'))
+          Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(
+                    right: 8.0), // Agrega el espaciado izquierdo
+                child: ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(
+                      Color.fromARGB(255, 67, 67, 67),
+                    ),
+                  ),
+                  onPressed: () async {
+                    // await applyDateFilter();
+                    loadData(context);
+                  },
+                  child: Text('Filtrar'),
+                ),
+              ),
+              ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(
+                    Color.fromARGB(255, 167, 7, 7),
+                  ),
+                ),
+                onPressed: () async {
+                  // await applyDateFilter();
+                  setState(() {
+                    limpiar();
+                    loadData(context);
+                  });
+                },
+                child: const Row(
+                  // Usar un Row para combinar el icono y el texto
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.filter_alt), // Agregar el icono de filtro aquí
+                    SizedBox(width: 8), // Espacio entre el icono y el texto
+                    Text('Quitar Filtros'),
+                  ],
+                ),
+              ),
+            ],
+          )
         ],
       ),
     ];
+  }
+
+  void limpiar() {
+    setState(() {
+      sortField = "";
+    });
+    arrayFiltersAnd.clear();
+    _controllers.searchController.clear();
+    _controllers.fechaController.clear();
+    _controllers.fechaentregaController.clear();
+    _controllers.codigoController.clear();
+    _controllers.nombreClienteController.clear();
+    _controllers.ciudadClienteController.clear();
+    _controllers.direccionClienteController.clear();
+    _controllers.telefonoClienteController.clear();
+    _controllers.cantidadController.clear();
+    _controllers.productoController.clear();
+    _controllers.productoextraController.clear();
+    _controllers.precioTotalController.clear();
+    _controllers.observacionController.clear();
+    _controllers.comentarioController.clear();
+    _controllers.statusController.clear();
+    _controllers.tipoPagoController.clear();
+    _controllers.suRutaController.clear();
+    _controllers.estDevController.clear();
+    _controllers.mdtOfController.clear();
+    _controllers.mdtBodController.clear();
+    _controllers.mdtRutaController.clear();
+    _controllers.mtdInpController.clear();
+    _controllers.estadoPagoController.clear();
+    // nIntentosController.clear();
   }
 
   Future<String> OpenCalendar() async {
@@ -1164,7 +1217,6 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
         weekdayLabelTextStyle: TextStyle(fontWeight: FontWeight.bold),
       ),
       dialogSize: const Size(325, 400),
-      value: _dates,
       borderRadius: BorderRadius.circular(15),
     );
 
@@ -1184,91 +1236,12 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
         String anio = componentes[2];
 
         nuevaFecha = "$dia/$mes/$anio";
+
+        // sharedPrefs!.setString("dateDesdeTransporte", nuevaFecha);
       }
     });
 
     return nuevaFecha;
-  }
-
-  Future<void> applyDateFilter() async {
-    isFirst = true;
-    arrayDateRanges = [];
-    arrayFiltersAndEq = [];
-    _controllers.searchController.text = '';
-    if (_controllers.startDateController.text != '' &&
-        _controllers.endDateController.text != '') {
-      if (compareDates(_controllers.startDateController.text,
-          _controllers.endDateController.text)) {
-        var aux = _controllers.endDateController.text;
-
-        setState(() {
-          _controllers.endDateController.text =
-              _controllers.startDateController.text;
-
-          _controllers.startDateController.text = aux;
-        });
-      }
-    }
-    arrayDateRanges.add({
-      'body_param': 'start',
-      'value': _controllers.startDateController.text != ""
-          ? _controllers.startDateController.text
-          : '1/1/1991'
-    });
-
-    arrayDateRanges.add({
-//        'filter': 'Fecha_Entrega',
-      'body_param': 'end',
-      'value': _controllers.endDateController.text != ""
-          ? _controllers.endDateController.text
-          : '1/1/2200'
-    });
-    setState(() {
-      sharedPrefs!.setString(
-          "dateDesdeTransportadora",
-          _controllers.startDateController.text != ""
-              ? _controllers.startDateController.text
-              : '1/1/2000');
-      sharedPrefs!.setString(
-          "dateHastaTransportadora",
-          _controllers.endDateController.text != ""
-              ? _controllers.endDateController.text
-              : '1/1/2200');
-    });
-    await loadData();
-    calculateValues();
-    isFirst = false;
-  }
-
-  bool compareDates(String string1, String string2) {
-    List<String> parts1 = string1.split('/');
-    List<String> parts2 = string2.split('/');
-
-    int day1 = int.parse(parts1[0]);
-    int month1 = int.parse(parts1[1]);
-    int year1 = int.parse(parts1[2]);
-
-    int day2 = int.parse(parts2[0]);
-    int month2 = int.parse(parts2[1]);
-    int year2 = int.parse(parts2[2]);
-
-    if (year1 > year2) {
-      return true;
-    } else if (year1 < year2) {
-      return false;
-    } else {
-      if (month1 > month2) {
-        return true;
-      } else if (month1 < month2) {
-        return false;
-      } else {
-        if (day1 > day2) {
-          return true;
-        } else {
-          return false;
-        }
-      }
-    }
   }
 
   updateCounters() {
@@ -1287,46 +1260,6 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
       // programado = int.parse(data['EN OFICINA'].toString()) ?? 0;
       programado = int.parse(dataCounters['PEDIDO PROGRAMADO'].toString()) ?? 0;
     });
-  }
-
-  AddFilterAndEq(value, filtro) {
-    setState(() {
-      if (value != 'TODO') {
-        bool contains = false;
-
-        for (var filter in arrayFiltersAndEq) {
-          if (filter['filter'] == filtro) {
-            contains = true;
-            break;
-          }
-        }
-        if (contains == false) {
-          arrayFiltersAndEq.add({
-            'filter': filtro,
-            'value': {
-              'user': {'username': value}
-            }
-          });
-        } else {
-          for (var filter in arrayFiltersAndEq) {
-            if (filter['filter'] == filtro) {
-              filter['value'] = {
-                'user': {'username': value}
-              };
-              break;
-            }
-          }
-        }
-      } else {
-        for (var filter in arrayFiltersAndEq) {
-          if (filter['filter'] == filtro) {
-            arrayFiltersAndEq.remove(filter);
-            break;
-          }
-        }
-      }
-    });
-    loadData();
   }
 
   Color? GetColor(state) {
@@ -1368,8 +1301,8 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
     });
   }
 
-  Column SelectFilter(String title, filter, value,
-      TextEditingController controller, List<String> listOptions) {
+  Column SelectFilter(String title, filter, TextEditingController controller,
+      List<String> listOptions) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1389,21 +1322,18 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                 setState(() {
                   controller.text = newValue ?? "";
 
-                  arrayFiltersAndEq
+                  arrayFiltersAnd
                       .removeWhere((element) => element.containsKey(filter));
 
                   if (newValue != 'TODO') {
-                    //   reemplazarValor(value, newValue!);
+                    // reemplazarValor(value, newValue!);
                     //  print(value);
 
-                    arrayFiltersAndEq.add({
-                      'operadore': {
-                        'user': {'id': newValue!.split("-")[1]}
-                      }
-                    });
+                    arrayFiltersAnd
+                        .add({'operadore.up_users.username': newValue});
                   }
 
-                  loadData();
+                  loadData(context);
                 });
               },
               decoration: InputDecoration(
@@ -1423,33 +1353,25 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
     );
   }
 
-  void reemplazarValor(Map<dynamic, dynamic> mapa, String nuevoValor) {
-    mapa.forEach((key, value) {
-      if (value is Map) {
-        reemplazarValor(value, nuevoValor);
-      } else if (key is String && value == 'valor') {
-        mapa[key] = nuevoValor;
-      }
-    });
-  }
-
   addFilter(value) {
-    arrayFiltersAndEq.removeWhere((element) => element.containsKey("Status"));
+    // arrayFiltersAndEq.removeWhere((element) => element.containsKey("Status"));
+    arrayFiltersAnd.clear();
     if (value["filtro"] != "Total") {
-      arrayFiltersAndEq.add({"Status": value["filtro"]});
+      arrayFiltersAnd.add({"status": value["filtro"]});
     }
 
     setState(() {
       currentColor = value['color'];
     });
     paginateData();
+    loadData(context);
   }
 
   NumberPaginator numberPaginator() {
     return NumberPaginator(
       config: NumberPaginatorUIConfig(
-        buttonUnselectedForegroundColor: Color.fromARGB(255, 67, 67, 67),
-        buttonSelectedBackgroundColor: Color.fromARGB(255, 67, 67, 67),
+        buttonUnselectedForegroundColor: const Color.fromARGB(255, 67, 67, 67) ,
+        buttonSelectedBackgroundColor: const Color.fromARGB(255, 67, 67, 67),
         buttonShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(5), // Customize the button shape
         ),
@@ -1472,20 +1394,37 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
       setState(() {
         sort = false;
       });
-      data.sort((a, b) => b['attributes']['sub_ruta']['data']['attributes']
-              ['Titulo']
+      data.sort((a, b) => b['sub_ruta']['data']['Titulo']
           .toString()
-          .compareTo(a['attributes']['sub_ruta']['data']['attributes']['Titulo']
-              .toString()));
+          .compareTo(a['sub_ruta']['data']['titulo'].toString()));
     } else {
       setState(() {
         sort = true;
       });
-      data.sort((a, b) => a['attributes']['sub_ruta']['data']['attributes']
-              ['Titulo']
+      data.sort((a, b) => a['sub_ruta']['data']['Titulo']
           .toString()
-          .compareTo(b['attributes']['sub_ruta']['data']['attributes']['Titulo']
-              .toString()));
+          .compareTo(b['sub_ruta']['data']['titulo'].toString()));
     }
   }
+
+//   void addFilterWithCurrentValue(String currentValue, dynamic filtro) {
+//   addFilter(currentValue, filtro);
+// }
+
+//   addFilter(value,filtro) {
+//     Map st = {"status":filtro};
+//     arrayFiltersAnd.add(st);
+//     // arrayFiltersAnd.removeWhere((element) => element.containsKey("status"!=value));
+//     // if (value["filtro"] != "Total") {
+//     //   arrayFiltersAndEq.add({"status": value});
+//     // }
+
+//     setState(() {
+//       currentColor = value['color'];
+
+//     });
+//       paginateData();
+
+//     loadData(context);
+//   }
 }
