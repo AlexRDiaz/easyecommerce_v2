@@ -851,6 +851,8 @@ class Connections {
 
   getOrdersForHistorialTransportByDatesLaravel(
       List populate, List and, List or, currentPage, sizePage, search) async {
+        int res = 0;
+    try {
     print('start: ${sharedPrefs!.getString("dateDesdeLogistica")}');
     print('end: ${sharedPrefs!.getString("dateHastaLogistica")}');
 
@@ -861,15 +863,24 @@ class Connections {
               "start": sharedPrefs!.getString("dateDesdeLogistica"),
               "end": sharedPrefs!.getString("dateHastaLogistica"),
               "or": or,
-              "and": [],
+              "and": and,
               "page_size": sizePage,
               "page_number": currentPage,
-              "search": search
+              "search": ""
             }));
 
     var response = await request.body;
     var decodeData = json.decode(response);
+    if (request.statusCode != 200) {
+      res =1;
+    }
+    print(decodeData);
     return decodeData;
+    } catch (e) {
+    print('Error en la solicitud: $e');
+    res = 2;
+  }
+  return res; 
   }
 
   getOrdersDashboard(List populate, List and) async {

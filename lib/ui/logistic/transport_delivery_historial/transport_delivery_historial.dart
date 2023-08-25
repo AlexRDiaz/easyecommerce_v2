@@ -522,7 +522,7 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter('Marca de Tiempo', 'Marca_T_I',
-                            marcaTiController, 'key'),
+                            marcaTiController, 'marca_t_i'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
                           sortFunc("Marca_T_I");
@@ -536,7 +536,7 @@ class _TransportDeliveryHistorialState
                               'pedido_fecha': {'Fecha': 'valor'}
                             },
                             fechaController,
-                            'pedido_fecha'),
+                            'pedidoFecha.fecha'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
                           sortFunc("Fecha");
@@ -544,7 +544,7 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter(
-                            'Código', 'NumeroOrden', codigoController, 'key'),
+                            'Código', 'NumeroOrden', codigoController, 'numero_orden'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
                           sortFunc("NumeroOrden");
@@ -552,7 +552,7 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter('Ciudad', 'CiudadShipping',
-                            ciudadShippingController, 'key'),
+                            ciudadShippingController, 'ciudad_shipping'),
                         size: ColumnSize.L,
                         onSort: (columnIndex, ascending) {
                           sortFunc("CiudadShipping");
@@ -560,7 +560,7 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter('Nombre Cliente', 'NombreShipping',
-                            nombreShippingController, 'key'),
+                            nombreShippingController, 'nombre_shipping'),
                         size: ColumnSize.M,
                         numeric: true,
                         onSort: (columnIndex, ascending) {
@@ -569,7 +569,7 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter('Dirección', 'DireccionShipping',
-                            direccionShippingController, 'key'),
+                            direccionShippingController, 'direccion_shipping'),
                         size: ColumnSize.M,
                         numeric: true,
                         onSort: (columnIndex, ascending) {
@@ -581,7 +581,7 @@ class _TransportDeliveryHistorialState
                             'Teléfono Cliente',
                             'TelefonoShipping',
                             telefonoShippingController,
-                            'key'),
+                            'telefono_shipping'),
                         size: ColumnSize.M,
                         numeric: true,
                         onSort: (columnIndex, ascending) {
@@ -590,7 +590,7 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter('Cantidad', 'Cantidad_Total',
-                            cantidadTotalController, 'key'),
+                            cantidadTotalController, 'cantidad_total'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
                           sortFunc("Cantidad_Total");
@@ -598,7 +598,7 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter('Producto', 'ProductoP',
-                            productoPController, 'key'),
+                            productoPController, 'producto_p'),
                         numeric: true,
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
@@ -607,7 +607,7 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter('Producto Extra', 'ProductoExtra',
-                            productoExtraController, 'key'),
+                            productoExtraController, 'producto_extra'),
                         size: ColumnSize.M,
                         numeric: true,
                         onSort: (columnIndex, ascending) {
@@ -616,7 +616,7 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter('Precio Total', 'PrecioTotal',
-                            precioTotalController, 'key'),
+                            precioTotalController, 'precio_total'),
                         size: ColumnSize.L,
                         onSort: (columnIndex, ascending) {
                           sortFunc("PrecioTotal");
@@ -624,7 +624,7 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter('Observación', 'Observacion',
-                            observacionController, 'key'),
+                            observacionController, 'observacion'),
                         size: ColumnSize.M,
                         numeric: true,
                         onSort: (columnIndex, ascending) {
@@ -633,7 +633,7 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter('Comentario', 'Comentario',
-                            comentarioController, 'key'),
+                            comentarioController, 'comentario'),
                         size: ColumnSize.L,
                         onSort: (columnIndex, ascending) {
                           sortFunc("Comentario");
@@ -650,7 +650,7 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter('Tipo de Pago', 'TipoPago',
-                            tipoPagoController, 'key'),
+                            tipoPagoController, 'tipo_pago'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
                           sortFunc("TipoPago");
@@ -665,7 +665,7 @@ class _TransportDeliveryHistorialState
                               },
                             },
                             rutaAsignadaController,
-                            'ruta'),
+                            'ruta.titulo'),
                         size: ColumnSize.S,
                         onSort: (columnIndex, ascending) {
                           sortFunc("DireccionShipping");
@@ -680,7 +680,7 @@ class _TransportDeliveryHistorialState
                               },
                             },
                             transportadoraController,
-                            'transportadora'),
+                            'transportadora.nombre'),
                         size: ColumnSize.S,
                         onSort: (columnIndex, ascending) {
                           sortFunc("DireccionShipping");
@@ -695,7 +695,7 @@ class _TransportDeliveryHistorialState
                               }
                             },
                             subRutaController,
-                            'sub_ruta'),
+                            'subRuta.titulo'),
                         size: ColumnSize.S,
                         onSort: (columnIndex, ascending) {
                           sortFunc("DireccionShipping");
@@ -712,7 +712,7 @@ class _TransportDeliveryHistorialState
                               },
                             },
                             operadorController,
-                            'operadore'),
+                            'operadore.up_users.username'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
                           sortFunc("DireccionShipping");
@@ -720,7 +720,7 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter('Fecha Entrega', 'Fecha_Entrega',
-                            fechaEntregaController, ''),
+                            fechaEntregaController, 'fecha_entrega'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
                           sortFunc("Fecha_Entrega");
@@ -733,7 +733,7 @@ class _TransportDeliveryHistorialState
                               'Tienda_Temporal': {'\$contains': 'valor'},
                             },
                             vendedorController,
-                            'Tienda_Temporal'),
+                            'users.vendedores.nombre_comercial'),
                         size: ColumnSize.M,
                         numeric: true,
                         onSort: (columnIndex, ascending) {
@@ -773,7 +773,7 @@ class _TransportDeliveryHistorialState
                               },
                             },
                             costoTransController,
-                            'transportadora'),
+                            'transportadora.costo_transportadora'),
                         size: ColumnSize.M,
                         numeric: true,
                         onSort: (columnIndex, ascending) {
@@ -789,7 +789,7 @@ class _TransportDeliveryHistorialState
                               },
                             },
                             costoOperadorController,
-                            'operadore'),
+                            'operadore.costo_operador'),
                         size: ColumnSize.M,
                         numeric: true,
                         onSort: (columnIndex, ascending) {
@@ -807,7 +807,7 @@ class _TransportDeliveryHistorialState
                               },
                             },
                             costoEntregaController,
-                            'users'),
+                            'users.vendedores.costo_envio'),
                         size: ColumnSize.M,
                         numeric: true,
                         onSort: (columnIndex, ascending) {
@@ -825,7 +825,7 @@ class _TransportDeliveryHistorialState
                               },
                             },
                             costoDevolucionController,
-                            'users'),
+                            'users.vendedores.costo_devolucion'),
                         size: ColumnSize.M,
                         numeric: true,
                         onSort: (columnIndex, ascending) {
@@ -851,7 +851,7 @@ class _TransportDeliveryHistorialState
                               'Marca_T_D': {'\$contains': 'valor'},
                             },
                             marcaTiempoDevolucionController,
-                            'Marca_T_D'),
+                            'marca_t_d'),
                         size: ColumnSize.M,
                         numeric: true,
                         onSort: (columnIndex, ascending) {
@@ -861,7 +861,7 @@ class _TransportDeliveryHistorialState
                       DataColumn2(
                         label: SelectFilter(
                             'Est. Pago Logistico',
-                            'Estado_Pagado',
+                            'estado_pago_logistica',
                             estadoPagoLogisticoController,
                             listEstadoPago),
                         size: ColumnSize.M,
@@ -894,31 +894,15 @@ class _TransportDeliveryHistorialState
             onChanged: (value) {
               if (value == '') {
                 {
-                  if (filter is Map) {
-                    for (Map element in arrayFiltersAnd) {
-                      if (element.containsKey(key)) {
-                        arrayFiltersAnd.remove(element);
-                      }
-                    }
-                  } else {
-                    arrayFiltersAnd
-                        .removeWhere((element) => element.containsKey(filter));
-                  }
+                  
+                  arrayFiltersAnd.removeWhere((element) => element.containsKey(key));
+                  
                 }
               }
             },
             onSubmitted: (value) {
               if (value != '') {
-                if (filter is String) {
-                  arrayFiltersAnd.add({
-                    filter: {"\$contains": value}
-                  });
-                } else {
-                  reemplazarValor(filter, value);
-                  print(filter);
-
-                  arrayFiltersAnd.add(filter);
-                }
+                arrayFiltersAnd.add({key: value});
               }
 
               loadData();
