@@ -91,11 +91,14 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
     'users.vendedores',
     'novedades'
   ];
-  List arrayFiltersAnd = [
+  List arrayFiltersAnd = [];
+  List arrayFiltersDefaultAnd = [
     {
       'transportadora.transportadora_id':
           sharedPrefs!.getString("idTransportadora").toString()
-    }
+    },
+    {'estado_logistico': "ENVIADO"},
+    {'estado_interno': "CONFIRMADO"}
   ];
   List arrayFiltersOr = [
     'fecha_entrega',
@@ -149,6 +152,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
           .getOrdersForSellerStateSearchForDateTransporterLaravel(
               populate,
               arrayFiltersAnd,
+              arrayFiltersDefaultAnd,
               arrayFiltersOr,
               currentPage,
               pageSize,
@@ -168,6 +172,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
       var responseCounters = await Connections().getOrdersCountersTransport(
         populate,
         arrayFiltersAnd,
+        arrayFiltersDefaultAnd,
         arrayFiltersOr,
       );
 
@@ -239,6 +244,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
           .getOrdersForSellerStateSearchForDateTransporterLaravel(
               populate,
               arrayFiltersAnd,
+              arrayFiltersDefaultAnd,
               arrayFiltersOr,
               currentPage,
               pageSize,
