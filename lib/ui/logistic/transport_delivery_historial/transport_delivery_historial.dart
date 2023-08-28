@@ -9,6 +9,7 @@ import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_details.dart';
+import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_details_data.dart';
 import 'package:frontend/ui/logistic/vendor_invoices/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/routes/routes.dart';
 import 'package:frontend/ui/widgets/routes/sub_routes_historial.dart';
@@ -544,9 +545,8 @@ class _TransportDeliveryHistorialState
                         },
                       ),
                       DataColumn2(
-                        label: InputFilter(
-                            'Código', 'NumeroOrden', codigoController, 'numero_orden'),
-
+                        label: InputFilter('Código', 'NumeroOrden',
+                            codigoController, 'numero_orden'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
                           sortFunc("NumeroOrden");
@@ -554,7 +554,6 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter('Ciudad', 'CiudadShipping',
-
                             ciudadShippingController, 'ciudad_shipping'),
                         size: ColumnSize.L,
                         onSort: (columnIndex, ascending) {
@@ -875,9 +874,13 @@ class _TransportDeliveryHistorialState
                       ),
                     ],
                     rows: List<DataRow>.generate(data.length, (index) {
-                      Color rowColor = Colors.black;
+                      final color =
+                          index % 2 == 0 ? Colors.grey[400] : Colors.white;
 
-                      return DataRow(cells: getRows(index));
+                      return DataRow(
+                          color: MaterialStateColor.resolveWith(
+                              (states) => color!),
+                          cells: getRows(index));
                     }))),
           ],
         ),
@@ -891,17 +894,16 @@ class _TransportDeliveryHistorialState
         Text(title),
         Expanded(
             child: Container(
-          margin: const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
+          margin: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
           child: TextField(
             controller: controller,
             onChanged: (value) {
               if (value == '') {
                 {
-                  
-                  arrayFiltersAnd.removeWhere((element) => element.containsKey(key));
-                  
-
+                  arrayFiltersAnd
+                      .removeWhere((element) => element.containsKey(key));
                 }
+              }
             },
             onSubmitted: (value) {
               if (value != '') {
@@ -910,7 +912,7 @@ class _TransportDeliveryHistorialState
 
               loadData();
             },
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
                 border: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(5)),
             )),
@@ -1499,7 +1501,7 @@ class _TransportDeliveryHistorialState
               color: rowColor,
             ),
           ), onTap: () {
-        showDialogInfo(index);
+        showDialogInfoData(data[index]);
       }),
       DataCell(
           Text(
@@ -1508,7 +1510,7 @@ class _TransportDeliveryHistorialState
               color: rowColor,
             ),
           ), onTap: () {
-        showDialogInfo(index);
+        showDialogInfoData(data[index]);
       }),
       DataCell(
           Text(
@@ -1517,7 +1519,7 @@ class _TransportDeliveryHistorialState
               color: rowColor,
             ),
           ), onTap: () {
-        showDialogInfo(index);
+        showDialogInfoData(data[index]);
       }),
       DataCell(
           Text(
@@ -1526,7 +1528,7 @@ class _TransportDeliveryHistorialState
               color: rowColor,
             ),
           ), onTap: () {
-        showDialogInfo(index);
+        showDialogInfoData(data[index]);
       }),
       DataCell(
           Text(
@@ -1535,7 +1537,7 @@ class _TransportDeliveryHistorialState
               color: rowColor,
             ),
           ), onTap: () {
-        showDialogInfo(index);
+        showDialogInfoData(data[index]);
       }),
       DataCell(
           Text(
@@ -1544,7 +1546,7 @@ class _TransportDeliveryHistorialState
               color: rowColor,
             ),
           ), onTap: () {
-        showDialogInfo(index);
+        showDialogInfoData(data[index]);
       }),
       DataCell(
           Text(
@@ -1553,7 +1555,7 @@ class _TransportDeliveryHistorialState
               color: rowColor,
             ),
           ), onTap: () {
-        showDialogInfo(index);
+        showDialogInfoData(data[index]);
       }),
       DataCell(
           Text(
@@ -1562,7 +1564,7 @@ class _TransportDeliveryHistorialState
               color: rowColor,
             ),
           ), onTap: () {
-        showDialogInfo(index);
+        showDialogInfoData(data[index]);
       }),
       DataCell(
           Text(
@@ -1587,7 +1589,7 @@ class _TransportDeliveryHistorialState
               color: rowColor,
             ),
           ), onTap: () {
-        showDialogInfo(index);
+        showDialogInfoData(data[index]);
       }),
       DataCell(
           Text(
@@ -1701,7 +1703,7 @@ class _TransportDeliveryHistorialState
               color: rowColor,
             ),
           ), onTap: () {
-        showDialogInfo(index);
+        showDialogInfoData(data[index]);
       }),
       DataCell(
           Text(
@@ -1727,7 +1729,7 @@ class _TransportDeliveryHistorialState
               ? data[index]['users'][0]['vendedores'][0]['costo_devolucion']
                   .toString()
               : ""), onTap: () {
-        showDialogInfo(index);
+        showDialogInfoData(data[index]);
       }),
       DataCell(
           Text(
@@ -1736,7 +1738,7 @@ class _TransportDeliveryHistorialState
               color: rowColor,
             ),
           ), onTap: () {
-        showDialogInfo(index);
+        showDialogInfoData(data[index]);
       }),
       DataCell(
           Text(
@@ -1753,9 +1755,40 @@ class _TransportDeliveryHistorialState
               color: rowColor,
             ),
           ), onTap: () {
-        showDialogInfo(index);
+        showDialogInfoData(data[index]);
       }),
     ];
+  }
+
+  Future<dynamic> showDialogInfoData(data) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Container(
+              width: MediaQuery.of(context).size.width * 0.4,
+              height: MediaQuery.of(context).size.height,
+              child: Column(
+                children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                        paginateData();
+                      },
+                      child: Icon(Icons.close),
+                    ),
+                  ),
+                  Expanded(
+                      child: TransportDeliveryHistoryDetailsData(
+                    data: data,
+                  ))
+                ],
+              ),
+            ),
+          );
+        });
   }
 
   Future<dynamic> showDialogInfo(index) {
@@ -2063,150 +2096,6 @@ class _TransportDeliveryHistorialState
       child: TextField(
         controller: controller,
         onSubmitted: (value) {
-          arrayFiltersAnd.add({
-            '\$or': [
-              {
-                'NumeroOrden': {
-                  '\$contains': _controllers.searchController.text
-                }
-              },
-              {
-                'CiudadShipping': {
-                  '\$contains': _controllers.searchController.text
-                },
-              },
-              {
-                'NombreShipping': {
-                  '\$contains': _controllers.searchController.text
-                },
-              },
-              {
-                'DireccionShipping': {
-                  '\$contains': _controllers.searchController.text
-                },
-              },
-              {
-                'TelefonoShipping': {
-                  '\$contains': _controllers.searchController.text
-                },
-              },
-              {
-                'Cantidad_Total': {
-                  '\$contains': _controllers.searchController.text
-                },
-              },
-              {
-                'ProductoP': {'\$contains': _controllers.searchController.text},
-              },
-              {
-                'ProductoExtra': {
-                  '\$contains': _controllers.searchController.text
-                },
-              },
-              {
-                'PrecioTotal': {
-                  '\$contains': _controllers.searchController.text
-                },
-              },
-              {
-                'Observacion': {
-                  '\$contains': _controllers.searchController.text
-                },
-              },
-              {
-                'Comentario': {
-                  '\$contains': _controllers.searchController.text
-                },
-              },
-              {
-                'Status': {'\$contains': _controllers.searchController.text},
-              },
-              {
-                'TipoPago': {'\$contains': _controllers.searchController.text},
-              },
-              {
-                'ruta': {
-                  'Titulo': {'\$contains': _controllers.searchController.text},
-                },
-              },
-              {
-                'transportadora': {
-                  'Nombre': {'\$contains': _controllers.searchController.text},
-                },
-              },
-              {
-                'sub_ruta': {
-                  'Titulo': {'\$contains': _controllers.searchController.text},
-                }
-              },
-              {
-                'operadore': {
-                  'user': {
-                    'username': {
-                      '\$contains': _controllers.searchController.text
-                    }
-                  },
-                },
-              },
-              {
-                'Fecha_Entrega': {
-                  '\$contains': _controllers.searchController.text
-                },
-              },
-              {
-                'Tienda_Temporal': {
-                  '\$contains': _controllers.searchController.text
-                },
-              },
-              {
-                'Estado_Interno': {
-                  '\$contains': _controllers.searchController.text
-                },
-              },
-              {
-                'Estado_Logistico': {
-                  '\$contains': _controllers.searchController.text
-                },
-              },
-              {
-                'transportadora': {
-                  'Costo_Transportadora': {
-                    '\$contains': _controllers.searchController.text
-                  }
-                },
-              },
-              {
-                'operadore': {
-                  'Costo_Operador': {
-                    '\$contains': _controllers.searchController.text
-                  }
-                },
-              },
-              {
-                'users': {
-                  'vendedores': {
-                    'CostoEnvio': {
-                      '\$contains': _controllers.searchController.text
-                    }
-                  }
-                },
-              },
-              {
-                'users': {
-                  'vendedores': {
-                    'CostoDevolucion': {
-                      '\$contains': _controllers.searchController.text
-                    }
-                  }
-                },
-              },
-              {
-                'Marca_T_D': {'\$contains': _controllers.searchController.text},
-              },
-            ]
-          });
-          //  sharedPrefs!.setString("dateDesdeLogistica", '1900');
-          //     sharedPrefs!.setString("dateHastaLogistica", '2200');
           loadData();
         },
         onChanged: (value) {
@@ -2489,6 +2378,10 @@ class _TransportDeliveryHistorialState
   NumberPaginator numberPaginator() {
     return NumberPaginator(
       config: NumberPaginatorUIConfig(
+        buttonSelectedBackgroundColor: Color.fromARGB(255, 71, 71, 71),
+        // buttonUnselectedBackgroundColor: Color.fromARGB(255, 71, 71, 71),
+        buttonSelectedForegroundColor: Colors.white,
+        buttonUnselectedForegroundColor: Colors.black,
         buttonShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(5), // Customize the button shape
         ),

@@ -1,6 +1,5 @@
 // ignore_for_file: unnecessary_null_comparison, use_build_context_synchronously
 
-
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
@@ -55,7 +54,10 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
   var sortField = "";
   Color currentColor = const Color.fromARGB(255, 108, 108, 109);
   var arrayDateRanges = [];
-
+  // {
+  //   "filter": 'transportadora',
+  //   'value': sharedPrefs!.getString("idTransportadora").toString()
+  // }
   List<String> listOperators = [
     'TODO',
     'Omar',
@@ -89,7 +91,12 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
     'users.vendedores',
     'novedades'
   ];
-  List arrayFiltersAnd = [];
+  List arrayFiltersAnd = [
+    {
+      'transportadora.transportadora_id':
+          sharedPrefs!.getString("idTransportadora").toString()
+    }
+  ];
   List arrayFiltersOr = [
     'fecha_entrega',
     'numero_orden',
@@ -148,7 +155,6 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
               _controllers.searchController.text,
               sortField.toString());
 
-      // ! se usa para los contadores
       var responseValues = await Connections().getValuesTrasporter(populate, [
         {
           "transportadora": {"\$not": null}
@@ -159,17 +165,12 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
           }
         }
       ]);
-      var responseCounters =
-          await Connections().getOrdersDashboardTransportadora(populate, [
-        {
-          "transportadora": {"\$not": null}
-        },
-        {
-          'transportadora': {
-            'id': sharedPrefs!.getString("idTransportadora").toString()
-          }
-        }
-      ]);
+      var responseCounters = await Connections().getOrdersCountersTransport(
+        populate,
+        arrayFiltersAnd,
+        arrayFiltersOr,
+      );
+
       valuesTransporter = responseValues;
 
       setState(() {
@@ -179,8 +180,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
         total = response['total'];
 
         pageCount = response['last_page'];
-        // paginateData();
-        // ! se usa para los contadores
+
         dataCounters = responseCounters;
 
         paginatorController.navigateToPage(0);
@@ -188,7 +188,6 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
         // _scrollController.jumpTo(0);
       });
 
-      // ! AQUI SE ACTUALIZAN LOS VARLORES
       updateCounters();
       calculateValues();
 
@@ -208,7 +207,6 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
       // _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
     }
   }
-
 
   initializeDates() {
     if (sharedPrefs!.getString("dateDesdeTransportadora") == null) {
@@ -251,7 +249,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
         data = [];
         data = response['data'];
 
-        // pageCount = updateTotalPages(response['meta']['total'], pageSize);
+        pageCount = response['last_page'];
       });
 
       Future.delayed(Duration(milliseconds: 500), () {
@@ -363,27 +361,18 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
               maxLines: 1,
               scrollPhysics: const NeverScrollableScrollPhysics(),
               onChanged: (value) {
-                // ! hace lo mismo solo dejar una ↓
-                // if (value != '') {
-                // arrayFiltersAnd
-                // .removeWhere((element) => element.containsKey(filter));
-
-                // }else{
                 arrayFiltersAnd
                     .removeWhere((element) => element.containsKey(filter));
-                // }
               },
               onSubmitted: (value) {
                 if (value != '') {
-                  // arrayFiltersAnd.clear();
                   arrayFiltersAnd.add({filter: value});
                 } else {
                   arrayFiltersAnd
                       .removeWhere((element) => element.containsKey(filter));
                 }
-                // }
 
-                loadData(context);
+                paginateData();
               },
               decoration: InputDecoration(
                   border: OutlineInputBorder(
@@ -598,7 +587,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
               child: Text(
                   style: TextStyle(
                       color: GetColor(data[index]['status'].toString())!),
-                  '${data[index]['nombre_comercial'].toString()}-${data[index]['numero_orden'].toString()}'),
+                  '${data[index]['name_comercial'].toString()}-${data[index]['numero_orden'].toString()}'),
               onTap: () {
                 OpenShowDialog(context, index);
               })),
@@ -1028,12 +1017,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
       child: TextField(
         controller: controller,
         onSubmitted: (value) {
-          // ! aqui se debe agregar el arrayFiltersAnd.add
-          // sharedPrefs!.setString("dateDesdeTransportadora", '1/1/2000');
-          // sharedPrefs!.setString("dateHastaTransportadora", '1/1/2200');
-          // _controllers.startDateController.text = "";
-          // _controllers.endDateController.text = "";
-          loadData(context);
+          paginateData();
         },
         onChanged: (value) {
           setState(() {});
@@ -1051,7 +1035,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                     });
 
                     setState(() {
-                      loadData(context);
+                      paginateData();
                     });
                     Navigator.pop(context);
                   },
@@ -1101,7 +1085,6 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
               b['operadore']['data']['user']['data']['username'].toString()));
     }
   }
-
 
   fechaFinFechaIni() {
     return [
@@ -1333,7 +1316,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                         .add({'operadore.up_users.username': newValue});
                   }
 
-                  loadData(context);
+                  paginateData();
                 });
               },
               decoration: InputDecoration(
@@ -1359,18 +1342,16 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
     if (value["filtro"] != "Total") {
       arrayFiltersAnd.add({"status": value["filtro"]});
     }
-
     setState(() {
       currentColor = value['color'];
     });
     paginateData();
-    loadData(context);
   }
 
   NumberPaginator numberPaginator() {
     return NumberPaginator(
       config: NumberPaginatorUIConfig(
-        buttonUnselectedForegroundColor: const Color.fromARGB(255, 67, 67, 67) ,
+        buttonUnselectedForegroundColor: const Color.fromARGB(255, 67, 67, 67),
         buttonSelectedBackgroundColor: const Color.fromARGB(255, 67, 67, 67),
         buttonShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(5), // Customize the button shape
