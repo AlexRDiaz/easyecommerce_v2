@@ -63,7 +63,7 @@ class _OptionsWidgetState extends State<OptionsWidget> {
                 children: [
                   responsive(
                       AnimatedContainer(
-                        duration: Duration(milliseconds: 200),
+                        duration: const Duration(milliseconds: 200),
                         width: selectedList[index] || hoveredList[index]
                             ? 120
                             : 110,
@@ -93,9 +93,9 @@ class _OptionsWidgetState extends State<OptionsWidget> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   widget.options[index].icono,
-                                  Text('= '),
+                                  const Text('= '),
                                   Container(
-                                      padding: EdgeInsets.all(3),
+                                      padding: const EdgeInsets.all(3),
                                       decoration: BoxDecoration(
                                           color: Colors.white,
                                           borderRadius:
@@ -107,7 +107,7 @@ class _OptionsWidgetState extends State<OptionsWidget> {
                               SizedBox(height: 5),
                               Text(
                                 widget.options[index].titulo,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12,
@@ -132,14 +132,14 @@ class _OptionsWidgetState extends State<OptionsWidget> {
                             BoxShadow(
                               color: Colors.black.withOpacity(0.3),
                               blurRadius: 5,
-                              offset: Offset(0, 3),
+                              offset: const  Offset(0, 3),
                             ),
                           ],
                         ),
                         child: Center(
                           child: Text(
                             widget.options[index].titulo,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                               fontSize: 12,
