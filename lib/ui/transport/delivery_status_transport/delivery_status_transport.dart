@@ -13,7 +13,7 @@ import 'package:frontend/ui/transport/delivery_status_transport/scanner_delivery
 import 'package:frontend/ui/transport/my_orders_prv/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/box_values_transport.dart';
 import 'package:frontend/ui/widgets/loading.dart';
-import 'package:intl/intl.dart';
+// import 'package:intl/intl.dart';
 import 'package:number_paginator/number_paginator.dart';
 
 import 'package:frontend/ui/widgets/transport/data_table_model.dart';
@@ -124,6 +124,19 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
 
   NumberPaginatorController paginatorController = NumberPaginatorController();
 
+  getOldValue(Arrayrestoration) {
+    List respaldo = [
+      {
+        'transportadora.transportadora_id':
+            sharedPrefs!.getString("idTransportadora").toString()
+      }
+    ];
+    if (Arrayrestoration) {
+      arrayFiltersAnd.clear();
+      arrayFiltersAnd = respaldo;
+    }
+  }
+
   @override
   Future<void> didChangeDependencies() async {
     initializeDates();
@@ -226,6 +239,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
   }
 
   paginateData() async {
+  // paginatorController.navigateToPage(0);
     try {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         getLoadingModal(context, false);
@@ -252,7 +266,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
         pageCount = response['last_page'];
       });
 
-      Future.delayed(Duration(milliseconds: 500), () {
+      Future.delayed( const Duration(milliseconds: 500), () {
         Navigator.pop(context);
       });
       // setState(() {
@@ -371,8 +385,8 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                   arrayFiltersAnd
                       .removeWhere((element) => element.containsKey(filter));
                 }
-
-                paginateData();
+                paginatorController.navigateToPage(0);
+                // paginateData();
               },
               decoration: InputDecoration(
                   border: OutlineInputBorder(
@@ -1019,9 +1033,6 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
         onSubmitted: (value) {
           paginateData();
         },
-        onChanged: (value) {
-          setState(() {});
-        },
         style: TextStyle(fontWeight: FontWeight.bold),
         decoration: InputDecoration(
           fillColor: Colors.grey[500],
@@ -1122,6 +1133,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                   ),
                   onPressed: () async {
                     // await applyDateFilter();
+                    getOldValue(true);
                     loadData(context);
                   },
                   child: Text('Filtrar'),
@@ -1161,7 +1173,8 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
     setState(() {
       sortField = "";
     });
-    arrayFiltersAnd.clear();
+    getOldValue(true);
+    // arrayFiltersAnd.clear();
     _controllers.searchController.clear();
     _controllers.fechaController.clear();
     _controllers.fechaentregaController.clear();
@@ -1267,6 +1280,9 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
       case "EN OFICINA":
         color = 0xFF4B4C4B;
         break;
+      case "PEDIDO PROGRAMADO":
+        color = 0xFFEF7F0E;
+        break;
 
       default:
         color = 0xFF000000;
@@ -1337,15 +1353,27 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
   }
 
   addFilter(value) {
-    // arrayFiltersAndEq.removeWhere((element) => element.containsKey("Status"));
-    arrayFiltersAnd.clear();
     if (value["filtro"] != "Total") {
-      arrayFiltersAnd.add({"status": value["filtro"]});
+      if (arrayFiltersAnd.isNotEmpty) {
+        for (var filtro in arrayFiltersAnd) {
+          if (filtro.containsKey("status") || !filtro.containsKey("status")) {
+            limpiar();
+            arrayFiltersAnd.add({"status": value["filtro"]});
+          }
+        }
+      } else {
+        arrayFiltersAnd.add({"status": value["filtro"]});
+      }
+    }else{
+      getOldValue(true);
     }
+
     setState(() {
       currentColor = value['color'];
     });
-    paginateData();
+    // ! ↓ aqui el cambio el paginator hace que se ejecute el pagechange
+    // paginateData();
+    paginatorController.navigateToPage(0);
   }
 
   NumberPaginator numberPaginator() {
@@ -1375,7 +1403,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
       setState(() {
         sort = false;
       });
-      data.sort((a, b) => b['sub_ruta']['data']['Titulo']
+      data.sort((a, b) => b['sub_rut a']['data']['Titulo']
           .toString()
           .compareTo(a['sub_ruta']['data']['titulo'].toString()));
     } else {

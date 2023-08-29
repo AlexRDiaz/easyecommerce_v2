@@ -2667,7 +2667,7 @@ class Connections {
             "not": []
           }));
       print("sort -> $sortField");
-      print(and);
+      print("and -> $and");
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         return decodeData;
