@@ -2440,7 +2440,7 @@ class Connections {
     return decodeData['data'];
   }
 
-  getOrdersCountersSeller(List populate, List and, List or) async {
+  getOrdersCountersSeller(List populate, List and, List or, arrayFiltersNotEq) async {
     print('start: ${sharedPrefs!.getString("dateDesdeVendedor")}');
     print('end: ${sharedPrefs!.getString("dateDesdeVendedor")}');
 
@@ -2454,7 +2454,7 @@ class Connections {
           "end": sharedPrefs!.getString("dateHastaVendedor"),
           "or": or,
           "and": and,
-          "not": []
+          "not": arrayFiltersNotEq
         }));
 
     var response = await request.body;
@@ -2531,9 +2531,9 @@ class Connections {
     filtersAndAll.addAll(arrayfiltersDefaultAnd);
     filtersAndAll.addAll(arrayFiltersAnd);
 
-    print(sharedPrefs!.getString("dateDesde_Vendedor"));
-    print(sharedPrefs!.getString("dateHasta_Vendedor"));
-    print("todo and: \n $filtersAndAll");
+    print(sharedPrefs!.getString("dateDesdeVendedor"));
+    print(sharedPrefs!.getString("dateHastaVendedor"));
+    // print("todo and: \n $filtersAndAll");
 
     String urlnew = "$serverLaravel/api/pedidos-shopify/filter";
 

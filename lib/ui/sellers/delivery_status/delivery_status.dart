@@ -167,6 +167,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     'TODO',
     'PENDIENTE',
     'DEVOLUCION EN RUTA',
+    'EN BODEGA',
+    'ENTREGADO EN OFICINA'
   ];
 
   List arrayFiltersAnd = [];
@@ -190,8 +192,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       getLoadingModal(context, false);
     });
 
-    var responseCounters = await Connections()
-        .getOrdersCountersSeller(populate, arrayfiltersDefaultAnd, []);
+    var responseCounters = await Connections().getOrdersCountersSeller(
+        populate, arrayfiltersDefaultAnd, [], arrayFiltersNotEq);
 
     var responseValues = await Connections().getValuesSeller(populate, [
       {
@@ -215,15 +217,17 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
             arrayFiltersNotEq);
 
     dataCounters = responseCounters;
+    valuesTransporter = responseValues;
     data = responseLaravel['data'];
 
-    totallast = responseLaravel['total'];
+    // totallast = responseLaravel['total'];
+    totallast = dataCounters['TOTAL'];
     pageCount = responseLaravel['last_page'];
 
     paginatorController.navigateToPage(0);
 
     updateCounters();
-    // calculateValues();      revisar porque da error
+    calculateValues();
 
     Future.delayed(Duration(milliseconds: 500), () {
       Navigator.pop(context);
@@ -275,7 +279,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     setState(() {
       data = response['data'];
       pageCount = response['last_page'];
-      paginatorController.navigateToPage(0);
+      //paginatorController.navigateToPage(0);
     });
 
     Future.delayed(Duration(milliseconds: 500), () {
@@ -297,21 +301,18 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           titulo: 'Total',
           filtro: 'Total',
           valor: totallast,
-          //valor: total,
           color: Color.fromARGB(255, 108, 108, 109)),
       Opcion(
           icono: Icon(Icons.send),
           titulo: 'Entregado',
           filtro: 'Entregado',
           valor: entregados,
-          //valor: entregados,
           color: const Color.fromARGB(255, 102, 187, 106)),
       Opcion(
           icono: Icon(Icons.error),
           titulo: 'No Entregado',
           filtro: 'No Entregado',
           valor: noEntregados,
-          //valor: noEntregados,
           color: Color.fromARGB(255, 243, 33, 33)),
       Opcion(
           icono: Icon(Icons.ac_unit),
@@ -324,14 +325,12 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           titulo: 'Reagendado',
           filtro: 'Reagendado',
           valor: reagendados,
-          //valor: reagendados,
           color: Color.fromARGB(255, 227, 32, 241)),
       Opcion(
           icono: Icon(Icons.route),
           titulo: 'En Ruta',
           filtro: 'En Ruta',
           valor: enRuta,
-          //valor: enRuta,
           color: const Color.fromARGB(255, 33, 150, 243)),
     ];
 
@@ -836,17 +835,17 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
             onChanged: (value) {
               if (value == '') {
                 {
-                  arrayFiltersAnd2
+                  arrayFiltersAnd
                       .removeWhere((element) => element.containsKey(key));
                 }
               }
             },
             onSubmitted: (value) {
               if (value != '') {
-                arrayFiltersAnd2.add({key: value});
+                arrayFiltersAnd.add({key: value});
               }
 
-              loadData();
+              paginateData();
             },
             decoration: InputDecoration(
                 border: OutlineInputBorder(
@@ -878,20 +877,20 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
               onChanged: (String? newValue) {
                 setState(() {
                   controller.text = newValue ?? "";
-                  arrayFiltersAnd2
+                  arrayFiltersAnd
                       .removeWhere((element) => element.containsKey(filter));
 
                   if (newValue != 'TODO') {
                     if (filter is String) {
-                      arrayFiltersAnd2.add({filter: newValue});
+                      arrayFiltersAnd.add({filter: newValue});
                     } else {
                       reemplazarValor(filter, newValue!);
-                      arrayFiltersAnd2.add(filter);
+                      arrayFiltersAnd.add(filter);
                     }
                     print(filter);
                   } else {}
 
-                  loadData();
+                  paginateData();
                 });
               },
               decoration: InputDecoration(
@@ -922,15 +921,17 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     productoExtraController.clear();
     precioTotalController.clear();
     comentarioController.clear();
+    costoEntregaController.clear();
+    costoDevolucionController.clear();
     statusController.text = "TODO";
     estadoInternoController.text = "TODO";
+    estadoLogisticoController.text = "TODO";
     estadoDevolucionController.text = "TODO";
-    costoEntregaController.text = "TODO";
-    costoDevolucionController.text = "TODO";
-    arrayFiltersAnd2 = [];
+    arrayFiltersAnd = [];
     _controllers.searchController.text = "";
 
-    loadData();
+    //loadData();
+    paginateData();
   }
 
 //money
