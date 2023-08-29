@@ -47,7 +47,7 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
   String endDate = "";
 
   String idTransport = "";
-
+  bool isLoadingPie = false;
   List<String> transports = [];
   String? selectValueOperator = null;
   List<String> operators = [];
@@ -77,14 +77,15 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
   int currentPage = 1;
   int pageSize = 70;
   int pageCount = 100;
-  bool isLoading = false;
+  bool isLoadingBar = false;
   List<String> listOperators = [];
   Color currentColor = Color.fromARGB(255, 108, 108, 109);
   List<Map<dynamic, dynamic>> arrayFiltersAndEq = [];
   var arrayDateRanges = [];
+
   List<FilterCheckModel> filters = [
     FilterCheckModel(
-        color: Colors.red,
+        color: Color(0xFF33FF6D),
         numOfFiles: 0,
         percentage: 0,
         svgSrc: "assets/icons/Documents.svg",
@@ -92,7 +93,7 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
         filter: "ENTREGADO",
         check: false),
     FilterCheckModel(
-        color: Color.fromARGB(255, 2, 51, 22),
+        color: Color(0xFFFF3333),
         numOfFiles: 0,
         percentage: 0,
         svgSrc: "assets/icons/Documents.svg",
@@ -100,7 +101,7 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
         filter: "NO ENTREGADO",
         check: false),
     FilterCheckModel(
-        color: const Color.fromARGB(255, 76, 54, 244),
+        color: const Color(0xFFD6DC27),
         numOfFiles: 0,
         percentage: 0,
         svgSrc: "assets/icons/Documents.svg",
@@ -108,7 +109,7 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
         filter: "NOVEDAD",
         check: false),
     FilterCheckModel(
-        color: Color.fromARGB(255, 42, 163, 67),
+        color: Color(0xFFFA37BF),
         numOfFiles: 0,
         percentage: 0,
         svgSrc: "assets/icons/Documents.svg",
@@ -116,7 +117,7 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
         filter: "REAGENDADO",
         check: false),
     FilterCheckModel(
-        color: Color.fromARGB(255, 146, 76, 29),
+        color: Color(0xFF3341FF),
         numOfFiles: 0,
         percentage: 0,
         svgSrc: "assets/icons/Documents.svg",
@@ -124,7 +125,7 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
         filter: "EN RUTA",
         check: false),
     FilterCheckModel(
-        color: Color.fromARGB(255, 11, 6, 123),
+        color: Color(0xFF4B4C4B),
         numOfFiles: 0,
         percentage: 0,
         svgSrc: "assets/icons/Documents.svg",
@@ -132,7 +133,7 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
         filter: "EN OFICINA",
         check: false),
     FilterCheckModel(
-        color: Color.fromARGB(255, 146, 18, 73),
+        color: Color.fromARGB(255, 208, 102, 10),
         numOfFiles: 0,
         percentage: 0,
         svgSrc: "assets/icons/Documents.svg",
@@ -190,8 +191,6 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
   }
 
   loadConfigs() async {
-    isLoading = true;
-
     var responseOperator = [];
     setState(() {
       sellers = [];
@@ -231,36 +230,32 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
       });
     }
 
-    isLoading = false;
     setState(() {});
   }
 
   loadData() async {
-    isLoading = true;
     setState(() {
+      isLoadingPie = true;
       subFilters = [];
       sections = [];
     });
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getLoadingModal(context, false);
-    });
     var response = await Connections()
-        .getOrdersDashboardLogistic(populate, arrayFiltersAnd);
-    var responseRoutes = await Connections()
-        .getOrdersDashboardLogisticRoutes(populate, arrayFiltersAnd);
+        .getOrdersDashboardLogisticLaravel(populate, arrayFiltersAnd, []);
+
     setState(() {
       data = response;
-      dataRoutes = responseRoutes;
 
       loadCounterStates();
-      loadCounterRoute();
     });
 
-    Future.delayed(Duration(milliseconds: 500), () {
-      Navigator.pop(context);
+    setState(() {
+      isLoadingPie = false;
     });
-    isLoading = false;
+  }
+
+  loadAll() {
+    loadData();
   }
 
   bool _isMenuOpen = true;
@@ -303,70 +298,6 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
     });
   }
 
-  loadCounterRoute() {
-    int rutaId = -1;
-    int rutaEntregado = 0;
-    int rutaNoEntregado = 0;
-    int rutaReagendado = 0;
-    int rutaNovedad = 0;
-    int rutaEnRuta = 0;
-    int rutaEnOficina = 0;
-    int rutaPedidoProgramado = 0;
-    Color colors = Colors.black;
-    for (var mapa in dataRoutes) {
-      rutaId = mapa["rutaId"];
-      rutaEntregado = mapa["ENTREGADO"];
-      rutaNoEntregado = mapa["NO ENTREGADO"];
-      rutaReagendado = mapa["REAGENDADO"];
-      rutaNovedad = mapa["NOVEDAD"];
-      rutaEnRuta = mapa["EN RUTA"];
-      rutaEnOficina = mapa["EN OFICINA"];
-      rutaPedidoProgramado = mapa["PEDIDO PROGRAMADO"];
-
-      Map<String, dynamic> newMap = {
-        'x': rutaId,
-        'y1': {
-          "title": "entregado",
-          "value": rutaEntregado,
-          "color": Colors.red
-        },
-        'y2': {
-          "title": "No Entregado",
-          "value": rutaNoEntregado,
-          "color": Color.fromARGB(255, 2, 51, 22)
-        },
-        'y3': {
-          "title": "Novedad",
-          "value": rutaNovedad,
-          "color": Color.fromARGB(255, 76, 54, 244)
-        },
-        'y4': {
-          "title": "Reagendado",
-          "value": rutaReagendado,
-          "color": Color.fromARGB(255, 42, 163, 67)
-        },
-        'y5': {
-          "title": "En Ruta",
-          "value": rutaEnRuta,
-          "color": Color.fromARGB(255, 146, 76, 29)
-        },
-        'y6': {
-          "title": "En Oficina",
-          "value": rutaEnOficina,
-          "color": Color.fromARGB(255, 11, 6, 123)
-        },
-        'y7': {
-          "title": "Programado",
-          "value": rutaEntregado,
-          "color": Color.fromARGB(255, 146, 18, 73)
-        },
-        // 'color': colors
-      };
-
-      routeCounter.add(newMap);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -400,6 +331,7 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
                               GestureDetector(
                                   onTap: () {
                                     changeGraphicOptions = false;
+                                    // loadDataRoutes();
                                   },
                                   child: Tab(icon: Icon(Icons.bar_chart))),
                             ],
@@ -414,9 +346,11 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
                                     width:
                                         MediaQuery.of(context).size.width * 0.8,
                                     height: 200,
-                                    child: DynamicPieChart(
-                                      filters: filters,
-                                    )),
+                                    child: isLoadingPie
+                                        ? CustomCircularProgressIndicator()
+                                        : DynamicPieChart(
+                                            filters: filters,
+                                          )),
                                 Container(
                                     decoration: BoxDecoration(
                                         border: Border.all(color: Colors.grey),
@@ -424,7 +358,7 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
                                     width:
                                         MediaQuery.of(context).size.width * 0.8,
                                     height: 200,
-                                    child: isLoading
+                                    child: isLoadingBar
                                         ? CustomCircularProgressIndicator()
                                         : DynamicStackedColumnChart(
                                             dataList: routeSelected)),
@@ -581,11 +515,13 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
                                                   setState(() {
                                                     route['check'] = value;
                                                   });
-                                                  addCounterRoute(
-                                                      route['id'],
-                                                      route['attributes']
-                                                          ['Titulo'],
-                                                      value);
+                                                  setState(() {
+                                                    addCounterRoute(
+                                                        route['id'],
+                                                        route['attributes']
+                                                            ['Titulo'],
+                                                        value);
+                                                  });
                                                 },
                                               )
                                             ],
@@ -607,78 +543,106 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
                     },
                     icon: Icon(Icons.settings))),
             context),
-
-        // Container(
-        //   width: 1235,
-        // ),
-        // Positioned(
-        // RightSideWidget(),
-        //   bottom: 0.0,
-        //   top: 0.0,
-        //   right: 0.0,
-        // )
-        // Container(
-        //   padding: EdgeInsets.only(left: 20, right: 15, top: 20, bottom: 20),
-        //   child: InputDecorator(
-        //     decoration: InputDecoration(
-        //       labelText: 'Configuraciones',
-        //       border: OutlineInputBorder(
-        //         borderRadius: BorderRadius.circular(10.0),
-        //       ),
-        //     ),
-        //     child: Column(children: [
-        //       _dates(context),
-        //       _sellers(context),
-        //       _sellersTransport(context),
-        //       _operators(context),
-        //     ]),
-        //   ),
-        // ),
-        // Row(
-        //   mainAxisAlignment: MainAxisAlignment.start,
-        //   crossAxisAlignment: CrossAxisAlignment.start,
-        //   children: [
-        //     Container(
-        //       child: Expanded(
-        //         child: GridView.count(
-        //           crossAxisCount:
-        //               2, // Puedes cambiar a 3 si quieres tres columnas
-        //           crossAxisSpacing: 8.0,
-        //           mainAxisSpacing: 8.0,
-        //           shrinkWrap: true,
-        //           children: filters
-        //               .map((elemento) => FilterStatus(
-        //                     svgSrc: elemento.svgSrc!,
-        //                     title: elemento.title!,
-        //                     filter: elemento.filter!,
-        //                     color: elemento.color!,
-        //                     details: addTableRows,
-        //                     percentage: elemento.percentage!,
-        //                     numOfFiles: elemento.numOfFiles!,
-        //                     function: changeValue,
-        //                   ))
-        //               .toList(),
-        //         ),
-        //       ),
-        //     ),
-        //   ],
-        // )
       ],
     )));
   }
 
-  addCounterRoute(routeId, title, value) {
-    var route = routeCounter.firstWhere((route) => route['x'] == routeId);
+  addCounterRoute(routeId, title, value) async {
+    setState(() {
+      isLoadingBar = true;
+    });
     if (value) {
+      var resRoutes = await Connections()
+          .getOrdersDashboardLogisticRoutesLaravel(
+              populate, arrayFiltersAnd, routeId);
+
+      Map<String, dynamic> entregado = resRoutes.firstWhere(
+        (item) => item['status'] == 'ENTREGADO',
+        orElse: () => {'count': 0},
+      );
+      Map<String, dynamic> noEntregado = resRoutes.firstWhere(
+        (item) => item['status'] == 'NO ENTREGADO',
+        orElse: () => {'count': 0},
+      );
+
+      Map<String, dynamic> novedad = resRoutes.firstWhere(
+        (item) => item['status'] == 'NOVEDAD',
+        orElse: () => {'count': 0},
+      );
+
+      Map<String, dynamic> reagendado = resRoutes.firstWhere(
+        (item) => item['status'] == 'REAGENDADO',
+        orElse: () => {'count': 0},
+      );
+
+      Map<String, dynamic> enRuta = resRoutes.firstWhere(
+        (item) => item['status'] == 'EN RUTA',
+        orElse: () => {'count': 0},
+      );
+      Map<String, dynamic> enOficina = resRoutes.firstWhere(
+        (item) => item['status'] == 'EN OFICINA',
+        orElse: () => {'count': 0},
+      );
+      Map<String, dynamic> programado = resRoutes.firstWhere(
+        (item) => item['status'] == 'PEDIDO PROGRAMADO',
+        orElse: () => {'count': 0},
+      );
+
+      Map<String, dynamic> newMap = {
+        'x': routeId,
+        'title': title,
+        'y1': {
+          "title": "entregado",
+          "value": entregado['count'],
+          "color": Color(0xFF33FF6D)
+        },
+        'y2': {
+          "title": "No Entregado",
+          "value": noEntregado['count'],
+          "color": Color(0xFFFF3333)
+        },
+        'y3': {
+          "title": "Novedad",
+          "value": novedad['count'],
+          "color": Color(0xFFD6DC27)
+        },
+        'y4': {
+          "title": "Reagendado",
+          "value": reagendado['count'],
+          "color": Color(0xFFFA37BF)
+        },
+        'y5': {
+          "title": "En Ruta",
+          "value": enRuta['count'],
+          "color": Color(0xFF3341FF)
+        },
+        'y6': {
+          "title": "En Oficina",
+          "value": enOficina['count'],
+          "color": Color(0xFF4B4C4B)
+        },
+        'y7': {
+          "title": "Programado",
+          "value": programado['count'],
+          "color": Color.fromARGB(255, 208, 102, 10)
+        },
+        // 'color': colors
+      };
+
+      // routeCounter.add(newMap);
+
       setState(() {
-        route['title'] = title;
-        routeSelected.add(route);
+        routeSelected.add(newMap);
       });
     } else {
-      route['title'] = title;
-      routeSelected.removeWhere((route) => route['x'] == routeId);
+      routeSelected.removeWhere(
+        (element) => element['x'] == routeId,
+      );
     }
+    isLoadingBar = false;
   }
+
+  loadCounterRoute() async {}
 
   Widget _expansionPanel() {
     final List _data = [
@@ -880,7 +844,7 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
           ),
           ElevatedButton(
               onPressed: () async {
-                await loadData();
+                await loadAll();
               },
               child: Text(
                 "BUSCAR",
@@ -1000,17 +964,16 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
             .toList(),
         value: selectValueTransport,
         onChanged: (value) async {
-          arrayFiltersAnd
-              .removeWhere((element) => element.containsKey("transportadora"));
-          arrayFiltersAnd
-              .removeWhere((element) => element.containsKey("operadore"));
+          arrayFiltersAnd.removeWhere((element) =>
+              element.containsKey("transportadora.transportadora_id"));
+          arrayFiltersAnd.removeWhere(
+              (element) => element.containsKey("operadore.operadore_id"));
           setState(() {
             selectValueTransport = value as String;
             idTransport = value.split('-')[1];
             selectValueOperator = null;
-            arrayFiltersAnd.add({
-              "transportadora": {"id": idTransport}
-            });
+            arrayFiltersAnd
+                .add({"transportadora.transportadora_id": idTransport});
           });
           await loadConfigs();
           loadData();
@@ -1057,8 +1020,8 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
                             setState(() {
                               selectValueOperator = null;
                             });
-                            arrayFiltersAnd.removeWhere(
-                                (element) => element.containsKey("operadore"));
+                            arrayFiltersAnd.removeWhere((element) =>
+                                element.containsKey("operadore.operadore_id"));
                             await loadData();
                           },
                           child: Icon(Icons.close))
@@ -1071,11 +1034,10 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
           setState(() {
             selectValueOperator = value as String;
           });
-          arrayFiltersAnd
-              .removeWhere((element) => element.containsKey("operadore"));
-          arrayFiltersAnd.add({
-            "operadore": {"id": selectValueOperator!.split("-")[1]}
-          });
+          arrayFiltersAnd.removeWhere(
+              (element) => element.containsKey("operadore.operadore_id"));
+          arrayFiltersAnd.add(
+              {"operadore.operadore_id": selectValueOperator!.split("-")[1]});
           loadData();
         },
 
@@ -1121,7 +1083,7 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
                               selectValueSeller = null;
                             });
                             arrayFiltersAnd.removeWhere((element) =>
-                                element.containsKey("IdComercial"));
+                                element.containsKey("id_comercial"));
 
                             await loadData();
                           },
@@ -1135,8 +1097,8 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
           setState(() {
             //   print("id comercial:" + value!.split("-")[1]);//
             arrayFiltersAnd
-                .removeWhere((element) => element.containsKey("IdComercial"));
-            arrayFiltersAnd.add({"IdComercial": value!.split("-")[1]});
+                .removeWhere((element) => element.containsKey("id_comercial"));
+            arrayFiltersAnd.add({"id_comercial": value!.split("-")[1]});
             selectValueSeller = value as String;
           });
           loadData();
@@ -1265,7 +1227,7 @@ class CustomCircularProgressIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return const Center(
       child: CircularProgressIndicator(
         strokeWidth: 6, // Grosor de la línea
         valueColor: AlwaysStoppedAnimation<Color>(

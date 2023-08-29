@@ -7,6 +7,21 @@ getThemeApp() {
   const Color textoSecundarioColor = Color(0xFFEFEFEF);
   const Color enlacesColor = Color(0xFFF39237);
   return ThemeData(
+      textTheme: TextTheme(
+        bodyLarge: TextStyle(fontFamily: 'YourFontFamily'),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          foregroundColor: Colors.white,
+          backgroundColor:
+              Color.fromARGB(255, 71, 71, 71), // Color del texto del botón
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(6.0), // Bordes redondeados
+          ),
+          padding: EdgeInsets.symmetric(
+              horizontal: 20.0, vertical: 10.0), // Espaciado interno
+        ),
+      ),
       scaffoldBackgroundColor: Color(0xFFEFEFEF),
       dataTableTheme: DataTableThemeData(
         dataRowColor: MaterialStateColor.resolveWith((states) => fondoColor),

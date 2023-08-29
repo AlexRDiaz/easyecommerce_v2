@@ -850,40 +850,76 @@ class Connections {
     return decodeData;
   }
 
-  getOrdersForHistorialTransportByDatesLaravel(
-      List populate, List and, List or, currentPage, sizePage, search) async {
-        int res = 0;
-    try {
+  getOrdersDashboardLogisticLaravel(List populate, List and, List or) async {
     print('start: ${sharedPrefs!.getString("dateDesdeLogistica")}');
     print('end: ${sharedPrefs!.getString("dateHastaLogistica")}');
-    // ! ↓ esta linea argega que busqueda va hacer
-    // or.add("nombre_shipping");
-    var request =
-        await http.post(Uri.parse("$serverLaravel/api/pedidos-shopify/filter"),
-            headers: {'Content-Type': 'application/json'},
-            body: json.encode({
-              "start": sharedPrefs!.getString("dateDesdeLogistica"),
-              "end": sharedPrefs!.getString("dateHastaLogistica"),
-              "or": or,
-              "and": and,
-              "page_size": sizePage,
-              "page_number": currentPage,
-              "search": ""
-            }));
-    print(and);
+
+    var request = await http.post(
+        Uri.parse(
+            "$serverLaravel/api/pedidos-shopify/products/counters/logistic"),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          "start": sharedPrefs!.getString("dateDesdeLogistica"),
+          "end": sharedPrefs!.getString("dateHastaLogistica"),
+          "or": or,
+          "and": and,
+          "not": [],
+        }));
 
     var response = await request.body;
     var decodeData = json.decode(response);
-    if (request.statusCode != 200) {
-      res =1;
-    }
-    print(decodeData);
-    return decodeData;
-    } catch (e) {
-    print('Error en la solicitud: $e');
-    res = 2;
+    return decodeData['data'];
   }
-  return res; 
+
+  Future getOrderByIDHistoryLaravel(id) async {
+    var request = await http.get(
+      Uri.parse("$serverLaravel/api/pedidos-shopify/$id"),
+      headers: {'Content-Type': 'application/json'},
+    );
+    var response = await request.body;
+    var decodeData = json.decode(response);
+
+    return decodeData;
+  }
+
+  getOrdersForHistorialTransportByDatesLaravel(
+      List populate, List and, List or, currentPage, sizePage, search) async {
+    int res = 0;
+    try {
+      print('start: ${sharedPrefs!.getString("dateDesdeLogistica")}');
+      print('end: ${sharedPrefs!.getString("dateHastaLogistica")}');
+      // ! ↓ esta linea argega que busqueda va hacer
+      // or.add("nombre_shipping");
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/pedidos-shopify/filter/logistic"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "start": sharedPrefs!.getString("dateDesdeLogistica"),
+            "end": sharedPrefs!.getString("dateHastaLogistica"),
+            "or": or,
+            "and": and,
+            "not": [],
+            "sort": "",
+            "page_size": sizePage,
+            "page_number": currentPage,
+            "search": search
+          }));
+      print(and);
+
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        res = 1;
+      }
+      print(decodeData);
+      return decodeData;
+    } catch (e) {
+      print('Error en la solicitud: $e');
+      res = 2;
+    }
+    return res;
   }
 
   getOrdersDashboard(List populate, List and) async {
@@ -2376,6 +2412,56 @@ class Connections {
     return decodeData['data'];
   }
 
+  getOrdersCountersTransport(
+      List populate, List and, List defaultAnd, List or) async {
+    print('start: ${sharedPrefs!.getString("dateDesdeTransportadora")}');
+    print('end: ${sharedPrefs!.getString("dateHastaTransportadora")}');
+
+    List filtersAndAll = [];
+    filtersAndAll.addAll(and);
+
+    filtersAndAll.addAll(defaultAnd);
+
+    var request = await http.post(
+        Uri.parse("$serverLaravel/api/pedidos-shopify/products/counters"),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          "start": sharedPrefs!.getString("dateDesdeTransportadora"),
+          "end": sharedPrefs!.getString("dateHastaTransportadora"),
+          "or": or,
+          "and": filtersAndAll,
+          "not": []
+        }));
+
+    var response = await request.body;
+    var decodeData = json.decode(response);
+    return decodeData['data'];
+  }
+
+  getOrdersCountersSeller(List populate, List and, List or, arrayFiltersNotEq) async {
+    print('start: ${sharedPrefs!.getString("dateDesdeVendedor")}');
+    print('end: ${sharedPrefs!.getString("dateDesdeVendedor")}');
+
+    var request = await http.post(
+        Uri.parse("$serverLaravel/api/pedidos-shopify/products/counters"),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          "start": sharedPrefs!.getString("dateDesdeVendedor"),
+          "end": sharedPrefs!.getString("dateHastaVendedor"),
+          "or": or,
+          "and": and,
+          "not": arrayFiltersNotEq
+        }));
+
+    var response = await request.body;
+    var decodeData = json.decode(response);
+    return decodeData['data'];
+  }
+
   getOrdersForSellerStateSearchForDateSeller(
       code,
       arrayFiltersOrCont,
@@ -2433,20 +2519,21 @@ class Connections {
   getOrdersForSellerStateSearchForDateSellerLaravel(
       code,
       arrayFiltersOrCont,
-      arrayfiltersDefaultAnd2,
-      arrayFiltersAnd2,
+      arrayfiltersDefaultAnd,
+      arrayFiltersAnd,
       currentPage,
       sizePage,
-      search) async {
+      search,
+      not) async {
     int res = 0;
 
     List<dynamic> filtersAndAll = [];
-    filtersAndAll.addAll(arrayfiltersDefaultAnd2);
-    filtersAndAll.addAll(arrayFiltersAnd2);
+    filtersAndAll.addAll(arrayfiltersDefaultAnd);
+    filtersAndAll.addAll(arrayFiltersAnd);
 
-    print(sharedPrefs!.getString("dateDesde_Vendedor"));
-    print(sharedPrefs!.getString("dateHasta_Vendedor"));
-    print("todo and: \n $filtersAndAll");
+    print(sharedPrefs!.getString("dateDesdeVendedor"));
+    print(sharedPrefs!.getString("dateHastaVendedor"));
+    // print("todo and: \n $filtersAndAll");
 
     String urlnew = "$serverLaravel/api/pedidos-shopify/filter";
 
@@ -2459,6 +2546,8 @@ class Connections {
             "page_size": sizePage,
             "page_number": currentPage,
             "or": arrayFiltersOrCont,
+            "not": not,
+            "sort": "",
             "and": filtersAndAll,
             "search": search
           }));
@@ -2485,6 +2574,28 @@ class Connections {
     }
   }
 
+  getOrdersDashboardLogisticRoutesLaravel(
+      List populate, List and, routeId) async {
+    print('start: ${sharedPrefs!.getString("dateDesdeLogistica")}');
+    print('end: ${sharedPrefs!.getString("dateHastaLogistica")}');
+
+    var request = await http.post(
+        Uri.parse("$serverLaravel/api/pedidos-shopify/routes/count"),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          "start": sharedPrefs!.getString("dateDesdeLogistica"),
+          "end": sharedPrefs!.getString("dateHastaLogistica"),
+          "search": "",
+          "or": [],
+          "route_id": routeId
+        }));
+
+    var response = await request.body;
+    var decodeData = json.decode(response);
+    return decodeData['data'];
+  }
 
   getOrdersForSellerStateSearchForDateTransporter(
       code,
@@ -2543,7 +2654,18 @@ class Connections {
   //  ! LA MIA --------- ↓↓↓
 
   getOrdersForSellerStateSearchForDateTransporterLaravel(
-      List populate, List and, List or, currentPage, sizePage, search,sortField) async {
+      List populate,
+      List and,
+      List defaultAnd,
+      List or,
+      currentPage,
+      sizePage,
+      search,
+      sortField) async {
+    List filtersAndAll = [];
+    filtersAndAll.addAll(and);
+
+    filtersAndAll.addAll(defaultAnd);
     try {
       print('start: ${sharedPrefs!.getString("dateDesdeTransportadora")}');
       print('end: ${sharedPrefs!.getString("dateHastaTransportadora")}');
@@ -2554,11 +2676,12 @@ class Connections {
             "start": sharedPrefs!.getString("dateDesdeTransportadora"),
             "end": sharedPrefs!.getString("dateHastaTransportadora"),
             "or": or,
-            "and": and,
+            "and": filtersAndAll,
             "page_size": sizePage,
             "page_number": currentPage,
             "search": search,
-            "sort": sortField
+            "sort": sortField,
+            "not": []
           }));
       print("sort -> $sortField");
       print(and);
