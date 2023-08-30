@@ -953,7 +953,8 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
                               selectValueOperator = null;
                             });
                             arrayFiltersAnd.removeWhere((element) =>
-                                element.containsKey("transportadora"));
+                                element.containsKey(
+                                    "transportadora.transportadora_id"));
                             await loadConfigs();
                             loadData();
                           },

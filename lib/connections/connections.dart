@@ -2595,6 +2595,7 @@ class Connections {
           "end": sharedPrefs!.getString("dateHastaLogistica"),
           "search": "",
           "or": [],
+          "and": and,
           "route_id": routeId
         }));
 
