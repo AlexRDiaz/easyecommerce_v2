@@ -172,16 +172,9 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
               _controllers.searchController.text,
               sortField.toString());
 
-      // var responseValues = await Connections().getValuesTrasporter(populate, [
-      //   {
-      //     "transportadora": {"\$not": null}
-      //   },
-      //   {
-      //     'transportadora': {
-      //       'id': sharedPrefs!.getString("idTransportadora").toString()
-      //     }
-      //   }
-      // ]);
+      var responseValues = await Connections().getValuesTrasporter(
+          populate, arrayFiltersAnd, arrayFiltersDefaultAnd, arrayFiltersOr);
+
       var responseCounters = await Connections().getOrdersCountersTransport(
         populate,
         arrayFiltersAnd,
@@ -189,7 +182,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
         arrayFiltersOr,
       );
 
-      //     valuesTransporter = responseValues;
+      valuesTransporter = responseValues;
 
       setState(() {
         data = [];
@@ -207,7 +200,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
       });
 
       updateCounters();
-      //  calculateValues();
+      calculateValues();
 
       Future.delayed(const Duration(milliseconds: 500), () {
         Navigator.pop(context);
@@ -1300,9 +1293,9 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
   calculateValues() {
     setState(() {
       totalValoresRecibidos =
-          double.parse(valuesTransporter['totalValoresRecibido'].toString());
+          double.parse(valuesTransporter['totalValoresRecibidos'].toString());
       costoTransportadora =
-          double.parse(valuesTransporter['costoTransportadora'].toString());
+          double.parse(valuesTransporter['totalShippingCost'].toString());
     });
   }
 
