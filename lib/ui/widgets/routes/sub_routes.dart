@@ -60,7 +60,7 @@ class _SubRoutesModalState extends State<SubRoutesModal> {
     });
 
     operatorsList = await Connections()
-        .getOperatorBySubRoute(selectedValueRoute.toString().split("-")[0]);
+        .getOperatorBySubRoute(selectedValueRoute.toString().split("-")[1]);
     for (var i = 0; i < operatorsList.length; i++) {
       setState(() {
         if (operatorsList[i]['attributes']['user']['data'] != null) {

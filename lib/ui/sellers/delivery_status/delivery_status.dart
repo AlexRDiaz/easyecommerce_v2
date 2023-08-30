@@ -368,11 +368,14 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                           ],
                         ),
                       ),
-                      boxValues(
-                          totalValoresRecibidos: totalValoresRecibidos,
-                          costoDeEntregas: costoDeEntregas,
-                          devoluciones: devoluciones,
-                          utilidad: utilidad),
+                      Container(
+                        padding: EdgeInsets.all(10),
+                        child: boxValues(
+                            totalValoresRecibidos: totalValoresRecibidos,
+                            costoDeEntregas: costoDeEntregas,
+                            devoluciones: devoluciones,
+                            utilidad: utilidad),
+                      ),
                     ],
                   ),
                   Column(
@@ -429,6 +432,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       ElevatedButton.icon(
                         onPressed: () {
                           resetFilters();
+                          paginatorController.navigateToPage(0);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color.fromRGBO(255, 66, 66, 1),
@@ -491,6 +495,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                   horizontalMargin: 12,
                   minWidth: 4500,
                   columns: [
+                    // const DataColumn2(
+
+                    //     label: Text(""), size: ColumnSize.S, fixedWidth: 20),
                     DataColumn2(
                       label: InputFilter(
                           'Fecha', fechaEntregaController, 'fecha_entrega'),
@@ -671,9 +678,23 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       onSort: (columnIndex, ascending) {},
                     ),
                   ],
+                  border: TableBorder(
+                    top: BorderSide(color: Colors.grey),
+                    horizontalInside: BorderSide(color: Colors.grey),
+                    verticalInside: BorderSide(color: Colors.grey),
+                  ),
                   rows: List<DataRow>.generate(
                       data.isNotEmpty ? data.length : [].length,
                       (index) => DataRow(cells: [
+                            // DataCell(
+
+                            //  Text(
+                            //             style:
+                            //                 const TextStyle(color: Colors.blue),
+                            //             '${(index * currentPage) + 1}'),
+                            //     onTap: () {
+                            //   openDialog(context, index);
+                            // }),
                             DataCell(
                                 Row(
                                   children: [
@@ -845,7 +866,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                 arrayFiltersAnd.add({key: value});
               }
 
-              paginateData();
+              paginatorController.navigateToPage(0);
             },
             decoration: InputDecoration(
                 border: OutlineInputBorder(
@@ -930,8 +951,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     arrayFiltersAnd = [];
     _controllers.searchController.text = "";
 
-    //loadData();
-    paginateData();
+    // paginatorController.navigateToPage(0);
   }
 
 //money
@@ -962,6 +982,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   }
 
   addFilter(value) {
+    resetFilters();
+
     arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
     if (value["filtro"] != "Total") {
       arrayFiltersAnd.add({"status": value["filtro"]});
@@ -971,7 +993,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       currentColor = value['color'];
     });
 
-    paginateData();
+    paginatorController.navigateToPage(0);
   }
 
   Future<dynamic> OpenShowDialog(BuildContext context, int index) {
@@ -1045,10 +1067,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       child: TextField(
         controller: controller,
         onSubmitted: (value) {
-          paginateData();
-        },
-        onChanged: (value) {
-          setState(() {});
+          paginatorController.navigateToPage(0);
         },
         style: TextStyle(fontWeight: FontWeight.bold),
         decoration: InputDecoration(
@@ -1062,9 +1081,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       _controllers.searchController.clear();
                     });
 
-                    setState(() {
-                      paginateData();
-                    });
+                    paginatorController.navigateToPage(0);
+
                     Navigator.pop(context);
                   },
                   child: Icon(Icons.close))
@@ -1584,27 +1602,5 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
         }
       },
     );
-  }
-
-  sortFuncSubRoute() {
-    if (sort) {
-      setState(() {
-        sort = false;
-      });
-      data.sort((a, b) => b['attributes']['sub_ruta']['data']['attributes']
-              ['Titulo']
-          .toString()
-          .compareTo(a['attributes']['sub_ruta']['data']['attributes']['Titulo']
-              .toString()));
-    } else {
-      setState(() {
-        sort = true;
-      });
-      data.sort((a, b) => a['attributes']['sub_ruta']['data']['attributes']
-              ['Titulo']
-          .toString()
-          .compareTo(b['attributes']['sub_ruta']['data']['attributes']['Titulo']
-              .toString()));
-    }
   }
 }

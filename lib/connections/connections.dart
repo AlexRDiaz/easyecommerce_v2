@@ -1026,27 +1026,32 @@ class Connections {
     return decodeData['data'];
   }
 
-  getValuesTrasporter(List populate, List and) async {
-    print(
-        'startValuesTransport: ${sharedPrefs!.getString("dateDesdeTransportadora")}');
-    print(
-        'endValuesTransport: ${sharedPrefs!.getString("dateHastaTransportadora")}');
+  getValuesTrasporter(List populate, List and, List defaultAnd, List or) async {
+    print('start: ${sharedPrefs!.getString("dateDesdeTransportadora")}');
+    print('end: ${sharedPrefs!.getString("dateHastaTransportadora")}');
 
-    var request =
-        await http.post(Uri.parse("$server/api/pedidos/values/transporter/"),
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: json.encode({
-              "start": sharedPrefs!.getString("dateDesdeTransportadora"),
-              "end": sharedPrefs!.getString("dateHastaTransportadora"),
-              "populate": jsonEncode(populate),
-              "and": jsonEncode(and)
-            }));
+    List filtersAndAll = [];
+    filtersAndAll.addAll(and);
+
+    filtersAndAll.addAll(defaultAnd);
+
+    var request = await http.post(
+        Uri.parse(
+            "$serverLaravel/api/pedidos-shopify/products/values/transport"),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          "start": sharedPrefs!.getString("dateDesdeTransportadora"),
+          "end": sharedPrefs!.getString("dateHastaTransportadora"),
+          "or": or,
+          "and": filtersAndAll,
+          "not": []
+        }));
 
     var response = await request.body;
     var decodeData = json.decode(response);
-    return decodeData;
+    return decodeData['data'];
   }
 
   getValuesSeller(List populate, List and) async {
@@ -2440,7 +2445,8 @@ class Connections {
     return decodeData['data'];
   }
 
-  getOrdersCountersSeller(List populate, List and, List or, arrayFiltersNotEq) async {
+  getOrdersCountersSeller(
+      List populate, List and, List or, arrayFiltersNotEq) async {
     print('start: ${sharedPrefs!.getString("dateDesdeVendedor")}');
     print('end: ${sharedPrefs!.getString("dateDesdeVendedor")}');
 
@@ -2914,7 +2920,7 @@ class Connections {
   Future getOperatorBySubRoute(search) async {
     var request = await http.get(
       Uri.parse(
-          "$server/api/operadores?populate=sub_ruta&populate=user&filters[sub_ruta][Titulo][\$eq]=$search&pagination[limit]=-1"),
+          "$server/api/operadores?populate=sub_ruta&populate=user&filters[sub_ruta][id][\$eq]=$search&filters[transportadora][id][\$eq]=${sharedPrefs!.getString("idTransportadora").toString()}&pagination[limit]=-1"),
       headers: {'Content-Type': 'application/json'},
     );
     var response = await request.body;

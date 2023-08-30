@@ -14,8 +14,8 @@ class BuildInfoContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 85,
-      padding: const EdgeInsets.only(top: 20),
+      height: 75,
+      padding: const EdgeInsets.all(10),
       width: 250,
       decoration: BoxDecoration(
         border: Border.all(color: const Color(0xFF1A2B3C)),
@@ -39,50 +39,32 @@ class BuildInfoContainer extends StatelessWidget {
               child: Text(
                 title,
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 16,
                 ),
               ),
             ),
-           Align(
-              alignment: Alignment.center,
-              child:
-          Text(
-            value,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 30,
-              color: Color.fromARGB(255, 22, 138, 232),
+          Align(
+            alignment: Alignment.center,
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 22,
+                color: Color.fromARGB(255, 22, 138, 232),
+              ),
             ),
-          ),),
+          ),
           const SizedBox(height: 5),
-
-          if (!isTitleOnTop)  Align(
+          if (!isTitleOnTop)
+            Align(
               alignment: Alignment.center,
               child: Text(
                 title,
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 15,
                 ),
               ),
             ),
-
-          // Text(
-          //   title,
-          //   style: TextStyle(
-          //     fontWeight: FontWeight.bold,
-          //     fontSize: 12,
-          //     color: Colors.black,
-          //   ),
-          // ),
-          // SizedBox(height: 5),
-          // Text(
-          //   value,
-          //   style: TextStyle(
-          //     fontWeight: FontWeight.bold,
-          //     fontSize: 18,
-          //     color: Colors.black,
-          //   ),
-          // ),
         ],
       ),
     );

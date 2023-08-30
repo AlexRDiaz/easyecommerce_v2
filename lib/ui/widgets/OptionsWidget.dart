@@ -132,7 +132,7 @@ class _OptionsWidgetState extends State<OptionsWidget> {
                             BoxShadow(
                               color: Colors.black.withOpacity(0.3),
                               blurRadius: 5,
-                              offset: const  Offset(0, 3),
+                              offset: const Offset(0, 3),
                             ),
                           ],
                         ),

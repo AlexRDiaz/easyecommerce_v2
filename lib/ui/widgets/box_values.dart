@@ -19,17 +19,17 @@ class boxValues extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(children: [
       BuildInfoContainer(
-          title: 'Valores recibidos:',
+          title: 'Valores recibidos',
           value: '\$${totalValoresRecibidos.toStringAsFixed(2)}'),
       BuildInfoContainer(
-          title: 'Costo de envío:',
+          title: 'Costo de envío',
           value: '\$${costoDeEntregas.toStringAsFixed(2)}'),
       BuildInfoContainer(
-        title: 'Devoluciones:',
+        title: 'Devoluciones',
         value: '\$${devoluciones.toStringAsFixed(2)}',
       ),
       BuildInfoContainer(
-        title: 'Utilidad:',
+        title: 'Utilidad',
         value: '\$${utilidad.toStringAsFixed(2)}',
       ),
     ]);

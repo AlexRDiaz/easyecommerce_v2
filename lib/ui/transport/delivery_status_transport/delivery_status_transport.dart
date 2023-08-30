@@ -172,16 +172,16 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
               _controllers.searchController.text,
               sortField.toString());
 
-      var responseValues = await Connections().getValuesTrasporter(populate, [
-        {
-          "transportadora": {"\$not": null}
-        },
-        {
-          'transportadora': {
-            'id': sharedPrefs!.getString("idTransportadora").toString()
-          }
-        }
-      ]);
+      // var responseValues = await Connections().getValuesTrasporter(populate, [
+      //   {
+      //     "transportadora": {"\$not": null}
+      //   },
+      //   {
+      //     'transportadora': {
+      //       'id': sharedPrefs!.getString("idTransportadora").toString()
+      //     }
+      //   }
+      // ]);
       var responseCounters = await Connections().getOrdersCountersTransport(
         populate,
         arrayFiltersAnd,
@@ -189,7 +189,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
         arrayFiltersOr,
       );
 
-      valuesTransporter = responseValues;
+      //     valuesTransporter = responseValues;
 
       setState(() {
         data = [];
@@ -207,7 +207,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
       });
 
       updateCounters();
-      calculateValues();
+      //  calculateValues();
 
       Future.delayed(const Duration(milliseconds: 500), () {
         Navigator.pop(context);
@@ -244,7 +244,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
   }
 
   paginateData() async {
-  // paginatorController.navigateToPage(0);
+    // paginatorController.navigateToPage(0);
     try {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         getLoadingModal(context, false);
@@ -272,7 +272,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
         pageCount = response['last_page'];
       });
 
-      Future.delayed( const Duration(milliseconds: 500), () {
+      Future.delayed(const Duration(milliseconds: 500), () {
         Navigator.pop(context);
       });
       // setState(() {
@@ -1370,7 +1370,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
       } else {
         arrayFiltersAnd.add({"status": value["filtro"]});
       }
-    }else{
+    } else {
       getOldValue(true);
     }
 
