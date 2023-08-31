@@ -188,11 +188,17 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
         data = [];
         data = response['data'];
 
-        total = response['total'];
+        // total = response['total'];
 
         pageCount = response['last_page'];
+        
+        if(sortField.toString()==""){
+          dataCounters = responseCounters;
+          total = response['total'];
 
-        dataCounters = responseCounters;
+        }
+
+        // dataCounters = responseCounters;
 
         paginatorController.navigateToPage(0);
 
@@ -1149,6 +1155,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                   setState(() {
                     limpiar();
                     loadData(context);
+                    currentColor = const Color.fromARGB(255, 108, 108, 109);
                   });
                 },
                 child: const Row(
