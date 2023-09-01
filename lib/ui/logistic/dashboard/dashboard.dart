@@ -82,7 +82,10 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
   Color currentColor = Color.fromARGB(255, 108, 108, 109);
   List<Map<dynamic, dynamic>> arrayFiltersAndEq = [];
   var arrayDateRanges = [];
-
+  List arrayFiltersDefaultAnd = [
+    {'estado_logistico': "ENVIADO"},
+    {'estado_interno': "CONFIRMADO"}
+  ];
   List<FilterCheckModel> filters = [
     FilterCheckModel(
         color: Color(0xFF33FF6D),
@@ -240,8 +243,8 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
       sections = [];
     });
 
-    var response = await Connections()
-        .getOrdersDashboardLogisticLaravel(populate, arrayFiltersAnd, []);
+    var response = await Connections().getOrdersDashboardLogisticLaravel(
+        populate, arrayFiltersAnd, arrayFiltersDefaultAnd, []);
 
     setState(() {
       data = response;
@@ -554,7 +557,7 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
     if (value) {
       var resRoutes = await Connections()
           .getOrdersDashboardLogisticRoutesLaravel(
-              populate, arrayFiltersAnd, routeId);
+              populate, arrayFiltersAnd, arrayFiltersDefaultAnd, routeId);
 
       Map<String, dynamic> entregado = resRoutes.firstWhere(
         (item) => item['status'] == 'ENTREGADO',
