@@ -6,6 +6,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
+import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
 import 'package:frontend/ui/transport/delivery_status_transport/Opcion.dart';
 import 'package:frontend/ui/widgets/OptionsWidget.dart';
 import 'package:frontend/ui/transport/delivery_status_transport/delivery_details.dart';
@@ -54,6 +55,9 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
   var sortField = "";
   Color currentColor = const Color.fromARGB(255, 108, 108, 109);
   var arrayDateRanges = [];
+  var sortFieldDefaultValue = "marca_tiempo_envio:DESC";
+  bool changevalue = false;
+
   // {
   //   "filter": 'transportadora',
   //   'value': sharedPrefs!.getString("idTransportadora").toString()
@@ -135,8 +139,11 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
       }
     ];
     if (Arrayrestoration) {
-      arrayFiltersAnd.clear();
-      arrayFiltersAnd = respaldo;
+      setState(() {
+        arrayFiltersAnd.clear();
+        arrayFiltersAnd = respaldo;
+        sortFieldDefaultValue = "marca_tiempo_envio:DESC";
+      });
     }
   }
 
@@ -170,7 +177,8 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
               currentPage,
               pageSize,
               _controllers.searchController.text,
-              sortField.toString());
+              // sortField.toString());
+              sortFieldDefaultValue.toString());
 
       var responseValues = await Connections().getValuesTrasporter(
           populate, arrayFiltersAnd, arrayFiltersDefaultAnd, arrayFiltersOr);
@@ -191,11 +199,10 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
         // total = response['total'];
 
         pageCount = response['last_page'];
-        
-        if(sortField.toString()==""){
+
+        if (sortFieldDefaultValue.toString() == "marca_tiempo_envio:DESC") {
           dataCounters = responseCounters;
           total = response['total'];
-
         }
 
         // dataCounters = responseCounters;
@@ -262,7 +269,8 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
               currentPage,
               pageSize,
               _controllers.searchController.text,
-              sortField.toString());
+              // sortField.toString());
+              sortFieldDefaultValue.toString());
 
       setState(() {
         data = [];
@@ -369,39 +377,60 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
     Column InputFilter(String title, filter, var controller) {
       return Column(
         children: [
+          // Expanded(child:  Container(
+          //   margin: EdgeInsets.only(top: 8),
+          //    child:
+          // Row(
+          // children: [
           Text(title),
+
+          // Flecha hacia abajo verde
+          //            SizedBox(width: 4), // Espacio entre el icono y el texto
+          //  SizedBox(width: 4), // Espacio entre el texto y el icono
+          //  Icon(Icons.arrow_upward, size: 12, color: Colors.red), // Flecha hacia arriba roja
+          //  ],
+          //  ),
+          //  ),
+          // ),
+
           Expanded(
-              child: Container(
-            margin: const EdgeInsets.only(bottom: 4),
-            // margin: const EdgeInsets.only(left: 4, right: 8, top: 4, bottom: 4),
-            child: TextField(
-              style: const TextStyle(fontSize: 13.0),
-              controller: controller,
-              maxLines: 1,
-              scrollPhysics: const NeverScrollableScrollPhysics(),
-              onChanged: (value) {
+              child: TextField(
+            style: const TextStyle(fontSize: 13.0),
+            controller: controller,
+            maxLines: 1,
+            scrollPhysics: const NeverScrollableScrollPhysics(),
+            onChanged: (value) {
+              arrayFiltersAnd
+                  .removeWhere((element) => element.containsKey(filter));
+            },
+            onSubmitted: (value) {
+              if (value != '') {
+                arrayFiltersAnd.add({filter: value});
+              } else {
                 arrayFiltersAnd
                     .removeWhere((element) => element.containsKey(filter));
-              },
-              onSubmitted: (value) {
-                if (value != '') {
-                  arrayFiltersAnd.add({filter: value});
-                } else {
-                  arrayFiltersAnd
-                      .removeWhere((element) => element.containsKey(filter));
-                }
-                paginatorController.navigateToPage(0);
-                // paginateData();
-              },
-              decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                      borderRadius: const BorderRadius.all(Radius.circular(5)),
-                      borderSide: BorderSide(
-                          color: controller.text.toString() != ""
-                              ? Colors.green
-                              : Colors.grey))),
-            ),
-          ))
+              }
+              paginatorController.navigateToPage(0);
+              // paginateData();
+            },
+            decoration: InputDecoration(
+                border: OutlineInputBorder(
+                    borderRadius: const BorderRadius.all(Radius.circular(5)),
+                    borderSide: BorderSide(
+                        color: controller.text.toString() != ""
+                            ? Colors.green
+                            : Colors.grey))),
+          )),
+          // Row(
+          //   children: [
+          //     Icon(Icons.arrow_downward, size: 14, color: Colors.green),
+          //     GestureDetector(
+          //       onTap: () {
+          //         print("Hola");
+          //       },
+          //     )
+          //   ],
+          // )
         ],
       );
     }
@@ -750,19 +779,20 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
   List<DataColumn2> getColumns(InputFilter) {
     return [
       DataColumn2(
-        label: InputFilter(
-            'Fecha', 'marca_tiempo_envio', _controllers.fechaController),
+        label: // Espacio entre iconos
+            InputFilter(
+                'Fecha', 'marca_tiempo_envio', _controllers.fechaController),
         size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc("marca_tiempo_envio");
+          sortFunc3("marca_tiempo_envio", changevalue);
         },
       ),
       DataColumn2(
-        label: InputFilter('Fecha de Entrega', 'fecha_entrega',
+        label: InputFilter('Fecha de E.', 'fecha_entrega',
             _controllers.fechaentregaController),
         size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc("fecha_entrega");
+          sortFunc3("fecha_entrega", changevalue);
         },
       ),
       DataColumn2(
@@ -770,7 +800,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
             'Código', 'numero_orden', _controllers.codigoController),
         size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc("numero_orden");
+          sortFunc3("numero_orden",changevalue);
         },
       ),
       DataColumn2(
@@ -778,7 +808,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
             _controllers.nombreClienteController),
         size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc("nombre_shipping");
+          sortFunc3("nombre_shipping",changevalue);
         },
       ),
       DataColumn2(
@@ -786,7 +816,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
             'Ciudad', 'ciudad_shipping', _controllers.ciudadClienteController),
         size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc("ciudad_shipping");
+          sortFunc3("ciudad_shipping",changevalue);
         },
       ),
       DataColumn2(
@@ -794,7 +824,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
             _controllers.direccionClienteController),
         size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc("direccion_shipping");
+          sortFunc3("direccion_shipping",changevalue);
         },
       ),
       DataColumn2(
@@ -802,66 +832,66 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
             _controllers.telefonoClienteController),
         size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc("telefono_shipping");
+          sortFunc3("telefono_shipping",changevalue);
         },
       ),
       DataColumn2(
         label: InputFilter(
             'Cantidad', 'cantidad_total', _controllers.cantidadController),
-        size: ColumnSize.M,
+        size: ColumnSize.L,
         numeric: true,
         onSort: (columnIndex, ascending) {
-          sortFunc("cantidad_total");
+          sortFunc3("cantidad_total",changevalue);
         },
       ),
       DataColumn2(
         label: InputFilter(
             'Producto', 'producto_p', _controllers.productoController),
-        size: ColumnSize.M,
+        size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc("producto_p");
+          sortFunc3("producto_p",changevalue);
         },
       ),
       DataColumn2(
         label: InputFilter('Producto Extra', 'producto_extra',
             _controllers.productoextraController),
-        size: ColumnSize.M,
+        size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc("producto_extra");
+          sortFunc3("producto_extra",changevalue);
         },
       ),
       DataColumn2(
         label: InputFilter(
             'Precio Total', 'precio_total', _controllers.precioTotalController),
-        size: ColumnSize.M,
+        size: ColumnSize.L,
         numeric: true,
         onSort: (columnIndex, ascending) {
-          sortFunc("precio_total");
+          sortFunc3("precio_total",changevalue);
         },
       ),
       DataColumn2(
         label: InputFilter(
             'Observación', 'observacion', _controllers.observacionController),
-        size: ColumnSize.M,
+        size: ColumnSize.L,
         numeric: true,
         onSort: (columnIndex, ascending) {
-          sortFunc("observacion");
+          sortFunc3("observacion",changevalue);
         },
       ),
       DataColumn2(
         label: InputFilter(
             'Comentario', 'comentario', _controllers.comentarioController),
-        size: ColumnSize.M,
+        size: ColumnSize.L,
         numeric: true,
         onSort: (columnIndex, ascending) {
-          sortFunc("comentario");
+          sortFunc3("comentario",changevalue);
         },
       ),
       DataColumn2(
         label: InputFilter('Status', 'status', _controllers.statusController),
-        size: ColumnSize.M,
+        size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc("status");
+          sortFunc3("status",changevalue);
         },
       ),
       DataColumn2(
@@ -870,9 +900,9 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
           'tipo_pago',
           _controllers.tipoPagoController,
         ),
-        size: ColumnSize.M,
+        size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc("tipo_pago");
+          sortFunc3("tipo_pago",changevalue);
         },
       ),
       DataColumn2(
@@ -882,7 +912,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
           _controllers.suRutaController,
         ),
         // label: const Text('Sub Ruta'),
-        size: ColumnSize.M,
+        size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
           // ! no funciona ↓
           // sortFunc("subRuta.titulo");
@@ -891,7 +921,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
       DataColumn2(
         label: SelectFilter('Operador', 'operadore.up_users.username',
             operadorController, listOperators),
-        size: ColumnSize.M,
+        size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
           // sortFuncOperator();
         },
@@ -899,56 +929,56 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
       DataColumn2(
         label: InputFilter(
             'Est. Dev', 'estado_devolucion', _controllers.estDevController),
-        size: ColumnSize.M,
+        size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc("estado_devolucion");
+          sortFunc3("estado_devolucion",changevalue);
         },
       ),
       DataColumn2(
         label:
             InputFilter('MDT. OF.', 'marca_t_d', _controllers.mdtOfController),
-        size: ColumnSize.M,
+        size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc("marca_t_d");
+          sortFunc3("marca_t_d",changevalue);
         },
       ),
       DataColumn2(
         label: InputFilter(
             'MDT. BOD. ', 'marca_t_d_l', _controllers.mdtBodController),
-        size: ColumnSize.M,
+        size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc("marca_t_d_l");
+          sortFunc3("marca_t_d_l",changevalue);
         },
       ),
       DataColumn2(
         label: InputFilter(
             'MDT. RUTA', 'marca_t_d_t', _controllers.mdtRutaController),
-        size: ColumnSize.M,
+        size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc("marca_t_d_t");
+          sortFunc3("marca_t_d_t",changevalue);
         },
       ),
       DataColumn2(
         label:
             InputFilter('MTD. INP', 'marca_t_i', _controllers.mtdInpController),
-        size: ColumnSize.M,
+        size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc("marca_t_i");
+          sortFunc3("marca_t_i",changevalue);
         },
       ),
       DataColumn2(
         label: InputFilter(
             'Estado de Pago', 'estado_pago', _controllers.estadoPagoController),
-        size: ColumnSize.M,
+        size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc("estado_pago");
+          sortFunc3("estado_pago",changevalue);
         },
       ),
       DataColumn2(
         label: const Text("N. intentos"),
         // label: InputFilter(
         // 'N. intentos', 'novedades', nIntentosController),
-        size: ColumnSize.M,
+        size: ColumnSize.L,
         onSort: (columnIndex, ascending) {},
       ),
     ];
@@ -1078,6 +1108,20 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
       // final direction = isRightClick ? "ASC" : "DESC";
       sortField = "$filtro:DESC";
       // print(sortField);
+      loadData(context);
+    });
+  }
+
+  sortFunc3(filtro, changevalu) {
+    setState(() {
+        if (changevalu) {
+          sortFieldDefaultValue = "$filtro:DESC";
+          changevalue = false;
+        } else {
+          // changevalue = true;
+          sortFieldDefaultValue = "$filtro:ASC";
+          changevalue = true;
+        }
       loadData(context);
     });
   }
@@ -1372,6 +1416,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
       }
     } else {
       getOldValue(true);
+      // sortField="";
     }
 
     setState(() {
