@@ -6,6 +6,7 @@ import 'package:frontend/helpers/server.dart';
 import 'package:frontend/ui/operator/orders_operator/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/update_status_operator/update_status_operator.dart';
+import 'package:provider/provider.dart';
 
 class InfoTransportationBilling extends StatefulWidget {
   final String id;
@@ -191,6 +192,17 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                         SizedBox(
                           height: 20,
                         ),
+                        // ! modificacion aqui para el comentario
+                        Text(
+                          "  Comentario: ${data['attributes']['Comentario'].toString()}",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: Colors.red),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
                         Text(
                           "  Archivo:",
                           style: TextStyle(
@@ -210,6 +222,46 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                                   "$generalServer${data['attributes']['Archivo'].toString()}",
                                   fit: BoxFit.fill,
                                 )),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          "  Novedades:",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: Colors.red),
+                        ),
+                        Container(
+                          height: 500,
+                              width: 500,
+                              child: ListView.builder(
+                                 itemCount: data['attributes']['novedades']
+                                        ['data']
+                                    .length,
+                                itemBuilder: (context, index) {
+                                  return ListTile(title: Container(child: Column(
+                                    children: [
+                                      Text(  "Comentario Novedad: ${data['attributes']['novedades']['data'][index]['attributes']['comment']}", style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: Colors.red),),
+                                      Text(  "Intento: ${data['attributes']['novedades']['data'][index]['attributes']['try']}", style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: Colors.red),),
+                                      Container(
+                                                    margin: EdgeInsets.all(30),
+                                                    child: Image.network(
+                                                      "$generalServer${data['attributes']['novedades']['data'][index]['attributes']['url_image'].toString()}",
+                                                    )),
+                                    ],
+                                  ),),);
+                                }
+                              )
+                        ),
+
+
                         SizedBox(
                           height: 20,
                         ),

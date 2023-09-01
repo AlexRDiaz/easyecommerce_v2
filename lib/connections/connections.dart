@@ -913,7 +913,7 @@ class Connections {
       if (request.statusCode != 200) {
         res = 1;
       }
-      print(decodeData);
+      // print(decodeData);
       return decodeData;
     } catch (e) {
       print('Error en la solicitud: $e');
@@ -2041,12 +2041,12 @@ class Connections {
   Future getOrdersByIDTransport(id) async {
     var request = await http.get(
       Uri.parse(
-          "$server/api/pedidos-shopifies/$id?populate=users&populate=users.vendedores&populate=producto_shopifies&populate=pedido_fecha&populate=ruta&populate=transportadora&populate=operadore&populate=operadore.user&populate=sub_ruta"),
+          "$server/api/pedidos-shopifies/$id?populate=users&populate=users.vendedores&populate=producto_shopifies&populate=pedido_fecha&populate=ruta&populate=transportadora&populate=operadore&populate=operadore.user&populate=sub_ruta&populate=novedades"),
       headers: {'Content-Type': 'application/json'},
     );
     var response = await request.body;
     var decodeData = json.decode(response);
-
+    print(decodeData["data"]);
     return decodeData['data'];
   }
 
@@ -2658,7 +2658,54 @@ class Connections {
     // print(decodeData);
     return decodeData;
   }
+
   //  ! LA MIA --------- ↓↓↓
+  getOrdersOper(
+    List populate,
+    List and,
+    List defaultAnd,
+    List or,
+    currentPage,
+    sizePage,
+    search,
+  ) async {
+    List filtersAndAll = [];
+    filtersAndAll.addAll(and);
+    filtersAndAll.addAll(defaultAnd);
+    try {
+      print('start: ${sharedPrefs!.getString("dateDesdeTransportadora")}');
+      print('end: ${sharedPrefs!.getString("dateHastaTransportadora")}');
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/operator/filter"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            // "start": sharedPrefs!.getString("dateDesdeTransportadora"),
+            // "end": sharedPrefs!.getString("dateHastaTransportadora"),
+            // "start": "1/1/2023",
+            // "end": "1/1/2200",
+            "or": or,
+            "and": filtersAndAll,
+            "page_size": sizePage,
+            "page_number": currentPage,
+            "search": search,
+            // "sort": sortField,
+            "not": []
+          }));
+      // print(response);
+      // print("sort -> $sortField");
+      print("and -> $and");
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
 
   getOrdersForSellerStateSearchForDateTransporterLaravel(
       List populate,
@@ -2671,7 +2718,6 @@ class Connections {
       sortField) async {
     List filtersAndAll = [];
     filtersAndAll.addAll(and);
-
     filtersAndAll.addAll(defaultAnd);
     try {
       print('start: ${sharedPrefs!.getString("dateDesdeTransportadora")}');
@@ -2938,6 +2984,7 @@ class Connections {
     );
     var response = await request.body;
     var decodeData = json.decode(response);
+    // print(response);
 
     return decodeData['data'];
   }
