@@ -1,3 +1,5 @@
+import 'dart:js_util';
+
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:frontend/connections/connections.dart';
@@ -61,24 +63,53 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
     }
   ];
 
+  var arrayfiltersDefaultAnd = [
+    {
+      'id_comercial':
+          sharedPrefs!.getString("idComercialMasterSeller").toString()
+    }
+  ];
+
+  List arrayFiltersDefaultOr = [
+    {"status": "NOVEDAD"},
+    {"status": "NO ENTREGADO"}
+  ];
+
 // ][Status][\$eq]=NOVEDAD&",
 //     "filters[\$and][1][\$or][1][Status][\$eq]=NO ENTREGADO&",
 //     "filters[\$and][2][\$or][1][IdComercial][\$eq]=${sharedPrefs!.getString("idComercialMasterSeller").toString()}&"
 
+  // List filtersOrCont = [
+  //   {'filter': 'Fecha_Entrega'},
+  //   {'filter': 'NumeroOrden'},
+  //   {'filter': 'CiudadShipping'},
+  //   {'filter': 'NombreShipping'},
+  //   {'filter': 'DireccionShipping'},
+  //   {'filter': 'TelefonoShipping'},
+  //   {'filter': 'Cantidad_Total'},
+  //   {'filter': 'ProductoP'},
+  //   {'filter': 'ProductoExtra'},
+  //   {'filter': 'PrecioTotal'},
+  //   {'filter': 'Status'},
+  //   {'filter': 'Estado_Devolucion'},
+  //   {'filter': 'Fecha_Confirmacion'},
+  // ];
+
   List filtersOrCont = [
-    {'filter': 'Fecha_Entrega'},
-    {'filter': 'NumeroOrden'},
-    {'filter': 'CiudadShipping'},
-    {'filter': 'NombreShipping'},
-    {'filter': 'DireccionShipping'},
-    {'filter': 'TelefonoShipping'},
-    {'filter': 'Cantidad_Total'},
-    {'filter': 'ProductoP'},
-    {'filter': 'ProductoExtra'},
-    {'filter': 'PrecioTotal'},
-    {'filter': 'Status'},
-    {'filter': 'Estado_Devolucion'},
-    {'filter': 'Fecha_Confirmacion'},
+    'fecha_entrega',
+    'numero_orden',
+    'ciudad_shipping',
+    'nombre_shipping',
+    'direccion_shipping',
+    'telefono_shipping',
+    'cantidad_total',
+    'producto_p',
+    "producto_extra",
+    'precio_total',
+    'status',
+    "estado_devolucion",
+    "fecha_confirmacion",
+    'comentario',
   ];
 
   String option = "";
@@ -117,6 +148,20 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
     "Devolución"
   ];
 
+  List arrayFiltersAnd = [];
+  List<String> listEstadoDevolucion = [
+    'TODO',
+    'PENDIENTE',
+    'ENTREGADO EN OFICINA',
+    'DEVOLUCION EN RUTA',
+    'EN BODEGA',
+  ];
+
+  TextEditingController estadoDevolucionController =
+      TextEditingController(text: "TODO");
+
+  List arrayFiltersNotEq = [];
+
   @override
   void didChangeDependencies() {
     loadData();
@@ -132,20 +177,33 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
     setState(() {
       data.clear();
     });
-    response = await Connections().getOrdersSellersFilter(
-        _controllers.searchController.text,
+    // response = await Connections().getOrdersSellersFilter(
+    //     _controllers.searchController.text,
+    //     currentPage,
+    //     pageSize,
+    //     populate,
+    //     filtersOrCont,
+    //     filtersAnd,
+    //     filtersDefaultOr,
+    //     filtersDefaultAnd, []);
+
+    var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
+        filtersOrCont,
+        arrayFiltersDefaultOr,
+        arrayfiltersDefaultAnd,
+        arrayFiltersAnd,
         currentPage,
         pageSize,
-        populate,
-        filtersOrCont,
-        filtersAnd,
-        filtersDefaultOr,
-        filtersDefaultAnd, []);
+        _controllers.searchController.text,
+        arrayFiltersNotEq);
 
-    data = response[0]['data'];
+    // data = response[0]['data'];
+    data = responseLaravel['data'];
+
     setState(() {
-      pageCount = response[0]['meta']['pagination']['pageCount'];
-      total = response[0]['meta']['pagination']['total'];
+      pageCount = responseLaravel['last_page'];
+      // total = response[0]['meta']['pagination']['total'];
+      total = responseLaravel['total'];
 
       // print("metadatar"+pageCount.toString());
     });
@@ -159,7 +217,7 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
   }
 
   paginateData() async {
-    // print("Pagina Actual="+currentPage.toString());
+    print("test de page return Pagina Actual=" + currentPage.toString());
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
@@ -170,19 +228,35 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
 
     // print("actual pagina valor" + currentPage.toString());
 
-    response = await Connections().getOrdersSellersFilter(
-        _controllers.searchController.text,
+    // response = await Connections().getOrdersSellersFilter(
+    //     _controllers.searchController.text,
+    //     currentPage,
+    //     pageSize,
+    //     populate,
+    //     filtersOrCont,
+    //     filtersAnd,
+    //     filtersDefaultOr,
+    //     filtersDefaultAnd, []);
+
+    var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
+        filtersOrCont,
+        arrayFiltersDefaultOr,
+        arrayfiltersDefaultAnd,
+        arrayFiltersAnd,
         currentPage,
         pageSize,
-        populate,
-        filtersOrCont,
-        filtersAnd,
-        filtersDefaultOr,
-        filtersDefaultAnd, []);
-    data = response[0]['data'];
+        _controllers.searchController.text,
+        arrayFiltersNotEq);
+
+    // data = response[0]['data'];
+    data = responseLaravel['data'];
+
     setState(() {
-      pageCount = response[0]['meta']['pagination']['pageCount'];
-      total = response[0]['meta']['pagination']['total'];
+      // pageCount = response[0]['meta']['pagination']['pageCount'];
+      // total = response[0]['meta']['pagination']['total'];
+
+      pageCount = responseLaravel['last_page'];
+      total = responseLaravel['total'];
     });
 
     await Future.delayed(Duration(milliseconds: 500), () {
@@ -443,7 +517,12 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                     },
                   ),
                   DataColumn2(
-                    label: Text('Estado Devolución'),
+                    label: SelectFilter(
+                        'Estado Devolución',
+                        'estado_devolucion',
+                        estadoDevolucionController,
+                        listEstadoDevolucion),
+                    //label: Text('Estado Devolución'),
                     size: ColumnSize.M,
                     numeric: true,
                     onSort: (columnIndex, ascending) {
@@ -494,31 +573,35 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                                         ],
                                       ),
                                       _model(
-                                          "Fecha: ${data[index]['attributes']['Fecha_Entrega'].toString()}"),
+                                          "Fecha: ${data[index]['fecha_entrega'].toString()}"),
                                       _model(
-                                          "Código: ${data[index]['attributes']['Name_Comercial']}-${data[index]['attributes']['NumeroOrden']}"),
+                                          "Código: ${data[index]['name_comercial']}-${data[index]['numero_orden']}"),
                                       _model(
-                                          "Ciudad: ${data[index]['attributes']['CiudadShipping']}"),
+                                          "Ciudad: ${data[index]['ciudad_shipping']}"),
                                       _model(
-                                          "Nombre Cliente: ${data[index]['attributes']['NombreShipping']}"),
+                                          "Nombre Cliente: ${data[index]['nombre_shipping']}"),
                                       _model(
-                                          "Detalle: ${data[index]['attributes']['DireccionShipping']}"),
+                                          "Detalle: ${data[index]['direccion_shipping']}"),
                                       _model(
-                                          "Teléfono: ${data[index]['attributes']['TelefonoShipping']}"),
+                                          "Teléfono: ${data[index]['telefono_shipping']}"),
                                       _model(
-                                          "Cantidad: ${data[index]['attributes']['Cantidad_Total']}"),
+                                          "Cantidad: ${data[index]['cantidad_total']}"),
                                       _model(
-                                          "Producto: ${data[index]['attributes']['ProductoP']}"),
+                                          "Producto: ${data[index]['producto_p']}"),
                                       _model(
-                                          "Producto Extra: ${data[index]['attributes']['ProductoExtra']}"),
+                                          "Producto Extra: ${data[index]['producto_extra']}"),
                                       _model(
-                                          "Precio Total: ${data[index]['attributes']['PrecioTotal']}"),
+                                          "Precio Total: ${data[index]['precio_total']}"),
                                       _model(
-                                          "Status: ${data[index]['attributes']['Status']}"),
+                                          "Status: ${data[index]['status']}"),
                                       _model(
-                                          "Estado Devolución: ${data[index]['attributes']['Estado_Devolucion']}"),
+                                          "Estado Devolución: ${data[index]['estado_devolucion']}"),
                                       _model(
-                                          "Marca Fecha Confirmación: ${data[index]['attributes']['Fecha_Confirmacion']}")
+                                          "Marca Fecha Confirmación: ${data[index]['fecha_confirmacion']}"),
+                                      _model(
+                                          "Comentario: ${data[index]['comentario']}"),
+                                      _model(
+                                          "Nsovedades: ${data[index]['novedades.url_image']}")
                                     ],
                                   ),
                                 ),
@@ -527,89 +610,113 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                       },
                       cells: [
                         DataCell(Text(
-                          data[index]['attributes']['Fecha_Entrega'].toString(),
+                          // data[index]['attributes']['Fecha_Entrega'].toString(),
+                          data[index]['fecha_entrega'].toString(),
                           style: TextStyle(
                             color: rowColor,
                           ),
                         )),
+                        // DataCell(
+                        //   Text(
+                        //     // "${data[index]['attributes']['Name_Comercial']}-${data[index]['attributes']['NumeroOrden']}",
+                        //     "${data[index]['name_comercial'].toString()}-${data[index]['numero_orden'].toString()}",
+                        //     style: TextStyle(
+                        //       color: GetColor(data[index]['status'].toString()),
+                        //     ),
+                        //   ),
+                        // ),
                         DataCell(
-                          Text(
-                            "${data[index]['attributes']['Name_Comercial']}-${data[index]['attributes']['NumeroOrden']}",
-                            style: TextStyle(
-                              color: rowColor,
-                            ),
-                          ),
-                        ),
+                            Text(
+                                style: TextStyle(
+                                    color: GetColor(data[index]
+                                            ['estado_devolucion']
+                                        .toString())!),
+                                '${data[index]['name_comercial'].toString()}-${data[index]['numero_orden'].toString()}'),
+                            onTap: () {
+                          //openDialog(context, index);
+                        }),
                         DataCell(Text(
-                            '${data[index]['attributes']['CiudadShipping'].toString()}')),
+                            // '${data[index]['attributes']['CiudadShipping'].toString()}')),
+                            '${data[index]['ciudad_shipping'].toString()}')),
                         DataCell(Text(
-                          data[index]['attributes']['NombreShipping']
-                              .toString(),
+                          // data[index]['attributes']['NombreShipping']
+                          //     .toString(),
+                          data[index]['nombre_shipping'].toString(),
                           style: TextStyle(
                             color: rowColor,
                           ),
                         )),
                         DataCell(Text(
-                          data[index]['attributes']['DireccionShipping']
-                              .toString(),
+                          // data[index]['attributes']['DireccionShipping']
+                          //     .toString(),
+                          data[index]['direccion_shipping'].toString(),
                           style: TextStyle(
                             color: rowColor,
                           ),
                         )),
                         DataCell(Text(
-                          data[index]['attributes']['TelefonoShipping']
-                              .toString(),
+                          // data[index]['attributes']['TelefonoShipping']
+                          //     .toString(),
+                          data[index]['telefono_shipping'].toString(),
                           style: TextStyle(
                             color: rowColor,
                           ),
                         )),
                         DataCell(Text(
-                          data[index]['attributes']['Cantidad_Total']
-                              .toString(),
+                          // data[index]['attributes']['Cantidad_Total']
+                          //     .toString(),
+                          data[index]['cantidad_total'].toString(),
                           style: TextStyle(
                             color: rowColor,
                           ),
                         )),
                         DataCell(Text(
-                          '${data[index]['attributes']['ProductoP'].toString()}',
+                          // '${data[index]['attributes']['ProductoP'].toString()}',
+                          data[index]['producto_p'].toString(),
                           style: TextStyle(
                             color: rowColor,
                           ),
                         )),
                         DataCell(Text(
-                          '${data[index]['attributes']['ProductoExtra'].toString()}',
+                          // '${data[index]['attributes']['ProductoExtra'].toString()}',
+                          data[index]['producto_extra'].toString(),
                           style: TextStyle(
                             color: rowColor,
                           ),
                         )),
                         DataCell(Text(
-                          '\$${data[index]['attributes']['PrecioTotal'].toString()}',
+                          // '\$${data[index]['attributes']['PrecioTotal'].toString()}',
+                          data[index]['precio_total'].toString(),
                           style: TextStyle(
                             color: rowColor,
                           ),
                         )),
                         DataCell(Text(
-                          data[index]['attributes']['Status'].toString(),
+                          // data[index]['attributes']['Status'].toString(),
+                          data[index]['status'].toString(),
                           style: TextStyle(
                             color: rowColor,
                           ),
                         )),
                         DataCell(Text(
-                          data[index]['attributes']['Estado_Devolucion']
-                              .toString(),
+                          // data[index]['attributes']['Estado_Devolucion']
+                          //     .toString(),
+                          data[index]['estado_devolucion'].toString(),
                           style: TextStyle(
                             color: rowColor,
                           ),
                         )),
                         DataCell(Text(
-                          data[index]['attributes']['Comentario'].toString(),
+                          // data[index]['attributes']['Comentario'].toString(),
+                          data[index]['comentario'].toString(),
                           style: TextStyle(
                             color: rowColor,
                           ),
                         )),
                         DataCell(Text(
-                          data[index]['attributes']['Fecha_Confirmacion']
-                              .toString(),
+                          // data[index]['Fecha_Confirmacion']
+                          //     .toString(),
+                          data[index]['fecha_confirmacion'].toString(),
                           style: TextStyle(
                             color: rowColor,
                           ),
@@ -698,6 +805,91 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
     );
+  }
+
+  Color? GetColor(state) {
+    int color = 0xFF000000;
+
+    switch (state) {
+      case "PENDIENTE":
+        color = 0xFFFF0000;
+        break;
+      case "ENTREGADO EN OFICINA":
+        color = 0xFF00FFFF;
+        break;
+      case "DEVOLUCION EN RUTA":
+        color = 0xFF0000FF;
+        break;
+      case "EN BODEGA":
+        color = 0xFFDAFF00;
+        break;
+      default:
+        color = 0xFF000000;
+    }
+
+    return Color(color);
+  }
+
+  Column SelectFilter(String title, filter, TextEditingController controller,
+      List<String> listOptions) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title),
+        Expanded(
+          child: Container(
+            margin: EdgeInsets.only(bottom: 4.5, top: 4.5),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5.0),
+              border: Border.all(color: Color.fromRGBO(6, 6, 6, 1)),
+            ),
+            height: 0,
+            child: DropdownButtonFormField<String>(
+              isExpanded: true,
+              value: controller.text,
+              onChanged: (String? newValue) {
+                setState(() {
+                  controller.text = newValue ?? "";
+                  arrayFiltersAnd
+                      .removeWhere((element) => element.containsKey(filter));
+
+                  if (newValue != 'TODO') {
+                    if (filter is String) {
+                      arrayFiltersAnd.add({filter: newValue});
+                    } else {
+                      reemplazarValor(filter, newValue!);
+                      arrayFiltersAnd.add(filter);
+                    }
+                    print(filter);
+                  } else {}
+
+                  paginateData();
+                });
+              },
+              decoration: InputDecoration(
+                  border: UnderlineInputBorder(
+                      borderRadius: BorderRadius.circular(10))),
+              items: listOptions.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value, style: TextStyle(fontSize: 15)),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void reemplazarValor(Map<dynamic, dynamic> mapa, String nuevoValor) {
+    mapa.forEach((key, value) {
+      if (value is Map) {
+        reemplazarValor(value, nuevoValor);
+      } else if (key is String && value == 'valor') {
+        mapa[key] = nuevoValor;
+      }
+    });
   }
 
   _filters(BuildContext context) {
