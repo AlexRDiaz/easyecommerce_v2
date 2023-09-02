@@ -604,6 +604,13 @@ class Connections {
       arrayFiltersDefaultOr,
       arrayFiltersDefaultAnd,
       uniqueFilters) async {
+    print("populate: $arrayPopulate");
+    print("Or: $arrayFiltersOrCont");
+    print("And: $arrayFiltersAnd");
+    print("DefaultOr: $arrayFiltersDefaultOr");
+    print("DefaultAnd: $arrayFiltersDefaultAnd");
+    print("uniqueFilters: $uniqueFilters");
+
     var url = "$server/api/pedidos-shopifies?";
     int numberFilter = 0;
 
@@ -666,6 +673,80 @@ class Connections {
     return [
       {'data': decodeData['data'], 'meta': decodeData['meta']}
     ];
+  }
+
+  Future getOrdersSellersFilterLaravel(
+      arrayFiltersOrCont,
+      arrayFiltersDefaultOr,
+      arrayfiltersDefaultAnd,
+      arrayFiltersAnd,
+      currentPage,
+      sizePage,
+      search,
+      not) async {
+    int res = 0;
+
+    List<dynamic> filtersAndAll = [];
+    filtersAndAll.addAll(arrayfiltersDefaultAnd);
+    filtersAndAll.addAll(arrayFiltersAnd);
+
+    print(sharedPrefs!.getString("dateDesdeVendedor"));
+    print(sharedPrefs!.getString("dateHastaVendedor"));
+    print("todo and: \n $filtersAndAll");
+
+    var bodytest = json.encode({
+      "start": "1/1/2023",
+      "end": "31/7/2023",
+      "page_size": sizePage,
+      "page_number": currentPage,
+      "or": arrayFiltersOrCont,
+      "ordefault": arrayFiltersDefaultOr,
+      "not": not,
+      "sort": "",
+      "and": filtersAndAll,
+      "search": search
+    });
+
+    print(bodytest);
+
+    try {
+      String urlnew = "$serverLaravel/api/pedidos-shopify/filter/sellers";
+
+      var requestlaravel = await http.post(Uri.parse(urlnew),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "start": "28/7/2023",
+            "end": "31/7/2023",
+            "page_size": sizePage,
+            "page_number": currentPage,
+            "or": arrayFiltersOrCont,
+            "ordefault": arrayFiltersDefaultOr,
+            "not": not,
+            "sort": "",
+            "and": filtersAndAll,
+            "search": search
+          }));
+
+      var responselaravel = await requestlaravel.body;
+      var decodeDataL = json.decode(responselaravel);
+      int totalRes = decodeDataL['total'];
+
+      var response = await requestlaravel.body;
+      var decodeData = json.decode(response);
+
+      if (requestlaravel.statusCode != 200) {
+        res = 1;
+        print("res:" + res.toString());
+      } else {
+        print('Total_L: $totalRes');
+      }
+      print("res:" + res.toString());
+      return decodeData;
+    } catch (e) {
+      print("error!!!: $e");
+      res = 2;
+      print("res:" + res.toString());
+    }
   }
 
   Future getOrdersSellersByState(code, currentPage, pageSize, String? pedido,
