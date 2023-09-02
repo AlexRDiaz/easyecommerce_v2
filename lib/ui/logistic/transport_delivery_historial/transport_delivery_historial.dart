@@ -51,6 +51,16 @@ class _TransportDeliveryHistorialState
   int total = 0;
   bool enabledBusqueda = true;
   int totalRegistros = 0;
+  List<String> listtransportadores = <String>[
+    'TODO',
+    'Trans EXPRESS',
+    'rba.HalconPro',
+    'Moto Zoom',
+    'Imb.HalconPro',
+    'HalconPro',
+    'Azuay TRANS',
+  ];
+
   List<String> listStatus = [
     'TODO',
     'PEDIDO PROGRAMADO',
@@ -156,6 +166,9 @@ class _TransportDeliveryHistorialState
   TextEditingController marcaTiempoDevolucionController =
       TextEditingController(text: "");
   TextEditingController estadoPagoLogisticoController =
+      TextEditingController(text: "TODO");
+      // ! mia 
+  TextEditingController transportadorasController =
       TextEditingController(text: "TODO");
   List bools = [
     false,
@@ -674,18 +687,12 @@ class _TransportDeliveryHistorialState
                         },
                       ),
                       DataColumn2(
-                        label: InputFilter(
-                            'Transportadora',
-                            {
-                              'transportadora': {
-                                'Nombre': {'\$contains': 'valor'},
-                              },
-                            },
-                            transportadoraController,
-                            'transportadora.nombre'),
-                        size: ColumnSize.S,
+                        label: SelectFilter('Transportadora','transportadora.nombre',
+                            transportadorasController,listtransportadores),
+                        size: ColumnSize.L,
+                        // numeric: true,
                         onSort: (columnIndex, ascending) {
-                          sortFunc("DireccionShipping");
+                          // sortFunc("Estado_Interno");
                         },
                       ),
                       DataColumn2(
@@ -2337,7 +2344,7 @@ class _TransportDeliveryHistorialState
                   if (newValue != 'TODO') {
                     if (filter is String) {
                       arrayFiltersAnd.add({
-                        filter: {"\$eq": newValue}
+                        filter: newValue
                       });
                     } else {
                       reemplazarValor(filter, newValue!);
@@ -2356,7 +2363,7 @@ class _TransportDeliveryHistorialState
               items: listOptions.map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
-                  child: Text(value, style: TextStyle(fontSize: 15)),
+                  child: Text(value, style: const TextStyle(fontSize: 15)),
                 );
               }).toList(),
             ),
