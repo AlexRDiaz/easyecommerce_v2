@@ -100,6 +100,29 @@ class _EditSellersState extends State<EditSellers> {
                     "ESTADO: ${data["Estado"].toString()}",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
                   ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center, 
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0), 
+                        child: FloatingActionButton(
+                          onPressed: () {
+                            // Manejo del boton
+                          },
+                          child: Icon(Icons.arrow_back),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0), 
+                        child: FloatingActionButton(
+                          onPressed: () {
+                            // Manejo del boton
+                          },
+                          child: Icon(Icons.arrow_forward),
+                        ),
+                      ),
+                    ],
+                  ),
                   SizedBox(
                     height: 30,
                   ),

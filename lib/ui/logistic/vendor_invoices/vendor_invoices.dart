@@ -37,7 +37,7 @@ class _VendorInvoicesState extends State<VendorInvoices> {
     setState(() {
       data = response;
     });
-    for (var i = 0; i < response.length; i++) {
+    for (var i = 0; i < 0; i++) {
       var responseWalletValue = await Connections().getWalletValueByIdVF(
           response.isNotEmpty ? response[i]['attributes']['Id_Master'] : "");
       setState(() {
@@ -106,7 +106,7 @@ class _VendorInvoicesState extends State<VendorInvoices> {
             Expanded(
               child: loading == false
                   ? ListView.builder(
-                      itemCount: data.length,
+                      itemCount: 0,
                       itemBuilder: (BuildContext context, int index) {
                         return _invoiceTile(
                           name: data[index]["attributes"]['Nombre_Comercial']

@@ -71,7 +71,7 @@ class _RoutesModalState extends State<RoutesModal> {
     });
 
     transportList = await Connections()
-        .getTransportsByRoute(selectedValueRoute.toString().split("-")[0]);
+        .getTransportsByRoute(selectedValueRoute.toString().split("-")[1]);
     for (var i = 0; i < transportList.length; i++) {
       setState(() {
         transports.add(
