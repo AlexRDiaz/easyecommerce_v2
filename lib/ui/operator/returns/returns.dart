@@ -137,8 +137,8 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
   }
 
   loadData(context) async {
-    print("aqui ↓");
-    print(sharedPrefs!.getString("idOperadore").toString());
+    // print("aqui ↓");
+    // print(sharedPrefs!.getString("idOperadore").toString());
 
     isLoading = true;
     currentPage = 1;
