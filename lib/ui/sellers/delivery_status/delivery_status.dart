@@ -59,6 +59,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   int pageCount = 100;
   bool isLoading = false;
   List<String> listOperators = [];
+  var sortFieldDefaultValue = "marca_tiempo_envio:DESC";
   Color currentColor = Color.fromARGB(255, 108, 108, 109);
   List<Map<dynamic, dynamic>> arrayFiltersAndEq = [];
   var arrayDateRanges = [];
@@ -214,7 +215,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
             currentPage,
             pageSize,
             _controllers.searchController.text,
-            arrayFiltersNotEq);
+            arrayFiltersNotEq,
+            sortFieldDefaultValue);
 
     dataCounters = responseCounters;
     valuesTransporter = responseValues;
@@ -274,7 +276,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
             currentPage,
             pageSize,
             _controllers.searchController.text,
-            arrayFiltersNotEq);
+            arrayFiltersNotEq,
+            sortFieldDefaultValue.toString());
 
     setState(() {
       data = response['data'];
