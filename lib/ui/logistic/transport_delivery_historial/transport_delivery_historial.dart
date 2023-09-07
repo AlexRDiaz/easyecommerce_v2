@@ -117,6 +117,7 @@ class _TransportDeliveryHistorialState
     "status",
     "estado_logistico"
   ];
+  var sortFieldDefaultValue = "marca_t_i:DESC";
 
   NumberPaginatorController paginatorController = NumberPaginatorController();
 
@@ -246,7 +247,8 @@ class _TransportDeliveryHistorialState
               arrayFiltersOr,
               currentPage,
               pageSize,
-              _controllers.searchController.text);
+              _controllers.searchController.text,
+              sortFieldDefaultValue.toString());
 
       // var response = await Connections().getOrdersForHistorialTransportByDates(
       //   populate,
@@ -316,7 +318,8 @@ class _TransportDeliveryHistorialState
               arrayFiltersOr,
               currentPage,
               pageSize,
-              _controllers.searchController.text);
+              _controllers.searchController.text,
+              sortFieldDefaultValue.toString());
 
       setState(() {
         data = [];

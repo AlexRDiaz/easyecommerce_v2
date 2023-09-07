@@ -51,6 +51,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   double utilidad = 0;
   double totalValoresRecibidos = 0;
   double costoTransportadora = 0;
+  var sortFieldDefaultValue = "fecha_entrega:DESC";
+
   bool isFirst = true;
   int counterLoad = 0;
   String transporterOperator = 'TODO';
@@ -214,7 +216,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
             currentPage,
             pageSize,
             _controllers.searchController.text,
-            arrayFiltersNotEq);
+            arrayFiltersNotEq,
+            sortFieldDefaultValue.toString());
 
     dataCounters = responseCounters;
     valuesTransporter = responseValues;
@@ -274,7 +277,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
             currentPage,
             pageSize,
             _controllers.searchController.text,
-            arrayFiltersNotEq);
+            arrayFiltersNotEq,
+            sortFieldDefaultValue);
 
     setState(() {
       data = response['data'];

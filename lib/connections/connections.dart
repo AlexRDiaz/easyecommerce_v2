@@ -998,8 +998,8 @@ class Connections {
     return decodeData;
   }
 
-  getOrdersForHistorialTransportByDatesLaravel(
-      List populate, List and, List or, currentPage, sizePage, search) async {
+  getOrdersForHistorialTransportByDatesLaravel(List populate, List and, List or,
+      currentPage, sizePage, search, sortField) async {
     int res = 0;
     try {
       print('start: ${sharedPrefs!.getString("dateDesdeLogistica")}');
@@ -1015,7 +1015,7 @@ class Connections {
             "or": or,
             "and": and,
             "not": [],
-            "sort": "",
+            "sort": sortField,
             "page_size": sizePage,
             "page_number": currentPage,
             "search": search
@@ -2644,7 +2644,8 @@ class Connections {
       currentPage,
       sizePage,
       search,
-      not) async {
+      not,
+      sortField) async {
     int res = 0;
 
     List<dynamic> filtersAndAll = [];
@@ -2667,7 +2668,7 @@ class Connections {
             "page_number": currentPage,
             "or": arrayFiltersOrCont,
             "not": not,
-            "sort": "",
+            "sort": sortField,
             "and": filtersAndAll,
             "search": search
           }));
