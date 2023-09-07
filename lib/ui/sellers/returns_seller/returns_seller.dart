@@ -80,7 +80,7 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
     {"status": "NO ENTREGADO"}
   ];
 
-  var sortFieldDefaultValue = "id:text:DESC";
+  var sortFieldDefaultValue = "id:DESC";
   var sortField = "";
 
   bool changevalue = false;
@@ -175,7 +175,7 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
   getOldValue(Arrayrestoration) {
     if (Arrayrestoration) {
       setState(() {
-        sortFieldDefaultValue = "id:text:DESC";
+        sortFieldDefaultValue = "id:DESC";
       });
     }
   }
@@ -227,7 +227,7 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
       // total = response[0]['meta']['pagination']['total'];
       //total = responseLaravel['total'];
 
-      if (sortFieldDefaultValue.toString() == "id:text:DESC") {
+      if (sortFieldDefaultValue.toString() == "id:DESC") {
         total = responseLaravel['total'];
       }
 
@@ -437,35 +437,35 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                     label: Text('Fecha'),
                     size: ColumnSize.M,
                     onSort: (columnIndex, ascending) {
-                      sortFunc2("fecha_entrega:date", changevalue);
+                      sortFunc2("fecha_entrega", changevalue);
                     },
                   ),
                   DataColumn2(
                     label: Text('Código'),
                     size: ColumnSize.M,
                     onSort: (columnIndex, ascending) {
-                      sortFunc2("numero_orden:text", changevalue);
+                      sortFunc2("numero_orden", changevalue);
                     },
                   ),
                   DataColumn2(
                     label: Text('Ciudad'),
                     size: ColumnSize.M,
                     onSort: (columnIndex, ascending) {
-                      sortFunc2("ciudad_shipping:text", changevalue);
+                      sortFunc2("ciudad_shipping", changevalue);
                     },
                   ),
                   DataColumn2(
                     label: Text('Nombre Cliente'),
                     size: ColumnSize.M,
                     onSort: (columnIndex, ascending) {
-                      sortFunc2("nombre_shipping:text", changevalue);
+                      sortFunc2("nombre_shipping", changevalue);
                     },
                   ),
                   DataColumn2(
                     label: Text('Dirección'),
                     size: ColumnSize.L,
                     onSort: (columnIndex, ascending) {
-                      sortFunc2("direccion_shipping:text", changevalue);
+                      sortFunc2("direccion_shipping", changevalue);
                     },
                   ),
                   DataColumn2(
@@ -473,7 +473,7 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                     numeric: true,
                     size: ColumnSize.M,
                     onSort: (columnIndex, ascending) {
-                      sortFunc2("telefono_shipping:text", changevalue);
+                      sortFunc2("telefono_shipping", changevalue);
                     },
                   ),
                   DataColumn2(
@@ -481,35 +481,35 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                     size: ColumnSize.M,
                     numeric: true,
                     onSort: (columnIndex, ascending) {
-                      sortFunc2("cantidad_total:text", changevalue);
+                      sortFunc2("cantidad_total", changevalue);
                     },
                   ),
                   DataColumn2(
                     label: Text('Producto'),
                     size: ColumnSize.L,
                     onSort: (columnIndex, ascending) {
-                      sortFunc2("producto_p:text", changevalue);
+                      sortFunc2("producto_p", changevalue);
                     },
                   ),
                   DataColumn2(
                     label: Text('Producto Extra'),
                     size: ColumnSize.L,
                     onSort: (columnIndex, ascending) {
-                      sortFunc2("producto_extra:text", changevalue);
+                      sortFunc2("producto_extra", changevalue);
                     },
                   ),
                   DataColumn2(
                     label: Text('Precio Total'),
                     size: ColumnSize.M,
                     onSort: (columnIndex, ascending) {
-                      sortFunc2("precio_total:text", changevalue);
+                      sortFunc2("precio_total", changevalue);
                     },
                   ),
                   DataColumn2(
                     label: Text('Status'),
                     size: ColumnSize.S,
                     onSort: (columnIndex, ascending) {
-                      sortFunc2("status:text", changevalue);
+                      sortFunc2("status", changevalue);
                     },
                   ),
                   DataColumn2(
@@ -521,7 +521,7 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                     size: ColumnSize.M,
                     numeric: true,
                     onSort: (columnIndex, ascending) {
-                      sortFunc2("estado_devolucion:text", changevalue);
+                      sortFunc2("estado_devolucion", changevalue);
                     },
                   ),
                   DataColumn2(
@@ -529,14 +529,14 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                     size: ColumnSize.M,
                     numeric: true,
                     onSort: (columnIndex, ascending) {
-                      sortFunc2("comentario:text", changevalue);
+                      sortFunc2("comentario", changevalue);
                     },
                   ),
                   DataColumn2(
                     label: Text('Marca Fecha Confirmación'),
                     size: ColumnSize.M,
                     onSort: (columnIndex, ascending) {
-                      sortFunc2("fecha_confirmacion:date", changevalue);
+                      sortFunc2("fecha_confirmacion", changevalue);
                     },
                   ),
                 ],
