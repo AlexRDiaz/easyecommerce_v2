@@ -608,13 +608,6 @@ class Connections {
       arrayFiltersDefaultOr,
       arrayFiltersDefaultAnd,
       uniqueFilters) async {
-    print("populate: $arrayPopulate");
-    print("Or: $arrayFiltersOrCont");
-    print("And: $arrayFiltersAnd");
-    print("DefaultOr: $arrayFiltersDefaultOr");
-    print("DefaultAnd: $arrayFiltersDefaultAnd");
-    print("uniqueFilters: $uniqueFilters");
-
     var url = "$server/api/pedidos-shopifies?";
     int numberFilter = 0;
 
@@ -687,7 +680,8 @@ class Connections {
       currentPage,
       sizePage,
       search,
-      not) async {
+      not,
+      sort) async {
     int res = 0;
 
     List<dynamic> filtersAndAll = [];
@@ -696,22 +690,8 @@ class Connections {
 
     print(sharedPrefs!.getString("dateDesdeVendedor"));
     print(sharedPrefs!.getString("dateHastaVendedor"));
-    print("todo and: \n $filtersAndAll");
-
-    var bodytest = json.encode({
-      "start": "1/1/2023",
-      "end": "31/7/2023",
-      "page_size": sizePage,
-      "page_number": currentPage,
-      "or": arrayFiltersOrCont,
-      "ordefault": arrayFiltersDefaultOr,
-      "not": not,
-      "sort": "",
-      "and": filtersAndAll,
-      "search": search
-    });
-
-    print(bodytest);
+    // print("todo and: \n $filtersAndAll");
+    //print("sort conn: \n $sort");
 
     try {
       String urlnew = "$serverLaravel/api/pedidos-shopify/filter/sellers";
@@ -719,14 +699,12 @@ class Connections {
       var requestlaravel = await http.post(Uri.parse(urlnew),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
-            "start": "28/7/2023",
-            "end": "31/7/2023",
             "page_size": sizePage,
             "page_number": currentPage,
             "or": arrayFiltersOrCont,
             "ordefault": arrayFiltersDefaultOr,
             "not": not,
-            "sort": "",
+            "sort": sort,
             "and": filtersAndAll,
             "search": search
           }));
@@ -747,7 +725,7 @@ class Connections {
       print("res:" + res.toString());
       return decodeData;
     } catch (e) {
-      print("error!!!: $e");
+      print("Error: $e");
       res = 2;
       print("res:" + res.toString());
     }
