@@ -1,18 +1,14 @@
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
-
+import 'package:frontend/ui/sellers/dashboard/chart.dart';
 import 'package:frontend/ui/sellers/dashboard/filter_details.dart';
 import 'package:frontend/ui/sellers/dashboard/storage_info_card.dart';
-import 'package:frontend/ui/widgets/box_values.dart';
-import 'package:frontend/ui/widgets/cartesian_chart_dashboard.dart';
 import 'package:frontend/ui/widgets/loading.dart';
-import 'package:frontend/ui/widgets/pie_chart_dashboard.dart';
 
 class DashBoardSellers extends StatefulWidget {
   const DashBoardSellers({super.key});
@@ -29,31 +25,22 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
   bool enRuta = false;
   bool enOficina = false;
   bool programado = false;
-  bool openStatus = false;
-  Map valuesTransporter = {};
-
-  double costoDeEntregas = 0;
-  double devoluciones = 0;
-  double utilidad = 0;
-  bool changeGraphicOptions = false;
   List checks = [];
-  List<Map<String, dynamic>> routeSelected = [];
   TextEditingController _search = TextEditingController();
   List sections = [];
-  List routes = [];
-  List<String> sellers = [];
-  Map data = {};
+
+  List data = [];
   List subData = [];
   List tableData = [];
   List subFilters = [];
-  String? selectValueTransport = null;
-  String? selectValueSeller = null;
-
+  // String dateDesde = "";
+  // String dateHasta = "";
   String startDate = "";
   String endDate = "";
 
   String idTransport = "";
-  bool isLoadingPie = false;
+
+  String? selectValueTransport = null;
   List<String> transports = [];
   String? selectValueOperator = null;
   List<String> operators = [];
@@ -61,7 +48,7 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
   List<DateTime?> _datesDesde = [];
   List<DateTime?> _datesHasta = [];
   List counters = [];
-  List dataRoutes = [];
+
   bool sort = false;
   String currentValue = "";
   int total = 0;
@@ -69,89 +56,84 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
   int noEntregados = 0;
   int conNovedad = 0;
   int reagendados = 0;
-  int regEnRuta = 0;
-  int regEnOficina = 0;
-  int regPedidoProgramado = 0;
   double totalValoresRecibidos = 0;
   double costoTransportadora = 0;
   double costoDevoluciones = 0;
   double utilidades = 0;
-  List<Map<String, dynamic>> routeCounter = [];
+
   bool isFirst = true;
   int counterLoad = 0;
   String transporterOperator = 'TODO';
   int currentPage = 1;
   int pageSize = 70;
   int pageCount = 100;
-  bool isLoadingBar = false;
+  bool isLoading = false;
   List<String> listOperators = [];
   Color currentColor = Color.fromARGB(255, 108, 108, 109);
   List<Map<dynamic, dynamic>> arrayFiltersAndEq = [];
   var arrayDateRanges = [];
-
   List<FilterCheckModel> filters = [
     FilterCheckModel(
-        color: Color(0xFF33FF6D),
+        color: Colors.red,
         numOfFiles: 0,
-        percentage: 0,
+        percentage: 14,
         svgSrc: "assets/icons/Documents.svg",
         title: "Entregados",
         filter: "ENTREGADO",
         check: false),
     FilterCheckModel(
-        color: Color(0xFFFF3333),
+        color: Color.fromARGB(255, 2, 51, 22),
         numOfFiles: 0,
-        percentage: 0,
+        percentage: 14,
         svgSrc: "assets/icons/Documents.svg",
-        title: "No entregado",
+        title: "NO ENTREGADO",
         filter: "NO ENTREGADO",
         check: false),
     FilterCheckModel(
-        color: const Color(0xFFD6DC27),
+        color: const Color.fromARGB(255, 76, 54, 244),
         numOfFiles: 0,
-        percentage: 0,
+        percentage: 14,
         svgSrc: "assets/icons/Documents.svg",
-        title: "Novedad",
+        title: "NOVEDAD",
         filter: "NOVEDAD",
         check: false),
     FilterCheckModel(
-        color: Color(0xFFFA37BF),
+        color: Color.fromARGB(255, 42, 163, 67),
         numOfFiles: 0,
-        percentage: 0,
+        percentage: 14,
         svgSrc: "assets/icons/Documents.svg",
-        title: "Reagendado",
+        title: "REAGENDADO",
         filter: "REAGENDADO",
         check: false),
     FilterCheckModel(
-        color: Color(0xFF3341FF),
+        color: Color.fromARGB(255, 146, 76, 29),
         numOfFiles: 0,
-        percentage: 0,
+        percentage: 14,
         svgSrc: "assets/icons/Documents.svg",
-        title: "En ruta",
+        title: "EN RUTA",
         filter: "EN RUTA",
         check: false),
     FilterCheckModel(
-        color: Color(0xFF4B4C4B),
+        color: Color.fromARGB(255, 11, 6, 123),
         numOfFiles: 0,
-        percentage: 0,
+        percentage: 14,
         svgSrc: "assets/icons/Documents.svg",
-        title: "En oficina",
+        title: "EN OFICINA",
         filter: "EN OFICINA",
         check: false),
     FilterCheckModel(
-        color: Color.fromARGB(255, 208, 102, 10),
+        color: Color.fromARGB(255, 146, 18, 73),
         numOfFiles: 0,
-        percentage: 0,
+        percentage: 14,
         svgSrc: "assets/icons/Documents.svg",
-        title: "Pedido programado",
+        title: "PEDIDO PROGRAMADO",
         filter: "PEDIDO PROGRAMADO",
         check: false),
   ];
 
-  List arrayFiltersAnd = [];
-  List arrayFiltersDefaultAnd = [
+  List arrayFiltersAnd = [
     {
-      'id_comercial':
+      'IdComercial':
           sharedPrefs!.getString("idComercialMasterSeller").toString()
     }
   ];
@@ -168,353 +150,335 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
   ];
 
   @override
-  Future<void> didChangeDependencies() async {
-    initializeDates();
+  void didChangeDependencies() {
+    // loadConfigs();
     super.didChangeDependencies();
   }
 
-  initializeDates() {
-    if (sharedPrefs!.getString("dateDesdeLogistica") == null) {
-      sharedPrefs!.setString("dateDesdeLogistica",
-          "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}");
-    }
-    if (sharedPrefs!.getString("dateHastaLogistica") == null) {
-      sharedPrefs!.setString("dateHastaLogistica",
-          "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}");
-    }
-  }
+  // loadConfigs() async {
+  //   var responseOperator = [];
+  //   setState(() {
+  //     transports = [];
+  //     operators = [];
+  //   });
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     getLoadingModal(context, false);
+  //   });
 
-  String capitalize(String input) {
-    if (input == null || input.isEmpty) {
-      return '';
-    }
-    return input[0].toUpperCase() + input.substring(1).toLowerCase();
-  }
+  //   var responseTransports = await Connections().getAllTransportators();
+  //   if (selectValueTransport != null) {
+  //     responseOperator =
+  //         await Connections().getAllOperatorsAndByTransport(idTransport);
+  //   } else {
+  //     responseOperator = await Connections().getAllOperators();
+  //   }
+
+  //   Future.delayed(Duration(milliseconds: 500), () {
+  //     Navigator.pop(context);
+  //   });
+  //   setState(() {});
+  // }
 
   loadData() async {
-    setState(() {
-      isLoadingPie = true;
-      subFilters = [];
-      sections = [];
+    isLoading = true;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      getLoadingModal(context, false);
     });
 
-    var response = await Connections().getOrdersDashboardSellerLaravel(
-        populate, arrayFiltersAnd, arrayFiltersDefaultAnd, []);
+    setState(() {
+      data = [];
+      subFilters = [];
+      sections = [];
+      filters = [];
+    });
+    for (FilterCheckModel filter in filters) {
+      setState(() {
+        filter.check = false;
+      });
+    }
 
-    var responseValues = await Connections().getValuesSeller(populate, [
-      {
-        "transportadora": {"\$not": null}
-      },
-      {
-        'IdComercial':
-            sharedPrefs!.getString("idComercialMasterSeller").toString()
-      }
-    ]);
-    valuesTransporter = responseValues;
+    var response =
+        await Connections().getOrdersDashboard(populate, arrayFiltersAnd);
     setState(() {
       data = response;
 
-      loadCounterStates();
+      total = data.length;
     });
-    valuesTransporter = responseValues;
-
-    calculateValues();
-
-    setState(() {
-      isLoadingPie = false;
-    });
-  }
-
-  loadAll() {
-    loadData();
-  }
-
-  bool _isMenuOpen = true;
-  final double _menuWidth = 270.0; // Ancho del menú lateral
-
-  void _toggleMenu() {
-    setState(() {
-      _isMenuOpen = !_isMenuOpen;
-    });
-  }
-
-  calculateValues() {
-    totalValoresRecibidos = 0;
-    costoDeEntregas = 0;
-    devoluciones = 0;
-
-    setState(() {
-      totalValoresRecibidos =
-          double.parse(valuesTransporter['totalValoresRecibido'].toString());
-      costoDeEntregas =
-          double.parse(valuesTransporter['costoDeEntregas'].toString());
-      devoluciones = double.parse(valuesTransporter['devoluciones'].toString());
-      utilidad = double.parse(valuesTransporter['utilidad'].toString());
-    });
-  }
-
-  loadCounterStates() {
-    entregados = int.parse(data['ENTREGADO'].toString()) ?? 0;
-    noEntregados = int.parse(data['NO ENTREGADO'].toString()) ?? 0;
-    conNovedad = int.parse(data['NOVEDAD'].toString()) ?? 0;
-    reagendados = int.parse(data['REAGENDADO'].toString()) ?? 0;
-    regEnRuta = int.parse(data['EN RUTA'].toString()) ?? 0;
-    regEnOficina = int.parse(data['EN OFICINA'].toString()) ?? 0;
-    regPedidoProgramado = int.parse(data['PEDIDO PROGRAMADO'].toString()) ?? 0;
-
-    List arrayVals = [
-      entregados,
-      noEntregados,
-      conNovedad,
-      reagendados,
-      regEnRuta,
-      regEnOficina,
-      regPedidoProgramado
+    filters = [
+      FilterCheckModel(
+          color: Colors.red,
+          numOfFiles: 0,
+          percentage: 14,
+          svgSrc: "assets/icons/Documents.svg",
+          title: "Entregados",
+          filter: "ENTREGADO",
+          check: false),
+      FilterCheckModel(
+          color: Color.fromARGB(255, 2, 51, 22),
+          numOfFiles: 0,
+          percentage: 14,
+          svgSrc: "assets/icons/Documents.svg",
+          title: "NO ENTREGADO",
+          filter: "NO ENTREGADO",
+          check: false),
+      FilterCheckModel(
+          color: const Color.fromARGB(255, 76, 54, 244),
+          numOfFiles: 0,
+          percentage: 14,
+          svgSrc: "assets/icons/Documents.svg",
+          title: "NOVEDAD",
+          filter: "NOVEDAD",
+          check: false),
+      FilterCheckModel(
+          color: Color.fromARGB(255, 42, 163, 67),
+          numOfFiles: 0,
+          percentage: 14,
+          svgSrc: "assets/icons/Documents.svg",
+          title: "REAGENDADO",
+          filter: "REAGENDADO",
+          check: false),
+      FilterCheckModel(
+          color: Color.fromARGB(255, 146, 76, 29),
+          numOfFiles: 0,
+          percentage: 14,
+          svgSrc: "assets/icons/Documents.svg",
+          title: "EN RUTA",
+          filter: "EN RUTA",
+          check: false),
+      FilterCheckModel(
+          color: Color.fromARGB(255, 11, 6, 123),
+          numOfFiles: 0,
+          percentage: 14,
+          svgSrc: "assets/icons/Documents.svg",
+          title: "EN OFICINA",
+          filter: "EN OFICINA",
+          check: false),
+      FilterCheckModel(
+          color: Color.fromARGB(255, 146, 18, 73),
+          numOfFiles: 0,
+          percentage: 14,
+          svgSrc: "assets/icons/Documents.svg",
+          title: "PEDIDO PROGRAMADO",
+          filter: "PEDIDO PROGRAMADO",
+          check: false),
     ];
 
-    List<FilterCheckModel> auxFilter = List.from(filters);
-
-    for (var i = 0; i < auxFilter.length; i++) {
-      auxFilter[i].numOfFiles = arrayVals[i];
-    }
-
-    setState(() {
-      filters = auxFilter;
-      routeCounter = routeCounter;
+    Future.delayed(const Duration(milliseconds: 500), () {
+      Navigator.pop(context);
     });
+
+    addCounts();
+
+    updateChartValues();
+    calculateValues();
+    setState(() {});
+  }
+
+  updateChartValues() {
+    subData =
+        data.where((elemento) => elemento['Status'] == 'ENTREGADO').toList();
+    var m = subData;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: Center(
-            child: Row(
-      children: [
-        // Contenido principal de la página
-        Expanded(
-          child: Container(
-            decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
             child: Column(
+      children: [
+        Container(
+          padding: EdgeInsets.only(left: 20, right: 15, top: 20, bottom: 20),
+          child: InputDecorator(
+            decoration: InputDecoration(
+              labelText: 'Configuraciones',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+            ),
+            child: Column(children: [
+              _dates(context),
+              // _sellersTransport(context),
+              // _operators(context),
+            ]),
+          ),
+        ),
+        responsive(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _dates(context),
-
                 Expanded(
                   child: Container(
-                    padding: EdgeInsets.all(20),
-                    child: DefaultTabController(
-                      length:
-                          2, // Cambia el número de pestañas según tus necesidades
-                      child: Column(
-                        children: [
-                          TabBar(
-                            labelColor: Colors.black,
-                            tabs: [
-                              GestureDetector(
-                                  onTap: () {
-                                    changeGraphicOptions = true;
-                                  },
-                                  child: Tab(icon: Icon(Icons.pie_chart))),
-                              GestureDetector(
-                                  onTap: () {
-                                    changeGraphicOptions = false;
-                                    // loadDataRoutes();
-                                  },
-                                  child: Tab(icon: Icon(Icons.attach_money))),
-                            ],
-                          ),
-                          Expanded(
-                            child: TabBarView(
-                              children: [
-                                Container(
-                                    decoration: BoxDecoration(
-                                        border: Border.all(color: Colors.grey),
-                                        borderRadius: BorderRadius.circular(3)),
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.8,
-                                    height: 200,
-                                    child: isLoadingPie
-                                        ? CustomCircularProgressIndicator()
-                                        : DynamicPieChart(
-                                            filters: filters,
-                                          )),
-                                Container(
-                                  decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.grey),
-                                      borderRadius: BorderRadius.circular(3)),
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.8,
-                                  height: 200,
-                                  child: isLoadingPie
-                                      ? CustomCircularProgressIndicator()
-                                      : Center(
-                                          child: boxValues(
-                                              totalValoresRecibidos:
-                                                  totalValoresRecibidos,
-                                              costoDeEntregas: costoDeEntregas,
-                                              devoluciones: devoluciones,
-                                              utilidad: utilidad),
-                                        ),
-                                ),
-                              ],
+                    height: MediaQuery.of(context).size.height * 0.73,
+                    padding: EdgeInsets.only(left: 20),
+                    child: InputDecorator(
+                      decoration: InputDecoration(
+                        labelText: 'Estados de entrega',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                      child: Container(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                children: filters
+                                    .map((elemento) => FilterInfoCard(
+                                          svgSrc: elemento.svgSrc!,
+                                          title: elemento.title!,
+                                          filter: elemento.filter!,
+                                          color: elemento.color!,
+                                          details: addTableRows,
+                                          percentage: elemento.percentage!,
+                                          numOfFiles: elemento.numOfFiles!,
+                                          function: changeValue,
+                                        ))
+                                    .toList(),
+                              ),
                             ),
-                          ),
-                        ],
+                            Chart(
+                              sections: sections,
+                              total: calculatetotal(),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-
-                // Expanded(
-                //   child: Container(
-                //       decoration: BoxDecoration(
-                //           border: Border.all(color: Colors.grey),
-                //           borderRadius: BorderRadius.circular(3)),
-                //       width: MediaQuery.of(context).size.width * 0.8,
-                //       height: 200,
-                //       child: isLoading
-                //           ? CustomCircularProgressIndicator()
-                //           : DynamicPieChart(
-                //               filters: filters,
-                //             )),
-                // ),
-                // Expanded(
-                //   child: Container(
-                //       decoration: BoxDecoration(
-                //           border: Border.all(color: Colors.grey),
-                //           borderRadius: BorderRadius.circular(3)),
-                //       width: MediaQuery.of(context).size.width * 0.8,
-                //       height: 200,
-                //       child: isLoading
-                //           ? CustomCircularProgressIndicator()
-                //           : DynamicStackedColumnChart(dataList: routeSelected)),
-                // ),
+                Expanded(
+                    child: Column(
+                  children: [
+                    FilterDetails(
+                        total: totalValoresRecibidos,
+                        costoEntregas: costoTransportadora,
+                        costoDevoluciones: costoDevoluciones,
+                        utilidades: utilidades),
+                    dataTableDetails()
+                  ],
+                )),
               ],
             ),
-          ),
-        ),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.start,
+            //   crossAxisAlignment: CrossAxisAlignment.start,
+            //   children: [
+            //     Expanded(
+            //       child: Container(
+            //         height: MediaQuery.of(context).size.height * 0.73,
+            //         padding: EdgeInsets.only(left: 20),
+            //         child: InputDecorator(
+            //           decoration: InputDecoration(
+            //             labelText: 'Estados de entrega',
+            //             border: OutlineInputBorder(
+            //               borderRadius: BorderRadius.circular(10.0),
+            //             ),
+            //           ),
+            //           child: Container(
+            //             child: Row(
+            //               crossAxisAlignment: CrossAxisAlignment.center,
+            //               children: [
+            //                 Chart(
+            //                   sections: sections,
+            //                   total: calculatetotal(),
+            //                 ),
+            //               ],
+            //             ),
+            //           ),
+            //         ),
+            //       ),
+            //     ),
+            //   ],
+            // ),
 
-        // Menú lateral desplegable
+            //  Text("hola mundo"),
+
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(8),
+                children: <Widget>[
+                  Container(
+                    padding: EdgeInsets.only(left: 20, right: 14, bottom: 20),
+                    child: InputDecorator(
+                      decoration: InputDecoration(
+                        labelText: 'Estados de entrega',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                      child: Container(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                children: filters
+                                    .map((elemento) => FilterInfoCard(
+                                          svgSrc: elemento.svgSrc!,
+                                          title: elemento.title!,
+                                          filter: elemento.filter!,
+                                          color: elemento.color!,
+                                          details: addTableRows,
+                                          percentage: elemento.percentage!,
+                                          numOfFiles: elemento.numOfFiles!,
+                                          function: changeValue,
+                                        ))
+                                    .toList(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          height: MediaQuery.of(context).size.height * 0.53,
+                          padding:
+                              EdgeInsets.only(left: 18, right: 13, bottom: 20),
+                          child: InputDecorator(
+                            decoration: InputDecoration(
+                              labelText: 'Porcentajes por estado',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                            ),
+                            child: StreamBuilder<Object>(
+                                stream: null,
+                                builder: (context, snapshot) {
+                                  return Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Chart(
+                                        sections: sections,
+                                        total: calculatetotal(),
+                                      ),
+                                    ],
+                                  );
+                                }),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  FilterDetails(
+                      total: totalValoresRecibidos,
+                      costoEntregas: costoTransportadora,
+                      costoDevoluciones: costoDevoluciones,
+                      utilidades: utilidades),
+                  dataTableDetails()
+                ],
+              ),
+            ),
+            context)
       ],
     )));
-  }
-
-  addCounterRoute(routeId, title, value) async {
-    setState(() {
-      isLoadingBar = true;
-    });
-    if (value) {
-      var resRoutes = await Connections()
-          .getOrdersDashboardLogisticRoutesLaravel(
-              populate, arrayFiltersAnd, [], routeId);
-
-      Map<String, dynamic> entregado = resRoutes.firstWhere(
-        (item) => item['status'] == 'ENTREGADO',
-        orElse: () => {'count': 0},
-      );
-      Map<String, dynamic> noEntregado = resRoutes.firstWhere(
-        (item) => item['status'] == 'NO ENTREGADO',
-        orElse: () => {'count': 0},
-      );
-
-      Map<String, dynamic> novedad = resRoutes.firstWhere(
-        (item) => item['status'] == 'NOVEDAD',
-        orElse: () => {'count': 0},
-      );
-
-      Map<String, dynamic> reagendado = resRoutes.firstWhere(
-        (item) => item['status'] == 'REAGENDADO',
-        orElse: () => {'count': 0},
-      );
-
-      Map<String, dynamic> enRuta = resRoutes.firstWhere(
-        (item) => item['status'] == 'EN RUTA',
-        orElse: () => {'count': 0},
-      );
-      Map<String, dynamic> enOficina = resRoutes.firstWhere(
-        (item) => item['status'] == 'EN OFICINA',
-        orElse: () => {'count': 0},
-      );
-      Map<String, dynamic> programado = resRoutes.firstWhere(
-        (item) => item['status'] == 'PEDIDO PROGRAMADO',
-        orElse: () => {'count': 0},
-      );
-
-      Map<String, dynamic> newMap = {
-        'x': routeId,
-        'title': title,
-        'y1': {
-          "title": "entregado",
-          "value": entregado['count'],
-          "color": Color(0xFF33FF6D)
-        },
-        'y2': {
-          "title": "No Entregado",
-          "value": noEntregado['count'],
-          "color": Color(0xFFFF3333)
-        },
-        'y3': {
-          "title": "Novedad",
-          "value": novedad['count'],
-          "color": Color(0xFFD6DC27)
-        },
-        'y4': {
-          "title": "Reagendado",
-          "value": reagendado['count'],
-          "color": Color(0xFFFA37BF)
-        },
-        'y5': {
-          "title": "En Ruta",
-          "value": enRuta['count'],
-          "color": Color(0xFF3341FF)
-        },
-        'y6': {
-          "title": "En Oficina",
-          "value": enOficina['count'],
-          "color": Color(0xFF4B4C4B)
-        },
-        'y7': {
-          "title": "Programado",
-          "value": programado['count'],
-          "color": Color.fromARGB(255, 208, 102, 10)
-        },
-        // 'color': colors
-      };
-
-      // routeCounter.add(newMap);
-
-      setState(() {
-        routeSelected.add(newMap);
-      });
-    } else {
-      routeSelected.removeWhere(
-        (element) => element['x'] == routeId,
-      );
-    }
-    isLoadingBar = false;
-  }
-
-  loadCounterRoute() async {}
-
-  Widget _expansionPanel() {
-    final List _data = [
-      ['1', '2', '3', '4']
-    ];
-
-    return ExpansionPanelList(
-        expansionCallback: (int index, bool isExpanded) {
-          setState(() {
-            openStatus = !openStatus;
-          });
-        },
-        children: [
-          ExpansionPanel(
-            headerBuilder: (BuildContext context, bool isExpanded) {
-              return Expanded(child: Text("fvdvd"));
-            },
-            body: Expanded(child: Text("fvdvd")),
-            isExpanded: openStatus,
-          )
-        ]);
   }
 
   Container dataTableDetails() {
@@ -529,6 +493,92 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
             borderRadius: BorderRadius.circular(10.0),
           ),
         ),
+        child: DataTable2(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: const BorderRadius.all(Radius.circular(4)),
+              border: Border.all(color: Colors.blueGrey),
+            ),
+            headingRowHeight: 63,
+            headingTextStyle: const TextStyle(
+                fontWeight: FontWeight.bold, color: Colors.black),
+            dataTextStyle: const TextStyle(
+                fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black),
+            columnSpacing: 12,
+            horizontalMargin: 12,
+            minWidth: 200,
+            columns: [
+              DataColumn2(
+                label: Text('Fecha Entrega'),
+                size: ColumnSize.S,
+              ),
+              DataColumn2(
+                label: Text('Código'),
+                size: ColumnSize.S,
+              ),
+              DataColumn2(
+                label: Text('Precio'),
+                size: ColumnSize.S,
+              ),
+              DataColumn2(
+                label: Text('Status'),
+                size: ColumnSize.S,
+              ),
+              DataColumn2(
+                label: Text('Comentario'),
+                size: ColumnSize.S,
+              ),
+            ],
+            rows: List<DataRow>.generate(tableData.length, (index) {
+              Color rowColor = Colors.black;
+
+              return DataRow(cells: [
+                DataCell(
+                    Text(
+                      tableData[index]['Fecha_Entrega'] != null
+                          ? tableData[index]['Fecha_Entrega']
+                          : "",
+                      style: TextStyle(
+                        color: rowColor,
+                      ),
+                    ),
+                    onTap: () {}),
+                DataCell(
+                    Text(
+                      '${tableData[index]['Name_Comercial'].toString()}-${tableData[index]['NumeroOrden'].toString()}',
+                      style: TextStyle(
+                        color: rowColor,
+                      ),
+                    ),
+                    onTap: () {}),
+                DataCell(
+                    Text(
+                      tableData[index]['PrecioTotal'],
+                      style: TextStyle(
+                        color: rowColor,
+                      ),
+                    ),
+                    onTap: () {}),
+                DataCell(
+                    Text(
+                      tableData[index]['Status'].toString(),
+                      style: TextStyle(
+                        color: rowColor,
+                      ),
+                    ),
+                    onTap: () {}),
+                DataCell(
+                    Text(
+                      tableData[index]['Comentario'] != null
+                          ? tableData[index]['Comentario']
+                          : "",
+                      style: TextStyle(
+                        color: rowColor,
+                      ),
+                    ),
+                    onTap: () {}),
+              ]);
+            })),
       ),
     );
   }
@@ -587,9 +637,8 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
     }
   }
 
-  Container _dates(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(top: 10, bottom: 10),
+  SizedBox _dates(BuildContext context) {
+    return SizedBox(
       width: double.infinity,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -628,19 +677,13 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
 
                     String nuevaFecha = "$dia/$mes/$anio";
 
-                    sharedPrefs!.setString("dateDesdeLogistica", nuevaFecha);
+                    sharedPrefs!.setString("dateDesdeVendedor", nuevaFecha);
                   }
                 });
               },
               child: Text(
-                "${sharedPrefs!.getString("dateDesdeLogistica")}",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  color: Colors.blue, // Cambia el color según tus preferencias
-                  fontFamily:
-                      'Roboto', // Cambia la fuente según tus preferencias
-                ),
+                "${sharedPrefs!.getString("dateDesdeVendedor")}",
+                style: TextStyle(fontWeight: FontWeight.bold),
               )),
           Text("-"),
           TextButton(
@@ -676,26 +719,23 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
 
                     String nuevaFecha = "$dia/$mes/$anio";
 
-                    sharedPrefs!.setString("dateHastaLogistica", nuevaFecha);
+                    sharedPrefs!.setString("dateHastaVendedor", nuevaFecha);
                   }
                 });
               },
               child: Text(
-                "${sharedPrefs!.getString("dateHastaLogistica")}",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  color: Colors.blue, // Cambia el color según tus preferencias
-                  fontFamily:
-                      'Roboto', // Cambia la fuente según tus preferencias
-                ),
+                "${sharedPrefs!.getString("dateHastaVendedor")}",
+                style: TextStyle(fontWeight: FontWeight.bold),
               )),
           SizedBox(
             width: 10,
           ),
           ElevatedButton(
               onPressed: () async {
-                await loadAll();
+                setState(() {
+                  _search.clear();
+                });
+                await loadData();
               },
               child: Text(
                 "BUSCAR",
@@ -709,24 +749,89 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
     );
   }
 
-  // addCounts() {
-  //   for (var filter in filters) {
-  //     subData = [];
-  //     for (var element in data) {
-  //       if (element['Status'] == filter.filter) {
-  //         subData.add(element);
-  //       }
-  //     }
-  //     setState(() {
-  //       filter.numOfFiles = subData.length;
-  //     });
-  //     subFilters.add({
-  //       "title": filter.filter,
-  //       "total": subData.length,
-  //       "color": filter.color
-  //     });
-  //   }
-  // }
+  addCounts() {
+    for (var filter in filters) {
+      subData = [];
+      for (var element in data) {
+        if (element['Status'] == filter.filter) {
+          subData.add(element);
+        }
+      }
+      setState(() {
+        filter.numOfFiles = subData.length;
+      });
+      subFilters.add({
+        "title": filter.filter,
+        "total": subData.length,
+        "color": filter.color
+      });
+    }
+  }
+
+  addTableRows(value) {
+    tableData = [];
+    List arrTable = [];
+    for (var element in data) {
+      if (element['Status'] == value) {
+        arrTable.add(element);
+      }
+    }
+
+    setState(() {
+      tableData = arrTable;
+    });
+  }
+
+  calculateValues() {
+    totalValoresRecibidos = 0;
+    costoTransportadora = 0;
+    costoDevoluciones = 0;
+    utilidades = 0;
+    double total = 0;
+    double costoEntregas = 0;
+    double devol = 0;
+
+    for (var element in data) {
+      if (element['Status'] == 'ENTREGADO') {
+        print("precioTotal" + element['PrecioTotal']);
+        element['PrecioTotal'] =
+            element['PrecioTotal'].toString().replaceAll(',', '.');
+        total += double.parse(element['PrecioTotal']);
+      }
+
+      if (element['Status'] == 'ENTREGADO' ||
+          element['Status'] == 'NO ENTREGADO') {
+        element['users'][0]['vendedores'][0]['CostoEnvio'] =
+            element['users'][0]['vendedores'][0]['CostoEnvio'] ?? 0;
+
+        element['users'][0]['vendedores'][0]['CostoEnvio'] = element['users'][0]
+                ['vendedores'][0]['CostoEnvio']
+            .toString()
+            .replaceAll(',', '.');
+        costoEntregas +=
+            double.parse(element['users'][0]['vendedores'][0]['CostoEnvio']);
+      }
+
+      if (element['Status'] == 'NOVEDAD' &&
+          element['Estado_Devolucion'] != 'PENDIENTE') {
+        element['users'][0]['vendedores'][0]['CostoDevolucion'] =
+            element['users'][0]['vendedores'][0]['CostoDevolucion'] ?? 0;
+        element['users'][0]['vendedores'][0]['CostoDevolucion'] =
+            element['users'][0]['vendedores'][0]['CostoDevolucion']
+                .toString()
+                .replaceAll(',', '.');
+        devol += double.parse(
+            element['users'][0]['vendedores'][0]['CostoDevolucion']);
+      }
+    }
+    setState(() {
+      totalValoresRecibidos = total;
+      costoTransportadora = costoEntregas;
+      costoDevoluciones = devol;
+      utilidades =
+          totalValoresRecibidos - costoTransportadora - costoDevoluciones;
+    });
+  }
 
   calculatetotal() {
     int total = 0;
@@ -767,26 +872,5 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
         sections.removeWhere((element) => element['title'] == value['filter']);
       });
     }
-  }
-
-  void setRouteCounter(int id) {}
-}
-
-class CustomCircularProgressIndicator extends StatelessWidget {
-  const CustomCircularProgressIndicator({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: CircularProgressIndicator(
-        strokeWidth: 6, // Grosor de la línea
-        valueColor: AlwaysStoppedAnimation<Color>(
-          Colors.blue, // Color de la animación
-        ),
-        // Puedes agregar más propiedades de estilo aquí
-      ),
-    );
   }
 }
