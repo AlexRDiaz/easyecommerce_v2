@@ -112,11 +112,16 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
   List arrayFiltersDefaultAnd = [
 
     // {'operadore.up_users.username': 'Omar'},
-    {'operadore.up_users.operadore_id':sharedPrefs!.getString("idOperadore").toString()}
+    {'operadore.operadore_id':sharedPrefs!.getString("idOperadore").toString()}
     // {'estado_logistico': "ENVIADO"},
     // {'estado_interno': "CONFIRMADO"}
   ];
 
+  List multifilter = [
+    {"status":"NO ENTREGADO"},
+    {"status":"NOVEDAD"}
+  ];
+  
   List<String> listestadosdev = [
     'TODO',
     'PENDIENTE',
@@ -132,8 +137,8 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
   }
 
   loadData(context) async {
-    // print("aqui ↓");
-    // print(sharedPrefs!.getString("idOperadore").toString());
+    print("aqui ↓");
+    print(sharedPrefs!.getString("idOperadore").toString());
 
     isLoading = true;
     currentPage = 1;
@@ -152,7 +157,8 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
         arrayFiltersOr,
         currentPage,
         pageSize,
-        _controllers.searchController.text);
+        _controllers.searchController.text,
+        multifilter);
 
     setState(() {
       data = [];
@@ -190,7 +196,8 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
           arrayFiltersOr,
           currentPage,
           pageSize,
-          _controllers.searchController.text);
+          _controllers.searchController.text,
+          multifilter);
 
       setState(() {
         data = [];
@@ -243,7 +250,7 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
                   ),
                   DataColumn2(
                     label: Text('Fecha'),
-                    size: ColumnSize.M,
+                    size: ColumnSize.L,
                     onSort: (columnIndex, ascending) {
                       sortFuncDate("marca_tiempo_envio");
                     },
@@ -329,7 +336,7 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
                   ),
                   DataColumn2(
                     label: Text('Status'),
-                    size: ColumnSize.S,
+                    size: ColumnSize.L,
                     onSort: (columnIndex, ascending) {
                       sortFunc("Status");
                     },

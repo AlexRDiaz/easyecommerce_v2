@@ -2713,6 +2713,7 @@ class Connections {
     currentPage,
     sizePage,
     search,
+    List multifilter
   ) async {
     List filtersAndAll = [];
     filtersAndAll.addAll(and);
@@ -2734,7 +2735,8 @@ class Connections {
                 "page_number": currentPage,
                 "search": search,
                 // "sort": sortField,
-                "not": []
+                "not": [],
+                "multifilter":multifilter
               }));
       // print(response);
       // print("sort -> $sortField");
