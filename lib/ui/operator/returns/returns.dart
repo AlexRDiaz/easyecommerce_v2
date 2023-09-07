@@ -106,14 +106,14 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
   ];
   List arrayFiltersAnd = [];
   //  List arrayFiltersDefaultAnd = [
-    // {
-      // '"operadore.up_users.operadore_id':
-          // sharedPrefs!.getString("idOperadore").toString()
+  // {
+  // '"operadore.up_users.operadore_id':
+  // sharedPrefs!.getString("idOperadore").toString()
   List arrayFiltersDefaultAnd = [
-
     // {'operadore.up_users.username': 'Omar'},
     {'operadore.operadore_id':sharedPrefs!.getString("idOperadore").toString()}
     // {'estado_logistico': "ENVIADO"},
+
     // {'estado_interno': "CONFIRMADO"}
   ];
 
@@ -133,6 +133,8 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
   @override
   Future<void> didChangeDependencies() async {
     loadData(context);
+    print("ID=" + sharedPrefs!.getString("idOperadore").toString());
+
     super.didChangeDependencies();
   }
 
@@ -619,7 +621,6 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
             ),
           ),
         ),
-        
       ],
     );
   }
@@ -648,7 +649,6 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
                     setState(() {
                       _controllers.searchController.clear();
                       paginateData();
-
                     });
 
                     Navigator.pop(context);

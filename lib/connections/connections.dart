@@ -86,7 +86,7 @@ class Connections {
         if (decodeDataUser['roles_front']['Titulo'].toString() == "OPERADOR") {
           sharedPrefs!.setString(
               "numero", decodeDataUser['operadore']['Telefono'].toString());
-        // ! esta es la mia ↓
+          // ! esta es la mia ↓
           sharedPrefs!.setString(
               "idOperadore", decodeDataUser['operadore']['id'].toString());
         }
@@ -672,6 +672,65 @@ class Connections {
     ];
   }
 
+  Future getOrdersSellersFilterLaravel(
+      arrayFiltersOrCont,
+      arrayFiltersDefaultOr,
+      arrayfiltersDefaultAnd,
+      arrayFiltersAnd,
+      currentPage,
+      sizePage,
+      search,
+      not,
+      sort) async {
+    int res = 0;
+
+    List<dynamic> filtersAndAll = [];
+    filtersAndAll.addAll(arrayfiltersDefaultAnd);
+    filtersAndAll.addAll(arrayFiltersAnd);
+
+    print(sharedPrefs!.getString("dateDesdeVendedor"));
+    print(sharedPrefs!.getString("dateHastaVendedor"));
+    // print("todo and: \n $filtersAndAll");
+    //print("sort conn: \n $sort");
+
+    try {
+      String urlnew = "$serverLaravel/api/pedidos-shopify/filter/sellers";
+
+      var requestlaravel = await http.post(Uri.parse(urlnew),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "page_size": sizePage,
+            "page_number": currentPage,
+            "or": arrayFiltersOrCont,
+            "ordefault": arrayFiltersDefaultOr,
+            "not": not,
+            "sort": sort,
+            "and": filtersAndAll,
+            "search": search
+          }));
+
+      var responselaravel = await requestlaravel.body;
+      var decodeDataL = json.decode(responselaravel);
+      int totalRes = decodeDataL['total'];
+
+      var response = await requestlaravel.body;
+      var decodeData = json.decode(response);
+
+      if (requestlaravel.statusCode != 200) {
+        res = 1;
+        print("res:" + res.toString());
+      } else {
+        print('Total_L: $totalRes');
+      }
+      print("res:" + res.toString());
+      return decodeData;
+    } catch (e) {
+      print("Error: $e");
+      res = 2;
+      print("res:" + res.toString());
+    }
+  }
+
   Future getOrdersSellersByState(code, currentPage, pageSize, String? pedido,
       confirmado, logistico) async {
     print("currentPage=" + currentPage.toString());
@@ -854,9 +913,14 @@ class Connections {
     return decodeData;
   }
 
-  getOrdersDashboardLogisticLaravel(List populate, List and, List or) async {
+  getOrdersDashboardLogisticLaravel(
+      List populate, List and, List defaultAnd, List or) async {
     print('start: ${sharedPrefs!.getString("dateDesdeLogistica")}');
     print('end: ${sharedPrefs!.getString("dateHastaLogistica")}');
+
+    List andAll = [];
+    andAll.addAll(and);
+    andAll.addAll(defaultAnd);
 
     var request = await http.post(
         Uri.parse(
@@ -868,7 +932,35 @@ class Connections {
           "start": sharedPrefs!.getString("dateDesdeLogistica"),
           "end": sharedPrefs!.getString("dateHastaLogistica"),
           "or": or,
-          "and": and,
+          "and": andAll,
+          "not": [],
+        }));
+
+    var response = await request.body;
+    var decodeData = json.decode(response);
+    return decodeData['data'];
+  }
+
+  getOrdersDashboardSellerLaravel(
+      List populate, List and, List defaultAnd, List or) async {
+    print('start: ${sharedPrefs!.getString("dateDesdeLogistica")}');
+    print('end: ${sharedPrefs!.getString("dateHastaLogistica")}');
+
+    List andAll = [];
+    andAll.addAll(and);
+    andAll.addAll(defaultAnd);
+
+    var request = await http.post(
+        Uri.parse(
+            "$serverLaravel/api/pedidos-shopify/products/counters/logistic"),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          "start": sharedPrefs!.getString("dateDesdeLogistica"),
+          "end": sharedPrefs!.getString("dateHastaLogistica"),
+          "or": or,
+          "and": andAll,
           "not": [],
         }));
 
@@ -887,15 +979,15 @@ class Connections {
 
     return decodeData;
   }
+
   // ! mia operatoresbytransport
-  getOperatoresbyTransport(id) async
-  {
+  getOperatoresbyTransport(id) async {
     try {
       var response = await http.get(
         Uri.parse("$serverLaravel/api/operatoresbytransport/$id"),
         headers: {'Content-Type': 'application/json'},
       );
-    if (response.statusCode == 200) {
+      if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         return decodeData;
       } else if (response.statusCode == 400) {
@@ -907,6 +999,7 @@ class Connections {
       print("Ocurrió un error durante la solicitud: $error");
     }
   }
+
   // ! mia transportadoras
   getTransportadoras() async {
     try {
@@ -2320,7 +2413,7 @@ class Connections {
   Future getTransportsByRoute(search) async {
     var request = await http.get(
       Uri.parse(
-          "$server/api/transportadoras?populate=rutas&filters[rutas][Titulo][\$eq]=$search&pagination[limit]=-1"),
+          "$server/api/transportadoras?populate=rutas&filters[rutas][id][\$eq]=$search&pagination[limit]=-1"),
       headers: {'Content-Type': 'application/json'},
     );
     var response = await request.body;
@@ -2575,7 +2668,8 @@ class Connections {
       currentPage,
       sizePage,
       search,
-      not) async {
+      not,
+      sortField) async {
     int res = 0;
 
     List<dynamic> filtersAndAll = [];
@@ -2598,7 +2692,7 @@ class Connections {
             "page_number": currentPage,
             "or": arrayFiltersOrCont,
             "not": not,
-            "sort": "",
+            "sort": sortField,
             "and": filtersAndAll,
             "search": search
           }));
@@ -2626,9 +2720,13 @@ class Connections {
   }
 
   getOrdersDashboardLogisticRoutesLaravel(
-      List populate, List and, routeId) async {
+      List populate, List and, List defaultAnd, routeId) async {
     print('start: ${sharedPrefs!.getString("dateDesdeLogistica")}');
     print('end: ${sharedPrefs!.getString("dateHastaLogistica")}');
+    List<dynamic> filtersAndAll = [];
+
+    filtersAndAll.addAll(and);
+    filtersAndAll.addAll(defaultAnd);
 
     var request = await http.post(
         Uri.parse("$serverLaravel/api/pedidos-shopify/routes/count"),
@@ -2640,7 +2738,7 @@ class Connections {
           "end": sharedPrefs!.getString("dateHastaLogistica"),
           "search": "",
           "or": [],
-          "and": and,
+          "and": filtersAndAll,
           "route_id": routeId
         }));
 
@@ -2775,6 +2873,52 @@ class Connections {
           body: json.encode({
             "start": sharedPrefs!.getString("dateDesdeTransportadora"),
             "end": sharedPrefs!.getString("dateHastaTransportadora"),
+            "or": or,
+            "and": filtersAndAll,
+            "page_size": sizePage,
+            "page_number": currentPage,
+            "search": search,
+            "sort": sortField,
+            "not": []
+          }));
+      print("sort -> $sortField");
+      print("and -> $and");
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+  getOrdersLogisticLaravel(List populate, List and, List defaultAnd, List or,
+      currentPage, sizePage, search, sortField) async {
+    List filtersAndAll = [];
+    filtersAndAll.addAll(and);
+
+    filtersAndAll.addAll(defaultAnd);
+    // String startDate = "1/1/2000";
+    // String endDate = "1/1/2200";
+
+    // if (search == "") {
+    //   startDate = sharedPrefs!.getString("dateOperatorState").toString();
+    //   endDate = sharedPrefs!.getString("dateOperatorState").toString();
+    // }
+
+    try {
+      print('start: ${sharedPrefs!.getString("dateDesdeTransportadora")}');
+      print('end: ${sharedPrefs!.getString("dateHastaTransportadora")}');
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/pedidos-shopify/filter"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "start": sharedPrefs!.getString("dateOperatorState").toString(),
+            "end": sharedPrefs!.getString("dateOperatorState").toString(),
             "or": or,
             "and": filtersAndAll,
             "page_size": sizePage,

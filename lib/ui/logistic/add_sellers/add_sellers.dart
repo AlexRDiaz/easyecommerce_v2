@@ -96,6 +96,20 @@ class _AddSellersState extends State<AddSellers> {
                       },
                     ),
                     DataColumn2(
+                      label: Text('Email'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        sortFuncEmail();
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Segundo Telf'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        sortFuncTelefono2();
+                      },
+                    ),
+                    DataColumn2(
                       label: Text(''),
                       size: ColumnSize.M,
                     ),
@@ -142,6 +156,18 @@ class _AddSellersState extends State<AddSellers> {
                             }),
                             DataCell(Text(data[index]['username'].toString()),
                                 onTap: () {
+                              Navigators().pushNamed(context,
+                                  '/layout/logistic/sellers/info?id=${data[index]['id']}&id_Comercial=${data[index]['vendedores'][0]['id']}');
+                            }),
+                            DataCell(Text(data[index]['email'].toString()),
+                                onTap: () {
+                              Navigators().pushNamed(context,
+                                  '/layout/logistic/sellers/info?id=${data[index]['id']}&id_Comercial=${data[index]['vendedores'][0]['id']}');
+                            }),
+                            DataCell(
+                                Text(data[index]['vendedores']!=null && data[index]['vendedores'].toString() !="[]"?data[index]['vendedores'][0]
+                                        ['Telefono2']
+                                    .toString():""), onTap: () {
                               Navigators().pushNamed(context,
                                   '/layout/logistic/sellers/info?id=${data[index]['id']}&id_Comercial=${data[index]['vendedores'][0]['id']}');
                             }),
@@ -605,6 +631,40 @@ class _AddSellersState extends State<AddSellers> {
       data.sort((a, b) => a['vendedores'][0]['Nombre_Comercial']
           .toString()
           .compareTo(b['vendedores'][0]['Nombre_Comercial'].toString()));
+    }
+  }
+
+  sortFuncTelefono2() {
+    if (sort) {
+      setState(() {
+        sort = false;
+      });
+      data.sort((a, b) => b['vendedores'][0]['Telefono2']
+          .toString()
+          .compareTo(a['vendedores'][0]['Telefono2'].toString()));
+    } else {
+      setState(() {
+        sort = true;
+      });
+      data.sort((a, b) => a['vendedores'][0]['Telefono2']
+          .toString()
+          .compareTo(b['vendedores'][0]['Telefono2'].toString()));
+    }
+  }
+
+  sortFuncEmail() {
+    if (sort) {
+      setState(() {
+        sort = false;
+      });
+      data.sort((a, b) =>
+          b['email'].toString().compareTo(a['email'].toString()));
+    } else {
+      setState(() {
+        sort = true;
+      });
+      data.sort((a, b) =>
+          a['email'].toString().compareTo(b['email'].toString()));
     }
   }
 
