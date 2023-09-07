@@ -702,19 +702,19 @@ class _TransportDeliveryHistoryDetailsDataState
               ElevatedButton(
                   onPressed: () async {
                     getLoadingModal(context, false);
-                    // await Connections().updateOrderInfoHistorial(
-                    //     _cantidad.text,
-                    //     _precioTotal.text,
-                    //     _producto.text,
-                    //     _direccion.text,
-                    //     _ciudad.text,
-                    //     _comentario.text,
-                    //     _tipoDePago.text,
-                    //     _nombreCliente.text,
-                    //     _productoExtra.text,
-                    //     _observacion.text,
-                    //     _telefonoCliente.text,
-                    //     widget.id);
+                    await Connections().updateOrderInfoHistorial(
+                        _cantidad.text,
+                        _precioTotal.text,
+                        _producto.text,
+                        _direccion.text,
+                        _ciudad.text,
+                        _comentario.text,
+                        _tipoDePago.text,
+                        _nombreCliente.text,
+                        _productoExtra.text,
+                        _observacion.text,
+                        _telefonoCliente.text,
+                        widget.data['id']);
                     Navigator.pop(context);
                     await loadData();
                   },

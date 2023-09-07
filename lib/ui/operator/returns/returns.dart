@@ -111,17 +111,16 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
   // sharedPrefs!.getString("idOperadore").toString()
   List arrayFiltersDefaultAnd = [
     // {'operadore.up_users.username': 'Omar'},
-    {'operadore.operadore_id':sharedPrefs!.getString("idOperadore").toString()}
+    {'operadore.operadore_id': sharedPrefs!.getString("idOperadore").toString()}
     // {'estado_logistico': "ENVIADO"},
-
     // {'estado_interno': "CONFIRMADO"}
   ];
 
   List multifilter = [
-    {"status":"NO ENTREGADO"},
-    {"status":"NOVEDAD"}
+    {"status": "NO ENTREGADO"},
+    {"status": "NOVEDAD"}
   ];
-  
+
   List<String> listestadosdev = [
     'TODO',
     'PENDIENTE',
@@ -133,8 +132,6 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
   @override
   Future<void> didChangeDependencies() async {
     loadData(context);
-    print("ID=" + sharedPrefs!.getString("idOperadore").toString());
-
     super.didChangeDependencies();
   }
 
