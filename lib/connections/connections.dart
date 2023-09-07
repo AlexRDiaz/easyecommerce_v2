@@ -86,7 +86,7 @@ class Connections {
         if (decodeDataUser['roles_front']['Titulo'].toString() == "OPERADOR") {
           sharedPrefs!.setString(
               "numero", decodeDataUser['operadore']['Telefono'].toString());
-        // ! esta es la mia ↓
+          // ! esta es la mia ↓
           sharedPrefs!.setString(
               "idOperadore", decodeDataUser['operadore']['id'].toString());
         }
@@ -979,15 +979,15 @@ class Connections {
 
     return decodeData;
   }
+
   // ! mia operatoresbytransport
-  getOperatoresbyTransport(id) async
-  {
+  getOperatoresbyTransport(id) async {
     try {
       var response = await http.get(
         Uri.parse("$serverLaravel/api/operatoresbytransport/$id"),
         headers: {'Content-Type': 'application/json'},
       );
-    if (response.statusCode == 200) {
+      if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         return decodeData;
       } else if (response.statusCode == 400) {
@@ -999,6 +999,7 @@ class Connections {
       print("Ocurrió un error durante la solicitud: $error");
     }
   }
+
   // ! mia transportadoras
   getTransportadoras() async {
     try {
@@ -2667,7 +2668,8 @@ class Connections {
       currentPage,
       sizePage,
       search,
-      not) async {
+      not,
+      sortField) async {
     int res = 0;
 
     List<dynamic> filtersAndAll = [];
@@ -2690,7 +2692,7 @@ class Connections {
             "page_number": currentPage,
             "or": arrayFiltersOrCont,
             "not": not,
-            "sort": "",
+            "sort": sortField,
             "and": filtersAndAll,
             "search": search
           }));
