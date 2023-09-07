@@ -86,7 +86,11 @@ class Connections {
         if (decodeDataUser['roles_front']['Titulo'].toString() == "OPERADOR") {
           sharedPrefs!.setString(
               "numero", decodeDataUser['operadore']['Telefono'].toString());
+        // ! esta es la mia ↓
+          sharedPrefs!.setString(
+              "idOperadore", decodeDataUser['operadore']['id'].toString());
         }
+        // ! ****************
         sharedPrefs!
             .setString("fechaAlta", decodeDataUser['FechaAlta'].toString());
         sharedPrefs!.setString(
@@ -883,6 +887,47 @@ class Connections {
 
     return decodeData;
   }
+  // ! mia operatoresbytransport
+  getOperatoresbyTransport(id) async
+  {
+    try {
+      var response = await http.get(
+        Uri.parse("$serverLaravel/api/operatoresbytransport/$id"),
+        headers: {'Content-Type': 'application/json'},
+      );
+    if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+  // ! mia transportadoras
+  getTransportadoras() async {
+    try {
+      var response = await http.get(
+        Uri.parse("$serverLaravel/api/transportadoras"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      // var decodeData = json.decode(response);
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+  // ! *******************
 
   getOrdersForHistorialTransportByDatesLaravel(
       List populate, List and, List or, currentPage, sizePage, search) async {
@@ -2675,22 +2720,22 @@ class Connections {
     try {
       print('start: ${sharedPrefs!.getString("dateDesdeTransportadora")}');
       print('end: ${sharedPrefs!.getString("dateHastaTransportadora")}');
-      var response = await http.post(
-          Uri.parse("$serverLaravel/api/operator/filter"),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({
-            // "start": sharedPrefs!.getString("dateDesdeTransportadora"),
-            // "end": sharedPrefs!.getString("dateHastaTransportadora"),
-            // "start": "1/1/2023",
-            // "end": "1/1/2200",
-            "or": or,
-            "and": filtersAndAll,
-            "page_size": sizePage,
-            "page_number": currentPage,
-            "search": search,
-            // "sort": sortField,
-            "not": []
-          }));
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/operator/filter"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                // "start": sharedPrefs!.getString("dateDesdeTransportadora"),
+                // "end": sharedPrefs!.getString("dateHastaTransportadora"),
+                // "start": "1/1/2023",
+                // "end": "1/1/2200",
+                "or": or,
+                "and": filtersAndAll,
+                "page_size": sizePage,
+                "page_number": currentPage,
+                "search": search,
+                // "sort": sortField,
+                "not": []
+              }));
       // print(response);
       // print("sort -> $sortField");
       print("and -> $and");

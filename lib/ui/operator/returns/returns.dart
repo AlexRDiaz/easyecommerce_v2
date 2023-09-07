@@ -5,6 +5,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/navigators.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/returns/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:intl/intl.dart';
@@ -104,12 +105,18 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
     'marca_t_d_t',
   ];
   List arrayFiltersAnd = [];
+  //  List arrayFiltersDefaultAnd = [
+    // {
+      // '"operadore.up_users.operadore_id':
+          // sharedPrefs!.getString("idOperadore").toString()
   List arrayFiltersDefaultAnd = [
-    {'operadore.up_users.username': 'Omar'},
+
+    // {'operadore.up_users.username': 'Omar'},
+    {'operadore.up_users.operadore_id':sharedPrefs!.getString("idOperadore").toString()}
     // {'estado_logistico': "ENVIADO"},
     // {'estado_interno': "CONFIRMADO"}
   ];
-  
+
   List<String> listestadosdev = [
     'TODO',
     'PENDIENTE',
@@ -125,16 +132,19 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
   }
 
   loadData(context) async {
+    // print("aqui ↓");
+    // print(sharedPrefs!.getString("idOperadore").toString());
+
     isLoading = true;
     currentPage = 1;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
-  
-  setState(() {
-        search = false;
-      });
+
+    setState(() {
+      search = false;
+    });
     var response = await Connections().getOrdersOper(
         populate,
         arrayFiltersAnd,
@@ -152,17 +162,17 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
       paginatorController.navigateToPage(0);
     });
 
-      Future.delayed(const Duration(milliseconds: 500), () {
-        Navigator.pop(context);
-      });
-      setState(() {
-        isFirst = false;
-        isLoading = false;
-      });
+    Future.delayed(const Duration(milliseconds: 500), () {
+      Navigator.pop(context);
+    });
+    setState(() {
+      isFirst = false;
+      isLoading = false;
+    });
     // print(data);
-
   }
-    paginateData() async {
+
+  paginateData() async {
     // paginatorController.navigateToPage(0);
     try {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -173,15 +183,14 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
         search = false;
       });
 
-      var response = await Connections()
-          .getOrdersOper(
-              populate,
-              arrayFiltersAnd,
-              arrayFiltersDefaultAnd,
-              arrayFiltersOr,
-              currentPage,
-              pageSize,
-              _controllers.searchController.text);
+      var response = await Connections().getOrdersOper(
+          populate,
+          arrayFiltersAnd,
+          arrayFiltersDefaultAnd,
+          arrayFiltersOr,
+          currentPage,
+          pageSize,
+          _controllers.searchController.text);
 
       setState(() {
         data = [];
@@ -200,7 +209,6 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
       // });
     } catch (e) {
       Navigator.pop(context);
-
     }
   }
 
@@ -218,6 +226,7 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
                   text: "Busqueda", controller: _controllers.searchController),
             ),
             _filters(context),
+            numberPaginator(),
             Expanded(
               child: DataTable2(
                 headingTextStyle: const TextStyle(fontWeight: FontWeight.bold),
@@ -384,49 +393,48 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
                       onSelectChanged: (bool? selected) {},
                       cells: [
                         DataCell(ElevatedButton(
-                            onPressed: data[index]
-                                            ['estado_devolucion']
-                                        .toString() !=
-                                    "PENDIENTE"
-                                ? null
-                                : () {
-                                    AwesomeDialog(
-                                      width: 500,
-                                      context: context,
-                                      dialogType: DialogType.info,
-                                      animType: AnimType.rightSlide,
-                                      title:
-                                          '¿Estás seguro de marcar el pedido en Oficina?',
-                                      desc: '',
-                                      btnOkText: "Confirmar",
-                                      btnCancelText: "Cancelar",
-                                      btnOkColor: Colors.blueAccent,
-                                      btnCancelOnPress: () {},
-                                      btnOkOnPress: () async {
-                                        getLoadingModal(context, false);
-                                        await Connections()
-                                            .updateOrderReturnOperator(
-                                                data[index]['id']);
-                                        await loadData(context);
-                                        Navigator.pop(context);
+                            onPressed:
+                                data[index]['estado_devolucion'].toString() !=
+                                        "PENDIENTE"
+                                    ? null
+                                    : () {
+                                        AwesomeDialog(
+                                          width: 500,
+                                          context: context,
+                                          dialogType: DialogType.info,
+                                          animType: AnimType.rightSlide,
+                                          title:
+                                              '¿Estás seguro de marcar el pedido en Oficina?',
+                                          desc: '',
+                                          btnOkText: "Confirmar",
+                                          btnCancelText: "Cancelar",
+                                          btnOkColor: Colors.blueAccent,
+                                          btnCancelOnPress: () {},
+                                          btnOkOnPress: () async {
+                                            getLoadingModal(context, false);
+                                            await Connections()
+                                                .updateOrderReturnOperator(
+                                                    data[index]['id']);
+                                            await loadData(context);
+                                            Navigator.pop(context);
+                                          },
+                                        ).show();
                                       },
-                                    ).show();
-                                  },
-                            child: Text(
+                            child: const Text(
                               "Devolver",
                               style: TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 10),
                             ))),
-                        DataCell(Text(
-                          data[index]['marca_tiempo_envio']
-                              .toString
-                              .toString()
-                              .split(" ")[0]
-                              .toString(),
-                          style: TextStyle(
-                            color: rowColor,
+                        DataCell(
+                          Text(
+                            data[index]['marca_tiempo_envio']
+                                .toString()
+                                .split(" ")[0],
+                            style: TextStyle(
+                              color: rowColor,
+                            ),
                           ),
-                        )),
+                        ),
                         DataCell(
                             Text(
                               '${data[index]['name_comercial'].toString()}-${data[index]['numero_orden'].toString()}',
@@ -562,7 +570,8 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
         Text(title),
         Expanded(
           child: Container(
-            margin: EdgeInsets.only(bottom: 4.5, top: 4.5),
+            width: 150,
+            // margin: EdgeInsets.only(bottom: 4.5, top: 4.5),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(5.0),
               border: Border.all(color: Color.fromRGBO(6, 6, 6, 1)),
@@ -576,11 +585,9 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
                   controller.text = newValue ?? "";
                   arrayFiltersAnd
                       .removeWhere((element) => element.containsKey(filter));
-                    if (newValue != 'TODO') {
+                  if (newValue != 'TODO') {
                     if (filter is String) {
-                      arrayFiltersAnd.add({
-                        filter: newValue
-                      });
+                      arrayFiltersAnd.add({filter: newValue});
                     } else {
                       reemplazarValor(filter, newValue!);
                       //print(filter);
@@ -598,13 +605,14 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
               items: listOptions.map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
-                  child:
-                      Text(value.split("-")[0], style: const TextStyle(fontSize: 15)),
+                  child: Text(value.split("-")[0],
+                      style: const TextStyle(fontSize: 15)),
                 );
               }).toList(),
             ),
           ),
         ),
+        
       ],
     );
   }
@@ -632,11 +640,10 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
                     getLoadingModal(context, false);
                     setState(() {
                       _controllers.searchController.clear();
+                      paginateData();
+
                     });
 
-                    // setState(() {
-                    //   paginateData();
-                    // });
                     Navigator.pop(context);
                   },
                   child: Icon(Icons.close))
@@ -651,7 +658,6 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
       ),
     );
   }
-
 
   NumberPaginator numberPaginator() {
     return NumberPaginator(

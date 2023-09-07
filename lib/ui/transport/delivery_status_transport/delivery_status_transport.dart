@@ -62,29 +62,32 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
   //   "filter": 'transportadora',
   //   'value': sharedPrefs!.getString("idTransportadora").toString()
   // }
-  List<String> listOperators = [
-    'TODO',
-    'Omar',
-    'Wellintong',
-    'Eduardo',
-    'Patricio',
-    'Jeison',
-    'Raul',
-    'Julio',
-    'Byron',
-    'Javier',
-    'Fernando',
-    'Guido',
-    'Kevin',
-    'Nestor',
-    'Milton Simbaña',
-    'Noe Ordoñez',
-    'Paul',
-    'jose',
-    'Ivan Ibarra',
-    'Fernando Laina',
-    'Jhonny Ati'
-  ];
+
+  List<String> listOperators = ['TODO'];
+  
+  // List<String> listOperators = [
+  //   'TODO',
+  //   'Omar',
+  //   'Wellintong',
+  //   'Eduardo',
+  //   'Patricio',
+  //   'Jeison',
+  //   'Raul',
+  //   'Julio',
+  //   'Byron',
+  //   'Javier',
+  //   'Fernando',
+  //   'Guido',
+  //   'Kevin',
+  //   'Nestor',
+  //   'Milton Simbaña',
+  //   'Noe Ordoñez',
+  //   'Paul',
+  //   'jose',
+  //   'Ivan Ibarra',
+  //   'Fernando Laina',
+  //   'Jhonny Ati'
+  // ];
   List populate = [
     'transportadora.operadores.user',
     'pedido_fecha',
@@ -146,7 +149,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
       });
     }
   }
-
+  
   @override
   Future<void> didChangeDependencies() async {
     initializeDates();
@@ -158,6 +161,17 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
   loadData(context) async {
     isLoading = true;
     currentPage = 1;
+
+
+    
+      if (listOperators.length == 1) {
+        var responsetransportadoras = await Connections().getOperatoresbyTransport(sharedPrefs!.getString("idTransportadora").toString());
+        List<dynamic> transportadorasList =
+            responsetransportadoras['operadores'];
+        for (var transportadora in transportadorasList) {
+          listOperators.add(transportadora);
+        }
+      }
 
     try {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -200,9 +214,11 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
 
         pageCount = response['last_page'];
 
-        if (sortFieldDefaultValue.toString() == "marca_tiempo_envio:DESC") {
+        if (sortFieldDefaultValue.toString() == "marca_tiempo_envio:DESC" && arrayFiltersAnd.length<=1) {
           dataCounters = responseCounters;
           total = response['total'];
+          calculateValues();
+
         }
 
         // dataCounters = responseCounters;
@@ -213,7 +229,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
       });
 
       updateCounters();
-      calculateValues();
+      // calculateValues();
 
       Future.delayed(const Duration(milliseconds: 500), () {
         Navigator.pop(context);
@@ -915,11 +931,11 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
         size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
           // ! no funciona ↓
-          // sortFunc("subRuta.titulo");
+          // sortFunc3("subRuta.titulo",changevalue);
         },
       ),
       DataColumn2(
-        label: SelectFilter('Operador', 'operadore.up_users.username',
+        label: SelectFilter('Operador', 'operadore.up_users.operadore_id',
             operadorController, listOperators),
         size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
@@ -1375,11 +1391,9 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                       .removeWhere((element) => element.containsKey(filter));
 
                   if (newValue != 'TODO') {
+                    arrayFiltersAnd.add({filter: newValue?.split('-')[1]});
                     // reemplazarValor(value, newValue!);
                     //  print(value);
-
-                    arrayFiltersAnd
-                        .add({'operadore.up_users.username': newValue});
                   }
 
                   paginateData();

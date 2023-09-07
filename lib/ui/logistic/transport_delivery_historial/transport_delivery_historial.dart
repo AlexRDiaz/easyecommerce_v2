@@ -51,16 +51,19 @@ class _TransportDeliveryHistorialState
   int total = 0;
   bool enabledBusqueda = true;
   int totalRegistros = 0;
-  List<String> listtransportadores = <String>[
-    'TODO',
-    'Trans EXPRESS',
-    'rba.HalconPro',
-    'Moto Zoom',
-    'Imb.HalconPro',
-    'HalconPro',
-    'Azuay TRANS',
-  ];
 
+
+  // List<String> listtransportadores = <String>[
+  //   'TODO',
+  //   'Trans EXPRESS',
+  //   'rba.HalconPro',
+  //   'Moto Zoom',
+  //   'Imb.HalconPro',
+  //   'HalconPro',
+  //   'Azuay TRANS',
+  // ];
+
+  List<String> listtransportadores = ['TODO'];
   List<String> listStatus = [
     'TODO',
     'PEDIDO PROGRAMADO',
@@ -167,7 +170,7 @@ class _TransportDeliveryHistorialState
       TextEditingController(text: "");
   TextEditingController estadoPagoLogisticoController =
       TextEditingController(text: "TODO");
-      // ! mia 
+  // ! mia
   TextEditingController transportadorasController =
       TextEditingController(text: "TODO");
   List bools = [
@@ -256,6 +259,19 @@ class _TransportDeliveryHistorialState
       // );
 
       // var m = response;
+
+      // TODO: Obtiene las transportadores si esque la lista predefinida tiene solo un elemento
+      // * en el caso de que se ingresa se cargan cuando se seleccione esta no se actualizar y no se duplicaran}
+      // * las coincidencias respecto a las trasnportadoras sino se actualiza y da error porque en la lista se duplicara cada que se llame a loadData()
+
+      if (listtransportadores.length == 1) {
+        var responsetransportadoras = await Connections().getTransportadoras();
+        List<dynamic> transportadorasList =
+            responsetransportadoras['transportadoras'];
+        for (var transportadora in transportadorasList) {
+          listtransportadores.add(transportadora);
+        }
+      }
 
       setState(() {
         data = [];
@@ -687,8 +703,11 @@ class _TransportDeliveryHistorialState
                         },
                       ),
                       DataColumn2(
-                        label: SelectFilter('Transportadora','transportadora.nombre',
-                            transportadorasController,listtransportadores),
+                        label: SelectFilter(
+                            'Transportadora',
+                            'transportadora.transportadora_id',
+                            transportadorasController,
+                            listtransportadores),
                         size: ColumnSize.L,
                         // numeric: true,
                         onSort: (columnIndex, ascending) {
@@ -2343,9 +2362,7 @@ class _TransportDeliveryHistorialState
 
                   if (newValue != 'TODO') {
                     if (filter is String) {
-                      arrayFiltersAnd.add({
-                        filter: newValue
-                      });
+                      arrayFiltersAnd.add({filter: newValue?.split('-')[1]});
                     } else {
                       reemplazarValor(filter, newValue!);
                       //print(filter);
@@ -2361,9 +2378,11 @@ class _TransportDeliveryHistorialState
                   border: UnderlineInputBorder(
                       borderRadius: BorderRadius.circular(10))),
               items: listOptions.map<DropdownMenuItem<String>>((String value) {
+                // var nombre = value.split('-')[0];
+                // print(nombre);
                 return DropdownMenuItem<String>(
                   value: value,
-                  child: Text(value, style: const TextStyle(fontSize: 15)),
+                  child: Text(value.split('-')[0], style: const TextStyle(fontSize: 15)),
                 );
               }).toList(),
             ),
