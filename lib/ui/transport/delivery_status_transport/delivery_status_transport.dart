@@ -64,7 +64,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
   // }
 
   List<String> listOperators = ['TODO'];
-  
+
   // List<String> listOperators = [
   //   'TODO',
   //   'Omar',
@@ -149,7 +149,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
       });
     }
   }
-  
+
   @override
   Future<void> didChangeDependencies() async {
     initializeDates();
@@ -162,16 +162,15 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
     isLoading = true;
     currentPage = 1;
 
-
-    
-      if (listOperators.length == 1) {
-        var responsetransportadoras = await Connections().getOperatoresbyTransport(sharedPrefs!.getString("idTransportadora").toString());
-        List<dynamic> transportadorasList =
-            responsetransportadoras['operadores'];
-        for (var transportadora in transportadorasList) {
-          listOperators.add(transportadora);
-        }
+    if (listOperators.length == 1) {
+      var responsetransportadoras = await Connections()
+          .getOperatoresbyTransport(
+              sharedPrefs!.getString("idTransportadora").toString());
+      List<dynamic> transportadorasList = responsetransportadoras['operadores'];
+      for (var transportadora in transportadorasList) {
+        listOperators.add(transportadora);
       }
+    }
 
     try {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -214,11 +213,11 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
 
         pageCount = response['last_page'];
 
-        if (sortFieldDefaultValue.toString() == "marca_tiempo_envio:DESC" && arrayFiltersAnd.length<=1) {
+        if (sortFieldDefaultValue.toString() == "marca_tiempo_envio:DESC" &&
+            arrayFiltersAnd.length <= 1) {
           dataCounters = responseCounters;
           total = response['total'];
           calculateValues();
-
         }
 
         // dataCounters = responseCounters;
@@ -347,17 +346,29 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
     // String operatorVal = transporterOperator;
     List<Opcion> options = [
       Opcion(
-          icono: const Icon(Icons.route),
-          titulo: 'En Ruta',
-          filtro: 'En Ruta',
-          valor: enRuta,
-          color: const Color.fromARGB(255, 33, 150, 243)),
+          icono: const Icon(Icons.all_inbox),
+          titulo: 'Total',
+          filtro: 'Total',
+          valor: total,
+          color: const Color.fromARGB(255, 108, 108, 109)),
       Opcion(
           icono: const Icon(Icons.send),
           titulo: 'Entregado',
           filtro: 'Entregado',
           valor: entregados,
           color: const Color.fromARGB(255, 102, 187, 106)),
+      Opcion(
+          icono: const Icon(Icons.error),
+          titulo: 'No Entregado',
+          filtro: 'No Entregado',
+          valor: noEntregados,
+          color: const Color.fromARGB(255, 243, 33, 33)),
+      Opcion(
+          icono: const Icon(Icons.route),
+          titulo: 'En Ruta',
+          filtro: 'En Ruta',
+          valor: enRuta,
+          color: const Color.fromARGB(255, 33, 150, 243)),
       Opcion(
           icono: const Icon(Icons.schedule),
           titulo: 'Reagendado',
@@ -371,23 +382,11 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
           valor: programado,
           color: const Color.fromARGB(255, 239, 127, 14)),
       Opcion(
-          icono: const Icon(Icons.error),
-          titulo: 'No Entregado',
-          filtro: 'No Entregado',
-          valor: noEntregados,
-          color: const Color.fromARGB(255, 243, 33, 33)),
-      Opcion(
           icono: const Icon(Icons.campaign),
           titulo: 'Novedad',
           filtro: 'Novedad',
           valor: conNovedad,
           color: const Color.fromARGB(255, 244, 225, 57)),
-      Opcion(
-          icono: const Icon(Icons.all_inbox),
-          titulo: 'Total',
-          filtro: 'Total',
-          valor: total,
-          color: const Color.fromARGB(255, 108, 108, 109)),
     ];
 
     Column InputFilter(String title, filter, var controller) {
@@ -816,7 +815,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
             'Código', 'numero_orden', _controllers.codigoController),
         size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc3("numero_orden",changevalue);
+          sortFunc3("numero_orden", changevalue);
         },
       ),
       DataColumn2(
@@ -824,7 +823,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
             _controllers.nombreClienteController),
         size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc3("nombre_shipping",changevalue);
+          sortFunc3("nombre_shipping", changevalue);
         },
       ),
       DataColumn2(
@@ -832,7 +831,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
             'Ciudad', 'ciudad_shipping', _controllers.ciudadClienteController),
         size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc3("ciudad_shipping",changevalue);
+          sortFunc3("ciudad_shipping", changevalue);
         },
       ),
       DataColumn2(
@@ -840,7 +839,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
             _controllers.direccionClienteController),
         size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc3("direccion_shipping",changevalue);
+          sortFunc3("direccion_shipping", changevalue);
         },
       ),
       DataColumn2(
@@ -848,7 +847,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
             _controllers.telefonoClienteController),
         size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc3("telefono_shipping",changevalue);
+          sortFunc3("telefono_shipping", changevalue);
         },
       ),
       DataColumn2(
@@ -857,7 +856,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
         size: ColumnSize.L,
         numeric: true,
         onSort: (columnIndex, ascending) {
-          sortFunc3("cantidad_total",changevalue);
+          sortFunc3("cantidad_total", changevalue);
         },
       ),
       DataColumn2(
@@ -865,7 +864,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
             'Producto', 'producto_p', _controllers.productoController),
         size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc3("producto_p",changevalue);
+          sortFunc3("producto_p", changevalue);
         },
       ),
       DataColumn2(
@@ -873,7 +872,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
             _controllers.productoextraController),
         size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc3("producto_extra",changevalue);
+          sortFunc3("producto_extra", changevalue);
         },
       ),
       DataColumn2(
@@ -882,7 +881,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
         size: ColumnSize.L,
         numeric: true,
         onSort: (columnIndex, ascending) {
-          sortFunc3("precio_total",changevalue);
+          sortFunc3("precio_total", changevalue);
         },
       ),
       DataColumn2(
@@ -891,7 +890,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
         size: ColumnSize.L,
         numeric: true,
         onSort: (columnIndex, ascending) {
-          sortFunc3("observacion",changevalue);
+          sortFunc3("observacion", changevalue);
         },
       ),
       DataColumn2(
@@ -900,14 +899,14 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
         size: ColumnSize.L,
         numeric: true,
         onSort: (columnIndex, ascending) {
-          sortFunc3("comentario",changevalue);
+          sortFunc3("comentario", changevalue);
         },
       ),
       DataColumn2(
         label: InputFilter('Status', 'status', _controllers.statusController),
         size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc3("status",changevalue);
+          sortFunc3("status", changevalue);
         },
       ),
       DataColumn2(
@@ -918,7 +917,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
         ),
         size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc3("tipo_pago",changevalue);
+          sortFunc3("tipo_pago", changevalue);
         },
       ),
       DataColumn2(
@@ -947,7 +946,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
             'Est. Dev', 'estado_devolucion', _controllers.estDevController),
         size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc3("estado_devolucion",changevalue);
+          sortFunc3("estado_devolucion", changevalue);
         },
       ),
       DataColumn2(
@@ -955,7 +954,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
             InputFilter('MDT. OF.', 'marca_t_d', _controllers.mdtOfController),
         size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc3("marca_t_d",changevalue);
+          sortFunc3("marca_t_d", changevalue);
         },
       ),
       DataColumn2(
@@ -963,7 +962,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
             'MDT. BOD. ', 'marca_t_d_l', _controllers.mdtBodController),
         size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc3("marca_t_d_l",changevalue);
+          sortFunc3("marca_t_d_l", changevalue);
         },
       ),
       DataColumn2(
@@ -971,7 +970,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
             'MDT. RUTA', 'marca_t_d_t', _controllers.mdtRutaController),
         size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc3("marca_t_d_t",changevalue);
+          sortFunc3("marca_t_d_t", changevalue);
         },
       ),
       DataColumn2(
@@ -979,7 +978,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
             InputFilter('MTD. INP', 'marca_t_i', _controllers.mtdInpController),
         size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc3("marca_t_i",changevalue);
+          sortFunc3("marca_t_i", changevalue);
         },
       ),
       DataColumn2(
@@ -987,7 +986,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
             'Estado de Pago', 'estado_pago', _controllers.estadoPagoController),
         size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
-          sortFunc3("estado_pago",changevalue);
+          sortFunc3("estado_pago", changevalue);
         },
       ),
       DataColumn2(
@@ -1130,14 +1129,14 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
 
   sortFunc3(filtro, changevalu) {
     setState(() {
-        if (changevalu) {
-          sortFieldDefaultValue = "$filtro:DESC";
-          changevalue = false;
-        } else {
-          // changevalue = true;
-          sortFieldDefaultValue = "$filtro:ASC";
-          changevalue = true;
-        }
+      if (changevalu) {
+        sortFieldDefaultValue = "$filtro:DESC";
+        changevalue = false;
+      } else {
+        // changevalue = true;
+        sortFieldDefaultValue = "$filtro:ASC";
+        changevalue = true;
+      }
       loadData(context);
     });
   }
@@ -1416,28 +1415,48 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
     );
   }
 
+  void resetFilters() {
+    operadorController.text = "TODO";
+
+    _controllers.searchController.clear();
+    _controllers.fechaController.clear();
+    _controllers.fechaentregaController.clear();
+    _controllers.codigoController.clear();
+    _controllers.nombreClienteController.clear();
+    _controllers.ciudadClienteController.clear();
+    _controllers.direccionClienteController.clear();
+    _controllers.telefonoClienteController.clear();
+    _controllers.cantidadController.clear();
+    _controllers.productoController.clear();
+    _controllers.productoextraController.clear();
+    _controllers.precioTotalController.clear();
+    _controllers.observacionController.clear();
+    _controllers.comentarioController.clear();
+    _controllers.statusController.clear();
+    _controllers.tipoPagoController.clear();
+    _controllers.suRutaController.clear();
+    _controllers.estDevController.clear();
+    _controllers.mdtOfController.clear();
+    _controllers.mdtBodController.clear();
+    _controllers.mdtRutaController.clear();
+    _controllers.mtdInpController.clear();
+    _controllers.estadoPagoController.clear();
+    arrayFiltersAnd = [];
+    _controllers.searchController.clear();
+  }
+
   addFilter(value) {
+    resetFilters();
+
+    arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
     if (value["filtro"] != "Total") {
-      if (arrayFiltersAnd.isNotEmpty) {
-        for (var filtro in arrayFiltersAnd) {
-          if (filtro.containsKey("status") || !filtro.containsKey("status")) {
-            limpiar();
-            arrayFiltersAnd.add({"status": value["filtro"]});
-          }
-        }
-      } else {
-        arrayFiltersAnd.add({"status": value["filtro"]});
-      }
-    } else {
-      getOldValue(true);
-      // sortField="";
+      arrayFiltersAnd.add({"status": value["filtro"]});
     }
 
     setState(() {
       currentColor = value['color'];
     });
-    // ! ↓ aqui el cambio el paginator hace que se ejecute el pagechange
-    // paginateData();
+
     paginatorController.navigateToPage(0);
   }
 
