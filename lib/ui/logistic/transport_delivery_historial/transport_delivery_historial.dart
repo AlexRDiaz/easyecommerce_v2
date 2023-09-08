@@ -673,7 +673,7 @@ class _TransportDeliveryHistorialState
                         },
                       ),
                       DataColumn2(
-                        label: SelectFilter('Estado de Entrega', 'Status',
+                        label: SelectFilterNoId('Estado de entrega', 'status',
                             statusController, listStatus),
                         size: ColumnSize.L,
                         numeric: true,
@@ -771,9 +771,9 @@ class _TransportDeliveryHistorialState
                         },
                       ),
                       DataColumn2(
-                        label: SelectFilter(
+                        label: SelectFilterNoId(
                             'Estado Confirmación',
-                            'Estado_Interno',
+                            'estado_interno',
                             estadoConfirmacionController,
                             listEstadoConfirmacion),
                         size: ColumnSize.M,
@@ -783,9 +783,9 @@ class _TransportDeliveryHistorialState
                         },
                       ),
                       DataColumn2(
-                        label: SelectFilter(
+                        label: SelectFilterNoId(
                             'Estado Logístico',
-                            'Estado_Logistico',
+                            'estado_logistico',
                             estadoLogisticoController,
                             listEstadoLogistico),
                         size: ColumnSize.M,
@@ -863,9 +863,9 @@ class _TransportDeliveryHistorialState
                         },
                       ),
                       DataColumn2(
-                        label: SelectFilter(
+                        label: SelectFilterNoId(
                             'Estado Devolución',
-                            'Estado_Devolucion',
+                            'estado_devolucion',
                             estadoDevolucionController,
                             listEstadoDevolucion),
                         size: ColumnSize.M,
@@ -889,7 +889,7 @@ class _TransportDeliveryHistorialState
                         },
                       ),
                       DataColumn2(
-                        label: SelectFilter(
+                        label: SelectFilterNoId(
                             'Est. Pago Logistico',
                             'estado_pago_logistica',
                             estadoPagoLogisticoController,
@@ -897,7 +897,7 @@ class _TransportDeliveryHistorialState
                         size: ColumnSize.M,
                         numeric: true,
                         onSort: (columnIndex, ascending) {
-                          sortFunc("Estado_Pagado");
+                          sortFunc("estado_pagado");
                         },
                       ),
                     ],
@@ -2372,6 +2372,55 @@ class _TransportDeliveryHistorialState
 
                       arrayFiltersAnd.add(filter);
                     }
+                  } else {}
+
+                  loadData();
+                });
+              },
+              decoration: InputDecoration(
+                  border: UnderlineInputBorder(
+                      borderRadius: BorderRadius.circular(10))),
+              items: listOptions.map<DropdownMenuItem<String>>((String value) {
+                // var nombre = value.split('-')[0];
+                // print(nombre);
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value.split('-')[0],
+                      style: const TextStyle(fontSize: 15)),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Column SelectFilterNoId(String title, filter,
+      TextEditingController controller, List<String> listOptions) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title),
+        Expanded(
+          child: Container(
+            margin: EdgeInsets.only(bottom: 4.5, top: 4.5),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5.0),
+              border: Border.all(color: Color.fromRGBO(6, 6, 6, 1)),
+            ),
+            height: 50,
+            child: DropdownButtonFormField<String>(
+              isExpanded: true,
+              value: controller.text,
+              onChanged: (String? newValue) {
+                setState(() {
+                  controller.text = newValue ?? "";
+                  arrayFiltersAnd
+                      .removeWhere((element) => element.containsKey(filter));
+
+                  if (newValue != 'TODO') {
+                    arrayFiltersAnd.add({filter: newValue});
                   } else {}
 
                   loadData();
