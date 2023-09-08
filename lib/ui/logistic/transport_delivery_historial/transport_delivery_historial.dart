@@ -51,7 +51,7 @@ class _TransportDeliveryHistorialState
   int total = 0;
   bool enabledBusqueda = true;
   int totalRegistros = 0;
-
+  var sortFieldDefaultValue = "marca_t_i:DESC";
 
   // List<String> listtransportadores = <String>[
   //   'TODO',
@@ -249,7 +249,8 @@ class _TransportDeliveryHistorialState
               arrayFiltersOr,
               currentPage,
               pageSize,
-              _controllers.searchController.text);
+              _controllers.searchController.text,
+              sortFieldDefaultValue.toString());
 
       // var response = await Connections().getOrdersForHistorialTransportByDates(
       //   populate,
@@ -332,7 +333,8 @@ class _TransportDeliveryHistorialState
               arrayFiltersOr,
               currentPage,
               pageSize,
-              _controllers.searchController.text);
+              _controllers.searchController.text,
+              sortFieldDefaultValue.toString());
 
       setState(() {
         data = [];
@@ -2382,7 +2384,8 @@ class _TransportDeliveryHistorialState
                 // print(nombre);
                 return DropdownMenuItem<String>(
                   value: value,
-                  child: Text(value.split('-')[0], style: const TextStyle(fontSize: 15)),
+                  child: Text(value.split('-')[0],
+                      style: const TextStyle(fontSize: 15)),
                 );
               }).toList(),
             ),
