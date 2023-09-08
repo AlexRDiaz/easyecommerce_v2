@@ -1811,6 +1811,7 @@ class _TransportDeliveryHistorialState
                   Expanded(
                       child: TransportDeliveryHistoryDetailsData(
                     data: data,
+                    function: paginateData,
                   ))
                 ],
               ),

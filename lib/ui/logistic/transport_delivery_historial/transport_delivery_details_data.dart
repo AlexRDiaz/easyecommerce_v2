@@ -27,7 +27,9 @@ import 'package:printing/printing.dart';
 
 class TransportDeliveryHistoryDetailsData extends StatefulWidget {
   final Map data;
-  const TransportDeliveryHistoryDetailsData({super.key, required this.data});
+  final Function function;
+  const TransportDeliveryHistoryDetailsData(
+      {super.key, required this.data, required this.function});
 
   @override
   State<TransportDeliveryHistoryDetailsData> createState() =>
@@ -717,6 +719,7 @@ class _TransportDeliveryHistoryDetailsDataState
                         widget.data['id']);
                     Navigator.pop(context);
                     await loadData();
+                    widget.function;
                   },
                   child: Text(
                     "GUARDAR",
