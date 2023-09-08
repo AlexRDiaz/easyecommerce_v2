@@ -718,8 +718,10 @@ class _TransportDeliveryHistoryDetailsDataState
                         _telefonoCliente.text,
                         widget.data['id']);
                     Navigator.pop(context);
-                    await loadData();
-                    widget.function;
+                    Navigator.pop(context);
+
+                    //  await loadData();
+                    await widget.function();
                   },
                   child: Text(
                     "GUARDAR",

@@ -1405,6 +1405,8 @@ class Connections {
   }
 
   Future updateOrderInteralStatusHistorial(text, id) async {
+    int res = 0;
+
     try {
       var request =
           await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
@@ -1420,13 +1422,12 @@ class Connections {
       var decodeData = json.decode(response);
 
       if (request.statusCode != 200) {
-        return false;
-      } else {
-        return true;
+        res = 1;
       }
     } catch (e) {
-      print(e);
+      res = 2;
     }
+    return res;
   }
 
   Future updateOrderInteralStatusLogistic(text, id) async {
@@ -1454,6 +1455,8 @@ class Connections {
   }
 
   Future updateOrderLogisticStatus(text, id) async {
+    int res = 0;
+
     try {
       var request =
           await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
@@ -1467,16 +1470,16 @@ class Connections {
       var decodeData = json.decode(response);
 
       if (request.statusCode != 200) {
-        return false;
-      } else {
-        return true;
+        res = 1;
       }
     } catch (e) {
-      print(e);
+      res = 2;
     }
+    return res;
   }
 
   Future updateOrderLogisticStatusPrint(text, id) async {
+    int res = 0;
     try {
       var request =
           await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
@@ -1494,13 +1497,12 @@ class Connections {
       var response = await request.body;
       var decodeData = json.decode(response);
       if (request.statusCode != 200) {
-        return false;
-      } else {
-        return true;
+        res = 1;
       }
     } catch (e) {
-      print(e);
+      res = 2;
     }
+    return res;
   }
 
   Future updateOrderInteralStatusInOrderPrinted(text, id) async {
@@ -3643,47 +3645,57 @@ class Connections {
 
   //RETURNS
   Future updateOrderReturnOperator(id) async {
-    var request = await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          "data": {
-            "Estado_Devolucion": "ENTREGADO EN OFICINA",
-            "DO": "ENTREGADO EN OFICINA",
-            "Marca_T_D":
-                "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year} ${DateTime.now().hour}:${DateTime.now().minute} "
-          }
-        }));
-    var response = await request.body;
-    var decodeData = json.decode(response);
-    if (request.statusCode != 200) {
-      return false;
-    } else {
-      return true;
+    int res = 0;
+    try {
+      var request =
+          await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "data": {
+                  "Estado_Devolucion": "ENTREGADO EN OFICINA",
+                  "DO": "ENTREGADO EN OFICINA",
+                  "Marca_T_D":
+                      "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year} ${DateTime.now().hour}:${DateTime.now().minute} "
+                }
+              }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        res = 1;
+      }
+    } catch (e) {
+      res = 2;
     }
+    return res;
   }
 
   //RETURNS
   Future updateOrderReturnAll(id) async {
-    var request = await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          "data": {
-            "Estado_Devolucion": "PENDIENTE",
-            "DO": "PENDIENTE",
-            "DT": "PENDIENTE",
-            "DL": "PENDIENTE",
-            "Marca_T_D": "",
-            "Marca_T_D_T": "",
-            "Marca_T_D_L": ""
-          }
-        }));
-    var response = await request.body;
-    var decodeData = json.decode(response);
-    if (request.statusCode != 200) {
-      return false;
-    } else {
-      return true;
+    int res = 0;
+    try {
+      var request =
+          await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "data": {
+                  "Estado_Devolucion": "PENDIENTE",
+                  "DO": "PENDIENTE",
+                  "DT": "PENDIENTE",
+                  "DL": "PENDIENTE",
+                  "Marca_T_D": "",
+                  "Marca_T_D_T": "",
+                  "Marca_T_D_L": ""
+                }
+              }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        res = 1;
+      }
+    } catch (e) {
+      res = 2;
     }
+    return res;
   }
 
   Future updateReviewStatus(id) async {
@@ -3745,23 +3757,28 @@ class Connections {
   }
 
   Future updateOrderReturnLogistic(id) async {
-    var request = await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          "data": {
-            "Estado_Devolucion": "EN BODEGA",
-            "DL": "EN BODEGA",
-            "Marca_T_D_L":
-                "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year} ${DateTime.now().hour}:${DateTime.now().minute} "
-          }
-        }));
-    var response = await request.body;
-    var decodeData = json.decode(response);
-    if (request.statusCode != 200) {
-      return false;
-    } else {
-      return true;
+    int res = 0;
+    try {
+      var request =
+          await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "data": {
+                  "Estado_Devolucion": "EN BODEGA",
+                  "DL": "EN BODEGA",
+                  "Marca_T_D_L":
+                      "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year} ${DateTime.now().hour}:${DateTime.now().minute} "
+                }
+              }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        res = 1;
+      }
+    } catch (e) {
+      res = 2;
     }
+    return res;
   }
 
   Future<bool> createNovedad(id_pedido, intento, url_imagen, comment) async {
