@@ -35,6 +35,9 @@ class Connections {
         sharedPrefs!.setString(
             "role", decodeDataUser['roles_front']['Titulo'].toString());
 
+        sharedPrefs!.setBool("acceptedTermsConditions",
+            decodeData['user']['acceptedTermsConditions'] ?? false);
+
         if (decodeDataUser['roles_front']['Titulo'].toString() == "VENDEDOR") {
           sharedPrefs!.setString(
             "dateDesdeVendedor",
@@ -437,6 +440,25 @@ class Connections {
       return false;
     } else {
       return true;
+    }
+  }
+
+  Future updateSellerTC(userId, acceptedTC) async {
+    try {
+      var request = await http.put(Uri.parse("$server/api/users/$userId"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "acceptedTermsConditions": acceptedTC,
+          }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      print(e);
     }
   }
 
