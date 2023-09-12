@@ -1000,6 +1000,28 @@ class Connections {
     }
   }
 
+  // ! mia vendedores
+  getVendedores () async {
+    try {
+      var response = await http.get(
+        Uri.parse("$serverLaravel/api/vendedores"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      // var decodeData = json.decode(response);
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
   // ! mia transportadoras
   getTransportadoras() async {
     try {
@@ -1045,7 +1067,6 @@ class Connections {
             "search": search
           }));
       print(and);
-
       var response = await request.body;
       var decodeData = json.decode(response);
       if (request.statusCode != 200) {

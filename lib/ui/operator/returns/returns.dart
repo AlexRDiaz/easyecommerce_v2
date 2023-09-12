@@ -3,6 +3,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:frontend/config/colors.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/navigators.dart';
 import 'package:frontend/main.dart';
@@ -231,17 +232,31 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
               child: _modelTextField(
                   text: "Busqueda", controller: _controllers.searchController),
             ),
-            _filters(context),
-            numberPaginator(),
+
+            Row(
+              children: [
+                Expanded(
+                  child: _filters(context),
+                ),
+                Expanded(
+                  child: paginatorContainer(),
+                ),
+              ],
+            ),
             Expanded(
               child: DataTable2(
-                headingTextStyle: const TextStyle(fontWeight: FontWeight.bold),
+                headingTextStyle: const TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.white),
                 dataTextStyle:
                     const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                 columnSpacing: 12,
                 horizontalMargin: 6,
                 minWidth: 2000,
                 showCheckboxColumn: false,
+                headingRowColor: MaterialStateColor.resolveWith((states) {
+                  return Colors
+                      .blueGrey; // Color de fondo de las celdas de encabezado
+                }),
                 columns: [
                   DataColumn2(
                     label: Text(''),
@@ -546,9 +561,21 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
                           ),
                         )),
                       ],
+                      color: MaterialStateColor.resolveWith((states) {
+                        if (states.contains(MaterialState.selected)) {
+                          return Colors.blueAccent.withOpacity(
+                              0.5); // Color de fondo cuando la fila está seleccionada
+                        }
+                        return Colors
+                            .white; // Color de fondo predeterminado de la fila
+                      }),
                     );
                   },
                 ),
+                dataRowHeight: 50, // Altura de las filas de datos
+                headingRowHeight: 60,
+
+                // Altura de la fila de encabezado
               ),
             ),
           ],
@@ -576,14 +603,19 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
         Text(title),
         Expanded(
           child: Container(
-            width: 150,
-            // margin: EdgeInsets.only(bottom: 4.5, top: 4.5),
+            margin: EdgeInsets.only(bottom: 4.0),
+            width: 160,
             decoration: BoxDecoration(
+              color: Colors.blueGrey,
               borderRadius: BorderRadius.circular(5.0),
-              border: Border.all(color: Color.fromRGBO(6, 6, 6, 1)),
+              border: Border.all(color: Color.fromARGB(255, 49, 48, 48)),
             ),
             height: 50,
             child: DropdownButtonFormField<String>(
+              dropdownColor: Colors.blueGrey,
+              borderRadius: const BorderRadius.all(Radius.circular(5.0)),
+              iconDisabledColor: Colors.white,
+              iconEnabledColor: Colors.amber[900],
               isExpanded: true,
               value: controller.text,
               onChanged: (String? newValue) {
@@ -610,10 +642,18 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
                       borderRadius: BorderRadius.circular(10))),
               items: listOptions.map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value.split("-")[0],
-                      style: const TextStyle(fontSize: 15)),
-                );
+                    value: value,
+                    child: Container(
+                      padding: const  EdgeInsets.only(
+                          bottom: 5.5), // Adjust the top padding as needed
+                      child: Text(
+                        value.split("-")[0],
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ));
               }).toList(),
             ),
           ),
@@ -663,27 +703,32 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
     );
   }
 
-  NumberPaginator numberPaginator() {
-    return NumberPaginator(
-      config: NumberPaginatorUIConfig(
-        buttonUnselectedForegroundColor: const Color.fromARGB(255, 67, 67, 67),
-        buttonSelectedBackgroundColor: const Color.fromARGB(255, 67, 67, 67),
-        buttonShape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(5), // Customize the button shape
+  Container paginatorContainer() {
+    return Container(
+      // color: Colors.white, // Cambia este color al color de fondo que desees
+      child: NumberPaginator(
+        config: NumberPaginatorUIConfig(
+          buttonUnselectedForegroundColor: Color.fromARGB(255, 71, 67, 67),
+          buttonSelectedBackgroundColor: ColorsSystem().colorBlack,
+          buttonShape: RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(5), // Customize the button shape
+          ),
         ),
+        controller: paginatorController,
+        numberPages: pageCount > 0 ? pageCount : 1,
+        onPageChange: (index) async {
+          setState(() {
+            currentPage = index + 1;
+          });
+          if (!isLoading) {
+            await paginateData();
+          }
+        },
       ),
-      controller: paginatorController,
-      numberPages: pageCount > 0 ? pageCount : 1,
-      onPageChange: (index) async {
-        setState(() {
-          currentPage = index + 1;
-        });
-        if (!isLoading) {
-          await paginateData();
-        }
-      },
     );
   }
+
 // ! ***********************
   // _modelTextField({text, controller}) {
   //   return Container(
