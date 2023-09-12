@@ -6,7 +6,9 @@ import 'package:frontend/config/exports.dart';
 import 'package:frontend/helpers/navigators.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/login/controllers/controllers.dart';
+import 'package:frontend/ui/logistic/add_sellers/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/loading.dart';
+import 'package:frontend/ui/widgets/terms_conditions.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -17,7 +19,10 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   LoginControllers _controllers = LoginControllers();
+  AddSellersControllers _controllers2 = AddSellersControllers();
+
   bool obscureC = true;
+  bool ischecked = false;
 
   @override
   Widget build(BuildContext context) {
@@ -75,29 +80,20 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 onPressed: () async {
                   getLoadingModal(context, false);
+                  Navigator.pop(context);
 
-                  await _controllers.login(success: () {
-                    Navigator.pop(context);
-                    if (sharedPrefs!.getString('role') == "LOGISTICA") {
-                      Navigators()
-                          .pushNamedAndRemoveUntil(context, '/layout/logistic');
-                    }
-                    if (sharedPrefs!.getString('role') == "VENDEDOR") {
-                      Navigators()
-                          .pushNamedAndRemoveUntil(context, '/layout/sellers');
-                    }
+                  await _controllers.login(success: () async {
+                    var user_id = sharedPrefs!.getString('id') ?? "";
+                    bool acceptedTC =
+                        sharedPrefs!.getBool('acceptedTermsConditions') ??
+                            false;
 
-                    if (sharedPrefs!.getString('role') == "TRANSPORTADOR") {
-                      Navigators().pushNamedAndRemoveUntil(
-                          context, '/layout/transport');
-                    }
-                    if (sharedPrefs!.getString('role') == "OPERADOR") {
-                      Navigators()
-                          .pushNamedAndRemoveUntil(context, '/layout/operator');
+                    if (acceptedTC == false) {
+                      await showTermsAndConditionsDialog(context, user_id);
+                    } else {
+                      redirectToCorrectView(context);
                     }
                   }, error: () {
-                    Navigator.pop(context);
-
                     AwesomeDialog(
                       width: 500,
                       context: context,
@@ -183,6 +179,96 @@ class _LoginPageState extends State<LoginPage> {
                     ))
                 : null),
       ),
+    );
+  }
+
+  Future<void> redirectToCorrectView(context) async {
+    if (sharedPrefs!.getString('role') == "LOGISTICA") {
+      Navigators().pushNamedAndRemoveUntil(context, '/layout/logistic');
+    }
+    if (sharedPrefs!.getString('role') == "VENDEDOR") {
+      Navigators().pushNamedAndRemoveUntil(context, '/layout/sellers');
+    }
+
+    if (sharedPrefs!.getString('role') == "TRANSPORTADOR") {
+      Navigators().pushNamedAndRemoveUntil(context, '/layout/transport');
+    }
+    if (sharedPrefs!.getString('role') == "OPERADOR") {
+      Navigators().pushNamedAndRemoveUntil(context, '/layout/operator');
+    }
+  }
+
+  Future<void> showTermsAndConditionsDialog(context, String userId) async {
+    return showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Términos y Condiciones"),
+              IconButton(
+                icon: Icon(Icons.close),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Al marcar esta casilla, afirmo que he leído y acepto estar sujeto a los Términos y Condiciones de Easy Ecommerce",
+                style: TextStyle(fontSize: 16),
+              ),
+              Row(
+                children: [
+                  Checkbox(
+                    value: ischecked,
+                    onChanged: (value) {
+                      setState(() {
+                        ischecked = value!;
+                      });
+                      Navigator.pop(context);
+                      showTermsAndConditionsDialog(context, userId);
+                    },
+                  ),
+                  Flexible(
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => TermsConditions(),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        "Acepto los términos y condiciones",
+                        style: TextStyle(
+                          fontSize: 16,
+                          decoration: TextDecoration.underline,
+                          color: Colors.blue,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  if (ischecked) {
+                    await _controllers2.updateUserTC(userId, true);
+                    Navigator.of(context).pop();
+                    redirectToCorrectView(context);
+                  }
+                },
+                child: Text("Continuar"),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

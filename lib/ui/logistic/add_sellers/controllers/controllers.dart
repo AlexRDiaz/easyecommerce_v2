@@ -94,4 +94,8 @@ class AddSellersControllers {
       error();
     }
   }
+
+  updateUserTC(userId, acceptedTermsConditions) async {
+    await Connections().updateSellerTC(userId, acceptedTermsConditions);
+  }
 }
