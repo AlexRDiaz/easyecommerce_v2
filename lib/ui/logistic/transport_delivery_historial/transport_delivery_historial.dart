@@ -51,19 +51,12 @@ class _TransportDeliveryHistorialState
   int total = 0;
   bool enabledBusqueda = true;
   int totalRegistros = 0;
+
   var sortFieldDefaultValue = "marca_t_i:DESC";
 
-  // List<String> listtransportadores = <String>[
-  //   'TODO',
-  //   'Trans EXPRESS',
-  //   'rba.HalconPro',
-  //   'Moto Zoom',
-  //   'Imb.HalconPro',
-  //   'HalconPro',
-  //   'Azuay TRANS',
-  // ];
-
+  List<String> listvendedores = ['TODO'];
   List<String> listtransportadores = ['TODO'];
+
   List<String> listStatus = [
     'TODO',
     'PEDIDO PROGRAMADO',
@@ -152,7 +145,8 @@ class _TransportDeliveryHistorialState
   TextEditingController operadorController = TextEditingController(text: "");
   TextEditingController fechaEntregaController =
       TextEditingController(text: "");
-  TextEditingController vendedorController = TextEditingController(text: "");
+  TextEditingController vendedorController =
+      TextEditingController(text: "TODO");
   TextEditingController estadoConfirmacionController =
       TextEditingController(text: "TODO");
   TextEditingController estadoLogisticoController =
@@ -271,6 +265,14 @@ class _TransportDeliveryHistorialState
             responsetransportadoras['transportadoras'];
         for (var transportadora in transportadorasList) {
           listtransportadores.add(transportadora);
+        }
+      }
+
+      if (listvendedores.length == 1) {
+        var responsevendedores = await Connections().getVendedores();
+        List<dynamic> vendedoresList = responsevendedores['vendedores'];
+        for (var vendedor in vendedoresList) {
+          listvendedores.add(vendedor);
         }
       }
 
@@ -411,7 +413,6 @@ class _TransportDeliveryHistorialState
               height: 10,
             ),
             _dates(context),
-
             Container(
                 width: double.infinity,
                 color: Colors.white,
@@ -548,13 +549,13 @@ class _TransportDeliveryHistorialState
                     horizontalMargin: 12,
                     minWidth: 5000,
                     columns: [
-                      DataColumn2(
+                      const DataColumn2(
                         label: Text(''),
                         size: ColumnSize.S,
                       ),
                       DataColumn2(
                         label: InputFilter('Marca de Tiempo', 'Marca_T_I',
-                            marcaTiController, 'marca_t_i'),
+                            marcaTiController, '/marca_t_i'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
                           sortFunc("Marca_T_I");
@@ -568,7 +569,7 @@ class _TransportDeliveryHistorialState
                               'pedido_fecha': {'Fecha': 'valor'}
                             },
                             fechaController,
-                            'pedidoFecha.fecha'),
+                            '/pedidoFecha.fecha'),
 
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
@@ -577,7 +578,7 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter('Código', 'NumeroOrden',
-                            codigoController, 'numero_orden'),
+                            codigoController, '/numero_orden'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
                           sortFunc("NumeroOrden");
@@ -585,7 +586,7 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter('Ciudad', 'CiudadShipping',
-                            ciudadShippingController, 'ciudad_shipping'),
+                            ciudadShippingController, '/ciudad_shipping'),
                         size: ColumnSize.L,
                         onSort: (columnIndex, ascending) {
                           sortFunc("CiudadShipping");
@@ -593,7 +594,7 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter('Nombre Cliente', 'NombreShipping',
-                            nombreShippingController, 'nombre_shipping'),
+                            nombreShippingController, '/nombre_shipping'),
                         size: ColumnSize.M,
                         numeric: true,
                         onSort: (columnIndex, ascending) {
@@ -602,7 +603,7 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter('Dirección', 'DireccionShipping',
-                            direccionShippingController, 'direccion_shipping'),
+                            direccionShippingController, '/direccion_shipping'),
                         size: ColumnSize.M,
                         numeric: true,
                         onSort: (columnIndex, ascending) {
@@ -614,7 +615,7 @@ class _TransportDeliveryHistorialState
                             'Teléfono Cliente',
                             'TelefonoShipping',
                             telefonoShippingController,
-                            'telefono_shipping'),
+                            '/telefono_shipping'),
                         size: ColumnSize.M,
                         numeric: true,
                         onSort: (columnIndex, ascending) {
@@ -623,7 +624,7 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter('Cantidad', 'Cantidad_Total',
-                            cantidadTotalController, 'cantidad_total'),
+                            cantidadTotalController, '/cantidad_total'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
                           sortFunc("Cantidad_Total");
@@ -631,7 +632,7 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter('Producto', 'ProductoP',
-                            productoPController, 'producto_p'),
+                            productoPController, '/producto_p'),
                         numeric: true,
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
@@ -640,7 +641,7 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter('Producto Extra', 'ProductoExtra',
-                            productoExtraController, 'producto_extra'),
+                            productoExtraController, '/producto_extra'),
                         size: ColumnSize.M,
                         numeric: true,
                         onSort: (columnIndex, ascending) {
@@ -649,7 +650,7 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter('Precio Total', 'PrecioTotal',
-                            precioTotalController, 'precio_total'),
+                            precioTotalController, '/precio_total'),
                         size: ColumnSize.L,
                         onSort: (columnIndex, ascending) {
                           sortFunc("PrecioTotal");
@@ -657,7 +658,7 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter('Observación', 'Observacion',
-                            observacionController, 'observacion'),
+                            observacionController, '/observacion'),
                         size: ColumnSize.M,
                         numeric: true,
                         onSort: (columnIndex, ascending) {
@@ -666,14 +667,14 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter('Comentario', 'Comentario',
-                            comentarioController, 'comentario'),
+                            comentarioController, '/comentario'),
                         size: ColumnSize.L,
                         onSort: (columnIndex, ascending) {
                           sortFunc("Comentario");
                         },
                       ),
                       DataColumn2(
-                        label: SelectFilterNoId('Estado de entrega', 'status',
+                        label: SelectFilterNoId('Estado de entrega', '/status',
                             statusController, listStatus),
                         size: ColumnSize.L,
                         numeric: true,
@@ -683,7 +684,7 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter('Tipo de Pago', 'TipoPago',
-                            tipoPagoController, 'tipo_pago'),
+                            tipoPagoController, '/tipo_pago'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
                           sortFunc("TipoPago");
@@ -698,7 +699,7 @@ class _TransportDeliveryHistorialState
                               },
                             },
                             rutaAsignadaController,
-                            'ruta.titulo'),
+                            '/ruta.titulo'),
                         size: ColumnSize.S,
                         onSort: (columnIndex, ascending) {
                           sortFunc("DireccionShipping");
@@ -707,7 +708,7 @@ class _TransportDeliveryHistorialState
                       DataColumn2(
                         label: SelectFilter(
                             'Transportadora',
-                            'transportadora.transportadora_id',
+                            'equals/transportadora.transportadora_id',
                             transportadorasController,
                             listtransportadores),
                         size: ColumnSize.L,
@@ -725,7 +726,7 @@ class _TransportDeliveryHistorialState
                               }
                             },
                             subRutaController,
-                            'subRuta.titulo'),
+                            '/subRuta.titulo'),
                         size: ColumnSize.S,
                         onSort: (columnIndex, ascending) {
                           sortFunc("DireccionShipping");
@@ -742,7 +743,7 @@ class _TransportDeliveryHistorialState
                               },
                             },
                             operadorController,
-                            'operadore.up_users.username'),
+                            '/operadore.up_users.username'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
                           sortFunc("DireccionShipping");
@@ -750,30 +751,32 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter('Fecha Entrega', 'Fecha_Entrega',
-                            fechaEntregaController, 'fecha_entrega'),
+                            fechaEntregaController, '/fecha_entrega'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
                           sortFunc("Fecha_Entrega");
                         },
                       ),
                       DataColumn2(
-                        label: InputFilter(
-                            'Vendedor',
-                            {
-                              'Tienda_Temporal': {'\$contains': 'valor'},
-                            },
-                            vendedorController,
-                            'users.vendedores.nombre_comercial'),
-                        size: ColumnSize.M,
+                        label: SelectFilter('Vendedor', 'equals/id_comercial',
+                            vendedorController, listvendedores),
+                        // label: InputFilter(
+                        //     'Vendedor',
+                        //     {
+                        //       'Tienda_Temporal': {'\$contains': 'valor'},
+                        //     },
+                        //     vendedorController,
+                        //     'users.vendedores.nombre_comercial'),
+                        size: ColumnSize.L,
                         numeric: true,
                         onSort: (columnIndex, ascending) {
-                          sortFunc("Name_Comercial");
+                          // sortFunc("Name_Comercial");
                         },
                       ),
                       DataColumn2(
                         label: SelectFilterNoId(
                             'Estado Confirmación',
-                            'estado_interno',
+                            '/estado_interno',
                             estadoConfirmacionController,
                             listEstadoConfirmacion),
                         size: ColumnSize.M,
@@ -785,7 +788,7 @@ class _TransportDeliveryHistorialState
                       DataColumn2(
                         label: SelectFilterNoId(
                             'Estado Logístico',
-                            'estado_logistico',
+                            '/estado_logistico',
                             estadoLogisticoController,
                             listEstadoLogistico),
                         size: ColumnSize.M,
@@ -803,7 +806,7 @@ class _TransportDeliveryHistorialState
                               },
                             },
                             costoTransController,
-                            'transportadora.costo_transportadora'),
+                            '/transportadora.costo_transportadora'),
                         size: ColumnSize.M,
                         numeric: true,
                         onSort: (columnIndex, ascending) {
@@ -819,7 +822,7 @@ class _TransportDeliveryHistorialState
                               },
                             },
                             costoOperadorController,
-                            'operadore.costo_operador'),
+                            '/operadore.costo_operador'),
                         size: ColumnSize.M,
                         numeric: true,
                         onSort: (columnIndex, ascending) {
@@ -837,7 +840,7 @@ class _TransportDeliveryHistorialState
                               },
                             },
                             costoEntregaController,
-                            'users.vendedores.costo_envio'),
+                            '/users.vendedores.costo_envio'),
                         size: ColumnSize.M,
                         numeric: true,
                         onSort: (columnIndex, ascending) {
@@ -855,7 +858,7 @@ class _TransportDeliveryHistorialState
                               },
                             },
                             costoDevolucionController,
-                            'users.vendedores.costo_devolucion'),
+                            '/users.vendedores.costo_devolucion'),
                         size: ColumnSize.M,
                         numeric: true,
                         onSort: (columnIndex, ascending) {
@@ -865,7 +868,7 @@ class _TransportDeliveryHistorialState
                       DataColumn2(
                         label: SelectFilterNoId(
                             'Estado Devolución',
-                            'estado_devolucion',
+                            '/estado_devolucion',
                             estadoDevolucionController,
                             listEstadoDevolucion),
                         size: ColumnSize.M,
@@ -881,7 +884,7 @@ class _TransportDeliveryHistorialState
                               'Marca_T_D': {'\$contains': 'valor'},
                             },
                             marcaTiempoDevolucionController,
-                            'marca_t_d'),
+                            '/marca_t_d'),
                         size: ColumnSize.M,
                         numeric: true,
                         onSort: (columnIndex, ascending) {
@@ -891,7 +894,7 @@ class _TransportDeliveryHistorialState
                       DataColumn2(
                         label: SelectFilterNoId(
                             'Est. Pago Logistico',
-                            'estado_pago_logistica',
+                            '/estado_pago_logistica',
                             estadoPagoLogisticoController,
                             listEstadoPago),
                         size: ColumnSize.M,
@@ -1958,6 +1961,35 @@ class _TransportDeliveryHistorialState
               )),
           SizedBox(
             width: 10,
+          ),
+          ElevatedButton(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(
+                Color.fromARGB(255, 167, 7, 7),
+              ),
+            ),
+            onPressed: () async {
+              // await applyDateFilter();
+              setState(() {
+                limpiar();
+                loadData();
+              });
+            },
+            child: const Row(
+              // Usar un Row para combinar el icono y el texto
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.filter_alt), // Agregar el icono de filtro aquí
+                SizedBox(width: 8), // Espacio entre el icono y el texto
+                Text(
+                  'Quitar Filtros',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            width: 10,
           )
         ],
       ),
@@ -2691,5 +2723,42 @@ class _TransportDeliveryHistorialState
                 .toString()));
       }
     }
+  }
+
+  void limpiar() {
+    _controllers.searchController.text="";
+    arrayFiltersAnd.clear();
+    sortFieldDefaultValue = "marca_t_i:DESC";
+    _search.clear();
+    marcaTiController.clear();
+    fechaController.clear();
+    codigoController.clear();
+    ciudadShippingController.clear();
+    nombreShippingController.clear();
+    direccionShippingController.clear();
+    telefonoShippingController.clear();
+    cantidadTotalController.clear();
+    productoPController.clear();
+    productoExtraController.clear();
+    precioTotalController.clear();
+    observacionController.clear();
+    comentarioController.clear();
+    statusController.text = 'TODO';
+    tipoPagoController.clear();
+    rutaAsignadaController.clear();
+    transportadorasController.text = 'TODO';
+    subRutaController.clear();
+    operadorController.clear();
+    fechaEntregaController.clear();
+    vendedorController.text = 'TODO';
+    estadoConfirmacionController.text = 'TODO';
+    estadoLogisticoController.text = 'TODO';
+    costoTransController.clear();
+    costoOperadorController.clear();
+    costoEntregaController.clear();
+    costoDevolucionController.clear();
+    estadoDevolucionController.text = 'TODO';
+    marcaTiempoDevolucionController.clear();
+    estadoPagoLogisticoController.text = 'TODO';
   }
 }
