@@ -713,6 +713,34 @@ class _EditLogisticUserState extends State<EditLogisticUser> {
           Row(
             children: [
               Checkbox(
+                  value: devolucion,
+                  onChanged: (v) {
+                    setState(() {
+                      if (v!) {
+                        devolucion = true;
+                        vistas.add("Transacciones");
+                      } else {
+                        devolucion = false;
+                        vistas.remove("Transacciones");
+                      }
+                    });
+                  }),
+              SizedBox(
+                width: 10,
+              ),
+              Flexible(
+                  child: Text(
+                "Transacciones",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+              ))
+            ],
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Row(
+            children: [
+              Checkbox(
                   value: devolucionEnBodega,
                   onChanged: (v) {
                     setState(() {
