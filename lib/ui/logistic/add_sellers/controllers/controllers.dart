@@ -95,6 +95,10 @@ class AddSellersControllers {
     }
   }
 
+  verifyUserTC(userId) async {
+    return await Connections().verifyUserTerms(userId);
+  }
+
   updateUserTC(userId, acceptedTermsConditions) async {
     await Connections().updateUserTCLaravel(userId, acceptedTermsConditions);
   }

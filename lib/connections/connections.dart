@@ -443,6 +443,19 @@ class Connections {
     }
   }
 
+  verifyUserTerms(userId) async {
+    try {
+      var requestLaravel = await http
+          .get(Uri.parse("$serverLaravel/api/user/verifyterms/$userId"));
+      final jsonrequest = requestLaravel.body.toLowerCase();
+      // print('res api: $jsonrequest');
+
+      return jsonrequest;
+    } catch (e) {
+      print(e);
+    }
+  }
+
   Future updateUserTCLaravel(userId, acceptedTC) async {
     try {
       var requestLaravel = await http.put(
