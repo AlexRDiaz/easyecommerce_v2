@@ -96,6 +96,6 @@ class AddSellersControllers {
   }
 
   updateUserTC(userId, acceptedTermsConditions) async {
-    await Connections().updateSellerTC(userId, acceptedTermsConditions);
+    await Connections().updateUserTCLaravel(userId, acceptedTermsConditions);
   }
 }

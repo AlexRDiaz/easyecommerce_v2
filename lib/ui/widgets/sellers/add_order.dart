@@ -31,268 +31,350 @@ class _AddOrderSellersState extends State<AddOrderSellers> {
   bool confirmado = false;
   bool noDesea = false;
 
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  bool containsEmoji(String text) {
+    final emojiPattern = RegExp(
+        r'[\u2000-\u3300]|[\uD83C][\uDF00-\uDFFF]|[\uD83D][\uDC00-\uDE4F]'
+        r'|[\uD83D][\uDE80-\uDEFF]|[\uD83E][\uDD00-\uDDFF]|[\uD83E][\uDE00-\uDEFF]'
+        r'|[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]');
+    return emojiPattern.hasMatch(text);
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       content: Container(
         width: 500,
         height: MediaQuery.of(context).size.height,
-        child: ListView(
-          children: [
-            Column(
-              children: [
-                const SizedBox(height: 10),
-                TextField(
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                  controller: _ciudad,
-                  decoration: const InputDecoration(
-                    labelText: "Ciudad",
-                    labelStyle: TextStyle(fontWeight: FontWeight.bold),
+        child: Form(
+          key: formKey,
+          child: ListView(
+            children: [
+              Column(
+                children: [
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    controller: _ciudad,
+                    decoration: const InputDecoration(
+                      labelText: "Ciudad",
+                      labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    keyboardType: TextInputType.text,
+                    validator: (String? value) {
+                      if (value == null || value.isEmpty) {
+                        return "Campo requerido";
+                      } else if (containsEmoji(value)) {
+                        return "No se permiten emojis en este campo";
+                      }
+                    },
                   ),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                  controller: _codigo,
-                  decoration: const InputDecoration(
-                    labelText: "Código",
-                    labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                  controller: _nombre,
-                  decoration: const InputDecoration(
-                    labelText: "Nombre Cliente",
-                    labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                  controller: _direccion,
-                  decoration: const InputDecoration(
-                    labelText: "Dirección",
-                    labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                  controller: _telefono,
-                  decoration: const InputDecoration(
-                    labelText: "Teléfono",
-                    labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                  controller: _cantidad,
-                  decoration: const InputDecoration(
-                    labelText: "Cantidad (Enteros)",
-                    labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.digitsOnly
-                  ],
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                  controller: _producto,
-                  decoration: const InputDecoration(
-                    labelText: "Producto",
-                    labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                  controller: _productoE,
-                  decoration: const InputDecoration(
-                    labelText: "Producto Extra",
-                    labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Row(children: [
-                  Expanded(
-                    child: TextField(
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                      controller: _precioTotalEnt,
-                      decoration: const InputDecoration(
-                        labelText: "Precio Total (Entero)",
-                        labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    controller: _codigo,
+                    decoration: const InputDecoration(
+                      labelText: "Código",
+                      labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    keyboardType: TextInputType.text,
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.allow(
+                        RegExp(r'^[a-zA-Z0-9\-]+$'),
                       ),
-                      keyboardType: TextInputType.number,
-                      inputFormatters: <TextInputFormatter>[
-                        FilteringTextInputFormatter.digitsOnly
-                      ],
+                    ],
+                    validator: (String? value) {
+                      if (value == null || value.isEmpty) {
+                        return "Campo requerido";
+                      } else if (containsEmoji(value)) {
+                        return "No se permiten emojis en este campo";
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    controller: _nombre,
+                    decoration: const InputDecoration(
+                      labelText: "Nombre Cliente",
+                      labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    keyboardType: TextInputType.text,
+                    validator: (String? value) {
+                      if (value == null || value.isEmpty) {
+                        return "Campo requerido";
+                      } else if (containsEmoji(value)) {
+                        return "No se permiten emojis en este campo";
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    controller: _direccion,
+                    decoration: const InputDecoration(
+                      labelText: "Dirección",
+                      labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    validator: (String? value) {
+                      if (value == null || value.isEmpty) {
+                        return "Campo requerido";
+                      } else if (containsEmoji(value)) {
+                        return "No se permiten emojis en este campo";
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    controller: _telefono,
+                    decoration: const InputDecoration(
+                      labelText: "Teléfono",
+                      labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9+]')),
+                    ],
+                    validator: (String? value) {
+                      if (value == null || value.isEmpty) {
+                        return "Campo requerido";
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    controller: _cantidad,
+                    decoration: const InputDecoration(
+                      labelText: "Cantidad (Enteros)",
+                      labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.digitsOnly
+                    ],
+                    validator: (String? value) {
+                      if (value == null || value.isEmpty) {
+                        return "Campo requerido";
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    controller: _producto,
+                    decoration: const InputDecoration(
+                      labelText: "Producto",
+                      labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    validator: (String? value) {
+                      if (value == null || value.isEmpty) {
+                        return "Campo requerido";
+                      } else if (containsEmoji(value)) {
+                        return "No se permiten emojis en este campo";
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    controller: _productoE,
+                    decoration: const InputDecoration(
+                      labelText: "Producto Extra",
+                      labelStyle: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
-                  const Text("  .  ", style: TextStyle(fontSize: 35)),
-                  Expanded(
-                    child: TextField(
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                      controller: _precioTotalDec,
-                      decoration: const InputDecoration(
-                        labelText: "(Decimal)",
-                        labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      keyboardType: TextInputType.number,
-                      inputFormatters: <TextInputFormatter>[
-                        FilteringTextInputFormatter.digitsOnly
-                      ],
-                    ),
-                  ),
-                ]),
-                const SizedBox(height: 10),
-                TextField(
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                  controller: _observacion,
-                  decoration: const InputDecoration(
-                    labelText: "Observación",
-                    labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Checkbox(
-                        value: pendiente,
-                        onChanged: (v) {
-                          setState(() {
-                            pendiente = true;
-                            confirmado = false;
-                            noDesea = false;
-                          });
-                        }),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    const Flexible(
-                        child: Text(
-                      "Pendiente",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ))
-                  ],
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  children: [
-                    Checkbox(
-                        value: confirmado,
-                        onChanged: (v) {
-                          setState(() {
-                            pendiente = false;
-                            confirmado = true;
-                            noDesea = false;
-                          });
-                        }),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    const Flexible(
-                        child: Text(
-                      "Confirmado",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ))
-                  ],
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  children: [
-                    Checkbox(
-                        value: noDesea,
-                        onChanged: (v) {
-                          setState(() {
-                            pendiente = false;
-                            confirmado = false;
-                            noDesea = true;
-                          });
-                        }),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    const Flexible(
-                        child: Text(
-                      "No Desea",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ))
-                  ],
-                ),
-                const SizedBox(
-                  height: 30,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
+                  const SizedBox(height: 10),
+                  Row(children: [
+                    Expanded(
+                      child: TextFormField(
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        controller: _precioTotalEnt,
+                        decoration: const InputDecoration(
+                          labelText: "Precio Total (Entero)",
+                          labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: <TextInputFormatter>[
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
+                        validator: (String? value) {
+                          if (value == null || value.isEmpty) {
+                            return "Campo requerido";
+                          }
                         },
-                        child: const Text(
-                          "CANCELAR",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        )),
-                    const SizedBox(
-                      width: 10,
+                      ),
                     ),
-                    ElevatedButton(
-                        onPressed: () async {
-                          getLoadingModal(context, false);
-                          String valueState = "";
-                          String fechaC = "";
-                          if (pendiente) {
-                            valueState = "PENDIENTE";
+                    const Text("  .  ", style: TextStyle(fontSize: 35)),
+                    Expanded(
+                      child: TextFormField(
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        controller: _precioTotalDec,
+                        decoration: const InputDecoration(
+                          labelText: "(Decimal)",
+                          labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: <TextInputFormatter>[
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
+                        validator: (String? value) {
+                          if (value == null || value.isEmpty) {
+                            return "Campo requerido";
                           }
-                          if (confirmado) {
-                            valueState = "CONFIRMADO";
-                            fechaC =
-                                "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
-                          }
-                          if (noDesea) {
-                            valueState = "NO DESEA";
-                          }
-                          var dateC = await Connections().createDateOrder(
-                              "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}");
-                          String priceTotal =
-                              _precioTotalEnt.text + "." + _precioTotalDec.text;
+                        },
+                      ),
+                    ),
+                  ]),
+                  const SizedBox(height: 10),
+                  TextField(
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    controller: _observacion,
+                    decoration: const InputDecoration(
+                      labelText: "Observación",
+                      labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Checkbox(
+                          value: pendiente,
+                          onChanged: (v) {
+                            setState(() {
+                              pendiente = true;
+                              confirmado = false;
+                              noDesea = false;
+                            });
+                          }),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      const Flexible(
+                          child: Text(
+                        "Pendiente",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ))
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    children: [
+                      Checkbox(
+                          value: confirmado,
+                          onChanged: (v) {
+                            setState(() {
+                              pendiente = false;
+                              confirmado = true;
+                              noDesea = false;
+                            });
+                          }),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      const Flexible(
+                          child: Text(
+                        "Confirmado",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ))
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    children: [
+                      Checkbox(
+                          value: noDesea,
+                          onChanged: (v) {
+                            setState(() {
+                              pendiente = false;
+                              confirmado = false;
+                              noDesea = true;
+                            });
+                          }),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      const Flexible(
+                          child: Text(
+                        "No Desea",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ))
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text(
+                            "CANCELAR",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          )),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      ElevatedButton(
+                          onPressed: () async {
+                            if (formKey.currentState!.validate()) {
+                              getLoadingModal(context, false);
+                              String valueState = "";
+                              String fechaC = "";
+                              if (pendiente) {
+                                valueState = "PENDIENTE";
+                              }
+                              if (confirmado) {
+                                valueState = "CONFIRMADO";
+                                fechaC =
+                                    "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
+                              }
+                              if (noDesea) {
+                                valueState = "NO DESEA";
+                              }
+                              var dateC = await Connections().createDateOrder(
+                                  "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}");
+                              String priceTotal = _precioTotalEnt.text +
+                                  "." +
+                                  _precioTotalDec.text;
 
-                          var response = await Connections().createOrder(
-                              _codigo.text,
-                              _direccion.text,
-                              _nombre.text,
-                              _telefono.text,
-                              priceTotal,
-                              _observacion.text,
-                              _ciudad.text,
-                              valueState,
-                              _producto.text,
-                              _productoE.text,
-                              _cantidad.text,
-                              "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
-                              fechaC,
-                              dateC[1]);
-                          Navigator.pop(context);
-                          Navigator.pop(context);
-                        },
-                        child: const Text(
-                          "GUARDAR",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        )),
-                  ],
-                )
-              ],
-            )
-          ],
+                              var response = await Connections().createOrder(
+                                  _codigo.text,
+                                  _direccion.text,
+                                  _nombre.text,
+                                  _telefono.text,
+                                  priceTotal,
+                                  _observacion.text,
+                                  _ciudad.text,
+                                  valueState,
+                                  _producto.text,
+                                  _productoE.text,
+                                  _cantidad.text,
+                                  "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+                                  fechaC,
+                                  dateC[1]);
+                              Navigator.pop(context);
+                              Navigator.pop(context);
+                            }
+                          },
+                          child: const Text(
+                            "GUARDAR",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          )),
+                    ],
+                  )
+                ],
+              )
+            ],
+          ),
         ),
       ),
     );

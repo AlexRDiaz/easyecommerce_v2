@@ -443,16 +443,17 @@ class Connections {
     }
   }
 
-  Future updateSellerTC(userId, acceptedTC) async {
+  Future updateUserTCLaravel(userId, acceptedTC) async {
     try {
-      var request = await http.put(Uri.parse("$server/api/users/$userId"),
+      var requestLaravel = await http.put(
+          Uri.parse("$serverLaravel/api/user/updateterms/$userId"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
-            "acceptedTermsConditions": acceptedTC,
+            "accepted_terms_conditions": acceptedTC,
           }));
-      var response = await request.body;
+      var response = await requestLaravel.body;
       var decodeData = json.decode(response);
-      if (request.statusCode != 200) {
+      if (requestLaravel.statusCode != 200) {
         return false;
       } else {
         return true;
@@ -1023,7 +1024,7 @@ class Connections {
   }
 
   // ! mia vendedores
-  getVendedores () async {
+  getVendedores() async {
     try {
       var response = await http.get(
         Uri.parse("$serverLaravel/api/vendedores"),
@@ -1044,6 +1045,7 @@ class Connections {
       print("Ocurrió un error durante la solicitud: $error");
     }
   }
+
   // ! mia transportadoras
   getTransportadoras() async {
     try {

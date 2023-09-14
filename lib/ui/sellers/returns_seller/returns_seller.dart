@@ -187,114 +187,140 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
   }
 
   loadData() async {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getLoadingModal(context, false);
-    });
-    var response = [];
-    setState(() {
-      isLoading = true;
-      data.clear();
-    });
+    isLoading = true;
     currentPage = 1;
+    try {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
+      var response = [];
+      setState(() {
+        data.clear();
+      });
 
-    // response = await Connections().getOrdersSellersFilter(
-    //     _controllers.searchController.text,
-    //     currentPage,
-    //     pageSize,
-    //     populate,
-    //     filtersOrCont,
-    //     filtersAnd,
-    //     filtersDefaultOr,
-    //     filtersDefaultAnd, []);
+      // response = await Connections().getOrdersSellersFilter(
+      //     _controllers.searchController.text,
+      //     currentPage,
+      //     pageSize,
+      //     populate,
+      //     filtersOrCont,
+      //     filtersAnd,
+      //     filtersDefaultOr,
+      //     filtersDefaultAnd, []);
 
-    var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
-        filtersOrCont,
-        arrayFiltersDefaultOr,
-        arrayfiltersDefaultAnd,
-        arrayFiltersAnd,
-        currentPage,
-        pageSize,
-        _controllers.searchController.text,
-        arrayFiltersNotEq,
-        sortFieldDefaultValue.toString());
+      var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
+          filtersOrCont,
+          arrayFiltersDefaultOr,
+          arrayfiltersDefaultAnd,
+          arrayFiltersAnd,
+          currentPage,
+          pageSize,
+          _controllers.searchController.text,
+          arrayFiltersNotEq,
+          sortFieldDefaultValue.toString());
 
-    // data = response[0]['data'];
+      // data = response[0]['data'];
 
-    setState(() {
-      data = responseLaravel['data'];
+      setState(() {
+        data = responseLaravel['data'];
 
-      pageCount = responseLaravel['last_page'];
-      // total = response[0]['meta']['pagination']['total'];
-      //total = responseLaravel['total'];
+        pageCount = responseLaravel['last_page'];
+        // total = response[0]['meta']['pagination']['total'];
+        //total = responseLaravel['total'];
 
-      if (sortFieldDefaultValue.toString() == "id:DESC") {
-        total = responseLaravel['total'];
-      }
+        if (sortFieldDefaultValue.toString() == "id:DESC") {
+          total = responseLaravel['total'];
+        }
 
-      paginatorController.navigateToPage(0);
-    });
+        paginatorController.navigateToPage(0);
+      });
 
-    Future.delayed(Duration(milliseconds: 500), () {
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
+      print("datos cargados correctamente");
+      setState(() {
+        isFirst = false;
+
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
       Navigator.pop(context);
-    });
-    print("datos cargados correctamente");
-    setState(() {
-      isFirst = false;
-
-      isLoading = false;
-    });
+      _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
+    }
   }
 
   paginateData() async {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getLoadingModal(context, false);
-    });
-    var response = [];
-    setState(() {
-      isLoading = true;
-      data.clear();
-    });
+    try {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
+      var response = [];
+      setState(() {
+        isLoading = true;
+        data.clear();
+      });
 
-    // response = await Connections().getOrdersSellersFilter(
-    //     _controllers.searchController.text,
-    //     currentPage,
-    //     pageSize,
-    //     populate,
-    //     filtersOrCont,
-    //     filtersAnd,
-    //     filtersDefaultOr,
-    //     filtersDefaultAnd, []);
+      // response = await Connections().getOrdersSellersFilter(
+      //     _controllers.searchController.text,
+      //     currentPage,
+      //     pageSize,
+      //     populate,
+      //     filtersOrCont,
+      //     filtersAnd,
+      //     filtersDefaultOr,
+      //     filtersDefaultAnd, []);
 
-    var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
-        filtersOrCont,
-        arrayFiltersDefaultOr,
-        arrayfiltersDefaultAnd,
-        arrayFiltersAnd,
-        currentPage,
-        pageSize,
-        _controllers.searchController.text,
-        arrayFiltersNotEq,
-        sortFieldDefaultValue.toString());
+      var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
+          filtersOrCont,
+          arrayFiltersDefaultOr,
+          arrayfiltersDefaultAnd,
+          arrayFiltersAnd,
+          currentPage,
+          pageSize,
+          _controllers.searchController.text,
+          arrayFiltersNotEq,
+          sortFieldDefaultValue.toString());
 
-    // data = response[0]['data'];
-    data = responseLaravel['data'];
+      // data = response[0]['data'];
+      data = responseLaravel['data'];
 
-    setState(() {
-      // pageCount = response[0]['meta']['pagination']['pageCount'];
-      // total = response[0]['meta']['pagination']['total'];
+      setState(() {
+        // pageCount = response[0]['meta']['pagination']['pageCount'];
+        // total = response[0]['meta']['pagination']['total'];
 
-      pageCount = responseLaravel['last_page'];
-      total = responseLaravel['total'];
-    });
+        pageCount = responseLaravel['last_page'];
+        total = responseLaravel['total'];
+      });
 
-    await Future.delayed(Duration(milliseconds: 500), () {
+      await Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
+      setState(() {
+        isFirst = false;
+        isLoading = false;
+      });
+      print("datos paginados");
+    } catch (e) {
       Navigator.pop(context);
-    });
-    setState(() {
-      isFirst = false;
-      isLoading = false;
-    });
-    print("datos paginados");
+      _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
+    }
+  }
+
+  void _showErrorSnackBar(BuildContext context, String errorMessage) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          errorMessage,
+          style: TextStyle(color: Color.fromRGBO(7, 0, 0, 1)),
+        ),
+        backgroundColor: Color.fromARGB(255, 253, 101, 90),
+        duration: Duration(seconds: 4),
+      ),
+    );
   }
 
   @override

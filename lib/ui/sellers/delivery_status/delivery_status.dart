@@ -189,57 +189,66 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     setState(() {
       isLoading = true;
     });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getLoadingModal(context, false);
-    });
+    try {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
 
-    var responseCounters = await Connections().getOrdersCountersSeller(
-        populate, arrayfiltersDefaultAnd, [], arrayFiltersNotEq);
+      var responseCounters = await Connections().getOrdersCountersSeller(
+          populate, arrayfiltersDefaultAnd, [], arrayFiltersNotEq);
 
-    var responseValues = await Connections().getValuesSeller(populate, [
-      {
-        "transportadora": {"\$not": null}
-      },
-      {
-        'IdComercial':
-            sharedPrefs!.getString("idComercialMasterSeller").toString()
-      }
-    ]);
+      var responseValues = await Connections().getValuesSeller(populate, [
+        {
+          "transportadora": {"\$not": null}
+        },
+        {
+          'IdComercial':
+              sharedPrefs!.getString("idComercialMasterSeller").toString()
+        }
+      ]);
 
-    var responseLaravel = await Connections()
-        .getOrdersForSellerStateSearchForDateSellerLaravel(
-            _controllers.searchController.text,
-            filtersOrCont,
-            arrayfiltersDefaultAnd,
-            arrayFiltersAnd,
-            currentPage,
-            pageSize,
-            _controllers.searchController.text,
-            arrayFiltersNotEq,
-            sortFieldDefaultValue);
+      var responseLaravel = await Connections()
+          .getOrdersForSellerStateSearchForDateSellerLaravel(
+              _controllers.searchController.text,
+              filtersOrCont,
+              arrayfiltersDefaultAnd,
+              arrayFiltersAnd,
+              currentPage,
+              pageSize,
+              _controllers.searchController.text,
+              arrayFiltersNotEq,
+              sortFieldDefaultValue);
 
-    dataCounters = responseCounters;
-    valuesTransporter = responseValues;
-    data = responseLaravel['data'];
+      dataCounters = responseCounters;
+      valuesTransporter = responseValues;
+      data = responseLaravel['data'];
 
-    // totallast = responseLaravel['total'];
-    totallast = dataCounters['TOTAL'];
-    pageCount = responseLaravel['last_page'];
+      // totallast = responseLaravel['total'];
+      totallast = dataCounters['TOTAL'];
+      pageCount = responseLaravel['last_page'];
 
-    paginatorController.navigateToPage(0);
+      paginatorController.navigateToPage(0);
 
-    updateCounters();
-    calculateValues();
+      updateCounters();
+      calculateValues();
 
-    Future.delayed(Duration(milliseconds: 500), () {
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
+      print("datos cargados correctamente");
+      setState(() {
+        isFirst = false;
+
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+
       Navigator.pop(context);
-    });
-    print("datos cargados correctamente");
-    setState(() {
-      isFirst = false;
-
-      isLoading = false;
-    });
+      _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
+    }
   }
 
   initializeDates() {
@@ -264,35 +273,53 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     setState(() {
       isLoading = true;
     });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getLoadingModal(context, false);
-    });
-    var response = await Connections()
-        .getOrdersForSellerStateSearchForDateSellerLaravel(
-            _controllers.searchController.text,
-            filtersOrCont,
-            arrayfiltersDefaultAnd,
-            arrayFiltersAnd,
-            currentPage,
-            pageSize,
-            _controllers.searchController.text,
-            arrayFiltersNotEq,
-            sortFieldDefaultValue.toString());
+    try {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
+      var response = await Connections()
+          .getOrdersForSellerStateSearchForDateSellerLaravel(
+              _controllers.searchController.text,
+              filtersOrCont,
+              arrayfiltersDefaultAnd,
+              arrayFiltersAnd,
+              currentPage,
+              pageSize,
+              _controllers.searchController.text,
+              arrayFiltersNotEq,
+              sortFieldDefaultValue.toString());
 
-    setState(() {
-      data = response['data'];
-      pageCount = response['last_page'];
-      //paginatorController.navigateToPage(0);
-    });
+      setState(() {
+        data = response['data'];
+        pageCount = response['last_page'];
+        //paginatorController.navigateToPage(0);
+      });
 
-    Future.delayed(Duration(milliseconds: 500), () {
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
+      setState(() {
+        isFirst = false;
+        isLoading = false;
+      });
+      print("datos paginados");
+    } catch (e) {
       Navigator.pop(context);
-    });
-    setState(() {
-      isFirst = false;
-      isLoading = false;
-    });
-    print("datos paginados");
+      _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
+    }
+  }
+
+  void _showErrorSnackBar(BuildContext context, String errorMessage) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          errorMessage,
+          style: TextStyle(color: Color.fromRGBO(7, 0, 0, 1)),
+        ),
+        backgroundColor: Color.fromARGB(255, 253, 101, 90),
+        duration: Duration(seconds: 4),
+      ),
+    );
   }
 
   @override
@@ -423,7 +450,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
             Container(
               width: double.infinity,
               color: currentColor.withOpacity(0.3),
-              padding: EdgeInsets.only(top: 5, bottom: 5),
+              padding: EdgeInsets.all(10),
               child: responsive(
                   Row(
                     children: [
@@ -432,26 +459,28 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                             text: "Buscar",
                             controller: _controllers.searchController),
                       ),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          resetFilters();
-                          paginatorController.navigateToPage(0);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromRGBO(255, 66, 66, 1),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
+                      SizedBox(width: 10),
+                      Tooltip(
+                        message: 'Limpiar filtros',
+                        textStyle: TextStyle(
+                          fontSize: 18,
+                          color: const Color.fromARGB(255, 255, 255, 255),
+                        ),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            resetFilters();
+                            paginatorController.navigateToPage(0);
+                          },
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.filter_alt_outlined),
+                              Icon(Icons.clear_outlined),
+                            ],
                           ),
-                        ),
-                        icon: Icon(
-                          Icons.filter_list, // Icono de filtro
-                          color: Colors.white,
-                        ),
-                        label: Text(
-                          'Limpiar Filtros',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.white,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                const Color.fromARGB(255, 245, 88, 76),
                           ),
                         ),
                       ),
