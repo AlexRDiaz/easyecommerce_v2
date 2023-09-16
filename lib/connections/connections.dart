@@ -3131,6 +3131,9 @@ class Connections {
   }
 
   getWithdrawalsSellersListWallet() async {
+    //delete
+    print(' getWithdrawalsSellersListWallet');
+
     var request = await http.get(
       Uri.parse(
           "$server/api/ordenes-retiros?populate=users_permissions_user&filters[users_permissions_user][id][\$eq]=${sharedPrefs!.getString("idComercialMasterSeller").toString()}&sort=id%3Adesc&pagination[limit]=-1"),
@@ -4197,6 +4200,59 @@ class Connections {
       return false;
     } else {
       return true;
+    }
+  }
+
+  //--wallet-laravel
+  getWithdrawalsSellersListWalletLaravel(
+      currentPage, sizePage, sortField) async {
+    int res = 0;
+    try {
+      var request = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/seller/ordenesretiro/${sharedPrefs!.getString("idComercialMasterSeller").toString()}"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "page_size": sizePage,
+            "page_number": currentPage,
+            "sort": sortField,
+          }));
+
+      var responselaravel = await request.body;
+      var decodeDataL = json.decode(responselaravel);
+      int totalRes = decodeDataL['total'];
+
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        res = 1;
+        print("res:" + res.toString());
+      } else {
+        print('Total_L: $totalRes');
+      }
+      print("res:" + res.toString());
+      return decodeData;
+    } catch (e) {
+      return (e);
+    }
+  }
+
+  getWalletValueLaravel() async {
+    try {
+      var request = await http.get(
+        Uri.parse(
+            "$serverLaravel/api/seller/misaldo/${sharedPrefs!.getString("idComercialMasterSeller").toString()}"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      // print('saldo Lar: $decodeData');
+
+      return decodeData['value'];
+    } catch (e) {
+      print(e);
     }
   }
 
