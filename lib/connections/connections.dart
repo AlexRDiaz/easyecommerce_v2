@@ -146,11 +146,11 @@ class Connections {
   getPersonalInfoAccountI() async {
     String id = Get.parameters['id'].toString();
 
-    var getUserSpecificRequest = await http.get(Uri.parse(
-        "$server/api/users/$id?populate=roles_front&populate=vendedores&populate=transportadora&populate=operadore&populate=PERMISOS"));
+    var getUserSpecificRequest =
+        await http.get(Uri.parse("$serverLaravel/api/users/$id"));
     var responseUser = await getUserSpecificRequest.body;
     var decodeDataUser = json.decode(responseUser);
-    return decodeDataUser;
+    return decodeDataUser['user'];
   }
 
   // SELLERS
@@ -184,13 +184,13 @@ class Connections {
   Future getSellersByIdMaster(search) async {
     var request = await http.get(
       Uri.parse(
-          "$server/api/users?populate=roles_front&populate=vendedores&filters[vendedores][Id_Master][\$eq]=${sharedPrefs!.getString("idComercialMasterSeller").toString()}&filters[\$or][0][username][\$contains]=$search&filters[\$or][1][email][\$contains]=$search&pagination[limit]=-1"),
+          "$serverLaravel/api/sellers/${sharedPrefs!.getString("idComercialMasterSeller").toString()}/$search"),
       headers: {'Content-Type': 'application/json'},
     );
     var response = await request.body;
     var decodeData = json.decode(response);
 
-    return decodeData;
+    return decodeData['users'];
   }
 
   Future getSellersByIdMasterOnly(id) async {
@@ -265,7 +265,7 @@ class Connections {
   }
 
   Future createInternalSeller(user, mail, permisos) async {
-    var request = await http.post(Uri.parse("$server/api/users"),
+    var request = await http.post(Uri.parse("$serverLaravel/api/users"),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           "username": user,
@@ -437,11 +437,14 @@ class Connections {
 
   Future updateSellerI(user, mail, permisos) async {
     String id = Get.parameters['id'].toString();
-
-    var request = await http.put(Uri.parse("$server/api/users/$id"),
+    var perm = jsonEncode(permisos);
+    var request = await http.put(Uri.parse("$serverLaravel/api/users/$id"),
         headers: {'Content-Type': 'application/json'},
-        body: json
-            .encode({"username": user, "email": mail, "PERMISOS": permisos}));
+        body: json.encode({
+          "username": user,
+          "email": mail,
+          "permisos": jsonEncode(permisos)
+        }));
     var response = await request.body;
     var decodeData = json.decode(response);
     if (request.statusCode != 200) {
@@ -3139,6 +3142,9 @@ class Connections {
   }
 
   getWithdrawalsSellersListWallet() async {
+    //delete
+    print(' getWithdrawalsSellersListWallet');
+
     var request = await http.get(
       Uri.parse(
           "$server/api/ordenes-retiros?populate=users_permissions_user&filters[users_permissions_user][id][\$eq]=${sharedPrefs!.getString("idComercialMasterSeller").toString()}&sort=id%3Adesc&pagination[limit]=-1"),
@@ -3939,7 +3945,7 @@ class Connections {
   }
 
   Future updateAccountBlock(id) async {
-    var request = await http.put(Uri.parse("$server/api/users/$id"),
+    var request = await http.put(Uri.parse("$serverLaravel/api/users/$id"),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({"blocked": true}));
     var response = await request.body;
@@ -3953,7 +3959,7 @@ class Connections {
   }
 
   Future updateAccountDisBlock(id) async {
-    var request = await http.put(Uri.parse("$server/api/users/$id"),
+    var request = await http.put(Uri.parse("$serverLaravel/api/users/$id"),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({"blocked": false}));
     var response = await request.body;
@@ -4205,6 +4211,59 @@ class Connections {
       return false;
     } else {
       return true;
+    }
+  }
+
+  //--wallet-laravel
+  getWithdrawalsSellersListWalletLaravel(
+      currentPage, sizePage, sortField) async {
+    int res = 0;
+    try {
+      var request = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/seller/ordenesretiro/${sharedPrefs!.getString("idComercialMasterSeller").toString()}"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "page_size": sizePage,
+            "page_number": currentPage,
+            "sort": sortField,
+          }));
+
+      var responselaravel = await request.body;
+      var decodeDataL = json.decode(responselaravel);
+      int totalRes = decodeDataL['total'];
+
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        res = 1;
+        print("res:" + res.toString());
+      } else {
+        print('Total_L: $totalRes');
+      }
+      print("res:" + res.toString());
+      return decodeData;
+    } catch (e) {
+      return (e);
+    }
+  }
+
+  getWalletValueLaravel() async {
+    try {
+      var request = await http.get(
+        Uri.parse(
+            "$serverLaravel/api/seller/misaldo/${sharedPrefs!.getString("idComercialMasterSeller").toString()}"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      // print('saldo Lar: $decodeData');
+
+      return decodeData['value'];
+    } catch (e) {
+      print(e);
     }
   }
 
