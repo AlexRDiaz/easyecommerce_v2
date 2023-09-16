@@ -197,15 +197,18 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       var responseCounters = await Connections().getOrdersCountersSeller(
           populate, arrayfiltersDefaultAnd, [], arrayFiltersNotEq);
 
-      var responseValues = await Connections().getValuesSeller(populate, [
-        {
-          "transportadora": {"\$not": null}
-        },
-        {
-          'IdComercial':
-              sharedPrefs!.getString("idComercialMasterSeller").toString()
-        }
-      ]);
+      // var responseValues = await Connections().getValuesSeller(populate, [
+      //   {
+      //     "transportadora": {"\$not": null}
+      //   },
+      //   {
+      //     'IdComercial':
+      //         sharedPrefs!.getString("idComercialMasterSeller").toString()
+      //   }
+      // ]);
+
+      var responseValues =
+          await Connections().getValuesSellerLaravel(arrayfiltersDefaultAnd);
 
       var responseLaravel = await Connections()
           .getOrdersForSellerStateSearchForDateSellerLaravel(
@@ -220,7 +223,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
               sortFieldDefaultValue);
 
       dataCounters = responseCounters;
-      valuesTransporter = responseValues;
+      valuesTransporter = responseValues['data'];
       data = responseLaravel['data'];
 
       // totallast = responseLaravel['total'];
@@ -994,11 +997,15 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
 
     setState(() {
       totalValoresRecibidos =
-          double.parse(valuesTransporter['totalValoresRecibido'].toString());
+          double.parse(valuesTransporter['totalValoresRecibidos'].toString());
       costoDeEntregas =
-          double.parse(valuesTransporter['costoDeEntregas'].toString());
-      devoluciones = double.parse(valuesTransporter['devoluciones'].toString());
-      utilidad = double.parse(valuesTransporter['utilidad'].toString());
+          double.parse(valuesTransporter['totalShippingCost'].toString());
+      devoluciones =
+          double.parse(valuesTransporter['totalCostoDevolucion'].toString());
+      utilidad = (valuesTransporter['totalValoresRecibidos']) -
+          (valuesTransporter['totalShippingCost'] +
+              valuesTransporter['totalCostoDevolucion']);
+      utilidad = double.parse(utilidad.toString());
     });
   }
 

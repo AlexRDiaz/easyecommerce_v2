@@ -4267,6 +4267,37 @@ class Connections {
     }
   }
 
+  getValuesSellerLaravel(arrayfiltersDefaultAnd) async {
+    try {
+      int res = 0;
+      var request = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/pedidos-shopify/products/values/seller"),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode({
+            "start": sharedPrefs!.getString("dateDesdeVendedor"),
+            "end": sharedPrefs!.getString("dateHastaVendedor"),
+            "or": [],
+            "and": arrayfiltersDefaultAnd,
+            "not": [],
+          }));
+
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        res = 1;
+        print("res:" + res.toString());
+      } else {
+        print("res:" + res.toString());
+      }
+      return decodeData;
+    } catch (e) {
+      return (e);
+    }
+  }
+
   //TEST
 
   Future getOrdersTest1() async {
