@@ -54,7 +54,8 @@ class _AddSellerDetailState extends State<AddSellerDetails> {
       loading = false;
       _user.text = response['username'];
       _correo.text = response['email'];
-      filtros = response['PERMISOS'].toString();
+      filtros = response['permisos'].toString();
+      var m = 1;
     });
   }
 
