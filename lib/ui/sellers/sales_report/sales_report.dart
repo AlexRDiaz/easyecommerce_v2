@@ -78,10 +78,10 @@ class _SalesReportState extends State<SalesReport> {
                             child: ListTile(
                               onTap: () {
                                 launchUrl(Uri.parse(
-                                    "${generalServer}${data[index]['attributes']['Archivo']}"));
+                                    "${generalServer}${data[index]['archivo']}"));
                               },
                               title: Text(
-                                data[index]['attributes']['Fecha'].toString(),
+                                data[index]['fecha'].toString(),
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                               subtitle: Column(
