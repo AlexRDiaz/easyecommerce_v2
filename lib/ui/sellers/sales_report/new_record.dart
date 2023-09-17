@@ -1,4 +1,5 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
 import 'package:frontend/ui/widgets/forms/date_input.dart';
 import 'package:frontend/ui/widgets/forms/image_input.dart';
@@ -143,7 +144,12 @@ class _NewSalesReportState extends State<NewSalesReport> {
                             _controllers.desdeController.text,
                             _controllers.hastaController.text,
                             estados,
-                            confirmados);
+                            confirmados, [
+                          {
+                            "id_comercial": sharedPrefs!
+                                .getString("idComercialMasterSeller")
+                          }
+                        ], [], []);
                         Navigator.pop(context);
                         if (!result) {
                           AwesomeDialog(
