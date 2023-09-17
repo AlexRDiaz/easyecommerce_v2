@@ -3378,25 +3378,27 @@ class Connections {
     }
   }
 
-  Future generateReportSeller(desde, hasta, estado, confirmado) async {
+  Future generateReportSeller(
+      desde, hasta, estado, confirmado, arrayAnd, arrayOr, arrayNot) async {
     try {
-      var request = await http.post(
-          Uri.parse(
-              "$server/api/reporte/${sharedPrefs!.getString("idComercialMasterSeller")}"),
+      var request = await http.post(Uri.parse("$serverLaravel/api/report"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
-            "idMaster": sharedPrefs!.getString("idComercialMasterSeller"),
-            "fecha":
+            "start": desde,
+            "end": hasta,
+            "id_master": sharedPrefs!.getString("idComercialMasterSeller"),
+            "generate_date":
                 "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
-            "desde": desde,
-            "hasta": hasta,
-            "estado": estado,
-            "estadoLogistico": confirmado
+            "and": arrayAnd,
+            "status": estado,
+            "internal": confirmado,
+            "or": [],
+            "not": []
           }));
       var response = await request.body;
       var decodeData = json.decode(response);
 
-      if (decodeData['code'] != 200) {
+      if (decodeData['message'] != 'Reporte generado') {
         return false;
       } else {
         return true;
@@ -3411,7 +3413,7 @@ class Connections {
   Future deleteReportSeller(id) async {
     try {
       var request = await http.delete(
-        Uri.parse("$server/api/generate-reports/$id"),
+        Uri.parse("$serverLaravel/api/generate-reports/$id"),
         headers: {'Content-Type': 'application/json'},
       );
       var response = await request.body;
@@ -3557,7 +3559,7 @@ class Connections {
   Future getReportsSellersByCode() async {
     var request = await http.get(
       Uri.parse(
-          "$server/api/generate-reports?filters[Id_Master][\$eq]=${sharedPrefs!.getString("idComercialMasterSeller").toString()}&pagination[limit]=-1"),
+          "$serverLaravel/api/generate-reports/seller/${sharedPrefs!.getString("idComercialMasterSeller").toString()}"),
       headers: {'Content-Type': 'application/json'},
     );
     var response = await request.body;
