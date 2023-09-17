@@ -4313,7 +4313,7 @@ class Connections {
     }
   }
 
-  Future updateSellerLaravel(user, mail, password) async {
+  Future updateUserLaravel(user, mail, password) async {
     try {
       var request = await http.put(
           Uri.parse(
@@ -4325,8 +4325,6 @@ class Connections {
                   "email": mail,
                 })
               : json.encode({
-                  "username": user,
-                  "email": mail,
                   "password": password,
                 }));
       var response = await request.body;
