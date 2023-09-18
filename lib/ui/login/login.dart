@@ -2,6 +2,7 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/exports.dart';
+import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/navigators.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/login/controllers/controllers.dart';
@@ -153,11 +154,10 @@ class _LoginPageState extends State<LoginPage> {
 
                   await _controllers.login(success: () async {
                     var user_id = sharedPrefs!.getString('id') ?? "";
-                    bool acceptedTC =
-                        sharedPrefs!.getBool('acceptedTermsConditions') ??
-                            false;
+                    var acceptedTC = await _controllers2.verifyUserTC(user_id);
 
-                    if (acceptedTC == false) {
+                    print(acceptedTC);
+                    if (acceptedTC == 'false') {
                       await showTermsAndConditionsDialog(context, user_id);
                     } else {
                       redirectToCorrectView(context);

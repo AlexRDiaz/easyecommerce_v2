@@ -40,7 +40,7 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
     response = await Connections()
         .getWithdrawalSellers(_controllers.searchController.text);
 
-    data = response['data'];
+    data = response;
 
     Future.delayed(Duration(milliseconds: 500), () {
       Navigator.pop(context);
@@ -128,27 +128,23 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
                               },
                               cells: [
                                 DataCell(
-                                  Text(data[index]['attributes']['Fecha']
-                                      .toString()),
+                                  Text(data[index]['fecha'].toString()),
                                 ),
                                 DataCell(Text(
-                                    '\$${data[index]['attributes']['Monto'].toString()}')),
-                                DataCell(Text(data[index]['attributes']
-                                        ['Estado']
-                                    .toString())),
-                                DataCell(Text(data[index]['attributes']
-                                        ['FechaTransferencia']
+                                    '\$${data[index]['monto'].toString()}')),
+                                DataCell(
+                                    Text(data[index]['estado'].toString())),
+                                DataCell(Text(data[index]['fecha_transferencia']
                                     .toString())),
                                 DataCell(TextButton(
-                                  onPressed: data[index]['attributes']
-                                                  ['Comprobante']
-                                              .toString() !=
-                                          "null"
-                                      ? () {
-                                          launchUrl(Uri.parse(
-                                              "$generalServer${data[index]['attributes']['Comprobante'].toString()}"));
-                                        }
-                                      : null,
+                                  onPressed:
+                                      data[index]['comprobante'].toString() !=
+                                              "null"
+                                          ? () {
+                                              launchUrl(Uri.parse(
+                                                  "$generalServer${data[index]['comprobante'].toString()}"));
+                                            }
+                                          : null,
                                   child: Text(
                                     "VER COMPROBANTE",
                                     style:

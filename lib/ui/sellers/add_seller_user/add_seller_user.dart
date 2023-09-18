@@ -74,9 +74,12 @@ class _AddSellerUserState extends State<AddSellerUser> {
             ),
             Expanded(
               child: DataTable2(
-                headingTextStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-                dataTextStyle:
-                    const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black),
+                headingTextStyle: const TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.black),
+                dataTextStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black),
                 columnSpacing: 12,
                 horizontalMargin: 6,
                 minWidth: 650,
@@ -196,7 +199,7 @@ class _AddSellerUserState extends State<AddSellerUser> {
                         ),
                         DataCell(
                           Text(
-                            data[index]['PERMISOS'].toString(),
+                            data[index]['permisos'].toString(),
                             style: TextStyle(
                               color: rowColor,
                             ),

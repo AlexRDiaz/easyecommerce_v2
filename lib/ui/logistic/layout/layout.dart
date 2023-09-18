@@ -140,6 +140,10 @@ class _LayoutPageState extends State<LayoutPage> {
         Returns(),
       ),
       getOption(
+        "Transacciones",
+        Returns(),
+      ),
+      getOption(
         "Devolución en bodega",
         ReturnsInWarehouse(),
       ),

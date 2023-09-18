@@ -7,6 +7,7 @@ import 'package:frontend/ui/sellers/order_entry/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/routes.dart';
 import 'package:frontend/main.dart';
+import 'package:flutter/services.dart';
 
 class OrderInfo extends StatefulWidget {
   final String id;
@@ -34,6 +35,16 @@ class _OrderInfoState extends State<OrderInfo> {
   OrderEntryControllers _controllers = OrderEntryControllers();
   String estadoEntrega = "";
   String estadoLogistic = "";
+
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  bool containsEmoji(String text) {
+    final emojiPattern = RegExp(
+        r'[\u2000-\u3300]|[\uD83C][\uDF00-\uDFFF]|[\uD83D][\uDC00-\uDE4F]'
+        r'|[\uD83D][\uDE80-\uDEFF]|[\uD83E][\uDD00-\uDDFF]|[\uD83E][\uDE00-\uDEFF]'
+        r'|[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]');
+    return emojiPattern.hasMatch(text);
+  }
 
   @override
   void didChangeDependencies() {
@@ -162,8 +173,45 @@ class _OrderInfoState extends State<OrderInfo> {
                                       ).show();
                                       await loadData();
                                     },
-                                    error: () {
-                                      Navigator.pop(context);
+                                    child: const Text(
+                                      "No Desea",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    )),
+                            SizedBox(
+                              width: 20,
+                            ),
+                            ElevatedButton(
+                                onPressed: () async {
+                                  var response = await Connections()
+                                      .updateOrderInteralStatus(
+                                          "CONFIRMADO", widget.id);
+                                  setState(() {});
+                                  await showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return RoutesModal(
+                                          idOrder: widget.id,
+                                          someOrders: false,
+                                          phoneClient: data['attributes']
+                                                  ['TelefonoShipping']
+                                              .toString(),
+                                          codigo: widget.codigo,
+                                        );
+                                      });
+                                  loadData();
+                                },
+                                child: Text(
+                                  "Confirmar",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                )),
+                            SizedBox(
+                              width: 20,
+                            ),
+                            ElevatedButton(
+                                onPressed: () async {
+                                  if (formKey.currentState!.validate()) {
+                                    getLoadingModal(context, false);
 
                                       AwesomeDialog(
                                         width: 500,
@@ -279,6 +327,71 @@ class _OrderInfoState extends State<OrderInfo> {
                   ),
           ),
         )));
+  }
+
+  _modelTextFormField2({
+    text,
+    controller,
+    TextInputType? keyboardType,
+    List<TextInputFormatter>? inputFormatters,
+    String? Function(String?)? validator,
+  }) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10.0),
+        color: Color.fromARGB(255, 245, 244, 244),
+      ),
+      margin: EdgeInsets.only(bottom: 10),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              SizedBox(
+                width: 10,
+              ),
+              Text(
+                "$text: ",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Expanded(
+                child: TextFormField(
+                  controller: controller,
+                  onChanged: (value) {
+                    setState(() {});
+                  },
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                  decoration: InputDecoration(
+                    hintText: text,
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    focusColor: Colors.black,
+                    iconColor: Colors.black,
+                  ),
+                  keyboardType: keyboardType,
+                  inputFormatters: inputFormatters,
+                  validator: validator,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 10,
+          )
+        ],
+      ),
+    );
   }
 
   _modelTextField({text, controller}) {
