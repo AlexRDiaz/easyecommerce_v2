@@ -2349,13 +2349,14 @@ class Connections {
     try {
       var request = await http.post(
           Uri.parse(
-              "$server/api/ordenes/retiros/withdrawal/${sharedPrefs!.getString("idComercialMasterSeller")}"),
+              "$serverLaravel/api/seller/ordenesretiro/withdrawal/${sharedPrefs!.getString("idComercialMasterSeller")}"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
             "monto": amount,
             "fecha":
                 "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
-            "mail": sharedPrefs!.getString("email").toString()
+            "email": "bugi2532@hotmail.com"
+            // "email": sharedPrefs!.getString("email").toString()
           }));
       var response = await request.body;
       var decodeData = json.decode(response);
@@ -3009,7 +3010,7 @@ class Connections {
   getWithdrawalSellers(code) async {
     var request = await http.get(
       Uri.parse(
-          "$server/api/ordenes-retiros?populate=users_permissions_user&filters[\$and][0][users_permissions_user][id][\$eq]=${sharedPrefs!.getString("idComercialMasterSeller").toString()}&pagination[limit]=-1"),
+          "$serverLaravel/api/seller/ordenesretiro/retiro/${sharedPrefs!.getString("idComercialMasterSeller").toString()}"),
       headers: {'Content-Type': 'application/json'},
     );
     var response = await request.body;

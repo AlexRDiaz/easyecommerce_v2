@@ -1,17 +1,8 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:frontend/main.dart';
-import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
 import 'package:frontend/ui/widgets/forms/date_input.dart';
-import 'package:frontend/ui/widgets/forms/image_input.dart';
-import 'package:frontend/ui/widgets/forms/input_row.dart';
-import 'package:frontend/ui/widgets/forms/modal_row.dart';
-import 'package:frontend/ui/widgets/forms/row_options.dart';
-import 'package:frontend/ui/widgets/forms/text_input.dart';
 import 'package:frontend/ui/widgets/loading.dart';
-import 'package:get/route_manager.dart';
-import 'package:frontend/helpers/server.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import '../../../config/exports.dart';
 import '../../../connections/connections.dart';
 import '../../../helpers/navigators.dart';
