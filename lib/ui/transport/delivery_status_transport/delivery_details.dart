@@ -91,7 +91,10 @@ class _TransportProDeliveryHistoryDetails
                                 ),
                                 data['attributes']['Estado_Devolucion']
                                             .toString() !=
-                                        "PENDIENTE"
+                                        "PENDIENTE" || 
+                                data['attributes']['Status']
+                                            .toString() == 
+                                        "ENTREGADO"
                                     ? Container()
                                     : Row(
                                         children: [
@@ -109,13 +112,13 @@ class _TransportProDeliveryHistoryDetails
                                                 setState(() {});
                                                 await loadData();
                                               },
-                                              child: Text(
+                                              child: const Text(
                                                 "Asignar SubRuta",
                                                 style: TextStyle(
                                                     fontWeight:
                                                         FontWeight.bold),
                                               )),
-                                          SizedBox(
+                                          const SizedBox(
                                             width: 20,
                                           ),
                                           ElevatedButton(
@@ -142,7 +145,20 @@ class _TransportProDeliveryHistoryDetails
                                                                     'novedades']
                                                                 ['data'],
                                                       );
+
                                                     });
+                                                // ! POST CREDIT  
+                                                await Connections().postCredit(
+                                                  "${data['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['id']}",
+                                                  "${data['attributes']['PrecioTotal']}", 
+                                                  widget.id, 
+                                                  "valor");
+                                                // ! POST DEBIT
+                                                await Connections().postDebit(
+                                                  "${data['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['id']}",
+                                                  "${data['attributes']['transportadora']['data']['attributes']['Costo_Transportadora']}", 
+                                                  widget.id, 
+                                                  "envio");
                                                 await loadData();
                                               },
                                               child: Text(
