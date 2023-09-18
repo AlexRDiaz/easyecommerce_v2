@@ -159,7 +159,7 @@ class _MySellerAccountState extends State<MySellerAccount> {
                             onPressed: () async {
                               getLoadingModal(context, false);
                               var response = await Connections()
-                                  .updateSellerLaravel(
+                                  .updateUserLaravel(
                                       _controllers.usuarioController.text,
                                       _controllers.correoController.text,
                                       "");
