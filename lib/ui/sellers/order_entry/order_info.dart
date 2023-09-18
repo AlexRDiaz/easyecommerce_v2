@@ -44,11 +44,10 @@ class _OrderInfoState extends State<OrderInfo> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
-    // var response = await Connections().getOrdersByIDSeller(widget.id);
     var response = await Connections()
         .getOrdersByIdLaravel2(int.parse(widget.id), widget.data);
-    // data = response;
     data = response;
+    print(data);
     _controllers.editControllers(response);
     setState(() {
       estadoEntrega = data['status'].toString();
@@ -259,15 +258,17 @@ class _OrderInfoState extends State<OrderInfo> {
                         height: 20,
                       ),
                       Text(
-                        "  Ciudad: ${data['ruta'] != null ? data['ruta'][0]['titulo'].toString() : ''}",
+                        "Ciudad: ${data['ruta'] != null && data['ruta'].isNotEmpty ? data['ruta'][0]['titulo'].toString() : ''}",
                         style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 18),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
                       ),
                       SizedBox(
                         height: 20,
                       ),
                       Text(
-                        "  Transportadora: ${data['transportadora'] != null ? data['transportadora'][0]['nombre'].toString() : ''}",
+                        "  Transportadora: ${data['transportadora'] != null  && data['transportadora'].isNotEmpty  ? data['transportadora'][0]['nombre'].toString() : ''}",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
