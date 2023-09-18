@@ -13,13 +13,16 @@ class OrderInfo extends StatefulWidget {
   final int index;
   final String codigo;
   final Function(BuildContext, int) sumarNumero;
+  final List data;
 
   const OrderInfo(
       {super.key,
       required this.id,
       required this.index,
       required this.sumarNumero,
-      required this.codigo});
+      required this.codigo,
+      required this.data
+      });
 
   @override
   State<OrderInfo> createState() => _OrderInfoState();
@@ -42,13 +45,14 @@ class _OrderInfoState extends State<OrderInfo> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
-    var response = await Connections().getOrdersByIDSeller(widget.id);
+    // var response = await Connections().getOrdersByIDSeller(widget.id);
+    var response = await Connections().getOrdersByIdLaravel2(int.parse(widget.id),widget.data);
     // data = response;
     data = response;
     _controllers.editControllers(response);
     setState(() {
-      estadoEntrega = data['attributes']['Status'].toString();
-      estadoLogistic = data['attributes']['Estado_Logistico'].toString();
+      estadoEntrega = data['status'].toString();
+      estadoLogistic = data['estado_logistico'].toString();
     });
 
     Future.delayed(Duration(milliseconds: 500), () {
@@ -91,7 +95,7 @@ class _OrderInfoState extends State<OrderInfo> {
                               : ElevatedButton(
                                   onPressed: () async {
                                     var response = await Connections()
-                                        .updateOrderInteralStatus(
+                                        .updateOrderInteralStatusLaravel(
                                             "NO DESEA", widget.id);
 
                                     //  Navigator.pop(context);
@@ -112,7 +116,7 @@ class _OrderInfoState extends State<OrderInfo> {
                           ElevatedButton(
                               onPressed: () async {
                                 var response = await Connections()
-                                    .updateOrderInteralStatus(
+                                    .updateOrderInteralStatusLaravel(
                                         "CONFIRMADO", widget.id);
                                 setState(() {});
                                 await showDialog(
@@ -121,8 +125,8 @@ class _OrderInfoState extends State<OrderInfo> {
                                       return RoutesModal(
                                         idOrder: widget.id,
                                         someOrders: false,
-                                        phoneClient: data['attributes']
-                                                ['TelefonoShipping']
+                                        phoneClient: data
+                                                ['telefono_shipping']
                                             .toString(),
                                         codigo: widget.codigo,
                                       );
@@ -139,7 +143,6 @@ class _OrderInfoState extends State<OrderInfo> {
                           ElevatedButton(
                               onPressed: () async {
                                 getLoadingModal(context, false);
-
                                 await _controllers.updateInfo(
                                     id: widget.id,
                                     success: () async {
@@ -187,7 +190,7 @@ class _OrderInfoState extends State<OrderInfo> {
                         height: 20,
                       ),
                       Text(
-                        "  Código: ${sharedPrefs!.getString("NameComercialSeller").toString()}-${data['attributes']['NumeroOrden'].toString()}",
+                        "  Código: ${sharedPrefs!.getString("NameComercialSeller").toString()}-${data['numero_orden'].toString()}",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
@@ -195,7 +198,7 @@ class _OrderInfoState extends State<OrderInfo> {
                         height: 20,
                       ),
                       Text(
-                        "  Fecha: ${data['attributes']['pedido_fecha']['data']['attributes']['Fecha'].toString()}",
+                        "  Fecha: ${data['pedido_fecha'][0]['fecha'].toString()}",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
@@ -233,7 +236,7 @@ class _OrderInfoState extends State<OrderInfo> {
                         height: 20,
                       ),
                       Text(
-                        "  Confirmado?: ${data['attributes']['Estado_Interno'].toString()}",
+                        "  Confirmado: ${data['estado_interno'].toString()}",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
@@ -257,7 +260,7 @@ class _OrderInfoState extends State<OrderInfo> {
                         height: 20,
                       ),
                       Text(
-                        "  Ciudad: ${data['attributes']['ruta']['data'] != null ? data['attributes']['ruta']['data']['attributes']['Titulo'].toString() : ''}",
+                        "  Ciudad: ${data['ruta'] != null ? data['ruta'][0]['titulo'].toString() : ''}",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
@@ -265,7 +268,7 @@ class _OrderInfoState extends State<OrderInfo> {
                         height: 20,
                       ),
                       Text(
-                        "  Transportadora: ${data['attributes']['transportadora']['data'] != null ? data['attributes']['transportadora']['data']['attributes']['Nombre'].toString() : ''}",
+                        "  Transportadora: ${data['transportadora'] != null ? data['transportadora'][0]['nombre'].toString() : ''}",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),

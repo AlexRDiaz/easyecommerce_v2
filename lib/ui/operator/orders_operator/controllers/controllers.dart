@@ -25,25 +25,25 @@ class OrderInfoOperatorControllers extends ChangeNotifier {
       TextEditingController(text: "");
 
   editControllers(data) {
-    codigoEditController.text = data['attributes']['NumeroOrden'].toString();
-    fechaEditController.text = data['attributes']['pedido_fecha']['data']
-            ['attributes']['Fecha']
+    codigoEditController.text = data['numero_orden'].toString();
+    fechaEditController.text = data['pedido_fecha'][0]
+            ['fecha']
         .toString();
-    ciudadEditController.text = data['attributes']['CiudadShipping'].toString();
-    nombreEditController.text = data['attributes']['NombreShipping'].toString();
-    productoEditController.text = data['attributes']['ProductoP'].toString();
+    ciudadEditController.text = data['ciudad_shipping'].toString();
+    nombreEditController.text = data['nombre_shipping'].toString();
+    productoEditController.text = data['producto_p'].toString();
     productoExtraEditController.text =
-        data['attributes']['ProductoExtra'].toString();
+        data['producto_extra'].toString();
     cantidadEditController.text =
-        data['attributes']['Cantidad_Total'].toString();
+        data['cantidad_total'].toString();
     direccionEditController.text =
-        data['attributes']['DireccionShipping'].toString();
+        data['direccion_shipping'].toString();
     telefonoEditController.text =
-        data['attributes']['TelefonoShipping'].toString();
+        data['telefono_shipping'].toString();
     precioTotalEditController.text =
-        data['attributes']['PrecioTotal'].toString();
+        data['precio_total'].toString();
     observacionEditController.text =
-        data['attributes']['Observacion'].toString();
+        data['observacion'].toString();
     notifyListeners();
   }
 
