@@ -24,6 +24,22 @@ class UnwantedOrdersSellers extends StatefulWidget {
 class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
   UnwantedOrdersSellersControllers _controllers =
       UnwantedOrdersSellersControllers();
+
+  List arrayFiltersDefaultOr = [
+    // {"status": "NOVEDAD"},
+    // {"status": "NO ENTREGADO"}
+  ];
+
+  var arrayfiltersDefaultAnd = [
+    {
+      'id_comercial':
+          sharedPrefs!.getString("idComercialMasterSeller").toString(),
+    },
+    {'estado_interno': 'NO DESEA'}
+  ];
+  List arrayFiltersNotEq = [];
+  var sortFieldDefaultValue = "id:DESC";
+  bool isFirst = false;
   List data = [];
   List optionsCheckBox = [];
   int counterChecks = 0;
@@ -36,51 +52,50 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
   String pedido = '';
   bool enabledBusqueda = true;
   bool isLoading = false;
-  NumberPaginatorController paginatorController = NumberPaginatorController();
-  List filtersDefaultAnd = [
-    {
-      'operator': '\$and',
-      'filter': 'IdComercial',
-      'operator_attr': '\$eq',
-      'value': sharedPrefs!.getString("idComercialMasterSeller").toString()
-    },
-    {
-      'operator': '\$and',
-      'filter': 'Estado_Interno',
-      'operator_attr': '\$eq',
-      'value': 'NO DESEA'
-    },
+  bool changevalue = false;
+
+  TextEditingController estadoDevolucionController =
+      TextEditingController(text: "TODO");
+
+  List<String> listEstadoDevolucion = [
+    'TODO',
+    'PENDIENTE',
+    'ENTREGADO EN OFICINA',
+    'DEVOLUCION EN RUTA',
+    'EN BODEGA',
   ];
+  NumberPaginatorController paginatorController = NumberPaginatorController();
+  // List filtersDefaultAnd = [
+  //   {
+  //     'operator': '\$and',
+  //     'filter': 'IdComercial',
+  //     'operator_attr': '\$eq',
+  //     'value': sharedPrefs!.getString("idComercialMasterSeller").toString()
+  //   },
+  //   {
+  //     'operator': '\$and',
+  //     'filter': 'Estado_Interno',
+  //     'operator_attr': '\$eq',
+  //     'value': 'NO DESEA'
+  // ];
   List populate = ['users', 'pedido_fecha'];
-  List filtersAnd = [];
+  List arrayFiltersAnd = [];
 
   List filtersOrCont = [
-    ///{'filter': 'NumeroOrden'},
-    {'filter': 'Marca_T_I'},
-    //{'filter': 'pedido_fecha.data.attributes.Fecha'},
-    {'filter': 'CiudadShipping'},
-    {'filter': 'NombreShipping'},
-    {'filter': 'DireccionShipping'},
-    {'filter': 'TelefonoShipping'},
-    {'filter': 'NumeroOrden'},
-
-    {'filter': 'Cantidad_Total'},
-
-    {'filter': 'ProductoP'},
-
-    {'filter': 'ProductoExtra'},
-
-    {'filter': 'PrecioTotal'},
-
-    {'filter': 'Observacion'},
-
-    {'filter': 'Status'},
-
-    {'filter': 'Estado_Interno'},
-
-    {'filter': 'Estado_Logistico'},
-
-    //        "filters[\$and][0][NumeroOrden][\$contains]=$code&filters[\$and][1][IdComercial][\$eq]=${sharedPrefs!.getString("idComercialMasterSeller").toString()}&filters[\$and][2][Estado_Interno][\$eq]=NO DESEA&";
+    'fecha_entrega',
+    'numero_orden',
+    'ciudad_shipping',
+    'nombre_shipping',
+    'direccion_shipping',
+    'telefono_shipping',
+    'cantidad_total',
+    'producto_p',
+    "producto_extra",
+    'precio_total',
+    'status',
+    "estado_devolucion",
+    "fecha_confirmacion",
+    'comentario',
   ];
 
   //
@@ -112,7 +127,6 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
 
   loadData() async {
     isLoading = true;
-    var response = [];
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
@@ -120,28 +134,23 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
     setState(() {
       data.clear();
     });
-    response = await Connections().getOrdersSellersFilter(
-        _controllers.searchController.text,
+    var response = await Connections().getOrdersSellersFilterLaravel(
+        filtersOrCont,
+        arrayFiltersDefaultOr,
+        arrayfiltersDefaultAnd,
+        arrayFiltersAnd,
         currentPage,
         pageSize,
-        populate,
-        filtersOrCont,
-        filtersAnd,
-        [],
-        filtersDefaultAnd,
-        []);
+        _controllers.searchController.text,
+        arrayFiltersNotEq,
+        sortFieldDefaultValue.toString());
 
-    data = response[0]['data'];
+    data = response['data'];
     setState(() {
-      pageCount = response[0]['meta']['pagination']['pageCount'];
-      total = response[0]['meta']['pagination']['total'];
-
       // print("metadatar"+pageCount.toString());
     });
     optionsCheckBox = [];
-    for (var i = 0; i < total; i++) {
-      optionsCheckBox.add({"check": false, "id": "", "NumeroOrden": ""});
-    }
+
     Future.delayed(Duration(milliseconds: 500), () {
       Navigator.pop(context);
     });
@@ -152,37 +161,60 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
   }
 
   paginateData() async {
-    // print("Pagina Actual="+currentPage.toString());
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getLoadingModal(context, false);
-    });
-    var response = [];
-    setState(() {
-      data.clear();
-    });
+    try {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
+      var response = [];
+      setState(() {
+        isLoading = true;
+        data.clear();
+      });
 
-    // print("actual pagina valor" + currentPage.toString());
+      // response = await Connections().getOrdersSellersFilter(
+      //     _controllers.searchController.text,
+      //     currentPage,
+      //     pageSize,
+      //     populate,
+      //     filtersOrCont,
+      //     filtersAnd,
+      //     filtersDefaultOr,
+      //     filtersDefaultAnd, []);
 
-    response = await Connections().getOrdersSellersFilter(
-        _controllers.searchController.text,
-        currentPage,
-        pageSize,
-        populate,
-        filtersOrCont,
-        filtersAnd,
-        [],
-        filtersDefaultAnd,
-        []);
-    data = response[0]['data'];
-    setState(() {
-      pageCount = response[0]['meta']['pagination']['pageCount'];
-      total = response[0]['meta']['pagination']['total'];
-    });
+      var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
+          filtersOrCont,
+          arrayFiltersDefaultOr,
+          arrayfiltersDefaultAnd,
+          arrayFiltersAnd,
+          currentPage,
+          pageSize,
+          _controllers.searchController.text,
+          arrayFiltersNotEq,
+          sortFieldDefaultValue.toString());
 
-    await Future.delayed(Duration(milliseconds: 500), () {
+      // data = response[0]['data'];
+      data = responseLaravel['data'];
+
+      setState(() {
+        // pageCount = response[0]['meta']['pagination']['pageCount'];
+        // total = response[0]['meta']['pagination']['total'];
+
+        pageCount = responseLaravel['last_page'];
+        total = responseLaravel['total'];
+      });
+
+      await Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
+      setState(() {
+        isFirst = false;
+        isLoading = false;
+      });
+      print("datos paginados");
+    } catch (e) {
       Navigator.pop(context);
-    });
-    setState(() {});
+      _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
+    }
   }
 
   @override
@@ -280,7 +312,7 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                                           visible: true,
                                           child: IconButton(
                                             iconSize: 20,
-                                            onPressed: () => {clearSelected()},
+                                            onPressed: () => {},
                                             icon: Icon(Icons.close_rounded),
                                           ),
                                         )
@@ -311,7 +343,7 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                                                 children: [
                                                   const Text(
                                                       '¿Estás seguro de eliminar los siguientes pedidos?'),
-                                                  Text('' + listToDelete()),
+                                                  Text(''),
                                                 ],
                                               ),
                                               actions: [
@@ -441,7 +473,7 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                                                 children: [
                                                   const Text(
                                                       '¿Estás seguro de eliminar los siguientes pedidos?'),
-                                                  Text('' + listToDelete()),
+                                                  Text('lista a eliminar'),
                                                 ],
                                               ),
                                               actions: [
@@ -511,24 +543,7 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                           ],
                         ),
                       ),
-                      Container(
-                          child: NumberPaginator(
-                        config: NumberPaginatorUIConfig(
-                          buttonShape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                5), // Customize the button shape
-                          ),
-                        ),
-                        numberPages: pageCount > 0 ? pageCount : 1,
-                        onPageChange: (index) async {
-                          //  print("indice="+index.toString());
-                          setState(() {
-                            currentPage = index + 1;
-                          });
-
-                          await paginateData();
-                        },
-                      )),
+                      Container(child: numberPaginator()),
                     ],
                   ),
                   context),
@@ -542,240 +557,407 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
             ),
             Expanded(
               child: DataTable2(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: const BorderRadius.all(Radius.circular(4)),
-                    border: Border.all(color: Colors.blueGrey),
+                headingTextStyle: const TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.black),
+                dataTextStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black),
+                columnSpacing: 12,
+                horizontalMargin: 6,
+                minWidth: 2000,
+                headingRowHeight: 63,
+                showCheckboxColumn: false,
+                columns: [
+                  DataColumn2(
+                    label: Text('Fecha'),
+                    size: ColumnSize.M,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("fecha_entrega", changevalue);
+                    },
                   ),
-                  headingTextStyle: const TextStyle(
-                      fontWeight: FontWeight.bold, color: Colors.black),
-                  dataTextStyle: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black),
-                  columnSpacing: 12,
-                  headingRowHeight: 80,
-                  horizontalMargin: 12,
-                  minWidth: 3500,
-                  columns: [
-                    DataColumn2(
-                      label: Text(''),
-                      size: ColumnSize.S,
-                    ),
-                    DataColumn2(
-                      label: Text('Marca T Ingreso'),
-                      size: ColumnSize.S,
-                    ),
-                    DataColumn2(
-                      label: Text('Fecha'),
-                      size: ColumnSize.S,
-                    ),
-                    DataColumn2(
-                      label: Text('Código'),
-                      size: ColumnSize.M,
-                    ),
-                    DataColumn2(
-                      label: Text(''),
-                      size: ColumnSize.S,
-                    ),
-                    DataColumn2(
-                      label: Text('Ciudad'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("CiudadShipping");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Nombre Cliente'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("NombreShipping");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Dirección'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("DireccionShipping");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Teléfono Cliente'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("TelefonoShipping");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Cantidad'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("Cantidad_Total");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Producto'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("ProductoP");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Producto Extra'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("ProductoExtra");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Precio Total'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("PrecioTotal");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Observación'),
-                      size: ColumnSize.M,
-                    ),
-                    DataColumn2(
-                      label: Text('Confirmado?'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("Estado_Interno");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Status'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("Status");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Estado Enviado'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("Estado_Logistico");
-                      },
-                    ),
-                  ],
-                  rows: List<DataRow>.generate(
-                      data.length,
-                      (index) => DataRow(cells: [
-                            DataCell(Checkbox(
-                                //  verificarIndice
-                                value: verificarIndice(index),
-
-                                // value: optionsCheckBox[index]['check'],
-                                onChanged: (value) {
-                                  setState(() {
-                                    if (value!) {
-                                      optionsCheckBox[index +
-                                              ((currentPage - 1) * pageSize)]
-                                          ['check'] = value;
-                                      optionsCheckBox[index +
-                                              ((currentPage - 1) * pageSize)]
-                                          ['id'] = data[index]['id'];
-                                      optionsCheckBox[index +
-                                              ((currentPage - 1) *
-                                                  pageSize)]['NumeroOrden'] =
-                                          data[index]['attributes']
-                                              ['NumeroOrden'];
-
-                                      counterChecks += 1;
-                                    } else {
-                                      optionsCheckBox[index +
-                                              ((currentPage - 1) * pageSize)]
-                                          ['check'] = value;
-
-                                      optionsCheckBox[index +
-                                              (currentPage - 1) * pageSize]
-                                          ['id'] = '';
-                                      counterChecks -= 1;
-                                    }
-                                    counterChecks > 0
-                                        ? enabledBusqueda = false
-                                        : enabledBusqueda = true;
-                                  });
-                                })),
-                            DataCell(Text(data[index]['attributes']['Marca_T_I']
-                                .toString())),
-                            DataCell(
-                              Text(data[index]['attributes']['pedido_fecha']
-                                      ['data']['attributes']['Fecha']
-                                  .toString()),
-                            ),
-                            DataCell(Text(
-                                "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['attributes']['NumeroOrden']}"
-                                    .toString())),
-                            DataCell(Row(
-                              children: [
-                                GestureDetector(
-                                  onTap: () async {
-                                    var response = await Connections()
-                                        .updateOrderInteralStatus("CONFIRMADO",
-                                            data[index]['id'].toString());
-                                    setState(() {});
-                                    await showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return RoutesModal(
-                                              idOrder:
-                                                  data[index]['id'].toString(),
-                                              someOrders: false,
-                                              phoneClient: "",
-                                              codigo: "");
-                                        });
-                                    loadData();
-                                  },
-                                  child: Icon(
-                                    Icons.check,
-                                    size: 20,
+                  DataColumn2(
+                    label: Text('Código'),
+                    size: ColumnSize.M,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("numero_orden", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: Text('Ciudad'),
+                    size: ColumnSize.M,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("ciudad_shipping", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: Text('Nombre Cliente'),
+                    size: ColumnSize.M,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("nombre_shipping", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: Text('Dirección'),
+                    size: ColumnSize.L,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("direccion_shipping", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: Text('Teléfono'),
+                    numeric: true,
+                    size: ColumnSize.M,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("telefono_shipping", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: Text('Cantidad'),
+                    size: ColumnSize.M,
+                    numeric: true,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("cantidad_total", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: Text('Producto'),
+                    size: ColumnSize.L,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("producto_p", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: Text('Producto Extra'),
+                    size: ColumnSize.L,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("producto_extra", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: Text('Precio Total'),
+                    size: ColumnSize.M,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("precio_total", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: Text('Status'),
+                    size: ColumnSize.S,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("status", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: SelectFilter(
+                        'Estado Devolución',
+                        'estado_devolucion',
+                        estadoDevolucionController,
+                        listEstadoDevolucion),
+                    size: ColumnSize.M,
+                    numeric: true,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("estado_devolucion", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: Text('Comentario'),
+                    size: ColumnSize.M,
+                    numeric: true,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("comentario", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: Text('Marca Fecha Confirmación'),
+                    size: ColumnSize.M,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("fecha_confirmacion", changevalue);
+                    },
+                  ),
+                ],
+                rows: List<DataRow>.generate(
+                  data.length,
+                  (index) {
+                    Color rowColor = Colors.black;
+                    return DataRow(
+                      onSelectChanged: (bool? selected) {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                content: Container(
+                                  width: 500,
+                                  height: MediaQuery.of(context).size.height,
+                                  child: ListView(
+                                    children: [
+                                      Column(
+                                        children: [
+                                          Align(
+                                            alignment: Alignment.centerRight,
+                                            child: GestureDetector(
+                                                onTap: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: Icon(Icons.close)),
+                                          )
+                                        ],
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ],
-                            )),
-                            DataCell(Text(data[index]['attributes']
-                                    ['CiudadShipping']
-                                .toString())),
-                            DataCell(Text(data[index]['attributes']
-                                    ['NombreShipping']
-                                .toString())),
-                            DataCell(Text(data[index]['attributes']
-                                    ['DireccionShipping']
-                                .toString())),
-                            DataCell(Text(data[index]['attributes']
-                                    ['TelefonoShipping']
-                                .toString())),
-                            DataCell(Text(data[index]['attributes']
-                                    ['Cantidad_Total']
-                                .toString())),
-                            DataCell(Text(data[index]['attributes']['ProductoP']
-                                .toString())),
-                            DataCell(Text(data[index]['attributes']
-                                    ['ProductoExtra']
-                                .toString())),
-                            DataCell(Text(data[index]['attributes']
-                                    ['PrecioTotal']
-                                .toString())),
-                            DataCell(Text(data[index]['attributes']
-                                    ['Observacion']
-                                .toString())),
-                            DataCell(Text(data[index]['attributes']
-                                    ['Estado_Interno']
-                                .toString())),
-                            DataCell(Text(data[index]['attributes']['Status']
-                                .toString())),
-                            DataCell(Text(data[index]['attributes']
-                                    ['Estado_Logistico']
-                                .toString())),
-                          ]))),
+                              );
+                            });
+                      },
+                      cells: [
+                        DataCell(
+                            Text(
+                              data[index]['fecha_entrega'].toString(),
+                              style: TextStyle(
+                                color: rowColor,
+                              ),
+                            ), onTap: () {
+                          showDialogInfoData(data[index]);
+                        }),
+                        DataCell(
+                            Text(
+                                style: TextStyle(
+                                    color: GetColor(data[index]
+                                            ['estado_devolucion']
+                                        .toString())!),
+                                '${data[index]['name_comercial'].toString()}-${data[index]['numero_orden'].toString()}'),
+                            onTap: () {
+                          showDialogInfoData(data[index]);
+                        }),
+                        DataCell(
+                            Text(
+                              '${data[index]['ciudad_shipping'].toString()}',
+                              style: TextStyle(
+                                color: rowColor,
+                              ),
+                            ), onTap: () {
+                          showDialogInfoData(data[index]);
+                        }),
+                        DataCell(
+                            Text(
+                              data[index]['nombre_shipping'].toString(),
+                              style: TextStyle(
+                                color: rowColor,
+                              ),
+                            ), onTap: () {
+                          showDialogInfoData(data[index]);
+                        }),
+                        DataCell(
+                            Text(
+                              data[index]['direccion_shipping'].toString(),
+                              style: TextStyle(
+                                color: rowColor,
+                              ),
+                            ), onTap: () {
+                          showDialogInfoData(data[index]);
+                        }),
+                        DataCell(
+                            Text(
+                              data[index]['telefono_shipping'].toString(),
+                              style: TextStyle(
+                                color: rowColor,
+                              ),
+                            ), onTap: () {
+                          showDialogInfoData(data[index]);
+                        }),
+                        DataCell(
+                            Text(
+                              data[index]['cantidad_total'].toString(),
+                              style: TextStyle(
+                                color: rowColor,
+                              ),
+                            ), onTap: () {
+                          showDialogInfoData(data[index]);
+                        }),
+                        DataCell(
+                            Text(
+                              data[index]['producto_p'].toString(),
+                              style: TextStyle(
+                                color: rowColor,
+                              ),
+                            ), onTap: () {
+                          showDialogInfoData(data[index]);
+                        }),
+                        DataCell(
+                            Text(
+                              data[index]['producto_extra'].toString(),
+                              style: TextStyle(
+                                color: rowColor,
+                              ),
+                            ), onTap: () {
+                          showDialogInfoData(data[index]);
+                        }),
+                        DataCell(
+                            Text(
+                              data[index]['precio_total'].toString(),
+                              style: TextStyle(
+                                color: rowColor,
+                              ),
+                            ), onTap: () {
+                          showDialogInfoData(data[index]);
+                        }),
+                        DataCell(
+                            Text(
+                              data[index]['status'].toString(),
+                              style: TextStyle(
+                                color: rowColor,
+                              ),
+                            ), onTap: () {
+                          showDialogInfoData(data[index]);
+                        }),
+                        DataCell(
+                            Text(
+                              data[index]['estado_devolucion'].toString(),
+                              style: TextStyle(
+                                color: rowColor,
+                              ),
+                            ),
+                            onTap: () {}),
+                        DataCell(
+                            Text(
+                              data[index]['comentario'].toString(),
+                              style: TextStyle(
+                                color: rowColor,
+                              ),
+                            ),
+                            onTap: () {}),
+                        DataCell(
+                            Text(
+                              data[index]['fecha_confirmacion'].toString(),
+                              style: TextStyle(
+                                color: rowColor,
+                              ),
+                            ), onTap: () {
+                          showDialogInfoData(data[index]);
+                        }),
+                      ],
+                    );
+                  },
+                ),
+              ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  sortFunc2(filtro, changevalu) {
+    setState(() {
+      if (changevalu) {
+        sortFieldDefaultValue = "$filtro:DESC";
+        changevalue = false;
+      } else {
+        sortFieldDefaultValue = "$filtro:ASC";
+        changevalue = true;
+      }
+      loadData();
+    });
+  }
+
+  void showDialogInfoData(data) {}
+
+  void _showErrorSnackBar(BuildContext context, String errorMessage) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          errorMessage,
+          style: TextStyle(color: Color.fromRGBO(7, 0, 0, 1)),
+        ),
+        backgroundColor: Color.fromARGB(255, 253, 101, 90),
+        duration: Duration(seconds: 4),
+      ),
+    );
+  }
+
+  Color? GetColor(state) {
+    int color = 0xFF000000;
+
+    switch (state) {
+      case "PENDIENTE":
+        color = 0xFFFF0000;
+        break;
+      case "ENTREGADO EN OFICINA":
+        color = 0xB100E1FF;
+        break;
+      case "DEVOLUCION EN RUTA":
+        color = 0xFF0000FF;
+        break;
+      case "EN BODEGA":
+        color = 0xFFD6DC27;
+        break;
+      default:
+        color = 0xFF000000;
+    }
+
+    return Color(color);
+  }
+
+  Column SelectFilter(String title, filter, TextEditingController controller,
+      List<String> listOptions) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title),
+        Expanded(
+          child: Container(
+            margin: EdgeInsets.only(bottom: 4.5, top: 4.5),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5.0),
+              border: Border.all(color: Color.fromRGBO(6, 6, 6, 1)),
+            ),
+            height: 0,
+            child: DropdownButtonFormField<String>(
+              isExpanded: true,
+              value: controller.text,
+              onChanged: (String? newValue) {
+                setState(() {
+                  controller.text = newValue ?? "";
+                  arrayFiltersAnd
+                      .removeWhere((element) => element.containsKey(filter));
+
+                  if (newValue != 'TODO') {
+                    if (filter is String) {
+                      arrayFiltersAnd.add({filter: newValue});
+                    } else {
+                      reemplazarValor(filter, newValue!);
+                      arrayFiltersAnd.add(filter);
+                    }
+                    //print(filter);
+                  } else {}
+                  getOldValue(true);
+                  paginatorController.navigateToPage(0);
+                });
+              },
+              decoration: InputDecoration(
+                  border: UnderlineInputBorder(
+                      borderRadius: BorderRadius.circular(10))),
+              items: listOptions.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value, style: TextStyle(fontSize: 15)),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void reemplazarValor(Map<dynamic, dynamic> mapa, String nuevoValor) {
+    mapa.forEach((key, value) {
+      if (value is Map) {
+        reemplazarValor(value, nuevoValor);
+      } else if (key is String && value == 'valor') {
+        mapa[key] = nuevoValor;
+      }
+    });
   }
 
   Container _buttons() {
@@ -840,6 +1022,28 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
     );
   }
 
+  NumberPaginator numberPaginator() {
+    return NumberPaginator(
+      config: NumberPaginatorUIConfig(
+        buttonUnselectedForegroundColor: Color.fromARGB(255, 67, 67, 67),
+        buttonSelectedBackgroundColor: Color.fromARGB(255, 67, 67, 67),
+        buttonShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5), // Customize the button shape
+        ),
+      ),
+      controller: paginatorController,
+      numberPages: pageCount > 0 ? pageCount : 1,
+      onPageChange: (index) async {
+        setState(() {
+          currentPage = index + 1;
+        });
+        if (!isLoading) {
+          await paginateData();
+        }
+      },
+    );
+  }
+
   _modelTextField({text, controller}) {
     return Container(
       width: double.infinity,
@@ -848,20 +1052,25 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
         color: Color.fromARGB(255, 245, 244, 244),
       ),
       child: TextField(
-        enabled: enabledBusqueda,
         controller: controller,
-        onSubmitted: (value) async {
-          setState(() {
-            _controllers.searchController.text = value;
-            pedido = "";
-          });
-          loadData();
-          getLoadingModal(context, false);
-
-          Future.delayed(Duration(milliseconds: 500), () {
-            Navigator.pop(context);
-          });
+        onSubmitted: (value) {
+          getOldValue(true);
+          paginatorController.navigateToPage(0);
         },
+        // onSubmitted: (value) async {
+        //   setState(() {
+        //     _controllers.searchController.text = value;
+        //   });
+        //   //loadData();
+        //   paginateData();
+        //   getLoadingModal(context, false);
+
+        //   Future.delayed(Duration(milliseconds: 500), () {
+        //     paginatorController.navigateToPage(0);
+
+        //     Navigator.pop(context);
+        //   });
+        // },
         style: TextStyle(fontWeight: FontWeight.bold),
         decoration: InputDecoration(
           fillColor: Colors.grey[500],
@@ -872,12 +1081,16 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                     getLoadingModal(context, false);
                     setState(() {
                       _controllers.searchController.clear();
-                      filtersAnd = [];
                     });
 
-                    setState(() {
-                      loadData();
-                    });
+                    // setState(() {
+                    //   // loadData();
+                    //   resetFilters();
+                    //   // paginateData();
+                    // });
+                    resetFilters();
+                    paginatorController.navigateToPage(0);
+
                     Navigator.pop(context);
                   },
                   child: Icon(Icons.close))
@@ -893,61 +1106,19 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
     );
   }
 
-  sortFunc(name) {
-    if (sort) {
+  void resetFilters() {
+    getOldValue(true);
+
+    // estadoDevolucionController.text = "TODO";
+    arrayFiltersAnd = [];
+    _controllers.searchController.text = "";
+  }
+
+  getOldValue(Arrayrestoration) {
+    if (Arrayrestoration) {
       setState(() {
-        sort = false;
+        sortFieldDefaultValue = "id:DESC";
       });
-      data.sort((a, b) => b['attributes'][name]
-          .toString()
-          .compareTo(a['attributes'][name].toString()));
-    } else {
-      setState(() {
-        sort = true;
-      });
-      data.sort((a, b) => a['attributes'][name]
-          .toString()
-          .compareTo(b['attributes'][name].toString()));
-    }
-  }
-
-  clearSelected() {
-    optionsCheckBox = [];
-    for (var i = 0; i < total; i++) {
-      optionsCheckBox.add({"check": false, "id": "", "NumeroOrden": ""});
-    }
-    setState(() {
-      counterChecks = 0;
-      enabledBusqueda = true;
-    });
-  }
-
-  String listToDelete() {
-    String res = "";
-
-    for (var i = 0; i < optionsCheckBox.length; i++) {
-      if (optionsCheckBox[i]['check'] == true) {
-        res += sharedPrefs!.getString("NameComercialSeller").toString() +
-            "-" +
-            optionsCheckBox[i]['NumeroOrden'] +
-            '\n';
-      }
-    }
-    return res;
-  }
-
-  bool verificarIndice(int index) {
-    try {
-      dynamic elemento =
-          optionsCheckBox.elementAt(index + ((currentPage - 1) * pageSize));
-      // print("elemento="+elemento.toString());
-      if (elemento['id'] != data[index]['id']) {
-        return false;
-      } else {
-        return true;
-      }
-    } catch (error) {
-      return false;
     }
   }
 }

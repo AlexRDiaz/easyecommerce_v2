@@ -1380,57 +1380,56 @@ class Connections {
       cantidadT,
       fecha,
       fechaC,
-      dateID
-      ) async {
-
-        print(json.encode({
-          // "data": {
-            "NumeroOrden": numero.toString(),
-            "DireccionShipping": direccion.toString(),
-            "NombreShipping": nombre.toString(),
-            "TelefonoShipping": telefono.toString(),
-            "PrecioTotal": precio.toString(),
-            "Observacion": observacion.toString(),
-            "CiudadShipping": ciudad.toString(),
-            "users": sharedPrefs!.getString("idComercialMasterSeller"),
-            "Estado_Interno": estado.toString(),
-            "IdComercial": sharedPrefs!.getString("idComercialMasterSeller"),
-            "ProductoP": productoP.toString(),
-            "ProductoExtra": productoE.toString(),
-            "Cantidad_Total": cantidadT.toString(),
-            "Name_Comercial": sharedPrefs!.getString("NameComercialSeller"),
-            "Marca_T_I": fecha.toString(),
-            "Fecha_Confirmacion": fechaC.toString(),
-            "Tienda_Temporal": sharedPrefs!.getString("NameComercialSeller"),
-            // ! este np va xq' ya lo hace en el backend -> "pedido_fecha": dateID
-            "pedido_fecha": dateID
-          // }
-        }));
-    var request = await http.post(Uri.parse("$serverLaravel/api/pedidos-shopifies"),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          // "data": {
-            "NumeroOrden": numero.toString(),
-            "DireccionShipping": direccion.toString(),
-            "NombreShipping": nombre.toString(),
-            "TelefonoShipping": telefono.toString(),
-            "PrecioTotal": precio.toString(),
-            "Observacion": observacion.toString(),
-            "CiudadShipping": ciudad.toString(),
-            "users": sharedPrefs!.getString("idComercialMasterSeller"),
-            "Estado_Interno": estado.toString(),
-            "IdComercial": sharedPrefs!.getString("idComercialMasterSeller"),
-            "ProductoP": productoP.toString(),
-            "ProductoExtra": productoE.toString(),
-            "Cantidad_Total": cantidadT.toString(),
-            "Name_Comercial": sharedPrefs!.getString("NameComercialSeller"),
-            "Marca_T_I": fecha.toString(),
-            "Fecha_Confirmacion": fechaC.toString(),
-            "Tienda_Temporal": sharedPrefs!.getString("NameComercialSeller"),
-            "pedido_fecha": dateID
-            // ! este np va xq' ya lo hace en el backend -> "pedido_fecha": dateID
-          // }
-        }));
+      dateID) async {
+    print(json.encode({
+      // "data": {
+      "NumeroOrden": numero.toString(),
+      "DireccionShipping": direccion.toString(),
+      "NombreShipping": nombre.toString(),
+      "TelefonoShipping": telefono.toString(),
+      "PrecioTotal": precio.toString(),
+      "Observacion": observacion.toString(),
+      "CiudadShipping": ciudad.toString(),
+      "users": sharedPrefs!.getString("idComercialMasterSeller"),
+      "Estado_Interno": estado.toString(),
+      "IdComercial": sharedPrefs!.getString("idComercialMasterSeller"),
+      "ProductoP": productoP.toString(),
+      "ProductoExtra": productoE.toString(),
+      "Cantidad_Total": cantidadT.toString(),
+      "Name_Comercial": sharedPrefs!.getString("NameComercialSeller"),
+      "Marca_T_I": fecha.toString(),
+      "Fecha_Confirmacion": fechaC.toString(),
+      "Tienda_Temporal": sharedPrefs!.getString("NameComercialSeller"),
+      // ! este np va xq' ya lo hace en el backend -> "pedido_fecha": dateID
+      "pedido_fecha": dateID
+      // }
+    }));
+    var request =
+        await http.post(Uri.parse("$serverLaravel/api/pedidos-shopifies"),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode({
+              // "data": {
+              "NumeroOrden": numero.toString(),
+              "DireccionShipping": direccion.toString(),
+              "NombreShipping": nombre.toString(),
+              "TelefonoShipping": telefono.toString(),
+              "PrecioTotal": precio.toString(),
+              "Observacion": observacion.toString(),
+              "CiudadShipping": ciudad.toString(),
+              "users": sharedPrefs!.getString("idComercialMasterSeller"),
+              "Estado_Interno": estado.toString(),
+              "IdComercial": sharedPrefs!.getString("idComercialMasterSeller"),
+              "ProductoP": productoP.toString(),
+              "ProductoExtra": productoE.toString(),
+              "Cantidad_Total": cantidadT.toString(),
+              "Name_Comercial": sharedPrefs!.getString("NameComercialSeller"),
+              "Marca_T_I": fecha.toString(),
+              "Fecha_Confirmacion": fechaC.toString(),
+              "Tienda_Temporal": sharedPrefs!.getString("NameComercialSeller"),
+              "pedido_fecha": dateID
+              // ! este np va xq' ya lo hace en el backend -> "pedido_fecha": dateID
+              // }
+            }));
     var response = await request.body;
     var decodeData = json.decode(response);
     if (request.statusCode != 200) {
@@ -1490,14 +1489,15 @@ class Connections {
   }
 
   Future createDateOrderLaravel(date) async {
-      print(json.encode({
-          "fecha": date.toString(),
-        }));
-      var request = await http.post(Uri.parse("$serverLaravel/api/shopify/pedidos"),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          "fecha": date.toString(),
-        }));
+    print(json.encode({
+      "fecha": date.toString(),
+    }));
+    var request =
+        await http.post(Uri.parse("$serverLaravel/api/shopify/pedidos"),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode({
+              "fecha": date.toString(),
+            }));
     var response = await request.body;
     var decodeData = json.decode(response);
     if (request.statusCode != 200) {

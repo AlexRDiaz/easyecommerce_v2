@@ -4,6 +4,7 @@ import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/navigators.dart';
+import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/login/controllers/controllers.dart';
 import 'package:frontend/ui/logistic/add_sellers/controllers/controllers.dart';
@@ -24,13 +25,12 @@ class _LoginPageState extends State<LoginPage> {
   final FocusNode _focusNode2 = FocusNode();
   final FocusNode _focusNodeSubmitButton = FocusNode();
 
-   @override
+  @override
   void dispose() {
     _focusNode1.dispose();
     _focusNode2.dispose();
     super.dispose();
   }
-
 
   bool obscureC = true;
   bool ischecked = false;
@@ -48,19 +48,39 @@ class _LoginPageState extends State<LoginPage> {
               padding: const EdgeInsets.all(20.0),
               child: Center(
                 child: SingleChildScrollView(
-                  child: Container(
-                      padding: EdgeInsets.all(20.0), // Espaciado interno
-                      decoration: BoxDecoration(
-                      color: Color.fromRGBO(194, 199, 204, 0.973), // Color de fondo
-                      border: Border.all(
-                      color: ColorsSystem().colorBlack, // Color del borde
-                      width: 1.0, // Ancho del borde
-                      ),
-                      borderRadius:
-                      BorderRadius.circular(12.0), // Radio de borde
-                      ),
-                      child: _content()),
-                ),
+                    child: responsive(
+                        Container(
+                            width: MediaQuery.of(context).size.width * 0.25,
+                            padding: EdgeInsets.all(20.0), // Espaciado interno
+                            decoration: BoxDecoration(
+                              color: Color.fromRGBO(
+                                  194, 199, 204, 0.973), // Color de fondo
+                              border: Border.all(
+                                color: ColorsSystem()
+                                    .colorBlack
+                                    .withOpacity(0.3), // Color del borde
+                                width: 1.5, // Ancho del borde
+                              ),
+                              borderRadius:
+                                  BorderRadius.circular(12.0), // Radio de borde
+                            ),
+                            child: _content()),
+                        Container(
+                            width: MediaQuery.of(context).size.width * 0.82,
+                            padding: EdgeInsets.all(20.0), // Espaciado interno
+                            decoration: BoxDecoration(
+                              color: Color.fromRGBO(
+                                  194, 199, 204, 0.973), // Color de fondo
+                              border: Border.all(
+                                color: ColorsSystem()
+                                    .colorBlack, // Color del borde
+                                width: 1.0, // Ancho del borde
+                              ),
+                              borderRadius:
+                                  BorderRadius.circular(12.0), // Radio de borde
+                            ),
+                            child: _content()),
+                        context)),
               ),
             ),
           ],
@@ -120,7 +140,6 @@ class _LoginPageState extends State<LoginPage> {
                 controller: _controllers.controllerMail,
                 focusNode: _focusNode1,
                 nextFocusNode: _focusNode2),
-                
             const SizedBox(
               height: 20,
             ),
@@ -130,8 +149,8 @@ class _LoginPageState extends State<LoginPage> {
                 email: false,
                 controller: _controllers.controllerPassword,
                 focusNode: _focusNode2,
-                onFieldSubmitted:(){
-                   FocusScope.of(context).requestFocus(_focusNodeSubmitButton);
+                onFieldSubmitted: () {
+                  FocusScope.of(context).requestFocus(_focusNodeSubmitButton);
                 }),
             const SizedBox(
               height: 30,
@@ -203,7 +222,7 @@ class _LoginPageState extends State<LoginPage> {
       children: [
         Image.asset(
           images.logoEasyEcommercce,
-          width: 150,
+          width: 100,
         ),
         SizedBox(
           height: 20,
@@ -212,8 +231,15 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  _modelTextField(
-      {text, obscure, email, controller, focusNode, nextFocusNode, VoidCallback? onFieldSubmitted,}) {
+  _modelTextField({
+    text,
+    obscure,
+    email,
+    controller,
+    focusNode,
+    nextFocusNode,
+    VoidCallback? onFieldSubmitted,
+  }) {
     return Container(
       width: 450,
       height: 50,
@@ -229,7 +255,8 @@ class _LoginPageState extends State<LoginPage> {
           if (nextFocusNode != null) {
             FocusScope.of(context).requestFocus(nextFocusNode);
           }
-          onFieldSubmitted?.call(); // Llama a la función personalizada si está definida
+          onFieldSubmitted
+              ?.call(); // Llama a la función personalizada si está definida
         },
         obscureText: obscure,
         keyboardType:
