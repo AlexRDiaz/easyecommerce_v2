@@ -720,8 +720,13 @@ class _OrderEntryState extends State<OrderEntry> {
                             value: confirmadoVal,
                             elevation: 16,
                             onChanged: (String? value) {
-                              AddFilterAndEq(value, 'Estado_Interno');
+                              if(value == "TODO"){
+                                arrayFiltersAnd.clear();
+                              }else{
+                              arrayFiltersAnd.add({"estado_interno":"$value"});
+                              }
                               confirmado = value!;
+                              loadData();
                             },
                             items: optEstadoConfirmado
                                 .map<DropdownMenuItem<String>>((String value) {
@@ -748,8 +753,13 @@ class _OrderEntryState extends State<OrderEntry> {
                             value: logisticoVal,
                             elevation: 16,
                             onChanged: (String? value) {
-                              AddFilterAndEq(value, 'Estado_Logistico');
+                              if(value == "TODO"){
+                                arrayFiltersAnd.clear();
+                              }else{
+                              arrayFiltersAnd.add({"estado_logistico":"$value"});
+                              }
                               logistico = value!;
+                              loadData();
                             },
                             items: optEstadoLogistico
                                 .map<DropdownMenuItem<String>>((String value) {
