@@ -930,6 +930,37 @@ class Connections {
     return decodeData['data'];
   }
 
+  getOrdersForPrintedGuidesLaravel(List populate, List and, List defaultAnd,
+      List or, currentPage, sizePage, search, sortFiled, List not) async {
+    List filtersAndAll = [];
+    filtersAndAll.addAll(and);
+    filtersAndAll.addAll(defaultAnd);
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/pedidos-shopifies-prtgd"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "or": or,
+            "and": filtersAndAll,
+            "page_size": sizePage,
+            "page_number": currentPage,
+            "search": search,
+            "sort": sortFiled,
+            "not": not
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
   getOrdersForPrintedGuides(code) async {
     var request = await http.get(
       Uri.parse(
@@ -1688,6 +1719,28 @@ class Connections {
     }
   }
 
+  Future updateOrderInteralStatusLogisticLaravel(text, id) async {
+    try {
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/upd/pedidossho-printedg"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "id": id,
+            "data": {"estado_interno": text, "estado_logistico": "PENDIENTE"}
+          }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
   Future updateOrderLogisticStatus(text, id) async {
     int res = 0;
 
@@ -1703,6 +1756,35 @@ class Connections {
       var response = await request.body;
       var decodeData = json.decode(response);
 
+      if (request.statusCode != 200) {
+        res = 1;
+      }
+    } catch (e) {
+      res = 2;
+    }
+    return res;
+  }
+
+  // upd/pedidossho-LogisticStatusPrint
+  Future updateOrderLogisticStatusPrintLaravel(text, id) async {
+    int res = 0;
+    try {
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/upd/pedidossho-LogisticStatusPrint"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "id": id,
+            "data": {
+              "estado_interno": "CONFIRMADO",
+              "estado_logistico": text,
+              "fecha_entrega":
+                  "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+              "marca_tiempo_envio":
+                  "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
+            }
+          }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
       if (request.statusCode != 200) {
         res = 1;
       }
@@ -2500,6 +2582,29 @@ class Connections {
     var decodeData = json.decode(response);
 
     return decodeData['data'];
+  }
+
+  Future getOrderByIDLaravel(id) async {
+    try {
+      var request = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/pedido-shopifie"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "id": id,
+            "populate": ['operadore.up_user','subRuta']
+          }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return false;
+      } else {
+        return decodeData['data'];
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 
   Future getOrderByID(id) async {
