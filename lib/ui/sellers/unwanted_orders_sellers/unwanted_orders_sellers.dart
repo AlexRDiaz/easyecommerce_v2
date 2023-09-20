@@ -41,12 +41,12 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
   var sortFieldDefaultValue = "id:DESC";
   bool isFirst = false;
   List data = [];
-  List optionsCheckBox = [];
+  List<Map> optionsCheckBox = [];
   int counterChecks = 0;
   bool sort = false;
   List dataTemporal = [];
   int currentPage = 1;
-  int pageSize = 70;
+  int pageSize = 80;
   int pageCount = 100;
   int total = 0;
   String pedido = '';
@@ -146,8 +146,21 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
         sortFieldDefaultValue.toString());
 
     data = response['data'];
+    for (Map pedido in data) {
+      var selectedItem = optionsCheckBox
+          .where((elemento) => elemento["id"] == pedido["id"])
+          .toList();
+      if (selectedItem.isNotEmpty) {
+        pedido['check'] = true;
+      } else {
+        pedido['check'] = false;
+      }
+    }
+    var m = data;
     setState(() {
       // print("metadatar"+pageCount.toString());
+      pageCount = response['last_page'];
+      total = response['total'];
     });
     optionsCheckBox = [];
 
@@ -203,6 +216,16 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
         total = responseLaravel['total'];
       });
 
+      for (Map pedido in data) {
+        var selectedItem = optionsCheckBox
+            .where((elemento) => elemento["id"] == pedido["id"])
+            .toList();
+        if (selectedItem.isNotEmpty) {
+          pedido['check'] = true;
+        } else {
+          pedido['check'] = false;
+        }
+      }
       await Future.delayed(Duration(milliseconds: 500), () {
         Navigator.pop(context);
       });
@@ -210,6 +233,7 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
         isFirst = false;
         isLoading = false;
       });
+
       print("datos paginados");
     } catch (e) {
       Navigator.pop(context);
@@ -569,6 +593,10 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                 headingRowHeight: 63,
                 showCheckboxColumn: false,
                 columns: [
+                  const DataColumn2(
+                    label: Text(''),
+                    size: ColumnSize.M,
+                  ),
                   DataColumn2(
                     label: Text('Fecha'),
                     size: ColumnSize.M,
@@ -710,6 +738,24 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                             });
                       },
                       cells: [
+                        DataCell(
+                            Checkbox(
+                              value: data[index]['check'],
+                              onChanged: (value) {
+                                setState(() {
+                                  data[index]['check'] = value;
+                                });
+                                if (value!) {
+                                  optionsCheckBox
+                                      .add({"id": data[index]['id']});
+                                } else {
+                                  optionsCheckBox.removeWhere((element) =>
+                                      element['id'] == data[index]['id']);
+                                }
+                              },
+                            ), onTap: () {
+                          showDialogInfoData(data[index]);
+                        }),
                         DataCell(
                             Text(
                               data[index]['fecha_entrega'].toString(),
@@ -971,8 +1017,7 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
               onPressed: () async {
                 for (var i = 0; i < optionsCheckBox.length; i++) {
                   if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
-                      optionsCheckBox[i]['id'].toString() != '' &&
-                      optionsCheckBox[i]['check'] == true) {
+                      optionsCheckBox[i]['id'].toString() != '') {
                     var response = await Connections().updateOrderInteralStatus(
                         "NO DESEA", optionsCheckBox[i]['id'].toString());
                   }

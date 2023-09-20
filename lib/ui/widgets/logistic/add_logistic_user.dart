@@ -31,6 +31,7 @@ class _AddLogisticUserState extends State<AddLogisticUser> {
   bool impresas = false;
   bool enviadas = false;
   bool devolucion = false;
+  bool transaccion = false;
   bool devolucionEnBodega = false;
 
   List vistas = [];
@@ -569,6 +570,35 @@ class _AddLogisticUserState extends State<AddLogisticUser> {
                     Flexible(
                         child: Text(
                       "Devoluciones",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                    ))
+                  ],
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  children: [
+                    Checkbox(
+                        value: transaccion,
+                        onChanged: (v) {
+                          setState(() {
+                            if (v!) {
+                              transaccion = true;
+                              vistas.add("Transacciones");
+                            } else {
+                              devolucion = false;
+                              vistas.remove("Transacciones");
+                            }
+                          });
+                        }),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Flexible(
+                        child: Text(
+                      "Transacciones",
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                     ))

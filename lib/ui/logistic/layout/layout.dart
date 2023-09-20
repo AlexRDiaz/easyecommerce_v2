@@ -31,6 +31,7 @@ import 'package:frontend/ui/logistic/shopping/shopping.dart';
 import 'package:frontend/ui/logistic/shopping_status/shopping_status.dart';
 import 'package:frontend/ui/logistic/stock/stock.dart';
 import 'package:frontend/ui/logistic/stock_by_company/stock_by_company.dart';
+import 'package:frontend/ui/logistic/transactions/transactions.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_historial.dart';
 import 'package:frontend/ui/logistic/transport_invoices/transport_invoices.dart';
 import 'package:frontend/ui/logistic/update_password/update_password.dart';
@@ -141,7 +142,7 @@ class _LayoutPageState extends State<LayoutPage> {
       ),
       getOption(
         "Transacciones",
-        Returns(),
+        Transactions(),
       ),
       getOption(
         "Devolución en bodega",
