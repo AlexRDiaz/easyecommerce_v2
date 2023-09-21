@@ -4602,7 +4602,7 @@ class Connections {
   getPersonalInfoAccountLaravel() async {
     try {
       var getUserSpecificRequest = await http.get(Uri.parse(
-          "$serverLaravel/api/users/${sharedPrefs!.getString("id").toString()}?populate=roles_front&populate=vendedores&populate=transportadora&populate=operadore"));
+          "$serverLaravel/api/users/${sharedPrefs!.getString("id").toString()}"));
       var responseUser = await getUserSpecificRequest.body;
       var decodeDataUser = json.decode(responseUser);
       return decodeDataUser;
