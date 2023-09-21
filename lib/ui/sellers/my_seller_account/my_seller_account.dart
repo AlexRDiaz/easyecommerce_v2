@@ -27,6 +27,7 @@ class _MySellerAccountState extends State<MySellerAccount> {
   String costoEntrega = "";
   String costoDevolucion = "";
   String idShopify = "";
+  var codigo = "";
   @override
   void initState() {
     super.initState();
@@ -56,6 +57,7 @@ class _MySellerAccountState extends State<MySellerAccount> {
       fechaAlta: response['fecha_alta'].toString(),
       correo: response['email'].toString(),
     );
+    codigo = response['codigo_generado'].toString();
     setState(() {
       data = response;
       idShopify = data['vendedores'][0]['id_master'].toString();
@@ -218,8 +220,10 @@ class _MySellerAccountState extends State<MySellerAccount> {
               ),
               onPressed: () async {
                 getLoadingModal(context, false);
-                if (_validar.text.toString() == data['CodigoGenerado']) {
-                  var update = await Connections().updateAccountStatus();
+                // if (_validar.text.toString() == data['CodigoGenerado']) {
+                if (_validar.text.toString() == codigo) {
+                  var update = await Connections().updateAccountStatusLaravel();
+                  // var update = await Connections().updateAccountStatus();
                   await initControllers();
                   Navigator.pop(context);
                 } else {
