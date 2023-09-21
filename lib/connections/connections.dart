@@ -279,7 +279,7 @@ class Connections {
               .toString(),
           "role": "1",
           "confirmed": true,
-          "Estado": "VALIDADO",
+          "estado": "VALIDADO",
           "PERMISOS": permisos
         }));
     var response = await request.body;
@@ -4602,7 +4602,7 @@ class Connections {
   getPersonalInfoAccountLaravel() async {
     try {
       var getUserSpecificRequest = await http.get(Uri.parse(
-          "$serverLaravel/api/users/${sharedPrefs!.getString("id").toString()}?populate=roles_front&populate=vendedores&populate=transportadora&populate=operadore"));
+          "$serverLaravel/api/users/${sharedPrefs!.getString("id").toString()}"));
       var responseUser = await getUserSpecificRequest.body;
       var decodeDataUser = json.decode(responseUser);
       return decodeDataUser;
@@ -4650,6 +4650,26 @@ class Connections {
               }));
       var response = await request.body;
       var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future updateAccountStatusLaravel() async {
+    try {
+      var request = await http.put(
+          Uri.parse(
+              "$serverLaravel/api/users/${sharedPrefs!.getString("id").toString()}"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"estado": "VALIDADO"}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
       if (request.statusCode != 200) {
         return false;
       } else {
