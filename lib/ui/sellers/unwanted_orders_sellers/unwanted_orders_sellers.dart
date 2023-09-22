@@ -13,6 +13,7 @@ import 'package:frontend/main.dart';
 
 import '../../widgets/sellers/add_order.dart';
 import 'controllers/controllers.dart';
+import '../../widgets/show_error_snackbar.dart';
 
 class UnwantedOrdersSellers extends StatefulWidget {
   const UnwantedOrdersSellers({super.key});
@@ -127,50 +128,56 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
 
   loadData() async {
     isLoading = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getLoadingModal(context, false);
-    });
+    try {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
 
-    setState(() {
-      data.clear();
-    });
-    var response = await Connections().getOrdersSellersFilterLaravel(
-        filtersOrCont,
-        arrayFiltersDefaultOr,
-        arrayfiltersDefaultAnd,
-        arrayFiltersAnd,
-        currentPage,
-        pageSize,
-        _controllers.searchController.text,
-        arrayFiltersNotEq,
-        sortFieldDefaultValue.toString());
+      setState(() {
+        data.clear();
+      });
+      var response = await Connections().getOrdersSellersFilterLaravel(
+          filtersOrCont,
+          arrayFiltersDefaultOr,
+          arrayfiltersDefaultAnd,
+          arrayFiltersAnd,
+          currentPage,
+          pageSize,
+          _controllers.searchController.text,
+          arrayFiltersNotEq,
+          sortFieldDefaultValue.toString());
 
-    data = response['data'];
-    for (Map pedido in data) {
-      var selectedItem = optionsCheckBox
-          .where((elemento) => elemento["id"] == pedido["id"])
-          .toList();
-      if (selectedItem.isNotEmpty) {
-        pedido['check'] = true;
-      } else {
-        pedido['check'] = false;
+      data = response['data'];
+      for (Map pedido in data) {
+        var selectedItem = optionsCheckBox
+            .where((elemento) => elemento["id"] == pedido["id"])
+            .toList();
+        if (selectedItem.isNotEmpty) {
+          pedido['check'] = true;
+        } else {
+          pedido['check'] = false;
+        }
       }
-    }
-    var m = data;
-    setState(() {
-      // print("metadatar"+pageCount.toString());
-      pageCount = response['last_page'];
-      total = response['total'];
-    });
-    optionsCheckBox = [];
+      var m = data;
+      setState(() {
+        // print("metadatar"+pageCount.toString());
+        pageCount = response['last_page'];
+        total = response['total'];
+      });
+      optionsCheckBox = [];
 
-    Future.delayed(Duration(milliseconds: 500), () {
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
+      paginatorController.navigateToPage(0);
+      counterChecks = 0;
+      setState(() {});
+      isLoading = false;
+    } catch (e) {
       Navigator.pop(context);
-    });
-    paginatorController.navigateToPage(0);
-    counterChecks = 0;
-    setState(() {});
-    isLoading = false;
+      SnackBarHelper.showErrorSnackBar(
+          context, "Ha ocurrido un error de conexión");
+    }
   }
 
   paginateData() async {
@@ -237,7 +244,8 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
       print("datos paginados");
     } catch (e) {
       Navigator.pop(context);
-      _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
+      SnackBarHelper.showErrorSnackBar(
+          context, "Ha ocurrido un error de conexión");
     }
   }
 
@@ -336,7 +344,16 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                                           visible: true,
                                           child: IconButton(
                                             iconSize: 20,
-                                            onPressed: () => {},
+                                            onPressed: () {
+                                              {
+                                                setState(() {
+                                                  optionsCheckBox = [];
+                                                  counterChecks = 0;
+                                                  enabledBusqueda = true;
+                                                });
+                                                loadData();
+                                              }
+                                            },
                                             icon: Icon(Icons.close_rounded),
                                           ),
                                         )
@@ -362,13 +379,15 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                                           context: context,
                                           builder: (BuildContext context) {
                                             return AlertDialog(
-                                              title: Text('Ateneción'),
-                                              content: Column(
-                                                children: [
-                                                  const Text(
-                                                      '¿Estás seguro de eliminar los siguientes pedidos?'),
-                                                  Text(''),
-                                                ],
+                                              title: Text('Atención'),
+                                              content: SingleChildScrollView(
+                                                child: Column(
+                                                  children: [
+                                                    const Text(
+                                                        '¿Estás seguro de eliminar los siguientes pedidos?'),
+                                                    Text(''),
+                                                  ],
+                                                ),
                                               ),
                                               actions: [
                                                 TextButton(
@@ -492,7 +511,7 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                                           context: context,
                                           builder: (BuildContext context) {
                                             return AlertDialog(
-                                              title: Text('Atenecion'),
+                                              title: Text('Atención'),
                                               content: Column(
                                                 children: [
                                                   const Text(
@@ -595,6 +614,10 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                 columns: [
                   const DataColumn2(
                     label: Text(''),
+                    size: ColumnSize.S,
+                  ),
+                  DataColumn2(
+                    label: Text('Marca T. Ingreso'),
                     size: ColumnSize.M,
                   ),
                   DataColumn2(
@@ -612,6 +635,10 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                     },
                   ),
                   DataColumn2(
+                    label: Text(''),
+                    size: ColumnSize.S,
+                  ),
+                  DataColumn2(
                     label: Text('Ciudad'),
                     size: ColumnSize.M,
                     onSort: (columnIndex, ascending) {
@@ -620,7 +647,7 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                   ),
                   DataColumn2(
                     label: Text('Nombre Cliente'),
-                    size: ColumnSize.M,
+                    size: ColumnSize.L,
                     onSort: (columnIndex, ascending) {
                       sortFunc2("nombre_shipping", changevalue);
                     },
@@ -738,27 +765,35 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                             });
                       },
                       cells: [
+                        DataCell(Checkbox(
+                          value: data[index]['check'],
+                          onChanged: (value) {
+                            setState(() {
+                              data[index]['check'] = value;
+                            });
+                            if (value!) {
+                              optionsCheckBox.add({"id": data[index]['id']});
+                              counterChecks++;
+                            } else {
+                              optionsCheckBox.removeWhere((element) =>
+                                  element['id'] == data[index]['id']);
+                              counterChecks--;
+                            }
+                          },
+                        )),
                         DataCell(
-                            Checkbox(
-                              value: data[index]['check'],
-                              onChanged: (value) {
-                                setState(() {
-                                  data[index]['check'] = value;
-                                });
-                                if (value!) {
-                                  optionsCheckBox
-                                      .add({"id": data[index]['id']});
-                                } else {
-                                  optionsCheckBox.removeWhere((element) =>
-                                      element['id'] == data[index]['id']);
-                                }
-                              },
+                            Text(
+                              data[index]['marca_t_i'].toString(),
+                              style: TextStyle(
+                                color: rowColor,
+                              ),
                             ), onTap: () {
                           showDialogInfoData(data[index]);
                         }),
                         DataCell(
                             Text(
-                              data[index]['fecha_entrega'].toString(),
+                              data[index]['pedido_fecha'][0]['fecha']
+                                  .toString(),
                               style: TextStyle(
                                 color: rowColor,
                               ),
@@ -775,6 +810,33 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                             onTap: () {
                           showDialogInfoData(data[index]);
                         }),
+                        DataCell(Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () async {
+                                var response = await Connections()
+                                    // .updateOrderInteralStatus("CONFIRMADO",
+                                    .updateOrderInteralStatusLaravel2(
+                                        "CONFIRMADO", data[index]['id']);
+                                setState(() {});
+                                await showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return RoutesModal(
+                                          idOrder: data[index]['id'].toString(),
+                                          someOrders: false,
+                                          phoneClient: "",
+                                          codigo: "");
+                                    });
+                                loadData();
+                              },
+                              child: Icon(
+                                Icons.check,
+                                size: 20,
+                              ),
+                            ),
+                          ],
+                        )),
                         DataCell(
                             Text(
                               '${data[index]['ciudad_shipping'].toString()}',
@@ -865,13 +927,14 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                             ),
                             onTap: () {}),
                         DataCell(
-                            Text(
-                              data[index]['comentario'].toString(),
-                              style: TextStyle(
-                                color: rowColor,
-                              ),
+                          Text(
+                            data[index]['comentario']?.toString() ?? "",
+                            style: TextStyle(
+                              color: rowColor,
                             ),
-                            onTap: () {}),
+                          ),
+                          onTap: () {},
+                        ),
                         DataCell(
                             Text(
                               data[index]['fecha_confirmacion'].toString(),
@@ -907,19 +970,6 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
   }
 
   void showDialogInfoData(data) {}
-
-  void _showErrorSnackBar(BuildContext context, String errorMessage) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          errorMessage,
-          style: TextStyle(color: Color.fromRGBO(7, 0, 0, 1)),
-        ),
-        backgroundColor: Color.fromARGB(255, 253, 101, 90),
-        duration: Duration(seconds: 4),
-      ),
-    );
-  }
 
   Color? GetColor(state) {
     int color = 0xFF000000;

@@ -18,6 +18,7 @@ import 'package:frontend/ui/widgets/box_values_transport.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:intl/intl.dart';
 import 'package:number_paginator/number_paginator.dart';
+import '../../widgets/show_error_snackbar.dart';
 
 class DeliveryStatus extends StatefulWidget {
   const DeliveryStatus({super.key});
@@ -248,9 +249,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       setState(() {
         isLoading = false;
       });
-
       Navigator.pop(context);
-      _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
+      SnackBarHelper.showErrorSnackBar(
+          context, "Ha ocurrido un error de conexión");
     }
   }
 
@@ -308,21 +309,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       print("datos paginados");
     } catch (e) {
       Navigator.pop(context);
-      _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
+      SnackBarHelper.showErrorSnackBar(
+          context, "Ha ocurrido un error de conexión");
     }
-  }
-
-  void _showErrorSnackBar(BuildContext context, String errorMessage) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          errorMessage,
-          style: TextStyle(color: Color.fromRGBO(7, 0, 0, 1)),
-        ),
-        backgroundColor: Color.fromARGB(255, 253, 101, 90),
-        duration: Duration(seconds: 4),
-      ),
-    );
   }
 
   @override
@@ -710,9 +699,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                     DataColumn2(
                       label: const Text('N. intentos'),
                       size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {
-
-                      },
+                      onSort: (columnIndex, ascending) {},
                     ),
                   ],
                   border: const TableBorder(
@@ -1503,10 +1490,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                   // ))
                   Expanded(
                       child: DeliveryStatusSellerInfo(
-                    id: data[index]['id'].toString(),
-                    function: exeReSchedule,
-                    data : data
-                  ))
+                          id: data[index]['id'].toString(),
+                          function: exeReSchedule,
+                          data: data))
                 ],
               ),
             ),
@@ -1543,7 +1529,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                 TextButton(
                   child: const Text('Cancelar'),
                   onPressed: () {
-                    Navigator.of(context).pop(); 
+                    Navigator.of(context).pop();
                   },
                 ),
                 TextButton(

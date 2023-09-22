@@ -17,6 +17,7 @@ import 'package:frontend/main.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 import 'package:number_paginator/number_paginator.dart';
+import '../../widgets/show_error_snackbar.dart';
 
 class OrderEntry extends StatefulWidget {
   const OrderEntry({super.key});
@@ -81,16 +82,16 @@ class _OrderEntryState extends State<OrderEntry> {
   bool changevalue = false;
   var sortFieldDefaultValue = "id:DESC";
   List arrayFiltersDefaultAnd = [
-    {'id_comercial':sharedPrefs!.getString("idComercialMasterSeller").toString()},
-    {'status':'PEDIDO PROGRAMADO'}
+    {
+      'id_comercial':
+          sharedPrefs!.getString("idComercialMasterSeller").toString()
+    },
+    {'status': 'PEDIDO PROGRAMADO'}
   ];
   List arrayFiltersNot = [
-    {'estado_interno':'NO DESEA'},
-  ];  
-  List populate = [
-    'users', 
-    'pedido_fecha'
+    {'estado_interno': 'NO DESEA'},
   ];
+  List populate = ['users', 'pedido_fecha'];
   List arrayFiltersAnd = [];
   List arrayFiltersOr = [
     'ciudad_shipping',
@@ -105,17 +106,8 @@ class _OrderEntryState extends State<OrderEntry> {
 
   NumberPaginatorController paginatorController = NumberPaginatorController();
 
-  List<String> optEstadoConfirmado = [
-    "TODO", 
-    'PENDIENTE', 
-    'CONFIRMADO'
-  ];
-  List<String> optEstadoLogistico = [
-    "TODO", 
-    'PENDIENTE', 
-    'IMPRESO', 
-    'ENVIADO'
-  ];
+  List<String> optEstadoConfirmado = ["TODO", 'PENDIENTE', 'CONFIRMADO'];
+  List<String> optEstadoLogistico = ["TODO", 'PENDIENTE', 'IMPRESO', 'ENVIADO'];
 
   @override
   void didChangeDependencies() {
@@ -137,62 +129,68 @@ class _OrderEntryState extends State<OrderEntry> {
   }
 
   loadData() async {
-    isLoading = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getLoadingModal(context, false);
-    });
-    // var response = [];
-    setState(() {
-      data.clear();
-    });
-    currentPage = 1;
-    var response = await Connections().getPrincipalOrdersSellersFilterLaravel(
-      populate,
-      arrayFiltersAnd,
-      arrayFiltersDefaultAnd,
-      arrayFiltersOr,
-      currentPage,
-      pageSize,
-      _controllers.searchController.text,
-      sortFieldDefaultValue.toString(),
-      arrayFiltersNot);
-    
-    // response = await Connections().getOrdersSellersFilter(
-    //     _controllers.searchController.text,
-    //     currentPage,
-    //     pageSize,
-    //     populate,
-    //     filtersOrCont,
-    //     filtersAnd,
-    //     [],
-    //     filtersDefaultAnd,
-    //     []);
+    try {
+      isLoading = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
+      // var response = [];
+      setState(() {
+        data.clear();
+      });
+      currentPage = 1;
+      var response = await Connections().getPrincipalOrdersSellersFilterLaravel(
+          populate,
+          arrayFiltersAnd,
+          arrayFiltersDefaultAnd,
+          arrayFiltersOr,
+          currentPage,
+          pageSize,
+          _controllers.searchController.text,
+          sortFieldDefaultValue.toString(),
+          arrayFiltersNot);
 
-    setState(() {
-      data = [];
-      data = response['data'];
-      pageCount = response['last_page'];
-      total = response['total'];
+      // response = await Connections().getOrdersSellersFilter(
+      //     _controllers.searchController.text,
+      //     currentPage,
+      //     pageSize,
+      //     populate,
+      //     filtersOrCont,
+      //     filtersAnd,
+      //     [],
+      //     filtersDefaultAnd,
+      //     []);
+
+      setState(() {
+        data = [];
+        data = response['data'];
+        pageCount = response['last_page'];
+        total = response['total'];
+        paginatorController.navigateToPage(0);
+
+        // data = response[0]['data'];
+        // pageCount = response[0]['meta']['pagination']['pageCount'];
+        // total = response[0]['meta']['pagination']['total'];
+        // print("metadatar"+pageCount.toString());
+      });
+
+      optionsCheckBox = [];
+      for (var i = 0; i < total; i++) {
+        optionsCheckBox.add({"check": false, "id": "", "numero_orden": ""});
+      }
       paginatorController.navigateToPage(0);
 
-      // data = response[0]['data'];
-      // pageCount = response[0]['meta']['pagination']['pageCount'];
-      // total = response[0]['meta']['pagination']['total'];
-      // print("metadatar"+pageCount.toString());
-    });
-
-    optionsCheckBox = [];
-    for (var i = 0; i < total; i++) {
-      optionsCheckBox.add({"check": false, "id": "", "numero_orden": ""});
-    }
-    paginatorController.navigateToPage(0);
-
-    Future.delayed(const Duration(milliseconds: 500), () {
+      Future.delayed(const Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
+      counterChecks = 0;
+      isLoading = false;
+      setState(() {});
+    } catch (e) {
       Navigator.pop(context);
-    });
-    counterChecks = 0;
-    isLoading = false;
-    setState(() {});
+      SnackBarHelper.showErrorSnackBar(
+          context, "Ha ocurrido un error de conexión");
+    }
   }
 
   paginateData() async {
@@ -204,16 +202,16 @@ class _OrderEntryState extends State<OrderEntry> {
     setState(() {
       data.clear();
     });
-        var response = await Connections().getPrincipalOrdersSellersFilterLaravel(
-      populate,
-      arrayFiltersAnd,
-      arrayFiltersDefaultAnd,
-      arrayFiltersOr,
-      currentPage,
-      pageSize,
-      _controllers.searchController.text,
-      sortFieldDefaultValue.toString(),
-      arrayFiltersNot);
+    var response = await Connections().getPrincipalOrdersSellersFilterLaravel(
+        populate,
+        arrayFiltersAnd,
+        arrayFiltersDefaultAnd,
+        arrayFiltersOr,
+        currentPage,
+        pageSize,
+        _controllers.searchController.text,
+        sortFieldDefaultValue.toString(),
+        arrayFiltersNot);
 
     // print("actual pagina valor" + currentPage.toString());
 
@@ -369,7 +367,7 @@ class _OrderEntryState extends State<OrderEntry> {
                                           context: context,
                                           builder: (BuildContext context) {
                                             return AlertDialog(
-                                              title: Text('Ateneción'),
+                                              title: Text('Atención'),
                                               content: SingleChildScrollView(
                                                 child: Column(
                                                   children: [
@@ -629,7 +627,7 @@ class _OrderEntryState extends State<OrderEntry> {
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
                         // sortFuncDate("Marca_T_I");
-                        sortFunc3("marca_t_i",changevalue);
+                        sortFunc3("marca_t_i", changevalue);
                       },
                     ),
                     const DataColumn2(
@@ -640,63 +638,63 @@ class _OrderEntryState extends State<OrderEntry> {
                       label: Text('Código'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc3("numero_orden",changevalue);
+                        sortFunc3("numero_orden", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: Text('Ciudad'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc3("ciudad_shipping",changevalue);
+                        sortFunc3("ciudad_shipping", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: Text('Nombre Cliente'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc3("nombre_shipping",changevalue);
+                        sortFunc3("nombre_shipping", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: Text('Dirección'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc3("direccion_shipping",changevalue);
+                        sortFunc3("direccion_shipping", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: Text('Teléfono Cliente'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc3("telefonoS_shipping",changevalue);
+                        sortFunc3("telefonoS_shipping", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: Text('Cantidad'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc3("cantidad_total",changevalue);
+                        sortFunc3("cantidad_total", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: Text('Producto'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc3("producto_p",changevalue);
+                        sortFunc3("producto_p", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: Text('Producto Extra'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc3("producto_extra",changevalue);
+                        sortFunc3("producto_extra", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: Text('Precio Total'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc3("precio_total",changevalue);
+                        sortFunc3("precio_total", changevalue);
                       },
                     ),
                     const DataColumn2(
@@ -707,7 +705,7 @@ class _OrderEntryState extends State<OrderEntry> {
                       label: const Text('Estado Pedido'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc3("status",changevalue);
+                        sortFunc3("status", changevalue);
                       },
                     ),
                     DataColumn2(
@@ -720,10 +718,11 @@ class _OrderEntryState extends State<OrderEntry> {
                             value: confirmadoVal,
                             elevation: 16,
                             onChanged: (String? value) {
-                              if(value == "TODO"){
+                              if (value == "TODO") {
                                 arrayFiltersAnd.clear();
-                              }else{
-                              arrayFiltersAnd.add({"estado_interno":"$value"});
+                              } else {
+                                arrayFiltersAnd
+                                    .add({"estado_interno": "$value"});
                               }
                               confirmado = value!;
                               loadData();
@@ -753,10 +752,11 @@ class _OrderEntryState extends State<OrderEntry> {
                             value: logisticoVal,
                             elevation: 16,
                             onChanged: (String? value) {
-                              if(value == "TODO"){
+                              if (value == "TODO") {
                                 arrayFiltersAnd.clear();
-                              }else{
-                              arrayFiltersAnd.add({"estado_logistico":"$value"});
+                              } else {
+                                arrayFiltersAnd
+                                    .add({"estado_logistico": "$value"});
                               }
                               logistico = value!;
                               loadData();
@@ -795,7 +795,7 @@ class _OrderEntryState extends State<OrderEntry> {
                       label: Text('Marca Fecha Confirmación'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc3("fecha_confirmacion",changevalue);
+                        sortFunc3("fecha_confirmacion", changevalue);
                       },
                     ),
                   ],
@@ -819,8 +819,7 @@ class _OrderEntryState extends State<OrderEntry> {
                                       optionsCheckBox[index +
                                               ((currentPage - 1) *
                                                   pageSize)]['numero_orden'] =
-                                          data[index]
-                                              ['numero_orden'];
+                                          data[index]['numero_orden'];
 
                                       counterChecks += 1;
                                     } else {
@@ -839,8 +838,7 @@ class _OrderEntryState extends State<OrderEntry> {
                                   });
                                 })),
                             DataCell(
-                                Text(
-                                    '${data[index]['marca_t_i'].toString()}'),
+                                Text('${data[index]['marca_t_i'].toString()}'),
                                 onTap: () {
                               info(context, index);
                             }),
@@ -884,7 +882,8 @@ class _OrderEntryState extends State<OrderEntry> {
                                 GestureDetector(
                                   onTap: () async {
                                     var response = await Connections()
-                                        .updateOrderInteralStatusLaravel("CONFIRMADO",
+                                        .updateOrderInteralStatusLaravel(
+                                            "CONFIRMADO",
                                             data[index]['id'].toString());
                                     setState(() {});
                                     await showDialog(
@@ -909,8 +908,7 @@ class _OrderEntryState extends State<OrderEntry> {
                                 SizedBox(
                                   width: 10,
                                 ),
-                                data[index]['estado_logistico']
-                                            .toString() ==
+                                data[index]['estado_logistico'].toString() ==
                                         "ENVIADO"
                                     ? Container()
                                     : GestureDetector(
@@ -936,66 +934,62 @@ class _OrderEntryState extends State<OrderEntry> {
                               info(context, index);
                             }),
                             DataCell(
-                                Text(data[index]['ciudad_shipping']
+                                Text(data[index]['ciudad_shipping'].toString()),
+                                onTap: () {
+                              info(context, index);
+                            }),
+                            DataCell(
+                                Text(data[index]['nombre_shipping'].toString()),
+                                onTap: () {
+                              info(context, index);
+                            }),
+                            DataCell(
+                                Text(data[index]['direccion_shipping']
                                     .toString()), onTap: () {
                               info(context, index);
                             }),
                             DataCell(
-                                Text(data[index]['nombre_shipping']
+                                Text(data[index]['telefono_shipping']
                                     .toString()), onTap: () {
                               info(context, index);
                             }),
                             DataCell(
-                                Text(data[index]
-                                        ['direccion_shipping']
-                                    .toString()), onTap: () {
+                                Text(data[index]['cantidad_total'].toString()),
+                                onTap: () {
+                              info(context, index);
+                            }),
+                            DataCell(Text(data[index]['producto_p'].toString()),
+                                onTap: () {
                               info(context, index);
                             }),
                             DataCell(
-                                Text(data[index]
-                                        ['telefono_shipping']
-                                    .toString()), onTap: () {
+                                Text(data[index]['producto_extra'].toString()),
+                                onTap: () {
                               info(context, index);
                             }),
                             DataCell(
-                                Text(data[index]['cantidad_total']
-                                    .toString()), onTap: () {
+                                Text(data[index]['precio_total'].toString()),
+                                onTap: () {
                               info(context, index);
                             }),
                             DataCell(
-                                Text(data[index]['producto_p']
-                                    .toString()), onTap: () {
+                                Text(data[index]['observacion'].toString()),
+                                onTap: () {
+                              info(context, index);
+                            }),
+                            DataCell(Text(data[index]['status'].toString()),
+                                onTap: () {
                               info(context, index);
                             }),
                             DataCell(
-                                Text(data[index]['producto_extra']
-                                    .toString()), onTap: () {
+                                Text(data[index]['estado_interno'].toString()),
+                                onTap: () {
                               info(context, index);
                             }),
                             DataCell(
-                                Text(data[index]['precio_total']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['observacion']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['status']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['estado_interno']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]
-                                        ['estado_logistico']
-                                    .toString()), onTap: () {
+                                Text(
+                                    data[index]['estado_logistico'].toString()),
+                                onTap: () {
                               info(context, index);
                             }),
                             DataCell(
@@ -1007,9 +1001,7 @@ class _OrderEntryState extends State<OrderEntry> {
                                               ['fecha_confirmacion']
                                           .toString()),
                                     ),
-                                    data[index]
-                                                ['estado_interno'] ==
-                                            "PENDIENTE"
+                                    data[index]['estado_interno'] == "PENDIENTE"
                                         ? TextButton(
                                             onPressed: () {
                                               Calendar(data[index]['id']
@@ -1174,18 +1166,17 @@ class _OrderEntryState extends State<OrderEntry> {
                           onTap: () {
                             Navigator.pop(context);
                           },
-                          child:const  Icon(Icons.close),
+                          child: const Icon(Icons.close),
                         ),
                       ),
                       Expanded(
                           child: OrderInfo(
-                        id: data[index]['id'].toString(),
-                        index: index,
-                        sumarNumero: sumarNumero,
-                        codigo:
-                            "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}",
-                        data:data
-                      )),
+                              id: data[index]['id'].toString(),
+                              index: index,
+                              sumarNumero: sumarNumero,
+                              codigo:
+                                  "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}",
+                              data: data)),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -1237,13 +1228,12 @@ class _OrderEntryState extends State<OrderEntry> {
                         ),
                         Expanded(
                             child: OrderInfo(
-                          id: data[index]['id'].toString(),
-                          index: index,
-                          sumarNumero: sumarNumero,
-                          codigo:
-                              "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}",
-                          data:data
-                        )),
+                                id: data[index]['id'].toString(),
+                                index: index,
+                                sumarNumero: sumarNumero,
+                                codigo:
+                                    "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}",
+                                data: data)),
                       ],
                     ),
                   ),
@@ -1401,7 +1391,7 @@ class _OrderEntryState extends State<OrderEntry> {
     }
   }
 
- sortFunc3(filtro, changevalu) {
+  sortFunc3(filtro, changevalu) {
     setState(() {
       if (changevalu) {
         sortFieldDefaultValue = "$filtro:DESC";
@@ -1414,6 +1404,4 @@ class _OrderEntryState extends State<OrderEntry> {
       loadData();
     });
   }
-
 }
-
