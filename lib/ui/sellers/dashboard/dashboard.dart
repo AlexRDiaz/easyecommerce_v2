@@ -821,6 +821,7 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
               onPressed: () async {
                 setState(() {
                   _search.clear();
+                  tableData = [];
                 });
                 await loadData();
               },
