@@ -3118,6 +3118,25 @@ class Connections {
   //     print("Ocurrió un error durante la solicitud del pedido: $error");
   //   }
   // }
+  allTransactions() async
+  {
+    try {
+      var response =
+          await http.get(Uri.parse("$serverLaravel/api/transacciones"),
+              headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+  
   postCredit(
       String idComercial, String monto, String idOrigen, String origen) async {
     try {

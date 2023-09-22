@@ -683,7 +683,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                 OpenShowDialog(context, index);
               })),
           DataCell(InkWell(
-              child: Text(data[index]['productop'].toString()),
+              child: Text(data[index]['producto_p'].toString()),
               onTap: () {
                 OpenShowDialog(context, index);
               })),
