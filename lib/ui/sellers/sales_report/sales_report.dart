@@ -10,6 +10,7 @@ import 'package:frontend/ui/widgets/loading.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../helpers/navigators.dart';
+import '../../widgets/show_error_snackbar.dart';
 
 class SalesReport extends StatefulWidget {
   const SalesReport({super.key});
@@ -29,20 +30,26 @@ class _SalesReportState extends State<SalesReport> {
   }
 
   loadData() async {
-    var response = [];
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getLoadingModal(context, false);
-    });
+    try {
+      var response = [];
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
 
-    response = await Connections().getReportsSellersByCode();
+      response = await Connections().getReportsSellersByCode();
 
-    data = response;
-    setState(() {});
+      data = response;
+      setState(() {});
 
-    Future.delayed(Duration(milliseconds: 500), () {
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
+      setState(() {});
+    } catch (e) {
       Navigator.pop(context);
-    });
-    setState(() {});
+      SnackBarHelper.showErrorSnackBar(
+          context, "Ha ocurrido un error de conexión");
+    }
   }
 
   @override

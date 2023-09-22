@@ -7,6 +7,7 @@ import 'package:frontend/ui/widgets/loading.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:frontend/helpers/server.dart';
+import '../../widgets/show_error_snackbar.dart';
 
 class WalletSellers extends StatefulWidget {
   const WalletSellers({super.key});
@@ -31,31 +32,37 @@ class _WalletSellersState extends State<WalletSellers> {
   }
 
   loadData() async {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getLoadingModal(context, false);
-    });
+    try {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
 
-    // var response = await Connections().getWithdrawalsSellersListWallet();
-    // var responseWalletValue = await Connections().getWalletValue();
+      // var response = await Connections().getWithdrawalsSellersListWallet();
+      // var responseWalletValue = await Connections().getWalletValue();
 
-    var response = await Connections().getWithdrawalsSellersListWalletLaravel(
-        currentPage, pageSize, sortFieldDefaultValue);
-    var responseWalletValueL = await Connections().getWalletValueLaravel();
+      var response = await Connections().getWithdrawalsSellersListWalletLaravel(
+          currentPage, pageSize, sortFieldDefaultValue);
+      var responseWalletValueL = await Connections().getWalletValueLaravel();
 
-    setState(() {
-      // var tempWallet = double.parse(responseWalletValue.toString());
-      // valueWallet = tempWallet.toStringAsFixed(2);
-      // data = response;
-      data = response['data'];
+      setState(() {
+        // var tempWallet = double.parse(responseWalletValue.toString());
+        // valueWallet = tempWallet.toStringAsFixed(2);
+        // data = response;
+        data = response['data'];
 
-      var tempWallet2 = double.parse(responseWalletValueL.toString());
-      valueWallet = tempWallet2.toStringAsFixed(2);
-      // print('saldo with L: $valueWallet2');
-    });
-    Future.delayed(Duration(milliseconds: 500), () {
+        var tempWallet2 = double.parse(responseWalletValueL.toString());
+        valueWallet = tempWallet2.toStringAsFixed(2);
+        // print('saldo with L: $valueWallet2');
+      });
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
+      setState(() {});
+    } catch (e) {
       Navigator.pop(context);
-    });
-    setState(() {});
+      SnackBarHelper.showErrorSnackBar(
+          context, "Ha ocurrido un error de conexión");
+    }
   }
 
   @override

@@ -4680,6 +4680,33 @@ class Connections {
     }
   }
 
+  Future updateOrderInteralStatusLaravel2(text, id) async {
+    //al parecer hay otro
+    // print('id: $id, $text');
+    try {
+      var request =
+          await http.put(Uri.parse("$serverLaravel/api/pedidos-shopify/$id"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "estado_interno": text,
+                "name_comercial":
+                    sharedPrefs!.getString("NameComercialSeller").toString(),
+                "fecha_confirmacion":
+                    "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
+              }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
   //TEST
 
   Future getOrdersTest1() async {

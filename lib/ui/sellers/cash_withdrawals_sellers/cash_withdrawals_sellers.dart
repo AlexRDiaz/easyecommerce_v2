@@ -11,6 +11,7 @@ import 'package:frontend/helpers/server.dart';
 
 import '../../../helpers/navigators.dart';
 import 'controllers/search_controller.dart';
+import '../../widgets/show_error_snackbar.dart';
 
 class CashWithdrawalsSellers extends StatefulWidget {
   const CashWithdrawalsSellers({super.key});
@@ -32,20 +33,26 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
   }
 
   loadData() async {
-    var response;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getLoadingModal(context, false);
-    });
+    try {
+      var response;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
 
-    response = await Connections()
-        .getWithdrawalSellers(_controllers.searchController.text);
+      response = await Connections()
+          .getWithdrawalSellers(_controllers.searchController.text);
 
-    data = response;
+      data = response;
 
-    Future.delayed(Duration(milliseconds: 500), () {
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
+      setState(() {});
+    } catch (e) {
       Navigator.pop(context);
-    });
-    setState(() {});
+      SnackBarHelper.showErrorSnackBar(
+          context, "Ha ocurrido un error de conexión");
+    }
   }
 
   @override
