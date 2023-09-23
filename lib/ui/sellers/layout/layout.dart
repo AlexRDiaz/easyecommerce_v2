@@ -32,6 +32,7 @@ class LayoutSellersPage extends StatefulWidget {
 
 class _LayoutSellersPageState extends State<LayoutSellersPage> {
   final GlobalKey<ScaffoldState> _key = GlobalKey();
+  var username = sharedPrefs!.getString("email").toString();
 
   late NavigationProviderSellers navigation;
   @override
@@ -103,29 +104,40 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
             ],
           ),
         ),
-        title: Container(
-          width: double.infinity,
-          height: 80,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              images.logoEasyEcommercce,
+              width: 30,
+            ),
+            SizedBox(width: 10),
+            Flexible(
+              child: Text(
+                navigation.nameWindow,
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          Row(
             children: [
-              Image.asset(
-                images.logoEasyEcommercce,
-                width: 30,
+              Icon(
+                Icons.account_circle,
+                color: const Color.fromARGB(255, 255, 255, 255),
               ),
-              SizedBox(
-                width: 10,
-              ),
-              Flexible(
-                child: Text(
-                  navigation.nameWindow,
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              SizedBox(width: 5),
+              Text(
+                "${username}",
+                style: TextStyle(
+                  color: const Color.fromARGB(255, 255, 255, 255),
                 ),
               ),
+              SizedBox(width: 20),
             ],
           ),
-        ),
+        ],
       ),
       drawer: Drawer(
         backgroundColor: Colors.white,
