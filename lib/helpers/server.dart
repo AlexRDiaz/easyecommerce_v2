@@ -5,4 +5,4 @@
 String generalServer = "https://api.easyecomerce.com";
 String serverUrlByShopify = "https://api.easyecomerce.com/api/orders/post";
 String generalServerApiLaravel =
-    "https://easyecommercelaravel-production.up.railway.app";
+    "https://devapi.easyecomerce.com/apitest/public/index.php";
