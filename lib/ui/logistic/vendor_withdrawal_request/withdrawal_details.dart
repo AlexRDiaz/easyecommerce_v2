@@ -395,6 +395,7 @@ class _WithDrawalDetailsState extends State<WithdrawalDetails> {
                                                               response[1]
                                                                   .toString());
 
+
                                                       var dtsrt =
                                                           await Connections()
                                                               .getdtsOrdenRetiro();

@@ -2551,10 +2551,8 @@ class Connections {
     return decodeData['data'];
   }
 
-
+ 
   Future getdtsOrdenRetiro() async {
-    // print(sharedPrefs!.getString("").toString());
-    // String id = sharedPrefs!.getString("idComercialMasterSeller").toString();
     String id = Get.parameters['id'].toString();
     try {
       var request = await http.get(
