@@ -414,33 +414,49 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
                       onSelectChanged: (bool? selected) {},
                       cells: [
                         DataCell(ElevatedButton(
-                            onPressed:
-                                data[index]['estado_devolucion'].toString() !=
-                                        "PENDIENTE"
-                                    ? null
-                                    : () {
-                                        AwesomeDialog(
-                                          width: 500,
-                                          context: context,
-                                          dialogType: DialogType.info,
-                                          animType: AnimType.rightSlide,
-                                          title:
-                                              '¿Estás seguro de marcar el pedido en Oficina?',
-                                          desc: '',
-                                          btnOkText: "Confirmar",
-                                          btnCancelText: "Cancelar",
-                                          btnOkColor: Colors.blueAccent,
-                                          btnCancelOnPress: () {},
-                                          btnOkOnPress: () async {
-                                            getLoadingModal(context, false);
-                                            await Connections()
-                                                .updateOrderReturnOperator(
-                                                    data[index]['id']);
-                                            await loadData(context);
-                                            Navigator.pop(context);
-                                          },
-                                        ).show();
+                            onPressed: data[index]['estado_devolucion']
+                                        .toString() !=
+                                    "PENDIENTE"
+                                ? null
+                                : () {
+                                    AwesomeDialog(
+                                      width: 500,
+                                      context: context,
+                                      dialogType: DialogType.info,
+                                      animType: AnimType.rightSlide,
+                                      title:
+                                          '¿Estás seguro de marcar el pedido en Oficina?',
+                                      desc: '',
+                                      btnOkText: "Confirmar",
+                                      btnCancelText: "Cancelar",
+                                      btnOkColor: Colors.blueAccent,
+                                      btnCancelOnPress: () {},
+                                      btnOkOnPress: () async {
+                                        getLoadingModal(context, false);
+                                        await Connections()
+                                            .updateOrderReturnOperator(
+                                                data[index]['id']);
+
+                                        var datane = await Connections()
+                                            .getOrderByIDHistoryLaravel(
+                                                data[index]['id']);
+
+                                        print("costos-> $datane");
+
+                                        if (datane['estado_devolucion'] =="ENTREGADO EN OFICINA") {
+                                          if (((datane['status'] =="NO ENTREGADO") ||datane['status'] == "NOVEDAD")) {
+                                            await Connections().postDebit(
+                                                "${datane['users'][0]['vendedores'][0]['id']}",
+                                                "${datane['users'][0]['vendedores'][0]['costo_envio']}",
+                                                "${datane['name_comercial']}-${datane['numero_orden']}",
+                                                "recaudo");
+                                          }
+                                        }
+                                        await loadData(context);
+                                        Navigator.pop(context);
                                       },
+                                    ).show();
+                                  },
                             child: const Text(
                               "Devolver",
                               style: TextStyle(
@@ -644,7 +660,7 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
                 return DropdownMenuItem<String>(
                     value: value,
                     child: Container(
-                      padding: const  EdgeInsets.only(
+                      padding: const EdgeInsets.only(
                           bottom: 5.5), // Adjust the top padding as needed
                       child: Text(
                         value.split("-")[0],

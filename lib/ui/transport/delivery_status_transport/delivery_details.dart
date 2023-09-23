@@ -147,22 +147,22 @@ class _TransportProDeliveryHistoryDetails
                                                       );
 
                                                     });
-                                                // ! POST CREDIT  
-                                                await Connections().postCredit(
-                                                  "${data['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['id']}",
-                                                  "${data['attributes']['PrecioTotal']}", 
-                                                  widget.id, 
-                                                  "valor");
-                                                // ! POST DEBIT
-                                                await Connections().postDebit(
-                                                  "${data['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['id']}",
-                                                  "${data['attributes']['transportadora']['data']['attributes']['Costo_Transportadora']}", 
-                                                  widget.id, 
-                                                  "envio");
+                                                // // ! POST CREDIT  
+                                                // await Connections().postCredit(
+                                                //   "${data['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['id']}",
+                                                //   "${data['attributes']['PrecioTotal']}", 
+                                                //   "${data['attributes']['Name_Comercial']}-${data['attributes']['NumeroOrden']}", 
+                                                //   "valor");
+                                                // // ! POST DEBIT
+                                                // await Connections().postDebit(
+                                                //   "${data['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['id']}",
+                                                //   "${data['attributes']['transportadora']['data']['attributes']['Costo_Transportadora']}", 
+                                                //   "${data['attributes']['Name_Comercial']}-${data['attributes']['NumeroOrden']}", 
+                                                //   "envio");
                                                 await loadData();
                                               },
                                               child: Text(
-                                                "Gestionar Novedades",
+                                                "Estado de Entrega",
                                                 style: TextStyle(
                                                     fontWeight:
                                                         FontWeight.bold),

@@ -130,7 +130,7 @@ class _TransactionsState extends State<Transactions> {
               child: Text(
                 data[index]['tipo'] == 'debit'
                     ? "\$ - ${data[index]['monto'].toString()}"
-                    : "\$ ${data[index]['monto'].toString()}",
+                    : "\$ + ${data[index]['monto'].toString()}",
               ),
               onTap: () {
                 // OpenShowDialog(context index);

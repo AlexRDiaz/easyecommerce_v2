@@ -1980,7 +1980,9 @@ class Connections {
 
   Future updateOrderStatusOperatorEntregadoHistorial(
       status, tipoDePago, comentario, archivo, id) async {
-    var request = await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
+    var request = await http.put(
+        Uri.parse(
+            "$server/api/pedidos-shopifies/$id?populate=users.vendedores&populate=transportadora"),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           "data": {
@@ -1997,7 +1999,7 @@ class Connections {
     if (request.statusCode != 200) {
       return false;
     } else {
-      return true;
+      return decodeData;
     }
   }
 
@@ -2040,8 +2042,14 @@ class Connections {
   }
 
   Future updateOrderStatusOperatorNoEntregadoHistorial(
-      status, comentario, archivo, id) async {
-    var request = await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
+      // ?populate=users.vendedores&populate=transportadora
+      status,
+      comentario,
+      archivo,
+      id) async {
+    var request = await http.put(
+        Uri.parse(
+            "$server/api/pedidos-shopifies/$id?populate=users.vendedores&populate=transportadora"),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           "data": {
@@ -2053,6 +2061,7 @@ class Connections {
           }
         }));
     var response = await request.body;
+    print("noentregado -> $response");
     var decodeData = json.decode(response);
     if (request.statusCode != 200) {
       return false;
@@ -2084,7 +2093,10 @@ class Connections {
   }
 
   Future updateOrderStatusOperatorGeneralHistorial(
-      status, comentario, id) async {
+      // ?populate=users.vendedores&populate=transportadora
+      status,
+      comentario,
+      id) async {
     var request = await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
@@ -2539,6 +2551,34 @@ class Connections {
     return decodeData['data'];
   }
 
+
+  Future getdtsOrdenRetiro() async {
+    // print(sharedPrefs!.getString("").toString());
+    // String id = sharedPrefs!.getString("idComercialMasterSeller").toString();
+    String id = Get.parameters['id'].toString();
+    try {
+      var request = await http.get(
+          Uri.parse(
+              "$serverLaravel/api/orden_retiro/$id"),
+          headers: {'Content-Type': 'application/json'}
+      
+          );
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return false;
+      } else {
+        return decodeData;
+      }
+    } catch (e) {
+      print(e);
+
+      return false;
+    }
+  }
+
+
   Future withdrawalPost(amount) async {
     print(sharedPrefs!.getString("email").toString());
     try {
@@ -2550,8 +2590,9 @@ class Connections {
             "monto": amount,
             "fecha":
                 "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
-            "email": "bugi2532@hotmail.com"
-            // "email": sharedPrefs!.getString("email").toString()
+            "email": "bugi2532@hotmail.com",
+            "id_vendedor" :"${sharedPrefs!.getString("idComercialMasterSeller")}"
+            // "id_vendedor" : "5"
           }));
       var response = await request.body;
       var decodeData = json.decode(response);
@@ -3118,12 +3159,11 @@ class Connections {
   //     print("Ocurrió un error durante la solicitud del pedido: $error");
   //   }
   // }
-  allTransactions() async
-  {
+  allTransactions() async {
     try {
-      var response =
-          await http.get(Uri.parse("$serverLaravel/api/transacciones"),
-              headers: {'Content-Type': 'application/json'});
+      var response = await http.get(
+          Uri.parse("$serverLaravel/api/transacciones"),
+          headers: {'Content-Type': 'application/json'});
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         return decodeData;
@@ -3136,7 +3176,7 @@ class Connections {
       print("Ocurrió un error durante la solicitud: $error");
     }
   }
-  
+
   postCredit(
       String idComercial, String monto, String idOrigen, String origen) async {
     try {
@@ -3166,7 +3206,7 @@ class Connections {
 
   postDebit(
       String idComercial, String monto, String idOrigen, String origen) async {
-    try {
+    // try {
       var response =
           await http.post(Uri.parse("$serverLaravel/api/transacciones/debit"),
               headers: {'Content-Type': 'application/json'},
@@ -3186,9 +3226,9 @@ class Connections {
       } else {
         print("Error ${response.statusCode}: ${response.reasonPhrase}");
       }
-    } catch (error) {
-      print("Ocurrió un error durante la solicitud: $error");
-    }
+    // } catch (error) {
+      // print("Ocurrió un error durante la solicitud: $error");
+    // }
   }
 
   getOrdersOper(List populate, List and, List defaultAnd, List or, currentPage,
@@ -4274,6 +4314,22 @@ class Connections {
       return false;
     } else {
       return true;
+    }
+  }
+
+  Future updatenueva(id, datajson) async {
+    // {{base_api_laravel}}/api/pedidos-shopify/update/56
+    var request = await http.put(
+        Uri.parse("$serverLaravel/api/pedidos-shopify/update/$id"),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(datajson));
+    var response = await request.body;
+    var decodeData = json.decode(response);
+
+    if (request.statusCode != 200) {
+      return false;
+    } else {
+      return decodeData;
     }
   }
 
