@@ -15,13 +15,12 @@ class _TransactionsState extends State<Transactions> {
 
   loadData() async {
     try {
-      var response = await Connections().allTransactions();
+      var response = await Connections().last30rows();
 
       setState(() {
         data = response;
       });
-
-      // print(data);
+      
     } catch (e) {
       print(e);
     }
