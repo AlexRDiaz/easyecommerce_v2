@@ -142,7 +142,7 @@ class _TransactionsState extends State<Transactions> {
               })),
           DataCell(InkWell(
               child:
-                  Text(data[index]['marca_de_tiempo'].toString().split(" ")[0]),
+                  Text("${data[index]['marca_de_tiempo'].toString().split(" ")[0]}   ${data[index]['marca_de_tiempo'].toString().split(" ")[1]}"),
               onTap: () {
                 // OpenShowDialog(context, index);
               })),
