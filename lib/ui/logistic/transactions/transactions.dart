@@ -2,6 +2,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/ui/widgets/transport/data_table_model.dart';
+import 'dart:async';
 
 class Transactions extends StatefulWidget {
   const Transactions({super.key});
@@ -20,7 +21,6 @@ class _TransactionsState extends State<Transactions> {
       setState(() {
         data = response;
       });
-      
     } catch (e) {
       print(e);
     }
@@ -34,12 +34,76 @@ class _TransactionsState extends State<Transactions> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(50.0),
-        child: DataTableModelPrincipal(
-            columns: getColumns(), rows: buildDataRows(data)),
-      ),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Container(
+          width: double.infinity,
+          child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(children: [
+                const SizedBox(
+                  height: 10,
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: GestureDetector(
+                    onTap: () async {
+                      await loadData();
+                    },
+                    child: Container(
+                      height: 45,
+                      margin:  const EdgeInsets.only(right: 10.0),
+                      padding: const EdgeInsets.only(bottom: 15.0),
+                      width: 180,
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+                        border: Border.all(width: 1,color: const Color.fromARGB(255, 165, 173, 156)),
+                        color: Colors.white,
+                        boxShadow: [
+                            BoxShadow(
+                              color: const Color.fromARGB(255, 165, 173, 156),
+                              blurRadius:
+                                  5,
+                              spreadRadius:
+                                  2,
+                            ),
+                        ],
+                      ),
+                      // color: Colors.transparent,
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Icon(
+                            Icons.replay_outlined,
+                            color: Colors.green,
+                          ),
+                          SizedBox(
+                            width: 7,
+                          ),
+                          Text(
+                            "Recargar Información",
+                            style: TextStyle(color: Colors.green),
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: DataTableModelPrincipal(
+                        columns: getColumns(), rows: buildDataRows(data)),
+                  ),
+                ),
+              ]))),
     );
   }
 
@@ -105,15 +169,19 @@ class _TransactionsState extends State<Transactions> {
     ];
   }
 
-  setColor (transaccion) {
-    final color = transaccion == "credit" ? Color.fromARGB(255, 202, 236, 162) : Color.fromARGB(255, 236, 176, 175);
+  setColor(transaccion) {
+    final color = transaccion == "credit"
+        ? Color.fromARGB(255, 202, 236, 162)
+        : Color.fromARGB(255, 236, 176, 175);
     return color;
   }
+
   List<DataRow> buildDataRows(List data) {
     List<DataRow> rows = [];
     for (int index = 0; index < data.length; index++) {
       DataRow row = DataRow(
-        color: MaterialStateColor.resolveWith((states) => setColor(data[index]['tipo'])!),
+        color: MaterialStateColor.resolveWith(
+            (states) => setColor(data[index]['tipo'])!),
         cells: [
           DataCell(InkWell(
               child: Text(data[index]['id'].toString()),
@@ -140,8 +208,8 @@ class _TransactionsState extends State<Transactions> {
                 // OpenShowDialog(context, index);
               })),
           DataCell(InkWell(
-              child:
-                  Text("${data[index]['marca_de_tiempo'].toString().split(" ")[0]}   ${data[index]['marca_de_tiempo'].toString().split(" ")[1]}"),
+              child: Text(
+                  "${data[index]['marca_de_tiempo'].toString().split(" ")[0]}   ${data[index]['marca_de_tiempo'].toString().split(" ")[1]}"),
               onTap: () {
                 // OpenShowDialog(context, index);
               })),
@@ -167,5 +235,4 @@ class _TransactionsState extends State<Transactions> {
 
     return rows;
   }
-
 }
