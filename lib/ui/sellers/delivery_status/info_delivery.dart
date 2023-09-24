@@ -41,7 +41,7 @@ class _DeliveryStatusSellerInfo extends State<DeliveryStatusSellerInfo> {
 
     // ! ↓esta es la usada
     data = response;
-    _controllers.editControllers(response);
+    _controllers.editControllers2(response);
 
     Future.delayed(const Duration(milliseconds: 500), () {
       Navigator.pop(context);

@@ -1585,17 +1585,17 @@ class Connections {
   Future updateOrderInteralStatusLaravel(text, id) async {
     try {
       var request =
-          await http.post(Uri.parse("$server/api/updOiS/pedidos-shopifies"),
+          await http.post(Uri.parse("$serverLaravel/api/updOiS/pedidos-shopifies"),
               headers: {'Content-Type': 'application/json'},
               body: json.encode({
-                "data": {
+                // "data": {
                   "id": id,
                   "estado_interno": text,
                   // "Name_Comercial":
                   //     sharedPrefs!.getString("NameComercialSeller").toString(),
                   "fecha_confirmacion":
                       "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
-                }
+                // }
               }));
 
       var response = await request.body;
@@ -1604,7 +1604,7 @@ class Connections {
       if (request.statusCode != 200) {
         return false;
       } else {
-        return true;
+        return decodeData;
       }
     } catch (e) {
       print(e);

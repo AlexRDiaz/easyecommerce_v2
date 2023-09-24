@@ -36,7 +36,7 @@ class _InfoNovedadesState extends State<InfoNovedades> {
     data = response;
 
     //
-    _controllers.editControllers(response);
+    _controllers.editControllers2(response);
     setState(() {
       _numerController.text = data['telefono_shipping'].toString();
     });
