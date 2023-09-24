@@ -1591,8 +1591,8 @@ class Connections {
                 // "data": {
                   "id": id,
                   "estado_interno": text,
-                  // "Name_Comercial":
-                  //     sharedPrefs!.getString("NameComercialSeller").toString(),
+                  "name_comercial": "LOGRO",
+                      // sharedPrefs!.getString("NameComercialSeller").toString(),
                   "fecha_confirmacion":
                       "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
                 // }
