@@ -1,5 +1,6 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
@@ -34,6 +35,16 @@ class _OrderInfoState extends State<OrderInfo> {
   String estadoEntrega = "";
   String estadoLogistic = "";
 
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  bool containsEmoji(String text) {
+    final emojiPattern = RegExp(
+        r'[\u2000-\u3300]|[\uD83C][\uDF00-\uDFFF]|[\uD83D][\uDC00-\uDE4F]'
+        r'|[\uD83D][\uDE80-\uDEFF]|[\uD83E][\uDD00-\uDDFF]|[\uD83E][\uDE00-\uDEFF]'
+        r'|[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]');
+    return emojiPattern.hasMatch(text);
+  }
+
   @override
   void didChangeDependencies() {
     loadData();
@@ -47,7 +58,7 @@ class _OrderInfoState extends State<OrderInfo> {
     var response = await Connections()
         .getOrdersByIdLaravel2(int.parse(widget.id), widget.data);
     data = response;
-    print(data);
+    //print(data);
     _controllers.editControllers(response);
     setState(() {
       estadoEntrega = data['status'].toString();
@@ -79,206 +90,277 @@ class _OrderInfoState extends State<OrderInfo> {
         body: SafeArea(
             child: Padding(
           padding: const EdgeInsets.all(20.0),
-          child: SingleChildScrollView(
-            child: loading == true
-                ? Container()
-                : Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          estadoLogistic == "ENVIADO"
-                              ? Container()
-                              : ElevatedButton(
-                                  onPressed: () async {
-                                    var response = await Connections()
-                                        .updateOrderInteralStatusLaravel(
-                                            "NO DESEA", widget.id);
+          child: Form(
+            key: formKey,
+            child: SingleChildScrollView(
+              child: loading == true
+                  ? Container()
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            estadoLogistic == "ENVIADO"
+                                ? Container()
+                                : ElevatedButton(
+                                    onPressed: () async {
+                                      var response = await Connections()
+                                          .updateOrderInteralStatusLaravel(
+                                              "NO DESEA", widget.id);
 
-                                    //  Navigator.pop(context);
-                                    widget.sumarNumero(context, widget.index);
+                                      //  Navigator.pop(context);
+                                      widget.sumarNumero(context, widget.index);
 
-                                    setState(() {});
-                                    //loadData();
-                                    //Navigator.pop(context);
-                                  },
-                                  child: const Text(
-                                    "No Desea",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
-                                  )),
-                          SizedBox(
-                            width: 20,
-                          ),
-                          ElevatedButton(
-                              onPressed: () async {
-                                var responsets = await Connections()
-                                    .updateOrderInteralStatusLaravel(
-                                        "CONFIRMADO", widget.id);
-
-                                print("-> rsp : $responsets");
-                                
-                                await showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return RoutesModal(
-                                        idOrder: widget.id,
-                                        someOrders: false,
-                                        phoneClient: data['telefono_shipping']
-                                            .toString(),
-                                        codigo: widget.codigo,
-                                      );
-                                    });
-                                loadData();
-                              },
-                              child: Text(
-                                "Confirmar",
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              )),
-                          SizedBox(
-                            width: 20,
-                          ),
-                          ElevatedButton(
-                              onPressed: () async {
-                                getLoadingModal(context, false);
-                                await _controllers.updateInfo(
-                                    id: widget.id,
-                                    success: () async {
-                                      Navigator.pop(context);
-                                      AwesomeDialog(
-                                        width: 500,
-                                        context: context,
-                                        dialogType: DialogType.success,
-                                        animType: AnimType.rightSlide,
-                                        title: 'Guardado',
-                                        desc: '',
-                                        btnCancel: Container(),
-                                        btnOkText: "Aceptar",
-                                        btnOkColor: colors.colorGreen,
-                                        btnCancelOnPress: () {},
-                                        btnOkOnPress: () {},
-                                      ).show();
-                                      await loadData();
+                                      setState(() {});
+                                      //loadData();
+                                      //Navigator.pop(context);
                                     },
-                                    error: () {
-                                      Navigator.pop(context);
+                                    child: const Text(
+                                      "No Desea",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    )),
+                            SizedBox(
+                              width: 20,
+                            ),
+                            ElevatedButton(
+                                onPressed: () async {
+                                  var responsets = await Connections()
+                                      .updateOrderInteralStatusLaravel(
+                                          "CONFIRMADO", widget.id);
 
-                                      AwesomeDialog(
-                                        width: 500,
-                                        context: context,
-                                        dialogType: DialogType.error,
-                                        animType: AnimType.rightSlide,
-                                        title: 'Data Incorrecta',
-                                        desc: 'Vuelve a intentarlo',
-                                        btnCancel: Container(),
-                                        btnOkText: "Aceptar",
-                                        btnOkColor: colors.colorGreen,
-                                        btnCancelOnPress: () {},
-                                        btnOkOnPress: () {},
-                                      ).show();
-                                    });
-                              },
-                              child: Text(
-                                "Guardar",
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              )),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                        "  Código: ${sharedPrefs!.getString("NameComercialSeller").toString()}-${data['numero_orden'].toString()}",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 18),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                        "  Fecha: ${data['pedido_fecha'][0]['fecha'].toString()}",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 18),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      _modelTextField(
-                          text: "Ciudad",
-                          controller: _controllers.ciudadEditController),
-                      _modelTextField(
-                          text: "Nombre Cliente",
-                          controller: _controllers.nombreEditController),
-                      _modelTextField(
-                          text: "Dirección",
-                          controller: _controllers.direccionEditController),
-                      _modelTextField(
-                          text: "Teléfono",
-                          controller: _controllers.telefonoEditController),
-                      _modelTextField(
-                          text: "Cantidad",
-                          controller: _controllers.cantidadEditController),
-                      _modelTextField(
-                          text: "Producto",
-                          controller: _controllers.productoEditController),
-                      _modelTextField(
-                          text: "Producto Extra",
-                          controller: _controllers.productoExtraEditController),
-                      _modelTextField(
-                          text: "Precio Total",
-                          controller: _controllers.precioTotalEditController),
-                      _modelTextField(
-                          text: "Observacion",
-                          controller: _controllers.observacionEditController),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                        "  Confirmado: ${data['estado_interno'].toString()}",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 18),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                        "  Estado Entrega: $estadoEntrega",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 18),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                        "  Estado Logístico: $estadoLogistic",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 18),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                        "Ciudad: ${data['ruta'] != null && data['ruta'].isNotEmpty ? data['ruta'][0]['titulo'].toString() : ''}",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
+                                  print("-> rsp : $responsets");
+
+                                  await showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return RoutesModal(
+                                          idOrder: widget.id,
+                                          someOrders: false,
+                                          phoneClient: data['telefono_shipping']
+                                              .toString(),
+                                          codigo: widget.codigo,
+                                        );
+                                      });
+                                  loadData();
+                                },
+                                child: Text(
+                                  "Confirmar",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                )),
+                            SizedBox(
+                              width: 20,
+                            ),
+                            ElevatedButton(
+                                onPressed: () async {
+                                  if (formKey.currentState!.validate()) {
+                                    getLoadingModal(context, false);
+                                    await _controllers.updateInfo(
+                                        id: widget.id,
+                                        success: () async {
+                                          Navigator.pop(context);
+                                          AwesomeDialog(
+                                            width: 500,
+                                            context: context,
+                                            dialogType: DialogType.success,
+                                            animType: AnimType.rightSlide,
+                                            title: 'Guardado',
+                                            desc: '',
+                                            btnCancel: Container(),
+                                            btnOkText: "Aceptar",
+                                            btnOkColor: colors.colorGreen,
+                                            btnCancelOnPress: () {},
+                                            btnOkOnPress: () {},
+                                          ).show();
+                                          await loadData();
+                                        },
+                                        error: () {
+                                          Navigator.pop(context);
+
+                                          AwesomeDialog(
+                                            width: 500,
+                                            context: context,
+                                            dialogType: DialogType.error,
+                                            animType: AnimType.rightSlide,
+                                            title: 'Data Incorrecta',
+                                            desc: 'Vuelve a intentarlo',
+                                            btnCancel: Container(),
+                                            btnOkText: "Aceptar",
+                                            btnOkColor: colors.colorGreen,
+                                            btnCancelOnPress: () {},
+                                            btnOkOnPress: () {},
+                                          ).show();
+                                        });
+                                  }
+                                },
+                                child: Text(
+                                  "Guardar",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                )),
+                          ],
                         ),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                        "  Transportadora: ${data['transportadora'] != null  && data['transportadora'].isNotEmpty  ? data['transportadora'][0]['nombre'].toString() : ''}",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 18),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                    ],
-                  ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          "  Código: ${sharedPrefs!.getString("NameComercialSeller").toString()}-${data['numero_orden'].toString()}",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 18),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          "  Fecha: ${data['pedido_fecha'][0]['fecha'].toString()}",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 18),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        _modelTextFormField2(
+                            text: "Ciudad",
+                            controller: _controllers.ciudadEditController,
+                            keyboardType: TextInputType.text,
+                            inputFormatters: [],
+                            validator: (String? value) {
+                              if (value == null || value.isEmpty) {
+                                return "Campo requerido";
+                              } else if (containsEmoji(value)) {
+                                return "No se permiten emojis en este campo";
+                              }
+                            }),
+                        _modelTextFormField2(
+                            text: "Nombre Cliente",
+                            controller: _controllers.nombreEditController,
+                            keyboardType: TextInputType.text,
+                            inputFormatters: [],
+                            validator: (String? value) {
+                              if (value == null || value.isEmpty) {
+                                return "Campo requerido";
+                              } else if (containsEmoji(value)) {
+                                return "No se permiten emojis en este campo";
+                              }
+                            }),
+                        _modelTextFormField2(
+                            text: "Dirección",
+                            controller: _controllers.direccionEditController,
+                            keyboardType: TextInputType.text,
+                            inputFormatters: [],
+                            validator: (String? value) {
+                              if (value == null || value.isEmpty) {
+                                return "Campo requerido";
+                              } else if (containsEmoji(value)) {
+                                return "No se permiten emojis en este campo";
+                              }
+                            }),
+                        _modelTextFormField2(
+                            text: "Teléfono",
+                            controller: _controllers.telefonoEditController,
+                            keyboardType: TextInputType.text,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                  RegExp(r'[0-9+]')),
+                            ],
+                            validator: (String? value) {
+                              if (value == null || value.isEmpty) {
+                                return "Campo requerido";
+                              }
+                            }),
+                        _modelTextFormField2(
+                            text: "Cantidad",
+                            controller: _controllers.cantidadEditController,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: <TextInputFormatter>[
+                              FilteringTextInputFormatter.digitsOnly
+                            ],
+                            validator: (String? value) {
+                              if (value == null || value.isEmpty) {
+                                return "Campo requerido";
+                              }
+                            }),
+                        _modelTextFormField2(
+                            text: "Producto",
+                            controller: _controllers.productoEditController,
+                            keyboardType: TextInputType.text,
+                            inputFormatters: [],
+                            validator: (String? value) {
+                              if (value == null || value.isEmpty) {
+                                return "Campo requerido";
+                              } else if (containsEmoji(value)) {
+                                return "No se permiten emojis en este campo";
+                              }
+                            }),
+                        _modelTextField(
+                            text: "Producto Extra",
+                            controller:
+                                _controllers.productoExtraEditController),
+                        _modelTextFormField2(
+                            text: "Precio Total",
+                            controller: _controllers.precioTotalEditController,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: <TextInputFormatter>[
+                              FilteringTextInputFormatter.allow(RegExp(
+                                  r'^\d+\.?\d{0,2}$')), // "." y hasta 2 decimales
+                            ],
+                            validator: (String? value) {
+                              if (value == null || value.isEmpty) {
+                                return "Campo requerido";
+                              }
+                            }),
+                        _modelTextField(
+                            text: "Observacion",
+                            controller: _controllers.observacionEditController),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          "  Confirmado: ${data['estado_interno'].toString()}",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 18),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          "  Estado Entrega: $estadoEntrega",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 18),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          "  Estado Logístico: $estadoLogistic",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 18),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          "Ciudad: ${data['ruta'] != null && data['ruta'].isNotEmpty ? data['ruta'][0]['titulo'].toString() : ''}",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          "  Transportadora: ${data['transportadora'] != null && data['transportadora'].isNotEmpty ? data['transportadora'][0]['nombre'].toString() : ''}",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 18),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                      ],
+                    ),
+            ),
           ),
         )));
   }
@@ -327,6 +409,71 @@ class _OrderInfoState extends State<OrderInfo> {
                     focusColor: Colors.black,
                     iconColor: Colors.black,
                   ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 10,
+          )
+        ],
+      ),
+    );
+  }
+
+  _modelTextFormField2({
+    text,
+    controller,
+    TextInputType? keyboardType,
+    List<TextInputFormatter>? inputFormatters,
+    String? Function(String?)? validator,
+  }) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10.0),
+        color: Color.fromARGB(255, 245, 244, 244),
+      ),
+      margin: EdgeInsets.only(bottom: 10),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              SizedBox(
+                width: 10,
+              ),
+              Text(
+                "$text: ",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Expanded(
+                child: TextFormField(
+                  controller: controller,
+                  onChanged: (value) {
+                    setState(() {});
+                  },
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                  decoration: InputDecoration(
+                    hintText: text,
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    focusColor: Colors.black,
+                    iconColor: Colors.black,
+                  ),
+                  keyboardType: keyboardType,
+                  inputFormatters: inputFormatters,
+                  validator: validator,
                 ),
               ),
             ],
