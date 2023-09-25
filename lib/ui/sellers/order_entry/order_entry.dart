@@ -438,7 +438,7 @@ class _OrderEntryState extends State<OrderEntry> {
                                   await showDialog(
                                       context: (context),
                                       builder: (context) {
-                                        return const AddOrderSellersLaravel();
+                                        return const AddOrderSellers();
                                       });
                                   await loadData();
                                 },
