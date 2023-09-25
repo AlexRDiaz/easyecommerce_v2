@@ -1591,8 +1591,7 @@ class Connections {
                 // "data": {
                   "id": id,
                   "estado_interno": text,
-                  "name_comercial": "LOGRO",
-                      // sharedPrefs!.getString("NameComercialSeller").toString(),
+                  "name_comercial": sharedPrefs!.getString("NameComercialSeller").toString(),
                   "fecha_confirmacion":
                       "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
                 // }
@@ -2588,7 +2587,7 @@ class Connections {
             "monto": amount,
             "fecha":
                 "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
-            "email": "bugi2532@hotmail.com",
+            "email": sharedPrefs!.getString("email").toString(),
             "id_vendedor" :"${sharedPrefs!.getString("idComercialMasterSeller")}"
             // "id_vendedor" : "5"
           }));
