@@ -10,7 +10,6 @@ import 'package:frontend/ui/widgets/loading.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../helpers/navigators.dart';
-import '../../widgets/show_error_snackbar.dart';
 
 class SalesReport extends StatefulWidget {
   const SalesReport({super.key});
@@ -30,26 +29,20 @@ class _SalesReportState extends State<SalesReport> {
   }
 
   loadData() async {
-    try {
-      var response = [];
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        getLoadingModal(context, false);
-      });
+    var response = [];
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      getLoadingModal(context, false);
+    });
 
-      response = await Connections().getReportsSellersByCode();
+    response = await Connections().getReportsSellersByCode();
 
-      data = response;
-      setState(() {});
+    data = response;
+    setState(() {});
 
-      Future.delayed(Duration(milliseconds: 500), () {
-        Navigator.pop(context);
-      });
-      setState(() {});
-    } catch (e) {
+    Future.delayed(Duration(milliseconds: 500), () {
       Navigator.pop(context);
-      SnackBarHelper.showErrorSnackBar(
-          context, "Ha ocurrido un error de conexión");
-    }
+    });
+    setState(() {});
   }
 
   @override
@@ -85,10 +78,10 @@ class _SalesReportState extends State<SalesReport> {
                             child: ListTile(
                               onTap: () {
                                 launchUrl(Uri.parse(
-                                    "${generalServerApiLaravel}${data[index]['archivo']}"));
+                                    "${generalServer}${data[index]['attributes']['Archivo']}"));
                               },
                               title: Text(
-                                data[index]['fecha'].toString(),
+                                data[index]['attributes']['Fecha'].toString(),
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                               subtitle: Column(

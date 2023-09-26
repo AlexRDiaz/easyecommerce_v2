@@ -68,28 +68,37 @@ class _PrintGuidesState extends State<PrintGuides> {
     dataTemporal = response;
 
     setState(() {
-      optionsCheckBox = [];
       counterChecks = 0;
     });
-    for (var i = 0; i < data.length; i++) {
-      optionsCheckBox.add({
-        "check": false,
-        "id": "",
-        "numPedido": "",
-        "date": "",
-        "city": "",
-        "product": "",
-        "extraProduct": "",
-        "quantity": "",
-        "phone": "",
-        "price": "",
-        "name": "",
-        "transport": "",
-        "address": "",
-        "obervation": "",
-        "qrLink": "",
-      });
+    for (Map pedido in data) {
+      var selectedItem = optionsCheckBox
+          .where((elemento) => elemento["id"] == pedido["id"])
+          .toList();
+      if (selectedItem.isNotEmpty) {
+        pedido['check'] = true;
+      } else {
+        pedido['check'] = false;
+      }
     }
+    // for (var i = 0; i < data.length; i++) {
+    //   optionsCheckBox.add({
+    //     "check": false,
+    //     "id": "",
+    //     "numPedido": "",
+    //     "date": "",
+    //     "city": "",
+    //     "product": "",
+    //     "extraProduct": "",
+    //     "quantity": "",
+    //     "phone": "",
+    //     "price": "",
+    //     "name": "",
+    //     "transport": "",
+    //     "address": "",
+    //     "obervation": "",
+    //     "qrLink": "",
+    //   });
+    // }
     Future.delayed(Duration(milliseconds: 500), () {
       Navigator.pop(context);
     });
@@ -125,7 +134,9 @@ class _PrintGuidesState extends State<PrintGuides> {
             Row(
               children: [
                 Text(
-                  counterChecks > 0 ? "Seleccionados: ${counterChecks}" : "",
+                  counterChecks > 0
+                      ? "Seleccionados: ${optionsCheckBox.length}"
+                      : "",
                   style: TextStyle(
                       fontWeight: FontWeight.bold, color: Colors.black),
                 ),
@@ -281,74 +292,71 @@ class _PrintGuidesState extends State<PrintGuides> {
                       data.length,
                       (index) => DataRow(cells: [
                             DataCell(Checkbox(
-                                value: optionsCheckBox[index]['check'],
+                                value: data[index]['check'],
                                 onChanged: (value) {
                                   setState(() {
-                                    selectAll = false;
-                                    if (value!) {
-                                      optionsCheckBox[index]['check'] = value;
-                                      optionsCheckBox[index]['id'] =
-                                          data[index]['id'].toString();
-                                      optionsCheckBox[index]['numPedido'] =
+                                    data[index]['check'] = value;
+                                  });
+
+                                  if (value!) {
+                                    optionsCheckBox.add({
+                                      "check": false,
+                                      "id": data[index]['id'].toString(),
+                                      "numPedido":
                                           "${data[index]['attributes']['users']['data'] != null ? data[index]['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['attributes']['Nombre_Comercial'] : data[index]['attributes']['Tienda_Temporal'].toString()}-${data[index]['attributes']['NumeroOrden']}"
-                                              .toString();
-                                      optionsCheckBox[index]['date'] =
-                                          data[index]['attributes']
-                                                      ['pedido_fecha']['data']
-                                                  ['attributes']['Fecha']
-                                              .toString();
-                                      optionsCheckBox[index]['city'] =
-                                          data[index]['attributes']
-                                                  ['CiudadShipping']
-                                              .toString();
-                                      optionsCheckBox[index]['product'] =
-                                          data[index]['attributes']['ProductoP']
-                                              .toString();
-                                      optionsCheckBox[index]['extraProduct'] =
-                                          data[index]['attributes']
-                                                  ['ProductoExtra']
-                                              .toString();
-                                      optionsCheckBox[index]['quantity'] =
-                                          data[index]['attributes']
-                                                  ['Cantidad_Total']
-                                              .toString();
-                                      optionsCheckBox[index]['phone'] =
-                                          data[index]['attributes']
-                                                  ['TelefonoShipping']
-                                              .toString();
-                                      optionsCheckBox[index]['price'] =
-                                          data[index]['attributes']
-                                                  ['PrecioTotal']
-                                              .toString();
-                                      optionsCheckBox[index]['name'] =
-                                          data[index]['attributes']
-                                                  ['NombreShipping']
-                                              .toString();
-                                      optionsCheckBox[index]['transport'] =
-                                          "${data[index]['attributes']['transportadora']['data'] != null ? data[index]['attributes']['transportadora']['data']['attributes']['Nombre'].toString() : ''}";
-                                      optionsCheckBox[index]['address'] =
-                                          data[index]['attributes']
-                                                  ['DireccionShipping']
-                                              .toString();
-                                      optionsCheckBox[index]['obervation'] =
-                                          data[index]['attributes']
-                                                  ['Observacion']
-                                              .toString();
-                                      optionsCheckBox[index]
-                                          ['qrLink'] = data[index]['attributes']
+                                              .toString(),
+                                      "date": data[index]['attributes']
+                                                  ['pedido_fecha']['data']
+                                              ['attributes']['Fecha']
+                                          .toString(),
+                                      "city": data[index]['attributes']
+                                              ['CiudadShipping']
+                                          .toString(),
+                                      "product": data[index]['attributes']
+                                              ['ProductoP']
+                                          .toString(),
+                                      "extraProduct": data[index]['attributes']
+                                              ['ProductoExtra']
+                                          .toString(),
+                                      "quantity": data[index]['attributes']
+                                              ['Cantidad_Total']
+                                          .toString(),
+                                      "phone": data[index]['attributes']
+                                              ['TelefonoShipping']
+                                          .toString(),
+                                      "price": data[index]['attributes']
+                                              ['PrecioTotal']
+                                          .toString(),
+                                      "name": data[index]['attributes']
+                                              ['NombreShipping']
+                                          .toString(),
+                                      "transport": data[index]['attributes']
+                                                  ['transportadora']['data'] !=
+                                              null
+                                          ? data[index]['attributes']
+                                                      ['transportadora']['data']
+                                                  ['attributes']['Nombre']
+                                              .toString()
+                                          : '',
+                                      "address": data[index]['attributes']
+                                              ['DireccionShipping']
+                                          .toString(),
+                                      "obervation": data[index]['attributes']
+                                              ['Observacion']
+                                          .toString(),
+                                      "qrLink": data[index]['attributes']
                                                           ['users']['data'][0]
                                                       ['attributes']
                                                   ['vendedores']['data'][0]
                                               ['attributes']['Url_Tienda']
-                                          .toString();
-
-                                      counterChecks += 1;
-                                    } else {
-                                      optionsCheckBox[index]['check'] = value;
-                                      optionsCheckBox[index]['id'] = '';
-                                      counterChecks -= 1;
-                                    }
-                                    //   print("tamanio a imprimir"+optionsCheckBox.length.toString());
+                                          .toString(),
+                                    });
+                                  } else {
+                                    optionsCheckBox.removeWhere((option) =>
+                                        option['id'] == data[index]['id']);
+                                  }
+                                  setState(() {
+                                    counterChecks = optionsCheckBox.length;
                                   });
                                 })),
                             DataCell(
