@@ -40,8 +40,8 @@ class _OrderInfoState extends State<OrderInfo> {
   bool containsEmoji(String text) {
     final emojiPattern = RegExp(
         r'[\u2000-\u3300]|[\uD83C][\uDF00-\uDFFF]|[\uD83D][\uDC00-\uDE4F]'
-        r'|[\uD83D][\uDE80-\uDEFF]|[\uD83E][\uDD00-\uDDFF]|[\uD83E][\uDE00-\uDEFF]'
-        r'|[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]');
+        r'|[\uD83D][\uDE80-\uDEFF]|[\uD83E][\uDD00-\uDDFF]|[\uD83E][\uDE00-\uDEFF]');
+    // r'|[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]');
     return emojiPattern.hasMatch(text);
   }
 
@@ -55,6 +55,7 @@ class _OrderInfoState extends State<OrderInfo> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
+
     var response = await Connections()
         .getOrdersByIdLaravel2(int.parse(widget.id), widget.data);
     data = response;

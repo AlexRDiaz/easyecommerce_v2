@@ -4837,6 +4837,21 @@ class Connections {
     }
   }
 
+  Future getRoutesLaravel() async {
+    try {
+      var request = await http.get(
+        Uri.parse("$serverLaravel/api/rutas/"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      return decodeData;
+    } catch (e) {
+      print(e);
+    }
+  }
+
   //TEST
 
   Future getOrdersTest1() async {
