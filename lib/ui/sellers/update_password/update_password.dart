@@ -41,6 +41,19 @@ class _UpdatePasswordSellersState extends State<UpdatePasswordSellers> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+        SizedBox(
+          height: 20,
+        ),
+        IconButton(
+          onPressed: () {
+            Navigator.of(context).pushReplacementNamed('/layout/sellers');
+          },
+          icon: Icon(Icons.home), // Icono de Home
+          iconSize: 30, // Tamaño del icono
+        ),
+        SizedBox(
+          height: 30,
+        ),
         Text(
           "Actualizar tu contraseña",
           style: TextStyle(fontWeight: FontWeight.bold),

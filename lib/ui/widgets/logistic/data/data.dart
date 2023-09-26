@@ -38,7 +38,7 @@ List optionsLogistic = [
 List optionsSellers = [
   {"name": "DashBoard", "icon": Icons.home_outlined},
   {"name": "Reporte de Ventas", "icon": Icons.document_scanner},
-  {"name": "Mi Cuenta Vendedor", "icon": Icons.person_4_outlined},
+  //{"name": "Mi Cuenta Vendedor", "icon": Icons.person_4_outlined},
   {
     "name": "Agregar Usuarios Vendedores",
     "icon": Icons.add_circle_outline_outlined
@@ -49,8 +49,8 @@ List optionsSellers = [
   {"name": "Billetera", "icon": Icons.wallet},
   {"name": "Devoluciones", "icon": Icons.list_outlined},
   {"name": "Retiros en Efectivo", "icon": Icons.monetization_on_outlined},
-  {"name": "Cambiar Contraseña", "icon": Icons.security},
-  {"name": "Cerrar Sesión", "icon": Icons.logout_outlined},
+  // {"name": "Cambiar Contraseña", "icon": Icons.security},
+  //{"name": "Cerrar Sesión", "icon": Icons.logout_outlined},
 ];
 
 List optionsTransport = [
