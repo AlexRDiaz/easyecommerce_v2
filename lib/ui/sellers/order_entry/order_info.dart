@@ -36,8 +36,6 @@ class _OrderInfoState extends State<OrderInfo> {
   String estadoLogistic = "";
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  List<String> routes = [];
-  String? selectedValueRoute;
 
   bool containsEmoji(String text) {
     final emojiPattern = RegExp(
@@ -56,13 +54,6 @@ class _OrderInfoState extends State<OrderInfo> {
   loadData() async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
-    });
-
-    var routesList = await Connections().getRoutesLaravel();
-    setState(() {
-      routes = routesList
-          .map<String>((route) => '${route['titulo']}-${route['id']}')
-          .toList();
     });
 
     var response = await Connections()
