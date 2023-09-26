@@ -89,6 +89,14 @@ class _MySellerAccountState extends State<MySellerAccount> {
                       SizedBox(
                         height: 10,
                       ),
+                      IconButton(
+                        onPressed: () {
+                          Navigator.of(context)
+                              .pushReplacementNamed('/layout/sellers');
+                        },
+                        icon: Icon(Icons.home), // Icono de Home
+                        iconSize: 30, // Tamaño del icono
+                      ),
                       _identifier(),
                       SizedBox(
                         height: 10,
