@@ -85,7 +85,7 @@ class _SalesReportState extends State<SalesReport> {
                             child: ListTile(
                               onTap: () {
                                 launchUrl(Uri.parse(
-                                    "${generalServer}${data[index]['archivo']}"));
+                                    "${generalServerApiLaravel}${data[index]['archivo']}"));
                               },
                               title: Text(
                                 data[index]['fecha'].toString(),
