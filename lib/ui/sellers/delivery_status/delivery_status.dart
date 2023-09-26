@@ -59,7 +59,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   int pageCount = 100;
   bool isLoading = false;
   List<String> listOperators = [];
-  var sortFieldDefaultValue = "marca_tiempo_envio:DESC";
+  var sortFieldDefaultValue = "id:DESC";
   Color currentColor = Color.fromARGB(255, 108, 108, 109);
   List<Map<dynamic, dynamic>> arrayFiltersAndEq = [];
   var arrayDateRanges = [];
@@ -96,6 +96,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       TextEditingController(text: "");
   TextEditingController costoDevolucionController =
       TextEditingController(text: "");
+  bool changevalue = false;
 
   var arrayfiltersDefaultAnd = [
     {
@@ -105,7 +106,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   ];
 
   List arrayFiltersNotEq = [
-    {'status': 'PEDIDO PROGRAMADO'}
+    //{'status': 'PEDIDO PROGRAMADO'}
   ];
   List populate = [
     'transportadora',
@@ -185,6 +186,14 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     super.didChangeDependencies();
   }
 
+  getOldValue(Arrayrestoration) {
+    if (Arrayrestoration) {
+      setState(() {
+        sortFieldDefaultValue = "id:DESC";
+      });
+    }
+  }
+
   Future loadData() async {
     setState(() {
       isLoading = true;
@@ -243,6 +252,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
         isFirst = false;
 
         isLoading = false;
+        if (sortFieldDefaultValue.toString() == "marca_tiempo_envio:DESC") {
+          totallast = dataCounters['TOTAL'];
+        }
       });
     } catch (e) {
       setState(() {
@@ -365,6 +377,13 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           filtro: 'En Ruta',
           valor: enRuta,
           color: const Color.fromARGB(255, 33, 150, 243)),
+      Opcion(
+          icono: Icon(Icons.event),
+          // titulo: 'Pedido Programado',
+          titulo: 'Programado',
+          filtro: 'PEDIDO PROGRAMADO',
+          valor: programado,
+          color: const Color(0xFF7E84F2)),
     ];
 
     return Scaffold(
@@ -539,7 +558,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       //label: Text('Fecha de Entrega'),
                       size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
-                        sortFuncDate("Fecha_Entrega");
+                        sortFunc2("fecha_entrega", changevalue);
                       },
                     ),
                     DataColumn2(
@@ -638,7 +657,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       label: SelectFilter2('Estado de Entrega', 'status',
                           statusController, listStatus),
                       // label: Text('Status'),
-                      size: ColumnSize.S,
+                      size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
                         sortFunc("Status");
                       },
@@ -647,7 +666,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       label: SelectFilter2('Confirmado', 'estado_interno',
                           estadoInternoController, listEstadoInterno),
                       //label: Text('Confirmado'),
-                      size: ColumnSize.M,
+                      size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
                         sortFunc("Estado_Interno");
                       },
@@ -659,7 +678,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                           estadoLogisticoController,
                           listEstadoLogistico),
                       //label: Text('Estado Logístico'),
-                      size: ColumnSize.M,
+                      size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
                         sortFunc("Estado_Logistico");
                       },
@@ -798,7 +817,12 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                 onTap: () {
                               openDialog(context, index);
                             }),
-                            DataCell(Text(data[index]['comentario'].toString()),
+                            DataCell(
+                                Text(data[index]['comentario'] == null ||
+                                        data[index]['comentario'] == "null"
+                                    ? ""
+                                    : data[index]['comentario'].toString()),
+                                // Text(data[index]['comentario'].toString()),
                                 onTap: () {
                               openDialog(context, index);
                             }),
@@ -966,6 +990,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   }
 
   void resetFilters() {
+    getOldValue(true);
+
     fechaEntregaController.clear();
     codigoController.clear();
     ciudadShippingController.clear();
@@ -1307,6 +1333,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     isFirst = true;
     arrayDateRanges = [];
     arrayFiltersAndEq = [];
+    resetFilters();
     _controllers.searchController.text = '';
     if (_controllers.startDateController.text != '' &&
         _controllers.endDateController.text != '') {
@@ -1395,6 +1422,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     conNovedad = 0;
     reagendados = 0;
     enRuta = 0;
+    programado = 0;
 
     setState(() {
       entregados = int.parse(dataCounters['ENTREGADO'].toString()) ?? 0;
@@ -1402,6 +1430,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       conNovedad = int.parse(dataCounters['NOVEDAD'].toString()) ?? 0;
       reagendados = int.parse(dataCounters['REAGENDADO'].toString()) ?? 0;
       enRuta = int.parse(dataCounters['EN RUTA'].toString()) ?? 0;
+      programado = int.parse(dataCounters['PEDIDO PROGRAMADO'].toString()) ?? 0;
     });
   }
 
@@ -1450,16 +1479,16 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
 
     switch (state) {
       case "ENTREGADO":
-        color = 0xFF33FF6D;
+        color = 0xFF66BB6A;
         break;
       case "NOVEDAD":
         color = 0xFFD6DC27;
         break;
       case "NO ENTREGADO":
-        color = 0xFFFF3333;
+        color = 0xFFF32121;
         break;
       case "REAGENDADO":
-        color = 0xFFFA37BF;
+        color = 0xFFE320F1;
         break;
       case "EN RUTA":
         color = 0xFF3341FF;
@@ -1467,12 +1496,28 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       case "EN OFICINA":
         color = 0xFF4B4C4B;
         break;
+      case "PEDIDO PROGRAMADO":
+        color = 0xFF7E84F2;
+        break;
 
       default:
         color = 0xFF000000;
     }
 
     return Color(color);
+  }
+
+  sortFunc2(filtro, changevalu) {
+    setState(() {
+      if (changevalu) {
+        sortFieldDefaultValue = "$filtro:DESC";
+        changevalue = false;
+      } else {
+        sortFieldDefaultValue = "$filtro:ASC";
+        changevalue = true;
+      }
+      loadData();
+    });
   }
 
   Future<dynamic> openDialog(BuildContext context, int index) {
