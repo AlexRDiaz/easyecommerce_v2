@@ -963,20 +963,35 @@ class _OrderEntryState extends State<OrderEntry> {
                               info(context, index);
                             }),
                             DataCell(
-                                Text(data[index]['producto_extra'].toString()),
-                                onTap: () {
-                              info(context, index);
-                            }),
+                              //     Text(data[index]['producto_extra'].toString()),
+                              //     onTap: () {
+                              //   info(context, index);
+                              // }
+                              Text(data[index]['producto_extra'] == null ||
+                                      data[index]['producto_extra'] == "null"
+                                  ? ""
+                                  : data[index]['producto_extra'].toString()),
+                              onTap: () {
+                                info(context, index);
+                              },
+                            ),
                             DataCell(
                                 Text(data[index]['precio_total'].toString()),
                                 onTap: () {
                               info(context, index);
                             }),
                             DataCell(
-                                Text(data[index]['observacion'].toString()),
-                                onTap: () {
-                              info(context, index);
-                            }),
+                              //   Text(data[index]['observacion'].toString()),
+                              //   onTap: () {
+                              // info(context, index);
+                              Text(data[index]['observacion'] == null ||
+                                      data[index]['observacion'] == "null"
+                                  ? ""
+                                  : data[index]['observacion'].toString()),
+                              onTap: () {
+                                info(context, index);
+                              },
+                            ),
                             DataCell(Text(data[index]['status'].toString()),
                                 onTap: () {
                               info(context, index);
@@ -998,8 +1013,18 @@ class _OrderEntryState extends State<OrderEntry> {
                                     Container(
                                       width: 80,
                                       child: Text(data[index]
+                                                      ['fecha_confirmacion'] ==
+                                                  null ||
+                                              data[index]
+                                                      ['fecha_confirmacion'] ==
+                                                  "null"
+                                          ? ""
+                                          : data[index]['fecha_confirmacion']
+                                              .toString()),
+                                      /*Text(data[index]
                                               ['fecha_confirmacion']
                                           .toString()),
+                                          */
                                     ),
                                     data[index]['estado_interno'] == "PENDIENTE"
                                         ? TextButton(
