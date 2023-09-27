@@ -4834,7 +4834,7 @@ class Connections {
     return decodeData['data'];
   }
 
-  Future getSaldo() async {
+  getSaldo() async {
     var request = await http.get(
       Uri.parse(
           "$serverLaravel/api/vendedores/saldo/${sharedPrefs!.getString("idComercialMasterSeller").toString()}"),
@@ -4844,5 +4844,32 @@ class Connections {
     var decodeData = json.decode(response);
 
     return decodeData['saldo'];
+  }
+
+  getTransactionsBySeller() async {
+    var request = await http.get(
+      Uri.parse(
+          "$serverLaravel/api/transacciones/bySeller/${sharedPrefs!.getString("idComercialMasterSeller").toString()}"),
+      headers: {'Content-Type': 'application/json'},
+    );
+    var response = await request.body;
+    var decodeData = json.decode(response);
+
+    return decodeData['saldo'];
+  }
+
+  Future getRoutesLaravel() async {
+    try {
+      var request = await http.get(
+        Uri.parse("$serverLaravel/api/rutas/"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      return decodeData;
+    } catch (e) {
+      print(e);
+    }
   }
 }

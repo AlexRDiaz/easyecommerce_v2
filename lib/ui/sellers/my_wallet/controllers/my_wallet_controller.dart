@@ -9,10 +9,6 @@ class MyWalletController {
   getSaldo({success, error}) async {
     var response = await Connections().getSaldo();
 
-    if (response) {
-      return response;
-    } else {
-      error();
-    }
+    return response;
   }
 }
