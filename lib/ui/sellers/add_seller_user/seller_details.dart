@@ -34,6 +34,8 @@ class _AddSellerDetailState extends State<AddSellerDetails> {
   bool estadoEntregas = false;
   bool pedidosNoDeseados = false;
   bool billetera = false;
+  bool miBilletera = false;
+
   bool devoluciones = false;
   bool retiros = false;
   List vistas = [];
@@ -311,6 +313,33 @@ class _AddSellerDetailState extends State<AddSellerDetails> {
                                         Flexible(
                                             child: Text(
                                           "Billetera",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 12),
+                                        ))
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Checkbox(
+                                            value: miBilletera,
+                                            onChanged: (v) {
+                                              setState(() {
+                                                if (v!) {
+                                                  miBilletera = true;
+                                                  vistas.add("Mi Billetera");
+                                                } else {
+                                                  miBilletera = false;
+                                                  vistas.remove("Mi Billetera");
+                                                }
+                                              });
+                                            }),
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        Flexible(
+                                            child: Text(
+                                          "Mi Billetera",
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 12),

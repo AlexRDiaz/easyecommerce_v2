@@ -11,6 +11,7 @@ import 'package:frontend/ui/sellers/delivery_status/delivery_status.dart';
 import 'package:frontend/ui/sellers/my_cart_sellers/my_cart_sellers.dart';
 import 'package:frontend/ui/sellers/my_seller_account/my_seller_account.dart';
 import 'package:frontend/ui/sellers/my_stock/my_stock.dart';
+import 'package:frontend/ui/sellers/my_wallet/my_wallet.dart';
 import 'package:frontend/ui/sellers/order_entry/order_entry.dart';
 import 'package:frontend/ui/sellers/order_history_sellers/order_history_sellers.dart';
 import 'package:frontend/ui/sellers/providers_sellers/providers_sellers.dart';
@@ -76,6 +77,10 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
       getOption(
         "Billetera",
         WalletSellers(),
+      ),
+      getOption(
+        "Mi Billetera",
+        MyWallet(),
       ),
       getOption(
         "Devoluciones",
