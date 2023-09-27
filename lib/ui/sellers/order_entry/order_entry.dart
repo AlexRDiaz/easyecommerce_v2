@@ -493,7 +493,7 @@ class _OrderEntryState extends State<OrderEntry> {
                                           context: context,
                                           builder: (BuildContext context) {
                                             return AlertDialog(
-                                              title: Text('Atenecion'),
+                                              title: Text('Atención'),
                                               content: Column(
                                                 children: [
                                                   const Text(
@@ -798,6 +798,13 @@ class _OrderEntryState extends State<OrderEntry> {
                         sortFunc3("fecha_confirmacion", changevalue);
                       },
                     ),
+                    DataColumn2(
+                      label: Text('Transportadora'),
+                      size: ColumnSize.M,
+                      // onSort: (columnIndex, ascending) {
+                      //   sortFunc3("fecha_confirmacion", changevalue);
+                      // },
+                    ),
                   ],
                   rows: List<DataRow>.generate(
                       data.length,
@@ -1039,6 +1046,14 @@ class _OrderEntryState extends State<OrderEntry> {
                                         : Container(),
                                   ],
                                 ), onTap: () {
+                              info(context, index);
+                            }),
+                            DataCell(
+                                Text(data[index]['transportadora'] != null &&
+                                        data[index]['transportadora'].isNotEmpty
+                                    ? data[index]['transportadora'][0]['nombre']
+                                        .toString()
+                                    : ''), onTap: () {
                               info(context, index);
                             }),
                           ]))),

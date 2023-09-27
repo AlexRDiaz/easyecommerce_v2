@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -8,6 +10,8 @@ import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/ui/widgets/loading.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:frontend/main.dart';
 
 class AddOrderSellers extends StatefulWidget {
   const AddOrderSellers({super.key});
@@ -37,6 +41,11 @@ class _AddOrderSellersState extends State<AddOrderSellers> {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   List<String> routes = [];
   String? selectedValueRoute;
+  String numeroOrden = "";
+  List<String> transports = [];
+  var routesList = [];
+  String? selectedValueTransport;
+  String? comercial = sharedPrefs!.getString("NameComercialSeller");
 
   bool containsEmoji(String text) {
     final emojiPattern = RegExp(
@@ -48,19 +57,49 @@ class _AddOrderSellersState extends State<AddOrderSellers> {
 
   @override
   void didChangeDependencies() {
-    loadData();
+    getRoutes();
     super.didChangeDependencies();
   }
 
-  loadData() async {
+  getRoutes() async {
     try {
-      var routesList = await Connections().getRoutesLaravel();
+      routesList = await Connections().getRoutesLaravel();
       setState(() {
         routes = routesList
             .map<String>((route) => '${route['titulo']}-${route['id']}')
             .toList();
         //'${route['titulo']}'
       });
+    } catch (error) {
+      print('Error al cargar rutas: $error');
+    }
+  }
+
+  getTransports() async {
+    try {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
+      var transportList = [];
+
+      setState(() {
+        transports = [];
+      });
+
+      transportList = await Connections().getTransportsByRouteLaravel(
+          selectedValueRoute.toString().split("-")[1]);
+
+      for (var i = 0; i < transportList.length; i++) {
+        setState(() {
+          transports
+              .add('${transportList[i]['nombre']}-${transportList[i]['id']}');
+        });
+      }
+
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
+      setState(() {});
     } catch (error) {
       print('Error al cargar rutas: $error');
     }
@@ -82,7 +121,7 @@ class _AddOrderSellersState extends State<AddOrderSellers> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'Ciudad:',
+                      'Destino:',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -114,31 +153,51 @@ class _AddOrderSellersState extends State<AddOrderSellers> {
                       onChanged: (value) async {
                         setState(() {
                           selectedValueRoute = value as String;
+                          transports.clear();
+                          selectedValueTransport = null;
                         });
+                        await getTransports();
                       },
                     ),
                   ),
                   const SizedBox(height: 10),
-                  TextFormField(
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                    controller: _codigo,
-                    decoration: const InputDecoration(
-                      labelText: "Código",
-                      labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    keyboardType: TextInputType.text,
-                    inputFormatters: <TextInputFormatter>[
-                      FilteringTextInputFormatter.allow(
-                        RegExp(r'^[a-zA-Z0-9\-]+$'),
+                  DropdownButtonHideUnderline(
+                    child: DropdownButton2<String>(
+                      isExpanded: true,
+                      hint: Text(
+                        'Seleccione una Transportadora',
+                        style: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(context).hintColor,
+                            fontWeight: FontWeight.bold),
                       ),
-                    ],
-                    validator: (String? value) {
-                      if (value == null || value.isEmpty) {
-                        return "Campo requerido";
-                      } else if (containsEmoji(value)) {
-                        return "No se permiten emojis en este campo";
-                      }
-                    },
+                      items: transports
+                          .map((item) => DropdownMenuItem(
+                                value: item,
+                                child: Text(
+                                  item.split('-')[0],
+                                  style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ))
+                          .toList(),
+                      value: selectedValueTransport,
+                      onChanged: selectedValueRoute == null
+                          ? null
+                          : (value) {
+                              setState(() {
+                                selectedValueTransport = value as String;
+                              });
+                            },
+
+                      //This to clear the search value when you close the menu
+                      // onMenuStateChange: (isOpen) {
+                      //   if (!isOpen) {
+                      //     textEditingController.clear();
+                      //   }
+                      // },
+                    ),
                   ),
                   const SizedBox(height: 10),
                   TextFormField(
@@ -285,6 +344,7 @@ class _AddOrderSellersState extends State<AddOrderSellers> {
                     ),
                   ),
                   const SizedBox(height: 10),
+                  /*
                   Row(
                     children: [
                       Checkbox(
@@ -354,6 +414,7 @@ class _AddOrderSellersState extends State<AddOrderSellers> {
                       ))
                     ],
                   ),
+                  */
                   const SizedBox(
                     height: 30,
                   ),
@@ -374,14 +435,18 @@ class _AddOrderSellersState extends State<AddOrderSellers> {
                       ElevatedButton(
                           onPressed: () async {
                             // print(selectedValueRoute.toString());
-                            if (selectedValueRoute == null) {
+                            // print(selectedValueTransport.toString());
+
+                            if (selectedValueRoute == null ||
+                                selectedValueTransport == null) {
                               AwesomeDialog(
                                 width: 500,
                                 context: context,
                                 dialogType: DialogType.error,
                                 animType: AnimType.rightSlide,
                                 title: 'Error de selección',
-                                desc: 'Debe seleccionar una ciudad.',
+                                desc:
+                                    'Debe seleccionar una ciudad y una transportadora.',
                                 btnCancel: Container(),
                                 btnOkText: "Aceptar",
                                 btnOkColor: colors.colorGreen,
@@ -394,24 +459,27 @@ class _AddOrderSellersState extends State<AddOrderSellers> {
                                 getLoadingModal(context, false);
                                 String valueState = "";
                                 String fechaC = "";
-                                if (pendiente) {
-                                  valueState = "PENDIENTE";
-                                }
-                                if (confirmado) {
-                                  valueState = "CONFIRMADO";
-                                  fechaC =
-                                      "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
-                                }
-                                if (noDesea) {
-                                  valueState = "NO DESEA";
-                                }
+                                // if (pendiente) {
+                                //   valueState = "PENDIENTE";
+                                // }
+                                // if (confirmado) {
+                                valueState = "CONFIRMADO";
+                                fechaC =
+                                    "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
+                                // }
+                                // if (noDesea) {
+                                //   valueState = "NO DESEA";
+                                // }
                                 var dateC = await Connections().createDateOrder(
                                     "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}");
                                 String priceTotal = _precioTotalEnt.text +
                                     "." +
                                     _precioTotalDec.text;
+                                numeroOrden = await generateNumeroOrden();
+
                                 var response = await Connections().createOrder(
-                                    _codigo.text,
+                                    // _codigo.text,
+                                    numeroOrden,
                                     _direccion.text,
                                     _nombre.text,
                                     _telefono.text,
@@ -426,6 +494,24 @@ class _AddOrderSellersState extends State<AddOrderSellers> {
                                     "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
                                     fechaC,
                                     dateC[1]);
+
+                                // print("res de crear new order: ${response}");
+                                var resUpdateRT = await Connections()
+                                    .updateOrderRouteAndTransportLaravel(
+                                        selectedValueRoute
+                                            .toString()
+                                            .split("-")[1],
+                                        selectedValueTransport
+                                            .toString()
+                                            .split("-")[1],
+                                        response[1]);
+
+                                var _url = Uri.parse(
+                                    """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, te saludo de la tienda ${comercial}, Me comunico con usted para confirmar su pedido de compra de: ${_producto.text} y  ${_productoE.text}, por un valor total de: ${priceTotal}. Su dirección de entrega será: ${_direccion.text} Es correcto...? Desea mas información del producto?""");
+                                if (!await launchUrl(_url)) {
+                                  throw Exception('Could not launch $_url');
+                                }
+
                                 Navigator.pop(context);
                                 Navigator.pop(context);
                               }
@@ -444,5 +530,12 @@ class _AddOrderSellersState extends State<AddOrderSellers> {
         ),
       ),
     );
+  }
+
+  Future<String> generateNumeroOrden() async {
+    final random = Random();
+    int numeroAleatorio = random.nextInt(900000) + 100000;
+    String codeRandom = "E${numeroAleatorio.toString()}";
+    return codeRandom;
   }
 }
