@@ -720,6 +720,10 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {},
                     ),
+                    DataColumn2(
+                      label: Text('Transportadora'),
+                      size: ColumnSize.M,
+                    ),
                   ],
                   border: const TableBorder(
                     top: BorderSide(color: Colors.grey),
@@ -882,6 +886,14 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                             DataCell(
                                 getLengthArrayMap(data[index]['novedades']),
                                 onTap: () {
+                              openDialog(context, index);
+                            }),
+                            DataCell(
+                                Text(data[index]['transportadora'] != null &&
+                                        data[index]['transportadora'].isNotEmpty
+                                    ? data[index]['transportadora'][0]['nombre']
+                                        .toString()
+                                    : ''), onTap: () {
                               openDialog(context, index);
                             }),
                           ]))),

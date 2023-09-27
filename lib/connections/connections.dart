@@ -4852,6 +4852,43 @@ class Connections {
     }
   }
 
+  Future getTransportsByRouteLaravel(search) async {
+    try {
+      var request = await http.get(
+        Uri.parse("$serverLaravel/api/transportadorasbyroute/$search"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      return decodeData;
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future updateOrderRouteAndTransportLaravel(route, transport, id) async {
+    try {
+      // var body2= json.encode({"ruta": route, "transportadora": transport});
+      // print(body2);
+      var request = await http.put(
+          Uri.parse(
+              "$serverLaravel/api/pedidos-shopify/updateroutetransport/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"ruta": route, "transportadora": transport}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
   //TEST
 
   Future getOrdersTest1() async {
