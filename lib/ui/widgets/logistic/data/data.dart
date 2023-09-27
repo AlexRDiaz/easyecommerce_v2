@@ -47,6 +47,8 @@ List optionsSellers = [
   {"name": "Estado Entregas Pedidos", "icon": Icons.add_alert_outlined},
   {"name": "Pedidos No Deseados", "icon": Icons.no_sim_outlined},
   {"name": "Billetera", "icon": Icons.wallet},
+  {"name": "Mi Billetera", "icon": Icons.wallet},
+
   {"name": "Devoluciones", "icon": Icons.list_outlined},
   {"name": "Retiros en Efectivo", "icon": Icons.monetization_on_outlined},
   // {"name": "Cambiar Contraseña", "icon": Icons.security},
