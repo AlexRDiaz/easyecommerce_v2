@@ -56,13 +56,11 @@ class _MyWalletState extends State<MyWallet> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Billetera Virtual'),
-      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            TextButton(onPressed: () => loadData(), child: Text("Actualizar")),
             Text(
               'Saldo de Cuenta',
               style: TextStyle(fontSize: 24),
