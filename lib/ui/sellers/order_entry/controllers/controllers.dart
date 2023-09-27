@@ -25,39 +25,77 @@ class OrderEntryControllers extends ChangeNotifier {
       TextEditingController(text: "");
 
   editControllers(data) {
-    codigoEditController.text = data['attributes']['NumeroOrden'].toString();
-    fechaEditController.text = data['attributes']['pedido_fecha']['data']
-            ['attributes']['Fecha']
-        .toString();
-    ciudadEditController.text = data['attributes']['CiudadShipping'].toString();
-    nombreEditController.text = data['attributes']['NombreShipping'].toString();
-    productoEditController.text = data['attributes']['ProductoP'].toString();
+    codigoEditController.text = data['numero_orden'].toString();
+    fechaEditController.text = data['pedido_fecha'][0]['fecha'].toString();
+    ciudadEditController.text =
+        (data['ciudad_shipping'] != null && data['ciudad_shipping'] != "null")
+            ? data['ciudad_shipping'].toString()
+            : "";
+    nombreEditController.text =
+        (data['nombre_shipping'] != null && data['nombre_shipping'] != "null")
+            ? data['nombre_shipping'].toString()
+            : "";
+    productoEditController.text =
+        (data['producto_p'] != null && data['producto_p'] != "null")
+            ? data['producto_p'].toString()
+            : "";
     productoExtraEditController.text =
-        data['attributes']['ProductoExtra'].toString();
+        (data['producto_extra'] != null && data['producto_extra'] != "null")
+            ? data['producto_extra'].toString()
+            : "";
     cantidadEditController.text =
-        data['attributes']['Cantidad_Total'].toString();
-    direccionEditController.text =
-        data['attributes']['DireccionShipping'].toString();
-    telefonoEditController.text =
-        data['attributes']['TelefonoShipping'].toString();
+        (data['cantidad_total'] != null && data['cantidad_total'] != "null")
+            ? data['cantidad_total'].toString()
+            : "";
+    direccionEditController.text = (data['direccion_shipping'] != null &&
+            data['direccion_shipping'] != "null")
+        ? data['direccion_shipping'].toString()
+        : "";
+    telefonoEditController.text = (data['telefono_shipping'] != null &&
+            data['telefono_shipping'] != "null")
+        ? data['telefono_shipping'].toString()
+        : "";
     precioTotalEditController.text =
-        data['attributes']['PrecioTotal'].toString();
+        (data['precio_total'] != null && data['precio_total'] != "null")
+            ? data['precio_total'].toString()
+            : "";
     observacionEditController.text =
-        data['attributes']['Observacion'].toString();
+        (data['observacion'] != null && data['observacion'] != "null")
+            ? data['observacion'].toString()
+            : "";
+    /*
+    ciudadEditController.text = data['ciudad_shipping'].toString();
+    nombreEditController.text = data['nombre_shipping'].toString();
+    productoEditController.text = data['producto_p'].toString();
+    productoExtraEditController.text =
+        data['producto_extra'].toString();
+    cantidadEditController.text =
+        data['cantidad_total'].toString();
+    direccionEditController.text =
+        data['direccion_shipping'].toString();
+    telefonoEditController.text =
+        data['telefono_shipping'].toString();
+    precioTotalEditController.text =
+        data['precio_total'].toString();
+    observacionEditController.text =
+        data['observacion'].toString();
+        */
     notifyListeners();
   }
 
   updateInfo({success, error, id}) async {
-    var responseGeneralSeller = await Connections().updateOrderInfoSeller(
-        ciudadEditController.text,
-        nombreEditController.text,
-        direccionEditController.text,
-        telefonoEditController.text,
-        cantidadEditController.text,
-        productoEditController.text,
-        productoExtraEditController.text,
-        precioTotalEditController.text,
-        observacionEditController.text, id);
+    var responseGeneralSeller = await Connections()
+        .updateOrderInfoSellerLaravel(
+            ciudadEditController.text,
+            nombreEditController.text,
+            direccionEditController.text,
+            telefonoEditController.text,
+            cantidadEditController.text,
+            productoEditController.text,
+            productoExtraEditController.text,
+            precioTotalEditController.text,
+            observacionEditController.text,
+            id);
 
     if (responseGeneralSeller) {
       success();

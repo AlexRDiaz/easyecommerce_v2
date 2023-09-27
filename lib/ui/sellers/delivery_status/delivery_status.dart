@@ -18,6 +18,7 @@ import 'package:frontend/ui/widgets/box_values_transport.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:intl/intl.dart';
 import 'package:number_paginator/number_paginator.dart';
+import '../../widgets/show_error_snackbar.dart';
 
 class DeliveryStatus extends StatefulWidget {
   const DeliveryStatus({super.key});
@@ -260,9 +261,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       setState(() {
         isLoading = false;
       });
-
       Navigator.pop(context);
-      _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
+      SnackBarHelper.showErrorSnackBar(
+          context, "Ha ocurrido un error de conexión");
     }
   }
 
@@ -320,21 +321,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       print("datos paginados");
     } catch (e) {
       Navigator.pop(context);
-      _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
+      SnackBarHelper.showErrorSnackBar(
+          context, "Ha ocurrido un error de conexión");
     }
-  }
-
-  void _showErrorSnackBar(BuildContext context, String errorMessage) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          errorMessage,
-          style: TextStyle(color: Color.fromRGBO(7, 0, 0, 1)),
-        ),
-        backgroundColor: Color.fromARGB(255, 253, 101, 90),
-        duration: Duration(seconds: 4),
-      ),
-    );
   }
 
   @override
@@ -567,7 +556,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       //label: const Text('Código'),
                       size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("NumeroOrden");
+                        // sortFunc("NumeroOrden");
                       },
                     ),
                     DataColumn2(
@@ -576,7 +565,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       //label: const Text('Ciudad'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("CiudadShipping");
+                        // sortFunc("CiudadShipping");
                       },
                     ),
                     DataColumn2(
@@ -585,7 +574,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       //label: Text('Nombre Cliente'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("NombreShipping");
+                        // sortFunc("NombreShipping");
                       },
                     ),
                     DataColumn2(
@@ -594,7 +583,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       //label: Text('Dirección'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("DireccionShipping");
+                        // sortFunc("DireccionShipping");
                       },
                     ),
                     DataColumn2(
@@ -603,7 +592,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       //label: Text('Teléfono Cliente'),
                       size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("TelefonoShipping");
+                        // sortFunc("TelefonoShipping");
                       },
                     ),
                     DataColumn2(
@@ -613,7 +602,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       size: ColumnSize.S,
                       numeric: true,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("Cantidad_Total");
+                        // sortFunc("Cantidad_Total");
                       },
                     ),
                     DataColumn2(
@@ -622,7 +611,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       // label: Text('Producto'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("ProductoP");
+                        // sortFunc("ProductoP");
                       },
                     ),
                     DataColumn2(
@@ -631,7 +620,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       // label: Text('Producto Extra'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("ProductoExtra");
+                        // sortFunc("ProductoExtra");
                       },
                     ),
                     DataColumn2(
@@ -641,7 +630,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       size: ColumnSize.S,
                       numeric: true,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("PrecioTotal");
+                        // sortFunc("PrecioTotal");
                       },
                     ),
                     DataColumn2(
@@ -650,7 +639,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       // label: Text('Comentario'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("Comentario");
+                        // sortFunc("Comentario");
                       },
                     ),
                     DataColumn2(
@@ -659,7 +648,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       // label: Text('Status'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("Status");
+                        // sortFunc("Status");
                       },
                     ),
                     DataColumn2(
@@ -668,7 +657,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       //label: Text('Confirmado'),
                       size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("Estado_Interno");
+                        // sortFunc("Estado_Interno");
                       },
                     ),
                     DataColumn2(
@@ -680,7 +669,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       //label: Text('Estado Logístico'),
                       size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("Estado_Logistico");
+                        // sortFunc("Estado_Logistico");
                       },
                     ),
                     DataColumn2(
@@ -692,7 +681,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       //label: Text('Estado Devolución'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("Estado_Devolucion");
+                        // sortFunc("Estado_Devolucion");
                       },
                     ),
                     DataColumn2(
@@ -703,7 +692,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       // label: Text('Costo Entrega'),  //costo_envio
                       size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
-                        //sortFuncCost("CostoEnvio");
+                        // sortFuncCost("CostoEnvio");
                       },
                     ),
                     DataColumn2(
@@ -723,16 +712,16 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       //label: Text('Fecha Ingreso'),
                       size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
-                        sortFuncDate("Marca_T_I");
+                        // sortFuncDate("Marca_T_I");
                       },
                     ),
                     DataColumn2(
-                      label: Text('N. intentos'),
+                      label: const Text('N. intentos'),
                       size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {},
                     ),
                   ],
-                  border: TableBorder(
+                  border: const TableBorder(
                     top: BorderSide(color: Colors.grey),
                     horizontalInside: BorderSide(color: Colors.grey),
                     verticalInside: BorderSide(color: Colors.grey),
@@ -1539,11 +1528,16 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       child: Icon(Icons.close),
                     ),
                   ),
+                  // Expanded(
+                  //     child: DeliveryStatusSellerInfo(
+                  //   id: data[index]['id'].toString(),
+                  //   function: exeReSchedule,
+                  // ))
                   Expanded(
                       child: DeliveryStatusSellerInfo(
-                    id: data[index]['id'].toString(),
-                    function: exeReSchedule,
-                  ))
+                          id: data[index]['id'].toString(),
+                          function: exeReSchedule,
+                          data: data))
                 ],
               ),
             ),
@@ -1587,7 +1581,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                   child: Text('Continuar'),
                   onPressed: () async {
                     await Connections()
-                        .updateDateDeliveryAndState(id, fecha, estado);
+                        .updateDateDeliveryAndStateLaravel(id, fecha, estado);
                     loadData();
                     Navigator.of(context).pop();
                   },

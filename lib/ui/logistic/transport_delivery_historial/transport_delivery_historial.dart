@@ -799,6 +799,22 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter(
+                            'Cost Tran real',
+                            {
+                              'transportadora': {
+                                'Costo_Transportadora': {'\$contains': 'valor'}
+                              },
+                            },
+                            costoTransController,
+                            '/transportadora.costo_transportadora'),
+                        size: ColumnSize.M,
+                        numeric: true,
+                        onSort: (columnIndex, ascending) {
+                          sortFunc("DireccionShipping");
+                        },
+                      ),
+                      DataColumn2(
+                        label: InputFilter(
                             'Costo Trans',
                             {
                               'transportadora': {
@@ -831,6 +847,24 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter(
+                            'Costo Entraga Real',
+                            {
+                              'users': {
+                                'vendedores': {
+                                  'CostoEnvio': {'\$contains': 'valor'}
+                                }
+                              },
+                            },
+                            costoEntregaController,
+                            '/users.vendedores.costo_envio'),
+                        size: ColumnSize.M,
+                        numeric: true,
+                        onSort: (columnIndex, ascending) {
+                          sortFunc("DireccionShipping");
+                        },
+                      ),
+                      DataColumn2(
+                        label: InputFilter(
                             'Costo Entrega',
                             {
                               'users': {
@@ -841,6 +875,24 @@ class _TransportDeliveryHistorialState
                             },
                             costoEntregaController,
                             '/users.vendedores.costo_envio'),
+                        size: ColumnSize.M,
+                        numeric: true,
+                        onSort: (columnIndex, ascending) {
+                          sortFunc("DireccionShipping");
+                        },
+                      ),
+                      DataColumn2(
+                        label: InputFilter(
+                            'Costo Dev Real',
+                            {
+                              'users': {
+                                'vendedores': {
+                                  'CostoDevolucion': {'\$contains': 'valor'}
+                                }
+                              },
+                            },
+                            costoDevolucionController,
+                            '/users.vendedores.costo_devolucion'),
                         size: ColumnSize.M,
                         numeric: true,
                         onSort: (columnIndex, ascending) {
@@ -1725,6 +1777,17 @@ class _TransportDeliveryHistorialState
           onTap: () {}),
       DataCell(
           Text(
+            data[index]['costo_transportadora'] == null
+                ? ""
+                : data[index]['costo_transportadora'],
+            style: TextStyle(
+              color: rowColor,
+            ),
+          ), onTap: () {
+        showDialogInfoData(data[index]);
+      }),
+      DataCell(
+          Text(
             data[index]['transportadora'] != null &&
                     data[index]['transportadora'].toString() != "[]"
                 ? data[index]['transportadora'][0]['costo_transportadora']
@@ -1748,12 +1811,23 @@ class _TransportDeliveryHistorialState
           ),
           onTap: () {}),
       DataCell(
+          Text(data[index]['costo_envio'] != null
+              ? data[index]['costo_envio']
+              : ""),
+          onTap: () {}),
+      DataCell(
           Text(data[index]['users'] != null &&
                   data[index]['users'].toString() != "[]"
               ? data[index]['users'][0]['vendedores'][0]['costo_envio']
                   .toString()
               : ""),
           onTap: () {}),
+      DataCell(
+          Text(data[index]['costo_devolucion'] != null
+              ? data[index]['costo_devolucion']
+              : ""), onTap: () {
+        showDialogInfoData(data[index]);
+      }),
       DataCell(
           Text(data[index]['users'] != null &&
                   data[index]['users'].toString() != "[]"
@@ -2726,7 +2800,7 @@ class _TransportDeliveryHistorialState
   }
 
   void limpiar() {
-    _controllers.searchController.text="";
+    _controllers.searchController.text = "";
     arrayFiltersAnd.clear();
     sortFieldDefaultValue = "marca_t_i:DESC";
     _search.clear();

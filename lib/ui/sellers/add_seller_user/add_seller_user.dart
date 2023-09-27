@@ -11,6 +11,7 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 
 import 'controllers/controllers.dart';
+import '../../widgets/show_error_snackbar.dart';
 
 class AddSellerUser extends StatefulWidget {
   const AddSellerUser({super.key});
@@ -30,16 +31,22 @@ class _AddSellerUserState extends State<AddSellerUser> {
   }
 
   loadData() async {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getLoadingModal(context, false);
-    });
-    var response = await Connections()
-        .getSellersByIdMaster(_controllers.searchController.text);
-    data = response;
-    Future.delayed(Duration(milliseconds: 500), () {
+    try {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
+      var response = await Connections()
+          .getSellersByIdMaster(_controllers.searchController.text);
+      data = response;
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
+      setState(() {});
+    } catch (e) {
       Navigator.pop(context);
-    });
-    setState(() {});
+      SnackBarHelper.showErrorSnackBar(
+          context, "Ha ocurrido un error de conexión");
+    }
   }
 
   @override

@@ -279,7 +279,7 @@ class Connections {
               .toString(),
           "role": "1",
           "confirmed": true,
-          "Estado": "VALIDADO",
+          "estado": "VALIDADO",
           "PERMISOS": permisos
         }));
     var response = await request.body;
@@ -645,6 +645,46 @@ class Connections {
 
 //     return decodeData['data'];
 //   }
+// ! PRINCIPAL DE  INGRESO DE PEDIDOS
+  Future getPrincipalOrdersSellersFilterLaravel(
+      List populate,
+      List and,
+      List defaultAnd,
+      List or,
+      currentPage,
+      sizePage,
+      search,
+      sortFiled,
+      List not) async {
+    List filtersAndAll = [];
+    filtersAndAll.addAll(and);
+    filtersAndAll.addAll(defaultAnd);
+    try {
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/new-pedidos-shopifies"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "or": or,
+                "and": filtersAndAll,
+                "page_size": sizePage,
+                "page_number": currentPage,
+                "search": search,
+                "sort": sortFiled,
+                "not": not
+              }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
   Future getOrdersSellersFilter(
       code,
       currentPage,
@@ -1326,6 +1366,79 @@ class Connections {
     return decodeData['data'];
   }
 
+  Future createOrderLaravel(
+      numero,
+      direccion,
+      nombre,
+      telefono,
+      precio,
+      observacion,
+      ciudad,
+      estado,
+      productoP,
+      productoE,
+      cantidadT,
+      fecha,
+      fechaC,
+      dateID) async {
+    print(json.encode({
+      // "data": {
+      "NumeroOrden": numero.toString(),
+      "DireccionShipping": direccion.toString(),
+      "NombreShipping": nombre.toString(),
+      "TelefonoShipping": telefono.toString(),
+      "PrecioTotal": precio.toString(),
+      "Observacion": observacion.toString(),
+      "CiudadShipping": ciudad.toString(),
+      "users": sharedPrefs!.getString("idComercialMasterSeller"),
+      "Estado_Interno": estado.toString(),
+      "IdComercial": sharedPrefs!.getString("idComercialMasterSeller"),
+      "ProductoP": productoP.toString(),
+      "ProductoExtra": productoE.toString(),
+      "Cantidad_Total": cantidadT.toString(),
+      "Name_Comercial": sharedPrefs!.getString("NameComercialSeller"),
+      "Marca_T_I": fecha.toString(),
+      "Fecha_Confirmacion": fechaC.toString(),
+      "Tienda_Temporal": sharedPrefs!.getString("NameComercialSeller"),
+      // ! este np va xq' ya lo hace en el backend -> "pedido_fecha": dateID
+      "pedido_fecha": dateID
+      // }
+    }));
+    var request =
+        await http.post(Uri.parse("$serverLaravel/api/pedidos-shopifies"),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode({
+              // "data": {
+              "NumeroOrden": numero.toString(),
+              "DireccionShipping": direccion.toString(),
+              "NombreShipping": nombre.toString(),
+              "TelefonoShipping": telefono.toString(),
+              "PrecioTotal": precio.toString(),
+              "Observacion": observacion.toString(),
+              "CiudadShipping": ciudad.toString(),
+              "users": sharedPrefs!.getString("idComercialMasterSeller"),
+              "Estado_Interno": estado.toString(),
+              "IdComercial": sharedPrefs!.getString("idComercialMasterSeller"),
+              "ProductoP": productoP.toString(),
+              "ProductoExtra": productoE.toString(),
+              "Cantidad_Total": cantidadT.toString(),
+              "Name_Comercial": sharedPrefs!.getString("NameComercialSeller"),
+              "Marca_T_I": fecha.toString(),
+              "Fecha_Confirmacion": fechaC.toString(),
+              "Tienda_Temporal": sharedPrefs!.getString("NameComercialSeller"),
+              "pedido_fecha": dateID
+              // ! este np va xq' ya lo hace en el backend -> "pedido_fecha": dateID
+              // }
+            }));
+    var response = await request.body;
+    var decodeData = json.decode(response);
+    if (request.statusCode != 200) {
+      return [false, ""];
+    } else {
+      return [true, decodeData['data']['id']];
+    }
+  }
+
   Future createOrder(
       numero,
       direccion,
@@ -1370,7 +1483,29 @@ class Connections {
     if (request.statusCode != 200) {
       return [false, ""];
     } else {
+      // return decodeData;
       return [true, decodeData['data']['id']];
+    }
+  }
+
+  Future createDateOrderLaravel(date) async {
+    print(json.encode({
+      "fecha": date.toString(),
+    }));
+    var request =
+        await http.post(Uri.parse("$serverLaravel/api/shopify/pedidos"),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode({
+              "fecha": date.toString(),
+            }));
+    var response = await request.body;
+    var decodeData = json.decode(response);
+    if (request.statusCode != 200) {
+      return [false, ""];
+    } else {
+      print("metodo: $decodeData");
+      return decodeData;
+      // return [true, decodeData['data']['id']];
     }
   }
 
@@ -1444,6 +1579,36 @@ class Connections {
     var decodeData = json.decode(response);
     return decodeData['value'];
     // return decodeData;
+  }
+
+  // updOiS/pedidos-shopifies
+  Future updateOrderInteralStatusLaravel(text, id) async {
+    try {
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/updOiS/pedidos-shopifies"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            // "data": {
+            "id": id,
+            "estado_interno": text,
+            "name_comercial":
+                sharedPrefs!.getString("NameComercialSeller").toString(),
+            "fecha_confirmacion":
+                "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
+            // }
+          }));
+
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return false;
+      } else {
+        return decodeData;
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 
   Future updateOrderInteralStatus(text, id) async {
@@ -1622,6 +1787,35 @@ class Connections {
     }
   }
 
+  // ! updateOrderInfoSellerLaravel
+  Future updateOrderInfoSellerLaravel(city, name, address, phone, quantity,
+      product, extraProduct, totalPrice, observation, id) async {
+    var request = await http.post(
+        Uri.parse("$serverLaravel/api/updtOrdIS/pedidos-shopifies"),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          // "data": {
+          "id": id,
+          "ciudad_shipping": city,
+          "nombre_shipping": name,
+          "direccion_shipping": address,
+          "telefono_shipping": phone,
+          "cantidad_total": quantity,
+          "producto_p": product,
+          "producto_extra": extraProduct,
+          "precio_total": totalPrice,
+          "observacion": observation,
+          // }
+        }));
+    var response = await request.body;
+    var decodeData = json.decode(response);
+    if (request.statusCode != 200) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   Future updateOrderInfoSeller(city, name, address, phone, quantity, product,
       extraProduct, totalPrice, observation, id) async {
     var request = await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
@@ -1786,7 +1980,9 @@ class Connections {
 
   Future updateOrderStatusOperatorEntregadoHistorial(
       status, tipoDePago, comentario, archivo, id) async {
-    var request = await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
+    var request = await http.put(
+        Uri.parse(
+            "$server/api/pedidos-shopifies/$id?populate=users.vendedores&populate=transportadora"),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           "data": {
@@ -1803,7 +1999,7 @@ class Connections {
     if (request.statusCode != 200) {
       return false;
     } else {
-      return true;
+      return decodeData;
     }
   }
 
@@ -1846,8 +2042,14 @@ class Connections {
   }
 
   Future updateOrderStatusOperatorNoEntregadoHistorial(
-      status, comentario, archivo, id) async {
-    var request = await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
+      // ?populate=users.vendedores&populate=transportadora
+      status,
+      comentario,
+      archivo,
+      id) async {
+    var request = await http.put(
+        Uri.parse(
+            "$server/api/pedidos-shopifies/$id?populate=users.vendedores&populate=transportadora"),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           "data": {
@@ -1859,6 +2061,7 @@ class Connections {
           }
         }));
     var response = await request.body;
+    print("noentregado -> $response");
     var decodeData = json.decode(response);
     if (request.statusCode != 200) {
       return false;
@@ -1890,7 +2093,10 @@ class Connections {
   }
 
   Future updateOrderStatusOperatorGeneralHistorial(
-      status, comentario, id) async {
+      // ?populate=users.vendedores&populate=transportadora
+      status,
+      comentario,
+      id) async {
     var request = await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
@@ -2294,6 +2500,7 @@ class Connections {
 
     return decodeData['data'];
   }
+  // ! modificación
 
   Future getOrdersByIDHistorial(id) async {
     var request = await http.get(
@@ -2344,18 +2551,42 @@ class Connections {
     return decodeData['data'];
   }
 
+  Future getdtsOrdenRetiro() async {
+    String id = Get.parameters['id'].toString();
+    try {
+      var request = await http.get(
+          Uri.parse("$serverLaravel/api/orden_retiro/$id"),
+          headers: {'Content-Type': 'application/json'});
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return false;
+      } else {
+        return decodeData;
+      }
+    } catch (e) {
+      print(e);
+
+      return false;
+    }
+  }
+
   Future withdrawalPost(amount) async {
     print(sharedPrefs!.getString("email").toString());
     try {
       var request = await http.post(
           Uri.parse(
-              "$server/api/ordenes/retiros/withdrawal/${sharedPrefs!.getString("idComercialMasterSeller")}"),
+              "$serverLaravel/api/seller/ordenesretiro/withdrawal/${sharedPrefs!.getString("idComercialMasterSeller")}"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
             "monto": amount,
             "fecha":
                 "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
-            "mail": sharedPrefs!.getString("email").toString()
+            "email": sharedPrefs!.getString("email").toString(),
+            "id_vendedor":
+                "${sharedPrefs!.getString("idComercialMasterSeller")}"
+            // "id_vendedor" : "5"
           }));
       var response = await request.body;
       var decodeData = json.decode(response);
@@ -2866,14 +3097,154 @@ class Connections {
           "currentPage": currentPage,
           "sizePage": sizePage
         }));
-
     var response = await request.body;
     var decodeData = json.decode(response);
-    // print(decodeData);
     return decodeData;
   }
 
   //  ! LA MIA --------- ↓↓↓
+  Future updateDateDeliveryAndStateLaravel(id, fechaEntrega, status) async {
+    print("aqui ->  $id+$fechaEntrega+$status");
+    var request =
+        await http.post(Uri.parse("$serverLaravel/api/upd/pedidos-shopifies"),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode({
+              "data": [
+                {"fecha_Entrega": fechaEntrega},
+                {"status": status}
+              ],
+              "id": id
+            }));
+
+    var response = await request.body;
+    var decodeData = json.decode(response);
+    if (request.statusCode != 200) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  getOrdersByIdLaravel2(int id, List<dynamic> data) {
+    // Accede a la lista de pedidos dentro de la propiedad "data"
+    for (var pedido in data) {
+      if (pedido['id'] == id) {
+        // print("se logro");
+        return pedido;
+      }
+    }
+    return null;
+  }
+  // getOrdersByIdLaravel(id)async{
+  //   try {
+  //     var response = await http.get(Uri.parse("$serverLaravel/api/pedidos-shopifies/$id"),
+  //                   headers: {'Content-Type': 'application/json'});
+
+  //   if (response.statusCode == 200) {
+  //       var decodeData = json.decode(response.body);
+  //       // print(decodeData);
+  //       return decodeData;
+  //     } else if (response.statusCode == 400) {
+  //       print("Error 400: Bad Request");
+  //     } else {
+  //       print("Error ${response.statusCode}: ${response.reasonPhrase}");
+  //     }
+  //   } catch (error) {
+  //     print("Ocurrió un error durante la solicitud del pedido: $error");
+  //   }
+  // }
+
+  last30rows() async {
+    try {
+      var response = await http.get(
+          Uri.parse("$serverLaravel/api/transacciones-lst"),
+          headers: {'Content-Type': 'application/json'});
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+  allTransactions() async {
+    try {
+      var response = await http.get(
+          Uri.parse("$serverLaravel/api/transacciones"),
+          headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+  postCredit(
+      String idComercial, String monto, String idOrigen, String origen) async {
+    try {
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/transacciones/credit"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "act_date":
+                    "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year} ${DateTime.now().hour}:${DateTime.now().minute}",
+                "id": idComercial,
+                "monto": monto,
+                "id_origen": idOrigen,
+                "origen": origen
+              }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+  postDebit(
+      String idComercial, String monto, String idOrigen, String origen) async {
+    // try {
+    var response =
+        await http.post(Uri.parse("$serverLaravel/api/transacciones/debit"),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode({
+              "act_date":
+                  "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year} ${DateTime.now().hour}:${DateTime.now().minute}",
+              "id": idComercial,
+              "monto": monto,
+              "id_origen": idOrigen,
+              "origen": origen
+            }));
+    if (response.statusCode == 200) {
+      var decodeData = json.decode(response.body);
+      return decodeData;
+    } else if (response.statusCode == 400) {
+      print("Error 400: Bad Request");
+    } else {
+      print("Error ${response.statusCode}: ${response.reasonPhrase}");
+    }
+    // } catch (error) {
+    // print("Ocurrió un error durante la solicitud: $error");
+    // }
+  }
+
   getOrdersOper(List populate, List and, List defaultAnd, List or, currentPage,
       sizePage, search, List multifilter) async {
     List filtersAndAll = [];
@@ -3009,7 +3380,7 @@ class Connections {
   getWithdrawalSellers(code) async {
     var request = await http.get(
       Uri.parse(
-          "$server/api/ordenes-retiros?populate=users_permissions_user&filters[\$and][0][users_permissions_user][id][\$eq]=${sharedPrefs!.getString("idComercialMasterSeller").toString()}&pagination[limit]=-1"),
+          "$serverLaravel/api/seller/ordenesretiro/retiro/${sharedPrefs!.getString("idComercialMasterSeller").toString()}"),
       headers: {'Content-Type': 'application/json'},
     );
     var response = await request.body;
@@ -3408,10 +3779,42 @@ class Connections {
     }
   }
 
+  // Future generateReportSeller(
+  //     desde, hasta, estado, confirmado, arrayAnd, arrayOr, arrayNot) async {
+  //   try {
+  //     var request = await http.post(Uri.parse("$serverLaravel/api/report"),
+  //         headers: {'Content-Type': 'application/json'},
+  //         body: json.encode({
+  //           "start": desde,
+  //           "end": hasta,
+  //           "id_master": sharedPrefs!.getString("idComercialMasterSeller"),
+  //           "generate_date":
+  //               "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+  //           "and": arrayAnd,
+  //           "status": estado,
+  //           "internal": confirmado,
+  //           "or": [],
+  //           "not": []
+  //         }));
+  //     var response = await request.body;
+  //     var decodeData = json.decode(response);
+
+  //     if (decodeData['message'] != 'Reporte generado') {
+  //       return false;
+  //     } else {
+  //       return true;
+  //     }
+  //   } catch (e) {
+  //     print(e);
+
+  //     return false;
+  //   }
+  // }
+
   Future deleteReportSeller(id) async {
     try {
       var request = await http.delete(
-        Uri.parse("$server/api/generate-reports/$id"),
+        Uri.parse("$serverLaravel/api/generate-reports/$id"),
         headers: {'Content-Type': 'application/json'},
       );
       var response = await request.body;
@@ -3565,6 +3968,17 @@ class Connections {
 
     return decodeData['data'];
   }
+  // Future getReportsSellersByCode() async {
+  //   var request = await http.get(
+  //     Uri.parse(
+  //         "$serverLaravel/api/generate-reports/seller/${sharedPrefs!.getString("idComercialMasterSeller").toString()}"),
+  //     headers: {'Content-Type': 'application/json'},
+  //   );
+  //   var response = await request.body;
+  //   var decodeData = json.decode(response);
+
+  //   return decodeData['data'];
+  // }
 
   Future updateWithdrawalRechazado(comentario) async {
     String id = Get.parameters['id'].toString();
@@ -3958,6 +4372,22 @@ class Connections {
     }
   }
 
+  Future updatenueva(id, datajson) async {
+    // {{base_api_laravel}}/api/pedidos-shopify/update/56
+    var request = await http.put(
+        Uri.parse("$serverLaravel/api/pedidos-shopify/update/$id"),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(datajson));
+    var response = await request.body;
+    var decodeData = json.decode(response);
+
+    if (request.statusCode != 200) {
+      return false;
+    } else {
+      return decodeData;
+    }
+  }
+
   Future updateAccountDisBlock(id) async {
     var request = await http.put(Uri.parse("$serverLaravel/api/users/$id"),
         headers: {'Content-Type': 'application/json'},
@@ -4295,6 +4725,130 @@ class Connections {
       return decodeData;
     } catch (e) {
       return (e);
+    }
+  }
+
+// ** Mi cuenta vendedor
+  getPersonalInfoAccountLaravel() async {
+    try {
+      var getUserSpecificRequest = await http.get(Uri.parse(
+          "$serverLaravel/api/users/${sharedPrefs!.getString("id").toString()}"));
+      var responseUser = await getUserSpecificRequest.body;
+      var decodeDataUser = json.decode(responseUser);
+      return decodeDataUser;
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future updateUserLaravel(user, mail, password) async {
+    try {
+      var request = await http.put(
+          Uri.parse(
+              "$serverLaravel/api/users/${sharedPrefs!.getString("id").toString()}"),
+          headers: {'Content-Type': 'application/json'},
+          body: password.toString().isEmpty
+              ? json.encode({
+                  "username": user,
+                  "email": mail,
+                })
+              : json.encode({
+                  "password": password,
+                }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future updateSellerGeneralInternalAccountLaravel(
+      comercialName, phone1, phone2, idMaster) async {
+    try {
+      var request =
+          await http.put(Uri.parse("$serverLaravel/api/vendedores/$idMaster"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "nombre_comercial": comercialName,
+                "telefono_1": phone1,
+                "telefono_2": phone2,
+              }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future updateAccountStatusLaravel() async {
+    try {
+      var request = await http.put(
+          Uri.parse(
+              "$serverLaravel/api/users/${sharedPrefs!.getString("id").toString()}"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"estado": "VALIDADO"}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future updateOrderInteralStatusLaravel2(text, id) async {
+    //al parecer hay otro
+    // print('id: $id, $text');
+    try {
+      var request =
+          await http.put(Uri.parse("$serverLaravel/api/pedidos-shopify/$id"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "estado_interno": text,
+                "name_comercial":
+                    sharedPrefs!.getString("NameComercialSeller").toString(),
+                "fecha_confirmacion":
+                    "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
+              }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future getRoutesLaravel() async {
+    try {
+      var request = await http.get(
+        Uri.parse("$serverLaravel/api/rutas/"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      return decodeData;
+    } catch (e) {
+      print(e);
     }
   }
 

@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 
 import 'package:frontend/connections/connections.dart';
-import 'package:frontend/helpers/navigators.dart';
 import 'package:frontend/helpers/server.dart';
+// import 'package:frontend/helpers/navigators.dart';
+// import 'package:frontend/helpers/server.dart';
 import 'package:frontend/ui/operator/orders_operator/controllers/controllers.dart';
 import 'package:frontend/ui/operator/orders_operator/info_novedades.dart';
 import 'package:frontend/ui/widgets/loading.dart';
-import 'package:frontend/ui/widgets/update_status_operator/update_status_operator.dart';
+// import 'package:frontend/ui/widgets/update_status_operator/update_status_operator.dart';
 
 class DeliveryStatusSellerInfo extends StatefulWidget {
   final String id;
   final Function(dynamic) function;
+  final List data;
   const DeliveryStatusSellerInfo(
-      {super.key, required this.id, required this.function});
+      {super.key, required this.id, required this.function,required this.data});
 
   @override
   State<DeliveryStatusSellerInfo> createState() => _DeliveryStatusSellerInfo();
@@ -33,12 +35,15 @@ class _DeliveryStatusSellerInfo extends State<DeliveryStatusSellerInfo> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
-    var response = await Connections().getOrdersByIDHistorial(widget.id);
-    // data = response;
-    data = response;
-    _controllers.editControllers(response);
+    // var response = await Connections().getOrdersByIDHistorial(widget.id);
+    var response = await Connections().getOrdersByIdLaravel2(int.parse(widget.id),widget.data);
+    // var response = await Connections().getOrdersByIdLaravel(widget.id);
 
-    Future.delayed(Duration(milliseconds: 500), () {
+    // ! ↓esta es la usada
+    data = response;
+    _controllers.editControllers2(response);
+
+    Future.delayed(const Duration(milliseconds: 500), () {
       Navigator.pop(context);
       setState(() {
         loading = false;
@@ -55,7 +60,7 @@ class _DeliveryStatusSellerInfo extends State<DeliveryStatusSellerInfo> {
           backgroundColor: Colors.white,
           leading: Container(),
           centerTitle: true,
-          title: Text(
+          title: const Text(
             "Información Pedido",
             style: TextStyle(
                 fontWeight: FontWeight.bold, color: Colors.black, fontSize: 20),
@@ -87,8 +92,8 @@ class _DeliveryStatusSellerInfo extends State<DeliveryStatusSellerInfo> {
                             SizedBox(
                               width: 10,
                             ),
-                            data['attributes']['Status'] == 'NOVEDAD' &&
-                                    data['attributes']['Estado_Devolucion'] ==
+                            data['status'] == 'NOVEDAD' &&
+                                    data['estado_devolucion'] ==
                                         'PENDIENTE'
                                 ? ElevatedButton(
                                     onPressed: () async {
@@ -109,73 +114,73 @@ class _DeliveryStatusSellerInfo extends State<DeliveryStatusSellerInfo> {
                           height: 20,
                         ),
                         _modelText("Fecha de Entrega",
-                            data['attributes']['Fecha_Entrega'].toString()),
+                            data['fecha_entrega'].toString()),
                         _modelText("Código",
-                            '${data['attributes']['Name_Comercial'].toString()}-${data['attributes']['NumeroOrden'].toString()}'),
+                            '${data['name_comercial'].toString()}-${data['numero_orden'].toString()}'),
                         _modelText("Ciudad",
-                            data['attributes']['CiudadShipping'].toString()),
+                            data['ciudad_shipping'].toString()),
                         _modelText("Nombre Cliente",
-                            data['attributes']['NombreShipping'].toString()),
+                            data['nombre_shipping'].toString()),
                         _modelText("Dirección",
-                            data['attributes']['DireccionShipping'].toString()),
+                            data['direccion_shipping'].toString()),
                         _modelText("Teléfono Cliente",
-                            data['attributes']['TelefonoShipping'].toString()),
+                            data['telefono_shipping'].toString()),
                         _modelText("Cantidad",
-                            data['attributes']['Cantidad_Total'].toString()),
+                            data['cantidad_total'].toString()),
                         _modelText("Producto",
-                            data['attributes']['ProductoP'].toString()),
+                            data['producto_p'].toString()),
                         _modelText("Producto Extra",
-                            data['attributes']['ProductoExtra'].toString()),
+                            data['producto_extra'].toString()),
                         _modelText("Precio Total",
-                            data['attributes']['PrecioTotal'].toString()),
+                            data['precio_total'].toString()),
                         _modelText("Comentario",
-                            data['attributes']['Comentario'].toString()),
+                            data['comentario'].toString()),
                         _modelText(
-                            "Status", data['attributes']['Status'].toString()),
+                            "Status", data['status'].toString()),
                         _modelText("Confirmado",
-                            data['attributes']['Estado_Interno'].toString()),
+                            data['estado_interno'].toString()),
                         _modelText("Estado Logístico",
-                            data['attributes']['Estado_Logistico'].toString()),
+                            data['estado_logistico'].toString()),
                         _modelText("Estado Devolución",
-                            data['attributes']['Estado_Devolucion'].toString()),
+                            data['estado_devolucion'].toString()),
                         _modelText(
                             "Costo Entrega",
-                            data['attributes']['users'] != null
-                                ? data['attributes']['users']['data'][0]
-                                            ['attributes']['vendedores']['data']
-                                        [0]['attributes']['CostoEnvio']
+                            data['users'] != null
+                                ? data['users'][0]
+                                            ['vendedores']
+                                        [0]['costo_envio']
                                     .toString()
                                 : ""),
                         _modelText(
                             "Costo Devolución",
-                            data['attributes']['Estado_Devolucion']
+                            data['estado_devolucion']
                                         .toString() !=
                                     "PENDIENTE"
-                                ? data['attributes']['users'] != null
-                                    ? data['attributes']['users']['data'][0]
-                                                    ['attributes']['vendedores']
-                                                ['data'][0]['attributes']
-                                            ['CostoDevolucion']
+                                ? data['users'] != null
+                                    ? data['users'][0]
+                                                    ['vendedores']
+                                                [0]
+                                            ['costo_devolucion']
                                         .toString()
                                     : ""
                                 : ""),
                         _modelText("Fecha Ingreso",
-                            data['attributes']['Marca_T_I'].toString()),
-                        data['attributes']['Archivo'].toString().isEmpty ||
-                                data['attributes']['Archivo'].toString() ==
+                            data['marca_t_i'].toString()),
+                        data['archivo'].toString().isEmpty ||
+                                data['archivo'].toString() ==
                                     "null"
                             ? Container()
                             : Container(
                                 width: 300,
                                 height: 400,
                                 child: Image.network(
-                                  "$generalServer${data['attributes']['Archivo'].toString()}",
+                                  "$generalServerApiLaravel${data['archivo'].toString()}",
                                   fit: BoxFit.fill,
                                 )),
-                        SizedBox(
+                        const SizedBox(
                           height: 20,
                         ),
-                        Text(
+                        const Text(
                           "  Novedades:",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
@@ -185,16 +190,16 @@ class _DeliveryStatusSellerInfo extends State<DeliveryStatusSellerInfo> {
                           width: 500,
                           child: ListView.builder(
                             itemCount:
-                                data['attributes']['novedades']['data'].length,
+                                data['novedades'].length,
                             itemBuilder: (context, index) {
                               return ListTile(
                                 title: Container(
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(10),
-                                      color: Color.fromARGB(255, 117, 115, 115),
+                                      color: const Color.fromARGB(255, 117, 115, 115),
                                       border: Border.all(color: Colors.black)),
                                   child: Container(
-                                    margin: EdgeInsets.all(10),
+                                    margin: const EdgeInsets.all(10),
                                     child: Column(
                                       mainAxisAlignment:
                                           MainAxisAlignment.start,
@@ -205,35 +210,32 @@ class _DeliveryStatusSellerInfo extends State<DeliveryStatusSellerInfo> {
                                             style: const TextStyle(
                                               color: Colors.white,
                                             ),
-                                            "Intento: ${data['attributes']['novedades']['data'][index]['attributes']['m_t_novedad']}"),
+                                            "Intento: ${data['novedades'][index]['m_t_novedad']}"),
                                         Text(
                                             style: const TextStyle(
                                               color: Colors.white,
                                             ),
-                                            "Intento: ${data['attributes']['novedades']['data'][index]['attributes']['try']}"),
+                                            "Número Intentos: ${data['novedades'][index]['try']}"),
                                         Text(
                                             style: const TextStyle(
                                               color: Colors.white,
                                             ),
-                                            "Comentario: ${data['attributes']['novedades']['data'][index]['attributes']['comment']}"),
-                                        data['attributes']['novedades']['data']
+                                            "Comentario: ${data['novedades'][index]['comment']}"),
+                                        data['novedades']
                                                                 [index]
-                                                            ['attributes']
                                                         ['url_image']
                                                     .toString()
                                                     .isEmpty ||
-                                                data['attributes']['novedades']
-                                                                        ['data']
+                                                data['novedades']
                                                                     [index]
-                                                                ['attributes']
                                                             ['url_image']
                                                         .toString() ==
                                                     "null"
                                             ? Container()
                                             : Container(
-                                                margin: EdgeInsets.all(30),
+                                                margin: const EdgeInsets.all(30),
                                                 child: Image.network(
-                                                  "$generalServer${data['attributes']['novedades']['data'][index]['attributes']['url_image'].toString()}",
+                                                  "$generalServerApiLaravel${data['novedades'][index]['url_image'].toString()}",
                                                   fit: BoxFit.fill,
                                                 )),
                                       ],
@@ -245,6 +247,7 @@ class _DeliveryStatusSellerInfo extends State<DeliveryStatusSellerInfo> {
                             },
                           ),
                         )
+                      
                       ],
                     ),
             ),
@@ -344,6 +347,7 @@ class _DeliveryStatusSellerInfo extends State<DeliveryStatusSellerInfo> {
                   Expanded(
                       child: InfoNovedades(
                     id: id,
+                    data: widget.data
                   ))
                 ],
               ),

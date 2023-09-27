@@ -47,6 +47,21 @@ class OrderInfoOperatorControllers extends ChangeNotifier {
     notifyListeners();
   }
 
+  editControllers2(data) {
+    codigoEditController.text = data['numero_orden'].toString();
+    fechaEditController.text = data['pedido_fecha'][0]['fecha'].toString();
+    ciudadEditController.text = data['ciudad_shipping'].toString();
+    nombreEditController.text = data['nombre_shipping'].toString();
+    productoEditController.text = data['producto_p'].toString();
+    productoExtraEditController.text = data['producto_extra'].toString();
+    cantidadEditController.text = data['cantidad_total'].toString();
+    direccionEditController.text = data['direccion_shipping'].toString();
+    telefonoEditController.text = data['telefono_shipping'].toString();
+    precioTotalEditController.text = data['precio_total'].toString();
+    observacionEditController.text = data['observacion'].toString();
+    notifyListeners();
+  }
+
   updateInfo({success, error}) async {
     var responseGeneralSeller = await Connections().updateOrderInfo(
         ciudadEditController.text,

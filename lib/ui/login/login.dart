@@ -1,10 +1,10 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/navigators.dart';
+import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/login/controllers/controllers.dart';
 import 'package:frontend/ui/logistic/add_sellers/controllers/controllers.dart';
@@ -21,6 +21,16 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   LoginControllers _controllers = LoginControllers();
   AddSellersControllers _controllers2 = AddSellersControllers();
+  final FocusNode _focusNode1 = FocusNode();
+  final FocusNode _focusNode2 = FocusNode();
+  final FocusNode _focusNodeSubmitButton = FocusNode();
+
+  @override
+  void dispose() {
+    _focusNode1.dispose();
+    _focusNode2.dispose();
+    super.dispose();
+  }
 
   bool obscureC = true;
   bool ischecked = false;
@@ -28,16 +38,81 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.white,
-        body: SafeArea(
-            child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Center(
-            child: SingleChildScrollView(
-              child: _content(),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            _buildWaveBackground(1200, 2000, Alignment.bottomRight, 125),
+            _buildWaveBackground(2000, 1200, Alignment.bottomRight, -55),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Center(
+                child: SingleChildScrollView(
+                    child: responsive(
+                        Container(
+                            width: MediaQuery.of(context).size.width * 0.25,
+                            padding: EdgeInsets.all(20.0), // Espaciado interno
+                            decoration: BoxDecoration(
+                              color: Color.fromRGBO(
+                                  194, 199, 204, 0.973), // Color de fondo
+                              border: Border.all(
+                                color: ColorsSystem()
+                                    .colorBlack
+                                    .withOpacity(0.3), // Color del borde
+                                width: 1.5, // Ancho del borde
+                              ),
+                              borderRadius:
+                                  BorderRadius.circular(12.0), // Radio de borde
+                            ),
+                            child: _content()),
+                        Container(
+                            width: MediaQuery.of(context).size.width * 0.82,
+                            padding: EdgeInsets.all(20.0), // Espaciado interno
+                            decoration: BoxDecoration(
+                              color: Color.fromRGBO(
+                                  194, 199, 204, 0.973), // Color de fondo
+                              border: Border.all(
+                                color: ColorsSystem()
+                                    .colorBlack, // Color del borde
+                                width: 1.0, // Ancho del borde
+                              ),
+                              borderRadius:
+                                  BorderRadius.circular(12.0), // Radio de borde
+                            ),
+                            child: _content()),
+                        context)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWaveBackground(height, width, aligment, angle) {
+    return Align(
+      alignment: aligment,
+      child: Transform.rotate(
+        angle: angle * (3.14159265359 / 180), // Convierte 65 grados a radianes
+        child: ClipPath(
+          clipper: WaveClipper(),
+          child: Container(
+            height: height, // Ajusta la altura de la ola según tus necesidades
+            width: width, // Ajusta el ancho de la ola según tus necesidades
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  const Color.fromARGB(255, 18, 151, 168).withOpacity(0.6),
+                  const Color.fromARGB(255, 33, 175, 218).withOpacity(0.4)
+                ],
+              ),
             ),
           ),
-        )));
+        ),
+      ),
+    );
   }
 
   Column _content() {
@@ -46,38 +121,51 @@ class _LoginPageState extends State<LoginPage> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         _logo(),
-        SizedBox(
-          height: 20,
+        const SizedBox(
+          height: 10,
         ),
-        Text(
+        const Text(
           "Bienvenido, ingresa con correo y contraseña",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         Column(
           children: [
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             _modelTextField(
                 text: "@Email",
                 obscure: false,
                 email: true,
-                controller: _controllers.controllerMail),
-            SizedBox(
+                controller: _controllers.controllerMail,
+                focusNode: _focusNode1,
+                nextFocusNode: _focusNode2),
+            const SizedBox(
               height: 20,
             ),
             _modelTextField(
                 text: "Contraseña",
                 obscure: obscureC,
                 email: false,
-                controller: _controllers.controllerPassword),
-            SizedBox(
+                controller: _controllers.controllerPassword,
+                focusNode: _focusNode2,
+                onFieldSubmitted: () {
+                  FocusScope.of(context).requestFocus(_focusNodeSubmitButton);
+                }),
+            const SizedBox(
               height: 30,
             ),
             ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: colors.colorGreen,
-                  minimumSize: Size(150, 40),
+                  padding: const EdgeInsets.all(16.0),
+                  backgroundColor: Colors.greenAccent[700],
+                  minimumSize: const Size(460, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(10.0), // Bordes redondeados
+                  ),
+                  elevation: 5,
+                  shadowColor: Colors.greenAccent[400],
                 ),
                 onPressed: () async {
                   getLoadingModal(context, false);
@@ -109,15 +197,19 @@ class _LoginPageState extends State<LoginPage> {
                     ).show();
                   });
                 },
-                child: Text(
+                child: const Text(
                   "INGRESAR",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                   ),
                 )),
-            SizedBox(
-              height: 50,
+            const SizedBox(
+              height: 30,
+            ),
+            const Text(
+              "EASYECOMMERCE - Copyright © 2023",
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ],
         )
@@ -130,7 +222,7 @@ class _LoginPageState extends State<LoginPage> {
       children: [
         Image.asset(
           images.logoEasyEcommercce,
-          width: 150,
+          width: 100,
         ),
         SizedBox(
           height: 20,
@@ -139,28 +231,46 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  _modelTextField({text, obscure, email, controller}) {
+  _modelTextField({
+    text,
+    obscure,
+    email,
+    controller,
+    focusNode,
+    nextFocusNode,
+    VoidCallback? onFieldSubmitted,
+  }) {
     return Container(
       width: 450,
+      height: 50,
       decoration: BoxDecoration(
+        border: Border.all(width: 1, color: Colors.grey),
         borderRadius: BorderRadius.circular(10.0),
-        color: Color.fromARGB(255, 245, 244, 244),
+        color: const Color.fromARGB(255, 245, 244, 244),
       ),
       child: TextField(
         controller: controller,
+        focusNode: focusNode,
+        onSubmitted: (value) {
+          if (nextFocusNode != null) {
+            FocusScope.of(context).requestFocus(nextFocusNode);
+          }
+          onFieldSubmitted
+              ?.call(); // Llama a la función personalizada si está definida
+        },
         obscureText: obscure,
         keyboardType:
             email ? TextInputType.emailAddress : TextInputType.visiblePassword,
-        style: TextStyle(fontWeight: FontWeight.bold),
+        style: const TextStyle(fontWeight: FontWeight.bold),
         decoration: InputDecoration(
             hintText: text,
             enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                   width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
               borderRadius: BorderRadius.circular(10.0),
             ),
             focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                   width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
               borderRadius: BorderRadius.circular(10.0),
             ),
@@ -178,6 +288,13 @@ class _LoginPageState extends State<LoginPage> {
                       color: Colors.black,
                     ))
                 : null),
+        // onSubmitted: (value) {
+        //   // Cuando se presiona Enter en este campo
+        //   if (nextFocusNode != null) {
+        //     // Mueve el foco al siguiente campo si está definido
+        //     FocusScope.of(context).requestFocus(nextFocusNode);
+        //   }
+        // },
       ),
     );
   }
@@ -206,9 +323,9 @@ class _LoginPageState extends State<LoginPage> {
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Términos y Condiciones"),
+              const Text("Términos y Condiciones"),
               IconButton(
-                icon: Icon(Icons.close),
+                icon: const Icon(Icons.close),
                 onPressed: () {
                   Navigator.pop(context);
                 },
@@ -218,7 +335,7 @@ class _LoginPageState extends State<LoginPage> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
+              const Text(
                 "Al marcar esta casilla, afirmo que he leído y acepto estar sujeto a los Términos y Condiciones de Easy Ecommerce",
                 style: TextStyle(fontSize: 16),
               ),
@@ -243,7 +360,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         );
                       },
-                      child: Text(
+                      child: const Text(
                         "Acepto los términos y condiciones",
                         style: TextStyle(
                           fontSize: 16,
@@ -263,12 +380,45 @@ class _LoginPageState extends State<LoginPage> {
                     redirectToCorrectView(context);
                   }
                 },
-                child: Text("Continuar"),
+                child: const Text("Continuar"),
               ),
             ],
           ),
         );
       },
     );
+  }
+}
+
+class WaveClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    path.lineTo(size.width, 0);
+    path.lineTo(size.width, size.height);
+    path.lineTo(0, size.height);
+    path.lineTo(0, size.height - 100); // Ajusta la altura de la ola
+    final firstControlPoint = Offset(size.width / 3, size.height);
+    final firstEndPoint = Offset(
+        size.width / 2.25, size.height - 80); // Ajusta la forma de la ola
+    path.quadraticBezierTo(firstControlPoint.dx, firstControlPoint.dy,
+        firstEndPoint.dx, firstEndPoint.dy);
+
+    final secondControlPoint = Offset(size.width - (size.width / 3),
+        size.height - 120); // Ajusta la forma de la ola
+    final secondEndPoint =
+        Offset(size.width, size.height - 100); // Ajusta la forma de la ola
+    path.quadraticBezierTo(secondControlPoint.dx, secondControlPoint.dy,
+        secondEndPoint.dx, secondEndPoint.dy);
+
+    path.lineTo(size.width, size.height - 100);
+    path.lineTo(size.width, 0);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) {
+    return false;
   }
 }

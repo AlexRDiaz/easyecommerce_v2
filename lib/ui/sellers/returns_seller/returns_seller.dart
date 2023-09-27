@@ -13,6 +13,7 @@ import 'package:intl/intl.dart';
 import 'package:number_paginator/number_paginator.dart';
 
 import 'return_details.dart';
+import '../../widgets/show_error_snackbar.dart';
 
 class ReturnsSeller extends StatefulWidget {
   const ReturnsSeller({super.key});
@@ -249,7 +250,8 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
         isLoading = false;
       });
       Navigator.pop(context);
-      _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
+      SnackBarHelper.showErrorSnackBar(
+          context, "Ha ocurrido un error de conexión");
     }
   }
 
@@ -306,21 +308,9 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
       print("datos paginados");
     } catch (e) {
       Navigator.pop(context);
-      _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
+      SnackBarHelper.showErrorSnackBar(
+          context, "Ha ocurrido un error de conexión");
     }
-  }
-
-  void _showErrorSnackBar(BuildContext context, String errorMessage) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          errorMessage,
-          style: TextStyle(color: Color.fromRGBO(7, 0, 0, 1)),
-        ),
-        backgroundColor: Color.fromARGB(255, 253, 101, 90),
-        duration: Duration(seconds: 4),
-      ),
-    );
   }
 
   @override

@@ -38,6 +38,8 @@ class _EditLogisticUserState extends State<EditLogisticUser> {
   bool impresas = false;
   bool enviadas = false;
   bool devolucion = false;
+  bool transaccion = false;
+
   bool devolucionEnBodega = false;
   List vistas = [];
   @override
@@ -713,14 +715,14 @@ class _EditLogisticUserState extends State<EditLogisticUser> {
           Row(
             children: [
               Checkbox(
-                  value: devolucion,
+                  value: transaccion,
                   onChanged: (v) {
                     setState(() {
                       if (v!) {
-                        devolucion = true;
+                        transaccion = true;
                         vistas.add("Transacciones");
                       } else {
-                        devolucion = false;
+                        transaccion = false;
                         vistas.remove("Transacciones");
                       }
                     });

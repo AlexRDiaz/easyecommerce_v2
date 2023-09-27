@@ -11,11 +11,13 @@ import 'package:frontend/ui/sellers/order_entry/order_info.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/routes.dart';
 import 'package:frontend/ui/widgets/sellers/add_order.dart';
+import 'package:frontend/ui/widgets/sellers/add_order_laravel.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/main.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 import 'package:number_paginator/number_paginator.dart';
+import '../../widgets/show_error_snackbar.dart';
 
 class OrderEntry extends StatefulWidget {
   const OrderEntry({super.key});
@@ -75,7 +77,32 @@ class _OrderEntryState extends State<OrderEntry> {
     {'filter': 'ProductoExtra'},
     {'filter': 'PrecioTotal'},
   ];
+
+  // ! se usa Laravel
+  bool changevalue = false;
+  var sortFieldDefaultValue = "id:DESC";
+  List arrayFiltersDefaultAnd = [
+    {
+      'id_comercial':
+          sharedPrefs!.getString("idComercialMasterSeller").toString()
+    },
+    {'status': 'PEDIDO PROGRAMADO'}
+  ];
+  List arrayFiltersNot = [
+    {'estado_interno': 'NO DESEA'},
+  ];
   List populate = ['users', 'pedido_fecha'];
+  List arrayFiltersAnd = [];
+  List arrayFiltersOr = [
+    'ciudad_shipping',
+    'numero_orden',
+    'nombre_shipping',
+    'direccion_shipping',
+    'telefono_shipping',
+    'producto_p',
+    'producto_extra',
+    'precio_total',
+  ];
 
   NumberPaginatorController paginatorController = NumberPaginatorController();
 
@@ -86,7 +113,8 @@ class _OrderEntryState extends State<OrderEntry> {
   void didChangeDependencies() {
     if (Provider.of<FiltersOrdersProviders>(context).indexActive == 2) {
       setState(() {
-        _controllers.searchController.text = "d/m/a,d/m/a";
+        // _controllers.searchController.text = "d/m/a,d/m/a";
+        _controllers.searchController.text = "";
         data = [];
       });
     } else {
@@ -101,45 +129,68 @@ class _OrderEntryState extends State<OrderEntry> {
   }
 
   loadData() async {
-    isLoading = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getLoadingModal(context, false);
-    });
-    var response = [];
-    setState(() {
-      data.clear();
-    });
-    currentPage = 1;
-    response = await Connections().getOrdersSellersFilter(
-        _controllers.searchController.text,
-        currentPage,
-        pageSize,
-        populate,
-        filtersOrCont,
-        filtersAnd,
-        [],
-        filtersDefaultAnd,
-        []);
+    try {
+      isLoading = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
+      // var response = [];
+      setState(() {
+        data.clear();
+      });
+      currentPage = 1;
+      var response = await Connections().getPrincipalOrdersSellersFilterLaravel(
+          populate,
+          arrayFiltersAnd,
+          arrayFiltersDefaultAnd,
+          arrayFiltersOr,
+          currentPage,
+          pageSize,
+          _controllers.searchController.text,
+          sortFieldDefaultValue.toString(),
+          arrayFiltersNot);
 
-    setState(() {
-      data = response[0]['data'];
-      pageCount = response[0]['meta']['pagination']['pageCount'];
-      total = response[0]['meta']['pagination']['total'];
+      // response = await Connections().getOrdersSellersFilter(
+      //     _controllers.searchController.text,
+      //     currentPage,
+      //     pageSize,
+      //     populate,
+      //     filtersOrCont,
+      //     filtersAnd,
+      //     [],
+      //     filtersDefaultAnd,
+      //     []);
 
-      // print("metadatar"+pageCount.toString());
-    });
-    optionsCheckBox = [];
-    for (var i = 0; i < total; i++) {
-      optionsCheckBox.add({"check": false, "id": "", "NumeroOrden": ""});
-    }
-    paginatorController.navigateToPage(0);
+      setState(() {
+        data = [];
+        data = response['data'];
+        pageCount = response['last_page'];
+        total = response['total'];
+        paginatorController.navigateToPage(0);
 
-    Future.delayed(Duration(milliseconds: 500), () {
+        // data = response[0]['data'];
+        // pageCount = response[0]['meta']['pagination']['pageCount'];
+        // total = response[0]['meta']['pagination']['total'];
+        // print("metadatar"+pageCount.toString());
+      });
+
+      optionsCheckBox = [];
+      for (var i = 0; i < total; i++) {
+        optionsCheckBox.add({"check": false, "id": "", "numero_orden": ""});
+      }
+      paginatorController.navigateToPage(0);
+
+      Future.delayed(const Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
+      counterChecks = 0;
+      isLoading = false;
+      setState(() {});
+    } catch (e) {
       Navigator.pop(context);
-    });
-    counterChecks = 0;
-    isLoading = false;
-    setState(() {});
+      SnackBarHelper.showErrorSnackBar(
+          context, "Ha ocurrido un error de conexión");
+    }
   }
 
   paginateData() async {
@@ -147,27 +198,40 @@ class _OrderEntryState extends State<OrderEntry> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
-    var response = [];
+    // var response = [];
     setState(() {
       data.clear();
     });
+    var response = await Connections().getPrincipalOrdersSellersFilterLaravel(
+        populate,
+        arrayFiltersAnd,
+        arrayFiltersDefaultAnd,
+        arrayFiltersOr,
+        currentPage,
+        pageSize,
+        _controllers.searchController.text,
+        sortFieldDefaultValue.toString(),
+        arrayFiltersNot);
 
     // print("actual pagina valor" + currentPage.toString());
 
-    response = await Connections().getOrdersSellersFilter(
-        _controllers.searchController.text,
-        currentPage,
-        pageSize,
-        populate,
-        filtersOrCont,
-        filtersAnd,
-        [],
-        filtersDefaultAnd,
-        []);
-    data = response[0]['data'];
+    // response = await Connections().getOrdersSellersFilter(
+    //     _controllers.searchController.text,
+    //     currentPage,
+    //     pageSize,
+    //     populate,
+    //     filtersOrCont,
+    //     filtersAnd,
+    //     [],
+    //     filtersDefaultAnd,
+    //     []);
     setState(() {
-      pageCount = response[0]['meta']['pagination']['pageCount'];
-      total = response[0]['meta']['pagination']['total'];
+      data = [];
+      data = response['data'];
+      pageCount = response['last_page'];
+      total = response['total'];
+      // pageCount = response[0]['meta']['pagination']['pageCount'];
+      // total = response[0]['meta']['pagination']['total'];
     });
 
     await Future.delayed(Duration(milliseconds: 500), () {
@@ -303,7 +367,7 @@ class _OrderEntryState extends State<OrderEntry> {
                                           context: context,
                                           builder: (BuildContext context) {
                                             return AlertDialog(
-                                              title: Text('Ateneción'),
+                                              title: Text('Atención'),
                                               content: SingleChildScrollView(
                                                 child: Column(
                                                   children: [
@@ -341,7 +405,7 @@ class _OrderEntryState extends State<OrderEntry> {
                                                                   ['check'] ==
                                                               true) {
                                                         var response = await Connections()
-                                                            .updateOrderInteralStatus(
+                                                            .updateOrderInteralStatusLaravel(
                                                                 "NO DESEA",
                                                                 optionsCheckBox[
                                                                         i]['id']
@@ -374,7 +438,7 @@ class _OrderEntryState extends State<OrderEntry> {
                                   await showDialog(
                                       context: (context),
                                       builder: (context) {
-                                        return AddOrderSellers();
+                                        return const AddOrderSellers();
                                       });
                                   await loadData();
                                 },
@@ -465,7 +529,7 @@ class _OrderEntryState extends State<OrderEntry> {
                                                                   ['check'] ==
                                                               true) {
                                                         var response = await Connections()
-                                                            .updateOrderInteralStatus(
+                                                            .updateOrderInteralStatusLaravel(
                                                                 "NO DESEA",
                                                                 optionsCheckBox[
                                                                         i]['id']
@@ -493,7 +557,7 @@ class _OrderEntryState extends State<OrderEntry> {
                                   await showDialog(
                                       context: (context),
                                       builder: (context) {
-                                        return AddOrderSellers();
+                                        return AddOrderSellersLaravel();
                                       });
                                   await loadData();
                                 },
@@ -562,7 +626,8 @@ class _OrderEntryState extends State<OrderEntry> {
                       label: const Text('Marca de Tiempo'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFuncDate("Marca_T_I");
+                        // sortFuncDate("Marca_T_I");
+                        sortFunc3("marca_t_i", changevalue);
                       },
                     ),
                     const DataColumn2(
@@ -573,63 +638,63 @@ class _OrderEntryState extends State<OrderEntry> {
                       label: Text('Código'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("NumeroOrden");
+                        sortFunc3("numero_orden", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: Text('Ciudad'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("CiudadShipping");
+                        sortFunc3("ciudad_shipping", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: Text('Nombre Cliente'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("NombreShipping");
+                        sortFunc3("nombre_shipping", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: Text('Dirección'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("DireccionShipping");
+                        sortFunc3("direccion_shipping", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: Text('Teléfono Cliente'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("TelefonoShipping");
+                        sortFunc3("telefonoS_shipping", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: Text('Cantidad'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("Cantidad_Total");
+                        sortFunc3("cantidad_total", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: Text('Producto'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("ProductoP");
+                        sortFunc3("producto_p", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: Text('Producto Extra'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("ProductoExtra");
+                        sortFunc3("producto_extra", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: Text('Precio Total'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("PrecioTotal");
+                        sortFunc3("precio_total", changevalue);
                       },
                     ),
                     const DataColumn2(
@@ -640,7 +705,7 @@ class _OrderEntryState extends State<OrderEntry> {
                       label: const Text('Estado Pedido'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("Status");
+                        sortFunc3("status", changevalue);
                       },
                     ),
                     DataColumn2(
@@ -653,8 +718,14 @@ class _OrderEntryState extends State<OrderEntry> {
                             value: confirmadoVal,
                             elevation: 16,
                             onChanged: (String? value) {
-                              AddFilterAndEq(value, 'Estado_Interno');
+                              if (value == "TODO") {
+                                arrayFiltersAnd.clear();
+                              } else {
+                                arrayFiltersAnd
+                                    .add({"estado_interno": "$value"});
+                              }
                               confirmado = value!;
+                              loadData();
                             },
                             items: optEstadoConfirmado
                                 .map<DropdownMenuItem<String>>((String value) {
@@ -681,8 +752,14 @@ class _OrderEntryState extends State<OrderEntry> {
                             value: logisticoVal,
                             elevation: 16,
                             onChanged: (String? value) {
-                              AddFilterAndEq(value, 'Estado_Logistico');
+                              if (value == "TODO") {
+                                arrayFiltersAnd.clear();
+                              } else {
+                                arrayFiltersAnd
+                                    .add({"estado_logistico": "$value"});
+                              }
                               logistico = value!;
+                              loadData();
                             },
                             items: optEstadoLogistico
                                 .map<DropdownMenuItem<String>>((String value) {
@@ -718,7 +795,7 @@ class _OrderEntryState extends State<OrderEntry> {
                       label: Text('Marca Fecha Confirmación'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFuncDate("Fecha_Confirmacion");
+                        sortFunc3("fecha_confirmacion", changevalue);
                       },
                     ),
                   ],
@@ -741,9 +818,8 @@ class _OrderEntryState extends State<OrderEntry> {
                                           ['id'] = data[index]['id'];
                                       optionsCheckBox[index +
                                               ((currentPage - 1) *
-                                                  pageSize)]['NumeroOrden'] =
-                                          data[index]['attributes']
-                                              ['NumeroOrden'];
+                                                  pageSize)]['numero_orden'] =
+                                          data[index]['numero_orden'];
 
                                       counterChecks += 1;
                                     } else {
@@ -762,8 +838,7 @@ class _OrderEntryState extends State<OrderEntry> {
                                   });
                                 })),
                             DataCell(
-                                Text(
-                                    '${data[index]['attributes']['Marca_T_I'].toString()}'),
+                                Text('${data[index]['marca_t_i'].toString()}'),
                                 onTap: () {
                               info(context, index);
                             }),
@@ -774,7 +849,7 @@ class _OrderEntryState extends State<OrderEntry> {
                                     var _url = Uri(
                                         scheme: 'tel',
                                         path:
-                                            '${data[index]['attributes']['TelefonoShipping'].toString()}');
+                                            '${data[index]['telefono_shipping'].toString()}');
 
                                     if (!await launchUrl(_url)) {
                                       throw Exception('Could not launch $_url');
@@ -791,23 +866,24 @@ class _OrderEntryState extends State<OrderEntry> {
                                 GestureDetector(
                                   onTap: () async {
                                     var _url = Uri.parse(
-                                        """https://api.whatsapp.com/send?phone=${data[index]['attributes']['TelefonoShipping'].toString()}&text=Hola ${data[index]['attributes']['NombreShipping'].toString()}, te saludo de la tienda ${data[index]['attributes']['Tienda_Temporal'].toString()}, Me comunico con usted para confirmar su pedido de compra de: ${data[index]['attributes']['ProductoP'].toString()} y  ${data[index]['attributes']['ProductoExtra'].toString()}, por un valor total de: ${data[index]['attributes']['PrecioTotal'].toString()}. Su dirección de entrega será: ${data[index]['attributes']['DireccionShipping'].toString()} Es correcto...? Desea mas información del producto?""");
+                                        """https://api.whatsapp.com/send?phone=${data[index]['telefono_shipping'].toString()}&text=Hola ${data[index]['nombre_shipping'].toString()}, te saludo de la tienda ${data[index]['tienda_temporal'].toString()}, Me comunico con usted para confirmar su pedido de compra de: ${data[index]['producto_p'].toString()} y  ${data[index]['producto_extra'].toString()}, por un valor total de: ${data[index]['precio_total'].toString()}. Su dirección de entrega será: ${data[index]['direccion_shipping'].toString()} Es correcto...? Desea mas información del producto?""");
                                     if (!await launchUrl(_url)) {
                                       throw Exception('Could not launch $_url');
                                     }
                                   },
-                                  child: Icon(
+                                  child: const Icon(
                                     Icons.message_outlined,
                                     size: 20,
                                   ),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   width: 10,
                                 ),
                                 GestureDetector(
                                   onTap: () async {
                                     var response = await Connections()
-                                        .updateOrderInteralStatus("CONFIRMADO",
+                                        .updateOrderInteralStatusLaravel(
+                                            "CONFIRMADO",
                                             data[index]['id'].toString());
                                     setState(() {});
                                     await showDialog(
@@ -819,7 +895,7 @@ class _OrderEntryState extends State<OrderEntry> {
                                             someOrders: false,
                                             phoneClient: "",
                                             codigo:
-                                                "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['attributes']['NumeroOrden']}",
+                                                "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}",
                                           );
                                         });
                                     loadData();
@@ -832,14 +908,13 @@ class _OrderEntryState extends State<OrderEntry> {
                                 SizedBox(
                                   width: 10,
                                 ),
-                                data[index]['attributes']['Estado_Logistico']
-                                            .toString() ==
+                                data[index]['estado_logistico'].toString() ==
                                         "ENVIADO"
                                     ? Container()
                                     : GestureDetector(
                                         onTap: () async {
                                           var response = await Connections()
-                                              .updateOrderInteralStatus(
+                                              .updateOrderInteralStatusLaravel(
                                                   "NO DESEA",
                                                   data[index]['id'].toString());
                                           setState(() {});
@@ -854,71 +929,82 @@ class _OrderEntryState extends State<OrderEntry> {
                             )),
                             DataCell(
                                 Text(
-                                    "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['attributes']['NumeroOrden']}"
+                                    "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}"
                                         .toString()), onTap: () {
                               info(context, index);
                             }),
                             DataCell(
-                                Text(data[index]['attributes']['CiudadShipping']
+                                Text(data[index]['ciudad_shipping'].toString()),
+                                onTap: () {
+                              info(context, index);
+                            }),
+                            DataCell(
+                                Text(data[index]['nombre_shipping'].toString()),
+                                onTap: () {
+                              info(context, index);
+                            }),
+                            DataCell(
+                                Text(data[index]['direccion_shipping']
                                     .toString()), onTap: () {
                               info(context, index);
                             }),
                             DataCell(
-                                Text(data[index]['attributes']['NombreShipping']
+                                Text(data[index]['telefono_shipping']
                                     .toString()), onTap: () {
                               info(context, index);
                             }),
                             DataCell(
-                                Text(data[index]['attributes']
-                                        ['DireccionShipping']
-                                    .toString()), onTap: () {
+                                Text(data[index]['cantidad_total'].toString()),
+                                onTap: () {
+                              info(context, index);
+                            }),
+                            DataCell(Text(data[index]['producto_p'].toString()),
+                                onTap: () {
                               info(context, index);
                             }),
                             DataCell(
-                                Text(data[index]['attributes']
-                                        ['TelefonoShipping']
-                                    .toString()), onTap: () {
+                              //     Text(data[index]['producto_extra'].toString()),
+                              //     onTap: () {
+                              //   info(context, index);
+                              // }
+                              Text(data[index]['producto_extra'] == null ||
+                                      data[index]['producto_extra'] == "null"
+                                  ? ""
+                                  : data[index]['producto_extra'].toString()),
+                              onTap: () {
+                                info(context, index);
+                              },
+                            ),
+                            DataCell(
+                                Text(data[index]['precio_total'].toString()),
+                                onTap: () {
                               info(context, index);
                             }),
                             DataCell(
-                                Text(data[index]['attributes']['Cantidad_Total']
-                                    .toString()), onTap: () {
+                              //   Text(data[index]['observacion'].toString()),
+                              //   onTap: () {
+                              // info(context, index);
+                              Text(data[index]['observacion'] == null ||
+                                      data[index]['observacion'] == "null"
+                                  ? ""
+                                  : data[index]['observacion'].toString()),
+                              onTap: () {
+                                info(context, index);
+                              },
+                            ),
+                            DataCell(Text(data[index]['status'].toString()),
+                                onTap: () {
                               info(context, index);
                             }),
                             DataCell(
-                                Text(data[index]['attributes']['ProductoP']
-                                    .toString()), onTap: () {
+                                Text(data[index]['estado_interno'].toString()),
+                                onTap: () {
                               info(context, index);
                             }),
                             DataCell(
-                                Text(data[index]['attributes']['ProductoExtra']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['PrecioTotal']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['Observacion']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['Status']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['Estado_Interno']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']
-                                        ['Estado_Logistico']
-                                    .toString()), onTap: () {
+                                Text(
+                                    data[index]['estado_logistico'].toString()),
+                                onTap: () {
                               info(context, index);
                             }),
                             DataCell(
@@ -926,13 +1012,21 @@ class _OrderEntryState extends State<OrderEntry> {
                                   children: [
                                     Container(
                                       width: 80,
-                                      child: Text(data[index]['attributes']
-                                              ['Fecha_Confirmacion']
+                                      child: Text(data[index]
+                                                      ['fecha_confirmacion'] ==
+                                                  null ||
+                                              data[index]
+                                                      ['fecha_confirmacion'] ==
+                                                  "null"
+                                          ? ""
+                                          : data[index]['fecha_confirmacion']
+                                              .toString()),
+                                      /*Text(data[index]
+                                              ['fecha_confirmacion']
                                           .toString()),
+                                          */
                                     ),
-                                    data[index]['attributes']
-                                                ['Estado_Interno'] ==
-                                            "PENDIENTE"
+                                    data[index]['estado_interno'] == "PENDIENTE"
                                         ? TextButton(
                                             onPressed: () {
                                               Calendar(data[index]['id']
@@ -984,7 +1078,7 @@ class _OrderEntryState extends State<OrderEntry> {
       if (optionsCheckBox[i]['check'] == true) {
         res += sharedPrefs!.getString("NameComercialSeller").toString() +
             "-" +
-            optionsCheckBox[i]['NumeroOrden'] +
+            optionsCheckBox[i]['numero_orden'] +
             '\n';
       }
     }
@@ -1097,17 +1191,17 @@ class _OrderEntryState extends State<OrderEntry> {
                           onTap: () {
                             Navigator.pop(context);
                           },
-                          child: Icon(Icons.close),
+                          child: const Icon(Icons.close),
                         ),
                       ),
                       Expanded(
                           child: OrderInfo(
-                        id: data[index]['id'].toString(),
-                        index: index,
-                        sumarNumero: sumarNumero,
-                        codigo:
-                            "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['attributes']['NumeroOrden']}",
-                      )),
+                              id: data[index]['id'].toString(),
+                              index: index,
+                              sumarNumero: sumarNumero,
+                              codigo:
+                                  "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}",
+                              data: data)),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -1159,12 +1253,12 @@ class _OrderEntryState extends State<OrderEntry> {
                         ),
                         Expanded(
                             child: OrderInfo(
-                          id: data[index]['id'].toString(),
-                          index: index,
-                          sumarNumero: sumarNumero,
-                          codigo:
-                              "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['attributes']['NumeroOrden']}",
-                        )),
+                                id: data[index]['id'].toString(),
+                                index: index,
+                                sumarNumero: sumarNumero,
+                                codigo:
+                                    "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}",
+                                data: data)),
                       ],
                     ),
                   ),
@@ -1192,7 +1286,7 @@ class _OrderEntryState extends State<OrderEntry> {
   clearSelected() {
     optionsCheckBox = [];
     for (var i = 0; i < total; i++) {
-      optionsCheckBox.add({"check": false, "id": "", "NumeroOrden": ""});
+      optionsCheckBox.add({"check": false, "id": "", "numero_orden": ""});
     }
     setState(() {
       counterChecks = 0;
@@ -1320,5 +1414,19 @@ class _OrderEntryState extends State<OrderEntry> {
           .toString()
           .compareTo(b['attributes'][name].toString()));
     }
+  }
+
+  sortFunc3(filtro, changevalu) {
+    setState(() {
+      if (changevalu) {
+        sortFieldDefaultValue = "$filtro:DESC";
+        changevalue = false;
+      } else {
+        // changevalue = true;
+        sortFieldDefaultValue = "$filtro:ASC";
+        changevalue = true;
+      }
+      loadData();
+    });
   }
 }

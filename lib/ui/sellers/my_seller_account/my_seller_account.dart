@@ -27,6 +27,7 @@ class _MySellerAccountState extends State<MySellerAccount> {
   String costoEntrega = "";
   String costoDevolucion = "";
   String idShopify = "";
+  var codigo = "";
   @override
   void initState() {
     super.initState();
@@ -45,22 +46,26 @@ class _MySellerAccountState extends State<MySellerAccount> {
       fechaAlta: '',
       correo: '',
     );
-    var response = await Connections().getPersonalInfoAccount();
+    // var response = await Connections().getPersonalInfoAccount();
+    var responseL = await Connections().getPersonalInfoAccountLaravel();
+    var response = responseL['user'];
     _controllers = MySellerAccountControllers(
-      nombreComercial: response['vendedores'][0]['Nombre_Comercial'].toString(),
-      numeroTelefono: response['vendedores'][0]['Telefono1'].toString(),
-      telefonoDos: response['vendedores'][0]['Telefono2'].toString(),
+      nombreComercial: response['vendedores'][0]['nombre_comercial'].toString(),
+      numeroTelefono: response['vendedores'][0]['telefono_1'].toString(),
+      telefonoDos: response['vendedores'][0]['telefono_2'].toString(),
       usuario: response['username'].toString(),
-      fechaAlta: response['FechaAlta'].toString(),
+      fechaAlta: response['fecha_alta'].toString(),
       correo: response['email'].toString(),
     );
+    codigo = response['codigo_generado'].toString();
     setState(() {
       data = response;
-    idShopify =   data['vendedores'][0]['Id_Master'].toString();
+      idShopify = data['vendedores'][0]['id_master'].toString();
       loading = false;
-      state = response['Estado'].toString();
-      costoEntrega = response['vendedores'][0]['CostoEnvio'].toString();
-      costoDevolucion = response['vendedores'][0]['CostoDevolucion'].toString();
+      state = response['estado'].toString();
+      costoEntrega = response['vendedores'][0]['costo_envio'].toString();
+      costoDevolucion =
+          response['vendedores'][0]['costo_devolucion'].toString();
     });
   }
 
@@ -83,6 +88,14 @@ class _MySellerAccountState extends State<MySellerAccount> {
                     children: [
                       SizedBox(
                         height: 10,
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          Navigator.of(context)
+                              .pushReplacementNamed('/layout/sellers');
+                        },
+                        icon: Icon(Icons.home), // Icono de Home
+                        iconSize: 30, // Tamaño del icono
                       ),
                       _identifier(),
                       SizedBox(
@@ -155,12 +168,13 @@ class _MySellerAccountState extends State<MySellerAccount> {
                             ),
                             onPressed: () async {
                               getLoadingModal(context, false);
-                              var response = await Connections().updateSeller(
-                                  _controllers.usuarioController.text,
-                                  _controllers.correoController.text,
-                                  "");
+                              var response = await Connections()
+                                  .updateUserLaravel(
+                                      _controllers.usuarioController.text,
+                                      _controllers.correoController.text,
+                                      "");
                               var responseMaster = await Connections()
-                                  .updateSellerGeneralInternalAccount(
+                                  .updateSellerGeneralInternalAccountLaravel(
                                       _controllers
                                           .nombreComercialController.text,
                                       _controllers
@@ -214,8 +228,10 @@ class _MySellerAccountState extends State<MySellerAccount> {
               ),
               onPressed: () async {
                 getLoadingModal(context, false);
-                if (_validar.text.toString() == data['CodigoGenerado']) {
-                  var update = await Connections().updateAccountStatus();
+                // if (_validar.text.toString() == data['CodigoGenerado']) {
+                if (_validar.text.toString() == codigo) {
+                  var update = await Connections().updateAccountStatusLaravel();
+                  // var update = await Connections().updateAccountStatus();
                   await initControllers();
                   Navigator.pop(context);
                 } else {
@@ -240,7 +256,8 @@ class _MySellerAccountState extends State<MySellerAccount> {
       ],
     );
   }
-    _identifier() {
+
+  _identifier() {
     return Container(
       width: 500,
       child: Column(
@@ -252,8 +269,8 @@ class _MySellerAccountState extends State<MySellerAccount> {
           ),
           TextButton(
               onPressed: () {
-                Clipboard.setData(ClipboardData(
-                    text: "${serverUrlByShopify}/$idShopify"));
+                Clipboard.setData(
+                    ClipboardData(text: "${serverUrlByShopify}/$idShopify"));
                 Get.snackbar('COPIADO', 'Copiado al Clipboard');
               },
               child: Text(
@@ -278,5 +295,4 @@ class _MySellerAccountState extends State<MySellerAccount> {
       ),
     );
   }
-
 }

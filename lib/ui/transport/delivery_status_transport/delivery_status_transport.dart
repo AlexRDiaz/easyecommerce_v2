@@ -6,7 +6,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
-import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
+// import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
 import 'package:frontend/ui/transport/delivery_status_transport/Opcion.dart';
 import 'package:frontend/ui/widgets/OptionsWidget.dart';
 import 'package:frontend/ui/transport/delivery_status_transport/delivery_details.dart';
@@ -683,7 +683,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                 OpenShowDialog(context, index);
               })),
           DataCell(InkWell(
-              child: Text(data[index]['productop'].toString()),
+              child: Text(data[index]['producto_p'].toString()),
               onTap: () {
                 OpenShowDialog(context, index);
               })),

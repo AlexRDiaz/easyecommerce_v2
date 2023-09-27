@@ -8,6 +8,7 @@ import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/update_password/controllers/controllers.dart';
 import 'package:frontend/ui/sellers/update_password/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/loading.dart';
+import '../../widgets/show_error_snackbar.dart';
 
 class UpdatePasswordSellers extends StatefulWidget {
   const UpdatePasswordSellers({super.key});
@@ -40,6 +41,19 @@ class _UpdatePasswordSellersState extends State<UpdatePasswordSellers> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+        SizedBox(
+          height: 20,
+        ),
+        IconButton(
+          onPressed: () {
+            Navigator.of(context).pushReplacementNamed('/layout/sellers');
+          },
+          icon: Icon(Icons.home), // Icono de Home
+          iconSize: 30, // Tamaño del icono
+        ),
+        SizedBox(
+          height: 30,
+        ),
         Text(
           "Actualizar tu contraseña",
           style: TextStyle(fontWeight: FontWeight.bold),
@@ -70,41 +84,47 @@ class _UpdatePasswordSellersState extends State<UpdatePasswordSellers> {
                   minimumSize: Size(150, 40),
                 ),
                 onPressed: () async {
-                  getLoadingModal(context, false);
-                  await _controllers.updatePassword(success: () {
-                    Navigator.pop(context);
-                    setState(() {
-                      _controllers.password.clear();
+                  try {
+                    getLoadingModal(context, false);
+                    await _controllers.updatePassword(success: () {
+                      Navigator.pop(context);
+                      setState(() {
+                        _controllers.password.clear();
+                      });
+                      AwesomeDialog(
+                        width: 500,
+                        context: context,
+                        dialogType: DialogType.success,
+                        animType: AnimType.rightSlide,
+                        title: 'Completado',
+                        desc: '',
+                        btnCancel: Container(),
+                        btnOkText: "Aceptar",
+                        btnOkColor: colors.colorGreen,
+                        btnCancelOnPress: () {},
+                        btnOkOnPress: () {},
+                      ).show();
+                    }, error: () {
+                      Navigator.pop(context);
+                      AwesomeDialog(
+                        width: 500,
+                        context: context,
+                        dialogType: DialogType.error,
+                        animType: AnimType.rightSlide,
+                        title: 'Error',
+                        desc: 'Vuelve a intentarlo',
+                        btnCancel: Container(),
+                        btnOkText: "Aceptar",
+                        btnOkColor: colors.colorGreen,
+                        btnCancelOnPress: () {},
+                        btnOkOnPress: () {},
+                      ).show();
                     });
-                    AwesomeDialog(
-                      width: 500,
-                      context: context,
-                      dialogType: DialogType.success,
-                      animType: AnimType.rightSlide,
-                      title: 'Completado',
-                      desc: '',
-                      btnCancel: Container(),
-                      btnOkText: "Aceptar",
-                      btnOkColor: colors.colorGreen,
-                      btnCancelOnPress: () {},
-                      btnOkOnPress: () {},
-                    ).show();
-                  }, error: () {
+                  } catch (e) {
                     Navigator.pop(context);
-                    AwesomeDialog(
-                      width: 500,
-                      context: context,
-                      dialogType: DialogType.error,
-                      animType: AnimType.rightSlide,
-                      title: 'Error',
-                      desc: 'Vuelve a intentarlo',
-                      btnCancel: Container(),
-                      btnOkText: "Aceptar",
-                      btnOkColor: colors.colorGreen,
-                      btnCancelOnPress: () {},
-                      btnOkOnPress: () {},
-                    ).show();
-                  });
+                    SnackBarHelper.showErrorSnackBar(
+                        context, "Ha ocurrido un error de conexión");
+                  }
                 },
                 child: Text(
                   "ACTUALIZAR",

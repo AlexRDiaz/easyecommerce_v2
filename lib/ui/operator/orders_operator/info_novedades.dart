@@ -10,7 +10,8 @@ import 'package:frontend/ui/widgets/update_status_operator/update_status_operato
 
 class InfoNovedades extends StatefulWidget {
   final String id;
-  const InfoNovedades({super.key, required this.id});
+  final List data;
+  const InfoNovedades({super.key, required this.id, required this.data});
 
   @override
   State<InfoNovedades> createState() => _InfoNovedadesState();
@@ -31,15 +32,15 @@ class _InfoNovedadesState extends State<InfoNovedades> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
-    var response = await Connections().getOrdersByIDHistorial(widget.id);
+    var response = await Connections().getOrdersByIdLaravel2(int.parse(widget.id),widget.data);
     data = response;
 
     //
-    _controllers.editControllers(response);
+    _controllers.editControllers2(response);
     setState(() {
-      _numerController.text = data['attributes']['TelefonoShipping'].toString();
+      _numerController.text = data['telefono_shipping'].toString();
     });
-    Future.delayed(Duration(milliseconds: 500), () {
+    Future.delayed(const Duration(milliseconds: 500), () {
       Navigator.pop(context);
       setState(() {
         loading = false;
@@ -84,7 +85,7 @@ class _InfoNovedadesState extends State<InfoNovedades> {
                           width: 500,
                           child: ListView.builder(
                             itemCount:
-                                data['attributes']['novedades']['data'].length,
+                                data['novedades'].length,
                             itemBuilder: (context, index) {
                               return ListTile(
                                 title: Container(
@@ -104,27 +105,25 @@ class _InfoNovedadesState extends State<InfoNovedades> {
                                             style: const TextStyle(
                                               color: Colors.white,
                                             ),
-                                            "Intento: ${data['attributes']['novedades']['data'][index]['attributes']['m_t_novedad']}"),
+                                            "Intento: ${data['novedades'][index]['m_t_novedad']}"),
                                         Text(
                                             style: const TextStyle(
                                               color: Colors.white,
                                             ),
-                                            "Intento: ${data['attributes']['novedades']['data'][index]['attributes']['try']}"),
+                                            "Intento: ${data['novedades'][index]['try']}"),
                                         Text(
                                             style: const TextStyle(
                                               color: Colors.white,
                                             ),
-                                            "Comentario: ${data['attributes']['novedades']['data'][index]['attributes']['comment']}"),
-                                        data['attributes']['novedades']['data']
+                                            "Comentario: ${data['novedades'][index]['comment']}"),
+                                        data['novedades']
                                                                 [index]
-                                                            ['attributes']
+                                                            
                                                         ['url_image']
                                                     .toString()
                                                     .isEmpty ||
-                                                data['attributes']['novedades']
-                                                                        ['data']
+                                                data['novedades']
                                                                     [index]
-                                                                ['attributes']
                                                             ['url_image']
                                                         .toString() ==
                                                     "null"
@@ -132,7 +131,7 @@ class _InfoNovedadesState extends State<InfoNovedades> {
                                             : Container(
                                                 margin: EdgeInsets.all(30),
                                                 child: Image.network(
-                                                  "$generalServer${data['attributes']['novedades']['data'][index]['attributes']['url_image'].toString()}",
+                                                  "$generalServerApiLaravel${data['novedades'][index]['url_image'].toString()}",
                                                   fit: BoxFit.fill,
                                                 )),
                                       ],

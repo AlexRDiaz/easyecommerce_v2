@@ -40,8 +40,6 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
 
   String idTransport = "";
 
-  String? selectValueTransport = null;
-  List<String> transports = [];
   String? selectValueOperator = null;
   List<String> operators = [];
   List<Map<String, dynamic>> dataChart = [];
@@ -51,27 +49,43 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
 
   bool sort = false;
   String currentValue = "";
-  int total = 0;
-  int entregados = 0;
-  int noEntregados = 0;
-  int conNovedad = 0;
-  int reagendados = 0;
-  double totalValoresRecibidos = 0;
-  double costoTransportadora = 0;
-  double costoDevoluciones = 0;
-  double utilidades = 0;
+  // int total = 0;
+  // int entregados = 0;
+  // int noEntregados = 0;
+  // int conNovedad = 0;
+  // int reagendados = 0;
+  // double totalValoresRecibidos = 0;
+  // double costoTransportadora = 0;
+  // double costoDevoluciones = 0;
+  // double utilidades = 0;
 
+// ! usando
+  List newdata =[];
+  double totalValoresRecibidosLaravel = 0;
+  double costoDeEntregasLaravel = 0;
+  double devolucionesLaravel = 0;
+  double utilidadLaravel = 0;
+
+  int entregadosLaravel = 0;
+  int noEntregadosLaravel = 0;
+  int conNovedadLaravel = 0;
+  int reagendadosLaravel = 0;
+  int enRutaLaravel = 0;
+  int enOficinaLaravel = 0;
+  int pedidoProgramadoLaravel = 0;
+// ! ************************
   bool isFirst = true;
   int counterLoad = 0;
   String transporterOperator = 'TODO';
   int currentPage = 1;
-  int pageSize = 70;
+  int pageSize = 0;
   int pageCount = 100;
   bool isLoading = false;
   List<String> listOperators = [];
   Color currentColor = Color.fromARGB(255, 108, 108, 109);
   List<Map<dynamic, dynamic>> arrayFiltersAndEq = [];
   var arrayDateRanges = [];
+
   List<FilterCheckModel> filters = [
     FilterCheckModel(
         color: Colors.red,
@@ -137,47 +151,93 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
           sharedPrefs!.getString("idComercialMasterSeller").toString()
     }
   ];
-
-  List populate = [
-    'pedido_fecha',
-    'transportadora',
-    'ruta',
-    'sub_ruta',
-    'operadore',
-    "operadore.user",
-    "users",
-    "users.vendedores"
+  // !nuevo uso
+  List<FilterCheckModel> filters2 = [
+    FilterCheckModel(
+        color: Colors.red,
+        numOfFiles: 0,
+        percentage: 14,
+        svgSrc: "assets/icons/Documents.svg",
+        title: "Entregados",
+        filter: "ENTREGADO",
+        check: false),
+    FilterCheckModel(
+        color: Color.fromARGB(255, 2, 51, 22),
+        numOfFiles: 0,
+        percentage: 14,
+        svgSrc: "assets/icons/Documents.svg",
+        title: "NO ENTREGADO",
+        filter: "NO ENTREGADO",
+        check: false),
+    FilterCheckModel(
+        color: const Color.fromARGB(255, 76, 54, 244),
+        numOfFiles: 0,
+        percentage: 14,
+        svgSrc: "assets/icons/Documents.svg",
+        title: "NOVEDAD",
+        filter: "NOVEDAD",
+        check: false),
+    FilterCheckModel(
+        color: Color.fromARGB(255, 42, 163, 67),
+        numOfFiles: 0,
+        percentage: 14,
+        svgSrc: "assets/icons/Documents.svg",
+        title: "REAGENDADO",
+        filter: "REAGENDADO",
+        check: false),
+    FilterCheckModel(
+        color: Color.fromARGB(255, 146, 76, 29),
+        numOfFiles: 0,
+        percentage: 14,
+        svgSrc: "assets/icons/Documents.svg",
+        title: "EN RUTA",
+        filter: "EN RUTA",
+        check: false),
+    FilterCheckModel(
+        color: Color.fromARGB(255, 11, 6, 123),
+        numOfFiles: 0,
+        percentage: 14,
+        svgSrc: "assets/icons/Documents.svg",
+        title: "EN OFICINA",
+        filter: "EN OFICINA",
+        check: false),
+    FilterCheckModel(
+        color: Color.fromARGB(255, 146, 18, 73),
+        numOfFiles: 0,
+        percentage: 14,
+        svgSrc: "assets/icons/Documents.svg",
+        title: "PEDIDO PROGRAMADO",
+        filter: "PEDIDO PROGRAMADO",
+        check: false),
   ];
 
+  Map dataCounters = {};
+  Map valuesTransporter = {};
+  var arrayFiltersDefaultAnd = [
+    {
+      'id_comercial':
+          sharedPrefs!.getString("idComercialMasterSeller").toString()
+    }
+  ];
+
+  List populate = [
+    "pedido_fecha",
+    "transportadora",
+    "ruta",
+    "sub_ruta",
+    "operadore",
+    "operadore.user",
+    "users",
+    "users.vendedores",
+    "novedades"
+  ];
+
+// ! ********************************
   @override
   void didChangeDependencies() {
     // loadConfigs();
     super.didChangeDependencies();
   }
-
-  // loadConfigs() async {
-  //   var responseOperator = [];
-  //   setState(() {
-  //     transports = [];
-  //     operators = [];
-  //   });
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //     getLoadingModal(context, false);
-  //   });
-
-  //   var responseTransports = await Connections().getAllTransportators();
-  //   if (selectValueTransport != null) {
-  //     responseOperator =
-  //         await Connections().getAllOperatorsAndByTransport(idTransport);
-  //   } else {
-  //     responseOperator = await Connections().getAllOperators();
-  //   }
-
-  //   Future.delayed(Duration(milliseconds: 500), () {
-  //     Navigator.pop(context);
-  //   });
-  //   setState(() {});
-  // }
 
   loadData() async {
     isLoading = true;
@@ -187,25 +247,70 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
     });
 
     setState(() {
-      data = [];
       subFilters = [];
       sections = [];
       filters = [];
     });
+
     for (FilterCheckModel filter in filters) {
       setState(() {
         filter.check = false;
       });
     }
 
+
+
+    // counters
+    var responseCounters = await Connections()
+        .getOrdersCountersSeller(populate, arrayFiltersDefaultAnd, [], []);
+    
+    pageSize = responseCounters['TOTAL'];
+    
+    // data table
+    var responseLaravel = await Connections()
+          .getOrdersForSellerStateSearchForDateSellerLaravel(
+              "",
+              [],
+              arrayFiltersDefaultAnd,
+              [],
+              currentPage,
+              pageSize,
+              "",
+              [],
+              "marca_tiempo_envio:DESC");
+
+    // caltulated values
+    var responseValues =
+        await Connections().getValuesSellerLaravel(arrayFiltersDefaultAnd);
+
     var response =
         await Connections().getOrdersDashboard(populate, arrayFiltersAnd);
     setState(() {
       data = response;
-
-      total = data.length;
+      newdata = responseLaravel['data'];
+      valuesTransporter = responseValues['data'];
+      // total = data.length;
+      dataCounters = responseCounters;
     });
-    filters = [
+
+    // totallast = dataCounters[''];
+
+    setState(() {
+      entregadosLaravel = int.parse(dataCounters['ENTREGADO'].toString()) ?? 0;
+      noEntregadosLaravel =
+          int.parse(dataCounters['NO ENTREGADO'].toString()) ?? 0;
+      conNovedadLaravel = int.parse(dataCounters['NOVEDAD'].toString()) ?? 0;
+      reagendadosLaravel =
+          int.parse(dataCounters['REAGENDADO'].toString()) ?? 0;
+      enRutaLaravel = int.parse(dataCounters['EN RUTA'].toString()) ?? 0;
+      enOficinaLaravel = int.parse(dataCounters['EN OFICINA'].toString()) ?? 0;
+      pedidoProgramadoLaravel =
+          int.parse(dataCounters['PEDIDO PROGRAMADO'].toString()) ?? 0;
+    });
+
+    // print(dataCounters);
+
+    filters2 = [
       FilterCheckModel(
           color: Colors.red,
           numOfFiles: 0,
@@ -270,16 +375,30 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
 
     addCounts();
 
-    updateChartValues();
-    calculateValues();
-    setState(() {});
+    // updateChartValues();
+    // calculateValues();
+
+    // ! nuevo usando
+
+    setState(() {
+      totalValoresRecibidosLaravel =
+          double.parse(valuesTransporter['totalValoresRecibidos'].toString());
+      costoDeEntregasLaravel =
+          double.parse(valuesTransporter['totalShippingCost'].toString());
+      devolucionesLaravel =
+          double.parse(valuesTransporter['totalCostoDevolucion'].toString());
+      utilidadLaravel = (valuesTransporter['totalValoresRecibidos']) -
+          (valuesTransporter['totalShippingCost'] +
+              valuesTransporter['totalCostoDevolucion']);
+      utilidadLaravel = double.parse(utilidadLaravel.toString());
+    });
   }
 
-  updateChartValues() {
-    subData =
-        data.where((elemento) => elemento['Status'] == 'ENTREGADO').toList();
-    var m = subData;
-  }
+  // updateChartValues() {
+  //   subData =
+  //       newdata.where((elemento) => elemento['status'] == 'ENTREGADO').toList();
+  //   var m = subData;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -325,13 +444,13 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
                           children: [
                             Expanded(
                               child: Column(
-                                children: filters
+                                children: filters2
                                     .map((elemento) => FilterInfoCard(
                                           svgSrc: elemento.svgSrc!,
                                           title: elemento.title!,
                                           filter: elemento.filter!,
                                           color: elemento.color!,
-                                          details: addTableRows,
+                                          details: addTableRows2,
                                           percentage: elemento.percentage!,
                                           numOfFiles: elemento.numOfFiles!,
                                           function: changeValue,
@@ -353,48 +472,16 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
                     child: Column(
                   children: [
                     FilterDetails(
-                        total: totalValoresRecibidos,
-                        costoEntregas: costoTransportadora,
-                        costoDevoluciones: costoDevoluciones,
-                        utilidades: utilidades),
+                        total: totalValoresRecibidosLaravel,
+                        costoEntregas: costoDeEntregasLaravel,
+                        costoDevoluciones: devolucionesLaravel,
+                        utilidades: utilidadLaravel),
                     dataTableDetails()
                   ],
                 )),
               ],
             ),
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.start,
-            //   crossAxisAlignment: CrossAxisAlignment.start,
-            //   children: [
-            //     Expanded(
-            //       child: Container(
-            //         height: MediaQuery.of(context).size.height * 0.73,
-            //         padding: EdgeInsets.only(left: 20),
-            //         child: InputDecorator(
-            //           decoration: InputDecoration(
-            //             labelText: 'Estados de entrega',
-            //             border: OutlineInputBorder(
-            //               borderRadius: BorderRadius.circular(10.0),
-            //             ),
-            //           ),
-            //           child: Container(
-            //             child: Row(
-            //               crossAxisAlignment: CrossAxisAlignment.center,
-            //               children: [
-            //                 Chart(
-            //                   sections: sections,
-            //                   total: calculatetotal(),
-            //                 ),
-            //               ],
-            //             ),
-            //           ),
-            //         ),
-            //       ),
-            //     ),
-            //   ],
-            // ),
-
-            //  Text("hola mundo"),
+            
 
             Expanded(
               child: ListView(
@@ -415,13 +502,13 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
                           children: [
                             Expanded(
                               child: Column(
-                                children: filters
+                                children: filters2
                                     .map((elemento) => FilterInfoCard(
                                           svgSrc: elemento.svgSrc!,
                                           title: elemento.title!,
                                           filter: elemento.filter!,
                                           color: elemento.color!,
-                                          details: addTableRows,
+                                          details: addTableRows2,
                                           percentage: elemento.percentage!,
                                           numOfFiles: elemento.numOfFiles!,
                                           function: changeValue,
@@ -468,10 +555,10 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
                     ],
                   ),
                   FilterDetails(
-                      total: totalValoresRecibidos,
-                      costoEntregas: costoTransportadora,
-                      costoDevoluciones: costoDevoluciones,
-                      utilidades: utilidades),
+                      total: totalValoresRecibidosLaravel,
+                      costoEntregas: costoDeEntregasLaravel,
+                      costoDevoluciones: devolucionesLaravel,
+                      utilidades: utilidadLaravel),
                   dataTableDetails()
                 ],
               ),
@@ -483,8 +570,8 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
 
   Container dataTableDetails() {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.48,
-      width: 690,
+      height: MediaQuery.of(context).size.height * 0.51,
+      width: MediaQuery.of(context).size.width * 0.50,
       padding: EdgeInsets.only(left: 15, right: 15),
       child: InputDecorator(
         decoration: InputDecoration(
@@ -495,7 +582,7 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
         ),
         child: DataTable2(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Color.fromARGB(255, 223, 218, 218),
               borderRadius: const BorderRadius.all(Radius.circular(4)),
               border: Border.all(color: Colors.blueGrey),
             ),
@@ -535,8 +622,8 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
               return DataRow(cells: [
                 DataCell(
                     Text(
-                      tableData[index]['Fecha_Entrega'] != null
-                          ? tableData[index]['Fecha_Entrega']
+                      tableData[index]['fecha_entrega'] != null
+                          ? tableData[index]['fecha_entrega']
                           : "",
                       style: TextStyle(
                         color: rowColor,
@@ -545,7 +632,7 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
                     onTap: () {}),
                 DataCell(
                     Text(
-                      '${tableData[index]['Name_Comercial'].toString()}-${tableData[index]['NumeroOrden'].toString()}',
+                      '${tableData[index]['name_comercial'].toString()}-${tableData[index]['numero_orden'].toString()}',
                       style: TextStyle(
                         color: rowColor,
                       ),
@@ -553,7 +640,7 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
                     onTap: () {}),
                 DataCell(
                     Text(
-                      tableData[index]['PrecioTotal'],
+                      tableData[index]['precio_total'],
                       style: TextStyle(
                         color: rowColor,
                       ),
@@ -561,7 +648,7 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
                     onTap: () {}),
                 DataCell(
                     Text(
-                      tableData[index]['Status'].toString(),
+                      tableData[index]['status'].toString(),
                       style: TextStyle(
                         color: rowColor,
                       ),
@@ -569,8 +656,8 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
                     onTap: () {}),
                 DataCell(
                     Text(
-                      tableData[index]['Comentario'] != null
-                          ? tableData[index]['Comentario']
+                      tableData[index]['comentario'] != null
+                          ? tableData[index]['comentario']
                           : "",
                       style: TextStyle(
                         color: rowColor,
@@ -734,6 +821,7 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
               onPressed: () async {
                 setState(() {
                   _search.clear();
+                  tableData = [];
                 });
                 await loadData();
               },
@@ -750,10 +838,10 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
   }
 
   addCounts() {
-    for (var filter in filters) {
+    for (var filter in filters2) {
       subData = [];
-      for (var element in data) {
-        if (element['Status'] == filter.filter) {
+      for (var element in newdata) {
+        if (element['status'] == filter.filter) {
           subData.add(element);
         }
       }
@@ -768,68 +856,31 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
     }
   }
 
-  addTableRows(value) {
+  // addTableRows(value) {
+  //   tableData = [];
+  //   List arrTable = [];
+  //   for (var element in data) {
+  //     if (element['Status'] == value) {
+  //       arrTable.add(element);
+  //     }
+  //   }
+
+  //   setState(() {
+  //     tableData = arrTable;
+  //   });
+  // }
+
+  addTableRows2(value) {
     tableData = [];
     List arrTable = [];
-    for (var element in data) {
-      if (element['Status'] == value) {
+    for (var element in newdata) {
+      if (element['status'] == value) {
         arrTable.add(element);
       }
     }
 
     setState(() {
       tableData = arrTable;
-    });
-  }
-
-  calculateValues() {
-    totalValoresRecibidos = 0;
-    costoTransportadora = 0;
-    costoDevoluciones = 0;
-    utilidades = 0;
-    double total = 0;
-    double costoEntregas = 0;
-    double devol = 0;
-
-    for (var element in data) {
-      if (element['Status'] == 'ENTREGADO') {
-        print("precioTotal" + element['PrecioTotal']);
-        element['PrecioTotal'] =
-            element['PrecioTotal'].toString().replaceAll(',', '.');
-        total += double.parse(element['PrecioTotal']);
-      }
-
-      if (element['Status'] == 'ENTREGADO' ||
-          element['Status'] == 'NO ENTREGADO') {
-        element['users'][0]['vendedores'][0]['CostoEnvio'] =
-            element['users'][0]['vendedores'][0]['CostoEnvio'] ?? 0;
-
-        element['users'][0]['vendedores'][0]['CostoEnvio'] = element['users'][0]
-                ['vendedores'][0]['CostoEnvio']
-            .toString()
-            .replaceAll(',', '.');
-        costoEntregas +=
-            double.parse(element['users'][0]['vendedores'][0]['CostoEnvio']);
-      }
-
-      if (element['Status'] == 'NOVEDAD' &&
-          element['Estado_Devolucion'] != 'PENDIENTE') {
-        element['users'][0]['vendedores'][0]['CostoDevolucion'] =
-            element['users'][0]['vendedores'][0]['CostoDevolucion'] ?? 0;
-        element['users'][0]['vendedores'][0]['CostoDevolucion'] =
-            element['users'][0]['vendedores'][0]['CostoDevolucion']
-                .toString()
-                .replaceAll(',', '.');
-        devol += double.parse(
-            element['users'][0]['vendedores'][0]['CostoDevolucion']);
-      }
-    }
-    setState(() {
-      totalValoresRecibidos = total;
-      costoTransportadora = costoEntregas;
-      costoDevoluciones = devol;
-      utilidades =
-          totalValoresRecibidos - costoTransportadora - costoDevoluciones;
     });
   }
 

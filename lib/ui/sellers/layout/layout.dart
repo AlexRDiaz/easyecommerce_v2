@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 
 import 'package:frontend/config/exports.dart';
@@ -32,6 +33,10 @@ class LayoutSellersPage extends StatefulWidget {
 
 class _LayoutSellersPageState extends State<LayoutSellersPage> {
   final GlobalKey<ScaffoldState> _key = GlobalKey();
+  var email = sharedPrefs!.getString("email").toString();
+  var username = sharedPrefs!.getString("username").toString();
+
+  final GlobalKey _menuKey = GlobalKey();
 
   late NavigationProviderSellers navigation;
   @override
@@ -48,10 +53,10 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
         "Reporte de Ventas",
         SalesReport(),
       ),
-      getOption(
-        "Mi Cuenta Vendedor",
-        MySellerAccount(),
-      ),
+      // getOption(
+      //   "Mi Cuenta Vendedor",
+      //   MySellerAccount(),
+      // ),
       getOption(
         "Agregar Usuarios Vendedores",
         AddSellerUser(),
@@ -80,13 +85,12 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
         "Retiros en Efectivo",
         CashWithdrawalsSellers(),
       ),
-      getOption("Cambiar Contraseña", UpdatePasswordSellers()),
+      // getOption("Cambiar Contraseña", UpdatePasswordSellers()),
     ];
     return Scaffold(
       key: _key,
       backgroundColor: Colors.white,
       appBar: AppBar(
-        // iconTheme: IconThemeData(color: Colors.black),
         centerTitle: true,
         leading: GestureDetector(
           onTap: () {
@@ -103,29 +107,113 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
             ],
           ),
         ),
-        title: Container(
-          width: double.infinity,
-          height: 80,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Image.asset(
-                images.logoEasyEcommercce,
-                width: 30,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              images.logoEasyEcommercce,
+              width: 30,
+            ),
+            SizedBox(width: 10),
+            Flexible(
+              child: Text(
+                navigation.nameWindow,
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               ),
-              SizedBox(
-                width: 10,
-              ),
-              Flexible(
-                child: Text(
-                  navigation.nameWindow,
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
+        actions: [
+          const Icon(
+            Icons.account_circle,
+            color: const Color.fromARGB(255, 255, 255, 255),
+          ),
+          PopupMenuButton<String>(
+            padding: EdgeInsets.zero, // Elimina el relleno alrededor del botón
+            child: Row(
+              children: [
+                Text(
+                  "${email}",
+                  style: TextStyle(
+                    color: const Color.fromARGB(255, 255, 255, 255),
+                  ),
+                ),
+                const Icon(
+                  Icons
+                      .arrow_drop_down, // Icono de flecha hacia abajo para indicar que es un menú
+                  color: const Color.fromARGB(255, 255, 255, 255),
+                ),
+              ],
+            ),
+            itemBuilder: (BuildContext context) {
+              return [
+                PopupMenuItem<String>(
+                  child: Text(
+                    "Hola, ${username}",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  enabled: false,
+                ),
+                PopupMenuItem<String>(
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.account_circle,
+                        color: Colors.black,
+                      ),
+                      SizedBox(width: 5),
+                      Text("Mi Cuenta Vendedor"),
+                    ],
+                  ),
+                  value: "my_account",
+                ),
+                PopupMenuItem<String>(
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.security,
+                        color: Colors.black,
+                      ),
+                      SizedBox(width: 5),
+                      Text("Cambiar Contraseña"),
+                    ],
+                  ),
+                  value: "password",
+                ),
+                PopupMenuItem<String>(
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.logout_sharp,
+                        color: Colors.black,
+                      ),
+                      SizedBox(width: 5),
+                      Text("Cerrar Sesión"),
+                    ],
+                  ),
+                  value: "log_out",
+                ),
+              ];
+            },
+            onSelected: (value) {
+              if (value == "my_account") {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => MySellerAccount()));
+              } else if (value == "password") {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => UpdatePasswordSellers()));
+              } else if (value == "log_out") {
+                // Navigator.pushNamedAndRemoveUntil(
+                //     context, '/login', (Route<dynamic> route) => false);
+                showLogoutConfirmationDialog2(context);
+              }
+            },
+          ),
+        ],
       ),
       drawer: Drawer(
         backgroundColor: Colors.white,
@@ -133,6 +221,26 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
       ),
       body: SafeArea(child: pages[navigation.index]),
     );
+  }
+
+  Future<void> showLogoutConfirmationDialog2(BuildContext context) async {
+    return AwesomeDialog(
+      width: 500,
+      context: context,
+      dialogType: DialogType.WARNING,
+      animType: AnimType.rightSlide,
+      title: 'Confirmar Cierre de Sesión',
+      desc: '¿Está seguro de que desea cerrar sesión?',
+      btnCancelText: 'Cancelar',
+      btnCancelOnPress: () {},
+      btnOkText: 'Aceptar',
+      btnOkColor: colors.colorGreen,
+      btnOkOnPress: () {
+        // Navigator.of(context).pop();
+        Navigator.pushNamedAndRemoveUntil(
+            context, '/login', (Route<dynamic> route) => false);
+      },
+    ).show();
   }
 
   getOption(name, data) {

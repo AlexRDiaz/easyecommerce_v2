@@ -222,13 +222,32 @@ class _UpdateStatusOperatorHistorialState
                       setState(() {});
                       var response = await Connections().postDoc(imageSelect!);
 
-                      await Connections()
+                      var responseent = await Connections()
                           .updateOrderStatusOperatorEntregadoHistorial(
                               "ENTREGADO",
                               tipo,
                               _controllerModalText.text,
                               response[1],
                               widget.id);
+
+                      var datacostos = await Connections()
+                          .getOrderByIDHistoryLaravel(widget.id);
+
+                      print("costos-> $datacostos");
+
+                      await Connections().postCredit(
+                          "${datacostos['users'][0]['vendedores'][0]['id']}",
+                          "${datacostos['precio_total']}",
+                          "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
+                          "valor");
+                      await Connections().postDebit(
+                          "${datacostos['users'][0]['vendedores'][0]['id']}",
+                          "${datacostos['users'][0]['vendedores'][0]['costo_envio']}",
+                          "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
+                          "envio");
+                      // if(responseent){
+                      //   print(responseent);
+                      // }
                       setState(() {
                         _controllerModalText.clear();
                         tipo = "";
@@ -256,13 +275,42 @@ class _UpdateStatusOperatorHistorialState
                           }
                           setState(() {});
 
-                          await Connections()
+                          var respp = await Connections()
                               .updateOrderStatusOperatorEntregadoHistorial(
                                   "ENTREGADO",
                                   tipo,
                                   _controllerModalText.text,
                                   "",
                                   widget.id);
+
+                          // ! aqui consultar para que traiga los costos_envio,costo_devolucion
+                          var datacostos = await Connections()
+                              .getOrderByIDHistoryLaravel(widget.id);
+
+                          print("costos-> $datacostos");
+
+                          // if (datacostos['costo_envio'] != null) {
+                            await Connections().updatenueva(widget.id, {
+                              "costo_envio":
+                                  "${datacostos['users'][0]['vendedores'][0]['costo_envio']}"
+                            });
+                            await Connections().postDebit(
+                                "${datacostos['users'][0]['vendedores'][0]['id']}",
+                                "${datacostos['users'][0]['vendedores'][0]['costo_envio']}",
+                                "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
+                                "envio");
+                          // }
+
+                          await Connections().postCredit(
+                              "${datacostos['users'][0]['vendedores'][0]['id']}",
+                              "${datacostos['precio_total']}",
+                              "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
+                              "valor");
+
+                          // ! como usa strapi no trae los valores de los costos ||| cuando cambian ?
+                          // if (respp != null) {
+                          //   print(respp);
+                          // }
                           setState(() {
                             _controllerModalText.clear();
                             tipo = "";
@@ -359,6 +407,21 @@ class _UpdateStatusOperatorHistorialState
                               _controllerModalText.text,
                               response[1],
                               widget.id);
+
+                      var datane = await Connections()
+                          .getOrderByIDHistoryLaravel(widget.id);
+
+                      print("costos-> $datane");
+
+                      // if (datane['estado_devolucion'] !=
+                      // "ENTREGADO EN OFICINA" ) {
+                      // await Connections().postDebit(
+                      //     "${datane['users'][0]['vendedores'][0]['id']}",
+                      //     "${datane['users'][0]['vendedores'][0]['costo_envio']}",
+                      //     "${datane['name_comercial']}-${datane['numero_orden']}",
+                      //     "envio");
+                      // }
+
                       setState(() {
                         _controllerModalText.clear();
 
@@ -470,6 +533,22 @@ class _UpdateStatusOperatorHistorialState
                                 _controllerModalText.text,
                                 widget.id);
                       }
+
+                      var datacostos = await Connections()
+                          .getOrderByIDHistoryLaravel(widget.id);
+
+                      print("costos-> $datacostos");
+
+                      if (datacostos['estado_devolucion'] != "PENDIENTE" ||
+                          datacostos['estado_devolucion'] !=
+                              "ENTREGADO EN OFICINA") {
+                        await Connections().postDebit(
+                            "${datacostos['users'][0]['vendedores'][0]['id']}",
+                            "${datacostos['users'][0]['vendedores'][0]['costo_devolucion']}",
+                            "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
+                            "devolucion");
+                      }
+
                       var _url = Uri.parse(
                           """https://api.whatsapp.com/send?phone=${widget.numberTienda}&text=
                                         El pedido con código ${widget.codigo} cambio su estado a novedad, motivo: ${_controllerModalText.text}. Teléfono del cliente: ${widget.numberCliente}""");
