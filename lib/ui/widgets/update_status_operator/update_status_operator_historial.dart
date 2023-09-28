@@ -236,12 +236,12 @@ class _UpdateStatusOperatorHistorialState
                       print("costos-> $datacostos");
 
                       await Connections().postCredit(
-                          "${datacostos['users'][0]['vendedores'][0]['id']}",
+                          "${datacostos['users'][0]['vendedores'][0]['id_master']}",
                           "${datacostos['precio_total']}",
                           "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
                           "valor");
                       await Connections().postDebit(
-                          "${datacostos['users'][0]['vendedores'][0]['id']}",
+                          "${datacostos['users'][0]['vendedores'][0]['id_master']}",
                           "${datacostos['users'][0]['vendedores'][0]['costo_envio']}",
                           "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
                           "envio");
@@ -290,22 +290,24 @@ class _UpdateStatusOperatorHistorialState
                           print("costos-> $datacostos");
 
                           // if (datacostos['costo_envio'] != null) {
-                            await Connections().updatenueva(widget.id, {
-                              "costo_envio":
-                                  "${datacostos['users'][0]['vendedores'][0]['costo_envio']}"
-                            });
-                            await Connections().postDebit(
-                                "${datacostos['users'][0]['vendedores'][0]['id']}",
-                                "${datacostos['users'][0]['vendedores'][0]['costo_envio']}",
-                                "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                                "envio");
+                          await Connections().updatenueva(widget.id, {
+                            "costo_envio":
+                                "${datacostos['users'][0]['vendedores'][0]['costo_envio']}"
+                          });
+
                           // }
 
                           await Connections().postCredit(
-                              "${datacostos['users'][0]['vendedores'][0]['id']}",
+                              "${datacostos['users'][0]['vendedores'][0]['id_master']}",
                               "${datacostos['precio_total']}",
                               "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
                               "valor");
+
+                          await Connections().postDebit(
+                              "${datacostos['users'][0]['vendedores'][0]['id_master']}",
+                              "${datacostos['users'][0]['vendedores'][0]['costo_envio']}",
+                              "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
+                              "envio");
 
                           // ! como usa strapi no trae los valores de los costos ||| cuando cambian ?
                           // if (respp != null) {

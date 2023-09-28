@@ -6,3 +6,6 @@ String serverUrlByShopify = "http://localhost:1337/api/shopify/pedidos";
 // String serverUrlByShopify = "https://api.easyecomerce.com/api/orders/post";
 // String generalServerApiLaravel =
 //     "https://devapi.easyecomerce.com/apitest/public/index.php";
+
+// String generalServerApiLaravel =
+//     "https://easyecommercelaravel-production.up.railway.app";
