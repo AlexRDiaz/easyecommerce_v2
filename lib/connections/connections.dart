@@ -3008,16 +3008,16 @@ class Connections {
 
       if (requestlaravel.statusCode != 200) {
         res = 1;
-        print("res:" + res.toString());
+        print("" + res.toString());
       } else {
-        print('Total_L: $totalRes');
+        print(' $totalRes');
       }
-      print("res:" + res.toString());
+      print("" + res.toString());
       return decodeData;
     } catch (e) {
       print("error!!!: $e");
       res = 2;
-      print("res:" + res.toString());
+      print("" + res.toString());
     }
   }
 
@@ -4796,7 +4796,6 @@ class Connections {
     }
   }
 
-
   Future getRoutesLaravel() async {
     try {
       var request = await http.get(
@@ -4849,6 +4848,62 @@ class Connections {
     }
   }
 
+  //  *
+  getAllOrdersByDateRangeLaravel(
+      code,
+      arrayFiltersOrCont,
+      arrayfiltersDefaultAnd,
+      arrayFiltersAnd,
+      // currentPage,
+      // sizePage,
+      search,
+      not,
+      sortField) async {
+    int res = 0;
+
+    List<dynamic> filtersAndAll = [];
+    filtersAndAll.addAll(arrayfiltersDefaultAnd);
+    filtersAndAll.addAll(arrayFiltersAnd);
+
+    print(sharedPrefs!.getString("dateDesdeVendedor"));
+    print(sharedPrefs!.getString("dateHastaVendedor"));
+    // print("todo and: \n $filtersAndAll");
+
+    String urlnew = "$serverLaravel/api/pedidos-shopify/filterall";
+
+    try {
+      var requestlaravel = await http.post(Uri.parse(urlnew),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "start": sharedPrefs!.getString("dateDesdeVendedor"),
+            "end": sharedPrefs!.getString("dateHastaVendedor"),
+            // "page_size": sizePage,
+            // "page_number": currentPage,
+            "or": arrayFiltersOrCont,
+            "not": not,
+            "sort": sortField,
+            "and": filtersAndAll,
+            "search": search
+          }));
+
+      var responselaravel = await requestlaravel.body;
+      var decodeDataL = json.decode(responselaravel);
+
+      var response = await requestlaravel.body;
+      var decodeData = json.decode(response);
+
+      if (requestlaravel.statusCode != 200) {
+        res = 1;
+        print("" + res.toString());
+      }
+      print("" + res.toString());
+      return decodeData;
+    } catch (e) {
+      print("error!!!: $e");
+      res = 2;
+      print("" + res.toString());
+    }
+  }
 
   //TEST
 
@@ -4911,5 +4966,4 @@ class Connections {
 
     return decodeData;
   }
-
 }

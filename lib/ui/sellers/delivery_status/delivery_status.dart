@@ -8,6 +8,7 @@ import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/sellers/delivery_status/info_delivery.dart';
+import 'package:frontend/ui/sellers/delivery_status/create_report.dart';
 import 'package:frontend/ui/transport/delivery_status_transport/Opcion.dart';
 import 'package:frontend/ui/widgets/OptionsWidget.dart';
 import 'package:frontend/ui/transport/delivery_status_transport/delivery_details.dart';
@@ -19,6 +20,8 @@ import 'package:frontend/ui/widgets/loading.dart';
 import 'package:intl/intl.dart';
 import 'package:number_paginator/number_paginator.dart';
 import '../../widgets/show_error_snackbar.dart';
+
+//for xls
 
 class DeliveryStatus extends StatefulWidget {
   const DeliveryStatus({super.key});
@@ -178,6 +181,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   List arrayFiltersAnd2 = [];
 
   NumberPaginatorController paginatorController = NumberPaginatorController();
+  var getReportl = createReport();
 
   @override
   void didChangeDependencies() {
@@ -324,6 +328,23 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       SnackBarHelper.showErrorSnackBar(
           context, "Ha ocurrido un error de conexión");
     }
+  }
+
+  void generateReport() {
+    var responseAll = Connections().getAllOrdersByDateRangeLaravel(
+        _controllers.searchController.text,
+        filtersOrCont,
+        arrayfiltersDefaultAnd,
+        arrayFiltersAnd,
+        // currentPage,
+        // pageSize,
+        _controllers.searchController.text,
+        arrayFiltersNotEq,
+        sortFieldDefaultValue);
+
+    allData = responseAll;
+
+    getReportl.generateExcelFileWithData(allData);
   }
 
   @override
@@ -474,7 +495,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       Tooltip(
                         message: 'Limpiar filtros',
                         textStyle: TextStyle(
-                          fontSize: 18,
+                          fontSize: 16,
                           color: const Color.fromARGB(255, 255, 255, 255),
                         ),
                         child: ElevatedButton(
@@ -485,8 +506,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.filter_alt_outlined),
-                              Icon(Icons.clear_outlined),
+                              Icon(Icons.filter_list_off),
+                              // filter_list_off ;  filter_alt_off_rounded
                             ],
                           ),
                           style: ElevatedButton.styleFrom(
@@ -1281,13 +1302,42 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
             },
           ),
           ElevatedButton(
-              style: const ButtonStyle(
-                  backgroundColor: MaterialStatePropertyAll(
-                      Color.fromARGB(255, 67, 67, 67))),
-              onPressed: () async {
-                await applyDateFilter();
+            style: const ButtonStyle(
+                backgroundColor:
+                    MaterialStatePropertyAll(Color.fromARGB(255, 67, 67, 67))),
+            onPressed: () async {
+              await applyDateFilter();
+            },
+            child: Text('Filtrar'),
+          ),
+          SizedBox(width: 10),
+          Tooltip(
+            message: 'Descargar reporte',
+            textStyle: TextStyle(
+              fontSize: 16,
+              color: const Color.fromARGB(255, 255, 255, 255),
+            ),
+            child: ElevatedButton(
+              onPressed: () {
+                // getReportl.generateExcelFileWithData(data);
+                generateReport();
               },
-              child: Text('Filtrar'))
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    IconData(0xf6df,
+                        fontFamily: 'MaterialIcons'), // Tu ícono personalizado
+                    size: 24, // Tamaño del ícono (ajusta según tus necesidades)
+                    color: Colors.white,
+                  ),
+                ],
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromARGB(255, 79, 192, 103),
+              ),
+            ),
+          ),
         ],
       ),
     ];
@@ -1576,7 +1626,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
             width: 400.0, // Ancho deseado para el AlertDialog
             height: 300.0,
             child: AlertDialog(
-              title: Text('Ateneción'),
+              title: Text('Atención'),
               content: Column(
                 children: [
                   Text('Se reagendará esta entrega para $fecha'),
