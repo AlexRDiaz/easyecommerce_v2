@@ -239,7 +239,7 @@ class _UpdateStatusOperatorHistorialState
                           "${datacostos['users'][0]['vendedores'][0]['id_master']}",
                           "${datacostos['precio_total']}",
                           "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                          "valor");
+                          "recaudo");
                       await Connections().postDebit(
                           "${datacostos['users'][0]['vendedores'][0]['id_master']}",
                           "${datacostos['users'][0]['vendedores'][0]['costo_envio']}",
@@ -301,7 +301,7 @@ class _UpdateStatusOperatorHistorialState
                               "${datacostos['users'][0]['vendedores'][0]['id_master']}",
                               "${datacostos['precio_total']}",
                               "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                              "valor");
+                              "recaudo");
 
                           await Connections().postDebit(
                               "${datacostos['users'][0]['vendedores'][0]['id_master']}",

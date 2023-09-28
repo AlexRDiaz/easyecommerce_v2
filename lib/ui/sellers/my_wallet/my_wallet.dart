@@ -206,7 +206,7 @@ class _MyWalletState extends State<MyWallet> {
                 // OpenShowDialog(context index);
               })),
           DataCell(InkWell(
-              child: Text("\$ ${data[index]['valor_actual'].toString()}"),
+              child: Text("\$ ${data[index]['valor_actual']}"),
               onTap: () {
                 // OpenShowDialog(context, index);
               })),
