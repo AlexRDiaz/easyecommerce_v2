@@ -10,7 +10,9 @@ import 'package:frontend/ui/widgets/update_status_operator/update_status_operato
 
 class InfoOrdersOperator extends StatefulWidget {
   final String id;
-  const InfoOrdersOperator({super.key, required this.id});
+  final Function function;
+  const InfoOrdersOperator(
+      {super.key, required this.id, required this.function});
 
   @override
   State<InfoOrdersOperator> createState() => _InfoOrdersOperatorState();
@@ -101,7 +103,10 @@ class _InfoOrdersOperatorState extends State<InfoOrdersOperator> {
                                             novedades: data['attributes']
                                                 ['novedades']['data']);
                                       });
-                                  await loadData();
+
+                                  Navigator.pop(context);
+
+                                  widget.function();
                                 },
                                 child: Text(
                                   "Estado Entrega",

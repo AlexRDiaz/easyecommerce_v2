@@ -450,9 +450,16 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
                                               datane['status'] == "NOVEDAD")) {
                                             await Connections().postDebit(
                                                 "${datane['users'][0]['vendedores'][0]['id_master']}",
-                                                "${datane['users'][0]['vendedores'][0]['costo_envio']}",
+                                                "${datane['users'][0]['vendedores'][0]['costo_devolucion']}",
                                                 "${datane['name_comercial']}-${datane['numero_orden']}",
                                                 "devolucion");
+
+                                            Connections().updatenueva(
+                                                data[index]['id'], {
+                                              "costo_envio": datane['users'][0]
+                                                      ['vendedores'][0]
+                                                  ['costo_devolucion'],
+                                            });
                                           }
                                         }
                                         await loadData(context);
