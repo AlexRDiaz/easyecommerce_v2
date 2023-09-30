@@ -3749,38 +3749,6 @@ class Connections {
     }
   }
 
-  Future generateReportSeller(
-      desde, hasta, estado, confirmado, arrayAnd, arrayOr, arrayNot) async {
-    try {
-      var request = await http.post(Uri.parse("$serverLaravel/api/report"),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({
-            "start": desde,
-            "end": hasta,
-            "id_master": sharedPrefs!.getString("idComercialMasterSeller"),
-            "generate_date":
-                "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
-            "and": arrayAnd,
-            "status": estado,
-            "internal": confirmado,
-            "or": [],
-            "not": []
-          }));
-      var response = await request.body;
-      var decodeData = json.decode(response);
-
-      if (decodeData['message'] != 'Reporte generado') {
-        return false;
-      } else {
-        return true;
-      }
-    } catch (e) {
-      print(e);
-
-      return false;
-    }
-  }
-
   Future deleteReportSeller(id) async {
     try {
       var request = await http.delete(
@@ -3930,13 +3898,43 @@ class Connections {
   Future getReportsSellersByCode() async {
     var request = await http.get(
       Uri.parse(
-          "$serverLaravel/api/generate-reports/seller/${sharedPrefs!.getString("idComercialMasterSeller").toString()}"),
+          "$server/api/generate-reports?filters[Id_Master][\$eq]=${sharedPrefs!.getString("idComercialMasterSeller").toString()}&pagination[limit]=-1"),
       headers: {'Content-Type': 'application/json'},
     );
     var response = await request.body;
     var decodeData = json.decode(response);
 
     return decodeData['data'];
+  }
+
+  Future generateReportSeller(desde, hasta, estado, confirmado) async {
+    try {
+      var request = await http.post(
+          Uri.parse(
+              "$server/api/reporte/${sharedPrefs!.getString("idComercialMasterSeller")}"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "idMaster": sharedPrefs!.getString("idComercialMasterSeller"),
+            "fecha":
+                "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+            "desde": desde,
+            "hasta": hasta,
+            "estado": estado,
+            "estadoLogistico": confirmado
+          }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (decodeData['code'] != 200) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      print(e);
+
+      return false;
+    }
   }
 
   Future updateWithdrawalRechazado(comentario) async {
@@ -4883,6 +4881,7 @@ class Connections {
       print("" + res.toString());
     }
   }
+
 
   //TEST
 

@@ -831,6 +831,7 @@ class _OrdersOperatorState extends State<OrdersOperator> {
                   Expanded(
                       child: InfoOrdersOperator(
                     id: data[index]['id'].toString(),
+                    function: loadData,
                   ))
                 ],
               ),

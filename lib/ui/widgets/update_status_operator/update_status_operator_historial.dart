@@ -236,18 +236,24 @@ class _UpdateStatusOperatorHistorialState
                       print("costos-> $datacostos");
 
                       await Connections().postCredit(
-                          "${datacostos['users'][0]['vendedores'][0]['id']}",
+                          "${datacostos['users'][0]['vendedores'][0]['id_master']}",
                           "${datacostos['precio_total']}",
                           "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                          "valor");
+                          "recaudo");
                       await Connections().postDebit(
-                          "${datacostos['users'][0]['vendedores'][0]['id']}",
+                          "${datacostos['users'][0]['vendedores'][0]['id_master']}",
                           "${datacostos['users'][0]['vendedores'][0]['costo_envio']}",
                           "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
                           "envio");
                       // if(responseent){
                       //   print(responseent);
                       // }
+                      Connections().updatenueva(widget.id, {
+                        "costo_envio": datacostos['users'][0]['vendedores'][0]
+                            ['costo_envio'],
+                        "costo_transportadora": datacostos['users'][0]
+                            ['vendedores'][0]['costo_envio'],
+                      });
                       setState(() {
                         _controllerModalText.clear();
                         tipo = "";
@@ -290,23 +296,29 @@ class _UpdateStatusOperatorHistorialState
                           print("costos-> $datacostos");
 
                           // if (datacostos['costo_envio'] != null) {
-                            await Connections().updatenueva(widget.id, {
-                              "costo_envio":
-                                  "${datacostos['users'][0]['vendedores'][0]['costo_envio']}"
-                            });
-                            await Connections().postDebit(
-                                "${datacostos['users'][0]['vendedores'][0]['id']}",
-                                "${datacostos['users'][0]['vendedores'][0]['costo_envio']}",
-                                "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                                "envio");
+                          await Connections().updatenueva(widget.id, {
+                            "costo_envio":
+                                "${datacostos['users'][0]['vendedores'][0]['costo_envio']}"
+                          });
+
                           // }
 
                           await Connections().postCredit(
-                              "${datacostos['users'][0]['vendedores'][0]['id']}",
+                              "${datacostos['users'][0]['vendedores'][0]['id_master']}",
                               "${datacostos['precio_total']}",
                               "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                              "valor");
+                              "recaudo");
 
+                          await Connections().postDebit(
+                              "${datacostos['users'][0]['vendedores'][0]['id_master']}",
+                              "${datacostos['users'][0]['vendedores'][0]['costo_envio']}",
+                              "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
+                              "envio");
+
+                          Connections().updatenueva(widget.id, {
+                            "costo_envio": datacostos['users'][0]['vendedores']
+                                [0]['costo_envio'],
+                          });
                           // ! como usa strapi no trae los valores de los costos ||| cuando cambian ?
                           // if (respp != null) {
                           //   print(respp);
@@ -413,14 +425,16 @@ class _UpdateStatusOperatorHistorialState
 
                       print("costos-> $datane");
 
-                      // if (datane['estado_devolucion'] !=
-                      // "ENTREGADO EN OFICINA" ) {
-                      // await Connections().postDebit(
-                      //     "${datane['users'][0]['vendedores'][0]['id']}",
-                      //     "${datane['users'][0]['vendedores'][0]['costo_envio']}",
-                      //     "${datane['name_comercial']}-${datane['numero_orden']}",
-                      //     "envio");
-                      // }
+                      await Connections().postDebit(
+                          "${datane['users'][0]['vendedores'][0]['id_master']}",
+                          "${datane['users'][0]['vendedores'][0]['costo_envio']}",
+                          "${datane['name_comercial']}-${datane['numero_orden']}",
+                          "envio");
+
+                      Connections().updatenueva(widget.id, {
+                        "costo_envio": datane['users'][0]['vendedores'][0]
+                            ['costo_envio'],
+                      });
 
                       setState(() {
                         _controllerModalText.clear();
@@ -548,7 +562,10 @@ class _UpdateStatusOperatorHistorialState
                             "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
                             "devolucion");
                       }
-
+                      Connections().updatenueva(widget.id, {
+                        "costo_devolucion": datacostos['users'][0]['vendedores']
+                            [0]['costo_devolucion'],
+                      });
                       var _url = Uri.parse(
                           """https://api.whatsapp.com/send?phone=${widget.numberTienda}&text=
                                         El pedido con código ${widget.codigo} cambio su estado a novedad, motivo: ${_controllerModalText.text}. Teléfono del cliente: ${widget.numberCliente}""");

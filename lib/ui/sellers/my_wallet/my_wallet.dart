@@ -135,6 +135,13 @@ class _MyWalletState extends State<MyWallet> {
         },
       ),
       DataColumn2(
+        label: Text('Valor Anterior'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("numero_orden", changevalue);
+        },
+      ),
+      DataColumn2(
         label: Text('Valor Actual'),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
@@ -206,7 +213,12 @@ class _MyWalletState extends State<MyWallet> {
                 // OpenShowDialog(context index);
               })),
           DataCell(InkWell(
-              child: Text("\$ ${data[index]['valor_actual'].toString()}"),
+              child: Text("\$ ${data[index]['valor_anterior']}"),
+              onTap: () {
+                // OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text("\$ ${data[index]['valor_actual']}"),
               onTap: () {
                 // OpenShowDialog(context, index);
               })),
