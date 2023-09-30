@@ -51,6 +51,7 @@ List optionsSellers = [
 
   {"name": "Devoluciones", "icon": Icons.list_outlined},
   {"name": "Retiros en Efectivo", "icon": Icons.monetization_on_outlined},
+  {"name": "Conoce a tu Transporte", "icon": Icons.car_rental_outlined},
   // {"name": "Cambiar Contraseña", "icon": Icons.security},
   //{"name": "Cerrar Sesión", "icon": Icons.logout_outlined},
 ];

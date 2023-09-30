@@ -35,6 +35,7 @@ class _AddSellerDetailState extends State<AddSellerDetails> {
   bool pedidosNoDeseados = false;
   bool billetera = false;
   bool miBilletera = false;
+  bool transportStats = false;
 
   bool devoluciones = false;
   bool retiros = false;
@@ -346,6 +347,35 @@ class _AddSellerDetailState extends State<AddSellerDetails> {
                                         ))
                                       ],
                                     ),
+                                    // ! *************
+                                    Row(
+                                      children: [
+                                        Checkbox(
+                                            value: transportStats,
+                                            onChanged: (v) {
+                                              setState(() {
+                                                if (v!) {
+                                                  transportStats = true;
+                                                  vistas.add("Conoce a tu Transporte");
+                                                } else {
+                                                  transportStats = false;
+                                                  vistas.remove("Conoce a tu Transporte");
+                                                }
+                                              });
+                                            }),
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        Flexible(
+                                            child: Text(
+                                          "Conoce a tu Transporte",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 12),
+                                        ))
+                                      ],
+                                    ),
+                                    // ! *************
                                     Row(
                                       children: [
                                         Checkbox(
