@@ -83,8 +83,8 @@ class CreateReport {
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 2, rowIndex: rowIndex + 1))
-            .value = "${data["tienda_temporal"]}-${data["numero_orden"]}";
-        name_comercial = data["tienda_temporal"];
+            .value = "${data["name_comercial"]}-${data["numero_orden"]}";
+        name_comercial = data["name_comercial"];
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 3, rowIndex: rowIndex + 1))
