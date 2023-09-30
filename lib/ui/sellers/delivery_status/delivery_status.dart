@@ -8,6 +8,7 @@ import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/sellers/delivery_status/info_delivery.dart';
+import 'package:frontend/ui/sellers/delivery_status/create_report.dart';
 import 'package:frontend/ui/transport/delivery_status_transport/Opcion.dart';
 import 'package:frontend/ui/widgets/OptionsWidget.dart';
 import 'package:frontend/ui/transport/delivery_status_transport/delivery_details.dart';
@@ -30,7 +31,6 @@ class DeliveryStatus extends StatefulWidget {
 class _DeliveryStatusState extends State<DeliveryStatus> {
   MyOrdersPRVTransportControllers _controllers =
       MyOrdersPRVTransportControllers();
-  List allData = [];
 
   List data = [];
   //List<String> transporterOperators = [];
@@ -178,6 +178,10 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   List arrayFiltersAnd2 = [];
 
   NumberPaginatorController paginatorController = NumberPaginatorController();
+  var getReport = CreateReport();
+  List selectedStatus = [];
+  List selectedInternal = [];
+  List<String> selectedChips = [];
 
   @override
   void didChangeDependencies() {
@@ -324,6 +328,26 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       SnackBarHelper.showErrorSnackBar(
           context, "Ha ocurrido un error de conexión");
     }
+  }
+
+  void generateReport(status, internal) async {
+    List allData = [];
+
+    if (!isLoading) {
+      await applyDateFilter();
+    }
+    var responseAll = await Connections().getAllOrdersByDateRangeLaravel(
+        arrayfiltersDefaultAnd, status, internal);
+
+    allData = responseAll;
+
+    if (allData.isNotEmpty) {
+      getReport.generateExcelFileWithData(allData);
+    } else {
+      print("No existen datos con este filtro");
+    }
+
+    //
   }
 
   @override
@@ -474,7 +498,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       Tooltip(
                         message: 'Limpiar filtros',
                         textStyle: TextStyle(
-                          fontSize: 18,
+                          fontSize: 16,
                           color: const Color.fromARGB(255, 255, 255, 255),
                         ),
                         child: ElevatedButton(
@@ -485,8 +509,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.filter_alt_outlined),
-                              Icon(Icons.clear_outlined),
+                              Icon(Icons.filter_list_off),
+                              // filter_list_off ;  filter_alt_off_rounded
                             ],
                           ),
                           style: ElevatedButton.styleFrom(
@@ -1281,13 +1305,40 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
             },
           ),
           ElevatedButton(
-              style: const ButtonStyle(
-                  backgroundColor: MaterialStatePropertyAll(
-                      Color.fromARGB(255, 67, 67, 67))),
-              onPressed: () async {
-                await applyDateFilter();
+            style: const ButtonStyle(
+                backgroundColor:
+                    MaterialStatePropertyAll(Color.fromARGB(255, 67, 67, 67))),
+            onPressed: () async {
+              await applyDateFilter();
+            },
+            child: Text('Filtrar'),
+          ),
+          const SizedBox(width: 10),
+          Tooltip(
+            message: 'Descargar reporte',
+            textStyle: const TextStyle(
+              fontSize: 16,
+              color: Color.fromARGB(255, 255, 255, 255),
+            ),
+            child: ElevatedButton(
+              onPressed: () {
+                showSelectFilterReportDialog(context);
               },
-              child: Text('Filtrar'))
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    IconData(0xf6df, fontFamily: 'MaterialIcons'),
+                    size: 24,
+                    color: Colors.white,
+                  ),
+                ],
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromARGB(255, 79, 192, 103),
+              ),
+            ),
+          ),
         ],
       ),
     ];
@@ -1380,6 +1431,157 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     await loadData();
     calculateValues();
     isFirst = false;
+  }
+
+  Future<void> showSelectFilterReportDialog(BuildContext context) async {
+    StateSetter dialogStateSetter;
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            dialogStateSetter = setState;
+
+            return AlertDialog(
+              title: const Text(
+                'Fitros para el reporte',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              contentPadding: EdgeInsets.symmetric(horizontal: 20.0),
+              content: Wrap(
+                alignment: WrapAlignment.center,
+                direction: Axis.vertical,
+                spacing: 10.0,
+                runSpacing: 10.0,
+                children: [
+                  const SizedBox(height: 10),
+                  const Text("Status"),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      buildFilterChip('ENTREGADO', 'status', setState,
+                          Color.fromARGB(128, 102, 187, 106)),
+                      SizedBox(width: 20),
+                      buildFilterChip('EN RUTA', 'status', setState,
+                          Color.fromARGB(128, 51, 170, 255)),
+                      SizedBox(width: 20),
+                      buildFilterChip('EN OFICINA', 'status', setState,
+                          Color.fromARGB(128, 165, 144, 111)),
+                    ],
+                  ),
+                  const SizedBox(height: 5),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      buildFilterChip('NO ENTREGADO', 'status', setState,
+                          Color.fromARGB(128, 230, 44, 51)),
+                      SizedBox(width: 20),
+                      buildFilterChip('NOVEDAD', 'status', setState,
+                          Color.fromARGB(128, 214, 220, 39)),
+                      SizedBox(width: 20),
+                      buildFilterChip('REAGENDADO', 'status', setState,
+                          Color.fromARGB(128, 227, 32, 241)),
+                    ],
+                  ),
+                  const SizedBox(height: 5),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      buildFilterChip('PEDIDO PROGRAMADO', 'status', setState,
+                          Color.fromARGB(128, 165, 165, 249)),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  const Text("Estado Interno"),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      buildFilterChip('CONFIRMADO', 'estado_interno', setState,
+                          Color.fromARGB(128, 165, 249, 211)),
+                      const SizedBox(width: 20),
+                      buildFilterChip('NO DESEA', 'estado_interno', setState,
+                          Color.fromARGB(128, 139, 170, 237)),
+                      const SizedBox(width: 20),
+                      buildFilterChip('PENDIENTE', 'estado_interno', setState,
+                          Color.fromARGB(128, 250, 151, 245)),
+                    ],
+                  ),
+                  const SizedBox(height: 30),
+                  //
+                ],
+              ),
+              actions: <Widget>[
+                ElevatedButton(
+                  onPressed: () {
+                    selectedChips = [];
+                    selectedStatus = [];
+                    selectedInternal = [];
+                    Navigator.of(context).pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0079FF),
+                  ),
+                  child: const Text("Cancelar"),
+                ),
+                const SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: () {
+                    generateReport(selectedStatus, selectedInternal);
+                    Navigator.of(context).pop();
+                    selectedChips = [];
+                    selectedStatus = [];
+                    selectedInternal = [];
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF00DFA2),
+                  ),
+                  child: const Text("Generar Reporte"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget buildFilterChip(
+      String label, String key, StateSetter setState, Color color) {
+    return FilterChip(
+      label: Text(label),
+      selected: selectedChips.contains(label),
+      backgroundColor: Color(0xFFF2F6FC),
+      selectedColor: color,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+        side: BorderSide(
+          // color: Colors.black,
+          color: color,
+          width: 1.0,
+        ),
+      ),
+      onSelected: (isSelected) {
+        setState(() {
+          if (isSelected) {
+            selectedChips.add(label);
+            if (key == "status") {
+              selectedStatus.add({key: label});
+            } else if (key == "estado_interno") {
+              selectedInternal.add({key: label});
+            }
+          } else {
+            selectedChips.remove(label);
+            if (key == "status") {
+              selectedStatus.removeWhere((map) => map['label'] == label);
+            } else if (key == "estado_interno") {
+              selectedInternal.removeWhere((map) => map['label'] == label);
+            }
+          }
+          // print("act. Status: $selectedStatus");
+          // print("act. estado_interno: $selectedInternal");
+        });
+      },
+    );
   }
 
   bool compareDates(String string1, String string2) {
@@ -1576,7 +1778,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
             width: 400.0, // Ancho deseado para el AlertDialog
             height: 300.0,
             child: AlertDialog(
-              title: Text('Ateneción'),
+              title: Text('Atención'),
               content: Column(
                 children: [
                   Text('Se reagendará esta entrega para $fecha'),

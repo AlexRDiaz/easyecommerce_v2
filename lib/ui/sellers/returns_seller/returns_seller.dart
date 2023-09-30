@@ -555,6 +555,10 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                       sortFunc2("fecha_confirmacion", changevalue);
                     },
                   ),
+                  DataColumn2(
+                    label: Text('Transportadora'),
+                    size: ColumnSize.M,
+                  ),
                 ],
                 rows: List<DataRow>.generate(
                   data.length,
@@ -715,6 +719,14 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                                 color: rowColor,
                               ),
                             ), onTap: () {
+                          showDialogInfoData(data[index]);
+                        }),
+                        DataCell(
+                            Text(data[index]['transportadora'] != null &&
+                                    data[index]['transportadora'].isNotEmpty
+                                ? data[index]['transportadora'][0]['nombre']
+                                    .toString()
+                                : ''), onTap: () {
                           showDialogInfoData(data[index]);
                         }),
                       ],

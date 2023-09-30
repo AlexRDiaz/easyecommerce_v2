@@ -3008,16 +3008,16 @@ class Connections {
 
       if (requestlaravel.statusCode != 200) {
         res = 1;
-        print("res:" + res.toString());
+        print("" + res.toString());
       } else {
-        print('Total_L: $totalRes');
+        print(' $totalRes');
       }
-      print("res:" + res.toString());
+      print("" + res.toString());
       return decodeData;
     } catch (e) {
       print("error!!!: $e");
       res = 2;
-      print("res:" + res.toString());
+      print("" + res.toString());
     }
   }
 
@@ -4845,6 +4845,43 @@ class Connections {
       print(e);
     }
   }
+
+  //  *
+  getAllOrdersByDateRangeLaravel(andDefault, status, internal) async {
+    int res = 0;
+
+    print(sharedPrefs!.getString("dateDesdeVendedor"));
+    print(sharedPrefs!.getString("dateHastaVendedor"));
+    String urlnew = "$serverLaravel/api/pedidos-shopify/filterall";
+
+    try {
+      var requestlaravel = await http.post(Uri.parse(urlnew),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "start": sharedPrefs!.getString("dateDesdeVendedor"),
+            "end": sharedPrefs!.getString("dateHastaVendedor"),
+            "and": andDefault,
+            "status": status,
+            "internal": internal,
+          }));
+
+      var responselaravel = await requestlaravel.body;
+      var decodeDataL = json.decode(responselaravel);
+
+      if (requestlaravel.statusCode != 200) {
+        res = 1;
+        print("" + res.toString());
+      }
+      print(res.toString());
+
+      return decodeDataL;
+    } catch (e) {
+      print("error!!!: $e");
+      res = 2;
+      print("" + res.toString());
+    }
+  }
+
 
   //TEST
 
