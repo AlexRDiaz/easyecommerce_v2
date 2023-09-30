@@ -25,6 +25,10 @@ import 'package:frontend/ui/welcome/welcome.dart';
 import 'package:frontend/ui/widgets/logistic/layout/navbar_drawer.dart';
 import 'package:provider/provider.dart';
 
+
+import 'package:frontend/ui/sellers/transport_stats/transport_stats.dart';
+
+
 class LayoutSellersPage extends StatefulWidget {
   const LayoutSellersPage({super.key});
 
@@ -90,6 +94,9 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
         "Retiros en Efectivo",
         CashWithdrawalsSellers(),
       ),
+      getOption("Conoce a tu Transporte",
+      tansportStats()
+      )
       // getOption("Cambiar Contraseña", UpdatePasswordSellers()),
     ];
     return Scaffold(

@@ -252,7 +252,8 @@ class Connections {
             "Pedidos No Deseados",
             "Billetera",
             "Devoluciones",
-            "Retiros en Efectivo"
+            "Retiros en Efectivo",
+            "Conoce a tu Transporte"
           ]
         }));
     var response = await request.body;
@@ -4944,4 +4945,155 @@ class Connections {
 
     return decodeData;
   }
+
+  Future getOrdersForPrintGuidesInSendGuidesPrincipalLaravel(
+      start,
+      List populate,
+      List and,
+      List defaultAnd,
+      List or,
+      currentPage,
+      sizePage,
+      search,
+      sortFiled,
+      List not) async {
+    List filtersAndAll = [];
+    filtersAndAll.addAll(and);
+    filtersAndAll.addAll(defaultAnd);
+    try {
+      print(json.encode({
+        "start": start,
+        "populate": populate,
+        "or": or,
+        "and": filtersAndAll,
+        "page_size": sizePage,
+        "page_number": currentPage,
+        "search": search,
+        "sort": sortFiled,
+        "not": not
+      }));
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/send-guides/printg"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "start": start,
+                "populate": populate,
+                "or": or,
+                "and": filtersAndAll,
+                "page_size": sizePage,
+                "page_number": currentPage,
+                "search": search,
+                "sort": sortFiled,
+                "not": not
+              }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+  getTransportadorasOfRuta(id) async {
+    try {
+      var response = await http.get(
+          Uri.parse("$serverLaravel/api/transport_rutas/$id"),
+          headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+  getRutasOfTransport(id) async {
+    try {
+      var response = await http.get(
+          Uri.parse("$serverLaravel/api/rutas_transport/$id"),
+          headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+  getPedidosOfRuta(id,transId) async {
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/obtener-pedidos-por-ruta"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"ruta_id": id,"transportadora_id":transId}));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+  getPedidosPorTransportadora(id) async {
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/obtener-pedidos-por-trans"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"transportadora_Id": id}));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+  getUserPedidos(id) async 
+  {
+    try {
+      var response = await http.get(
+          Uri.parse("$serverLaravel/api/up-user-pedidos/$id"),
+          headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+  
 }
