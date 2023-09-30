@@ -4849,26 +4849,11 @@ class Connections {
   }
 
   //  *
-  getAllOrdersByDateRangeLaravel(
-      code,
-      arrayFiltersOrCont,
-      arrayfiltersDefaultAnd,
-      arrayFiltersAnd,
-      // currentPage,
-      // sizePage,
-      search,
-      not,
-      sortField) async {
+  getAllOrdersByDateRangeLaravel(andDefault, status, internal) async {
     int res = 0;
-
-    List<dynamic> filtersAndAll = [];
-    filtersAndAll.addAll(arrayfiltersDefaultAnd);
-    filtersAndAll.addAll(arrayFiltersAnd);
 
     print(sharedPrefs!.getString("dateDesdeVendedor"));
     print(sharedPrefs!.getString("dateHastaVendedor"));
-    // print("todo and: \n $filtersAndAll");
-
     String urlnew = "$serverLaravel/api/pedidos-shopify/filterall";
 
     try {
@@ -4877,27 +4862,21 @@ class Connections {
           body: json.encode({
             "start": sharedPrefs!.getString("dateDesdeVendedor"),
             "end": sharedPrefs!.getString("dateHastaVendedor"),
-            // "page_size": sizePage,
-            // "page_number": currentPage,
-            "or": arrayFiltersOrCont,
-            "not": not,
-            "sort": sortField,
-            "and": filtersAndAll,
-            "search": search
+            "and": andDefault,
+            "status": status,
+            "internal": internal,
           }));
 
       var responselaravel = await requestlaravel.body;
       var decodeDataL = json.decode(responselaravel);
 
-      var response = await requestlaravel.body;
-      var decodeData = json.decode(response);
-
       if (requestlaravel.statusCode != 200) {
         res = 1;
         print("" + res.toString());
       }
-      print("" + res.toString());
-      return decodeData;
+      print(res.toString());
+
+      return decodeDataL;
     } catch (e) {
       print("error!!!: $e");
       res = 2;
