@@ -211,9 +211,10 @@ class _AddOrderSellersState extends State<AddOrderSellers> {
                     validator: (String? value) {
                       if (value == null || value.isEmpty) {
                         return "Campo requerido";
-                      } else if (containsEmoji(value)) {
-                        return "No se permiten emojis en este campo";
                       }
+                      // else if (containsEmoji(value)) {
+                      //   return "No se permiten emojis en este campo";
+                      // }
                     },
                   ),
                   const SizedBox(height: 10),
@@ -227,9 +228,10 @@ class _AddOrderSellersState extends State<AddOrderSellers> {
                     validator: (String? value) {
                       if (value == null || value.isEmpty) {
                         return "Campo requerido";
-                      } else if (containsEmoji(value)) {
-                        return "No se permiten emojis en este campo";
                       }
+                      // else if (containsEmoji(value)) {
+                      //   return "No se permiten emojis en este campo";
+                      // }
                     },
                   ),
                   const SizedBox(height: 10),
@@ -278,9 +280,10 @@ class _AddOrderSellersState extends State<AddOrderSellers> {
                     validator: (String? value) {
                       if (value == null || value.isEmpty) {
                         return "Campo requerido";
-                      } else if (containsEmoji(value)) {
-                        return "No se permiten emojis en este campo";
                       }
+                      // else if (containsEmoji(value)) {
+                      //   return "No se permiten emojis en este campo";
+                      // }
                     },
                   ),
                   const SizedBox(height: 10),

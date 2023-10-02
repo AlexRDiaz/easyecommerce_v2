@@ -229,9 +229,10 @@ class _OrderInfoState extends State<OrderInfo> {
                             validator: (String? value) {
                               if (value == null || value.isEmpty) {
                                 return "Campo requerido";
-                              } else if (containsEmoji(value)) {
-                                return "No se permiten emojis en este campo";
                               }
+                              // else if (containsEmoji(value)) {
+                              //   return "No se permiten emojis en este campo";
+                              // }
                             }),
                         _modelTextFormField2(
                             text: "Nombre Cliente",
@@ -241,9 +242,10 @@ class _OrderInfoState extends State<OrderInfo> {
                             validator: (String? value) {
                               if (value == null || value.isEmpty) {
                                 return "Campo requerido";
-                              } else if (containsEmoji(value)) {
-                                return "No se permiten emojis en este campo";
                               }
+                              // else if (containsEmoji(value)) {
+                              //   return "No se permiten emojis en este campo";
+                              // }
                             }),
                         _modelTextFormField2(
                             text: "Dirección",
@@ -253,9 +255,10 @@ class _OrderInfoState extends State<OrderInfo> {
                             validator: (String? value) {
                               if (value == null || value.isEmpty) {
                                 return "Campo requerido";
-                              } else if (containsEmoji(value)) {
-                                return "No se permiten emojis en este campo";
                               }
+                              // else if (containsEmoji(value)) {
+                              //   return "No se permiten emojis en este campo";
+                              // }
                             }),
                         _modelTextFormField2(
                             text: "Teléfono",
@@ -290,9 +293,10 @@ class _OrderInfoState extends State<OrderInfo> {
                             validator: (String? value) {
                               if (value == null || value.isEmpty) {
                                 return "Campo requerido";
-                              } else if (containsEmoji(value)) {
-                                return "No se permiten emojis en este campo";
                               }
+                              // else if (containsEmoji(value)) {
+                              //   return "No se permiten emojis en este campo";
+                              // }
                             }),
                         _modelTextField(
                             text: "Producto Extra",
