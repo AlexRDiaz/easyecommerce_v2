@@ -1324,7 +1324,10 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
               onPressed: () {
                 showSelectFilterReportDialog(context);
               },
-              child: Row(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromARGB(255, 79, 192, 103),
+              ),
+              child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
@@ -1333,9 +1336,6 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                     color: Colors.white,
                   ),
                 ],
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromARGB(255, 79, 192, 103),
               ),
             ),
           ),
