@@ -687,15 +687,15 @@ class _UpdateStatusOperatorHistorialState
                   ? () async {
                       getLoadingModal(context, false);
                       List date = dateSelect.split('-');
+                      int d = int.parse(date[2]);
+                      int m = int.parse(date[1]);
+                      int a =int.parse(date[0]);
+
                       await Connections()
                           .updateOrderStatusOperatorPedidoProgramadoHistorial(
                               "REAGENDADO",
                               _controllerModalText.text,
-                              date[2].toString().replaceAll('0', '') +
-                                  "/" +
-                                  date[1].toString().replaceAll('0', '') +
-                                  "/" +
-                                  date[0].toString(),
+                              "$d/$m/$a", 
                               widget.id);
                       setState(() {
                         _controllerModalText.clear();
