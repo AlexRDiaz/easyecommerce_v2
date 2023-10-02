@@ -510,7 +510,7 @@ class _AddOrderSellersState extends State<AddOrderSellers> {
                                         response[1]);
 
                                 var _url = Uri.parse(
-                                    """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, te saludo de la tienda ${comercial}, Me comunico con usted para confirmar su pedido de compra de: ${_producto.text} y  ${_productoE.text}, por un valor total de: ${priceTotal}. Su dirección de entrega será: ${_direccion.text} Es correcto...? Desea mas información del producto?""");
+                                    """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, te saludo de la tienda ${comercial}, Me comunico con usted para confirmar su pedido de compra de: ${_producto.text}${_productoE.text.isNotEmpty ? ' y $_productoE.text' : ''}, por un valor total de: ${priceTotal}. Su dirección de entrega será: ${_direccion.text} Es correcto...? Desea mas información del producto?""");
                                 if (!await launchUrl(_url)) {
                                   throw Exception('Could not launch $_url');
                                 }

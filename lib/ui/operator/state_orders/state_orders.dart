@@ -398,8 +398,9 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
                               children: [
                                 GestureDetector(
                                   onTap: () async {
+                                    // y  ${data[index]['attributes']['ProductoExtra'].toString()}
                                     var _url = Uri.parse(
-                                        """https://api.whatsapp.com/send?phone=${data[index]['attributes']['TelefonoShipping'].toString()}&text=Buen Día, servicio de mensajeria le saluda, para informarle que tenemos una entrega para su persona de ${data[index]['attributes']['ProductoP'].toString()} y  ${data[index]['attributes']['ProductoExtra'].toString()}. Por el valor de ${data[index]['attributes']['PrecioTotal'].toString()}...... Realizado en la tienta ${data[index]['attributes']['Tienda_Temporal'].toString()}. Me confirma su recepción el Día de Hoy.""");
+                                        """https://api.whatsapp.com/send?phone=${data[index]['attributes']['TelefonoShipping'].toString()}&text=Buen Día, servicio de mensajeria le saluda, para informarle que tenemos una entrega para su persona de ${data[index]['attributes']['ProductoP'].toString()}${data[index]['attributes']['ProductoExtra'] != null && data[index]['attributes']['ProductoExtra'].toString() != 'null' && data[index]['attributes']['ProductoExtra'].toString() != '' ? ' y ${data[index]['attributes']['ProductoExtra'].toString()}' : ''}. Por el valor de ${data[index]['attributes']['PrecioTotal'].toString()}...... Realizado en la tienta ${data[index]['attributes']['Tienda_Temporal'].toString()}. Me confirma su recepción el Día de Hoy.""");
                                     if (!await launchUrl(_url)) {
                                       throw Exception('Could not launch $_url');
                                     }
