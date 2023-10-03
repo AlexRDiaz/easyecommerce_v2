@@ -16,6 +16,7 @@ class UpdateStatusOperatorHistorial extends StatefulWidget {
   final String numberCliente;
   final String id;
   final List novedades;
+  final String currentStatus;
 
   const UpdateStatusOperatorHistorial(
       {super.key,
@@ -23,7 +24,8 @@ class UpdateStatusOperatorHistorial extends StatefulWidget {
       required this.codigo,
       required this.numberCliente,
       required this.id,
-      required this.novedades});
+      required this.novedades,
+      required this.currentStatus});
 
   @override
   State<UpdateStatusOperatorHistorial> createState() =>
@@ -70,6 +72,7 @@ class _UpdateStatusOperatorHistorialState
                       fontWeight: FontWeight.bold),
                 ),
                 items: status
+                    .where((item) => item != widget.currentStatus)
                     .map((item) => DropdownMenuItem(
                           value: item,
                           child: Text(
@@ -122,10 +125,8 @@ class _UpdateStatusOperatorHistorialState
         return _EnRuta();
       case "PEDIDO PROGRAMADO":
         return _PedidoProgramado();
-
       case "EN OFICINA":
         return _EnOficina();
-
       default:
     }
   }
@@ -687,15 +688,15 @@ class _UpdateStatusOperatorHistorialState
                   ? () async {
                       getLoadingModal(context, false);
                       List date = dateSelect.split('-');
-                      int d = int.parse(date[2]);
-                      int m = int.parse(date[1]);
-                      int a =int.parse(date[0]);
-
                       await Connections()
                           .updateOrderStatusOperatorPedidoProgramadoHistorial(
                               "REAGENDADO",
                               _controllerModalText.text,
-                              "$d/$m/$a", 
+                              date[2].toString().replaceAll('0', '') +
+                                  "/" +
+                                  date[1].toString().replaceAll('0', '') +
+                                  "/" +
+                                  date[0].toString(),
                               widget.id);
                       setState(() {
                         _controllerModalText.clear();
