@@ -56,6 +56,10 @@ class Connections {
               "NameComercialSeller",
               decodeDataUser['user']['vendedores'][0]['nombre_comercial']
                   .toString());
+          decodeDataUser['user']['vendedores'][0]['referer'] != null
+              ? sharedPrefs!.setString(
+                  "referer", decodeDataUser['user']['vendedores'][0]['referer'])
+              : "";
           List temporalPermisos =
               jsonDecode(decodeDataUser['user']['permisos']);
           List<String> finalPermisos = [];
@@ -315,6 +319,36 @@ class Connections {
     } else {
       return [true, decodeData['data']['id']];
     }
+  }
+
+  Future createSellerGeneralLaravel(username, email, comercialName, phone1,
+      phone2, sendCost, returnCost, url, id) async {
+    int res = 0;
+    try {
+      var request = await http.post(Uri.parse("$serverLaravel/api/vendedores"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "username": username,
+            "email": email,
+            "nombre_comercial": comercialName,
+            "telefono1": phone1,
+            "telefono2": phone2,
+            "costo_envio": 5,
+            "costo_devolucion": 5.50,
+            "fecha_alta":
+                "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+            "url_tienda": url,
+            "referer": id
+          }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        res = 1;
+      }
+    } catch (e) {
+      res = 2;
+    }
+    return res;
   }
 
   Future updateSellerGeneral(
@@ -4883,7 +4917,6 @@ class Connections {
     }
   }
 
-
   //TEST
 
   Future getOrdersTest1() async {
@@ -5035,12 +5068,12 @@ class Connections {
     }
   }
 
-  getPedidosOfRuta(id,transId) async {
+  getPedidosOfRuta(id, transId) async {
     try {
       var response = await http.post(
           Uri.parse("$serverLaravel/api/obtener-pedidos-por-ruta"),
           headers: {'Content-Type': 'application/json'},
-          body: json.encode({"ruta_id": id,"transportadora_id":transId}));
+          body: json.encode({"ruta_id": id, "transportadora_id": transId}));
 
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -5076,8 +5109,8 @@ class Connections {
       print("Ocurrió un error durante la solicitud: $error");
     }
   }
-  getUserPedidos(id) async 
-  {
+
+  getUserPedidos(id) async {
     try {
       var response = await http.get(
           Uri.parse("$serverLaravel/api/up-user-pedidos/$id"),
@@ -5095,5 +5128,4 @@ class Connections {
       print("Ocurrió un error durante la solicitud: $error");
     }
   }
-  
 }

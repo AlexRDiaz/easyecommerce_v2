@@ -102,7 +102,7 @@ class _InfoOrdersOperatorState extends State<InfoOrdersOperator> {
                                             id: widget.id,
                                             novedades: data['attributes']
                                                 ['novedades']['data'],
-                                            currentStatus: '3');
+                                            currentStatus: '');
                                       });
 
                                   Navigator.pop(context);

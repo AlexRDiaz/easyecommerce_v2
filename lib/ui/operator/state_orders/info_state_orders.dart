@@ -102,7 +102,7 @@ class _InfoStateOrdersOperatorState extends State<InfoStateOrdersOperator> {
                                                 id: widget.id,
                                                 novedades: data['attributes']
                                                     ['novedades']['data'],
-                                                currentStatus: '4');
+                                                currentStatus: '');
                                           });
                                       await loadData();
                                     },

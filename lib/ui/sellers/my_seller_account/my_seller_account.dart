@@ -101,6 +101,10 @@ class _MySellerAccountState extends State<MySellerAccount> {
                       SizedBox(
                         height: 10,
                       ),
+                      _referenced(),
+                      SizedBox(
+                        height: 10,
+                      ),
                       Text(
                         "ESTADO: ${state.toString()}",
                         style: TextStyle(
@@ -289,6 +293,45 @@ class _MySellerAccountState extends State<MySellerAccount> {
           ),
           Text(
             '${serverUrlByShopify}/$idShopify',
+            style: TextStyle(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  _referenced() {
+    return Container(
+      width: 500,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 20,
+          ),
+          TextButton(
+              onPressed: () {
+                Clipboard.setData(ClipboardData(
+                    text: "$generalServerApiLaravel/register/$idShopify"));
+                Get.snackbar('COPIADO', 'Copiado al Clipboard');
+              },
+              child: Text(
+                "Copiar",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              )),
+          SizedBox(
+            height: 10,
+          ),
+          Text(
+            'Link de referencia:',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Text(
+            ' "$generalServeserverppweb/register/$idShopify"',
             style: TextStyle(),
           ),
         ],

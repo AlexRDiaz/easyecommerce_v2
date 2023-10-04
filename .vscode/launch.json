@@ -1,0 +1,39 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "easyecommerce_v2 (debug)",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+              "--observatory-port=8022"  // Especifica el puerto 8022 aquí
+            ]
+          },
+        {
+            "name": "easyecommerce_v2",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "--observatory-port=8022"  // Especifica el puerto 8022 aquí
+              ]
+        },
+        {
+            "name": "easyecommerce_v2 (profile mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile",
+            "args": [
+                "--observatory-port=8022"  // Especifica el puerto 8022 aquí
+              ]
+        },
+        {
+            "name": "easyecommerce_v2 (release mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}
