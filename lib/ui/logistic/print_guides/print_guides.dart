@@ -532,7 +532,7 @@ class _PrintGuidesState extends State<PrintGuides> {
                     onLayout: (PdfPageFormat format) async => await doc.save());
                 _controllers.searchController.clear();
                 setState(() {});
-
+                optionsCheckBox = [];
                 loadData();
               },
               child: const Text(
