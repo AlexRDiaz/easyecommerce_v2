@@ -80,120 +80,132 @@ class _MySellerAccountState extends State<MySellerAccount> {
         margin: EdgeInsets.all(22),
         child: loading == true
             ? Container()
-            : SingleChildScrollView(
-                child: SizedBox(
-                  width: 500,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        height: 10,
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          Navigator.of(context)
-                              .pushReplacementNamed('/layout/sellers');
-                        },
-                        icon: Icon(Icons.home), // Icono de Home
-                        iconSize: 30, // Tamaño del icono
-                      ),
-                      _identifier(),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      _referenced(),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        "ESTADO: ${state.toString()}",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 17),
-                      ),
-                      SizedBox(
-                        height: 30,
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      InputRow(
-                          controller: _controllers.nombreComercialController,
-                          title: 'Nombre Comercial'),
-                      InputRow(
-                          controller: _controllers.correoController,
-                          title: 'Correo'),
-                      InputRow(
-                          controller: _controllers.usuarioController,
-                          title: 'Usuario'),
-                      InputRow(
-                          controller: _controllers.numeroTelefonoController,
-                          title: 'Número de Teléfono'),
-                      InputRow(
-                          controller: _controllers.telefonoDosController,
-                          title: 'Teléfono Dos'),
-                      Text(
-                        "Fecha Alta: ${_controllers.fechaAltaController.text.toString()}",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 17),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        "Costo Entrega: $costoEntrega",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 17),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        "Costo Devolución: $costoDevolucion",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 17),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      state != "NO VALIDADO" ? Container() : _validate(),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      SizedBox(
-                          width: 500,
-                          child: ElevatedButton(
-                            child: Text(
-                              "Guardar",
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w800,
+            : Container(
+                color: Colors.grey[200],
+                child: SingleChildScrollView(
+                  child: SizedBox(
+                    width: 500,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height: 10,
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            Navigator.of(context)
+                                .pushReplacementNamed('/layout/sellers');
+                          },
+                          icon: Icon(Icons.home), // Icono de Home
+                          iconSize: 30, // Tamaño del icono
+                        ),
+                        InputRow(
+                            controller: _controllers.nombreComercialController,
+                            title: 'Nombre Comercial'),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        _identifier(),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        _referenced(),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        InputRow(
+                            controller: _controllers.correoController,
+                            title: 'Correo'),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        InputRow(
+                            controller: _controllers.usuarioController,
+                            title: 'Usuario'),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        InputRow(
+                            controller: _controllers.numeroTelefonoController,
+                            title: 'Número de Teléfono'),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        InputRow(
+                            controller: _controllers.telefonoDosController,
+                            title: 'Teléfono Dos'),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        Text(
+                          "Fecha Alta: ${_controllers.fechaAltaController.text.toString()}",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 17),
+                        ),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        Text(
+                          "ESTADO: ${state.toString()}",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 17),
+                        ),
+                        Text(
+                          "Costo Entrega: $costoEntrega",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 17),
+                        ),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        Text(
+                          "Costo Devolución: $costoDevolucion",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 17),
+                        ),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        state != "NO VALIDADO" ? Container() : _validate(),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        SizedBox(
+                            width: 500,
+                            child: ElevatedButton(
+                              child: Text(
+                                "Guardar",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w800,
+                                ),
                               ),
-                            ),
-                            onPressed: () async {
-                              getLoadingModal(context, false);
-                              var response = await Connections()
-                                  .updateUserLaravel(
-                                      _controllers.usuarioController.text,
-                                      _controllers.correoController.text,
-                                      "");
-                              var responseMaster = await Connections()
-                                  .updateSellerGeneralInternalAccountLaravel(
-                                      _controllers
-                                          .nombreComercialController.text,
-                                      _controllers
-                                          .numeroTelefonoController.text,
-                                      _controllers.telefonoDosController.text,
-                                      data['vendedores'][0]['id'].toString());
-                              await initControllers();
-                              Navigator.pop(context);
-                            },
-                          )),
-                      SizedBox(
-                        height: 20,
-                      ),
-                    ],
+                              onPressed: () async {
+                                getLoadingModal(context, false);
+                                var response = await Connections()
+                                    .updateUserLaravel(
+                                        _controllers.usuarioController.text,
+                                        _controllers.correoController.text,
+                                        "");
+                                var responseMaster = await Connections()
+                                    .updateSellerGeneralInternalAccountLaravel(
+                                        _controllers
+                                            .nombreComercialController.text,
+                                        _controllers
+                                            .numeroTelefonoController.text,
+                                        _controllers.telefonoDosController.text,
+                                        data['vendedores'][0]['id'].toString());
+                                await initControllers();
+                                Navigator.pop(context);
+                              },
+                            )),
+                        SizedBox(
+                          height: 20,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -269,32 +281,49 @@ class _MySellerAccountState extends State<MySellerAccount> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            height: 20,
-          ),
-          TextButton(
-              onPressed: () {
-                Clipboard.setData(
-                    ClipboardData(text: "${serverUrlByShopify}/$idShopify"));
-                Get.snackbar('COPIADO', 'Copiado al Clipboard');
-              },
-              child: Text(
-                "Copiar",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              )),
-          SizedBox(
-            height: 10,
-          ),
-          Text(
-            'Identificador:',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Text(
-            '${serverUrlByShopify}/$idShopify',
-            style: TextStyle(),
+          TextFormField(
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18.0, // Cambia el tamaño de fuente del texto de entrada
+              color: Colors.black, // Cambia el color del texto de entrada
+              // Puedes aplicar otros estilos aquí si es necesario
+            ),
+            readOnly: true,
+            initialValue: '${serverUrlByShopify}/$idShopify',
+            decoration: InputDecoration(
+              fillColor: Colors.white, // Color del fondo del TextFormField
+              filled: true,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: const BorderSide(
+                    width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: const BorderSide(
+                    width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              focusColor: Colors.black,
+              label: const Text("Identificador",
+                  style: TextStyle(
+                    fontSize: 19,
+                    fontWeight: FontWeight.bold,
+                  )),
+              suffixIcon: GestureDetector(
+                onTap: () {
+                  Clipboard.setData(
+                      ClipboardData(text: "${serverUrlByShopify}/$idShopify"));
+                  Get.snackbar('COPIADO', 'Copiado al Clipboard');
+                },
+                child: const Icon(
+                  Icons.copy,
+                  color: Colors.blue,
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -308,46 +337,101 @@ class _MySellerAccountState extends State<MySellerAccount> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          TextFormField(
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18.0, // Cambia el tamaño de fuente del texto de entrada
+              color: Colors.black, // Cambia el color del texto de entrada
+              // Puedes aplicar otros estilos aquí si es necesario
+            ),
+            readOnly: true,
+            initialValue: "$generalServeserverppweb/register/$idShopify",
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: const BorderSide(
+                    width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: const BorderSide(
+                    width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              focusColor: Colors.black,
+              label: const Text("Link de referencia:",
+                  style: TextStyle(
+                    fontSize: 19,
+                    fontWeight: FontWeight.bold,
+                  )),
+              suffixIcon: Container(
+                width: 60,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () {},
+                      child: const Icon(
+                        Icons.list,
+                        color: Colors.blue,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Clipboard.setData(ClipboardData(
+                            text:
+                                "$generalServerApiLaravel/register/$idShopify"));
+                        Get.snackbar('COPIADO', 'Copiado al Clipboard');
+                      },
+                      child: const Icon(
+                        Icons.copy,
+                        color: Colors.blue,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              fillColor: Colors.white, // Color del fondo del TextFormField
+              filled: true,
+            ),
+          ),
           SizedBox(
-            height: 20,
+            height: 30,
           ),
-          TextButton(
-              onPressed: () {
-                Clipboard.setData(ClipboardData(
-                    text: "$generalServerApiLaravel/register/$idShopify"));
-                Get.snackbar('COPIADO', 'Copiado al Clipboard');
-              },
-              child: Text(
-                "Copiar",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              )),
-          SizedBox(
-            height: 10,
-          ),
-          Text(
-            'Link de referencia:',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Text(
-            ' "$generalServeserverppweb/register/$idShopify"',
-            style: TextStyle(),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Text(
-            'Acreditación por referenciado:',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Text(
-            referCost,
-            style: TextStyle(fontWeight: FontWeight.bold),
+          TextFormField(
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18.0, // Cambia el tamaño de fuente del texto de entrada
+              color: Colors.black, // Cambia el color del texto de entrada
+              // Puedes aplicar otros estilos aquí si es necesario
+            ),
+            readOnly: true,
+            initialValue: "\$ $referCost",
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: const BorderSide(
+                    width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: const BorderSide(
+                    width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              focusColor: Colors.black,
+              label: const Text("Comision de referenciado:",
+                  style: TextStyle(
+                    fontSize: 19,
+                    fontWeight: FontWeight.bold,
+                  )),
+              fillColor: Colors.white, // Color del fondo del TextFormField
+              filled: true,
+            ),
           ),
         ],
       ),
