@@ -321,25 +321,27 @@ class Connections {
     }
   }
 
-  Future createSellerGeneralLaravel(username, email, comercialName, phone1,
-      phone2, sendCost, returnCost, url, id) async {
+  Future createSellerGeneralLaravel(username, email, password, comercialName,
+      phone1, phone2, sendCost, returnCost, url, id) async {
     int res = 0;
     try {
-      var request = await http.post(Uri.parse("$serverLaravel/api/vendedores"),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({
-            "username": username,
-            "email": email,
-            "nombre_comercial": comercialName,
-            "telefono1": phone1,
-            "telefono2": phone2,
-            "costo_envio": 5,
-            "costo_devolucion": 5.50,
-            "fecha_alta":
-                "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
-            "url_tienda": url,
-            "referer": id
-          }));
+      var request =
+          await http.post(Uri.parse("$serverLaravel/api/users/general"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "username": username,
+                "email": email,
+                "password": password,
+                "nombre_comercial": comercialName,
+                "telefono1": phone1,
+                "telefono2": phone2,
+                "costo_envio": 5,
+                "costo_devolucion": 5.50,
+                "fecha_alta":
+                    "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+                "url_tienda": url,
+                "referer": id
+              }));
       var response = await request.body;
       var decodeData = json.decode(response);
       if (request.statusCode != 200) {

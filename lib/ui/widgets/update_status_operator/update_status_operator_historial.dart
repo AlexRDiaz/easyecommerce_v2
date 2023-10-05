@@ -246,6 +246,20 @@ class _UpdateStatusOperatorHistorialState
                           "${datacostos['users'][0]['vendedores'][0]['costo_envio']}",
                           "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
                           "envio");
+
+                      if (datacostos['users'][0]['vendedores'][0]['referer'] !=
+                          null) {
+                        var refcost = datacostos['users'][0]['vendedores'][0]
+                            ['referer_cost'];
+                        var ref =
+                            datacostos['users'][0]['vendedores'][0]['referer'];
+
+                        await Connections().postCredit(
+                            "${datacostos['users'][0]['vendedores'][0]['referer']}",
+                            "${datacostos['users'][0]['vendedores'][0]['referer_cost']}",
+                            "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
+                            "credit ref");
+                      }
                       // if(responseent){
                       //   print(responseent);
                       // }
@@ -316,6 +330,20 @@ class _UpdateStatusOperatorHistorialState
                               "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
                               "envio");
 
+                          // if (datacostos['users'][0]['vendedores'][0]
+                          //         ['referer'] !=
+                          //     null) {
+                          //   var refcost = datacostos['users'][0]['vendedores']
+                          //       [0]['referer_cost'];
+                          //   var ref = datacostos['users'][0]['vendedores'][0]
+                          //       ['referer'];
+
+                          //   await Connections().postCredit(
+                          //       "${datacostos['users'][0]['vendedores'][0]['referer']}",
+                          //       "${datacostos['users'][0]['vendedores'][0]['referer_cost']}",
+                          //       "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
+                          //       "credit ref");
+                          // }
                           Connections().updatenueva(widget.id, {
                             "costo_envio": datacostos['users'][0]['vendedores']
                                 [0]['costo_envio'],

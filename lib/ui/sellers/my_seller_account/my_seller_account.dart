@@ -27,6 +27,7 @@ class _MySellerAccountState extends State<MySellerAccount> {
   String costoEntrega = "";
   String costoDevolucion = "";
   String idShopify = "";
+  String referCost = "";
   var codigo = "";
   @override
   void initState() {
@@ -39,16 +40,16 @@ class _MySellerAccountState extends State<MySellerAccount> {
       loading = true;
     });
     _controllers = MySellerAccountControllers(
-      nombreComercial: '',
-      numeroTelefono: '',
-      telefonoDos: '',
-      usuario: '',
-      fechaAlta: '',
-      correo: '',
-    );
+        nombreComercial: '',
+        numeroTelefono: '',
+        telefonoDos: '',
+        usuario: '',
+        fechaAlta: '',
+        correo: '');
     // var response = await Connections().getPersonalInfoAccount();
     var responseL = await Connections().getPersonalInfoAccountLaravel();
     var response = responseL['user'];
+    referCost = response['vendedores'][0]['referer_cost'];
     _controllers = MySellerAccountControllers(
       nombreComercial: response['vendedores'][0]['nombre_comercial'].toString(),
       numeroTelefono: response['vendedores'][0]['telefono_1'].toString(),
@@ -333,6 +334,20 @@ class _MySellerAccountState extends State<MySellerAccount> {
           Text(
             ' "$generalServeserverppweb/register/$idShopify"',
             style: TextStyle(),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Text(
+            'Acreditación por referenciado:',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Text(
+            referCost,
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
         ],
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animated_icons/icons8.dart';
+import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
@@ -65,22 +66,27 @@ class _RegisterState extends State<Register> {
               color: Colors.grey[300],
               child: Center(
                 child: Container(
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12)),
                   margin: const EdgeInsets.all(6.0),
                   padding: const EdgeInsets.all(16.0),
                   height: height * 0.9,
-                  width: width * 0.4,
+                  width: width * 0.30,
                   child: Column(
                     children: [
-                      Text(
-                        'Ingreso de datos',
+                      const Text(
+                        'Forma parte de nuestro equipo',
                         style: TextStyle(
                           fontSize: 30.0, // Tamaño de fuente grande
                           fontWeight: FontWeight.bold, // Texto en negrita
                           color: Colors.blue, // Color de texto
-                          // decoration: TextDecoration., // Subrayado
-                          // decorationColor: Colors.red, // Color del subrayado
                           fontFamily:
-                              'AtractivaFont', // Fuente personalizada (si está configurada)
+                              'Arial', // Fuente personalizada (cámbiala según tus necesidades)
+                          letterSpacing: 2.0, // Espaciado entre letras
+                          fontStyle: FontStyle.italic, // Texto en cursiva
+                          decorationColor: Colors.red, // Color del subrayado
+                          decorationThickness: 2.0, // Grosor del subrayado
                         ),
                       ),
                       SizedBox(height: 20),
@@ -262,14 +268,13 @@ class _RegisterState extends State<Register> {
                                   return null;
                                 },
                               ),
-                              const SizedBox(height: 20),
+
                               // Los otros TextFormField seguirían un patrón similar
                               // ...
                             ],
                           ),
                         )),
                       ),
-                      SizedBox(height: 10),
                       ElevatedButton(
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
@@ -277,6 +282,7 @@ class _RegisterState extends State<Register> {
                                 .createSellerGeneralLaravel(
                                     _usernameController.text,
                                     _emailController.text,
+                                    _password2Controller.text,
                                     _nameController.text,
                                     _phone1Controller.text,
                                     _phone2Controller.text,
@@ -316,7 +322,7 @@ class _RegisterState extends State<Register> {
                           padding: EdgeInsets.symmetric(
                               vertical: 15,
                               horizontal:
-                                  20), // Ajusta el espaciado interno del botón
+                                  40), // Ajusta el espaciado interno del botón
                           textStyle: TextStyle(
                               fontSize: 18), // Cambia el tamaño del texto
                           shape: RoundedRectangleBorder(
@@ -326,7 +332,7 @@ class _RegisterState extends State<Register> {
                           elevation: 3, // Agrega una sombra al botón
                         ),
                         child: Text(
-                          'Registrarse',
+                          'Registrarse ahora',
                           style: TextStyle(
                             fontSize: 18, // Cambia el tamaño del texto
                             fontWeight:
@@ -344,7 +350,7 @@ class _RegisterState extends State<Register> {
           Container(
             color: Colors.blue, // Personaliza el color de fondo
             padding: EdgeInsets.all(16.0),
-            width: width * 0.40,
+            width: width * 0.60,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
@@ -363,7 +369,7 @@ class _RegisterState extends State<Register> {
                     color: Colors.white, // Personaliza el color del texto
                   ),
                 ),
-                //      MyCarousel()
+                Expanded(child: MyCarousel())
               ],
             ),
           ),
