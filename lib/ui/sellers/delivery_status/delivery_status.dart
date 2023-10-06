@@ -414,7 +414,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                     children: [
                       Expanded(
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Container(
                               padding:
@@ -451,17 +451,25 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                             padding: const EdgeInsets.only(left: 15, right: 5),
                             child: responsive(
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.start,
                                 children: fechaFinFechaIni(),
                               ),
                               Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.start,
                                 children: fechaFinFechaIni(),
                               ),
                               context,
                             ),
                           ),
                         ],
+                      ),
+                      Container(
+                        padding: EdgeInsets.all(10),
+                        child: boxValues(
+                            totalValoresRecibidos: totalValoresRecibidos,
+                            costoDeEntregas: costoDeEntregas,
+                            devoluciones: devoluciones,
+                            utilidad: utilidad),
                       ),
                     ],
                   ),
@@ -481,7 +489,6 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                         options: opciones,
                         currentValue: currentValue)),
                 context),
-            const SizedBox(height: 8.0),
             Container(
               width: double.infinity,
               color: currentColor.withOpacity(0.3),
@@ -540,18 +547,26 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                     color: Colors.white,
                     borderRadius: const BorderRadius.all(Radius.circular(4)),
                     border: Border.all(color: Colors.blueGrey),
-                    boxShadow: const [
+                    boxShadow: [
                       BoxShadow(
-                        color: Colors.grey,
-                        offset: Offset(
-                            0, 2), // Desplazamiento en X e Y de la sombra
+                        color: Colors.grey.withOpacity(0.3),
+                        offset: const Offset(0, 2),
                         blurRadius: 4, // Radio de desenfoque de la sombra
-                        spreadRadius: 1, // Extensión de la sombra
+                        spreadRadius: 2, // Extensión de la sombra
                       ),
                     ],
                   ),
                   headingRowHeight: 63,
                   showBottomBorder: true,
+                  dividerThickness: 1,
+                  dataRowColor: MaterialStateColor.resolveWith((states) {
+                    if (states.contains(MaterialState.selected)) {
+                      return Colors.blue.withOpacity(0.5);
+                    } else if (states.contains(MaterialState.hovered)) {
+                      return const Color.fromARGB(255, 234, 241, 251);
+                    }
+                    return const Color.fromARGB(0, 173, 233, 231);
+                  }),
                   headingTextStyle: const TextStyle(
                       fontWeight: FontWeight.bold, color: Colors.black),
                   dataTextStyle: const TextStyle(
@@ -1289,56 +1304,70 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     return [
       Row(
         children: [
-          Text(_controllers.startDateController.text),
-          IconButton(
-            icon: const Icon(Icons.calendar_month),
-            onPressed: () async {
-              _controllers.startDateController.text = await OpenCalendar();
-            },
-          ),
-          const Text(' - '),
-          Text(_controllers.endDateController.text),
-          IconButton(
-            icon: Icon(Icons.calendar_month),
-            onPressed: () async {
-              _controllers.endDateController.text = await OpenCalendar();
-            },
-          ),
-          ElevatedButton(
-            style: const ButtonStyle(
-                backgroundColor:
-                    MaterialStatePropertyAll(Color.fromARGB(255, 67, 67, 67))),
-            onPressed: () async {
-              await applyDateFilter();
-            },
-            child: Text('Filtrar'),
-          ),
-          const SizedBox(width: 10),
-          Tooltip(
-            message: 'Descargar reporte',
-            textStyle: const TextStyle(
-              fontSize: 16,
-              color: Color.fromARGB(255, 255, 255, 255),
-            ),
-            child: ElevatedButton(
-              onPressed: () {
-                showSelectFilterReportDialog(context);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromARGB(255, 79, 192, 103),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
+          Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Icon(
-                    IconData(0xf6df, fontFamily: 'MaterialIcons'),
-                    size: 24,
-                    color: Colors.white,
+                  Text(_controllers.startDateController.text),
+                  IconButton(
+                    icon: const Icon(Icons.calendar_month),
+                    onPressed: () async {
+                      _controllers.startDateController.text =
+                          await OpenCalendar();
+                    },
+                  ),
+                  const Text(' - '),
+                  Text(_controllers.endDateController.text),
+                  IconButton(
+                    icon: Icon(Icons.calendar_month),
+                    onPressed: () async {
+                      _controllers.endDateController.text =
+                          await OpenCalendar();
+                    },
+                  ),
+                  ElevatedButton(
+                    style: const ButtonStyle(
+                        backgroundColor: MaterialStatePropertyAll(
+                            Color.fromARGB(255, 67, 67, 67))),
+                    onPressed: () async {
+                      await applyDateFilter();
+                    },
+                    child: Text('Filtrar'),
                   ),
                 ],
               ),
-            ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  const Text(
+                    "Descargar reporte",
+                    style: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
+                  ),
+                  const SizedBox(width: 5),
+                  ElevatedButton(
+                    onPressed: () {
+                      showSelectFilterReportDialog(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color.fromARGB(255, 79, 192, 103),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          IconData(0xf6df, fontFamily: 'MaterialIcons'),
+                          size: 24,
+                          color: Colors.white,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              )
+            ],
           ),
+          const SizedBox(height: 10),
         ],
       ),
     ];
@@ -1448,68 +1477,178 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               contentPadding: EdgeInsets.symmetric(horizontal: 20.0),
-              content: Wrap(
-                alignment: WrapAlignment.center,
-                direction: Axis.vertical,
-                spacing: 10.0,
-                runSpacing: 10.0,
-                children: [
-                  const SizedBox(height: 10),
-                  const Text("Status"),
+              content: responsive(
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      buildFilterChip('ENTREGADO', 'status', setState,
-                          Color.fromARGB(128, 102, 187, 106)),
-                      SizedBox(width: 20),
-                      buildFilterChip('EN RUTA', 'status', setState,
-                          Color.fromARGB(128, 51, 170, 255)),
-                      SizedBox(width: 20),
-                      buildFilterChip('EN OFICINA', 'status', setState,
-                          Color.fromARGB(128, 165, 144, 111)),
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        direction: Axis.vertical,
+                        spacing: 10.0,
+                        runSpacing: 10.0,
+                        children: [
+                          const SizedBox(height: 10),
+                          const Text("Status"),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              buildFilterChip('ENTREGADO', 'status', setState,
+                                  const Color.fromARGB(128, 102, 187, 106)),
+                              const SizedBox(width: 20),
+                              buildFilterChip('EN RUTA', 'status', setState,
+                                  const Color.fromARGB(128, 51, 170, 255)),
+                              const SizedBox(width: 20),
+                              buildFilterChip('EN OFICINA', 'status', setState,
+                                  const Color.fromARGB(128, 165, 144, 111)),
+                            ],
+                          ),
+                          const SizedBox(height: 5),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              buildFilterChip(
+                                  'NO ENTREGADO',
+                                  'status',
+                                  setState,
+                                  const Color.fromARGB(128, 230, 44, 51)),
+                              const SizedBox(width: 20),
+                              buildFilterChip('NOVEDAD', 'status', setState,
+                                  const Color.fromARGB(128, 214, 220, 39)),
+                              const SizedBox(width: 20),
+                              buildFilterChip('REAGENDADO', 'status', setState,
+                                  const Color.fromARGB(128, 227, 32, 241)),
+                            ],
+                          ),
+                          const SizedBox(height: 5),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              buildFilterChip(
+                                  'PEDIDO PROGRAMADO',
+                                  'status',
+                                  setState,
+                                  const Color.fromARGB(128, 165, 165, 249)),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          const Text("Estado Interno"),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              buildFilterChip(
+                                  'CONFIRMADO',
+                                  'estado_interno',
+                                  setState,
+                                  const Color.fromARGB(128, 165, 249, 211)),
+                              const SizedBox(width: 20),
+                              buildFilterChip(
+                                  'NO DESEA',
+                                  'estado_interno',
+                                  setState,
+                                  const Color.fromARGB(128, 139, 170, 237)),
+                              const SizedBox(width: 20),
+                              buildFilterChip(
+                                  'PENDIENTE',
+                                  'estado_interno',
+                                  setState,
+                                  const Color.fromARGB(128, 250, 151, 245)),
+                            ],
+                          ),
+                          const SizedBox(height: 30),
+                        ], //
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 5),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      buildFilterChip('NO ENTREGADO', 'status', setState,
-                          Color.fromARGB(128, 230, 44, 51)),
-                      SizedBox(width: 20),
-                      buildFilterChip('NOVEDAD', 'status', setState,
-                          Color.fromARGB(128, 214, 220, 39)),
-                      SizedBox(width: 20),
-                      buildFilterChip('REAGENDADO', 'status', setState,
-                          Color.fromARGB(128, 227, 32, 241)),
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        direction: Axis.vertical,
+                        spacing: 5.0,
+                        runSpacing: 5.0,
+                        children: [
+                          const SizedBox(height: 10),
+                          const Text("Status"),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              buildFilterChip('ENTREGADO', 'status', setState,
+                                  const Color.fromARGB(128, 102, 187, 106)),
+                              const SizedBox(width: 10),
+                              buildFilterChip('EN RUTA', 'status', setState,
+                                  const Color.fromARGB(128, 51, 170, 255)),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              buildFilterChip('EN OFICINA', 'status', setState,
+                                  const Color.fromARGB(128, 165, 144, 111)),
+                              const SizedBox(width: 10),
+                              buildFilterChip('NOVEDAD', 'status', setState,
+                                  const Color.fromARGB(128, 214, 220, 39)),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              buildFilterChip(
+                                  'NO ENTREGADO',
+                                  'status',
+                                  setState,
+                                  const Color.fromARGB(128, 230, 44, 51)),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              buildFilterChip('REAGENDADO', 'status', setState,
+                                  const Color.fromARGB(128, 227, 32, 241)),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              buildFilterChip(
+                                  'PEDIDO PROGRAMADO',
+                                  'status',
+                                  setState,
+                                  const Color.fromARGB(128, 165, 165, 249)),
+                            ],
+                          ),
+                          const SizedBox(height: 15),
+                          const Text("Estado Interno"),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              buildFilterChip(
+                                  'CONFIRMADO',
+                                  'estado_interno',
+                                  setState,
+                                  const Color.fromARGB(128, 165, 249, 211)),
+                              const SizedBox(width: 10),
+                              buildFilterChip(
+                                  'NO DESEA',
+                                  'estado_interno',
+                                  setState,
+                                  const Color.fromARGB(128, 139, 170, 237)),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              buildFilterChip(
+                                  'PENDIENTE',
+                                  'estado_interno',
+                                  setState,
+                                  const Color.fromARGB(128, 250, 151, 245)),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                        ], //
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 5),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      buildFilterChip('PEDIDO PROGRAMADO', 'status', setState,
-                          Color.fromARGB(128, 165, 165, 249)),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  const Text("Estado Interno"),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      buildFilterChip('CONFIRMADO', 'estado_interno', setState,
-                          Color.fromARGB(128, 165, 249, 211)),
-                      const SizedBox(width: 20),
-                      buildFilterChip('NO DESEA', 'estado_interno', setState,
-                          Color.fromARGB(128, 139, 170, 237)),
-                      const SizedBox(width: 20),
-                      buildFilterChip('PENDIENTE', 'estado_interno', setState,
-                          Color.fromARGB(128, 250, 151, 245)),
-                    ],
-                  ),
-                  const SizedBox(height: 30),
-                  //
-                ],
-              ),
+                  context),
               actions: <Widget>[
                 ElevatedButton(
                   onPressed: () {
@@ -1550,7 +1689,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     return FilterChip(
       label: Text(label),
       selected: selectedChips.contains(label),
-      backgroundColor: Color(0xFFF2F6FC),
+      backgroundColor: const Color(0xFFF2F6FC),
       selectedColor: color,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
@@ -1877,8 +2016,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   NumberPaginator numberPaginator() {
     return NumberPaginator(
       config: NumberPaginatorUIConfig(
-        buttonUnselectedForegroundColor: Color.fromARGB(255, 67, 67, 67),
-        buttonSelectedBackgroundColor: Color.fromARGB(255, 67, 67, 67),
+        // buttonUnselectedForegroundColor: Color.fromARGB(255, 67, 67, 67),
+        // buttonSelectedBackgroundColor: Color.fromARGB(255, 67, 67, 67),
         buttonShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(5), // Customize the button shape
         ),

@@ -14,9 +14,9 @@ class BuildInfoContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 75,
+      // height: 75,
       padding: const EdgeInsets.all(10),
-      width: 250,
+      // width: 250,
       decoration: BoxDecoration(
         border: Border.all(color: const Color(0xFF1A2B3C)),
         borderRadius: BorderRadius.circular(10),
