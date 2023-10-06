@@ -39,7 +39,7 @@ class _EditLogisticUserState extends State<EditLogisticUser> {
   bool enviadas = false;
   bool devolucion = false;
   bool transaccion = false;
-
+  bool configroles = false;
   bool devolucionEnBodega = false;
   List vistas = [];
   @override
@@ -740,6 +740,37 @@ class _EditLogisticUserState extends State<EditLogisticUser> {
           SizedBox(
             height: 10,
           ),
+              // ! role configurations
+                Row(
+                  children: [
+                    Checkbox(
+                        value: configroles,
+                        onChanged: (v) {
+                          setState(() {
+                            if (v!) {
+                              configroles = true;
+                              vistas.add("Configuración de Roles");
+                            } else {
+                              configroles = false;
+                              vistas.remove("Configuración de Roles");
+                            }
+                          });
+                        }),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Flexible(
+                        child: Text(
+                      "Configuración de Roles",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                    ))
+                  ],
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                // ! ****************
           Row(
             children: [
               Checkbox(

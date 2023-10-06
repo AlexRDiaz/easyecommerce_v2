@@ -27,6 +27,7 @@ import 'package:frontend/ui/logistic/remote_support/remote_support.dart';
 import 'package:frontend/ui/logistic/return_in_warehouse/controllers/controllers.dart';
 import 'package:frontend/ui/logistic/return_in_warehouse/returns_in_warehouse.dart';
 import 'package:frontend/ui/logistic/returns/returns.dart';
+import 'package:frontend/ui/logistic/role_configuration/role_configuration.dart';
 import 'package:frontend/ui/logistic/shopping/shopping.dart';
 import 'package:frontend/ui/logistic/shopping_status/shopping_status.dart';
 import 'package:frontend/ui/logistic/stock/stock.dart';
@@ -151,6 +152,10 @@ class _LayoutPageState extends State<LayoutPage> {
       getOption(
         "Cambiar Contraseña",
         UpdatePassword(),
+      ),
+      getOption(
+        "Configuración de Roles", 
+        RoleConfiguration(),
       ),
       // AddStockToVendors(),
       // WithdrawalAssignment(),
