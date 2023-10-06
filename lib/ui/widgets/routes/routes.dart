@@ -188,6 +188,10 @@ class _RoutesModalState extends State<RoutesModal> {
                                       .toString()
                                       .split("-")[1],
                                   widget.idOrder);
+
+                          var response2 = await Connections()
+                              .updateOrderInteralStatusLaravel(
+                                  "CONFIRMADO", widget.idOrder);
                         } else {
                           for (var i = 0; i < widget.idOrder.length; i++) {
                             var response = await Connections()
@@ -197,6 +201,10 @@ class _RoutesModalState extends State<RoutesModal> {
                                         .toString()
                                         .split("-")[1],
                                     widget.idOrder[i]['id']);
+
+                            var response2 = await Connections()
+                                .updateOrderInteralStatusLaravel(
+                                    "CONFIRMADO", widget.idOrder[i]['id']);
                           }
                         }
                         if (widget.phoneClient != "") {

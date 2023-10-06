@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/widgets/build_info_container.dart';
+import 'package:frontend/helpers/responsive.dart';
 
 class boxValues extends StatelessWidget {
   const boxValues({
@@ -17,21 +18,65 @@ class boxValues extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(children: [
-      BuildInfoContainer(
-          title: 'Valores recibidos',
-          value: '\$${totalValoresRecibidos.toStringAsFixed(2)}'),
-      BuildInfoContainer(
-          title: 'Costo de envío',
-          value: '\$${costoDeEntregas.toStringAsFixed(2)}'),
-      BuildInfoContainer(
-        title: 'Devoluciones',
-        value: '\$${devoluciones.toStringAsFixed(2)}',
+    return responsive(
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          BuildInfoContainer(
+              title: 'Valores recibidos',
+              value: '\$${totalValoresRecibidos.toStringAsFixed(2)}'),
+          const SizedBox(width: 1),
+          BuildInfoContainer(
+              title: 'Costo de envío',
+              value: '\$${costoDeEntregas.toStringAsFixed(2)}'),
+          const SizedBox(width: 1),
+          BuildInfoContainer(
+            title: 'Devoluciones',
+            value: '\$${devoluciones.toStringAsFixed(2)}',
+          ),
+          const SizedBox(width: 1),
+          BuildInfoContainer(
+            title: 'Utilidad',
+            value: '\$${utilidad.toStringAsFixed(2)}',
+          ),
+          const SizedBox(width: 1),
+        ],
       ),
-      BuildInfoContainer(
-        title: 'Utilidad',
-        value: '\$${utilidad.toStringAsFixed(2)}',
+      Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              BuildInfoContainer(
+                title: 'Valores recibidos',
+                value: '\$${totalValoresRecibidos.toStringAsFixed(2)}',
+              ),
+              const SizedBox(width: 1),
+              BuildInfoContainer(
+                title: 'Costo de envío',
+                value: '\$${costoDeEntregas.toStringAsFixed(2)}',
+              ),
+            ],
+          ),
+          const SizedBox(height: 5),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              BuildInfoContainer(
+                title: 'Devoluciones',
+                value: '\$${devoluciones.toStringAsFixed(2)}',
+              ),
+              const SizedBox(width: 1),
+              BuildInfoContainer(
+                title: 'Utilidad',
+                value: '\$${utilidad.toStringAsFixed(2)}',
+              ),
+            ],
+          ),
+        ],
       ),
-    ]);
+      context,
+    );
   }
 }

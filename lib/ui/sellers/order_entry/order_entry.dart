@@ -601,11 +601,9 @@ class _OrderEntryState extends State<OrderEntry> {
                       return Colors.blue
                           .withOpacity(0.5); // Color para fila seleccionada
                     } else if (states.contains(MaterialState.hovered)) {
-                      return Colors.grey.withOpacity(
-                          0.5); // Color para fila con el mouse encima
+                      return const Color.fromARGB(255, 234, 241, 251);
                     }
-                    return Colors
-                        .transparent; // Color para filas pares e impares
+                    return const Color.fromARGB(0, 173, 233, 231);
                   }),
                   headingTextStyle: const TextStyle(
                       fontWeight: FontWeight.bold, color: Colors.black),
@@ -888,10 +886,11 @@ class _OrderEntryState extends State<OrderEntry> {
                                 ),
                                 GestureDetector(
                                   onTap: () async {
-                                    var response = await Connections()
-                                        .updateOrderInteralStatusLaravel(
-                                            "CONFIRMADO",
-                                            data[index]['id'].toString());
+                                    //este response no debe hacerce aqui si no en el modal
+                                    // var response = await Connections()
+                                    //     .updateOrderInteralStatusLaravel(
+                                    //         "CONFIRMADO",
+                                    //         data[index]['id'].toString());
                                     setState(() {});
                                     await showDialog(
                                         context: context,
