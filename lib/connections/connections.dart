@@ -4883,7 +4883,6 @@ class Connections {
     }
   }
 
-
   //TEST
 
   Future getOrdersTest1() async {
@@ -5035,12 +5034,12 @@ class Connections {
     }
   }
 
-  getPedidosOfRuta(id,transId) async {
+  getPedidosOfRuta(id, transId) async {
     try {
       var response = await http.post(
           Uri.parse("$serverLaravel/api/obtener-pedidos-por-ruta"),
           headers: {'Content-Type': 'application/json'},
-          body: json.encode({"ruta_id": id,"transportadora_id":transId}));
+          body: json.encode({"ruta_id": id, "transportadora_id": transId}));
 
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -5076,8 +5075,8 @@ class Connections {
       print("Ocurrió un error durante la solicitud: $error");
     }
   }
-  getUserPedidos(id) async 
-  {
+
+  getUserPedidos(id) async {
     try {
       var response = await http.get(
           Uri.parse("$serverLaravel/api/up-user-pedidos/$id"),
@@ -5095,5 +5094,76 @@ class Connections {
       print("Ocurrió un error durante la solicitud: $error");
     }
   }
-  
+
+
+  // ! parte de configuracion de roles
+
+  getRolesFront() async {
+    try {
+      var response = await http.get(
+          Uri.parse("$serverLaravel/api/access-total"),
+          headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+  postNewAccess(lista_data) async {
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/upd-access"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "datos_vista": lista_data,
+          }));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        print("ok");
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+    editAccessofWindow(lista_data) async {
+    try {
+      print(json.encode({
+            "datos_vista": lista_data,
+          }));
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/upd-rolesaccess"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "datos_vista": lista_data,
+          }));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        print("ok");
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
 }
