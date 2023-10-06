@@ -10,6 +10,7 @@ import 'package:frontend/ui/widgets/forms/input_row.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:get/route_manager.dart';
 import 'package:frontend/helpers/server.dart';
+import 'package:http/http.dart';
 
 class MySellerAccount extends StatefulWidget {
   const MySellerAccount({super.key});
@@ -29,10 +30,21 @@ class _MySellerAccountState extends State<MySellerAccount> {
   String idShopify = "";
   String referCost = "";
   var codigo = "";
+  List<String> referers = [];
   @override
   void initState() {
     super.initState();
     initControllers();
+    getReferers();
+  }
+
+  getReferers() async {
+    var request = await Connections().getReferers();
+
+    for (var element in request) {
+      referers.add(
+          "${element['nombre_comercial']} (${element['up_users'][0]['username']})");
+    }
   }
 
   initControllers() async {
@@ -150,6 +162,9 @@ class _MySellerAccountState extends State<MySellerAccount> {
                           "ESTADO: ${state.toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 17),
+                        ),
+                        SizedBox(
+                          height: 30,
                         ),
                         Text(
                           "Costo Entrega: $costoEntrega",
@@ -367,16 +382,45 @@ class _MySellerAccountState extends State<MySellerAccount> {
                     fontWeight: FontWeight.bold,
                   )),
               suffixIcon: Container(
-                width: 60,
+                width: 80,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    GestureDetector(
-                      onTap: () {},
-                      child: const Icon(
+                    PopupMenuButton<String>(
+                      tooltip: 'ver referenciados',
+                      icon: const Icon(
                         Icons.list,
                         color: Colors.blue,
                       ),
+                      itemBuilder: (BuildContext context) {
+                        return [
+                          const PopupMenuItem<String>(
+                            value: 'title',
+                            enabled: false,
+                            child: Text(
+                              'Referenciados',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16.0,
+                                color: Colors
+                                    .blue, // Personaliza el color del título
+                              ),
+                            ), // Evita que el título sea seleccionable
+                          ),
+                          ...referers.map((String opcion) {
+                            return PopupMenuItem<String>(
+                              value: opcion,
+                              child: Text(opcion),
+                            );
+                          }).toList(),
+                        ];
+                      },
+                      onSelected: (String seleccionada) {
+                        // Maneja la opción seleccionada aquí
+                        if (seleccionada != 'title') {
+                          print('Opción seleccionada: $seleccionada');
+                        }
+                      },
                     ),
                     GestureDetector(
                       onTap: () {

@@ -36,7 +36,7 @@ class DataTableModelPrincipal extends StatelessWidget {
           const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
       dataTextStyle: const TextStyle(
           fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black),
-      columnSpacing: 12,
+      columnSpacing: 6,
       horizontalMargin: 12,
       minWidth: 1400,
       columns: columns,

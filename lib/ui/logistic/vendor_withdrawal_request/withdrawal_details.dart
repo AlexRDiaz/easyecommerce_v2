@@ -395,7 +395,6 @@ class _WithDrawalDetailsState extends State<WithdrawalDetails> {
                                                               response[1]
                                                                   .toString());
 
-
                                                       var dtsrt =
                                                           await Connections()
                                                               .getdtsOrdenRetiro();
@@ -406,7 +405,8 @@ class _WithDrawalDetailsState extends State<WithdrawalDetails> {
                                                                   ['Monto']
                                                               .toString(),
                                                           "retiro - ${Get.parameters['id'].toString()}",
-                                                          "retiro");
+                                                          "retiro",
+                                                          "orden de retiro pagada");
                                                       await loadData();
                                                       setState(() {
                                                         imageSelect = null;

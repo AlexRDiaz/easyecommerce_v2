@@ -53,6 +53,11 @@ class _UpdateStatusOperatorHistorialState
   TextEditingController _controllerModalText = TextEditingController();
   XFile? imageSelect = null;
 
+  getRefered(id) async {
+    var refered = await Connections().getSellerMaster(id);
+    return refered;
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -240,12 +245,14 @@ class _UpdateStatusOperatorHistorialState
                           "${datacostos['users'][0]['vendedores'][0]['id_master']}",
                           "${datacostos['precio_total']}",
                           "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                          "recaudo");
+                          "recaudo",
+                          "recaudo de precio total de pedido");
                       await Connections().postDebit(
                           "${datacostos['users'][0]['vendedores'][0]['id_master']}",
                           "${datacostos['users'][0]['vendedores'][0]['costo_envio']}",
                           "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                          "envio");
+                          "envio",
+                          "costo de envio de pedido entregado");
 
                       if (datacostos['users'][0]['vendedores'][0]['referer'] !=
                           null) {
@@ -254,11 +261,15 @@ class _UpdateStatusOperatorHistorialState
                         var ref =
                             datacostos['users'][0]['vendedores'][0]['referer'];
 
+                        var refered = await getRefered(
+                            datacostos['users'][0]['vendedores'][0]['referer']);
+
                         await Connections().postCredit(
                             "${datacostos['users'][0]['vendedores'][0]['referer']}",
-                            "${datacostos['users'][0]['vendedores'][0]['referer_cost']}",
+                            "${refered['referer_cost']}",
                             "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                            "credit ref");
+                            "referido",
+                            "acreditacion por comision de vendedor referido");
                       }
                       // if(responseent){
                       //   print(responseent);
@@ -322,28 +333,34 @@ class _UpdateStatusOperatorHistorialState
                               "${datacostos['users'][0]['vendedores'][0]['id_master']}",
                               "${datacostos['precio_total']}",
                               "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                              "recaudo");
+                              "recaudo",
+                              "recaudo de precio total de pedido");
 
                           await Connections().postDebit(
                               "${datacostos['users'][0]['vendedores'][0]['id_master']}",
                               "${datacostos['users'][0]['vendedores'][0]['costo_envio']}",
                               "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                              "envio");
+                              "envio",
+                              "costo de envio de pedido entregado");
 
-                          // if (datacostos['users'][0]['vendedores'][0]
-                          //         ['referer'] !=
-                          //     null) {
-                          //   var refcost = datacostos['users'][0]['vendedores']
-                          //       [0]['referer_cost'];
-                          //   var ref = datacostos['users'][0]['vendedores'][0]
-                          //       ['referer'];
+                          if (datacostos['users'][0]['vendedores'][0]
+                                  ['referer'] !=
+                              null) {
+                            var refcost = datacostos['users'][0]['vendedores']
+                                [0]['referer_cost'];
+                            var ref = datacostos['users'][0]['vendedores'][0]
+                                ['referer'];
 
-                          //   await Connections().postCredit(
-                          //       "${datacostos['users'][0]['vendedores'][0]['referer']}",
-                          //       "${datacostos['users'][0]['vendedores'][0]['referer_cost']}",
-                          //       "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                          //       "credit ref");
-                          // }
+                            var refered = getRefered(datacostos['users'][0]
+                                ['vendedores'][0]['referer']);
+
+                            await Connections().postCredit(
+                                "${datacostos['users'][0]['vendedores'][0]['referer']}",
+                                "${refered['referer_cost']}",
+                                "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
+                                "referido",
+                                "acreditacion por comision de vendedor referido");
+                          }
                           Connections().updatenueva(widget.id, {
                             "costo_envio": datacostos['users'][0]['vendedores']
                                 [0]['costo_envio'],
@@ -458,7 +475,8 @@ class _UpdateStatusOperatorHistorialState
                           "${datane['users'][0]['vendedores'][0]['id_master']}",
                           "${datane['users'][0]['vendedores'][0]['costo_envio']}",
                           "${datane['name_comercial']}-${datane['numero_orden']}",
-                          "envio");
+                          "envio",
+                          "costo de envio por pedido no entregado");
 
                       Connections().updatenueva(widget.id, {
                         "costo_envio": datane['users'][0]['vendedores'][0]
@@ -589,7 +607,8 @@ class _UpdateStatusOperatorHistorialState
                             "${datacostos['users'][0]['vendedores'][0]['id']}",
                             "${datacostos['users'][0]['vendedores'][0]['costo_devolucion']}",
                             "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                            "devolucion");
+                            "devolucion",
+                            "costo de devolucion de pedido ");
                       }
                       Connections().updatenueva(widget.id, {
                         "costo_devolucion": datacostos['users'][0]['vendedores']

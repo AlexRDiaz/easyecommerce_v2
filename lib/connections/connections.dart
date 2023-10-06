@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
 import 'package:get/get.dart';
@@ -293,6 +294,18 @@ class Connections {
       return [false, ""];
     } else {
       return [true, decodeData['id']];
+    }
+  }
+
+  getSellerMaster(id) async {
+    var request =
+        await http.get(Uri.parse("$serverLaravel/api/users/master/$id"));
+    var response = request.body;
+    var decodeData = json.decode(response);
+    if (request.statusCode != 200) {
+      return [false, ""];
+    } else {
+      return decodeData;
     }
   }
 
@@ -3228,8 +3241,8 @@ class Connections {
     }
   }
 
-  postCredit(
-      String idComercial, String monto, String idOrigen, String origen) async {
+  postCredit(String idComercial, String monto, String idOrigen, String origen,
+      String comentario) async {
     try {
       var response =
           await http.post(Uri.parse("$serverLaravel/api/transacciones/credit"),
@@ -3240,7 +3253,8 @@ class Connections {
                 "id": idComercial,
                 "monto": monto,
                 "id_origen": idOrigen,
-                "origen": origen
+                "origen": origen,
+                "comentario": comentario
               }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -3255,8 +3269,8 @@ class Connections {
     }
   }
 
-  postDebit(
-      String idComercial, String monto, String idOrigen, String origen) async {
+  postDebit(String idComercial, String monto, String idOrigen, String origen,
+      String comentario) async {
     // try {
     var response =
         await http.post(Uri.parse("$serverLaravel/api/transacciones/debit"),
@@ -3267,7 +3281,8 @@ class Connections {
               "id": idComercial,
               "monto": monto,
               "id_origen": idOrigen,
-              "origen": origen
+              "origen": origen,
+              "comentario": comentario
             }));
     if (response.statusCode == 200) {
       var decodeData = json.decode(response.body);
@@ -5128,6 +5143,40 @@ class Connections {
       }
     } catch (error) {
       print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+  getReferers() async {
+    try {
+      var response = await http.get(
+          Uri.parse(
+              "$serverLaravel/api/vendedores/refereds/${sharedPrefs!.getString("idComercialMasterSeller").toString()}"),
+          headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  rollbackTransaction(id) async {
+    try {
+      var response = await http
+          .post(Uri.parse("$serverLaravel/api/transacciones/rollback/$id"));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
     }
   }
 }
