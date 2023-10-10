@@ -1,6 +1,7 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/widgets/transport/data_table_model.dart';
 import 'dart:async';
 
@@ -52,21 +53,22 @@ class _TransactionsState extends State<Transactions> {
                     },
                     child: Container(
                       height: 45,
-                      margin:  const EdgeInsets.only(right: 10.0),
+                      margin: const EdgeInsets.only(right: 10.0),
                       padding: const EdgeInsets.only(bottom: 15.0),
                       width: 180,
                       decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.all(Radius.circular(10.0)),
-                        border: Border.all(width: 1,color: const Color.fromARGB(255, 165, 173, 156)),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(10.0)),
+                        border: Border.all(
+                            width: 1,
+                            color: const Color.fromARGB(255, 165, 173, 156)),
                         color: Colors.white,
                         boxShadow: [
-                            BoxShadow(
-                              color: const Color.fromARGB(255, 165, 173, 156),
-                              blurRadius:
-                                  5,
-                              spreadRadius:
-                                  2,
-                            ),
+                          BoxShadow(
+                            color: const Color.fromARGB(255, 165, 173, 156),
+                            blurRadius: 5,
+                            spreadRadius: 2,
+                          ),
                         ],
                       ),
                       // color: Colors.transparent,
@@ -81,9 +83,13 @@ class _TransactionsState extends State<Transactions> {
                           SizedBox(
                             width: 7,
                           ),
-                          Text(
-                            "Recargar Información",
-                            style: TextStyle(color: Colors.green),
+                          Row(
+                            children: [
+                              Text(
+                                "Recargar Información",
+                                style: TextStyle(color: Colors.green),
+                              ),
+                            ],
                           ),
                           SizedBox(
                             width: 10,
@@ -166,6 +172,20 @@ class _TransactionsState extends State<Transactions> {
           // sortFunc3("telefono_shipping", changevalue);
         },
       ),
+      DataColumn2(
+        label: Text('Comentario'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("telefono_shipping", changevalue);
+        },
+      ),
+      DataColumn2(
+        label: Text(''),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("telefono_shipping", changevalue);
+        },
+      ),
     ];
   }
 
@@ -227,6 +247,27 @@ class _TransactionsState extends State<Transactions> {
               child: Text(data[index]['id_vendedor'].toString()),
               onTap: () {
                 // OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['comentario'].toString()),
+              onTap: () {
+                // OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Center(child: Icon(Icons.restart_alt_outlined)),
+              onTap: () async {
+                var res =
+                    await Connections().rollbackTransaction(data[index]['id']);
+                if (res == 1) {
+                  SnackBarHelper.showErrorSnackBar(
+                      context, "No se pudo realizar la operacion");
+                } else if (res == 2) {
+                  SnackBarHelper.showErrorSnackBar(
+                      context, "Error de conexion");
+                } else {
+                  SnackBarHelper.showOkSnackBar(
+                      context, "Transaccion reestablecida correctamente");
+                }
               })),
         ],
       );

@@ -8,14 +8,13 @@ class MySellerAccountControllers {
   late TextEditingController fechaAltaController;
   late TextEditingController correoController;
 
-  MySellerAccountControllers({
-    required String nombreComercial,
-    required String numeroTelefono,
-    required String telefonoDos,
-    required String usuario,
-    required String fechaAlta,
-    required String correo,
-  }) {
+  MySellerAccountControllers(
+      {required String nombreComercial,
+      required String numeroTelefono,
+      required String telefonoDos,
+      required String usuario,
+      required String fechaAlta,
+      required String correo}) {
     nombreComercialController = TextEditingController(text: nombreComercial);
     numeroTelefonoController = TextEditingController(text: numeroTelefono);
     telefonoDosController = TextEditingController(text: telefonoDos);

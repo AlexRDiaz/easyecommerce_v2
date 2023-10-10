@@ -452,7 +452,8 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
                                                 "${datane['users'][0]['vendedores'][0]['id_master']}",
                                                 "${datane['users'][0]['vendedores'][0]['costo_devolucion']}",
                                                 "${datane['name_comercial']}-${datane['numero_orden']}",
-                                                "devolucion");
+                                                "devolucion",
+                                                "costo de devolucion por no entregado en oficina");
 
                                             Connections().updatenueva(
                                                 data[index]['id'], {

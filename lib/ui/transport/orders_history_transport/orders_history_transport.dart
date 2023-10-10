@@ -18,7 +18,8 @@ class OrdersHistoryTransport extends StatefulWidget {
 }
 
 class _OrdersHistoryTransportState extends State<OrdersHistoryTransport> {
-  final OrdersHistoryTransportControllers _controllers = OrdersHistoryTransportControllers();
+  final OrdersHistoryTransportControllers _controllers =
+      OrdersHistoryTransportControllers();
   List optionsCheckBox = [];
   int counterChecks = 0;
   List data = [];
@@ -73,9 +74,12 @@ class _OrdersHistoryTransportState extends State<OrdersHistoryTransport> {
             ),
             Expanded(
               child: DataTable2(
-                headingTextStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-                dataTextStyle:
-                const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black),
+                headingTextStyle: const TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.black),
+                dataTextStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black),
                 columnSpacing: 12,
                 horizontalMargin: 6,
                 minWidth: 2000,
@@ -172,7 +176,7 @@ class _OrdersHistoryTransportState extends State<OrdersHistoryTransport> {
                 ],
                 rows: List<DataRow>.generate(
                   10,
-                      (index) {
+                  (index) {
                     Color rowColor = UIUtils.getColor('NOVEDAD');
                     return DataRow(
                       onSelectChanged: (bool? selected) {
@@ -218,20 +222,21 @@ class _OrdersHistoryTransportState extends State<OrdersHistoryTransport> {
                         )),
                         DataCell(Text(
                           'X3 CEPILLO DENTAL MAGICCLEAN® PRO',
-
                           style: TextStyle(
                             color: rowColor,
                           ),
                         )),
-                        DataCell(Text('QUITO', style: TextStyle(
-                          color: rowColor,
-                        ),)),
+                        DataCell(Text(
+                          'QUITO',
+                          style: TextStyle(
+                            color: rowColor,
+                          ),
+                        )),
                         DataCell(Text(
                           'Novedad',
                         )),
                         DataCell(Text(
                           'Iiii',
-
                           style: TextStyle(
                             color: rowColor,
                           ),
@@ -239,12 +244,18 @@ class _OrdersHistoryTransportState extends State<OrdersHistoryTransport> {
                         DataCell(Text(
                           'QUITO',
                         )),
-                        DataCell(Text('HALCON PRO', style: TextStyle(
-                          color: rowColor,
-                        ),)),
-                        DataCell(Text('Fernando Ushiña', style: TextStyle(
-                          color: rowColor,
-                        ),)),
+                        DataCell(Text(
+                          'HALCON PRO',
+                          style: TextStyle(
+                            color: rowColor,
+                          ),
+                        )),
+                        DataCell(Text(
+                          'Fernando Ushiña',
+                          style: TextStyle(
+                            color: rowColor,
+                          ),
+                        )),
                         DataCell(Text(
                           'MANDE STORE',
                           style: TextStyle(
@@ -304,13 +315,13 @@ class _OrdersHistoryTransportState extends State<OrdersHistoryTransport> {
           prefixIcon: const Icon(Icons.search),
           suffixIcon: _controllers.searchController.text.isNotEmpty
               ? GestureDetector(
-            onTap: () {
-              setState(() {
-                _controllers.searchController.clear();
-              });
-            },
-            child: const Icon(Icons.close),
-          )
+                  onTap: () {
+                    setState(() {
+                      _controllers.searchController.clear();
+                    });
+                  },
+                  child: const Icon(Icons.close),
+                )
               : null,
           hintText: text,
           enabledBorder: OutlineInputBorder(

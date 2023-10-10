@@ -101,7 +101,8 @@ class _InfoStateOrdersOperatorState extends State<InfoStateOrdersOperator> {
                                                     "${data['attributes']['TelefonoShipping']}",
                                                 id: widget.id,
                                                 novedades: data['attributes']
-                                                    ['novedades']['data']);
+                                                    ['novedades']['data'],
+                                                currentStatus: '');
                                           });
                                       await loadData();
                                     },

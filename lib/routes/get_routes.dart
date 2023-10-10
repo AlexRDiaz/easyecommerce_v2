@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/middlewares/navigation_middlewares.dart';
+import 'package:frontend/ui/Register/register.dart';
 import 'package:frontend/ui/login/login.dart';
 import 'package:frontend/ui/logistic/add_logistics_user/edit_logistic_user.dart';
 import 'package:frontend/ui/logistic/add_sellers/edit_sellers.dart';
@@ -56,6 +57,7 @@ import '../ui/transport/returns_transport/return_details.dart';
 getRoutes() {
   return [
     GetPage(name: '/login', page: () => LoginPage()),
+    GetPage(name: '/register/:id', page: () => Register()),
     //LOGISTIC
     /// Start Add stock to vendor
     GetPage(

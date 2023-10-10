@@ -19,10 +19,6 @@ class _InputRowState extends State<InputRow> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(widget.title),
-        const SizedBox(
-          height: 20,
-        ),
         Container(
           width: 500,
           decoration: BoxDecoration(
@@ -36,6 +32,13 @@ class _InputRowState extends State<InputRow> {
             },
             style: const TextStyle(fontWeight: FontWeight.bold),
             decoration: InputDecoration(
+              fillColor: Colors.white, // Color del fondo del TextFormField
+              filled: true,
+              label: Text(widget.title,
+                  style: TextStyle(
+                    fontSize: 19,
+                    fontWeight: FontWeight.bold,
+                  )),
               enabledBorder: OutlineInputBorder(
                 borderSide: const BorderSide(
                     width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
@@ -49,9 +52,6 @@ class _InputRowState extends State<InputRow> {
               focusColor: Colors.black,
             ),
           ),
-        ),
-        const SizedBox(
-          height: 20,
         ),
       ],
     );

@@ -989,6 +989,7 @@ class _TransportDeliveryHistoryDetailsDataState
                       numberCliente: "${data['telefono_shipping']}",
                       id: widget.data['id'].toString(),
                       novedades: data['novedades'],
+                      currentStatus: "",
                     );
                   },
                 );

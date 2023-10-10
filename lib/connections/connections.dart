@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
 import 'package:get/get.dart';
@@ -56,6 +57,10 @@ class Connections {
               "NameComercialSeller",
               decodeDataUser['user']['vendedores'][0]['nombre_comercial']
                   .toString());
+          decodeDataUser['user']['vendedores'][0]['referer'] != null
+              ? sharedPrefs!.setString(
+                  "referer", decodeDataUser['user']['vendedores'][0]['referer'])
+              : "";
           List temporalPermisos =
               jsonDecode(decodeDataUser['user']['permisos']);
           List<String> finalPermisos = [];
@@ -292,6 +297,18 @@ class Connections {
     }
   }
 
+  getSellerMaster(id) async {
+    var request =
+        await http.get(Uri.parse("$serverLaravel/api/users/master/$id"));
+    var response = request.body;
+    var decodeData = json.decode(response);
+    if (request.statusCode != 200) {
+      return [false, ""];
+    } else {
+      return decodeData;
+    }
+  }
+
   Future createSellerGeneral(
       comercialName, phone1, phone2, sendCost, returnCost, url) async {
     var request = await http.post(Uri.parse("$server/api/vendedores"),
@@ -315,6 +332,38 @@ class Connections {
     } else {
       return [true, decodeData['data']['id']];
     }
+  }
+
+  Future createSellerGeneralLaravel(username, email, password, comercialName,
+      phone1, phone2, sendCost, returnCost, url, id) async {
+    int res = 0;
+    try {
+      var request =
+          await http.post(Uri.parse("$serverLaravel/api/users/general"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "username": username,
+                "email": email,
+                "password": password,
+                "nombre_comercial": comercialName,
+                "telefono1": phone1,
+                "telefono2": phone2,
+                "costo_envio": 5,
+                "costo_devolucion": 5.50,
+                "fecha_alta":
+                    "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+                "url_tienda": url,
+                "referer": id
+              }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        res = 1;
+      }
+    } catch (e) {
+      res = 2;
+    }
+    return res;
   }
 
   Future updateSellerGeneral(
@@ -3192,8 +3241,8 @@ class Connections {
     }
   }
 
-  postCredit(
-      String idComercial, String monto, String idOrigen, String origen) async {
+  postCredit(String idComercial, String monto, String idOrigen, String origen,
+      String comentario) async {
     try {
       var response =
           await http.post(Uri.parse("$serverLaravel/api/transacciones/credit"),
@@ -3204,46 +3253,42 @@ class Connections {
                 "id": idComercial,
                 "monto": monto,
                 "id_origen": idOrigen,
-                "origen": origen
+                "origen": origen,
+                "comentario": comentario
               }));
-      if (response.statusCode == 200) {
-        var decodeData = json.decode(response.body);
-        return decodeData;
-      } else if (response.statusCode == 400) {
-        print("Error 400: Bad Request");
+      if (response.statusCode != 200) {
+        return 1;
       } else {
-        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+        return 0;
       }
     } catch (error) {
-      print("Ocurrió un error durante la solicitud: $error");
+      return 2;
     }
   }
 
-  postDebit(
-      String idComercial, String monto, String idOrigen, String origen) async {
-    // try {
-    var response =
-        await http.post(Uri.parse("$serverLaravel/api/transacciones/debit"),
-            headers: {'Content-Type': 'application/json'},
-            body: json.encode({
-              "act_date":
-                  "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year} ${DateTime.now().hour}:${DateTime.now().minute}",
-              "id": idComercial,
-              "monto": monto,
-              "id_origen": idOrigen,
-              "origen": origen
-            }));
-    if (response.statusCode == 200) {
-      var decodeData = json.decode(response.body);
-      return decodeData;
-    } else if (response.statusCode == 400) {
-      print("Error 400: Bad Request");
-    } else {
-      print("Error ${response.statusCode}: ${response.reasonPhrase}");
+  postDebit(String idComercial, String monto, String idOrigen, String origen,
+      String comentario) async {
+    try {
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/transacciones/debit"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "act_date":
+                    "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year} ${DateTime.now().hour}:${DateTime.now().minute}",
+                "id": idComercial,
+                "monto": monto,
+                "id_origen": idOrigen,
+                "origen": origen,
+                "comentario": comentario
+              }));
+      if (response.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (error) {
+      return 2;
     }
-    // } catch (error) {
-    // print("Ocurrió un error durante la solicitud: $error");
-    // }
   }
 
   getOrdersOper(List populate, List and, List defaultAnd, List or, currentPage,
@@ -5095,7 +5140,6 @@ class Connections {
     }
   }
 
-
   // ! parte de configuracion de roles
 
   getRolesFront() async {
@@ -5119,8 +5163,7 @@ class Connections {
 
   postNewAccess(lista_data) async {
     try {
-      var response = await http.post(
-          Uri.parse("$serverLaravel/api/upd-access"),
+      var response = await http.post(Uri.parse("$serverLaravel/api/upd-access"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
             "datos_vista": lista_data,
@@ -5140,17 +5183,17 @@ class Connections {
     }
   }
 
-    editAccessofWindow(lista_data) async {
+  editAccessofWindow(lista_data) async {
     try {
       print(json.encode({
-            "datos_vista": lista_data,
-          }));
-      var response = await http.post(
-          Uri.parse("$serverLaravel/api/upd-rolesaccess"),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({
-            "datos_vista": lista_data,
-          }));
+        "datos_vista": lista_data,
+      }));
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/upd-rolesaccess"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "datos_vista": lista_data,
+              }));
 
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -5166,4 +5209,37 @@ class Connections {
     }
   }
 
+  getReferers() async {
+    try {
+      var response = await http.get(
+          Uri.parse(
+              "$serverLaravel/api/vendedores/refereds/${sharedPrefs!.getString("idComercialMasterSeller").toString()}"),
+          headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  rollbackTransaction(id) async {
+    try {
+      var response = await http
+          .post(Uri.parse("$serverLaravel/api/transacciones/rollback/$id"));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
 }
