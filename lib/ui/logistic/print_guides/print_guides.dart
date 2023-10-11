@@ -525,6 +525,9 @@ class _PrintGuidesState extends State<PrintGuides> {
                     var response = await Connections()
                         .updateOrderLogisticStatus(
                             "IMPRESO", optionsCheckBox[i]['id'].toString());
+                    await Connections().updatenueva(
+                        optionsCheckBox[i]['id'].toString(),
+                        {"fecha_impreso": DateTime.now().toString()});
                   }
                 }
                 Navigator.pop(context);

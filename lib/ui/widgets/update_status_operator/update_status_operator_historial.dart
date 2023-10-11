@@ -311,7 +311,9 @@ class _UpdateStatusOperatorHistorialState
                           btnOkText: "Aceptar",
                           btnOkColor: Colors.green,
                           btnCancelOnPress: () {},
-                          btnOkOnPress: () {},
+                          btnOkOnPress: () {
+                            Navigator.pop(context);
+                          },
                         ).show();
                       } else {
                         // ignore: use_build_context_synchronously
@@ -571,7 +573,9 @@ class _UpdateStatusOperatorHistorialState
                           btnOkText: "Aceptar",
                           btnOkColor: Colors.green,
                           btnCancelOnPress: () {},
-                          btnOkOnPress: () {},
+                          btnOkOnPress: () {
+                            Navigator.pop(context);
+                          },
                         ).show();
                       } else {
                         // ignore: use_build_context_synchronously
@@ -701,49 +705,26 @@ class _UpdateStatusOperatorHistorialState
                       var datacostos = await Connections()
                           .getOrderByIDHistoryLaravel(widget.id);
 
-                      if (datacostos['estado_devolucion'] != "PENDIENTE" ||
+                      var l = datacostos['estado_devolucion'];
+
+                      if (datacostos['estado_devolucion'] != "PENDIENTE" &&
                           datacostos['estado_devolucion'] !=
                               "ENTREGADO EN OFICINA") {
-                        var resDebit = await Connections().postDebit(
-                            "${datacostos['users'][0]['vendedores'][0]['id']}",
-                            "${datacostos['users'][0]['vendedores'][0]['costo_devolucion']}",
+                        var existTransaction = Connections().getExistTransaction(
+                            "debit",
                             "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
                             "devolucion",
-                            "costo de devolucion de pedido ");
-
-                        if (resDebit == 0) {
-                          // ignore: use_build_context_synchronously
-                          AwesomeDialog(
-                            width: 500,
-                            context: context,
-                            dialogType: DialogType.error,
-                            animType: AnimType.rightSlide,
-                            title: "Error al ejecutar transacción",
-                            //  desc: 'Vuelve a intentarlo',
-                            btnCancel: Container(),
-                            btnOkText: "Aceptar",
-                            btnOkColor: Colors.green,
-                            btnCancelOnPress: () {},
-                            btnOkOnPress: () {},
-                          ).show();
-                        } else {
-                          // ignore: use_build_context_synchronously
-                          AwesomeDialog(
-                            width: 500,
-                            context: context,
-                            dialogType: DialogType.success,
-                            animType: AnimType.rightSlide,
-                            title: 'Pedido con novedad',
-                            //  desc: 'Vuelve a intentarlo',
-                            btnCancel: Container(),
-                            btnOkText: "Aceptar",
-                            btnOkColor: Colors.green,
-                            btnCancelOnPress: () {},
-                            btnOkOnPress: () {
-                              Navigator.pop(context);
-                              Navigator.pop(context);
-                            },
-                          ).show();
+                            datacostos['users'][0]['vendedores'][0]['id']);
+                        if (existTransaction == []) {
+                          var resDebit = await Connections().postDebit(
+                              "${datacostos['users'][0]['vendedores'][0]['id']}",
+                              "${datacostos['users'][0]['vendedores'][0]['costo_devolucion']}",
+                              "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
+                              "devolucion",
+                              "costo de devolucion de pedido ");
+                          resDebit == 1 || resDebit == 2
+                              ? print("Error al guardar debito ")
+                              : print("Exito al guardar");
                         }
                       }
                       Connections().updatenueva(widget.id, {
@@ -761,8 +742,8 @@ class _UpdateStatusOperatorHistorialState
                         imageSelect = null;
                       });
 
-                      // Navigator.pop(context);
-                      // Navigator.pop(context);
+                      Navigator.pop(context);
+                      Navigator.pop(context);
                     }
                   : null,
               child: Text(

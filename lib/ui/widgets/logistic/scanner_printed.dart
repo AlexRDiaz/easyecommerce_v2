@@ -37,7 +37,8 @@ class _ScannerPrintedState extends State<ScannerPrinted> {
                   getLoadingModal(context, false);
 
                   var responseOrder = await Connections().getOrderByID(barcode);
-                  if (responseOrder['Estado_Logistico'] == 'ENVIADO') {
+                  if (responseOrder['attributes']['Estado_Logistico'] ==
+                      'ENVIADO') {
                     setState(() {
                       _barcode =
                           "EL pedido con código   ${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']}   ya se encuentra enviado"
