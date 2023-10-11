@@ -5242,4 +5242,47 @@ class Connections {
       return 2;
     }
   }
+
+  getExistTransaction(tipo, id_origen, origen, id_vendedor) async {
+    try {
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/transacciones/exist"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                {
+                  "tipo": tipo,
+                  "id_origen": id_origen,
+                  "origen": origen,
+                  "id_vendedor": id_vendedor
+                }
+              }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  getTransactionsByDate(start, end, search) async {
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/transacciones/by-date"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"start": start, "end": end, "search": search}));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
 }
