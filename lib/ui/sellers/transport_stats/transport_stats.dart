@@ -27,6 +27,15 @@ class _tansportStatsState extends State<tansportStats> {
   List<dynamic> sections = [];
   List<dynamic> sections2 = [];
   List<dynamic> sections3 = [];
+  List<dynamic> sectionsgeneralTrans = [];
+  List<dynamic> sectionsgeneralRoutes = [];
+
+  var entregadosGeneralTrans = 0.0;
+  var totalGeneralTrans = 0.0;
+
+  var entregadosGeneralRoutes = 0.0;
+  var totalGeneralRoutes = 0.0;
+
   var entregados = 0.0;
   var noEntregados = 0.0;
   var total = 0.0;
@@ -40,6 +49,8 @@ class _tansportStatsState extends State<tansportStats> {
   var responsetransportadoras;
   var responseroutes;
   var responseroutesofTransport;
+  var responsGeneralDataofTransport;
+  var responsGeneralDataofRoutes;
 
   List<String> transp = [];
   List<String> rutasEncontradas = [];
@@ -125,6 +136,7 @@ class _tansportStatsState extends State<tansportStats> {
         'tistle': "Entregados",
         'radius': 20,
       });
+      
 
       print(entregados);
     });
@@ -139,7 +151,11 @@ class _tansportStatsState extends State<tansportStats> {
       routes = List<Map<String, dynamic>>.from(responseroutes);
 
       updateChart(entregados, total, sections);
-      updateChart(entregados2, total2, sections2);
+      // updateChart(entregados2, total2, sections2);
+      updateChart(
+          entregadosGeneralTrans, totalGeneralTrans, sectionsgeneralTrans);
+      updateChart(
+          entregadosGeneralRoutes, totalGeneralRoutes, sectionsgeneralRoutes);
     } catch (e) {
       print("Error al cargar datos: $e");
     }
@@ -227,7 +243,22 @@ class _tansportStatsState extends State<tansportStats> {
                               Padding(
                                 padding: EdgeInsets.all(3.0),
                                 child: Text(
-                                  "Nivel de Efectividad",
+                                  "Nivel de Efectividad General",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Divider(),
+                              ChartDynamic(
+                                  sections: sectionsgeneralTrans,
+                                  total: totalGeneralTrans),
+                              Divider(),
+                              Padding(
+                                padding: EdgeInsets.all(3.0),
+                                child: Text(
+                                  "Nivel de Efectividad Específico",
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -325,13 +356,28 @@ class _tansportStatsState extends State<tansportStats> {
                       ),
                       margin: const EdgeInsets.all(20),
                       width: 360,
-                      height: 280,
+                      height: 500,
                       child: Column(
                         children: [
                           Padding(
                             padding: EdgeInsets.all(3.0),
                             child: Text(
-                              "Nivel de Efectividad",
+                              "Nivel de Efectividad General",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          Divider(),
+                          ChartDynamic(
+                              sections: sectionsgeneralTrans,
+                              total: totalGeneralTrans),
+                          Divider(),
+                          Padding(
+                            padding: EdgeInsets.all(3.0),
+                            child: Text(
+                              "Nivel de Efectividad Específico",
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -434,7 +480,22 @@ class _tansportStatsState extends State<tansportStats> {
                             Padding(
                               padding: EdgeInsets.all(3.0),
                               child: Text(
-                                "Nivel de Efectividad",
+                                "Nivel de Efectividad General",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            Divider(),
+                            ChartDynamic(
+                                sections: sectionsgeneralRoutes,
+                                total: totalGeneralRoutes),
+                            Divider(),
+                            Padding(
+                              padding: EdgeInsets.all(3.0),
+                              child: Text(
+                                "Nivel de Efectividad Específico",
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -454,104 +515,119 @@ class _tansportStatsState extends State<tansportStats> {
         SingleChildScrollView(
             // alignment: Alignment.center,
             child: Wrap(children: [
-              Column(
+          Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      color: Colors.grey[350],
+                    ),
+                    margin: EdgeInsets.all(20),
+                    width: 360,
+                    height: 280,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(3.0),
+                          child: const Text(
+                            "Ciudades",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Divider(), // Opcional: Divider para separar el texto de la lista
+                        Expanded(
+                          child: _buildListViewCiudades(
+                              routes.cast<Map<String, dynamic>>()),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    color: Colors.grey[350],
+                  ),
+                  margin: EdgeInsets.all(20),
+                  width: 360,
+                  height: 280,
+                  child: Column(
                     children: [
-                      Container(
-                        padding: EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          color: Colors.grey[350],
+                      Padding(
+                        padding: const EdgeInsets.all(3.0),
+                        child: const Text(
+                          "Transportadoras",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        margin: EdgeInsets.all(20),
-                        width: 360,
-                        height: 280,
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(3.0),
-                              child: const Text(
-                                "Ciudades",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            Divider(), // Opcional: Divider para separar el texto de la lista
-                            Expanded(
-                              child: _buildListViewCiudades(
-                                  routes.cast<Map<String, dynamic>>()),
-                            ),
-                          ],
-                        ),
+                      ),
+                      Divider(), // Opcional: Divider para separar el texto de la lista
+                      Expanded(
+                        child: _buildListViewTransportadoras(
+                            transportadorasEncontradas),
                       ),
                     ],
                   ),
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        color: Colors.grey[350],
-                      ),
-                      margin: EdgeInsets.all(20),
-                      width: 360,
-                      height: 280,
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(3.0),
-                            child: const Text(
-                              "Transportadoras",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                ),
+              ]),
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    color: Colors.grey[350],
+                  ),
+                  margin: const EdgeInsets.all(20),
+                  width: 360,
+                  height: 500,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.all(3.0),
+                        child: Text(
+                          "Nivel de Efectividad General",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
-                          Divider(), // Opcional: Divider para separar el texto de la lista
-                          Expanded(
-                            child: _buildListViewTransportadoras(
-                                transportadorasEncontradas),
+                        ),
+                      ),
+                      Divider(),
+                      ChartDynamic(
+                          sections: sectionsgeneralRoutes,
+                          total: totalGeneralRoutes),
+                      Divider(),
+                      Padding(
+                        padding: EdgeInsets.all(3.0),
+                        child: Text(
+                          "Nivel de Efectividad Específico",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ]),
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        color: Colors.grey[350],
-                      ),
-                      margin: const EdgeInsets.all(20),
-                      width: 360,
-                      height: 280,
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.all(3.0),
-                            child: Text(
-                              "Nivel de Efectividad",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          Divider(),
-                          ChartDynamic(sections: sections2, total: total2),
-                        ],
-                      ),
-                    )
-                  ])
-                ],
-              ),
-            ])),
+                      Divider(),
+                      ChartDynamic(sections: sections2, total: total2),
+                    ],
+                  ),
+                )
+              ])
+            ],
+          ),
+        ])),
         context);
   }
 
@@ -671,118 +747,117 @@ class _tansportStatsState extends State<tansportStats> {
         SingleChildScrollView(
             // alignment: Alignment.center,
             child: Wrap(children: [
-              Column(
+          Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      color: Colors.grey[350],
+                    ),
+                    margin: EdgeInsets.all(20),
+                    width: 360,
+                    height: 280,
+                    child: Column(
+                      children: [
+                        ElevatedButton(
+                          onPressed: () async {
+                            // Llamar a la función cuando se hace clic en el botón
+                            var dataPersonal = await Connections()
+                                .getUserPedidos(sharedPrefs!
+                                    .getString("idComercialMasterSeller")
+                                    .toString());
+                            listarutas_transportadoras =
+                                dataPersonal['listarutas_transportadoras'];
+
+                            // print(listarutas_transportadoras);
+
+                            await loadData(); // Actualizar el estado llamando a la función que carga los datos
+                            setState(
+                                () {}); // Asegurarse de que Flutter vuelva a construir el widget con los nuevos datos
+                          },
+                          child: Text("Mis Transportes"),
+                          style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.all<Color>(Colors.red),
+                          ),
+                        ),
+                        Divider(), // Opcional: Divider para separar el botón de la lista
+                        // ! AQUIIIIIIIIIIII
+                        Expanded(
+                          child: _buildListViewFromData(
+                              listarutas_transportadoras),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    color: Colors.grey[350],
+                  ),
+                  margin: EdgeInsets.all(20),
+                  width: 360,
+                  height: 280,
+                  child: Column(
                     children: [
-                      Container(
-                        padding: EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          color: Colors.grey[350],
+                      Padding(
+                        padding: const EdgeInsets.all(3.0),
+                        child: const Text(
+                          "Transportadoras",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        margin: EdgeInsets.all(20),
-                        width: 360,
-                        height: 280,
-                        child: Column(
-                          children: [
-                            ElevatedButton(
-                              onPressed: () async {
-                                // Llamar a la función cuando se hace clic en el botón
-                                var dataPersonal = await Connections()
-                                    .getUserPedidos(sharedPrefs!
-                                        .getString("idComercialMasterSeller")
-                                        .toString());
-                                listarutas_transportadoras =
-                                    dataPersonal['listarutas_transportadoras'];
-
-                                // print(listarutas_transportadoras);
-
-                                await loadData(); // Actualizar el estado llamando a la función que carga los datos
-                                setState(
-                                    () {}); // Asegurarse de que Flutter vuelva a construir el widget con los nuevos datos
-                              },
-                              child: Text("Mis Transportes"),
-                              style: ButtonStyle(
-                                backgroundColor:
-                                    MaterialStateProperty.all<Color>(
-                                        Colors.red),
-                              ),
-                            ),
-                            Divider(), // Opcional: Divider para separar el botón de la lista
-                            // ! AQUIIIIIIIIIIII
-                            Expanded(
-                              child: _buildListViewFromData(
-                                  listarutas_transportadoras),
-                            ),
-                          ],
-                        ),
+                      ),
+                      Divider(), // Opcional: Divider para separar el texto de la lista
+                      Expanded(
+                        child: Visibility(
+                            child: _buildListViewFromEntries(entries)),
                       ),
                     ],
                   ),
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        color: Colors.grey[350],
-                      ),
-                      margin: EdgeInsets.all(20),
-                      width: 360,
-                      height: 280,
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(3.0),
-                            child: const Text(
-                              "Transportadoras",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                ),
+              ]),
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    color: Colors.grey[350],
+                  ),
+                  margin: const EdgeInsets.all(20),
+                  width: 360,
+                  height: 280,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.all(3.0),
+                        child: Text(
+                          "Nivel de Efectividad",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
-                          Divider(), // Opcional: Divider para separar el texto de la lista
-                          Expanded(
-                            child: Visibility(
-                                child: _buildListViewFromEntries(entries)),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ]),
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        color: Colors.grey[350],
-                      ),
-                      margin: const EdgeInsets.all(20),
-                      width: 360,
-                      height: 280,
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.all(3.0),
-                            child: Text(
-                              "Nivel de Efectividad",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          Divider(),
-                          ChartDynamic(sections: sections3, total: total3),
-                        ],
-                      ),
-                    )
-                  ])
-                ],
-              )
-            ])),
+                      Divider(),
+                      ChartDynamic(sections: sections3, total: total3),
+                    ],
+                  ),
+                )
+              ])
+            ],
+          )
+        ])),
         context);
   }
 
@@ -802,6 +877,20 @@ class _tansportStatsState extends State<tansportStats> {
                 rutasEncontradas = List<String>.from(rutas['rutas']);
                 print(rutasEncontradas);
               });
+
+              responsGeneralDataofTransport = await Connections()
+                  .getGeneralDataOrdersofTransport(
+                      transportadoras[index].split('-')[1]);
+              // print(responsGeneralDataofTransport);
+              setState(() {
+                entregadosGeneralTrans =
+                    responsGeneralDataofTransport['entregados_count'];
+                totalGeneralTrans =
+                    responsGeneralDataofTransport['total_pedidos'];
+              });
+
+              updateChart(entregadosGeneralTrans, totalGeneralTrans,
+                  sectionsgeneralTrans);
             } catch (error) {
               print("Error al obtener las transportadoras: $error");
             }
@@ -968,6 +1057,18 @@ class _tansportStatsState extends State<tansportStats> {
                 print(transportadorasEncontradas);
                 // Aquí puedes agregar lógica adicional si es necesario
               });
+              responsGeneralDataofRoutes = await Connections()
+                  .getGeneralDataOrdersofRoutes(ciudad['id']);
+              // print(responsGeneralDataofTransport);
+              setState(() {
+                entregadosGeneralRoutes =
+                    responsGeneralDataofRoutes['entregados_count'];
+                totalGeneralRoutes =
+                    responsGeneralDataofRoutes['total_pedidos'];
+              });
+
+              updateChart(entregadosGeneralRoutes, totalGeneralRoutes,
+                  sectionsgeneralRoutes);
             } catch (error) {
               print("Error al obtener las transportadoras: $error");
             }

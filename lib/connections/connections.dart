@@ -92,6 +92,13 @@ class Connections {
               decodeDataUser['user']['transportadora'][0]
                       ['costo_transportadora']
                   .toString());
+          List temporalPermisos =
+              jsonDecode(decodeDataUser['user']['permisos']);
+          List<String> finalPermisos = [];
+          for (var i = 0; i < temporalPermisos.length; i++) {
+            finalPermisos.add(temporalPermisos.toString());
+          }
+          sharedPrefs!.setStringList("PERMISOS", finalPermisos);
         }
         if (decodeDataUser['user']['roles_fronts'][0]['titulo'].toString() ==
             "OPERADOR") {
@@ -100,6 +107,14 @@ class Connections {
           // ! esta es la mia ↓
           sharedPrefs!.setString("idOperadore",
               decodeDataUser['user']['operadores'][0]['id'].toString());
+          // !permisos qu ese incluyen
+          List temporalPermisos =
+              jsonDecode(decodeDataUser['user']['permisos']);
+          List<String> finalPermisos = [];
+          for (var i = 0; i < temporalPermisos.length; i++) {
+            finalPermisos.add(temporalPermisos.toString());
+          }
+          sharedPrefs!.setStringList("PERMISOS", finalPermisos);
         }
         // ! ****************
         sharedPrefs!.setString(
@@ -5095,7 +5110,6 @@ class Connections {
     }
   }
 
-
   // ! parte de configuracion de roles
 
   getRolesFront() async {
@@ -5119,8 +5133,7 @@ class Connections {
 
   postNewAccess(lista_data) async {
     try {
-      var response = await http.post(
-          Uri.parse("$serverLaravel/api/upd-access"),
+      var response = await http.post(Uri.parse("$serverLaravel/api/upd-access"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
             "datos_vista": lista_data,
@@ -5140,17 +5153,17 @@ class Connections {
     }
   }
 
-    editAccessofWindow(lista_data) async {
+  deleteAccessofWindow(lista_data) async {
     try {
       print(json.encode({
-            "datos_vista": lista_data,
-          }));
-      var response = await http.post(
-          Uri.parse("$serverLaravel/api/upd-rolesaccess"),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({
-            "datos_vista": lista_data,
-          }));
+        "datos_vista": lista_data,
+      }));
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/dlt-rolesaccess"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "datos_vista": lista_data,
+              }));
 
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -5166,4 +5179,66 @@ class Connections {
     }
   }
 
+  editAccessofWindow(lista_data) async {
+    try {
+      print(json.encode({
+        "datos_vista": lista_data,
+      }));
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/upd-rolesaccess"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "datos_vista": lista_data,
+              }));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        print("ok");
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+  getGeneralDataOrdersofTransport(id) async {
+    try {
+      var response = await http.get(
+          Uri.parse("$serverLaravel/api/up-user-pedidos-trans/$id"),
+          headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        print("ok");
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+  getGeneralDataOrdersofRoutes(id) async {
+    try {
+      var response = await http.get(
+          Uri.parse("$serverLaravel/api/up-user-pedidos-routes/$id"),
+          headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        print("ok");
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
 }

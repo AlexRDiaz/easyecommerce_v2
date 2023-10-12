@@ -47,9 +47,31 @@ class _RoleConfigurationState extends State<RoleConfiguration> {
 
   Widget principal() {
     return Padding(
-      padding: const EdgeInsets.only(left: 40, right: 40, top: 120),
+      padding: const EdgeInsets.only(left: 40, right: 40, top: 100),
       child: Column(
         children: [
+          Row(children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  loadData();
+                },
+                child: const Row(
+                  children: [
+                    Text(
+                      "Actualizar Vistas",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    Icon(
+                      Icons.replay_outlined,
+                      color: Colors.white,
+                    )
+                  ],
+                ),
+              ),
+            )
+          ]),
           Container(
             padding: const EdgeInsets.all(15),
             color: ColorsSystem().colorBlack,
@@ -62,10 +84,14 @@ class _RoleConfigurationState extends State<RoleConfiguration> {
                       onPressed: () {
                         _showAddViewDialog(context, role.split('-')[1]);
                       },
-                      child: Icon(Icons.add, color: Colors.white),
+                      // Icon(Icons.add, color: Colors.white),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         shape: const CircleBorder(),
+                      ),
+                      child: const Tooltip(
+                        message: "Agregar Nueva Vista",
+                        child: Icon(Icons.add, color: Colors.white),
                       ),
                     ),
                   ),
@@ -107,10 +133,8 @@ class _RoleConfigurationState extends State<RoleConfiguration> {
                         children: [
                           Flexible(
                             child: FilterChipItem(
-                              label: Text(
-                                accesos[subIndex]['view_name'],
-                                style: const TextStyle(color: Colors.white),
-                              ),
+                              label:
+                                  "${accesos[subIndex]['view_name']}-${role['id']}",
                               initialSelected: accesos[subIndex]['active'],
                               onSelected: (value) async {
                                 setState(() {
@@ -119,6 +143,7 @@ class _RoleConfigurationState extends State<RoleConfiguration> {
                                       json.encode(accesos);
                                   accesos[subIndex]['id_rol'] = role['id'];
                                 });
+                                // print("aqui> ${accesos[subIndex]}");
 
                                 await Connections()
                                     .postNewAccess(accesos[subIndex]);
@@ -140,9 +165,31 @@ class _RoleConfigurationState extends State<RoleConfiguration> {
 
   Widget principalMovil() {
     return Padding(
-      padding: const EdgeInsets.only(left: 40, right: 40, top: 40),
+      padding: const EdgeInsets.only(left: 40, right: 40, top: 20),
       child: Column(
         children: [
+          Row(children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  loadData();
+                },
+                child: const Row(
+                  children: [
+                    Text(
+                      "Actualizar Vistas",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    Icon(
+                      Icons.replay_outlined,
+                      color: Colors.white,
+                    )
+                  ],
+                ),
+              ),
+            )
+          ]),
           _buildListMovil(),
         ],
       ),
@@ -159,8 +206,8 @@ class _RoleConfigurationState extends State<RoleConfiguration> {
           var accesos = [...?(json.decode(role['accesos']) as List<dynamic>?)];
           return Container(
             decoration:
-                BoxDecoration(color: const Color.fromARGB(255, 219, 217, 217)),
-            padding: EdgeInsets.all(10),
+                const BoxDecoration(color: Color.fromARGB(255, 219, 217, 217)),
+            padding: const EdgeInsets.all(10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -196,10 +243,7 @@ class _RoleConfigurationState extends State<RoleConfiguration> {
                   Column(
                     children: [
                       FilterChipItem(
-                        label: Text(
-                          acceso['view_name'],
-                          style: TextStyle(color: Colors.white),
-                        ),
+                        label: "${acceso['view_name']}-${role['id']}",
                         initialSelected: acceso['active'],
                         onSelected: (value) async {
                           setState(() {
@@ -207,7 +251,7 @@ class _RoleConfigurationState extends State<RoleConfiguration> {
                             rolesfront[index]['accesos'] = json.encode(accesos);
                             acceso['id_rol'] = role['id'];
                           });
-
+                          print(role['id']);
                           await Connections().postNewAccess(acceso);
                         },
                       ),
@@ -227,7 +271,7 @@ class _RoleConfigurationState extends State<RoleConfiguration> {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: ColorsSystem().colorBlack,
-          title: Text(
+          title: const Text(
             "Agregar Nueva Vista",
             style: TextStyle(color: Colors.white),
           ),
@@ -243,11 +287,11 @@ class _RoleConfigurationState extends State<RoleConfiguration> {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.only(bottom: 20.0),
+                padding: const EdgeInsets.only(bottom: 20.0),
                 child: TextField(
                   controller: _textFieldController,
-                  style:
-                      TextStyle(color: Colors.black), // Text color of TextField
+                  style: const TextStyle(
+                      color: Colors.black), // Text color of TextField
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: Colors.white,
@@ -270,7 +314,7 @@ class _RoleConfigurationState extends State<RoleConfiguration> {
                       backgroundColor: Colors.green,
                     ),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   ElevatedButton(
                     onPressed: () {
                       // Close the dialog on cancel
@@ -292,34 +336,52 @@ class _RoleConfigurationState extends State<RoleConfiguration> {
 
   void _handleAccept(id) async {
     // Print the value outside of the setState
-    print(_textFieldController.text);
+    // print(_textFieldController.text);
+    // ******************************
+    AwesomeDialog(
+      width: 500,
+      context: context,
+      dialogType: DialogType.warning,
+      animType: AnimType.rightSlide,
+      title: 'Nueva Vista ',
+      desc: 'Está Seguro de agregar La Vista ${_textFieldController.text}?',
+      btnOkText: "Agregar",
+      btnOkColor: Colors.green,
+      btnCancelText: "Cancelar",
+      btnCancelColor: Colors.redAccent,
+      btnOkOnPress: () async {
+        FilterChipItem newFilterChipItem = FilterChipItem(
+          label: _textFieldController.text.split("-")[0],
+          initialSelected: false,
+          onSelected: (value) async {
+            // Aquí puedes agregar la lógica de selección si es necesario
+          },
+        );
 
-    FilterChipItem newFilterChipItem = FilterChipItem(
-      label: Text(
-        _textFieldController.text.toString(),
-        style: const TextStyle(color: Colors.white),
-      ),
-      initialSelected: false,
-      onSelected: (value) async {
-        // Aquí puedes agregar la lógica de selección si es necesario
+        await Connections().editAccessofWindow({
+          "active": false,
+          "view_name": _textFieldController.text.split("-")[0],
+          "id_rol": id
+        });
+
+        // Actualiza el estado solo si no existe ya
+        if (!filterChipItems.contains(newFilterChipItem)) {
+          setState(() {
+            filterChipItems.add(newFilterChipItem);
+          });
+        }
+        setState(() {
+          loadData();
+        });
+
+        // ignore: use_build_context_synchronously
+        Navigator.of(context).pop();
       },
-    );
-
-    // Actualiza el estado solo si no existe ya
-    if (!filterChipItems.contains(newFilterChipItem)) {
-      setState(() {
-        filterChipItems.add(newFilterChipItem);
-      });
-    }
-    await Connections().editAccessofWindow({
-      "active": false,
-      "view_name": _textFieldController.text.toString(),
-      "id_rol": id
-    });
-    Navigator.of(context).pop();
-    setState(() {
-      loadData();
-    });
+      btnCancelOnPress: () {
+        Navigator.of(context).pop();
+      },
+    ).show();
+    // **********************
     // Add any other logic you need
   }
 }
@@ -349,7 +411,7 @@ class RoleContainer extends StatelessWidget {
 }
 
 class FilterChipItem extends StatefulWidget {
-  final Text label;
+  final String label;
   final bool initialSelected;
   final Function(bool) onSelected;
 
@@ -364,13 +426,14 @@ class FilterChipItem extends StatefulWidget {
 
 class _FilterChipItemState extends State<FilterChipItem> {
   late bool isSelected;
-  late Text label;
+  late String label;
 
   @override
   void initState() {
     super.initState();
     isSelected = widget.initialSelected;
     label = widget.label;
+    // print("valor controler -> ${_viewcontroller.text}");
   }
 
   @override
@@ -379,46 +442,171 @@ class _FilterChipItemState extends State<FilterChipItem> {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: FilterChip(
-          label: label,
+          label: Text(
+            label.split('-')[0],
+            // label,
+            style: const TextStyle(
+                color: Colors.white, fontWeight: FontWeight.bold),
+          ),
           selected: isSelected,
           onSelected: (value) {
-            setState(() {
-              isSelected = value;
-              widget.onSelected(value);
-              if (isSelected) {
-                AwesomeDialog(
-                  width: 500,
-                  context: context,
-                  dialogType: DialogType.success,
-                  animType: AnimType.rightSlide,
-                  title: 'Vista Activa',
-                  desc: 'Actualización Completada',
-                  btnCancel: Container(),
-                  btnOkText: "Aceptar",
-                  btnOkColor: Colors.green,
-                  btnCancelOnPress: () {},
-                  btnOkOnPress: () async {},
-                ).show();
-              } else {
-                AwesomeDialog(
-                  width: 500,
-                  context: context,
-                  dialogType: DialogType.warning,
-                  animType: AnimType.rightSlide,
-                  title: 'Vista Inactiva',
-                  desc: 'Actualización Completada',
-                  btnCancel: Container(),
-                  btnOkText: "Aceptar",
-                  btnOkColor: Colors.green,
-                  btnCancelOnPress: () {},
-                  btnOkOnPress: () {},
-                ).show();
-              }
-            });
+            isSelected = value;
+            // widget.onSelected(isSelected);
+
+            _showAddViewDialogStatusChipChangeSomeButtons(
+                context, label, isSelected);
           },
           backgroundColor:
               isSelected ? Colors.greenAccent : ColorsSystem().colorBlack,
           selectedColor: Colors.green,
+        ),
+      ),
+    );
+  }
+
+  void _showAddViewDialogStatusChipChangeSomeButtons(
+      BuildContext context, viewName, isSelected) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Builder(builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: ColorsSystem().colorBlack,
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(top: 8.0, bottom: 10),
+                      child: Icon(Icons.desktop_windows_outlined,
+                          color: Colors.white),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Text(
+                        viewName.split("-")[0],
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    )
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        widget.onSelected(isSelected);
+                        Navigator.of(context).pop();
+                      },
+                      icon: Icon(Icons.shuffle),
+                      label: Text("Cambiar Estado"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        AwesomeDialog(
+                          width: 500,
+                          context: context,
+                          dialogType: DialogType.warning,
+                          animType: AnimType.rightSlide,
+                          title: 'Eliminar Vista',
+                          desc:
+                              'Está Seguro de Eliminar La Vista "${viewName.split("-")[0]}" ?',
+                          btnOkText: "Aceptar",
+                          btnOkColor: Colors.green,
+                          btnCancelText: "Cancelar",
+                          btnCancelColor: Colors.redAccent,
+                          btnOkOnPress: () async {
+                            // agregar la funcion para la eliminacion y la actualizacion de la lista en la parte del front desaparezca
+                            // el chip que se elimina
+                            await Connections().deleteAccessofWindow({
+                              "view_name": viewName.split("-")[0],
+                              "id_rol": viewName.split("-")[1]
+                            });
+                            Navigator.of(context).pop();
+                          },
+                          btnCancelOnPress: () {
+                            Navigator.of(context).pop();
+                          },
+                        ).show();
+                      },
+                      icon: Icon(Icons.delete),
+                      label: Text("Eliminar Vista"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          );
+        });
+      },
+    );
+  }
+}
+
+class MyTextFieldWidget extends StatefulWidget {
+  final TextEditingController controller;
+  final String hintText;
+
+  MyTextFieldWidget({required this.controller, required this.hintText});
+
+  @override
+  _MyTextFieldWidgetState createState() => _MyTextFieldWidgetState();
+}
+
+class _MyTextFieldWidgetState extends State<MyTextFieldWidget> {
+  Color _textFieldColor = Colors.white;
+  String _initialValue = ''; // Variable para el primer valor conocido
+
+  @override
+  void initState() {
+    super.initState();
+    _initialValue = widget.controller.text; // Guarda el primer valor conocido
+    widget.controller.addListener(_onControllerChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_onControllerChanged);
+    super.dispose();
+  }
+
+  void _onControllerChanged() {
+    String currentValue = widget.controller.text;
+
+    setState(() {
+      _textFieldColor =
+          (currentValue == _initialValue) ? Colors.white : Colors.orange;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: TextField(
+          controller: widget.controller,
+          style: TextStyle(color: _textFieldColor),
+          decoration: InputDecoration(
+            hintText: widget.hintText,
+            hintStyle: TextStyle(color: Colors.white),
+            filled: true,
+            fillColor: Colors.white.withOpacity(0.3),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+              borderSide: BorderSide(color: Colors.white),
+            ),
+          ),
         ),
       ),
     );
