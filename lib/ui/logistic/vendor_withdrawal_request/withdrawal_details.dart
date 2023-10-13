@@ -162,20 +162,6 @@ class _WithDrawalDetailsState extends State<WithdrawalDetails> {
                                                             response[1]
                                                                 .toString());
 
-                                                    // var dtsrt =
-                                                    //     await Connections()
-                                                    //         .getdtsOrdenRetiro(
-                                                    //             Get.parameters[
-                                                    //                     'id']
-                                                    //                 .toString());
-
-                                                    // await Connections().postDebit(
-                                                    //     "${dtsrt['id_vendedor']}",
-                                                    //     data['attributes']
-                                                    //             ['Monto']
-                                                    //         .toString(),
-                                                    //     "retiro - ${Get.parameters['id'].toString()}",
-                                                    //     "retiro");
                                                     await loadData();
                                                     setState(() {
                                                       imageSelect = null;
@@ -404,6 +390,7 @@ class _WithDrawalDetailsState extends State<WithdrawalDetails> {
                                                           data['attributes']
                                                                   ['Monto']
                                                               .toString(),
+                                                          "${dtsrt['id']}",
                                                           "retiro - ${Get.parameters['id'].toString()}",
                                                           "retiro",
                                                           "orden de retiro pagada");

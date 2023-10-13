@@ -84,8 +84,12 @@ class _SellerWithdrawalDetailsState extends State<SellerWithdrawalDetails> {
                       ),
                       onPressed: () async {
                         getLoadingModal(context, false);
+                        // var saldo = await Connections().getSaldo();
+                        // if (double.parse(saldo) >=
+                        //     double.parse(_controllers.montoController.text)) {
                         var response = await Connections()
                             .withdrawalPost(_controllers.montoController.text);
+
                         if (response) {
                           Navigator.pop(context);
 
@@ -121,6 +125,23 @@ class _SellerWithdrawalDetailsState extends State<SellerWithdrawalDetails> {
                             btnOkOnPress: () {},
                           ).show();
                         }
+                        // } else {
+                        //   Navigator.pop(context);
+                        //   AwesomeDialog(
+                        //     width: 500,
+                        //     context: context,
+                        //     dialogType: DialogType.error,
+                        //     animType: AnimType.rightSlide,
+                        //     title: 'Error',
+                        //     desc:
+                        //         'No tienes saldo suficiente para realizar esta transaccion',
+                        //     btnCancel: Container(),
+                        //     btnOkText: "Aceptar",
+                        //     btnOkColor: colors.colorGreen,
+                        //     btnCancelOnPress: () {},
+                        //     btnOkOnPress: () {},
+                        //   ).show();
+                        // }
                       },
                     )),
                 SizedBox(
