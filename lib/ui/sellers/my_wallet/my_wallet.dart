@@ -26,6 +26,7 @@ class _MyWalletState extends State<MyWallet> {
   List data = [];
   String start = "";
   String end = "";
+  List arrayFiltersAnd = [];
 
   // Saldo inicial de cuenta
   List<Transaction> transactions = [
@@ -59,8 +60,8 @@ class _MyWalletState extends State<MyWallet> {
 
   filterData() async {
     try {
-      var response = await Connections()
-          .getTransactionsByDate(start, end, searchController.text);
+      var response = await Connections().getTransactionsByDate(
+          start, end, searchController.text, arrayFiltersAnd);
 
       setState(() {
         data = response;
@@ -135,7 +136,9 @@ class _MyWalletState extends State<MyWallet> {
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: DataTableModelPrincipal(
-                    columns: getColumns(), rows: buildDataRows(data)),
+                    columnWidth: 1200,
+                    columns: getColumns(),
+                    rows: buildDataRows(data)),
               ),
             ),
             // Expanded(

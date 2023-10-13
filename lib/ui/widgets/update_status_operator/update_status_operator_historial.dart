@@ -235,6 +235,7 @@ class _UpdateStatusOperatorHistorialState
                       var resCredit = await Connections().postCredit(
                           "${datacostos['users'][0]['vendedores'][0]['id_master']}",
                           "${datacostos['precio_total']}",
+                          "${datacostos['id']}",
                           "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
                           "recaudo",
                           "recaudo de precio total de pedido");
@@ -242,6 +243,7 @@ class _UpdateStatusOperatorHistorialState
                         var resDebit = await Connections().postDebit(
                             "${datacostos['users'][0]['vendedores'][0]['id_master']}",
                             "${datacostos['users'][0]['vendedores'][0]['costo_envio']}",
+                            "${datacostos['id']}",
                             "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
                             "envio",
                             "costo de envio de pedido entregado");
@@ -268,6 +270,7 @@ class _UpdateStatusOperatorHistorialState
                                 await Connections().postCredit(
                                     "${datacostos['users'][0]['vendedores'][0]['referer']}",
                                     "${refered['referer_cost']}",
+                                    "${datacostos['id']}",
                                     "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
                                     "referido",
                                     "acreditacion por comision de vendedor referido");
@@ -364,6 +367,7 @@ class _UpdateStatusOperatorHistorialState
                           var resCredit = await Connections().postCredit(
                               "${datacostos['users'][0]['vendedores'][0]['id_master']}",
                               "${datacostos['precio_total']}",
+                              "${datacostos['id']}",
                               "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
                               "recaudo",
                               "recaudo de precio total de pedido");
@@ -371,6 +375,7 @@ class _UpdateStatusOperatorHistorialState
                             var resDebit = await Connections().postDebit(
                                 "${datacostos['users'][0]['vendedores'][0]['id_master']}",
                                 "${datacostos['users'][0]['vendedores'][0]['costo_envio']}",
+                                "${datacostos['id']}",
                                 "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
                                 "envio",
                                 "costo de envio de pedido entregado");
@@ -394,6 +399,7 @@ class _UpdateStatusOperatorHistorialState
                                     await Connections().postCredit(
                                         "${datacostos['users'][0]['vendedores'][0]['referer']}",
                                         "${refered['referer_cost']}",
+                                        "${datacostos['id']}",
                                         "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
                                         "referido",
                                         "acreditacion por comision de vendedor referido");
@@ -543,6 +549,7 @@ class _UpdateStatusOperatorHistorialState
                       var resDebit = await Connections().postDebit(
                           "${datane['users'][0]['vendedores'][0]['id_master']}",
                           "${datane['users'][0]['vendedores'][0]['costo_envio']}",
+                          "${datane['id']}",
                           "${datane['name_comercial']}-${datane['numero_orden']}",
                           "envio",
                           "costo de envio por pedido no entregado");
@@ -727,6 +734,7 @@ class _UpdateStatusOperatorHistorialState
                           var resDebit = await Connections().postDebit(
                               "${datacostos['users'][0]['vendedores'][0]['id']}",
                               "${datacostos['users'][0]['vendedores'][0]['costo_devolucion']}",
+                              "${datacostos['id']}",
                               "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
                               "devolucion",
                               "costo de devolucion de pedido ");

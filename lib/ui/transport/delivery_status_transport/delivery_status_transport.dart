@@ -622,7 +622,9 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
         ),
         Expanded(
             child: DataTableModelPrincipal(
-                columns: getColumns(InputFilter), rows: buildDataRows(data))),
+                columnWidth: 4000,
+                columns: getColumns(InputFilter),
+                rows: buildDataRows(data))),
       ]),
     ));
   }

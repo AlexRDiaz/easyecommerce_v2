@@ -3241,18 +3241,18 @@ class Connections {
     }
   }
 
-  postCredit(String idComercial, String monto, String idOrigen, String origen,
-      String comentario) async {
+  postCredit(String idComercial, String monto, String idOrigen, String codigo,
+      String origen, String comentario) async {
     try {
       var response =
           await http.post(Uri.parse("$serverLaravel/api/transacciones/credit"),
               headers: {'Content-Type': 'application/json'},
               body: json.encode({
-                "act_date":
-                    "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year} ${DateTime.now().hour}:${DateTime.now().minute}",
+                "act_date": DateTime.now().toString(),
                 "id": idComercial,
                 "monto": monto,
                 "id_origen": idOrigen,
+                "codigo": codigo,
                 "origen": origen,
                 "comentario": comentario
               }));
@@ -3266,18 +3266,18 @@ class Connections {
     }
   }
 
-  postDebit(String idComercial, String monto, String idOrigen, String origen,
-      String comentario) async {
+  postDebit(String idComercial, String monto, String idOrigen, String codigo,
+      String origen, String comentario) async {
     try {
       var response =
           await http.post(Uri.parse("$serverLaravel/api/transacciones/debit"),
               headers: {'Content-Type': 'application/json'},
               body: json.encode({
-                "act_date":
-                    "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year} ${DateTime.now().hour}:${DateTime.now().minute}",
+                "act_date": DateTime.now().toString(),
                 "id": idComercial,
                 "monto": monto,
                 "id_origen": idOrigen,
+                "codigo": codigo,
                 "origen": origen,
                 "comentario": comentario
               }));
@@ -5268,12 +5268,17 @@ class Connections {
     }
   }
 
-  getTransactionsByDate(start, end, search) async {
+  getTransactionsByDate(start, end, search, arrayFiltersAnd) async {
     try {
       var response = await http.post(
           Uri.parse("$serverLaravel/api/transacciones/by-date"),
           headers: {'Content-Type': 'application/json'},
-          body: json.encode({"start": start, "end": end, "search": search}));
+          body: json.encode({
+            "start": start,
+            "end": end,
+            "search": search,
+            "and": arrayFiltersAnd
+          }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         // print(decodeData);
