@@ -260,7 +260,7 @@ class _UpdateStatusOperatorHistorialState
                                   response[1],
                                   widget.id);
 
-                          //  *add transaccion_pedido
+                          //  *add transaccion_pedido_transp
                           var today = DateTime.now().toString().split(' ')[0];
                           var getTransaccion = await Connections()
                               .getTraccionPedidoTransportadora(widget.id,
