@@ -37,6 +37,13 @@ class _PaymentVouchersTransportState extends State<PaymentVouchersTransport> {
   double sumaCosto = 0.0;
   String statusPagado = 'PENDIENTE';
   bool sort = false;
+  var idTransportadora;
+  List dataL = [];
+  double suma2 = 0.0;
+  double sumaCosto2 = 0.0;
+  double total = 0.0;
+  String statusTransportadoraShipping = '';
+  var idTSC;
 
   @override
   void didChangeDependencies() {
@@ -52,10 +59,31 @@ class _PaymentVouchersTransportState extends State<PaymentVouchersTransport> {
     var operatorsList = [];
 
     var response = [];
+    var responseLaravel = [];
+
     setState(() {
+      idTSC = 0;
       suma = 0.0;
       sumaCosto = 0.0;
+      suma2 = 0.0;
+      sumaCosto2 = 0.0;
+      total = 0.0;
+      statusTransportadoraShipping = "";
     });
+    var id_transportadora =
+        int.parse(sharedPrefs!.getString("idTransportadora").toString());
+    var fecha = sharedPrefs!.getString("dateOperatorState");
+    responseLaravel = await Connections()
+        .getTrasportadoraShippingCostByDate(id_transportadora, fecha);
+    dataL = responseLaravel;
+    if (dataL.isNotEmpty) {
+      idTSC = dataL[0]['id'];
+      suma2 = dataL[0]['daily_proceeds'];
+      sumaCosto2 = dataL[0]['daily_shipping_cost'];
+      total = dataL[0]['daily_total'];
+      statusTransportadoraShipping = dataL[0]['status'];
+    }
+
     response = await Connections()
         .getOrdersForTransportFiltersState(_controllers.searchController.text);
     data = response;
@@ -161,11 +189,19 @@ class _PaymentVouchersTransportState extends State<PaymentVouchersTransport> {
               " Valores Recibidos: \$${suma.toStringAsFixed(2)}",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
+            Text(
+              " Valores Recibidos Laravel: \$${suma2}",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             SizedBox(
               height: 10,
             ),
             Text(
               " Costo Entrega: \$${sumaCosto}",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text(
+              " Costo Entrega Laravel: \$${sumaCosto2}",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             SizedBox(
@@ -175,6 +211,10 @@ class _PaymentVouchersTransportState extends State<PaymentVouchersTransport> {
               " Total: \$${(suma - sumaCosto).toStringAsFixed(2)}",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
+            Text(
+              " Total Laravel: \$$total",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             SizedBox(
               height: 10,
             ),
@@ -182,10 +222,16 @@ class _PaymentVouchersTransportState extends State<PaymentVouchersTransport> {
               " Estado Pago Logistica: ${data.isNotEmpty ? statusPagado : ''}",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
+            Text(
+              " Estado Pago Logistica Laravel: $statusTransportadoraShipping",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             SizedBox(
               height: 10,
             ),
-            statusPagado == "PAGADO" || statusPagado == "RECIBIDO"
+            statusPagado == "PAGADO" ||
+                    statusPagado == "RECIBIDO" ||
+                    statusPagado == "DEPOSITO REALIZADO"
                 ? Row(
                     children: [
                       Row(
@@ -248,6 +294,15 @@ class _PaymentVouchersTransportState extends State<PaymentVouchersTransport> {
                                           data[i]['id'], responseI[1]);
                                 }
                               }
+
+                              //update EN LA NUEVA TABLA
+                              var uptStateTransShipping = await Connections()
+                                  .updateTransportadorasShippingCostLaravel(
+                                      "PAGADO", idTSC);
+                              var responseTransShipping = await Connections()
+                                  .updateTrasportadoraShippingCost(
+                                      responseI[1], idTSC);
+
                               await loadData();
                               setState(() {});
                               Navigator.pop(context);
