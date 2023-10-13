@@ -141,31 +141,31 @@ class _UpdateStatusOperatorHistorialState
     return Container(
       child: Column(
         children: [
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
-          Text("Tipo de Pago",
+          const Text("Tipo de Pago",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           _modelCheckEfectivo(),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           _modelCheckTransferencia(),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           _modelCheckDeposito(),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           transferencia == true
-              ? Text("Foto",
+              ? const Text("Foto",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12))
               : Container(),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           transferencia == true
@@ -179,7 +179,7 @@ class _UpdateStatusOperatorHistorialState
                       imageSelect = image;
                     });
                   },
-                  child: Text(
+                  child: const Text(
                     "Seleccionar:",
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ))
@@ -310,6 +310,7 @@ class _UpdateStatusOperatorHistorialState
                           btnCancel: Container(),
                           btnOkText: "Aceptar",
                           btnOkColor: Colors.green,
+
                           btnCancelOnPress: () {},
                           btnOkOnPress: () {
                             Navigator.pop(context);
@@ -327,6 +328,7 @@ class _UpdateStatusOperatorHistorialState
                           btnCancel: Container(),
                           btnOkText: "Aceptar",
                           btnOkColor: Colors.green,
+                          descTextStyle: const TextStyle(color: Colors.green),
                           btnCancelOnPress: () {},
                           btnOkOnPress: () {
                             Navigator.pop(context);
@@ -431,7 +433,9 @@ class _UpdateStatusOperatorHistorialState
                               btnOkText: "Aceptar",
                               btnOkColor: Colors.green,
                               btnCancelOnPress: () {},
-                              btnOkOnPress: () {},
+                              btnOkOnPress: () {
+                                Navigator.pop(context);
+                              },
                             ).show();
                           } else {
                             // ignore: use_build_context_synchronously
@@ -444,14 +448,16 @@ class _UpdateStatusOperatorHistorialState
                               desc: 'Pedido entregado',
                               btnCancel: Container(),
                               btnOkText: "Aceptar",
+                              descTextStyle:
+                                  const TextStyle(color: Colors.green),
                               btnOkColor: Colors.green,
                               btnCancelOnPress: () {},
-                              btnOkOnPress: () {},
+                              btnOkOnPress: () {
+                                Navigator.pop(context);
+                                Navigator.pop(context);
+                              },
                             ).show();
                           }
-
-                          Navigator.pop(context);
-                          Navigator.pop(context);
                         }
                       : null,
               child: Text(
@@ -572,6 +578,7 @@ class _UpdateStatusOperatorHistorialState
                           btnCancel: Container(),
                           btnOkText: "Aceptar",
                           btnOkColor: Colors.green,
+                          dialogBackgroundColor: Colors.red[200],
                           btnCancelOnPress: () {},
                           btnOkOnPress: () {
                             Navigator.pop(context);
@@ -586,6 +593,7 @@ class _UpdateStatusOperatorHistorialState
                           animType: AnimType.rightSlide,
                           title: 'Se ha modificado exitosamente',
                           desc: 'Pedio no entregado',
+                          descTextStyle: const TextStyle(color: Colors.red),
                           btnCancel: Container(),
                           btnOkText: "Aceptar",
                           btnOkColor: Colors.green,
@@ -701,7 +709,7 @@ class _UpdateStatusOperatorHistorialState
                                 _controllerModalText.text,
                                 widget.id);
                       }
-
+                      var resTransaction = "";
                       var datacostos = await Connections()
                           .getOrderByIDHistoryLaravel(widget.id);
 
@@ -722,9 +730,10 @@ class _UpdateStatusOperatorHistorialState
                               "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
                               "devolucion",
                               "costo de devolucion de pedido ");
-                          resDebit == 1 || resDebit == 2
-                              ? print("Error al guardar debito ")
-                              : print("Exito al guardar");
+                          if (resDebit != 1 && resDebit != 2) {
+                            resTransaction =
+                                "Pedido con novedad con costo devolucion";
+                          }
                         }
                       }
                       Connections().updatenueva(widget.id, {
@@ -737,13 +746,52 @@ class _UpdateStatusOperatorHistorialState
                       if (!await launchUrl(_url)) {
                         throw Exception('Could not launch $_url');
                       }
+
+                      if (resTransaction != "") {
+                        // ignore: use_build_context_synchronously
+                        AwesomeDialog(
+                          width: 500,
+                          context: context,
+                          dialogType: DialogType.success,
+                          animType: AnimType.rightSlide,
+                          title: 'Se ha modificado exitosamente',
+                          desc: resTransaction,
+                          descTextStyle: const TextStyle(
+                              color: Color.fromARGB(255, 255, 235, 59)),
+                          btnCancel: Container(),
+                          btnOkText: "Aceptar",
+                          btnOkColor: Colors.green,
+                          btnCancelOnPress: () {},
+                          btnOkOnPress: () {
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                          },
+                        ).show();
+                      } else {
+                        // ignore: use_build_context_synchronously
+                        AwesomeDialog(
+                          width: 500,
+                          context: context,
+                          dialogType: DialogType.success,
+                          animType: AnimType.rightSlide,
+                          title: 'Se ha modificado exitosamente',
+                          desc: 'Pedido con novedad',
+                          btnCancel: Container(),
+                          btnOkText: "Aceptar",
+                          btnOkColor: Colors.green,
+                          descTextStyle: const TextStyle(
+                              color: Color.fromARGB(255, 255, 235, 59)),
+                          btnCancelOnPress: () {},
+                          btnOkOnPress: () {
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                          },
+                        ).show();
+                      }
                       setState(() {
                         _controllerModalText.clear();
                         imageSelect = null;
                       });
-
-                      Navigator.pop(context);
-                      Navigator.pop(context);
                     }
                   : null,
               child: Text(

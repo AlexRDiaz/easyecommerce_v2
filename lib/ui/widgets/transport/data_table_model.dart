@@ -38,7 +38,7 @@ class DataTableModelPrincipal extends StatelessWidget {
           fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black),
       columnSpacing: 6,
       horizontalMargin: 12,
-      minWidth: 1400,
+      minWidth: 4000,
       columns: columns,
       rows: rows,
     );

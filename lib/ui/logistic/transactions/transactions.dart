@@ -265,6 +265,7 @@ class _TransactionsState extends State<Transactions> {
                   SnackBarHelper.showErrorSnackBar(
                       context, "Error de conexion");
                 } else {
+                  //Connections().updatenueva(id, datajson)
                   SnackBarHelper.showOkSnackBar(
                       context, "Transaccion reestablecida correctamente");
                 }
