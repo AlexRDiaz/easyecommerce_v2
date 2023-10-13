@@ -289,6 +289,29 @@ class _UpdateStatusOperatorHistorialState
                         resTransaction =
                             "Ha ocurrido un error al ejecutar la transacción";
                       }
+
+                      //add transaccion_pedido
+                      var today = DateTime.now().toString().split(' ')[0];
+                      var getTransaccion = await Connections()
+                          .getTraccionPedidoTransportadora(widget.id,
+                              datacostos['transportadora'][0]['id'], today);
+                      if (getTransaccion == null) {
+                        var resTrans = await Connections()
+                            .createTransaccionPedidoTransportadora(
+                                widget.id,
+                                datacostos['transportadora'][0]['id'],
+                                datacostos['operadore'][0]['id'],
+                                "ENTREGADO",
+                                datacostos['precio_total'],
+                                datacostos['transportadora'][0]
+                                    ['costo_transportadora']);
+                      } else {
+                        var updateTransacc = await Connections()
+                            .updateTraccionPedidoTransportadora(
+                                getTransaccion[0]['id'].toString(),
+                                "ENTREGADO");
+                      }
+
                       setState(() {
                         _controllerModalText.clear();
                         tipo = "";
@@ -412,6 +435,33 @@ class _UpdateStatusOperatorHistorialState
                             resTransaction =
                                 "Ha ocurrido un error al ejecutar la transacción";
                           }
+
+                          //add transaccion_pedido
+                          var data = await Connections()
+                              .getOrderByIDHistoryLaravel(widget.id);
+
+                          var today = DateTime.now().toString().split(' ')[0];
+                          // today = '2023-10-12';
+                          // print("today: $today");
+                          var getTransaccion = await Connections()
+                              .getTraccionPedidoTransportadora(widget.id,
+                                  data['transportadora'][0]['id'], today);
+                          if (getTransaccion == null) {
+                            var resTrans = await Connections()
+                                .createTransaccionPedidoTransportadora(
+                                    widget.id,
+                                    data['transportadora'][0]['id'],
+                                    data['operadore'][0]['id'],
+                                    "ENTREGADO",
+                                    data['precio_total'],
+                                    data['transportadora'][0]
+                                        ['costo_transportadora']);
+                          } else {
+                            var updateTransacc = await Connections()
+                                .updateTraccionPedidoTransportadora(
+                                    getTransaccion[0]['id'], "ENTREGADO");
+                          }
+
                           setState(() {
                             _controllerModalText.clear();
                             tipo = "";
@@ -605,6 +655,28 @@ class _UpdateStatusOperatorHistorialState
                         ).show();
                       }
 
+                      var today = DateTime.now().toString().split(' ')[0];
+                      // today = '2023-10-12';
+                      // print("today: $today");
+                      var getTransaccion = await Connections()
+                          .getTraccionPedidoTransportadora(widget.id,
+                              datane['transportadora'][0]['id'], today);
+                      if (getTransaccion == null) {
+                        var resTrans = await Connections()
+                            .createTransaccionPedidoTransportadora(
+                                widget.id,
+                                datane['transportadora'][0]['id'],
+                                datane['operadore'][0]['id'],
+                                "NO ENTREGADO",
+                                datane['precio_total'],
+                                datane['transportadora'][0]
+                                    ['costo_transportadora']);
+                      } else {
+                        var updateTransacc = await Connections()
+                            .updateTraccionPedidoTransportadora(
+                                getTransaccion[0]['id'], "NO ENTREGADO");
+                      }
+
                       setState(() {
                         _controllerModalText.clear();
 
@@ -788,6 +860,18 @@ class _UpdateStatusOperatorHistorialState
                           },
                         ).show();
                       }
+
+                      // * if it exists, delete transaccion_pedidos_transportadora
+                      var today = DateTime.now().toString().split(' ')[0];
+                      var getTransaccion = await Connections()
+                          .getTraccionPedidoTransportadora(widget.id,
+                              datacostos['transportadora'][0]['id'], today);
+                      if (getTransaccion != null) {
+                        var deleteTransacc = await Connections()
+                            .deleteTraccionPedidoTransportadora(
+                                getTransaccion[0]['id']);
+                      }
+
                       setState(() {
                         _controllerModalText.clear();
                         imageSelect = null;
@@ -908,6 +992,20 @@ class _UpdateStatusOperatorHistorialState
                                   "/" +
                                   date[0].toString(),
                               widget.id);
+
+                      // * if it exists, delete transaccion_pedidos_transportadora
+                      var datares = await Connections()
+                          .getOrderByIDHistoryLaravel(widget.id);
+                      var today = DateTime.now().toString().split(' ')[0];
+                      var getTransaccion = await Connections()
+                          .getTraccionPedidoTransportadora(widget.id,
+                              datares['transportadora'][0]['id'], today);
+                      if (getTransaccion != null) {
+                        var deleteTransacc = await Connections()
+                            .deleteTraccionPedidoTransportadora(
+                                getTransaccion[0]['id']);
+                      }
+
                       setState(() {
                         _controllerModalText.clear();
                         dateSelect = "";
@@ -968,6 +1066,20 @@ class _UpdateStatusOperatorHistorialState
 
                 await Connections().updateOrderStatusOperatorGeneralHistorial(
                     "EN RUTA", _controllerModalText.text, widget.id);
+
+                // * if it exists, delete transaccion_pedidos_transportadora
+                var datares =
+                    await Connections().getOrderByIDHistoryLaravel(widget.id);
+                var today = DateTime.now().toString().split(' ')[0];
+                var getTransaccion = await Connections()
+                    .getTraccionPedidoTransportadora(
+                        widget.id, datares['transportadora'][0]['id'], today);
+                if (getTransaccion != null) {
+                  var deleteTransacc = await Connections()
+                      .deleteTraccionPedidoTransportadora(
+                          getTransaccion[0]['id']);
+                }
+
                 setState(() {
                   _controllerModalText.clear();
                 });
@@ -1025,6 +1137,20 @@ class _UpdateStatusOperatorHistorialState
 
                 await Connections().updateOrderStatusOperatorGeneralHistorial(
                     "PEDIDO PROGRAMADO", _controllerModalText.text, widget.id);
+
+                // * if it exists, delete transaccion_pedidos_transportadora
+                var datares =
+                    await Connections().getOrderByIDHistoryLaravel(widget.id);
+                var today = DateTime.now().toString().split(' ')[0];
+                var getTransaccion = await Connections()
+                    .getTraccionPedidoTransportadora(
+                        widget.id, datares['transportadora'][0]['id'], today);
+                if (getTransaccion != null) {
+                  var deleteTransacc = await Connections()
+                      .deleteTraccionPedidoTransportadora(
+                          getTransaccion[0]['id']);
+                }
+
                 setState(() {
                   _controllerModalText.clear();
                 });
@@ -1082,6 +1208,20 @@ class _UpdateStatusOperatorHistorialState
 
                 await Connections().updateOrderStatusOperatorGeneralHistorial(
                     "EN OFICINA", _controllerModalText.text, widget.id);
+
+                // * if it exists, delete transaccion_pedidos_transportadora
+                var datares =
+                    await Connections().getOrderByIDHistoryLaravel(widget.id);
+                var today = DateTime.now().toString().split(' ')[0];
+                var getTransaccion = await Connections()
+                    .getTraccionPedidoTransportadora(
+                        widget.id, datares['transportadora'][0]['id'], today);
+                if (getTransaccion != null) {
+                  var deleteTransacc = await Connections()
+                      .deleteTraccionPedidoTransportadora(
+                          getTransaccion[0]['id']);
+                }
+
                 setState(() {
                   _controllerModalText.clear();
                 });

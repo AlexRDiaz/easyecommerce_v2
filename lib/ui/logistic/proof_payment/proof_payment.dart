@@ -32,6 +32,9 @@ class _ProofPaymentState extends State<ProofPayment> {
   List objetosAndFechas = [];
   List totalesPrecio = [];
   List dataGeneral = [];
+  var dateSelect;
+  List datares = [];
+
   @override
   void didChangeDependencies() {
     loadData();
@@ -401,8 +404,36 @@ class _ProofPaymentState extends State<ProofPayment> {
                                                                   dataGeneral[i]
                                                                       ['id']);
                                                         }
+                                                        dateSelect = dataGeneral[
+                                                                    i][
+                                                                'Fecha_Entrega']
+                                                            .toString();
                                                       }
                                                     }
+
+                                                    // * update a la nueva tabla transportadoras_shipping_cost
+                                                    var id_transportadora =
+                                                        selectedValueTransportator
+                                                            .toString()
+                                                            .split("-")[1]
+                                                            .toString();
+                                                    var responseLaravel =
+                                                        await Connections()
+                                                            .getTrasportadoraShippingCostByDate(
+                                                                id_transportadora,
+                                                                dateSelect);
+                                                    datares = responseLaravel;
+                                                    if (datares.isNotEmpty) {
+                                                      var idTransaccion =
+                                                          responseLaravel[0]
+                                                              ['id'];
+                                                      var uptStateTransShipping =
+                                                          await Connections()
+                                                              .updateTransportadorasShippingCostLaravel(
+                                                                  "RECIBIDO",
+                                                                  idTransaccion);
+                                                    }
+
                                                     Navigator.pop(context);
                                                     await getOrders();
                                                     Navigator.pop(context);
@@ -475,8 +506,35 @@ class _ProofPaymentState extends State<ProofPayment> {
                                                           print(
                                                               _rechazado.text);
                                                         }
+                                                        dateSelect = dataGeneral[
+                                                                    i][
+                                                                'Fecha_Entrega']
+                                                            .toString();
                                                       }
                                                     }
+
+                                                    // * update a la nueva tabla transportadoras_shipping_cost
+                                                    var id_transportadora =
+                                                        selectedValueTransportator
+                                                            .toString()
+                                                            .split("-")[1];
+                                                    var responseLaravel =
+                                                        await Connections()
+                                                            .getTrasportadoraShippingCostByDate(
+                                                                id_transportadora,
+                                                                dateSelect);
+                                                    datares = responseLaravel;
+                                                    if (datares.isNotEmpty) {
+                                                      var idTransaccion =
+                                                          responseLaravel[0]
+                                                              ['id'];
+                                                      var uptStateTransShipping =
+                                                          await Connections()
+                                                              .updateTransportadorasShippingCostLaravel(
+                                                                  "RECHAZADO",
+                                                                  idTransaccion);
+                                                    }
+
                                                     Navigator.pop(context);
                                                     await getOrders();
                                                     Navigator.pop(context);

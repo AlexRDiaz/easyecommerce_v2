@@ -23,6 +23,7 @@ import 'package:frontend/ui/logistic/print_guides/print_guides.dart';
 import 'package:frontend/ui/logistic/printed_guides/printedguides.dart';
 import 'package:frontend/ui/logistic/profit_date/profit_date.dart';
 import 'package:frontend/ui/logistic/proof_payment/proof_payment.dart';
+import 'package:frontend/ui/logistic/proof_payment/proof_payment_new.dart';
 import 'package:frontend/ui/logistic/remote_support/remote_support.dart';
 import 'package:frontend/ui/logistic/return_in_warehouse/controllers/controllers.dart';
 import 'package:frontend/ui/logistic/return_in_warehouse/returns_in_warehouse.dart';
@@ -102,6 +103,10 @@ class _LayoutPageState extends State<LayoutPage> {
         ProofPayment(),
       ),
       getOption(
+        "Comprobantes de Pago2",
+        ProofPayment2(),
+      ),
+      getOption(
         "Saldo Contable",
         ProfitDate(),
       ),
@@ -154,7 +159,7 @@ class _LayoutPageState extends State<LayoutPage> {
         UpdatePassword(),
       ),
       getOption(
-        "Configuración de Roles", 
+        "Configuración de Roles",
         RoleConfiguration(),
       ),
       // AddStockToVendors(),
