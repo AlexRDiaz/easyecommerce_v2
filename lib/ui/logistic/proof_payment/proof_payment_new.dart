@@ -817,13 +817,10 @@ class _ProofPaymentState2 extends State<ProofPayment2> {
           builder: (context) {
             return AlertDialog(
               content: Container(
-                width: 400,
+                width: 500,
                 height: MediaQuery.of(context).size.height,
-                child: Column(
+                child: ListView(
                   children: [
-                    const SizedBox(
-                      height: 20,
-                    ),
                     const Text(
                       "Detalles",
                       style: TextStyle(
@@ -833,103 +830,119 @@ class _ProofPaymentState2 extends State<ProofPayment2> {
                     Text("Costo Entrega: \$$costoEntrega"),
                     Text("Total: \$$total"),
                     const Divider(),
-                    TextButton(
-                        onPressed: () async {
-                          getLoadingModal(context, false);
-                          var data = await Connections()
-                              .updateTransportadorasShippingCostLaravel(
-                                  "RECIBIDO", id);
+                    status != "DEPOSITO REALIZADO"
+                        ? Visibility(
+                            visible: true,
+                            child: Column(
+                              children: [
+                                TextButton(
+                                  onPressed: () async {
+                                    getLoadingModal(context, false);
+                                    var data = await Connections()
+                                        .updateTransportadorasShippingCostLaravel(
+                                            "RECIBIDO", id);
 
-                          //update estado_pago_logistica  a todos los pedidos en estas fechas
-                          updateOrdersPerDay(
-                              selectedValueTransportator
-                                  .toString()
-                                  .split("-")[1]
-                                  .toString(),
-                              fecha,
-                              "RECIBIDO",
-                              "");
+                                    //update estado_pago_logistica  a todos los pedidos en estas fechas
+                                    updateOrdersPerDay(
+                                        selectedValueTransportator
+                                            .toString()
+                                            .split("-")[1]
+                                            .toString(),
+                                        fecha,
+                                        "RECIBIDO",
+                                        "");
 
-                          daysM = [];
-                          await getOrders();
-                          Navigator.pop(context);
-                          Navigator.pop(context);
-                        },
-                        child: const Text(
-                          "MARCAR RECIBIDO",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 72, 186, 131)),
-                        )),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    const Divider(),
-                    const Text(
-                      "Para marcar como rechazado primero llenar el campo de texto y luego aplastar el botón rechazado",
-                      style: TextStyle(
-                          fontSize: 10,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    TextField(
-                      controller: _rechazado,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                      decoration: const InputDecoration(
-                          hintText: "Comentario de Rechazado"),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    TextButton(
-                        onPressed: () async {
-                          getLoadingModal(context, false);
-                          var data = await Connections()
-                              .updateTransportadorasShippingCostRechazadoLaravel(
-                                  id, _rechazado.text);
+                                    daysM = [];
+                                    selectedChecks = [];
+                                    counterChecks = 0;
+                                    await getOrders();
+                                    Navigator.pop(context);
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text(
+                                    "MARCAR RECIBIDO",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Color.fromARGB(255, 72, 186, 131),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 15,
+                                ),
+                                const Divider(),
+                                const Text(
+                                  "Para marcar como rechazado primero llenar el campo de texto y luego aplastar el botón rechazado",
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                TextField(
+                                  controller: _rechazado,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                  decoration: const InputDecoration(
+                                    hintText: "Comentario de Rechazado",
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                TextButton(
+                                  onPressed: () async {
+                                    getLoadingModal(context, false);
+                                    var data = await Connections()
+                                        .updateTransportadorasShippingCostRechazadoLaravel(
+                                            id, _rechazado.text);
 
-                          //update estado_pago_logistica  a todos los pedidos en estas fechas
-                          updateOrdersPerDay(
-                              selectedValueTransportator
-                                  .toString()
-                                  .split("-")[1]
-                                  .toString(),
-                              fecha,
-                              "RECHAZADO",
-                              _rechazado.text);
+                                    //update estado_pago_logistica  a todos los pedidos en estas fechas
+                                    updateOrdersPerDay(
+                                        selectedValueTransportator
+                                            .toString()
+                                            .split("-")[1]
+                                            .toString(),
+                                        fecha,
+                                        "RECHAZADO",
+                                        _rechazado.text);
 
-                          daysM = [];
-                          await getOrders();
-                          Navigator.pop(context);
-                          Navigator.pop(context);
-                        },
-                        child: const Text(
-                          "RECHAZADO",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.redAccent),
-                        )),
-                    const SizedBox(
-                      height: 20,
-                    ),
+                                    daysM = [];
+                                    selectedChecks = [];
+                                    counterChecks = 0;
+                                    await getOrders();
+                                    Navigator.pop(context);
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text(
+                                    "RECHAZADO",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.redAccent,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : Container(),
                     const Divider(),
                     const Text(
                       "Comprobante:",
                       style: TextStyle(),
                     ),
                     const SizedBox(
-                      height: 15,
+                      height: 20,
                     ),
                     dataDay[0]['url_proof_payment'] == null
                         ? Container()
                         : SizedBox(
-                            width: 350,
-                            height: 300,
+                            width: 430,
+                            height: 400,
                             child: ListView(
-                              shrinkWrap: true,
                               children: [
                                 Image.network(
                                   "$generalServer${dataDay[0]['url_proof_payment'].toString()}",
@@ -941,7 +954,7 @@ class _ProofPaymentState2 extends State<ProofPayment2> {
                           ),
                     const Divider(),
                     const SizedBox(
-                      height: 15,
+                      height: 5,
                     ),
                     TextButton(
                         onPressed: () {
