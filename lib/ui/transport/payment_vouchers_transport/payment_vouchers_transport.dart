@@ -238,8 +238,9 @@ class _PaymentVouchersTransportState extends State<PaymentVouchersTransport> {
                         children: [
                           TextButton(
                               onPressed: () {
-                                launchUrl(Uri.parse(
-                                    "$generalServer${getUrlPLFoto(data)}"));
+                                // launchUrl(Uri.parse(
+                                //     "$generalServer${getUrlPLFoto(data)}"));
+                                showComprobante(context);
                               },
                               child: Text(
                                 "VER COMPROBANTE",
@@ -620,6 +621,45 @@ class _PaymentVouchersTransportState extends State<PaymentVouchersTransport> {
           iconColor: Colors.black,
         ),
       ),
+    );
+  }
+
+  void showComprobante(context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: Container(
+            width: 500,
+            height: MediaQuery.of(context).size.height,
+            child: Column(
+              children: [
+                const Text(
+                  "Comprobante:",
+                  style: TextStyle(),
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                "$generalServer${getUrlPLFoto(data)}" == null
+                    ? Container()
+                    : SizedBox(
+                        width: 480,
+                        height: 500,
+                        child: ListView(
+                          children: [
+                            Image.network(
+                              "$generalServer${getUrlPLFoto(data)}",
+                              fit: BoxFit.fill,
+                            ),
+                          ],
+                        ),
+                      ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
