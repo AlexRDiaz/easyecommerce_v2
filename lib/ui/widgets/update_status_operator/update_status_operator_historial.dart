@@ -278,7 +278,7 @@ class _UpdateStatusOperatorHistorialState
                             }
                           }
 
-                          await Connections().updatenueva(widget.id, {
+                          Connections().updatenueva(widget.id, {
                             "costo_envio": datacostos['users'][0]['vendedores']
                                 [0]['costo_envio'],
                             "costo_transportadora": datacostos['users'][0]
@@ -419,8 +419,9 @@ class _UpdateStatusOperatorHistorialState
                               if (datacostos['users'][0]['vendedores'][0]
                                       ['referer'] !=
                                   null) {
-                                var refered = getRefered(datacostos['users'][0]
-                                    ['vendedores'][0]['referer']);
+                                var refered = await getRefered(
+                                    datacostos['users'][0]['vendedores'][0]
+                                        ['referer']);
 
                                 if (refered != null) {
                                   if (refered['referer_cost'] != null) {
@@ -615,7 +616,7 @@ class _UpdateStatusOperatorHistorialState
                                 _controllerModalText.text,
                                 response[1],
                                 widget.id);
-                        await Connections().updatenueva(widget.id, {
+                        Connections().updatenueva(widget.id, {
                           "costo_envio": datane['users'][0]['vendedores'][0]
                               ['costo_envio'],
                         });
@@ -798,11 +799,12 @@ class _UpdateStatusOperatorHistorialState
                       if (datacostos['estado_devolucion'] != "PENDIENTE" &&
                           datacostos['estado_devolucion'] !=
                               "ENTREGADO EN OFICINA") {
-                        var existTransaction = Connections().getExistTransaction(
-                            "debit",
-                            "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                            "devolucion",
-                            datacostos['users'][0]['vendedores'][0]['id']);
+                        var existTransaction = await Connections()
+                            .getExistTransaction(
+                                "debit",
+                                "${datacostos['id']}",
+                                "devolucion",
+                                datacostos['users'][0]['vendedores'][0]['id']);
                         if (existTransaction == []) {
                           var resDebit = await Connections().postDebit(
                               "${datacostos['users'][0]['vendedores'][0]['id']}",

@@ -8,6 +8,7 @@ import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
+import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_details.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_details_data.dart';
 import 'package:frontend/ui/logistic/vendor_invoices/controllers/controllers.dart';
@@ -955,6 +956,12 @@ class _TransportDeliveryHistorialState
                           sortFunc("estado_pagado");
                         },
                       ),
+                      DataColumn2(
+                        label: const Text(""),
+                        size: ColumnSize.M,
+                        numeric: true,
+                        onSort: (columnIndex, ascending) {},
+                      ),
                     ],
                     rows: List<DataRow>.generate(data.length, (index) {
                       final color =
@@ -1862,6 +1869,62 @@ class _TransportDeliveryHistorialState
           ), onTap: () {
         showDialogInfoData(data[index]);
       }),
+      DataCell(InkWell(
+          child: Center(child: Icon(Icons.restart_alt_outlined)),
+          onTap: () async {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Atención'),
+                  content: const SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        Text(
+                            '¿Se reestableceran los costos ingresados y estados del pedido?'),
+                        Text(''),
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      child: const Text('Cancelar'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    TextButton(
+                      child: const Text('Continuar'),
+                      onPressed: () async {
+                        Connections().updatenueva(
+                            data[index]['id'].toString(), {
+                          "status": "PEDIDO PROGRAMADO",
+                          "estado_devolucion": "PENDIENTE"
+                        });
+                        //Navigator.pop(context);
+                        var res = await Connections()
+                            .rollbackTransaction(data[index]['id']);
+                        if (res == 1) {
+                          // ignore: use_build_context_synchronously
+                          SnackBarHelper.showErrorSnackBar(
+                              context, "No se pudo realizar la operacion");
+                        } else if (res == 2) {
+                          // ignore: use_build_context_synchronously
+                          SnackBarHelper.showErrorSnackBar(
+                              context, "Error de conexion");
+                        } else {
+                          //Connections().updatenueva(id, datajson)
+                          // ignore: use_build_context_synchronously
+                          SnackBarHelper.showOkSnackBar(context,
+                              "Transaccion reestablecida correctamente");
+                        }
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+          })),
     ];
   }
 

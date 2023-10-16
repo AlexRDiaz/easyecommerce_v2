@@ -148,16 +148,16 @@ class _TransportReturnState extends State<TransportReturn> {
                                         "PENDIENTE" &&
                                     datacostos['estado_devolucion'] !=
                                         "ENTREGADO EN OFICINA") {
-                                  var existTransaction = Connections()
+                                  List existTransaction = await Connections()
                                       .getExistTransaction(
                                           "debit",
-                                          "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
+                                          "${datacostos["id"]}",
                                           "devolucion",
                                           datacostos['users'][0]['vendedores']
-                                              [0]['id']);
-                                  if (existTransaction == []) {
+                                              [0]['id_master']);
+                                  if (existTransaction.isEmpty) {
                                     var resDebit = await Connections().postDebit(
-                                        "${datacostos['users'][0]['vendedores'][0]['id']}",
+                                        "${datacostos['users'][0]['vendedores'][0]['id_master']}",
                                         "${datacostos['users'][0]['vendedores'][0]['costo_devolucion']}",
                                         "${datacostos['id']}",
                                         "${datacostos['name_comercial']}-${datacostos['numero_orden']}",

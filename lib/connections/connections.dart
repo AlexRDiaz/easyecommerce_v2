@@ -5527,12 +5527,10 @@ class Connections {
           await http.post(Uri.parse("$serverLaravel/api/transacciones/exist"),
               headers: {'Content-Type': 'application/json'},
               body: json.encode({
-                {
-                  "tipo": tipo,
-                  "id_origen": id_origen,
-                  "origen": origen,
-                  "id_vendedor": id_vendedor
-                }
+                "tipo": tipo,
+                "id_origen": id_origen,
+                "origen": origen,
+                "id_vendedor": id_vendedor.toString()
               }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);

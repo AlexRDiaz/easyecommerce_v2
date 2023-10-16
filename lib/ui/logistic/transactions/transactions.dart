@@ -384,13 +384,6 @@ class _TransactionsState extends State<Transactions> {
           // sortFunc3("telefono_shipping", changevalue);
         },
       ),
-      DataColumn2(
-        label: Text(''),
-        size: ColumnSize.S,
-        onSort: (columnIndex, ascending) {
-          // sortFunc3("telefono_shipping", changevalue);
-        },
-      ),
     ];
   }
 
@@ -463,31 +456,6 @@ class _TransactionsState extends State<Transactions> {
               onTap: () {
                 // OpenShowDialog(context, index);
               })),
-          DataCell(data[index]['origen'] == "envio" ||
-                  data[index]['origen'] == "devolucion" ||
-                  data[index]['origen'] == "recaudo" ||
-                  data[index]['origen'] == "referido"
-              ? InkWell(
-                  child: Center(child: Icon(Icons.restart_alt_outlined)),
-                  onTap: () async {
-                    Connections().updatenueva(
-                        data[index]['id_origen'].toString(),
-                        {"status": "PEDIDO PROGRAMADO"});
-                    var res = await Connections()
-                        .rollbackTransaction(data[index]['id']);
-                    if (res == 1) {
-                      SnackBarHelper.showErrorSnackBar(
-                          context, "No se pudo realizar la operacion");
-                    } else if (res == 2) {
-                      SnackBarHelper.showErrorSnackBar(
-                          context, "Error de conexion");
-                    } else {
-                      //Connections().updatenueva(id, datajson)
-                      SnackBarHelper.showOkSnackBar(
-                          context, "Transaccion reestablecida correctamente");
-                    }
-                  })
-              : Container()),
         ],
       );
       rows.add(row);
