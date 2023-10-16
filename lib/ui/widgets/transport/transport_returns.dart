@@ -139,6 +139,42 @@ class _TransportReturnState extends State<TransportReturn> {
                                     widget.id,
                                     "DEVOLUCION EN RUTA",
                                     "Marca_T_D_T");
+
+                                //debit by return here
+                                var resTransaction = "";
+                                var datacostos = await Connections()
+                                    .getOrderByIDHistoryLaravel(widget.id);
+                                if (datacostos['estado_devolucion'] !=
+                                        "PENDIENTE" &&
+                                    datacostos['estado_devolucion'] !=
+                                        "ENTREGADO EN OFICINA") {
+                                  var existTransaction = Connections()
+                                      .getExistTransaction(
+                                          "debit",
+                                          "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
+                                          "devolucion",
+                                          datacostos['users'][0]['vendedores']
+                                              [0]['id']);
+                                  if (existTransaction == []) {
+                                    var resDebit = await Connections().postDebit(
+                                        "${datacostos['users'][0]['vendedores'][0]['id']}",
+                                        "${datacostos['users'][0]['vendedores'][0]['costo_devolucion']}",
+                                        "${datacostos['id']}",
+                                        "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
+                                        "devolucion",
+                                        "costo de devolucion de pedido ");
+                                    await Connections().updatenueva(widget.id, {
+                                      "costo_devolucion": datacostos['users'][0]
+                                          ['vendedores'][0]['costo_devolucion'],
+                                    });
+                                    if (resDebit != 1 && resDebit != 2) {
+                                      resTransaction =
+                                          "Pedido con novedad con costo devolucion";
+                                    }
+                                  }
+                                }
+
+                                //
                                 Navigator.pop(context);
                                 Navigator.pop(context);
                               }
