@@ -188,7 +188,7 @@ class _TransactionsState extends State<Transactions> {
         return AlertDialog(
           title: Text('Seleccionar Rango de Fechas'),
           content: Container(
-            width: double.maxFinite,
+            width: MediaQuery.of(context).size.width * 0.4,
             child: SfDateRangePicker(
               selectionMode: DateRangePickerSelectionMode.range,
               onSelectionChanged: _onSelectionChanged,

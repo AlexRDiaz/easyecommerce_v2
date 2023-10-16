@@ -2,8 +2,10 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/sellers/my_wallet/controllers/my_wallet_controller.dart';
 import 'package:frontend/ui/widgets/transport/data_table_model.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
@@ -27,13 +29,16 @@ class _MyWalletState extends State<MyWallet> {
   String start = "";
   String end = "";
   List arrayFiltersAnd = [];
-
-  // Saldo inicial de cuenta
-  List<Transaction> transactions = [
-    Transaction('Compra 1', -50.0),
-    Transaction('Compra 2', -75.0),
-    Transaction('Depósito 1', 200.0),
+  List<String> listOrigen = [
+    'TODO',
+    'RECAUDO',
+    'ENVIO',
+    'REFERENCIADO',
+    'DEVOLUCION'
   ];
+  TextEditingController origenController = TextEditingController(text: "TODO");
+
+  // Saldo
 
   @override
   void initState() {
@@ -59,6 +64,11 @@ class _MyWalletState extends State<MyWallet> {
   }
 
   filterData() async {
+    arrayFiltersAnd.add({
+      "id_vendedor":
+          sharedPrefs!.getString("idComercialMasterSeller").toString()
+    });
+
     try {
       var response = await Connections().getTransactionsByDate(
           start, end, searchController.text, arrayFiltersAnd);
@@ -177,7 +187,7 @@ class _MyWalletState extends State<MyWallet> {
         return AlertDialog(
           title: Text('Seleccionar Rango de Fechas'),
           content: Container(
-            width: double.maxFinite,
+            width: MediaQuery.of(context).size.width * 0.4,
             child: SfDateRangePicker(
               selectionMode: DateRangePickerSelectionMode.range,
               onSelectionChanged: _onSelectionChanged,
@@ -250,6 +260,55 @@ class _MyWalletState extends State<MyWallet> {
     );
   }
 
+  Column SelectFilterNoId(String title, filter,
+      TextEditingController controller, List<String> listOptions) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title),
+        Expanded(
+          child: Container(
+            margin: EdgeInsets.only(bottom: 4.5, top: 4.5),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5.0),
+              border: Border.all(color: Color.fromRGBO(6, 6, 6, 1)),
+            ),
+            height: 50,
+            child: DropdownButtonFormField<String>(
+              isExpanded: true,
+              value: controller.text,
+              onChanged: (String? newValue) {
+                setState(() {
+                  controller.text = newValue ?? "";
+                  arrayFiltersAnd
+                      .removeWhere((element) => element.containsKey(filter));
+
+                  if (newValue != 'TODO') {
+                    arrayFiltersAnd.add({filter: newValue});
+                  } else {}
+
+                  filterData();
+                });
+              },
+              decoration: InputDecoration(
+                  border: UnderlineInputBorder(
+                      borderRadius: BorderRadius.circular(10))),
+              items: listOptions.map<DropdownMenuItem<String>>((String value) {
+                // var nombre = value.split('-')[0];
+                // print(nombre);
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value.split('-')[0],
+                      style: const TextStyle(fontSize: 15)),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   List<DataColumn2> getColumns() {
     return [
       DataColumn2(
@@ -303,7 +362,15 @@ class _MyWalletState extends State<MyWallet> {
         },
       ),
       DataColumn2(
-        label: Text('Origen'),
+        label: Text('Codigo'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("telefono_shipping", changevalue);
+        },
+      ),
+      DataColumn2(
+        label:
+            SelectFilterNoId('Origen', 'origen', origenController, listOrigen),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
           // sortFunc3("direccion_shipping", changevalue);
@@ -377,6 +444,11 @@ class _MyWalletState extends State<MyWallet> {
               })),
           DataCell(InkWell(
               child: Text(data[index]['id_origen'].toString()),
+              onTap: () {
+                // OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['codigo'].toString()),
               onTap: () {
                 // OpenShowDialog(context, index);
               })),
