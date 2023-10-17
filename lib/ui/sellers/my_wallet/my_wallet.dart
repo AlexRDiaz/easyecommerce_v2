@@ -34,7 +34,8 @@ class _MyWalletState extends State<MyWallet> {
     'RECAUDO',
     'ENVIO',
     'REFERENCIADO',
-    'DEVOLUCION'
+    'DEVOLUCION',
+    'REEMBOLSO'
   ];
   TextEditingController origenController = TextEditingController(text: "TODO");
 
@@ -311,14 +312,14 @@ class _MyWalletState extends State<MyWallet> {
 
   List<DataColumn2> getColumns() {
     return [
-      DataColumn2(
-        label: // Espacio entre iconos
-            Text('Id'),
-        size: ColumnSize.S,
-        onSort: (columnIndex, ascending) {
-          // sortFunc3("marca_tiempo_envio", changevalue);
-        },
-      ),
+      // DataColumn2(
+      //   label: // Espacio entre iconos
+      //       Text('Id'),
+      //   size: ColumnSize.S,
+      //   onSort: (columnIndex, ascending) {
+      //     // sortFunc3("marca_tiempo_envio", changevalue);
+      //   },
+      // ),
       DataColumn2(
         label: Text('Tipo Transacción.'),
         size: ColumnSize.S,
@@ -407,11 +408,11 @@ class _MyWalletState extends State<MyWallet> {
         color: MaterialStateColor.resolveWith(
             (states) => setColor(data[index]['tipo'])!),
         cells: [
-          DataCell(InkWell(
-              child: Text(data[index]['id'].toString()),
-              onTap: () {
-                // OpenShowDialog(context, index);
-              })),
+          // DataCell(InkWell(
+          //     child: Text(data[index]['id'].toString()),
+          //     onTap: () {
+          //       // OpenShowDialog(context, index);
+          //     })),
           DataCell(InkWell(
               child: Text(data[index]['tipo'].toString()),
               onTap: () {

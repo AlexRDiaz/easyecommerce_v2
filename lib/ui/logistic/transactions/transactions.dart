@@ -26,7 +26,8 @@ class _TransactionsState extends State<Transactions> {
     'RECAUDO',
     'ENVIO',
     'REFERENCIADO',
-    'DEVOLUCION'
+    'DEVOLUCION',
+    'REEMBOLSO'
   ];
   TextEditingController searchController = TextEditingController();
   TextEditingController origenController = TextEditingController(text: "TODO");

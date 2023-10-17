@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
 import 'package:frontend/helpers/server.dart';
@@ -3244,11 +3245,14 @@ class Connections {
   postCredit(String idComercial, String monto, String idOrigen, String codigo,
       String origen, String comentario) async {
     try {
+      final formattedDate =
+          DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+
       var response =
           await http.post(Uri.parse("$serverLaravel/api/transacciones/credit"),
               headers: {'Content-Type': 'application/json'},
               body: json.encode({
-                "act_date": DateTime.now().toString(),
+                "act_date": formattedDate,
                 "id": idComercial,
                 "monto": monto,
                 "id_origen": idOrigen,
@@ -3269,11 +3273,14 @@ class Connections {
   postDebit(String idComercial, String monto, String idOrigen, String codigo,
       String origen, String comentario) async {
     try {
+      final formattedDate =
+          DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+
       var response =
           await http.post(Uri.parse("$serverLaravel/api/transacciones/debit"),
               headers: {'Content-Type': 'application/json'},
               body: json.encode({
-                "act_date": DateTime.now().toString(),
+                "act_date": formattedDate,
                 "id": idComercial,
                 "monto": monto,
                 "id_origen": idOrigen,

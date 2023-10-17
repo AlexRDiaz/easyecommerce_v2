@@ -31,7 +31,7 @@ class DataTableModelPrincipal extends StatelessWidget {
           ),
         ],
       ),
-      headingRowHeight: 53,
+      headingRowHeight: 63,
       showBottomBorder: true,
       headingTextStyle:
           const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),

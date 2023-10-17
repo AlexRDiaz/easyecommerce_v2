@@ -1918,6 +1918,8 @@ class _TransportDeliveryHistorialState
                           SnackBarHelper.showOkSnackBar(context,
                               "Transaccion reestablecida correctamente");
                         }
+                        // ignore: use_build_context_synchronously
+                        Navigator.of(context).pop();
                       },
                     ),
                   ],
