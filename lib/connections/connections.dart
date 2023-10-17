@@ -5206,6 +5206,78 @@ class Connections {
     }
   }
 
+  //    * sellers: Print
+  Future getOrdersForPrintGuidesLaravel(List or, List defaultAnd, List and,
+      currentPage, sizePage, sortFiled, search) async {
+    List filtersAndAll = [];
+    filtersAndAll.addAll(and);
+    filtersAndAll.addAll(defaultAnd);
+    try {
+      print("");
+      /**
+       * {
+    "page_size": 100,
+    "page_number": 1,
+    "or": [
+        "fecha_entrega",
+        "numero_orden",
+        "nombre_shipping",
+        "ciudad_shipping",
+        "direccion_shipping",
+        "telefono_shipping",
+        "cantidad_total",
+        "producto_p",
+        "precio_total",
+        "observacion",
+        "comentario",
+        "status",
+        "tipo_pago",
+        "marca_t_d",
+        "marca_t_d_l",
+        "marca_t_d_t",
+        "marca_t_i",
+        "estado_pagado"
+    ],
+    "and": [
+        {
+            "estado_interno": "CONFIRMADO"
+        },
+        {
+            "estado_logistico": "PENDIENTE"
+        }
+
+        
+    ],
+    "search": "",
+    "sort": "id:desc",
+    "not": []
+}
+       */
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/pedidos-shopifies-prtgd"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "or": or,
+            "and": filtersAndAll,
+            "page_size": sizePage,
+            "page_number": currentPage,
+            "search": search,
+            "sort": sortFiled,
+            "not": []
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
   //TEST
 
   Future getOrdersTest1() async {

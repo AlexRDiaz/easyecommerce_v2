@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/providers/sellers/navigation_provider.dart';
+import 'package:frontend/ui/logistic/guides_sent/table_orders_guides_sent.dart';
+import 'package:frontend/ui/logistic/printed_guides/printedguides.dart';
 import 'package:frontend/ui/sellers/add_seller_user/add_seller_user.dart';
 import 'package:frontend/ui/sellers/cash_withdrawals_sellers/cash_withdrawals_sellers.dart';
 import 'package:frontend/ui/sellers/dashboard/dashboard.dart';
@@ -14,6 +16,8 @@ import 'package:frontend/ui/sellers/my_stock/my_stock.dart';
 import 'package:frontend/ui/sellers/my_wallet/my_wallet.dart';
 import 'package:frontend/ui/sellers/order_entry/order_entry.dart';
 import 'package:frontend/ui/sellers/order_history_sellers/order_history_sellers.dart';
+import 'package:frontend/ui/sellers/print_guides/print_guides.dart';
+import 'package:frontend/ui/sellers/printed_guides/printedguides.dart';
 import 'package:frontend/ui/sellers/providers_sellers/providers_sellers.dart';
 import 'package:frontend/ui/sellers/returns_seller/returns_seller.dart';
 import 'package:frontend/ui/sellers/sales_report/sales_report.dart';
@@ -25,9 +29,7 @@ import 'package:frontend/ui/welcome/welcome.dart';
 import 'package:frontend/ui/widgets/logistic/layout/navbar_drawer.dart';
 import 'package:provider/provider.dart';
 
-
 import 'package:frontend/ui/sellers/transport_stats/transport_stats.dart';
-
 
 class LayoutSellersPage extends StatefulWidget {
   const LayoutSellersPage({super.key});
@@ -94,9 +96,22 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
         "Retiros en Efectivo",
         CashWithdrawalsSellers(),
       ),
-      getOption("Conoce a tu Transporte",
-      tansportStats()
-      )
+      getOption(
+        "Conoce a tu Transporte",
+        tansportStats(),
+      ),
+      getOption(
+        "Imprimir Guías",
+        PrintGuidesSeller(),
+      ),
+
+      getOption(
+        "Guías Impresas",
+        PrintedGuidesSeller(),
+      ),
+      getOption("Guías Enviadas", TableOrdersGuidesSent()
+          // GuidesSent(),
+          ),
       // getOption("Cambiar Contraseña", UpdatePasswordSellers()),
     ];
     return Scaffold(
