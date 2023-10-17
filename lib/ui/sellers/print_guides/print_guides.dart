@@ -41,22 +41,22 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
 
   int currentPage = 1;
   int pageSize = 1300;
+  var idUser = sharedPrefs!.getString("id");
   var arrayfiltersDefaultAnd = [
-    /*
     {
       'id_comercial':
           sharedPrefs!.getString("idComercialMasterSeller").toString(),
     },
-    */
     {"estado_interno": "CONFIRMADO"},
     {"estado_logistico": "PENDIENTE"}
   ];
 
   List filtersOrCont = [
-    'fecha_entrega',
+    // 'fecha_entrega',
+    'nombre_shipping',
+    "name_comercial",
     'numero_orden',
     'ciudad_shipping',
-    'nombre_shipping',
     'direccion_shipping',
     'telefono_shipping',
     'cantidad_total',
@@ -64,9 +64,10 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
     "producto_extra",
     'precio_total',
     'status',
-    "estado_devolucion",
-    "fecha_confirmacion",
     'comentario',
+    "estado_interno",
+    "estado_logistico",
+    "observacion"
   ];
 
   List arrayFiltersAnd = [];
@@ -112,6 +113,7 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
 
     var dataL = responseLaravel;
     print(dataL['total']);
+    print("id_user: $idUser");
     // ---this
 
     var response = [];
@@ -212,9 +214,9 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
             ),
             Expanded(
               child: DataTable2(
-                  headingTextStyle: TextStyle(
+                  headingTextStyle: const TextStyle(
                       fontWeight: FontWeight.bold, color: Colors.black),
-                  dataTextStyle: TextStyle(
+                  dataTextStyle: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                       color: Colors.black),
@@ -240,105 +242,105 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
                       size: ColumnSize.S,
                     ),
                     DataColumn2(
-                      label: Text('Nombre Cliente'),
+                      label: const Text('Nombre Cliente'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
                         sortFunc("NombreShipping");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Fecha'),
+                      label: const Text('Fecha'),
                       size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
                         sortFuncFecha();
                       },
                     ),
                     DataColumn2(
-                      label: Text('Código'),
+                      label: const Text('Código'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
                         sortFunc("NumeroOrden");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Ciudad'),
+                      label: const Text('Ciudad'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
                         sortFunc("CiudadShipping");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Dirección'),
+                      label: const Text('Dirección'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
                         sortFunc("DireccionShipping");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Teléfono Cliente'),
+                      label: const Text('Teléfono Cliente'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
                         sortFunc("TelefonoShipping");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Cantidad'),
+                      label: const Text('Cantidad'),
                       size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
                         sortFunc("Cantidad_Total");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Producto'),
+                      label: const Text('Producto'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
                         sortFunc("ProductoP");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Producto Extra'),
+                      label: const Text('Producto Extra'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
                         sortFunc("ProductoExtra");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Precio Total'),
+                      label: const Text('Precio Total'),
                       size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
                         sortFunc("PrecioTotal");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Transportadora'),
+                      label: const Text('Transportadora'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
                         sortFuncTransporte();
                       },
                     ),
                     DataColumn2(
-                      label: Text('Status'),
+                      label: const Text('Status'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
                         sortFunc("Status");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Confirmado?'),
+                      label: const Text('Confirmado?'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
                         sortFunc("Estado_Interno");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Estado Logistico'),
+                      label: const Text('Estado Logistico'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
                         sortFunc("Estado_Logistico");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Observación'),
+                      label: const Text('Observación'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
                         sortFunc("Observacion");
@@ -702,6 +704,12 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
                     var response = await Connections()
                         .updateOrderLogisticStatus(
                             "IMPRESO", optionsCheckBox[i]['id'].toString());
+
+                    // DateTime now = DateTime.now();
+                    // print('Fecha y hora actual: $now');
+                    var responseL = await Connections().updatenueva(
+                        optionsCheckBox[i]['id'].toString(),
+                        {"estado_logistico": "IMPRESO", "printed_by": idUser});
                   }
                 }
                 Navigator.pop(context);
@@ -754,73 +762,77 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
       child: TextField(
         controller: controller,
         onSubmitted: (value) {
-          getLoadingModal(context, false);
-
-          setState(() {
-            data = dataTemporal;
-          });
-          if (value.isEmpty) {
-            setState(() {
-              data = dataTemporal;
-            });
-          } else {
-            var dataTemp = data
-                .where((objeto) =>
-                    objeto['attributes']['NumeroOrden'].toString().toLowerCase().contains(value.toLowerCase()) ||
-                    objeto['attributes']['CiudadShipping']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    objeto['attributes']['NombreShipping']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    objeto['attributes']['DireccionShipping']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    objeto['attributes']['Cantidad_Total']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    objeto['attributes']['ProductoP']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    objeto['attributes']['ProductoExtra']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    objeto['attributes']['PrecioTotal']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    objeto['attributes']['Estado_Interno']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    objeto['attributes']['Status']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    objeto['attributes']['Observacion']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    objeto['attributes']['Estado_Logistico']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    (objeto['attributes']['transportadora']['data'] != null ? objeto['attributes']['transportadora']['data']['attributes']['Nombre'].toString() : '').toString().toLowerCase().contains(value.toLowerCase()))
-                .toList();
-            setState(() {
-              data = dataTemp;
-            });
-          }
-          Navigator.pop(context);
-
-          // loadData();
+          // getOldValue(true);
+          loadData();
         },
+        // onSubmitted: (value) {
+        //   getLoadingModal(context, false);
+
+        //   setState(() {
+        //     data = dataTemporal;
+        //   });
+        //   if (value.isEmpty) {
+        //     setState(() {
+        //       data = dataTemporal;
+        //     });
+        //   } else {
+        //     var dataTemp = data
+        //         .where((objeto) =>
+        //             objeto['attributes']['NumeroOrden'].toString().toLowerCase().contains(value.toLowerCase()) ||
+        //             objeto['attributes']['CiudadShipping']
+        //                 .toString()
+        //                 .toLowerCase()
+        //                 .contains(value.toLowerCase()) ||
+        //             objeto['attributes']['NombreShipping']
+        //                 .toString()
+        //                 .toLowerCase()
+        //                 .contains(value.toLowerCase()) ||
+        //             objeto['attributes']['DireccionShipping']
+        //                 .toString()
+        //                 .toLowerCase()
+        //                 .contains(value.toLowerCase()) ||
+        //             objeto['attributes']['Cantidad_Total']
+        //                 .toString()
+        //                 .toLowerCase()
+        //                 .contains(value.toLowerCase()) ||
+        //             objeto['attributes']['ProductoP']
+        //                 .toString()
+        //                 .toLowerCase()
+        //                 .contains(value.toLowerCase()) ||
+        //             objeto['attributes']['ProductoExtra']
+        //                 .toString()
+        //                 .toLowerCase()
+        //                 .contains(value.toLowerCase()) ||
+        //             objeto['attributes']['PrecioTotal']
+        //                 .toString()
+        //                 .toLowerCase()
+        //                 .contains(value.toLowerCase()) ||
+        //             objeto['attributes']['Estado_Interno']
+        //                 .toString()
+        //                 .toLowerCase()
+        //                 .contains(value.toLowerCase()) ||
+        //             objeto['attributes']['Status']
+        //                 .toString()
+        //                 .toLowerCase()
+        //                 .contains(value.toLowerCase()) ||
+        //             objeto['attributes']['Observacion']
+        //                 .toString()
+        //                 .toLowerCase()
+        //                 .contains(value.toLowerCase()) ||
+        //             objeto['attributes']['Estado_Logistico']
+        //                 .toString()
+        //                 .toLowerCase()
+        //                 .contains(value.toLowerCase()) ||
+        //             (objeto['attributes']['transportadora']['data'] != null ? objeto['attributes']['transportadora']['data']['attributes']['Nombre'].toString() : '').toString().toLowerCase().contains(value.toLowerCase()))
+        //         .toList();
+        //     setState(() {
+        //       data = dataTemp;
+        //     });
+        //   }
+        //   Navigator.pop(context);
+
+        //   // loadData();
+        // },
         onChanged: (value) {},
         style: TextStyle(fontWeight: FontWeight.bold),
         decoration: InputDecoration(
@@ -828,13 +840,20 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
           suffixIcon: _controllers.searchController.text.isNotEmpty
               ? GestureDetector(
                   onTap: () {
+                    // getLoadingModal(context, false);
+                    // setState(() {
+                    //   _controllers.searchController.clear();
+                    // });
+                    // setState(() {
+                    //   data = dataTemporal;
+                    // });
+                    // Navigator.pop(context);
+
                     getLoadingModal(context, false);
                     setState(() {
                       _controllers.searchController.clear();
                     });
-                    setState(() {
-                      data = dataTemporal;
-                    });
+
                     Navigator.pop(context);
                   },
                   child: Icon(Icons.close))

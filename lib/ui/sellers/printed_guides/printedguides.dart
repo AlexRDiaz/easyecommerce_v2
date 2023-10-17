@@ -5,6 +5,7 @@ import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/navigators.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
 import 'package:frontend/ui/logistic/printed_guides/controllers/controllers.dart';
 import 'package:flutter_barcode_listener/flutter_barcode_listener.dart';
@@ -44,31 +45,28 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
   int currentPage = 1;
   int pageSize = 1300;
   var arrayfiltersDefaultAnd = [
-    /*
     {
       'id_comercial':
           sharedPrefs!.getString("idComercialMasterSeller").toString(),
     },
-    */
     {"estado_interno": "CONFIRMADO"},
     {"estado_logistico": "IMPRESO"}
   ];
 
   List filtersOrCont = [
-    'fecha_entrega',
+    // 'fecha_entrega',
+    "name_comercial",
     'numero_orden',
     'ciudad_shipping',
     'nombre_shipping',
     'direccion_shipping',
-    'telefono_shipping',
+    // 'telefono_shipping',
     'cantidad_total',
     'producto_p',
     "producto_extra",
     'precio_total',
-    'status',
-    "estado_devolucion",
-    "fecha_confirmacion",
-    'comentario',
+    "estado_interno",
+    "estado_logistico"
   ];
 
   List arrayFiltersAnd = [];
@@ -91,6 +89,8 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
       getLoadingModal(context, false);
     });
     var response = [];
+    counterChecks = 0;
+
     setState(() {
       data = [];
     });
@@ -238,6 +238,7 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                               builder: (context) {
                                 return ScannerPrinted();
                               });
+                          counterChecks = 0;
                           await loadData();
                         },
                         child: Text(

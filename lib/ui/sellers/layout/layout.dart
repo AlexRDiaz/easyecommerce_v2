@@ -4,12 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/providers/sellers/navigation_provider.dart';
-import 'package:frontend/ui/logistic/guides_sent/table_orders_guides_sent.dart';
-import 'package:frontend/ui/logistic/printed_guides/printedguides.dart';
 import 'package:frontend/ui/sellers/add_seller_user/add_seller_user.dart';
 import 'package:frontend/ui/sellers/cash_withdrawals_sellers/cash_withdrawals_sellers.dart';
 import 'package:frontend/ui/sellers/dashboard/dashboard.dart';
 import 'package:frontend/ui/sellers/delivery_status/delivery_status.dart';
+import 'package:frontend/ui/sellers/guides_sent/table_orders_guides_sent.dart';
 import 'package:frontend/ui/sellers/my_cart_sellers/my_cart_sellers.dart';
 import 'package:frontend/ui/sellers/my_seller_account/my_seller_account.dart';
 import 'package:frontend/ui/sellers/my_stock/my_stock.dart';
@@ -109,7 +108,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
         "Guías Impresas",
         PrintedGuidesSeller(),
       ),
-      getOption("Guías Enviadas", TableOrdersGuidesSent()
+      getOption("Guías Enviadas", TableOrdersGuidesSentSeller()
           // GuidesSent(),
           ),
       // getOption("Cambiar Contraseña", UpdatePasswordSellers()),
