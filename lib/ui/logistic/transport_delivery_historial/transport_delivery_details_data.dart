@@ -972,40 +972,43 @@ class _TransportDeliveryHistoryDetailsDataState
               ),
             ),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                var com = data['id_comercial'];
-                var response = await Connections().getSellersByIdMasterOnly(
-                  data['id_comercial'],
-                );
-                await showDialog(
-                  context: context,
-                  builder: (context) {
-                    return UpdateStatusOperatorHistorial(
-                      numberTienda:
-                          response['vendedores'][0]['Telefono2'].toString(),
-                      codigo:
-                          "${data['name_comercial']}-${data['numero_orden']}",
-                      numberCliente: "${data['telefono_shipping']}",
-                      id: widget.data['id'].toString(),
-                      novedades: data['novedades'],
-                      currentStatus: "",
-                    );
-                  },
-                );
-                await loadData();
-              },
-              child: SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: Center(
-                  child: Text(
-                    "Estado Entrega",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ),
+            data['status'] != "ENTREGADO"
+                ? ElevatedButton(
+                    onPressed: () async {
+                      var com = data['id_comercial'];
+                      var response =
+                          await Connections().getSellersByIdMasterOnly(
+                        data['id_comercial'],
+                      );
+                      await showDialog(
+                        context: context,
+                        builder: (context) {
+                          return UpdateStatusOperatorHistorial(
+                            numberTienda: response['vendedores'][0]['Telefono2']
+                                .toString(),
+                            codigo:
+                                "${data['name_comercial']}-${data['numero_orden']}",
+                            numberCliente: "${data['telefono_shipping']}",
+                            id: widget.data['id'].toString(),
+                            novedades: data['novedades'],
+                            currentStatus: data['status'],
+                          );
+                        },
+                      );
+                      await loadData();
+                    },
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: Center(
+                        child: Text(
+                          "Estado Entrega",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  )
+                : Container(),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
