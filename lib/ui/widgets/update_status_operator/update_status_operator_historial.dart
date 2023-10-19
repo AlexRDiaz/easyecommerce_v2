@@ -999,9 +999,9 @@ class _UpdateStatusOperatorHistorialState
                           .updateOrderStatusOperatorPedidoProgramadoHistorial(
                               "REAGENDADO",
                               _controllerModalText.text,
-                              date[2].toString().replaceAll('0', '') +
+                              int.parse(date[2]).toString() +
                                   "/" +
-                                  date[1].toString().replaceAll('0', '') +
+                                  int.parse(date[1]).toString() +
                                   "/" +
                                   date[0].toString(),
                               widget.id);
