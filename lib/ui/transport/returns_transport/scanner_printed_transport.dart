@@ -40,7 +40,7 @@ class _ScannerPrintedTransportState extends State<ScannerPrintedTransport> {
                   if (responseOrder['attributes']['Status'] == 'NO ENTREGADO' ||
                       responseOrder['attributes']['Status'] == 'NOVEDAD') {
                     if (responseOrder['attributes']['Estado_Devolucion'] ==
-                            "DEVOLUCION EN RUTA" ||
+                            "DEVOLUCION EN RUTA" &&
                         widget.status == "ENTREGADO EN OFICINA") {
                       setState(() {
                         _barcode =
@@ -58,25 +58,30 @@ class _ScannerPrintedTransportState extends State<ScannerPrintedTransport> {
                         //debit devolucion de pedidos
                         var datacostos = await Connections()
                             .getOrderByIDHistoryLaravel(barcode);
-                        List existTransaction = await Connections()
-                            .getExistTransaction(
-                                "debit",
-                                barcode,
+
+                        if (datacostos['estado_devolucion'] != "PENDIENTE" &&
+                            datacostos['estado_devolucion'] !=
+                                "ENTREGADO EN OFICINA") {
+                          List existTransaction = await Connections()
+                              .getExistTransaction(
+                                  "debit",
+                                  barcode,
+                                  "devolucion",
+                                  datacostos['users'][0]['vendedores'][0]
+                                      ['id_master']);
+                          if (existTransaction.isEmpty) {
+                            var resDebit = await Connections().postDebit(
+                                "${datacostos['users'][0]['vendedores'][0]['id_master']}",
+                                "${datacostos['users'][0]['vendedores'][0]['costo_devolucion']}",
+                                "${datacostos['id']}",
+                                "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
                                 "devolucion",
-                                datacostos['users'][0]['vendedores'][0]
-                                    ['id_master']);
-                        if (existTransaction.isEmpty) {
-                          var resDebit = await Connections().postDebit(
-                              "${datacostos['users'][0]['vendedores'][0]['id_master']}",
-                              "${datacostos['users'][0]['vendedores'][0]['costo_devolucion']}",
-                              "${datacostos['id']}",
-                              "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                              "devolucion",
-                              "costo de devolucion de pedido ");
-                          await Connections().updatenueva(barcode, {
-                            "costo_devolucion": datacostos['users'][0]
-                                ['vendedores'][0]['costo_devolucion'],
-                          });
+                                "costo de devolucion de pedido ");
+                            await Connections().updatenueva(barcode, {
+                              "costo_devolucion": datacostos['users'][0]
+                                  ['vendedores'][0]['costo_devolucion'],
+                            });
+                          }
                         }
                         setState(() {
                           _barcode =
