@@ -62,27 +62,27 @@ class _PaymentVouchersTransportState extends State<PaymentVouchersTransport> {
     var responseLaravel = [];
 
     setState(() {
-      idTSC = 0;
+      // idTSC = 0;
       suma = 0.0;
       sumaCosto = 0.0;
-      suma2 = 0.0;
-      sumaCosto2 = 0.0;
-      total = 0.0;
-      statusTransportadoraShipping = "";
+      // suma2 = 0.0;
+      // sumaCosto2 = 0.0;
+      // total = 0.0;
+      // statusTransportadoraShipping = "";
     });
-    var id_transportadora =
-        int.parse(sharedPrefs!.getString("idTransportadora").toString());
-    var fecha = sharedPrefs!.getString("dateOperatorState");
-    responseLaravel = await Connections()
-        .getTrasportadoraShippingCostByDate(id_transportadora, fecha);
-    dataL = responseLaravel;
-    if (dataL.isNotEmpty) {
-      idTSC = dataL[0]['id'];
-      suma2 = dataL[0]['daily_proceeds'];
-      sumaCosto2 = dataL[0]['daily_shipping_cost'];
-      total = dataL[0]['daily_total'];
-      statusTransportadoraShipping = dataL[0]['status'];
-    }
+    // var id_transportadora =
+    //     int.parse(sharedPrefs!.getString("idTransportadora").toString());
+    // var fecha = sharedPrefs!.getString("dateOperatorState");
+    // responseLaravel = await Connections()
+    //     .getTrasportadoraShippingCostByDate(id_transportadora, fecha);
+    // dataL = responseLaravel;
+    // if (dataL.isNotEmpty) {
+    //   idTSC = dataL[0]['id'];
+    //   suma2 = dataL[0]['daily_proceeds'];
+    //   sumaCosto2 = dataL[0]['daily_shipping_cost'];
+    //   total = dataL[0]['daily_total'];
+    //   statusTransportadoraShipping = dataL[0]['status'];
+    // }
 
     response = await Connections()
         .getOrdersForTransportFiltersState(_controllers.searchController.text);
@@ -189,10 +189,10 @@ class _PaymentVouchersTransportState extends State<PaymentVouchersTransport> {
               " Valores Recibidos: \$${suma.toStringAsFixed(2)}",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            Text(
-              " Valores Recibidos Laravel: \$${suma2}",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            // Text(
+            //   " Valores Recibidos Laravel: \$${suma2}",
+            //   style: TextStyle(fontWeight: FontWeight.bold),
+            // ),
             SizedBox(
               height: 10,
             ),
@@ -200,10 +200,10 @@ class _PaymentVouchersTransportState extends State<PaymentVouchersTransport> {
               " Costo Entrega: \$${sumaCosto}",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            Text(
-              " Costo Entrega Laravel: \$${sumaCosto2}",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            // Text(
+            //   " Costo Entrega Laravel: \$${sumaCosto2}",
+            //   style: TextStyle(fontWeight: FontWeight.bold),
+            // ),
             SizedBox(
               height: 10,
             ),
@@ -211,10 +211,10 @@ class _PaymentVouchersTransportState extends State<PaymentVouchersTransport> {
               " Total: \$${(suma - sumaCosto).toStringAsFixed(2)}",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            Text(
-              " Total Laravel: \$$total",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            // Text(
+            //   " Total Laravel: \$$total",
+            //   style: TextStyle(fontWeight: FontWeight.bold),
+            // ),
             SizedBox(
               height: 10,
             ),
@@ -222,10 +222,10 @@ class _PaymentVouchersTransportState extends State<PaymentVouchersTransport> {
               " Estado Pago Logistica: ${data.isNotEmpty ? statusPagado : ''}",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            Text(
-              " Estado Pago Logistica Laravel: $statusTransportadoraShipping",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            // Text(
+            //   " Estado Pago Logistica Laravel: $statusTransportadoraShipping",
+            //   style: TextStyle(fontWeight: FontWeight.bold),
+            // ),
             SizedBox(
               height: 10,
             ),
@@ -297,12 +297,12 @@ class _PaymentVouchersTransportState extends State<PaymentVouchersTransport> {
                               }
 
                               //update EN LA NUEVA TABLA
-                              var uptStateTransShipping = await Connections()
-                                  .updateTransportadorasShippingCostLaravel(
-                                      "PAGADO", idTSC);
-                              var responseTransShipping = await Connections()
-                                  .updateTrasportadoraShippingCost(
-                                      responseI[1], idTSC);
+                              // var uptStateTransShipping = await Connections()
+                              //     .updateTransportadorasShippingCostLaravel(
+                              //         "PAGADO", idTSC);
+                              // var responseTransShipping = await Connections()
+                              //     .updateTrasportadoraShippingCost(
+                              //         responseI[1], idTSC);
 
                               await loadData();
                               setState(() {});
