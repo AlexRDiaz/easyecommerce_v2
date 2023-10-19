@@ -13,6 +13,7 @@ import 'package:frontend/ui/sellers/print_guides/controllers/controllers.dart';
 
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/routes.dart';
+import 'package:frontend/ui/widgets/routes/routes_v2.dart';
 import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:pdf/pdf.dart';
@@ -30,7 +31,7 @@ class PrintGuidesSeller extends StatefulWidget {
 class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
   PrintGuidesControllersSeller _controllers = PrintGuidesControllersSeller();
   List data = [];
-  List optionsCheckBox = [];
+  List selectedCheckBox = [];
   int counterChecks = 0;
   Uint8List? _imageFile = null;
   bool sort = false;
@@ -112,8 +113,8 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
     );
 
     var dataL = responseLaravel;
-    print(dataL['total']);
-    print("id_user: $idUser");
+    // print(dataL['total']);
+    // print("id_user: $idUser");
     // ---this
 
     var response = [];
@@ -130,7 +131,7 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
       counterChecks = 0;
     });
     for (Map pedido in data) {
-      var selectedItem = optionsCheckBox
+      var selectedItem = selectedCheckBox
           .where((elemento) => elemento["id"] == pedido["id"])
           .toList();
       if (selectedItem.isNotEmpty) {
@@ -171,6 +172,9 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
         width: double.infinity,
         child: Column(
           children: [
+            const SizedBox(
+              height: 15,
+            ),
             Container(
               width: double.infinity,
               child: Row(
@@ -194,9 +198,9 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
               children: [
                 Text(
                   counterChecks > 0
-                      ? "Seleccionados: ${optionsCheckBox.length}"
+                      ? "Seleccionados: ${selectedCheckBox.length}"
                       : "",
-                  style: TextStyle(
+                  style: const TextStyle(
                       fontWeight: FontWeight.bold, color: Colors.black),
                 ),
                 const SizedBox(
@@ -204,7 +208,7 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
                 ),
                 Text(
                   "Contador: ${data.length}",
-                  style: TextStyle(
+                  style: const TextStyle(
                       fontWeight: FontWeight.bold, color: Colors.black),
                 ),
               ],
@@ -358,7 +362,7 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
                                   });
 
                                   if (value!) {
-                                    optionsCheckBox.add({
+                                    selectedCheckBox.add({
                                       "check": false,
                                       "id": data[index]['id'].toString(),
                                       "numPedido":
@@ -447,12 +451,12 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
                                     });
                                   } else {
                                     var m = data[index]['id'];
-                                    optionsCheckBox.removeWhere((option) =>
+                                    selectedCheckBox.removeWhere((option) =>
                                         option['id'] ==
                                         data[index]['id'].toString());
                                   }
                                   setState(() {
-                                    counterChecks = optionsCheckBox.length;
+                                    counterChecks = selectedCheckBox.length;
                                   });
                                 })),
                             DataCell(
@@ -667,27 +671,27 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
                 getLoadingModal(context, false);
                 final doc = pw.Document();
 
-                for (var i = 0; i < optionsCheckBox.length; i++) {
+                for (var i = 0; i < selectedCheckBox.length; i++) {
                   // print(optionsCheckBox[i]);
-                  if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
-                      optionsCheckBox[i]['id'].toString() != '') {
+                  if (selectedCheckBox[i]['id'].toString().isNotEmpty &&
+                      selectedCheckBox[i]['id'].toString() != '') {
                     final capturedImage =
                         await screenshotController.captureFromWidget(Container(
                             child: ModelGuide(
-                      address: optionsCheckBox[i]['address'],
-                      city: optionsCheckBox[i]['city'],
-                      date: optionsCheckBox[i]['date'],
-                      extraProduct: optionsCheckBox[i]['extraProduct'],
-                      idForBarcode: optionsCheckBox[i]['id'],
-                      name: optionsCheckBox[i]['name'],
-                      numPedido: optionsCheckBox[i]['numPedido'],
-                      observation: optionsCheckBox[i]['obervation'],
-                      phone: optionsCheckBox[i]['phone'],
-                      price: optionsCheckBox[i]['price'],
-                      product: optionsCheckBox[i]['product'],
-                      qrLink: optionsCheckBox[i]['qrLink'],
-                      quantity: optionsCheckBox[i]['quantity'],
-                      transport: optionsCheckBox[i]['transport'],
+                      address: selectedCheckBox[i]['address'],
+                      city: selectedCheckBox[i]['city'],
+                      date: selectedCheckBox[i]['date'],
+                      extraProduct: selectedCheckBox[i]['extraProduct'],
+                      idForBarcode: selectedCheckBox[i]['id'],
+                      name: selectedCheckBox[i]['name'],
+                      numPedido: selectedCheckBox[i]['numPedido'],
+                      observation: selectedCheckBox[i]['obervation'],
+                      phone: selectedCheckBox[i]['phone'],
+                      price: selectedCheckBox[i]['price'],
+                      product: selectedCheckBox[i]['product'],
+                      qrLink: selectedCheckBox[i]['qrLink'],
+                      quantity: selectedCheckBox[i]['quantity'],
+                      transport: selectedCheckBox[i]['transport'],
                     )));
                     doc.addPage(pw.Page(
                       pageFormat: PdfPageFormat(21.0 * cm, 21.0 * cm,
@@ -701,14 +705,14 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
                         );
                       },
                     ));
-                    var response = await Connections()
-                        .updateOrderLogisticStatus(
-                            "IMPRESO", optionsCheckBox[i]['id'].toString());
+                    // var response = await Connections()
+                    //     .updateOrderLogisticStatus(
+                    //         "IMPRESO", optionsCheckBox[i]['id'].toString());
 
                     // DateTime now = DateTime.now();
                     // print('Fecha y hora actual: $now');
                     var responseL = await Connections().updatenueva(
-                        optionsCheckBox[i]['id'].toString(),
+                        selectedCheckBox[i]['id'].toString(),
                         {"estado_logistico": "IMPRESO", "printed_by": idUser});
                   }
                 }
@@ -717,14 +721,15 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
                     onLayout: (PdfPageFormat format) async => await doc.save());
                 _controllers.searchController.clear();
                 setState(() {});
-                optionsCheckBox = [];
+                selectedCheckBox = [];
+                selectAll = false;
                 loadData();
               },
               child: const Text(
                 "IMPRIMIR",
                 style: TextStyle(fontWeight: FontWeight.bold),
               )),
-          SizedBox(
+          const SizedBox(
             width: 20,
           ),
           ElevatedButton(
@@ -732,14 +737,17 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
                 await showDialog(
                     context: context,
                     builder: (context) {
-                      return RoutesModal(
-                          idOrder: optionsCheckBox,
+                      return RoutesModalv2(
+                          idOrder: selectedCheckBox,
                           someOrders: true,
                           phoneClient: "",
-                          codigo: "");
+                          codigo: "",
+                          origin: "print");
                     });
 
                 setState(() {});
+                selectedCheckBox = [];
+                selectAll = false;
                 await loadData();
               },
               child: Text(
@@ -964,38 +972,6 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
                       "Estado Logistico: ${data[index]['estado_devolucion']}"),
                   _model(
                       "Observación: ${data[index]['observacion'] == null || data[index]['observacion'] == "null" ? "" : data[index]['observacion']}"),
-                  /*
-                  _model(
-                      "Código: ${data[index]['attributes']['Name_Comercial']}-${data[index]['attributes']['NumeroOrden']}"),
-                  _model(
-                      "Fecha: ${data[index]['attributes']['pedido_fecha']['data']['attributes']['Fecha'].toString()}"),
-                  _model(
-                      "Nombre Cliente: ${data[index]['attributes']['NombreShipping']}"),
-                  _model(
-                      "Teléfono: ${data[index]['attributes']['TelefonoShipping']}"),
-                  _model(
-                      "Detalle: ${data[index]['attributes']['DireccionShipping']}"),
-                  _model(
-                      "Cantidad: ${data[index]['attributes']['Cantidad_Total']}"),
-                  _model(
-                      "Precio Total: ${data[index]['attributes']['PrecioTotal']}"),
-                  _model("Producto: ${data[index]['attributes']['ProductoP']}"),
-                  _model(
-                      "Producto Extra: ${data[index]['attributes']['ProductoExtra']}"),
-                  _model(
-                      "Ciudad: ${data[index]['attributes']['CiudadShipping']}"),
-                  _model("Status: ${data[index]['attributes']['Status']}"),
-                  _model(
-                      "Comentario: ${data[index]['attributes']['Comentario']}"),
-                  _model(
-                      "Fecha de Entrega: ${data[index]['attributes']['Fecha_Entrega']}"),
-                  _model(
-                      "Marca de Tiempo Envio: ${data[index]['attributes']['Marca_Tiempo_Envio']}"),
-                  _model(
-                      "Estado Logistico: ${data[index]['attributes']['Estado_Devolucion']}"),
-                  _model(
-                      "Observación: ${data[index]['attributes']['Observacion']}"),4
-                      */
                 ],
               ),
             ),
@@ -1038,38 +1014,33 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
   }
 
   addAllValues() {
-    optionsCheckBox = [];
+    selectedCheckBox = [];
     if (selectAll) {
       //optionsCheckBox[index]['check']
       for (Map element in data) {
         setState(() {
           element['check'] = true;
         });
-        optionsCheckBox.add({
+        selectedCheckBox.add({
           "id": element['id'].toString(),
           "numPedido":
-              "${element['attributes']['users']['data'] != null ? element['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['attributes']['Nombre_Comercial'] : element['attributes']['Tienda_Temporal'].toString()}-${element['attributes']['NumeroOrden']}"
+              "${element['users'] != null ? element['users'][0]['vendedores'][0]['nombre_comercial'] : element['tienda_temporal'].toString()}-${element['numero_orden']}"
                   .toString(),
-          "date": element['attributes']['pedido_fecha']['data']['attributes']
-                  ['Fecha']
-              .toString(),
-          "city": element['attributes']['CiudadShipping'].toString(),
-          "product": element['attributes']['ProductoP'].toString(),
-          "extraProduct": element['attributes']['ProductoExtra'].toString(),
-          "quantity": element['attributes']['Cantidad_Total'].toString(),
-          "phone": element['attributes']['TelefonoShipping'].toString(),
-          "price": element['attributes']['PrecioTotal'].toString(),
-          "name": element['attributes']['NombreShipping'].toString(),
-          "transport": element['attributes']['transportadora']['data'] != null
-              ? element['attributes']['transportadora']['data']['attributes']
-                      ['Nombre']
-                  .toString()
+          "date": element['pedido_fecha'][0]['fecha'].toString(),
+          "city": element['ciudad_shipping'].toString(),
+          "product": element['producto_p'].toString(),
+          "extraProduct": element['producto_extra'].toString(),
+          "quantity": element['cantidad_total'].toString(),
+          "phone": element['telefono_shipping'].toString(),
+          "price": element['precio_total'].toString(),
+          "name": element['nombre_shipping'].toString(),
+          "transport": element['transportadora'] != null
+              ? element['transportadora'][0]['nombre'].toString()
               : '',
-          "address": element['attributes']['DireccionShipping'].toString(),
-          "obervation": element['attributes']['Observacion'].toString(),
-          "qrLink": element['attributes']['users']['data'][0]['attributes']
-                  ['vendedores']['data'][0]['attributes']['Url_Tienda']
-              .toString(),
+          "address": element['direccion_shipping'].toString(),
+          "obervation": element['observacion'].toString(),
+          "qrLink":
+              element['users'][0]['vendedores'][0]['url_tienda'].toString(),
         });
       }
     } else {
@@ -1080,7 +1051,7 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
       });
     }
     setState(() {
-      counterChecks = optionsCheckBox.length;
+      counterChecks = selectedCheckBox.length;
     });
   }
 }

@@ -161,13 +161,14 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
           padding: const EdgeInsets.all(12.0),
           child: Column(
             children: [
-              SizedBox(
-                height: 10,
+              const SizedBox(
+                height: 15,
               ),
               Align(
                 alignment: Alignment.centerRight,
                 child: GestureDetector(
                   onTap: () async {
+                    _controllers.search.clear();
                     await loadData();
                   },
                   child: Container(
@@ -197,7 +198,7 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                   ),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               Container(
@@ -210,13 +211,13 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                             : _modelTextField(
                                 text: "Busqueda",
                                 controller: _controllers.search)),
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
                   ],
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               Row(
@@ -226,7 +227,7 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                     "Contador: ${data.length}",
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 10,
                   ),
                   Align(
@@ -241,21 +242,21 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                           counterChecks = 0;
                           await loadData();
                         },
-                        child: Text(
+                        child: const Text(
                           "SCANNER",
                           style: TextStyle(fontWeight: FontWeight.bold),
                         )),
                   ),
                 ],
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               Expanded(
                 child: DataTable2(
-                    headingTextStyle: TextStyle(
+                    headingTextStyle: const TextStyle(
                         fontWeight: FontWeight.bold, color: Colors.black),
-                    dataTextStyle: TextStyle(
+                    dataTextStyle: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                         color: Colors.black),
@@ -281,80 +282,80 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                         size: ColumnSize.S,
                       ),
                       DataColumn2(
-                        label: Text('Código'),
+                        label: const Text('Código'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          sortFunc("NumeroOrden");
+                          // sortFunc("NumeroOrden");
                         },
                       ),
                       DataColumn2(
-                        label: Text('Ciudad'),
+                        label: const Text('Ciudad'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          sortFunc("CiudadShipping");
+                          // sortFunc("CiudadShipping");
                         },
                       ),
                       DataColumn2(
-                        label: Text('Nombre Cliente'),
+                        label: const Text('Nombre Cliente'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          sortFunc("NombreShipping");
+                          // sortFunc("NombreShipping");
                         },
                       ),
                       DataColumn2(
-                        label: Text('Dirección'),
+                        label: const Text('Dirección'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          sortFunc("DireccionShipping");
+                          // sortFunc("DireccionShipping");
                         },
                       ),
                       DataColumn2(
-                        label: Text('Cantidad'),
+                        label: const Text('Cantidad'),
                         size: ColumnSize.S,
                         onSort: (columnIndex, ascending) {
-                          sortFunc("Cantidad_Total");
+                          // sortFunc("Cantidad_Total");
                         },
                       ),
                       DataColumn2(
-                        label: Text('Producto'),
+                        label: const Text('Producto'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          sortFunc("ProductoP");
+                          // sortFunc("ProductoP");
                         },
                       ),
                       DataColumn2(
-                        label: Text('Producto Extra'),
+                        label: const Text('Producto Extra'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          sortFunc("ProductoExtra");
+                          // sortFunc("ProductoExtra");
                         },
                       ),
                       DataColumn2(
-                        label: Text('Precio Total'),
+                        label: const Text('Precio Total'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          sortFunc("PrecioTotal");
+                          // sortFunc("PrecioTotal");
                         },
                       ),
                       DataColumn2(
-                        label: Text('Estado'),
+                        label: const Text('Estado'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          sortFunc("Status");
+                          // sortFunc("Status");
                         },
                       ),
                       DataColumn2(
-                        label: Text('Estado Logistico'),
+                        label: const Text('Estado Logistico'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          sortFunc("Estado_Logistico");
+                          // sortFunc("Estado_Logistico");
                         },
                       ),
                       DataColumn2(
-                        label: Text('Transportadora'),
+                        label: const Text('Transportadora'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          sortFuncTransporte();
+                          // sortFuncTransporte();
                         },
                       ),
                     ],
@@ -506,68 +507,8 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
         controller: controller,
         onSubmitted: (value) async {
           getLoadingModal(context, false);
-
-          setState(() {
-            data = dataTemporal;
-          });
-          if (value.isEmpty) {
-            setState(() {
-              data = dataTemporal;
-            });
-          } else {
-            var dataTemp = data
-                .where((objeto) =>
-                    objeto['attributes']['NumeroOrden'].toString().toLowerCase().contains(value.toLowerCase()) ||
-                    objeto['attributes']['CiudadShipping']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    objeto['attributes']['NombreShipping']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    objeto['attributes']['DireccionShipping']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    objeto['attributes']['Cantidad_Total']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    objeto['attributes']['ProductoP']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    objeto['attributes']['ProductoExtra']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    objeto['attributes']['PrecioTotal']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    objeto['attributes']['Estado_Interno']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    objeto['attributes']['Estado_Logistico']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    (objeto['attributes']['transportadora']['data'] != null
-                            ? objeto['attributes']['transportadora']['data']['attributes']['Nombre'].toString()
-                            : '')
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()))
-                .toList();
-            setState(() {
-              data = dataTemp;
-            });
-          }
+          loadData();
           Navigator.pop(context);
-
-          // loadData();
         },
         onChanged: (value) {},
         style: TextStyle(fontWeight: FontWeight.bold),
@@ -580,9 +521,9 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                     setState(() {
                       _controllers.search.clear();
                     });
-                    setState(() {
-                      data = dataTemporal;
-                    });
+                    // setState(() {
+                    //   data = dataTemporal;
+                    // });
 
                     Navigator.pop(context);
                   },
@@ -695,7 +636,7 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
           //       "NO DESEA",
           //       style: TextStyle(fontWeight: FontWeight.bold),
           //     )),
-          SizedBox(
+          const SizedBox(
             width: 20,
           ),
           ElevatedButton(
@@ -706,15 +647,24 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                   if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
                       optionsCheckBox[i]['id'].toString() != '' &&
                       optionsCheckBox[i]['check'] == true) {
-                    var response = await Connections()
-                        .updateOrderLogisticStatusPrint(
-                            "ENVIADO", optionsCheckBox[i]['id'].toString());
+                    // var response = await Connections()
+                    //     .updateOrderLogisticStatusPrint(
+                    //         "ENVIADO", optionsCheckBox[i]['id'].toString());
+                    var responseL = await Connections()
+                        .updatenueva(optionsCheckBox[i]['id'].toString(), {
+                      "estado_logistico": "ENVIADO",
+                      "estado_interno": "CONFIRMADO",
+                      "fecha_entrega":
+                          "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+                      "marca_tiempo_envio":
+                          "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
+                    });
                   }
                 }
                 Navigator.pop(context);
 
                 setState(() {});
-
+                selectAll = false;
                 await loadData();
               },
               child: const Text(
@@ -809,35 +759,28 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
             optionsCheckBox[i]['check'] = true;
             optionsCheckBox[i]['id'] = data[i]['id'].toString();
             optionsCheckBox[i]['numPedido'] =
-                "${data[i]['attributes']['users']['data'] != null ? data[i]['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['attributes']['Nombre_Comercial'] : data[i]['attributes']['Tienda_Temporal'].toString()}-${data[i]['attributes']['NumeroOrden']}"
+                "${data[i]['users'] != null ? data[i]['users'][0]['vendedores'][0]['nombre_comercial'] : data[i]['tienda_temporal'].toString()}-${data[i]['numero_orden']}"
                     .toString();
-            optionsCheckBox[i]['date'] = data[i]['attributes']['pedido_fecha']
-                    ['data']['attributes']['Fecha']
-                .toString();
-            optionsCheckBox[i]['city'] =
-                data[i]['attributes']['CiudadShipping'].toString();
-            optionsCheckBox[i]['product'] =
-                data[i]['attributes']['ProductoP'].toString();
+            optionsCheckBox[i]['date'] =
+                data[i]['pedido_fecha'][0]['fecha'].toString();
+            optionsCheckBox[i]['city'] = data[i]['ciudad_shipping'].toString();
+            optionsCheckBox[i]['product'] = data[i]['producto_p'].toString();
             optionsCheckBox[i]['extraProduct'] =
-                data[i]['attributes']['ProductoExtra'].toString();
+                data[i]['producto_extra'].toString();
             optionsCheckBox[i]['quantity'] =
-                data[i]['attributes']['Cantidad_Total'].toString();
+                data[i]['cantidad_total'].toString();
             optionsCheckBox[i]['phone'] =
-                data[i]['attributes']['TelefonoShipping'].toString();
-            optionsCheckBox[i]['price'] =
-                data[i]['attributes']['PrecioTotal'].toString();
-            optionsCheckBox[i]['name'] =
-                data[i]['attributes']['NombreShipping'].toString();
+                data[i]['telefono_shipping'].toString();
+            optionsCheckBox[i]['price'] = data[i]['precio_total'].toString();
+            optionsCheckBox[i]['name'] = data[i]['nombre_shipping'].toString();
             optionsCheckBox[i]['transport'] =
-                "${data[i]['attributes']['transportadora']['data'] != null ? data[i]['attributes']['transportadora']['data']['attributes']['Nombre'].toString() : ''}";
+                "${data[i]['transportadora'] != null ? data[i]['transportadora'][0]['nombre'].toString() : ''}";
             optionsCheckBox[i]['address'] =
-                data[i]['attributes']['DireccionShipping'].toString();
+                data[i]['direccion_shipping'].toString();
             optionsCheckBox[i]['obervation'] =
-                data[i]['attributes']['Observacion'].toString();
-            optionsCheckBox[i]['qrLink'] = data[i]['attributes']['users']
-                        ['data'][0]['attributes']['vendedores']['data'][0]
-                    ['attributes']['Url_Tienda']
-                .toString();
+                data[i]['observacion'].toString();
+            optionsCheckBox[i]['qrLink'] =
+                data[i]['users'][0]['vendedores'][0]['url_tienda'].toString();
 
             counterChecks += 1;
           }

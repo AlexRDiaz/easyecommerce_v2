@@ -5,6 +5,7 @@ import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/navigators.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
 import 'package:frontend/ui/logistic/printed_guides/controllers/controllers.dart';
 import 'package:flutter_barcode_listener/flutter_barcode_listener.dart';
@@ -38,6 +39,36 @@ class _PrintedGuidesState extends State<PrintedGuides> {
   bool sort = false;
   List dataTemporal = [];
   bool selectAll = false;
+  List filtersOrCont = [
+    // 'fecha_entrega',
+    "name_comercial",
+    'numero_orden',
+    'ciudad_shipping',
+    'nombre_shipping',
+    'direccion_shipping',
+    // 'telefono_shipping',
+    'cantidad_total',
+    'producto_p',
+    "producto_extra",
+    'precio_total',
+    "estado_interno",
+    "estado_logistico"
+  ];
+  var arrayfiltersDefaultAnd = [
+    /*
+    {
+      'id_comercial':
+          sharedPrefs!.getString("idComercialMasterSeller").toString(),
+    },
+    */
+    {"estado_interno": "CONFIRMADO"},
+    {"estado_logistico": "IMPRESO"}
+  ];
+  List arrayFiltersAnd = [];
+
+  int currentPage = 1;
+  int pageSize = 1300;
+  var sortFieldDefaultValue = "id:DESC";
 
   int counterChecks = 0;
   void didChangeDependencies() {
@@ -53,10 +84,23 @@ class _PrintedGuidesState extends State<PrintedGuides> {
     setState(() {
       data = [];
     });
-    response =
-        await Connections().getOrdersForPrintedGuides(_controllers.search.text);
+    // response =
+    //     await Connections().getOrdersForPrintedGuides(_controllers.search.text);
 
-    data = response;
+    var responseLaravel = await Connections().getOrdersForPrintGuidesLaravel(
+      filtersOrCont,
+      arrayfiltersDefaultAnd,
+      arrayFiltersAnd,
+      currentPage,
+      pageSize,
+      sortFieldDefaultValue.toString(),
+      _controllers.search.text,
+    );
+
+    // data = response;
+    data = responseLaravel['data'];
+
+    // print("data logis laravel: $data");
     dataTemporal = response;
 
     setState(() {
@@ -108,6 +152,9 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                 alignment: Alignment.centerRight,
                 child: GestureDetector(
                   onTap: () async {
+                    optionsCheckBox = [];
+                    _controllers.search.clear();
+                    selectAll = false;
                     await loadData();
                   },
                   child: Container(
@@ -223,89 +270,147 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                         label: Text('Código'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          sortFunc("NumeroOrden");
+                          // sortFunc("NumeroOrden");
                         },
                       ),
                       DataColumn2(
                         label: Text('Ciudad'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          sortFunc("CiudadShipping");
+                          // sortFunc("CiudadShipping");
                         },
                       ),
                       DataColumn2(
                         label: Text('Nombre Cliente'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          sortFunc("NombreShipping");
+                          // sortFunc("NombreShipping");
                         },
                       ),
                       DataColumn2(
                         label: Text('Dirección'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          sortFunc("DireccionShipping");
+                          // sortFunc("DireccionShipping");
                         },
                       ),
                       DataColumn2(
                         label: Text('Cantidad'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          sortFunc("Cantidad_Total");
+                          // sortFunc("Cantidad_Total");
                         },
                       ),
                       DataColumn2(
                         label: Text('Producto'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          sortFunc("ProductoP");
+                          // sortFunc("ProductoP");
                         },
                       ),
                       DataColumn2(
                         label: Text('Producto Extra'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          sortFunc("ProductoExtra");
+                          // sortFunc("ProductoExtra");
                         },
                       ),
                       DataColumn2(
                         label: Text('Precio Total'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          sortFunc("PrecioTotal");
+                          // sortFunc("PrecioTotal");
                         },
                       ),
                       DataColumn2(
                         label: Text('Estado'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          sortFunc("Status");
+                          // sortFunc("Status");
                         },
                       ),
                       DataColumn2(
                         label: Text('Estado Logistico'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          sortFunc("Estado_Logistico");
+                          // sortFunc("Estado_Logistico");
                         },
                       ),
                       DataColumn2(
                         label: Text('Transportadora'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          sortFuncTransporte();
+                          // sortFuncTransporte();
                         },
                       ),
                     ],
-                    rows: List<DataRow>.generate(
-                        data.length,
-                        (index) => DataRow(cells: [
-                              DataCell(Checkbox(
-                                  value: optionsCheckBox[index]['check'],
-                                  onChanged: (value) {
-                                    setState(() {
-                                      selectAll = false;
-                                      if (value!) {
+                    rows: List<DataRow>.generate(data.length, (index) {
+                      Color rowColor = Colors.white;
+                      if (data[index]['printed_by'] != null) {
+                        // print(data[index]['id']);
+                        rowColor = Colors.lightBlue.shade50;
+                      }
+                      return DataRow(
+                          color: MaterialStateProperty.resolveWith<Color>(
+                              (Set<MaterialState> states) {
+                            if (states.contains(MaterialState.selected)) {
+                              return Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withOpacity(0.08);
+                            }
+                            return rowColor;
+                          }),
+                          cells: [
+                            DataCell(Checkbox(
+                                value: optionsCheckBox[index]['check'],
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectAll = false;
+                                    if (value!) {
+                                      optionsCheckBox[index]['check'] = value;
+                                      optionsCheckBox[index]['id'] =
+                                          data[index]['id'].toString();
+                                      optionsCheckBox[index]['numPedido'] =
+                                          "${data[index]['users'] != null ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal'].toString()}-${data[index]['numero_orden']}"
+                                              .toString();
+                                      optionsCheckBox[index]['date'] =
+                                          data[index]['pedido_fecha'][0]
+                                                  ['fecha']
+                                              .toString();
+                                      optionsCheckBox[index]['city'] =
+                                          data[index]['ciudad_shipping']
+                                              .toString();
+                                      optionsCheckBox[index]['product'] =
+                                          data[index]['producto_p'].toString();
+                                      optionsCheckBox[index]['extraProduct'] =
+                                          data[index]['producto_extra']
+                                              .toString();
+                                      optionsCheckBox[index]['quantity'] =
+                                          data[index]['cantidad_total']
+                                              .toString();
+                                      optionsCheckBox[index]['phone'] =
+                                          data[index]['telefono_shipping']
+                                              .toString();
+                                      optionsCheckBox[index]['price'] =
+                                          data[index]['precio_total']
+                                              .toString();
+                                      optionsCheckBox[index]['name'] =
+                                          data[index]['nombre_shipping']
+                                              .toString();
+                                      optionsCheckBox[index]['transport'] =
+                                          "${data[index]['transportadora'] != null ? data[index]['transportadora'][0]['nombre'].toString() : ''}";
+                                      optionsCheckBox[index]['address'] =
+                                          data[index]['direccion_shipping']
+                                              .toString();
+                                      optionsCheckBox[index]['obervation'] =
+                                          data[index]['observacion'].toString();
+                                      optionsCheckBox[index]['qrLink'] =
+                                          data[index]['users'][0]['vendedores']
+                                                  [0]['url_tienda']
+                                              .toString();
+
+                                      /*  // strapi version
                                         optionsCheckBox[index]['check'] = value;
                                         optionsCheckBox[index]['id'] =
                                             data[index]['id'].toString();
@@ -363,80 +468,104 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                                                         ['data'][0]
                                                     ['attributes']['Url_Tienda']
                                                 .toString();
-
-                                        counterChecks += 1;
-                                      } else {
-                                        optionsCheckBox[index]['check'] = value;
-                                        optionsCheckBox[index]['id'] = '';
-                                        counterChecks -= 1;
-                                      }
-                                    });
-                                  })),
-                              DataCell(
-                                  Text(
-                                      "${data[index]['attributes']['Name_Comercial'].toString()}-${data[index]['attributes']['NumeroOrden']}"
-                                          .toString()), onTap: () {
-                                info(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['attributes']
-                                          ['CiudadShipping']
-                                      .toString()), onTap: () {
-                                info(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['attributes']
-                                          ['NombreShipping']
-                                      .toString()), onTap: () {
-                                info(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['attributes']
-                                          ['DireccionShipping']
-                                      .toString()), onTap: () {
-                                info(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['attributes']
-                                          ['Cantidad_Total']
-                                      .toString()), onTap: () {
-                                info(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['attributes']['ProductoP']
-                                      .toString()), onTap: () {
-                                info(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['attributes']
-                                          ['ProductoExtra']
-                                      .toString()), onTap: () {
-                                info(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['attributes']['PrecioTotal']
-                                      .toString()), onTap: () {
-                                info(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['attributes']
-                                          ['Estado_Interno']
-                                      .toString()), onTap: () {
-                                info(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['attributes']
-                                          ['Estado_Logistico']
-                                      .toString()), onTap: () {
-                                info(context, index);
-                              }),
-                              DataCell(
-                                  Text(
-                                      "${data[index]['attributes']['transportadora']['data'] != null ? data[index]['attributes']['transportadora']['data']['attributes']['Nombre'].toString() : ''}"),
-                                  onTap: () {
-                                info(context, index);
-                              }),
-                            ]))),
+                                        */
+                                      counterChecks += 1;
+                                    } else {
+                                      optionsCheckBox[index]['check'] = value;
+                                      optionsCheckBox[index]['id'] = '';
+                                      counterChecks -= 1;
+                                    }
+                                  });
+                                })),
+                            DataCell(
+                                Text(
+                                    // "${data[index]['attributes']['Name_Comercial'].toString()}-${data[index]['attributes']['NumeroOrden']}"
+                                    "${data[index]['name_comercial'].toString()}-${data[index]['numero_orden']}"
+                                        .toString()), onTap: () {
+                              info(context, index);
+                            }),
+                            DataCell(
+                                // data[index]['attributes']
+                                //       ['CiudadShipping']
+                                Text(data[index]['ciudad_shipping'].toString()),
+                                onTap: () {
+                              info(context, index);
+                            }),
+                            DataCell(
+                                // Text(data[index]['attributes']
+                                //         ['NombreShipping']
+                                Text(data[index]['nombre_shipping'].toString()),
+                                onTap: () {
+                              info(context, index);
+                            }),
+                            DataCell(
+                                // Text(data[index]['attributes']
+                                //         ['DireccionShipping']
+                                Text(data[index]['direccion_shipping']
+                                    .toString()), onTap: () {
+                              info(context, index);
+                            }),
+                            DataCell(
+                                // Text(data[index]['attributes']
+                                //         ['Cantidad_Total']
+                                Text(data[index]['cantidad_total'].toString()),
+                                onTap: () {
+                              info(context, index);
+                            }),
+                            DataCell(
+                                // Text(data[index]['attributes']['ProductoP']
+                                Text(data[index]['producto_p'].toString()),
+                                onTap: () {
+                              info(context, index);
+                            }),
+                            DataCell(
+                                // Text(data[index]['attributes']
+                                //         ['ProductoExtra']
+                                //     .toString()),
+                                Text(data[index]['producto_extra'] == null ||
+                                        data[index]['producto_extra'] == "null"
+                                    ? ""
+                                    : data[index]['producto_extra'].toString()),
+                                onTap: () {
+                              info(context, index);
+                            }),
+                            DataCell(
+                                // Text(data[index]['attributes']['PrecioTotal']
+                                //     .toString()),
+                                Text(data[index]['precio_total'].toString()),
+                                onTap: () {
+                              info(context, index);
+                            }),
+                            DataCell(
+                                // Text(data[index]['attributes']
+                                //         ['Estado_Interno']
+                                //     .toString()), onTap: () {
+                                Text(data[index]['estado_interno'].toString()),
+                                onTap: () {
+                              info(context, index);
+                            }),
+                            DataCell(
+                                // Text(data[index]['attributes']
+                                //         ['Estado_Logistico']
+                                //     .toString()), onTap: () {
+                                Text(
+                                    data[index]['estado_logistico'].toString()),
+                                onTap: () {
+                              info(context, index);
+                            }),
+                            DataCell(
+                                // Text(
+                                //     "${data[index]['attributes']['transportadora']['data'] != null ? data[index]['attributes']['transportadora']['data']['attributes']['Nombre'].toString() : ''}"),
+                                // onTap: () {
+                                Text(data[index]['transportadora'] != null &&
+                                        data[index]['transportadora'].isNotEmpty
+                                    ? data[index]['transportadora'][0]['nombre']
+                                        .toString()
+                                    : ''), onTap: () {
+                              info(context, index);
+                            }),
+                          ]);
+                    })),
               ),
             ],
           ),
@@ -455,67 +584,70 @@ class _PrintedGuidesState extends State<PrintedGuides> {
       child: TextField(
         controller: controller,
         onSubmitted: (value) async {
-          getLoadingModal(context, false);
+          // getOldValue(true);
+          loadData();
 
-          setState(() {
-            data = dataTemporal;
-          });
-          if (value.isEmpty) {
-            setState(() {
-              data = dataTemporal;
-            });
-          } else {
-            var dataTemp = data
-                .where((objeto) =>
-                    objeto['attributes']['NumeroOrden'].toString().toLowerCase().contains(value.toLowerCase()) ||
-                    objeto['attributes']['CiudadShipping']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    objeto['attributes']['NombreShipping']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    objeto['attributes']['DireccionShipping']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    objeto['attributes']['Cantidad_Total']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    objeto['attributes']['ProductoP']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    objeto['attributes']['ProductoExtra']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    objeto['attributes']['PrecioTotal']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    objeto['attributes']['Estado_Interno']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    objeto['attributes']['Estado_Logistico']
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()) ||
-                    (objeto['attributes']['transportadora']['data'] != null
-                            ? objeto['attributes']['transportadora']['data']['attributes']['Nombre'].toString()
-                            : '')
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()))
-                .toList();
-            setState(() {
-              data = dataTemp;
-            });
-          }
-          Navigator.pop(context);
+          // getLoadingModal(context, false);
+
+          // setState(() {
+          //   data = dataTemporal;
+          // });
+          // if (value.isEmpty) {
+          //   setState(() {
+          //     data = dataTemporal;
+          //   });
+          // } else {
+          //   var dataTemp = data
+          //       .where((objeto) =>
+          //           objeto['attributes']['NumeroOrden'].toString().toLowerCase().contains(value.toLowerCase()) ||
+          //           objeto['attributes']['CiudadShipping']
+          //               .toString()
+          //               .toLowerCase()
+          //               .contains(value.toLowerCase()) ||
+          //           objeto['attributes']['NombreShipping']
+          //               .toString()
+          //               .toLowerCase()
+          //               .contains(value.toLowerCase()) ||
+          //           objeto['attributes']['DireccionShipping']
+          //               .toString()
+          //               .toLowerCase()
+          //               .contains(value.toLowerCase()) ||
+          //           objeto['attributes']['Cantidad_Total']
+          //               .toString()
+          //               .toLowerCase()
+          //               .contains(value.toLowerCase()) ||
+          //           objeto['attributes']['ProductoP']
+          //               .toString()
+          //               .toLowerCase()
+          //               .contains(value.toLowerCase()) ||
+          //           objeto['attributes']['ProductoExtra']
+          //               .toString()
+          //               .toLowerCase()
+          //               .contains(value.toLowerCase()) ||
+          //           objeto['attributes']['PrecioTotal']
+          //               .toString()
+          //               .toLowerCase()
+          //               .contains(value.toLowerCase()) ||
+          //           objeto['attributes']['Estado_Interno']
+          //               .toString()
+          //               .toLowerCase()
+          //               .contains(value.toLowerCase()) ||
+          //           objeto['attributes']['Estado_Logistico']
+          //               .toString()
+          //               .toLowerCase()
+          //               .contains(value.toLowerCase()) ||
+          //           (objeto['attributes']['transportadora']['data'] != null
+          //                   ? objeto['attributes']['transportadora']['data']['attributes']['Nombre'].toString()
+          //                   : '')
+          //               .toString()
+          //               .toLowerCase()
+          //               .contains(value.toLowerCase()))
+          //       .toList();
+          //   setState(() {
+          //     data = dataTemp;
+          //   });
+          // }
+          // Navigator.pop(context);
 
           // loadData();
         },
@@ -526,12 +658,18 @@ class _PrintedGuidesState extends State<PrintedGuides> {
           suffixIcon: _controllers.search.text.isNotEmpty
               ? GestureDetector(
                   onTap: () {
+                    // getLoadingModal(context, false);
+                    // setState(() {
+                    //   _controllers.search.clear();
+                    // });
+                    // setState(() {
+                    //   data = dataTemporal;
+                    // });
+
+                    // Navigator.pop(context);
                     getLoadingModal(context, false);
                     setState(() {
                       _controllers.search.clear();
-                    });
-                    setState(() {
-                      data = dataTemporal;
                     });
 
                     Navigator.pop(context);
@@ -622,29 +760,29 @@ class _PrintedGuidesState extends State<PrintedGuides> {
           const SizedBox(
             width: 20,
           ),
-          ElevatedButton(
-              onPressed: () async {
-                getLoadingModal(context, false);
+          // ElevatedButton(
+          //     onPressed: () async {
+          //       getLoadingModal(context, false);
 
-                for (var i = 0; i < optionsCheckBox.length; i++) {
-                  if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
-                      optionsCheckBox[i]['id'].toString() != '' &&
-                      optionsCheckBox[i]['check'] == true) {
-                    var response = await Connections()
-                        .updateOrderInteralStatusLogistic(
-                            "NO DESEA", optionsCheckBox[i]['id'].toString());
-                  }
-                }
-                Navigator.pop(context);
+          //       for (var i = 0; i < optionsCheckBox.length; i++) {
+          //         if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
+          //             optionsCheckBox[i]['id'].toString() != '' &&
+          //             optionsCheckBox[i]['check'] == true) {
+          //           var response = await Connections()
+          //               .updateOrderInteralStatusLogistic(
+          //                   "NO DESEA", optionsCheckBox[i]['id'].toString());
+          //         }
+          //       }
+          //       Navigator.pop(context);
 
-                setState(() {});
+          //       setState(() {});
 
-                await loadData();
-              },
-              child: const Text(
-                "NO DESEA",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              )),
+          //       await loadData();
+          //     },
+          //     child: const Text(
+          //       "NO DESEA",
+          //       style: TextStyle(fontWeight: FontWeight.bold),
+          //     )),
           SizedBox(
             width: 20,
           ),
@@ -759,6 +897,32 @@ class _PrintedGuidesState extends State<PrintedGuides> {
             optionsCheckBox[i]['check'] = true;
             optionsCheckBox[i]['id'] = data[i]['id'].toString();
             optionsCheckBox[i]['numPedido'] =
+                "${data[i]['users'] != null ? data[i]['users'][0]['vendedores'][0]['nombre_comercial'] : data[i]['tienda_temporal'].toString()}-${data[i]['numero_orden']}"
+                    .toString();
+            optionsCheckBox[i]['date'] =
+                data[i]['pedido_fecha'][0]['fecha'].toString();
+            optionsCheckBox[i]['city'] = data[i]['ciudad_shipping'].toString();
+            optionsCheckBox[i]['product'] = data[i]['producto_p'].toString();
+            optionsCheckBox[i]['extraProduct'] =
+                data[i]['producto_extra'].toString();
+            optionsCheckBox[i]['quantity'] =
+                data[i]['cantidad_total'].toString();
+            optionsCheckBox[i]['phone'] =
+                data[i]['telefono_shipping'].toString();
+            optionsCheckBox[i]['price'] = data[i]['precio_total'].toString();
+            optionsCheckBox[i]['name'] = data[i]['nombre_shipping'].toString();
+            optionsCheckBox[i]['transport'] =
+                "${data[i]['transportadora'] != null ? data[i]['transportadora'][0]['nombre'].toString() : ''}";
+            optionsCheckBox[i]['address'] =
+                data[i]['direccion_shipping'].toString();
+            optionsCheckBox[i]['obervation'] =
+                data[i]['observacion'].toString();
+            optionsCheckBox[i]['qrLink'] =
+                data[i]['users'][0]['vendedores'][0]['url_tienda'].toString();
+            /*
+            optionsCheckBox[i]['check'] = true;
+            optionsCheckBox[i]['id'] = data[i]['id'].toString();
+            optionsCheckBox[i]['numPedido'] =
                 "${data[i]['attributes']['users']['data'] != null ? data[i]['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['attributes']['Nombre_Comercial'] : data[i]['attributes']['Tienda_Temporal'].toString()}-${data[i]['attributes']['NumeroOrden']}"
                     .toString();
             optionsCheckBox[i]['date'] = data[i]['attributes']['pedido_fecha']
@@ -788,7 +952,7 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                         ['data'][0]['attributes']['vendedores']['data'][0]
                     ['attributes']['Url_Tienda']
                 .toString();
-
+*/
             counterChecks += 1;
           }
           //   print("tamanio a imprimir"+optionsCheckBox.length.toString());
