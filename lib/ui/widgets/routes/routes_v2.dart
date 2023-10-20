@@ -49,7 +49,7 @@ class _RoutesModalStatev2 extends State<RoutesModalv2> {
       transports = [];
     });
 
-    print("idOrder ${widget.idOrder.length}");
+    // print("idOrder ${widget.idOrder.length}");
 
     routesList = await Connections().getRoutesLaravel();
     for (var i = 0; i < routesList.length; i++) {
@@ -263,7 +263,8 @@ class _RoutesModalStatev2 extends State<RoutesModalv2> {
                               var response3 = await Connections().updatenueva(
                                   widget.idOrder[i]['id'].toString(), {
                                 "estado_logistico": "PENDIENTE",
-                                "printed_by": null
+                                "printed_by": null,
+                                'revisado': 0
                               });
                               // print("response3");
                             }
