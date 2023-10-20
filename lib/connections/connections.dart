@@ -5213,6 +5213,38 @@ class Connections {
     }
   }
 
+  //    * sellers: Print
+  Future getOrdersForPrintGuidesLaravel(List or, List defaultAnd, List and,
+      currentPage, sizePage, sortFiled, search) async {
+    List filtersAndAll = [];
+    filtersAndAll.addAll(and);
+    filtersAndAll.addAll(defaultAnd);
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/pedidos-shopifies-prtgd"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "or": or,
+            "and": filtersAndAll,
+            "page_size": sizePage,
+            "page_number": currentPage,
+            "search": search,
+            "sort": sortFiled,
+            "not": []
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
   //TEST
 
   Future getOrdersTest1() async {
@@ -5290,17 +5322,7 @@ class Connections {
     filtersAndAll.addAll(and);
     filtersAndAll.addAll(defaultAnd);
     try {
-      print(json.encode({
-        "start": start,
-        "populate": populate,
-        "or": or,
-        "and": filtersAndAll,
-        "page_size": sizePage,
-        "page_number": currentPage,
-        "search": search,
-        "sort": sortFiled,
-        "not": not
-      }));
+      // print("andAll: $filtersAndAll");
       var response =
           await http.post(Uri.parse("$serverLaravel/api/send-guides/printg"),
               headers: {'Content-Type': 'application/json'},
