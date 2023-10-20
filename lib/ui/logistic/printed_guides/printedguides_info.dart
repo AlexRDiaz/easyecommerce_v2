@@ -174,22 +174,22 @@ class _PrintedGuideInfoState extends State<PrintedGuideInfo> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          ElevatedButton(
-              onPressed: () async {
-                getLoadingModal(context, false);
-                var response = await Connections()
-                    .updateOrderInteralStatusLogistic(
-                        "NO DESEA", widget.id);
-                Navigator.pop(context);
+          // ElevatedButton(
+          //     onPressed: () async {
+          //       getLoadingModal(context, false);
+          //       var response = await Connections()
+          //           .updateOrderInteralStatusLogistic(
+          //               "NO DESEA", widget.id);
+          //       Navigator.pop(context);
 
-                setState(() {});
+          //       setState(() {});
 
-                await loadData();
-              },
-              child: Text(
-                "NO DESEA",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              )),
+          //       await loadData();
+          //     },
+          //     child: Text(
+          //       "NO DESEA",
+          //       style: TextStyle(fontWeight: FontWeight.bold),
+          //     )),
           SizedBox(
             width: 20,
           ),
@@ -198,8 +198,7 @@ class _PrintedGuideInfoState extends State<PrintedGuideInfo> {
                 getLoadingModal(context, false);
 
                 var response = await Connections()
-                    .updateOrderLogisticStatusPrint(
-                        "ENVIADO",widget.id);
+                    .updateOrderLogisticStatusPrint("ENVIADO", widget.id);
                 Navigator.pop(context);
 
                 setState(() {});
