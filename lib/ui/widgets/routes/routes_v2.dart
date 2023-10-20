@@ -49,7 +49,7 @@ class _RoutesModalStatev2 extends State<RoutesModalv2> {
       transports = [];
     });
 
-    print("idOrder ${widget.idOrder.length}");
+    // print("idOrder ${widget.idOrder.length}");
 
     routesList = await Connections().getRoutesLaravel();
     for (var i = 0; i < routesList.length; i++) {
@@ -200,7 +200,7 @@ class _RoutesModalStatev2 extends State<RoutesModalv2> {
                     ? null
                     : () async {
                         if (widget.someOrders == false) {
-                          print("if just one");
+                          // print("if just one");
                           var response = await Connections()
                               // .updateOrderRouteAndTransport(
                               .updateOrderRouteAndTransportLaravel(
@@ -219,7 +219,7 @@ class _RoutesModalStatev2 extends State<RoutesModalv2> {
                             "fecha_confirmacion":
                                 "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
                           });
-                          print("response2");
+                          // print("response2");
 
                           //for guides sent
                           if (widget.origin == "sent") {
@@ -229,14 +229,14 @@ class _RoutesModalStatev2 extends State<RoutesModalv2> {
                               "printed_by": null,
                               'revisado': 0
                             });
-                            print("response3");
+                            // print("response3");
                           }
                         } else {
-                          print("else for varios");
+                          // print("else for varios");
                           var r = widget.idOrder.length;
-                          print("length: $r");
+                          // print("length: $r");
                           for (var i = 0; i < widget.idOrder.length; i++) {
-                            print("vez: $i");
+                            // print("vez: $i");
 
                             var response = await Connections()
                                 .updateOrderRouteAndTransportLaravel(
@@ -245,7 +245,7 @@ class _RoutesModalStatev2 extends State<RoutesModalv2> {
                                         .toString()
                                         .split("-")[1],
                                     widget.idOrder[i]['id']);
-                            print("response");
+                            // print("response");
 
                             var response2 = await Connections().updatenueva(
                                 widget.idOrder[i]['id'].toString(), {
@@ -256,16 +256,17 @@ class _RoutesModalStatev2 extends State<RoutesModalv2> {
                               "fecha_confirmacion":
                                   "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
                             });
-                            print("response2");
+                            // print("response2");
 
                             //for guides sent
                             if (widget.origin == "sent") {
                               var response3 = await Connections().updatenueva(
                                   widget.idOrder[i]['id'].toString(), {
                                 "estado_logistico": "PENDIENTE",
-                                "printed_by": null
+                                "printed_by": null,
+                                'revisado': 0
                               });
-                              print("response3");
+                              // print("response3");
                             }
                           }
                         }

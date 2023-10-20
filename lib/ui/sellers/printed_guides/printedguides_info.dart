@@ -28,8 +28,8 @@ class _PrintedGuideInfoStateSeller extends State<PrintedGuideInfoSeller> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
-    var response = await Connections().getOrdersByIDLogistic(widget.id);
-    // data = response;
+    // var response = await Connections().getOrdersByIDLogistic(widget.id);
+    var response = await Connections().getOrderByIDHistoryLaravel(widget.id);
     data = response;
     Future.delayed(Duration(milliseconds: 500), () {
       Navigator.pop(context);
@@ -64,99 +64,99 @@ class _PrintedGuideInfoStateSeller extends State<PrintedGuideInfoSeller> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(
+                      const SizedBox(
                         height: 10,
                       ),
                       _buttons(),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       Text(
-                        "  Código: ${data['attributes']['Name_Comercial'].toString()}-${data['attributes']['NumeroOrden']}",
-                        style: TextStyle(
+                        "  Código: ${data['name_comercial'].toString()}-${data['numero_orden']}",
+                        style: const TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       Text(
-                        "  Ciudad: ${data['attributes']['CiudadShipping'].toString()}",
-                        style: TextStyle(
+                        "  Ciudad: ${data['ciudad_shipping'].toString()}",
+                        style: const TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       Text(
-                        "  Nombre Cliente: ${data['attributes']['NombreShipping'].toString()}",
-                        style: TextStyle(
+                        "  Nombre Cliente: ${data['nombre_shipping'].toString()}",
+                        style: const TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       Text(
-                        " Dirección: ${data['attributes']['DireccionShipping'].toString()}",
-                        style: TextStyle(
+                        " Dirección: ${data['direccion_shipping'].toString()}",
+                        style: const TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       Text(
-                        " Cantidad: ${data['attributes']['Cantidad_Total'].toString()}",
-                        style: TextStyle(
+                        " Cantidad: ${data['cantidad_total'].toString()}",
+                        style: const TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       Text(
-                        " Producto: ${data['attributes']['ProductoP'].toString()}",
-                        style: TextStyle(
+                        " Producto: ${data['producto_p'].toString()}",
+                        style: const TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       Text(
-                        " Producto Extra: ${data['attributes']['ProductoExtra'].toString()}",
-                        style: TextStyle(
+                        " Producto Extra: ${data['producto_extra'] != null ? data['producto_extra'].toString() : ''}",
+                        style: const TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       Text(
-                        " Precio Total: ${data['attributes']['PrecioTotal'].toString()}",
-                        style: TextStyle(
+                        " Precio Total: ${data['precio_total'].toString()}",
+                        style: const TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       Text(
-                        " Estado: ${data['attributes']['Estado_Interno'].toString()}",
-                        style: TextStyle(
+                        " Estado: ${data['estado_interno'].toString()}",
+                        style: const TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       Text(
-                        " Estado Logistico: ${data['attributes']['Estado_Logistico'].toString()}",
-                        style: TextStyle(
+                        " Estado Logistico: ${data['estado_logistico'].toString()}",
+                        style: const TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       Text(
-                        " Transportadora: ${data['attributes']['transportadora']['data'] != null ? data['attributes']['transportadora']['data']['attributes']['Nombre'].toString() : ''}",
-                        style: TextStyle(
+                        " Transportadora: ${data['transportadora'] != null ? data['transportadora'][0]['nombre'].toString() : ''}",
+                        style: const TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       )
                     ],
@@ -169,42 +169,51 @@ class _PrintedGuideInfoStateSeller extends State<PrintedGuideInfoSeller> {
 
   Container _buttons() {
     return Container(
-      margin: EdgeInsets.all(5.0),
+      margin: const EdgeInsets.all(5.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          ElevatedButton(
-              onPressed: () async {
-                getLoadingModal(context, false);
-                var response = await Connections()
-                    .updateOrderInteralStatusLogistic("NO DESEA", widget.id);
-                Navigator.pop(context);
+          // ElevatedButton(
+          //     onPressed: () async {
+          //       getLoadingModal(context, false);
+          //       var response = await Connections()
+          //           .updateOrderInteralStatusLogistic("NO DESEA", widget.id);
+          //       Navigator.pop(context);
 
-                setState(() {});
+          //       setState(() {});
 
-                await loadData();
-              },
-              child: Text(
-                "NO DESEA",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              )),
-          SizedBox(
+          //       await loadData();
+          //     },
+          //     child: Text(
+          //       "NO DESEA",
+          //       style: TextStyle(fontWeight: FontWeight.bold),
+          //     )),
+          const SizedBox(
             width: 20,
           ),
           ElevatedButton(
               onPressed: () async {
                 getLoadingModal(context, false);
 
-                var response = await Connections()
-                    .updateOrderLogisticStatusPrint("ENVIADO", widget.id);
+                // var response = await Connections()
+                //     .updateOrderLogisticStatusPrint("ENVIADO", widget.id);
+                var responseL =
+                    await Connections().updatenueva(widget.id.toString(), {
+                  "estado_logistico": "ENVIADO",
+                  "estado_interno": "CONFIRMADO",
+                  "fecha_entrega":
+                      "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+                  "marca_tiempo_envio":
+                      "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
+                });
                 Navigator.pop(context);
 
                 setState(() {});
 
                 await loadData();
               },
-              child: Text(
+              child: const Text(
                 "MARCAR ENVIADO",
                 style: TextStyle(fontWeight: FontWeight.bold),
               )),

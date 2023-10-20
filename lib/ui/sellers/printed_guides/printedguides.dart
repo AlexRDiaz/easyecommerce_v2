@@ -11,6 +11,7 @@ import 'package:frontend/ui/logistic/printed_guides/controllers/controllers.dart
 import 'package:flutter_barcode_listener/flutter_barcode_listener.dart';
 import 'package:frontend/ui/logistic/printed_guides/printedguides_info.dart';
 import 'package:frontend/ui/sellers/printed_guides/controllers/controllers.dart';
+import 'package:frontend/ui/sellers/printed_guides/printedguides_info.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/logistic/scanner_printed.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -743,7 +744,7 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                     ),
                   ),
                   Expanded(
-                      child: PrintedGuideInfo(
+                      child: PrintedGuideInfoSeller(
                     id: data[index]['id'].toString(),
                   ))
                 ],
