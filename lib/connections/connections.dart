@@ -5315,7 +5315,7 @@ class Connections {
     filtersAndAll.addAll(and);
     filtersAndAll.addAll(defaultAnd);
     try {
-      print("andAll: $filtersAndAll");
+      // print("andAll: $filtersAndAll");
       var response =
           await http.post(Uri.parse("$serverLaravel/api/send-guides/printg"),
               headers: {'Content-Type': 'application/json'},

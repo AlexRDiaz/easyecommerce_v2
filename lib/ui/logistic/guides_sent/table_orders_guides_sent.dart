@@ -45,40 +45,6 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
   //Create an instance of ScreenshotController
   ScreenshotController screenshotController = ScreenshotController();
 
-  List dataL = [];
-  int currentPage = 1;
-  int pageSize = 1300;
-  var filtersDefaultAnd = [
-    {"/estado_logistico": "ENVIADO"}
-  ];
-
-  List filtersOrCont = [
-    // 'fecha_entrega',
-    "name_comercial",
-    'numero_orden',
-    'ciudad_shipping',
-    'nombre_shipping',
-    'direccion_shipping',
-    // 'telefono_shipping',
-    'cantidad_total',
-    'producto_p',
-    "producto_extra",
-    'precio_total',
-    "estado_interno",
-    "estado_logistico"
-  ];
-
-  List filtersAnd = [];
-  var sortFieldDefaultValue = "id:DESC";
-
-  List populate = [
-    "transportadora",
-    "users",
-    "users.vendedores",
-    "pedidoFecha",
-    "ruta"
-  ];
-
   @override
   void didChangeDependencies() {
     if (Provider.of<FiltersOrdersProviders>(context).indexActive == 2) {
@@ -102,8 +68,6 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
       getLoadingModal(context, false);
     });
     var response = [];
-    var responseL;
-
     List transportatorList = [];
 
     setState(() {
@@ -112,67 +76,22 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
 
     if (_controllers.searchController.text.isEmpty) {
       if (selectedValueTransportator == null) {
-        // response = await Connections().getOrdersForPrintGuidesInSendGuides(
-        //     _controllers.searchController.text, date);
-        //  *
-        responseL = await Connections()
-            .getOrdersForPrintGuidesInSendGuidesPrincipalLaravel(
-                date,
-                populate,
-                filtersAnd,
-                filtersDefaultAnd,
-                filtersOrCont,
-                currentPage,
-                pageSize,
-                _controllers.searchController.text,
-                sortFieldDefaultValue, []);
-        //  *
+        response = await Connections().getOrdersForPrintGuidesInSendGuides(
+            _controllers.searchController.text, date);
       } else {
-        // response = await Connections()
-        //     .getOrdersForPrintGuidesInSendGuidesAndTransporter(
-        //         _controllers.searchController.text,
-        //         date,
-        //         selectedValueTransportator.toString().split('-')[1]);
-        //  *
-        filtersAnd.add({
-          "equals/transportadora.transportadora_id":
-              selectedValueTransportator.toString().split('-')[1]
-        });
-        responseL = await Connections()
-            .getOrdersForPrintGuidesInSendGuidesPrincipalLaravel(
-                date,
-                populate,
-                filtersAnd,
-                filtersDefaultAnd,
-                filtersOrCont,
-                currentPage,
-                pageSize,
+        response = await Connections()
+            .getOrdersForPrintGuidesInSendGuidesAndTransporter(
                 _controllers.searchController.text,
-                sortFieldDefaultValue, []);
-        //  *
+                date,
+                selectedValueTransportator.toString().split('-')[1]);
       }
     } else {
-      // response = await Connections()
-      //     .getOrdersForPrintGuidesInSendGuidesOnlyCode(
-      //         _controllers.searchController.text);
-      //  *
-      responseL = await Connections()
-          .getOrdersForPrintGuidesInSendGuidesPrincipalLaravel(
-              date,
-              populate,
-              filtersAnd,
-              filtersDefaultAnd,
-              filtersOrCont,
-              currentPage,
-              pageSize,
-              _controllers.searchController.text,
-              sortFieldDefaultValue, []);
-      //  *
+      response = await Connections()
+          .getOrdersForPrintGuidesInSendGuidesOnlyCode(
+              _controllers.searchController.text);
     }
 
-    // data = response;
-    data = responseL['data'];
-
+    data = response;
     setState(() {
       optionsCheckBox = [];
       counterChecks = 0;
@@ -211,12 +130,6 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
     setState(() {});
   }
 
-  void resetFilters() {
-    // getOldValue(true);
-    filtersAnd = [];
-    _controllers.searchController.text = "";
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -232,8 +145,6 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
               alignment: Alignment.centerRight,
               child: GestureDetector(
                 onTap: () async {
-                  // await loadData();
-                  resetFilters();
                   await loadData();
                 },
                 child: Container(
@@ -293,205 +204,148 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
             ),
             Expanded(
               child: DataTable2(
-                headingTextStyle:
-                    TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-                dataTextStyle: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black),
-                columnSpacing: 12,
-                horizontalMargin: 12,
-                minWidth: 2500,
-                columns: [
-                  DataColumn2(
-                    label: Text(''),
-                    size: ColumnSize.S,
-                  ),
-                  DataColumn2(
-                    label: Text('Nombre Cliente'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFunc("NombreShipping");
-                    },
-                  ),
-                  DataColumn2(
-                    label: Text('Fecha'),
-                    size: ColumnSize.S,
-                    onSort: (columnIndex, ascending) {
-                      // sortFuncFecha();
-                    },
-                  ),
-                  DataColumn2(
-                    label: Text('Fecha entrega'),
-                    size: ColumnSize.S,
-                    onSort: (columnIndex, ascending) {
-                      // sortFuncFecha();
-                    },
-                  ),
-                  DataColumn2(
-                    label: Text('Código'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFunc("NumeroOrden");
-                    },
-                  ),
-                  DataColumn2(
-                    label: Text('Ciudad'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFunc("CiudadShipping");
-                    },
-                  ),
-                  DataColumn2(
-                    label: Text('Dirección'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFunc("DireccionShipping");
-                    },
-                  ),
-                  DataColumn2(
-                    label: Text('Teléfono Cliente'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFunc("TelefonoShipping");
-                    },
-                  ),
-                  DataColumn2(
-                    label: Text('Cantidad'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFunc("Cantidad_Total");
-                    },
-                  ),
-                  DataColumn2(
-                    label: Text('Producto'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFunc("ProductoP");
-                    },
-                  ),
-                  DataColumn2(
-                    label: Text('Producto Extra'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFunc("ProductoExtra");
-                    },
-                  ),
-                  DataColumn2(
-                    label: Text('Precio Total'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFunc("PrecioTotal");
-                    },
-                  ),
-                  DataColumn2(
-                    label: Text('Transportadora'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFuncTransporte();
-                    },
-                  ),
-                  DataColumn2(
-                    label: Text('Status'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFunc("Status");
-                    },
-                  ),
-                  DataColumn2(
-                    label: Text('Confirmado?'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFunc("Estado_Interno");
-                    },
-                  ),
-                  DataColumn2(
-                    label: Text('Estado Logistico'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFunc("Estado_Logistico");
-                    },
-                  ),
-                  DataColumn2(
-                    label: Text('Observación'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFunc("Observacion");
-                    },
-                  ),
-                  DataColumn2(
-                    label: Text('Marca Envio'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFunc("Marca_Tiempo_Envio");
-                    },
-                  ),
-                ],
-                rows: List<DataRow>.generate(
-                  data.length,
-                  (index) {
-                    Color rowColor = Colors.white;
-                    if (data[index]['printed_by'] != null) {
-                      // print(data[index]['id']);
-                      rowColor = Colors.lightBlue.shade50;
-                    }
-                    return DataRow(
-                        color: MaterialStateProperty.resolveWith<Color>(
-                            (Set<MaterialState> states) {
-                          if (states.contains(MaterialState.selected)) {
-                            return Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withOpacity(0.08);
-                          }
-                          return rowColor;
-                        }),
-                        cells: [
-                          DataCell(Checkbox(
-                              value: optionsCheckBox[index]['check'],
-                              onChanged: (value) {
-                                setState(() {
-                                  if (value!) {
-                                    optionsCheckBox[index]['check'] = value;
-                                    optionsCheckBox[index]['id'] =
-                                        data[index]['id'].toString();
-                                    optionsCheckBox[index]['numPedido'] =
-                                        "${data[index]['tienda_temporal'].toString()}-${data[index]['numero_orden']}"
-                                            .toString();
-                                    optionsCheckBox[index]['date'] = data[index]
-                                            ['pedido_fecha'][0]['fecha']
-                                        .toString();
-                                    optionsCheckBox[index]['city'] = data[index]
-                                            ['ciudad_shipping']
-                                        .toString();
-                                    optionsCheckBox[index]['product'] =
-                                        data[index]['producto_p'].toString();
-                                    optionsCheckBox[index]['extraProduct'] =
-                                        data[index]['producto_extra']
-                                            .toString();
-                                    optionsCheckBox[index]['quantity'] =
-                                        data[index]['cantidad_total']
-                                            .toString();
-                                    optionsCheckBox[index]['phone'] =
-                                        data[index]['telefono_shipping']
-                                            .toString();
-                                    optionsCheckBox[index]['price'] =
-                                        data[index]['precio_total'].toString();
-                                    optionsCheckBox[index]['name'] = data[index]
-                                            ['nombre_shipping']
-                                        .toString();
-                                    optionsCheckBox[index]['transport'] =
-                                        "${data[index]['transportadora'] != null ? data[index]['transportadora'][0]['nombre'].toString() : ''}";
-                                    optionsCheckBox[index]['address'] =
-                                        data[index]['direccion_shipping']
-                                            .toString();
-                                    optionsCheckBox[index]['obervation'] =
-                                        data[index]['obervation'].toString();
-                                    optionsCheckBox[index]['qrLink'] =
-                                        data[index]['users'][0]['vendedores'][0]
-                                                ['Url_Tienda']
-                                            .toString();
-                                    /*strapi version
+                  headingTextStyle: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.black),
+                  dataTextStyle: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black),
+                  columnSpacing: 12,
+                  horizontalMargin: 12,
+                  minWidth: 2500,
+                  columns: [
+                    DataColumn2(
+                      label: Text(''),
+                      size: ColumnSize.S,
+                    ),
+                    DataColumn2(
+                      label: Text('Nombre Cliente'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        sortFunc("NombreShipping");
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Fecha'),
+                      size: ColumnSize.S,
+                      onSort: (columnIndex, ascending) {
+                        sortFuncFecha();
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Fecha entrega'),
+                      size: ColumnSize.S,
+                      onSort: (columnIndex, ascending) {
+                        sortFuncFecha();
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Código'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        sortFunc("NumeroOrden");
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Ciudad'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        sortFunc("CiudadShipping");
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Dirección'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        sortFunc("DireccionShipping");
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Teléfono Cliente'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        sortFunc("TelefonoShipping");
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Cantidad'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        sortFunc("Cantidad_Total");
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Producto'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        sortFunc("ProductoP");
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Producto Extra'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        sortFunc("ProductoExtra");
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Precio Total'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        sortFunc("PrecioTotal");
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Transportadora'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        sortFuncTransporte();
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Status'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        sortFunc("Status");
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Confirmado?'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        sortFunc("Estado_Interno");
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Estado Logistico'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        sortFunc("Estado_Logistico");
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Observación'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        sortFunc("Observacion");
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Marca Envio'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        sortFunc("Marca_Tiempo_Envio");
+                      },
+                    ),
+                  ],
+                  rows: List<DataRow>.generate(
+                      data.length,
+                      (index) => DataRow(cells: [
+                            DataCell(Checkbox(
+                                value: optionsCheckBox[index]['check'],
+                                onChanged: (value) {
+                                  setState(() {
+                                    if (value!) {
                                       optionsCheckBox[index]['check'] = value;
                                       optionsCheckBox[index]['id'] =
                                           data[index]['id'].toString();
@@ -547,112 +401,105 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                                                   ['vendedores']['data'][0]
                                               ['attributes']['Url_Tienda']
                                           .toString();
-                                    */
-                                    counterChecks += 1;
-                                  } else {
-                                    optionsCheckBox[index]['check'] = value;
-                                    optionsCheckBox[index]['id'] = '';
-                                    counterChecks -= 1;
-                                  }
-                                });
-                              })),
-                          DataCell(
-                              Text(data[index]['nombre_shipping'].toString()),
-                              onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                              Text(data[index]['pedido_fecha'][0]['fecha']
-                                  .toString()), onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                              Text(data[index]['fecha_entrega'] ??
-                                  "".toString()), onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                              Text(
-                                  "${data[index]['name_comercial'].toString()}-${data[index]['numero_orden']}"
-                                      .toString()), onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                              Text(data[index]['ciudad_shipping'].toString()),
-                              onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                              Text(
-                                  data[index]['direccion_shipping'].toString()),
-                              onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                              Text(data[index]['telefono_shipping'].toString()),
-                              onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                              Text(data[index]['cantidad_total'].toString()),
-                              onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(Text(data[index]['producto_p'].toString()),
-                              onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                              Text(data[index]['producto_extra'] == null ||
-                                      data[index]['producto_extra'] == "null"
-                                  ? ""
-                                  : data[index]['producto_extra'].toString()),
-                              onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(Text(data[index]['precio_total'].toString()),
-                              onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                            Text(data[index]['transportadora'] != null &&
-                                    data[index]['transportadora'].isNotEmpty
-                                ? data[index]['transportadora'][0]['nombre']
-                                    .toString()
-                                : ''),
-                          ),
-                          DataCell(Text(data[index]['status'].toString()),
-                              onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                              Text(data[index]['estado_interno'].toString()),
-                              onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                              Text(data[index]['estado_logistico'].toString()),
-                              onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                              Text(data[index]['observacion'] == null ||
-                                      data[index]['observacion'] == "null"
-                                  ? ""
-                                  : data[index]['observacion'].toString()),
-                              onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                              Text(
-                                  data[index]['marca_tiempo_envio'].toString()),
-                              onTap: () {
-                            getInfoModal(index);
-                          }),
-                        ]);
-                  },
-                ),
-              ),
+
+                                      counterChecks += 1;
+                                    } else {
+                                      optionsCheckBox[index]['check'] = value;
+                                      optionsCheckBox[index]['id'] = '';
+                                      counterChecks -= 1;
+                                    }
+                                  });
+                                })),
+                            DataCell(
+                                Text(data[index]['attributes']['NombreShipping']
+                                    .toString()), onTap: () {
+                              getInfoModal(index);
+                            }),
+                            DataCell(
+                                Text(data[index]['attributes']['pedido_fecha']
+                                        ['data']['attributes']['Fecha']
+                                    .toString()), onTap: () {
+                              getInfoModal(index);
+                            }),
+                            DataCell(
+                                Text(data[index]['attributes']
+                                        ['Fecha_Entrega'] ??
+                                    "".toString()), onTap: () {
+                              getInfoModal(index);
+                            }),
+                            DataCell(
+                                Text(
+                                    "${data[index]['attributes']['Name_Comercial'].toString()}-${data[index]['attributes']['NumeroOrden']}"
+                                        .toString()), onTap: () {
+                              getInfoModal(index);
+                            }),
+                            DataCell(
+                                Text(data[index]['attributes']['CiudadShipping']
+                                    .toString()), onTap: () {
+                              getInfoModal(index);
+                            }),
+                            DataCell(
+                                Text(data[index]['attributes']
+                                        ['DireccionShipping']
+                                    .toString()), onTap: () {
+                              getInfoModal(index);
+                            }),
+                            DataCell(
+                                Text(data[index]['attributes']
+                                        ['TelefonoShipping']
+                                    .toString()), onTap: () {
+                              getInfoModal(index);
+                            }),
+                            DataCell(
+                                Text(data[index]['attributes']['Cantidad_Total']
+                                    .toString()), onTap: () {
+                              getInfoModal(index);
+                            }),
+                            DataCell(
+                                Text(data[index]['attributes']['ProductoP']
+                                    .toString()), onTap: () {
+                              getInfoModal(index);
+                            }),
+                            DataCell(
+                                Text(data[index]['attributes']['ProductoExtra']
+                                    .toString()), onTap: () {
+                              getInfoModal(index);
+                            }),
+                            DataCell(
+                                Text(data[index]['attributes']['PrecioTotal']
+                                    .toString()), onTap: () {
+                              getInfoModal(index);
+                            }),
+                            DataCell(Text(
+                                "${data[index]['attributes']['transportadora']['data'] != null ? data[index]['attributes']['transportadora']['data']['attributes']['Nombre'].toString() : ''}")),
+                            DataCell(
+                                Text(data[index]['attributes']['Status']
+                                    .toString()), onTap: () {
+                              getInfoModal(index);
+                            }),
+                            DataCell(
+                                Text(data[index]['attributes']['Estado_Interno']
+                                    .toString()), onTap: () {
+                              getInfoModal(index);
+                            }),
+                            DataCell(
+                                Text(data[index]['attributes']
+                                        ['Estado_Logistico']
+                                    .toString()), onTap: () {
+                              getInfoModal(index);
+                            }),
+                            DataCell(
+                                Text(data[index]['attributes']['Observacion']
+                                    .toString()), onTap: () {
+                              getInfoModal(index);
+                            }),
+                            DataCell(
+                                Text(data[index]['attributes']
+                                        ['Marca_Tiempo_Envio']
+                                    .toString()), onTap: () {
+                              getInfoModal(index);
+                            }),
+                          ]))),
             ),
           ],
         ),
@@ -847,7 +694,6 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                                   setState(() {
                                     selectedValueTransportator = null;
                                   });
-                                  resetFilters();
                                   await loadData();
                                 },
                                 child: Icon(Icons.close))
@@ -984,37 +830,6 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                     ],
                   ),
                   _model(
-                      "Código: ${data[index]['name_comercial']}-${data[index]['numero_orden']}"),
-                  _model(
-                      "Marca de Tiempo Envio: ${data[index]['marca_tiempo_envio']}"),
-                  _model(
-                      "Fecha: ${data[index]['marca_tiempo_envio'].toString().split(" ")[0].toString()}"),
-                  _model("Detalle: ${data[index]['direccion_shipping']}"),
-                  _model("Cantidad: ${data[index]['cantidad_total']}"),
-                  _model("Precio Total: ${data[index]['precio_total']}"),
-                  _model("Producto: ${data[index]['producto_p']}"),
-                  _model(
-                      "Producto Extra: ${data[index]['producto_extra'] == null || data[index]['producto_extra'] == "null" ? "" : data[index]['producto_extra']}"),
-                  _model("Ciudad: ${data[index]['ciudad_shipping']}"),
-                  _model("Status: ${data[index]['status']}"),
-                  _model(
-                      "Comentario: ${data[index]['comentario'] == null || data[index]['comentario'] == "null" ? "" : data[index]['comentario']}"),
-                  _model("Fecha de Entrega: ${data[index]['fecha_entrega']}"),
-                  _model("Nombre Cliente: ${data[index]['nombre_shipping']}"),
-                  _model("Teléfono: ${data[index]['telefono_shipping']}"),
-                  _model(
-                      "Estado Devolución: ${data[index]['estado_devolucion']}"),
-                  _model(
-                      "Estado Logistico: ${data[index]['estado_logistico']}"),
-                  _model(
-                      "Observación: ${data[index]['observacion'] == null || data[index]['observacion'] == "null" ? "" : data[index]['observacion']}"),
-                  _model("Marca. O: ${data[index]['estado_logistico']}"),
-                  _model(
-                      "Marca. TR: ${data[index]['marca_t_d_t'] == null || data[index]['marca_t_d_t'] == "null" ? "" : data[index]['marca_t_d_t']}"),
-                  _model(
-                      "Marca. TL: ${data[index]['marca_t_d_l'] == null || data[index]['marca_t_d_l'] == "null" ? "" : data[index]['marca_t_d_l']}"),
-                  /* strapi version
-                  _model(
                       "Código: ${data[index]['attributes']['Name_Comercial']}-${data[index]['attributes']['NumeroOrden']}"),
                   _model(
                       "Marca de Tiempo Envio: ${data[index]['attributes']['Marca_Tiempo_Envio']}"),
@@ -1052,7 +867,6 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                       "Marca. TR: ${data[index]['attributes']['Marca_T_D_T']}"),
                   _model(
                       "Marca. TL: ${data[index]['attributes']['Marca_T_D_L']}"),
-                      */
                 ],
               ),
             ),

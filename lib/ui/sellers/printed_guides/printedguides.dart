@@ -151,11 +151,9 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // floatingActionButton: FloatingActionButton(onPressed: () {
-      //   enviarMensajeWhatsApp('593992107483', '¡Hola! ¿Cómo estás?');
-      // }),
       backgroundColor: Colors.white,
       body: Container(
+        padding: const EdgeInsets.all(10),
         width: double.infinity,
         child: Padding(
           padding: const EdgeInsets.all(12.0),
@@ -169,6 +167,7 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                 child: GestureDetector(
                   onTap: () async {
                     _controllers.search.clear();
+                    getOldValue(true);
                     await loadData();
                   },
                   child: Container(
@@ -240,6 +239,7 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                                 return ScannerPrinted();
                               });
                           counterChecks = 0;
+                          getOldValue(true);
                           await loadData();
                         },
                         child: const Text(
@@ -285,70 +285,70 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                         label: const Text('Código'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          // sortFunc("NumeroOrden");
+                          sortFunc("numero_orden", changevalue);
                         },
                       ),
                       DataColumn2(
                         label: const Text('Ciudad'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          // sortFunc("CiudadShipping");
+                          sortFunc("ciudad_shipping", changevalue);
                         },
                       ),
                       DataColumn2(
                         label: const Text('Nombre Cliente'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          // sortFunc("NombreShipping");
+                          sortFunc("nombre_shipping", changevalue);
                         },
                       ),
                       DataColumn2(
                         label: const Text('Dirección'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          // sortFunc("DireccionShipping");
+                          sortFunc("direccion_shipping", changevalue);
                         },
                       ),
                       DataColumn2(
                         label: const Text('Cantidad'),
                         size: ColumnSize.S,
                         onSort: (columnIndex, ascending) {
-                          // sortFunc("Cantidad_Total");
+                          sortFunc("cantidad_total", changevalue);
                         },
                       ),
                       DataColumn2(
                         label: const Text('Producto'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          // sortFunc("ProductoP");
+                          sortFunc("producto_p", changevalue);
                         },
                       ),
                       DataColumn2(
                         label: const Text('Producto Extra'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          // sortFunc("ProductoExtra");
+                          sortFunc("producto_extra", changevalue);
                         },
                       ),
                       DataColumn2(
                         label: const Text('Precio Total'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          // sortFunc("PrecioTotal");
+                          sortFunc("precio_total", changevalue);
                         },
                       ),
                       DataColumn2(
                         label: const Text('Estado'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          // sortFunc("Status");
+                          sortFunc("status", changevalue);
                         },
                       ),
                       DataColumn2(
                         label: const Text('Estado Logistico'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
-                          // sortFunc("Estado_Logistico");
+                          sortFunc("estado_logistico", changevalue);
                         },
                       ),
                       DataColumn2(
@@ -507,6 +507,7 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
         controller: controller,
         onSubmitted: (value) async {
           getLoadingModal(context, false);
+          getOldValue(true);
           loadData();
           Navigator.pop(context);
         },
@@ -531,13 +532,13 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
               : null,
           hintText: text,
           enabledBorder: OutlineInputBorder(
-            borderSide:
-                BorderSide(width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
+            borderSide: const BorderSide(
+                width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
             borderRadius: BorderRadius.circular(10.0),
           ),
           focusedBorder: OutlineInputBorder(
-            borderSide:
-                BorderSide(width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
+            borderSide: const BorderSide(
+                width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
             borderRadius: BorderRadius.circular(10.0),
           ),
           focusColor: Colors.black,
@@ -665,6 +666,7 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
 
                 setState(() {});
                 selectAll = false;
+                getOldValue(true);
                 await loadData();
               },
               child: const Text(
@@ -676,21 +678,24 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
     );
   }
 
-  sortFunc(name) {
-    if (sort) {
+  sortFunc(filtro, changeval) {
+    setState(() {
+      if (changeval) {
+        sortFieldDefaultValue = "$filtro:DESC";
+        changevalue = false;
+      } else {
+        sortFieldDefaultValue = "$filtro:ASC";
+        changevalue = true;
+      }
+      loadData();
+    });
+  }
+
+  getOldValue(Arrayrestoration) {
+    if (Arrayrestoration) {
       setState(() {
-        sort = false;
+        sortFieldDefaultValue = "id:DESC";
       });
-      data.sort((a, b) => b['attributes'][name]
-          .toString()
-          .compareTo(a['attributes'][name].toString()));
-    } else {
-      setState(() {
-        sort = true;
-      });
-      data.sort((a, b) => a['attributes'][name]
-          .toString()
-          .compareTo(b['attributes'][name].toString()));
     }
   }
 

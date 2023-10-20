@@ -27,6 +27,7 @@ import 'package:screenshot/screenshot.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'package:excel/excel.dart';
 
 class TableOrdersGuidesSentSeller extends StatefulWidget {
   const TableOrdersGuidesSentSeller({super.key});
@@ -41,7 +42,7 @@ class _TableOrdersGuidesSentStateSeller
   GuidesSentControllersSeller _controllers = GuidesSentControllersSeller();
   List data = [];
 
-  List optionsCheckBox = [];
+  List selectedCheckBox = [];
   int counterChecks = 0;
   Uint8List? _imageFile = null;
   bool sort = false;
@@ -81,6 +82,7 @@ class _TableOrdersGuidesSentStateSeller
 
   List filtersAnd = [];
   var sortFieldDefaultValue = "id:DESC";
+  bool changevalue = false;
 
   List populate = [
     "transportadora",
@@ -122,9 +124,9 @@ class _TableOrdersGuidesSentStateSeller
     });
 
     if (_controllers.searchController.text.isEmpty) {
-      print("case1");
+      // print("case1");
       if (selectedValueTransportator == null) {
-        print("case1-1");
+        // print("case1-1");
 
         responseL = await Connections()
             .getOrdersForPrintGuidesInSendGuidesPrincipalLaravel(
@@ -138,7 +140,7 @@ class _TableOrdersGuidesSentStateSeller
                 _controllers.searchController.text,
                 sortFieldDefaultValue, []);
       } else {
-        print("case1-2");
+        // print("case1-2");
 
         filtersAnd.add({
           "equals/transportadora.transportadora_id":
@@ -157,7 +159,7 @@ class _TableOrdersGuidesSentStateSeller
                 sortFieldDefaultValue, []);
       }
     } else {
-      print("case2");
+      // print("case2");
       responseL = await Connections()
           .getOrdersForPrintGuidesInSendGuidesPrincipalLaravel(
               date,
@@ -172,30 +174,40 @@ class _TableOrdersGuidesSentStateSeller
     }
 
     data = responseL['data'];
-    print("total: ${responseL['total']}");
     setState(() {
-      optionsCheckBox = [];
+      selectedCheckBox = [];
       counterChecks = 0;
     });
-    for (var i = 0; i < data.length; i++) {
-      optionsCheckBox.add({
-        "check": false,
-        "id": "",
-        "numPedido": "",
-        "date": "",
-        "city": "",
-        "product": "",
-        "extraProduct": "",
-        "quantity": "",
-        "phone": "",
-        "price": "",
-        "name": "",
-        "transport": "",
-        "address": "",
-        "obervation": "",
-        "qrLink": "",
-      });
+
+    for (Map pedido in data) {
+      var selectedItem = selectedCheckBox
+          .where((elemento) => elemento["id"] == pedido["id"])
+          .toList();
+      if (selectedItem.isNotEmpty) {
+        pedido['check'] = true;
+      } else {
+        pedido['check'] = false;
+      }
     }
+    // for (var i = 0; i < data.length; i++) {
+    //   selectedCheckBox.add({
+    //     "check": false,
+    //     "id": "",
+    //     "numPedido": "",
+    //     "date": "",
+    //     "city": "",
+    //     "product": "",
+    //     "extraProduct": "",
+    //     "quantity": "",
+    //     "phone": "",
+    //     "price": "",
+    //     "name": "",
+    //     "transport": "",
+    //     "address": "",
+    //     "obervation": "",
+    //     "qrLink": "",
+    //   });
+    // }
     var responsetransportadoras = await Connections().getTransportadoras();
     transportatorList = responsetransportadoras['transportadoras'];
     for (var i = 0; i < transportatorList.length; i++) {
@@ -212,9 +224,9 @@ class _TableOrdersGuidesSentStateSeller
   }
 
   void resetFilters() {
-    // getOldValue(true);
-
+    getOldValue(true);
     filtersAnd = [];
+    selectedValueTransportator = null;
     _controllers.searchController.text = "";
   }
 
@@ -223,6 +235,7 @@ class _TableOrdersGuidesSentStateSeller
     return Scaffold(
       backgroundColor: Colors.white,
       body: Container(
+        padding: const EdgeInsets.all(15),
         width: double.infinity,
         child: Column(
           children: [
@@ -311,7 +324,7 @@ class _TableOrdersGuidesSentStateSeller
                       label: const Text('Nombre Cliente'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        // sortFunc("NombreShipping");
+                        sortFunc("nombre_shipping", changevalue);
                       },
                     ),
                     DataColumn2(
@@ -325,63 +338,63 @@ class _TableOrdersGuidesSentStateSeller
                       label: const Text('Fecha entrega'),
                       size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
-                        // sortFuncFecha();
+                        sortFunc("fecha_entrega", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: const Text('Código'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        // sortFunc("NumeroOrden");
+                        sortFunc("numero_orden", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: const Text('Ciudad'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        // sortFunc("CiudadShipping");
+                        sortFunc("ciudad_shipping", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: const Text('Dirección'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        // sortFunc("DireccionShipping");
+                        sortFunc("direccion_shipping", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: const Text('Teléfono Cliente'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        // sortFunc("TelefonoShipping");
+                        sortFunc("telefono_shipping", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: const Text('Cantidad'),
                       size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
-                        // sortFunc("Cantidad_Total");
+                        sortFunc("cantidad_total", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: const Text('Producto'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        // sortFunc("ProductoP");
+                        sortFunc("producto_p", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: const Text('Producto Extra'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        // sortFunc("ProductoExtra");
+                        sortFunc("producto_extra", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: const Text('Precio Total'),
-                      size: ColumnSize.M,
+                      size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
-                        // sortFunc("PrecioTotal");
+                        sortFunc("precio_total", changevalue);
                       },
                     ),
                     DataColumn2(
@@ -395,35 +408,35 @@ class _TableOrdersGuidesSentStateSeller
                       label: const Text('Status'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        // sortFunc("Status");
+                        sortFunc("status", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: const Text('Confirmado?'),
-                      size: ColumnSize.M,
+                      size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
-                        // sortFunc("Estado_Interno");
+                        sortFunc("estado_interno", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: const Text('Estado Logistico'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        // sortFunc("Estado_Logistico");
+                        sortFunc("estado_logistico", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: const Text('Observación'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        // sortFunc("Observacion");
+                        sortFunc("observacion", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: const Text('Marca Envio'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        // sortFunc("Marca_Tiempo_Envio");
+                        sortFunc("marca_tiempo_envio", changevalue);
                       },
                     ),
                   ],
@@ -431,58 +444,60 @@ class _TableOrdersGuidesSentStateSeller
                       data.length,
                       (index) => DataRow(cells: [
                             DataCell(Checkbox(
-                                value: optionsCheckBox[index]['check'],
+                                value: data[index]['check'],
                                 onChanged: (value) {
                                   setState(() {
-                                    if (value!) {
-                                      optionsCheckBox[index]['check'] = value;
-                                      optionsCheckBox[index]['id'] =
-                                          data[index]['id'].toString();
-                                      optionsCheckBox[index]['numPedido'] =
-                                          "${data[index]['tienda_temporal'].toString()}-${data[index]['numero_orden']}"
-                                              .toString();
-                                      optionsCheckBox[index]['date'] =
-                                          data[index]['pedido_fecha'][0]
-                                                  ['fecha']
-                                              .toString();
-                                      optionsCheckBox[index]['city'] =
-                                          data[index]['ciudad_shipping']
-                                              .toString();
-                                      optionsCheckBox[index]['product'] =
-                                          data[index]['producto_p'].toString();
-                                      optionsCheckBox[index]['extraProduct'] =
-                                          data[index]['producto_extra']
-                                              .toString();
-                                      optionsCheckBox[index]['quantity'] =
-                                          data[index]['cantidad_total']
-                                              .toString();
-                                      optionsCheckBox[index]['phone'] =
-                                          data[index]['telefono_shipping']
-                                              .toString();
-                                      optionsCheckBox[index]['price'] =
-                                          data[index]['precio_total']
-                                              .toString();
-                                      optionsCheckBox[index]['name'] =
-                                          data[index]['nombre_shipping']
-                                              .toString();
-                                      optionsCheckBox[index]['transport'] =
-                                          "${data[index]['transportadora'] != null ? data[index]['transportadora'][0]['nombre'].toString() : ''}";
-                                      optionsCheckBox[index]['address'] =
-                                          data[index]['direccion_shipping']
-                                              .toString();
-                                      optionsCheckBox[index]['obervation'] =
-                                          data[index]['observacion'].toString();
-                                      optionsCheckBox[index]['qrLink'] =
-                                          data[index]['users'][0]['vendedores']
-                                                  [0]['Url_Tienda']
-                                              .toString();
+                                    data[index]['check'] = value;
+                                  });
 
-                                      counterChecks += 1;
-                                    } else {
-                                      optionsCheckBox[index]['check'] = value;
-                                      optionsCheckBox[index]['id'] = '';
-                                      counterChecks -= 1;
-                                    }
+                                  if (value!) {
+                                    selectedCheckBox.add({
+                                      "check": false,
+                                      "id": data[index]['id'].toString(),
+                                      "numPedido":
+                                          "${data[index]['users'] != null ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal'].toString()}-${data[index]['numero_orden']}"
+                                              .toString(),
+                                      "date": data[index]['pedido_fecha'][0]
+                                              ['fecha']
+                                          .toString(),
+                                      "city": data[index]['ciudad_shipping']
+                                          .toString(),
+                                      "product":
+                                          data[index]['producto_p'].toString(),
+                                      "extraProduct": data[index]
+                                              ['producto_extra']
+                                          .toString(),
+                                      "quantity": data[index]['cantidad_total']
+                                          .toString(),
+                                      "phone": data[index]['telefono_shipping']
+                                          .toString(),
+                                      "price": data[index]['precio_total']
+                                          .toString(),
+                                      "name": data[index]['nombre_shipping']
+                                          .toString(),
+                                      "transport":
+                                          data[index]['transportadora'] != null
+                                              ? data[index]['transportadora'][0]
+                                                      ['nombre']
+                                                  .toString()
+                                              : '',
+                                      "address": data[index]
+                                              ['direccion_shipping']
+                                          .toString(),
+                                      "obervation":
+                                          data[index]['observacion'].toString(),
+                                      "qrLink": data[index]['users'][0]
+                                              ['vendedores'][0]['url_tienda']
+                                          .toString(),
+                                    });
+                                  } else {
+                                    var m = data[index]['id'];
+                                    selectedCheckBox.removeWhere((option) =>
+                                        option['id'] ==
+                                        data[index]['id'].toString());
+                                  }
+                                  setState(() {
+                                    counterChecks = selectedCheckBox.length;
                                   });
                                 })),
                             DataCell(
@@ -605,31 +620,31 @@ class _TableOrdersGuidesSentStateSeller
                 getLoadingModal(context, false);
                 final doc = pw.Document();
 
-                for (var i = 0; i < optionsCheckBox.length; i++) {
-                  if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
-                      optionsCheckBox[i]['id'].toString() != '' &&
-                      optionsCheckBox[i]['check'] == true) {
+                for (var i = 0; i < selectedCheckBox.length; i++) {
+                  if (selectedCheckBox[i]['id'].toString().isNotEmpty &&
+                      selectedCheckBox[i]['id'].toString() != '' &&
+                      selectedCheckBox[i]['check'] == true) {
                     final capturedImage =
                         await screenshotController.captureFromWidget(Container(
                             child: ModelGuide(
-                      address: optionsCheckBox[i]['address'],
-                      city: optionsCheckBox[i]['city'],
-                      date: optionsCheckBox[i]['date'],
-                      extraProduct: optionsCheckBox[i]['extraProduct'],
-                      idForBarcode: optionsCheckBox[i]['id'],
-                      name: optionsCheckBox[i]['name'],
-                      numPedido: optionsCheckBox[i]['numPedido'],
-                      observation: optionsCheckBox[i]['obervation'],
-                      phone: optionsCheckBox[i]['phone'],
-                      price: optionsCheckBox[i]['price'],
-                      product: optionsCheckBox[i]['product'],
-                      qrLink: optionsCheckBox[i]['qrLink'],
-                      quantity: optionsCheckBox[i]['quantity'],
-                      transport: optionsCheckBox[i]['transport'],
+                      address: selectedCheckBox[i]['address'],
+                      city: selectedCheckBox[i]['city'],
+                      date: selectedCheckBox[i]['date'],
+                      extraProduct: selectedCheckBox[i]['extraProduct'],
+                      idForBarcode: selectedCheckBox[i]['id'],
+                      name: selectedCheckBox[i]['name'],
+                      numPedido: selectedCheckBox[i]['numPedido'],
+                      observation: selectedCheckBox[i]['obervation'],
+                      phone: selectedCheckBox[i]['phone'],
+                      price: selectedCheckBox[i]['price'],
+                      product: selectedCheckBox[i]['product'],
+                      qrLink: selectedCheckBox[i]['qrLink'],
+                      quantity: selectedCheckBox[i]['quantity'],
+                      transport: selectedCheckBox[i]['transport'],
                     )));
 
                     doc.addPage(pw.Page(
-                      pageFormat: PdfPageFormat(21.0 * cm, 21.0 * cm,
+                      pageFormat: const PdfPageFormat(21.0 * cm, 21.0 * cm,
                           marginAll: 0.1 * cm),
                       build: (pw.Context context) {
                         return pw.Row(
@@ -659,26 +674,11 @@ class _TableOrdersGuidesSentStateSeller
           ),
           ElevatedButton(
               onPressed: () async {
-                //no deberia ser aqui, deberia ser despues de asignar la ruta
-                //???
-                // for (var i = 0; i < optionsCheckBox.length; i++) {
-                //   if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
-                //       optionsCheckBox[i]['id'].toString() != '' &&
-                //       optionsCheckBox[i]['check'] == true) {
-                //     // var response = await Connections()
-                //     //     .updateOrderInteralStatusInOrderPrinted(
-                //     //         "PENDIENTE", optionsCheckBox[i]['id'].toString());
-                //     var response3 = await Connections().updateOrderLaravel(
-                //         optionsCheckBox[i]['id'].toString(),
-                //         {"estado_logistico": "PENDIENTE"});
-                //   }
-                // }
-
                 await showDialog(
                     context: context,
                     builder: (context) {
                       return RoutesModalv2(
-                          idOrder: optionsCheckBox,
+                          idOrder: selectedCheckBox,
                           someOrders: true,
                           phoneClient: "",
                           codigo: "",
@@ -686,7 +686,10 @@ class _TableOrdersGuidesSentStateSeller
                     });
 
                 setState(() {});
-                loadData();
+                selectedCheckBox = [];
+                // selectAll = false;
+                getOldValue(true);
+                await loadData();
               },
               child: const Text(
                 "Ruta",
@@ -695,6 +698,14 @@ class _TableOrdersGuidesSentStateSeller
         ],
       ),
     );
+  }
+
+  getOldValue(Arrayrestoration) {
+    if (Arrayrestoration) {
+      setState(() {
+        sortFieldDefaultValue = "id:DESC";
+      });
+    }
   }
 
   _modelTextField({text, controller}) {
@@ -786,7 +797,7 @@ class _TableOrdersGuidesSentStateSeller
                                   resetFilters();
                                   await loadData();
                                 },
-                                child: Icon(Icons.close))
+                                child: const Icon(Icons.close))
                           ],
                         ),
                       ))
@@ -810,10 +821,14 @@ class _TableOrdersGuidesSentStateSeller
           ),
           Row(
             children: [
+              const SizedBox(width: 10),
               ElevatedButton(
                 onPressed: () {
-                  generatePDFFileWithData1(data);
-                  print("general");
+                  print("data");
+                  // print(data);
+                  // generatePDFFileWithData(data);
+                  generateExcelFileWithData(data);
+                  // print("general");
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromARGB(255, 58, 163, 81),
@@ -860,7 +875,7 @@ class _TableOrdersGuidesSentStateSeller
           Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10.0),
-              color: Color.fromARGB(255, 245, 244, 244),
+              color: const Color.fromARGB(255, 245, 244, 244),
             ),
             child: TextField(
               controller: controller,
@@ -870,9 +885,9 @@ class _TableOrdersGuidesSentStateSeller
               onSubmitted: (value) async {
                 await loadData();
               },
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(fontWeight: FontWeight.bold),
               decoration: InputDecoration(
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search),
                 suffixIcon: _controllers.searchController.text.isNotEmpty
                     ? GestureDetector(
                         onTap: () {
@@ -881,7 +896,7 @@ class _TableOrdersGuidesSentStateSeller
                           });
                           loadData();
                         },
-                        child: Icon(Icons.close))
+                        child: const Icon(Icons.close))
                     : null,
                 hintText: text,
                 enabledBorder: OutlineInputBorder(
@@ -904,6 +919,19 @@ class _TableOrdersGuidesSentStateSeller
     );
   }
 
+  sortFunc(filtro, changeval) {
+    setState(() {
+      if (changeval) {
+        sortFieldDefaultValue = "$filtro:DESC";
+        changevalue = false;
+      } else {
+        sortFieldDefaultValue = "$filtro:ASC";
+        changevalue = true;
+      }
+      loadData();
+    });
+  }
+
   Color? GetColor(state) {
     var color;
     if (state == true) {
@@ -915,62 +943,6 @@ class _TableOrdersGuidesSentStateSeller
   }
 
   Future<void> generatePDFFileWithData(dataOrders) async {
-    try {
-      //add ${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}
-      final pdf = pw.Document();
-      pdf.addPage(
-        pw.Page(
-          build: (pw.Context context) {
-            return pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                pw.Text(
-                    "${sharedPrefs!.getString("NameComercialSeller").toString()} Informe Guías Enviadas",
-                    style: const pw.TextStyle(
-                      fontSize: 14,
-                    )),
-                pw.SizedBox(height: 10),
-                pw.TableHelper.fromTextArray(
-                  context: context,
-                  data: <List<String>>[
-                    <String>[
-                      'Fecha de Entrega',
-                      'Código del pedido',
-                      'Nombre del cliente',
-                      'Ciudad',
-                      'Transportadora',
-                      'Producto',
-                      'Cantidad',
-                    ],
-                    for (var data in dataOrders)
-                      <String>[
-                        data["fecha_entrega"],
-                        "${data["name_comercial"]}-${data["numero_orden"]}",
-                        data["nombre_shipping"],
-                        data["ciudad_shipping"],
-                        data['transportadora'] != null &&
-                                data['transportadora'].isNotEmpty
-                            ? data['transportadora'][0]['nombre'].toString()
-                            : '',
-                        data["producto_p"],
-                        data["cantidad_total"].toString(),
-                      ]
-                  ],
-                ),
-              ],
-            );
-          },
-        ),
-      );
-
-      await Printing.layoutPdf(
-          onLayout: (PdfPageFormat format) async => await pdf.save());
-    } catch (e) {
-      print("Error en Generar el reporte: $e");
-    }
-  }
-
-  Future<void> generatePDFFileWithData1(dataOrders) async {
     try {
       final pdf = pw.Document();
 
@@ -995,19 +967,14 @@ class _TableOrdersGuidesSentStateSeller
                 pw.Table(
                   border: pw.TableBorder.all(),
                   columnWidths: {
-                    0: pw.FractionColumnWidth(0.03), //  #
-                    1: pw.FractionColumnWidth(
-                        0.1), // Ancho de la columna 1 Fecha de Entrega
-                    2: pw.FractionColumnWidth(
-                        0.15), // Ancho de la columna 2 Código
-                    3: pw.FractionColumnWidth(
-                        0.2), // Ancho de la columna 3  Nombre
-                    4: pw.FractionColumnWidth(
-                        0.15), // Ancho de la columna 4  Ciudad
-                    5: pw.FractionColumnWidth(
-                        0.17), // Ancho de la columna 5 Transportadora
-                    6: pw.FractionColumnWidth(0.25), // Producto
-                    7: pw.FractionColumnWidth(0.1), //  Cantidad
+                    0: const pw.FractionColumnWidth(0.05),
+                    1: const pw.FractionColumnWidth(0.1),
+                    2: const pw.FractionColumnWidth(0.15),
+                    3: const pw.FractionColumnWidth(0.2),
+                    4: const pw.FractionColumnWidth(0.15),
+                    5: const pw.FractionColumnWidth(0.17),
+                    6: const pw.FractionColumnWidth(0.25),
+                    7: const pw.FractionColumnWidth(0.1),
                   },
                   children: <pw.TableRow>[
                     pw.TableRow(
@@ -1056,6 +1023,101 @@ class _TableOrdersGuidesSentStateSeller
     }
   }
 
+  sortByCarrierName(datos) {
+    datos.sort((a, b) {
+      String nombreTransportadoraA = a['transportadora'][0]['nombre'];
+      String nombreTransportadoraB = b['transportadora'][0]['nombre'];
+      return nombreTransportadoraA.compareTo(nombreTransportadoraB);
+    });
+
+    return datos;
+  }
+
+  Future<void> generateExcelFileWithData(dataOrders) async {
+    try {
+      var sortedData = sortByCarrierName(dataOrders);
+      final excel = Excel.createExcel();
+      final sheet = excel.sheets[excel.getDefaultSheet() as String];
+      sheet!.setColWidth(2, 50);
+      sheet.setColAutoFit(3);
+      var numItem = 1;
+
+      var name_comercial = "";
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0))
+          .value = 'Item';
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 0))
+          .value = 'Fecha de Entrega';
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 0))
+          .value = 'Codigo de pedido';
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: 0))
+          .value = 'Nombre del cliente';
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 4, rowIndex: 0))
+          .value = 'Ciudad';
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 5, rowIndex: 0))
+          .value = 'Transportadora';
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 6, rowIndex: 0))
+          .value = 'Producto';
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 7, rowIndex: 0))
+          .value = 'Cantidad';
+
+      for (int rowIndex = 0; rowIndex < sortedData.length; rowIndex++) {
+        final data = sortedData[rowIndex];
+        sheet
+            .cell(CellIndex.indexByColumnRow(
+                columnIndex: 0, rowIndex: rowIndex + 1))
+            .value = numItem;
+        sheet
+            .cell(CellIndex.indexByColumnRow(
+                columnIndex: 1, rowIndex: rowIndex + 1))
+            .value = data["fecha_entrega"];
+        sheet
+            .cell(CellIndex.indexByColumnRow(
+                columnIndex: 2, rowIndex: rowIndex + 1))
+            .value = "${data["name_comercial"]}-${data["numero_orden"]}";
+        name_comercial = data["name_comercial"];
+        sheet
+            .cell(CellIndex.indexByColumnRow(
+                columnIndex: 3, rowIndex: rowIndex + 1))
+            .value = data["nombre_shipping"];
+        sheet
+            .cell(CellIndex.indexByColumnRow(
+                columnIndex: 4, rowIndex: rowIndex + 1))
+            .value = data["ciudad_shipping"];
+        sheet
+            .cell(CellIndex.indexByColumnRow(
+                columnIndex: 5, rowIndex: rowIndex + 1))
+            .value = data["transportadora"][0]["nombre"];
+        sheet
+            .cell(CellIndex.indexByColumnRow(
+                columnIndex: 6, rowIndex: rowIndex + 1))
+            .value = data["producto_p"];
+        sheet
+            .cell(CellIndex.indexByColumnRow(
+                columnIndex: 7, rowIndex: rowIndex + 1))
+            .value = data["cantidad_total"];
+
+        numItem++;
+        //
+      }
+
+      var nombreFile =
+          // "Guias_Enviadas_$name_comercial-EasyEcommerce-${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
+          "Guias_Enviadas_$name_comercial-EasyEcommerce-$date";
+
+      excel.save(fileName: '${nombreFile}.xlsx');
+    } catch (e) {
+      print("Error en Generar el reporte!");
+    }
+  }
+
   pw.Widget _buildTableCell(String text, {bool header = false}) {
     return pw.Container(
       alignment: pw.Alignment.center,
@@ -1080,72 +1142,6 @@ class _TableOrdersGuidesSentStateSeller
         style: pw.TextStyle(fontSize: 10),
       ),
     );
-  }
-
-  Future<void> generatePDFFileWithData2(dataOrders) async {
-    try {
-      //add ${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}
-      final pdf = pw.Document();
-      pdf.addPage(
-        pw.Page(
-          build: (pw.Context context) {
-            return pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                pw.Text(
-                    "${sharedPrefs!.getString("NameComercialSeller").toString()} Informe Guías Enviadas",
-                    style: const pw.TextStyle(
-                      fontSize: 14,
-                    )),
-                pw.SizedBox(height: 10),
-                pw.TableHelper.fromTextArray(
-                  context: context,
-                  // headerStyle: TextStyle(fontWeight: FontWeight.bold),
-                  // headerDecoration: BoxDecoration(color: PdfColors.grey300),
-                  data: <List<String>>[
-                    <String>[
-                      'Fecha de Entrega',
-                      'Código del pedido',
-                      'Nombre del cliente',
-                      'Ciudad',
-                      'Transportadora',
-                      'Producto',
-                      'Cantidad',
-                    ],
-                    for (var data in dataOrders)
-                      <String>[
-                        data["fecha_entrega"],
-                        "${data["name_comercial"]}-${data["numero_orden"]}",
-                        data["nombre_shipping"],
-                        data["ciudad_shipping"],
-                        data["producto_p"],
-                        data["cantidad_total"].toString(),
-                        data['transportadora'] != null &&
-                                data['transportadora'].isNotEmpty
-                            ? data['transportadora'][0]['nombre'].toString()
-                            : '',
-                      ]
-                  ],
-                ),
-              ],
-            );
-          },
-        ),
-      );
-
-      // final tempDir = await getTemporaryDirectory();
-      // final pdfFile = File('${tempDir.path}/reporte_pedidos.pdf');
-      // await pdfFile.writeAsBytes(await pdf.save());
-
-      //  var nombreFile =
-      //     "$name_transportadora-EasyEcommerce-${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
-      // excel.save(fileName: '${nombreFile}.xlsx');
-
-      await Printing.layoutPdf(
-          onLayout: (PdfPageFormat format) async => await pdf.save());
-    } catch (e) {
-      print("Error en Generar el reporte: $e");
-    }
   }
 
   getInfoModal(index) {

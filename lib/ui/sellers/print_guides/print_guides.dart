@@ -169,6 +169,7 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        padding: const EdgeInsets.all(15),
         width: double.infinity,
         child: Column(
           children: [
@@ -249,105 +250,105 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
                       label: const Text('Nombre Cliente'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("NombreShipping");
+                        sortFunc("nombre_shipping", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: const Text('Fecha'),
                       size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
-                        sortFuncFecha();
+                        // sortFuncFecha();
                       },
                     ),
                     DataColumn2(
                       label: const Text('Código'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("NumeroOrden");
+                        sortFunc("numero_orden", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: const Text('Ciudad'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("CiudadShipping");
+                        sortFunc("ciudad_shipping", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: const Text('Dirección'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("DireccionShipping");
+                        sortFunc("direccion_shipping", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: const Text('Teléfono Cliente'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("TelefonoShipping");
+                        sortFunc("telefono_shipping", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: const Text('Cantidad'),
                       size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("Cantidad_Total");
+                        sortFunc("cantidad_total", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: const Text('Producto'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("ProductoP");
+                        sortFunc("producto_p", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: const Text('Producto Extra'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("ProductoExtra");
+                        sortFunc("producto_extra", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: const Text('Precio Total'),
                       size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("PrecioTotal");
+                        sortFunc("precio_total", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: const Text('Transportadora'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFuncTransporte();
+                        // sortFuncTransporte();
                       },
                     ),
                     DataColumn2(
                       label: const Text('Status'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("Status");
+                        sortFunc("status", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: const Text('Confirmado?'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("Estado_Interno");
+                        sortFunc("estado_interno", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: const Text('Estado Logistico'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("Estado_Logistico");
+                        sortFunc("estado_logistico", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: const Text('Observación'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        sortFunc("Observacion");
+                        sortFunc("observacion", changevalue);
                       },
                     ),
                   ],
@@ -368,86 +369,38 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
                                       "numPedido":
                                           "${data[index]['users'] != null ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal'].toString()}-${data[index]['numero_orden']}"
                                               .toString(),
-                                      // "numPedido":
-                                      //     "${data[index]['attributes']['users']['data'] != null ? data[index]['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['attributes']['Nombre_Comercial'] : data[index]['attributes']['Tienda_Temporal'].toString()}-${data[index]['attributes']['NumeroOrden']}"
-                                      //         .toString(),
                                       "date": data[index]['pedido_fecha'][0]
                                               ['fecha']
                                           .toString(),
-                                      // "date": data[index]['attributes']
-                                      //             ['pedido_fecha']['data']
-                                      //         ['attributes']['Fecha']
-                                      //     .toString(),
                                       "city": data[index]['ciudad_shipping']
                                           .toString(),
-                                      // "city": data[index]['attributes']
-                                      //         ['CiudadShipping']
-                                      //     .toString(),
                                       "product":
                                           data[index]['producto_p'].toString(),
-                                      // "product": data[index]['attributes']
-                                      //         ['ProductoP']
-                                      //     .toString(),
                                       "extraProduct": data[index]
                                               ['producto_extra']
                                           .toString(),
-                                      // "extraProduct": data[index]['attributes']
-                                      //         ['ProductoExtra']
-                                      //     .toString(),
                                       "quantity": data[index]['cantidad_total']
                                           .toString(),
-                                      // "quantity": data[index]['attributes']
-                                      //         ['Cantidad_Total']
-                                      //     .toString(),
                                       "phone": data[index]['telefono_shipping']
                                           .toString(),
-                                      // "phone": data[index]['attributes']
-                                      //         ['TelefonoShipping']
-                                      //     .toString(),
                                       "price": data[index]['precio_total']
                                           .toString(),
-                                      // "price": data[index]['attributes']
-                                      //         ['PrecioTotal']
-                                      //     .toString(),
                                       "name": data[index]['nombre_shipping']
                                           .toString(),
-                                      // "name": data[index]['attributes']
-                                      //         ['NombreShipping']
-                                      //     .toString(),
                                       "transport":
                                           data[index]['transportadora'] != null
                                               ? data[index]['transportadora'][0]
                                                       ['nombre']
                                                   .toString()
                                               : '',
-                                      // "transport": data[index]['attributes']
-                                      //             ['transportadora']['data'] !=
-                                      //         null
-                                      //     ? data[index]['attributes']
-                                      //                 ['transportadora']['data']
-                                      //             ['attributes']['Nombre']
-                                      //         .toString()
-                                      //     : '',
                                       "address": data[index]
                                               ['direccion_shipping']
                                           .toString(),
-                                      // "address": data[index]['attributes']
-                                      //         ['DireccionShipping']
-                                      //     .toString(),
                                       "obervation":
                                           data[index]['observacion'].toString(),
-                                      // "obervation": data[index]['attributes']
-                                      //         ['Observacion']
-                                      //     .toString(),
                                       "qrLink": data[index]['users'][0]
                                               ['vendedores'][0]['url_tienda']
                                           .toString(),
-                                      // "qrLink": data[index]['attributes']
-                                      //                     ['users']['data'][0]
-                                      //                 ['attributes']
-                                      //             ['vendedores']['data'][0]
-                                      //         ['attributes']['Url_Tienda']
-                                      //     .toString(),
                                     });
                                   } else {
                                     var m = data[index]['id'];
@@ -497,7 +450,6 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
                               getInfoModal(index);
                             }),
                             DataCell(
-                                // Text(data[index]['producto_extra'].toString())
                                 Text(data[index]['producto_extra'] == null ||
                                         data[index]['producto_extra'] == "null"
                                     ? ""
@@ -534,7 +486,6 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
                               getInfoModal(index);
                             }),
                             DataCell(
-                                // Text(data[index]['observacion'].toString()),
                                 Text(data[index]['observacion'] == null ||
                                         data[index]['observacion'] == "null"
                                     ? ""
@@ -655,6 +606,14 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
     );
   }
 
+  getOldValue(Arrayrestoration) {
+    if (Arrayrestoration) {
+      setState(() {
+        sortFieldDefaultValue = "id:DESC";
+      });
+    }
+  }
+
   Container _buttons() {
     return Container(
       margin: EdgeInsets.all(5.0),
@@ -705,9 +664,6 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
                         );
                       },
                     ));
-                    // var response = await Connections()
-                    //     .updateOrderLogisticStatus(
-                    //         "IMPRESO", optionsCheckBox[i]['id'].toString());
 
                     // DateTime now = DateTime.now();
                     // print('Fecha y hora actual: $now');
@@ -723,6 +679,7 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
                 setState(() {});
                 selectedCheckBox = [];
                 selectAll = false;
+                getOldValue(true);
                 loadData();
               },
               child: const Text(
@@ -748,13 +705,13 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
                 setState(() {});
                 selectedCheckBox = [];
                 selectAll = false;
+                getOldValue(true);
                 await loadData();
               },
-              child: Text(
+              child: const Text(
                 "Asignar Ruta",
                 style: TextStyle(fontWeight: FontWeight.bold),
               )),
-          // SizedBox(child: showProgressIndicator(context, 200, 20, 0.6)),
         ],
       ),
     );
@@ -770,7 +727,7 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
       child: TextField(
         controller: controller,
         onSubmitted: (value) {
-          // getOldValue(true);
+          getOldValue(true);
           loadData();
         },
         // onSubmitted: (value) {
@@ -884,22 +841,17 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
     );
   }
 
-  sortFunc(name) {
-    if (sort) {
-      setState(() {
-        sort = false;
-      });
-      data.sort((a, b) => b['attributes'][name]
-          .toString()
-          .compareTo(a['attributes'][name].toString()));
-    } else {
-      setState(() {
-        sort = true;
-      });
-      data.sort((a, b) => a['attributes'][name]
-          .toString()
-          .compareTo(b['attributes'][name].toString()));
-    }
+  sortFunc(filtro, changevalu) {
+    setState(() {
+      if (changevalu) {
+        sortFieldDefaultValue = "$filtro:DESC";
+        changevalue = false;
+      } else {
+        sortFieldDefaultValue = "$filtro:ASC";
+        changevalue = true;
+      }
+      loadData();
+    });
   }
 
   sortFuncTransporte() {
@@ -907,22 +859,16 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
       setState(() {
         sort = false;
       });
-      data.sort((a, b) => b['attributes']['transportadora']['data']
-              ['attributes']['Nombre']
+      data.sort((a, b) => b['transportadora'][0]['nombre']
           .toString()
-          .compareTo(a['attributes']['transportadora']['data']['attributes']
-                  ['Nombre']
-              .toString()));
+          .compareTo(a['transportadora'][0]['nombre'].toString()));
     } else {
       setState(() {
         sort = true;
       });
-      data.sort((a, b) => a['attributes']['transportadora']['data']
-              ['attributes']['Nombre']
+      data.sort((a, b) => a['transportadora'][0]['nombre']
           .toString()
-          .compareTo(b['attributes']['transportadora']['data']['attributes']
-                  ['Nombre']
-              .toString()));
+          .compareTo(b['transportadora'][0]['nombre'].toString()));
     }
   }
 
