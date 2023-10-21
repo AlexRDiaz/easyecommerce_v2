@@ -143,8 +143,6 @@ class _RoleConfigurationState extends State<RoleConfiguration> {
                                       json.encode(accesos);
                                   accesos[subIndex]['id_rol'] = role['id'];
                                 });
-                                // print("aqui> ${accesos[subIndex]}");
-
                                 await Connections()
                                     .postNewAccess(accesos[subIndex]);
                               },
@@ -298,7 +296,6 @@ class _RoleConfigurationState extends State<RoleConfiguration> {
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10.0)),
                   ),
-                  // Add your logic for handling text input
                 ),
               ),
               Row(
@@ -306,7 +303,6 @@ class _RoleConfigurationState extends State<RoleConfiguration> {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      // Add logic for accepting the new view
                       _handleAccept(id);
                     },
                     child: Text("Aceptar"),
@@ -335,9 +331,6 @@ class _RoleConfigurationState extends State<RoleConfiguration> {
   }
 
   void _handleAccept(id) async {
-    // Print the value outside of the setState
-    // print(_textFieldController.text);
-    // ******************************
     AwesomeDialog(
       width: 500,
       context: context,
@@ -354,17 +347,9 @@ class _RoleConfigurationState extends State<RoleConfiguration> {
           label: _textFieldController.text.split("-")[0],
           initialSelected: false,
           onSelected: (value) async {
-            // Aquí puedes agregar la lógica de selección si es necesario
           },
         );
 
-        await Connections().editAccessofWindow({
-          "active": false,
-          "view_name": _textFieldController.text.split("-")[0],
-          "id_rol": id
-        });
-
-        // Actualiza el estado solo si no existe ya
         if (!filterChipItems.contains(newFilterChipItem)) {
           setState(() {
             filterChipItems.add(newFilterChipItem);
@@ -374,17 +359,16 @@ class _RoleConfigurationState extends State<RoleConfiguration> {
           loadData();
         });
 
-        // ignore: use_build_context_synchronously
         Navigator.of(context).pop();
       },
       btnCancelOnPress: () {
         Navigator.of(context).pop();
       },
     ).show();
-    // **********************
-    // Add any other logic you need
   }
+
 }
+
 
 class RoleContainer extends StatelessWidget {
   final String roleName;
@@ -433,7 +417,6 @@ class _FilterChipItemState extends State<FilterChipItem> {
     super.initState();
     isSelected = widget.initialSelected;
     label = widget.label;
-    // print("valor controler -> ${_viewcontroller.text}");
   }
 
   @override
@@ -451,8 +434,6 @@ class _FilterChipItemState extends State<FilterChipItem> {
           selected: isSelected,
           onSelected: (value) {
             isSelected = value;
-            // widget.onSelected(isSelected);
-
             _showAddViewDialogStatusChipChangeSomeButtons(
                 context, label, isSelected);
           },
@@ -549,66 +530,6 @@ class _FilterChipItemState extends State<FilterChipItem> {
           );
         });
       },
-    );
-  }
-}
-
-class MyTextFieldWidget extends StatefulWidget {
-  final TextEditingController controller;
-  final String hintText;
-
-  MyTextFieldWidget({required this.controller, required this.hintText});
-
-  @override
-  _MyTextFieldWidgetState createState() => _MyTextFieldWidgetState();
-}
-
-class _MyTextFieldWidgetState extends State<MyTextFieldWidget> {
-  Color _textFieldColor = Colors.white;
-  String _initialValue = ''; // Variable para el primer valor conocido
-
-  @override
-  void initState() {
-    super.initState();
-    _initialValue = widget.controller.text; // Guarda el primer valor conocido
-    widget.controller.addListener(_onControllerChanged);
-  }
-
-  @override
-  void dispose() {
-    widget.controller.removeListener(_onControllerChanged);
-    super.dispose();
-  }
-
-  void _onControllerChanged() {
-    String currentValue = widget.controller.text;
-
-    setState(() {
-      _textFieldColor =
-          (currentValue == _initialValue) ? Colors.white : Colors.orange;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: TextField(
-          controller: widget.controller,
-          style: TextStyle(color: _textFieldColor),
-          decoration: InputDecoration(
-            hintText: widget.hintText,
-            hintStyle: TextStyle(color: Colors.white),
-            filled: true,
-            fillColor: Colors.white.withOpacity(0.3),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide(color: Colors.white),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

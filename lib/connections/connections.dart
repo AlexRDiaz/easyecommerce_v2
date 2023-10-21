@@ -5013,83 +5013,6 @@ class Connections {
     }
   }
 
-  getTransportadorasOfRuta(id) async {
-    try {
-      var response = await http.get(
-          Uri.parse("$serverLaravel/api/transport_rutas/$id"),
-          headers: {'Content-Type': 'application/json'});
-      if (response.statusCode == 200) {
-        var decodeData = json.decode(response.body);
-        return decodeData;
-      } else if (response.statusCode == 400) {
-        print("Error 400: Bad Request");
-      } else {
-        print("Error ${response.statusCode}: ${response.reasonPhrase}");
-      }
-    } catch (error) {
-      print("Ocurrió un error durante la solicitud: $error");
-    }
-  }
-
-  getRutasOfTransport(id) async {
-    try {
-      var response = await http.get(
-          Uri.parse("$serverLaravel/api/rutas_transport/$id"),
-          headers: {'Content-Type': 'application/json'});
-      if (response.statusCode == 200) {
-        var decodeData = json.decode(response.body);
-        return decodeData;
-      } else if (response.statusCode == 400) {
-        print("Error 400: Bad Request");
-      } else {
-        print("Error ${response.statusCode}: ${response.reasonPhrase}");
-      }
-    } catch (error) {
-      print("Ocurrió un error durante la solicitud: $error");
-    }
-  }
-
-  getPedidosOfRuta(id, transId) async {
-    try {
-      var response = await http.post(
-          Uri.parse("$serverLaravel/api/obtener-pedidos-por-ruta"),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({"ruta_id": id, "transportadora_id": transId}));
-
-      if (response.statusCode == 200) {
-        var decodeData = json.decode(response.body);
-        // print(decodeData);
-        return decodeData;
-      } else if (response.statusCode == 400) {
-        print("Error 400: Bad Request");
-      } else {
-        print("Error ${response.statusCode}: ${response.reasonPhrase}");
-      }
-    } catch (error) {
-      print("Ocurrió un error durante la solicitud: $error");
-    }
-  }
-
-  getPedidosPorTransportadora(id) async {
-    try {
-      var response = await http.post(
-          Uri.parse("$serverLaravel/api/obtener-pedidos-por-trans"),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({"transportadora_Id": id}));
-
-      if (response.statusCode == 200) {
-        var decodeData = json.decode(response.body);
-        // print(decodeData);
-        return decodeData;
-      } else if (response.statusCode == 400) {
-        print("Error 400: Bad Request");
-      } else {
-        print("Error ${response.statusCode}: ${response.reasonPhrase}");
-      }
-    } catch (error) {
-      print("Ocurrió un error durante la solicitud: $error");
-    }
-  }
 
   getUserPedidos(id) async {
     try {
@@ -5110,7 +5033,7 @@ class Connections {
     }
   }
 
-  // ! parte de configuracion de roles
+  
 
   getRolesFront() async {
     try {
@@ -5133,7 +5056,7 @@ class Connections {
 
   postNewAccess(lista_data) async {
     try {
-      var response = await http.post(Uri.parse("$serverLaravel/api/upd-access"),
+      var response = await http.post(Uri.parse("$serverLaravel/api/new-access"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
             "datos_vista": lista_data,
@@ -5179,18 +5102,40 @@ class Connections {
     }
   }
 
-  editAccessofWindow(lista_data) async {
-    try {
-      print(json.encode({
-        "datos_vista": lista_data,
-      }));
-      var response =
-          await http.post(Uri.parse("$serverLaravel/api/upd-rolesaccess"),
-              headers: {'Content-Type': 'application/json'},
-              body: json.encode({
-                "datos_vista": lista_data,
-              }));
+  // editAccessofWindow(lista_data) async {
+  //   try {
+  //     print(json.encode({
+  //       "datos_vista": lista_data,
+  //     }));
+  //     var response =
+  //         await http.post(Uri.parse("$serverLaravel/api/upd-rolesaccess"),
+  //             headers: {'Content-Type': 'application/json'},
+  //             body: json.encode({
+  //               "datos_vista": lista_data,
+  //             }));
 
+  //     if (response.statusCode == 200) {
+  //       var decodeData = json.decode(response.body);
+  //       print("ok");
+  //       return decodeData;
+  //     } else if (response.statusCode == 400) {
+  //       print("Error 400: Bad Request");
+  //     } else {
+  //       print("Error ${response.statusCode}: ${response.reasonPhrase}");
+  //     }
+  //   } catch (error) {
+  //     print("Ocurrió un error durante la solicitud: $error");
+  //   }
+  // }
+
+  getGeneralDataCron() async {
+    try {
+      var response = await http.post(Uri.parse("$serverLaravel/api/data-stats"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "date":
+                "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+          }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         print("ok");
@@ -5205,11 +5150,14 @@ class Connections {
     }
   }
 
-  getGeneralDataOrdersofTransport(id) async {
+  getGeneralDataCronrt() async {
     try {
-      var response = await http.get(
-          Uri.parse("$serverLaravel/api/up-user-pedidos-trans/$id"),
-          headers: {'Content-Type': 'application/json'});
+      var response = await http.post(Uri.parse("$serverLaravel/api/data-stats-rt"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "date":
+                "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+          }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         print("ok");
@@ -5223,22 +5171,6 @@ class Connections {
       print("Ocurrió un error durante la solicitud: $error");
     }
   }
-  getGeneralDataOrdersofRoutes(id) async {
-    try {
-      var response = await http.get(
-          Uri.parse("$serverLaravel/api/up-user-pedidos-routes/$id"),
-          headers: {'Content-Type': 'application/json'});
-      if (response.statusCode == 200) {
-        var decodeData = json.decode(response.body);
-        print("ok");
-        return decodeData;
-      } else if (response.statusCode == 400) {
-        print("Error 400: Bad Request");
-      } else {
-        print("Error ${response.statusCode}: ${response.reasonPhrase}");
-      }
-    } catch (error) {
-      print("Ocurrió un error durante la solicitud: $error");
-    }
-  }
+
+
 }
