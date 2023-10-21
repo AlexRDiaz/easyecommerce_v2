@@ -61,7 +61,7 @@ class _MySellerAccountState extends State<MySellerAccount> {
     // var response = await Connections().getPersonalInfoAccount();
     var responseL = await Connections().getPersonalInfoAccountLaravel();
     var response = responseL['user'];
-    referCost = response['vendedores'][0]['referer_cost'];
+    referCost = response['vendedores'][0]['referer_cost'] ?? "";
     _controllers = MySellerAccountControllers(
       nombreComercial: response['vendedores'][0]['nombre_comercial'].toString(),
       numeroTelefono: response['vendedores'][0]['telefono_1'].toString(),
