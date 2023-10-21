@@ -592,10 +592,12 @@ class _ReturnsState extends State<Returns> {
                                       var datacostos = await Connections()
                                           .getOrderByIDHistoryLaravel(
                                               data[index]['id']);
-                                      if (datacostos['estado_devolucion'] !=
-                                              "PENDIENTE" &&
-                                          datacostos['estado_devolucion'] !=
-                                              "ENTREGADO EN OFICINA") {
+                                      if (datacostos['estado_devolucion'] ==
+                                              "ENTREGADO EN OFICINA" ||
+                                          datacostos['estado_devolucion'] ==
+                                              "DEVOLUCION EN RUTA" ||
+                                          datacostos['estado_devolucion'] ==
+                                              "EN BODEGA") {
                                         List existTransaction =
                                             await Connections()
                                                 .getExistTransaction(

@@ -1895,32 +1895,7 @@ class _TransportDeliveryHistorialState
                     ),
                     TextButton(
                       child: const Text('Continuar'),
-                      onPressed: () async {
-                        Connections().updatenueva(
-                            data[index]['id'].toString(), {
-                          "status": "PEDIDO PROGRAMADO",
-                          "estado_devolucion": "PENDIENTE"
-                        });
-                        //Navigator.pop(context);
-                        var res = await Connections()
-                            .rollbackTransaction(data[index]['id']);
-                        if (res == 1) {
-                          // ignore: use_build_context_synchronously
-                          SnackBarHelper.showErrorSnackBar(
-                              context, "No se pudo realizar la operacion");
-                        } else if (res == 2) {
-                          // ignore: use_build_context_synchronously
-                          SnackBarHelper.showErrorSnackBar(
-                              context, "Error de conexion");
-                        } else {
-                          //Connections().updatenueva(id, datajson)
-                          // ignore: use_build_context_synchronously
-                          SnackBarHelper.showOkSnackBar(context,
-                              "Transaccion reestablecida correctamente");
-                        }
-                        // ignore: use_build_context_synchronously
-                        Navigator.of(context).pop();
-                      },
+                      onPressed: () async {},
                     ),
                   ],
                 );

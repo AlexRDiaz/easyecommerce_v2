@@ -796,9 +796,11 @@ class _UpdateStatusOperatorHistorialState
 
                       var l = datacostos['estado_devolucion'];
 
-                      if (datacostos['estado_devolucion'] != "PENDIENTE" &&
-                          datacostos['estado_devolucion'] !=
-                              "ENTREGADO EN OFICINA") {
+                      if (datacostos['estado_devolucion'] ==
+                              "ENTREGADO EN OFICINA" ||
+                          datacostos['estado_devolucion'] ==
+                              "DEVOLUCION EN RUTA" ||
+                          datacostos['estado_devolucion'] == "EN BODEGA") {
                         var existTransaction = await Connections()
                             .getExistTransaction(
                                 "debit",

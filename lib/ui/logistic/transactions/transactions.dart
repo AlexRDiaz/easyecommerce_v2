@@ -2,6 +2,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
+import 'package:frontend/ui/logistic/transactions/transactionRollback.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/widgets/transport/data_table_model.dart';
 import 'dart:async';
@@ -29,7 +30,10 @@ class _TransactionsState extends State<Transactions> {
     'DEVOLUCION',
     'REEMBOLSO'
   ];
+  List<Map> listToRollback = [];
   TextEditingController searchController = TextEditingController();
+  TextEditingController idRollbackTransaction = TextEditingController();
+
   TextEditingController origenController = TextEditingController(text: "TODO");
 
   loadData() async {
@@ -88,7 +92,8 @@ class _TransactionsState extends State<Transactions> {
                           Container(
                             width: MediaQuery.of(context).size.width * 0.3,
                             child: _modelTextField(
-                                text: "Buscar", controller: searchController),
+                                text: "Buscar por codigo",
+                                controller: searchController),
                           ),
                           SizedBox(width: 10),
                           ElevatedButton(
@@ -107,6 +112,9 @@ class _TransactionsState extends State<Transactions> {
                                   color: Colors.black),
                             ),
                           ),
+                          IconButton(
+                              onPressed: () => RollbackInputDialog(context),
+                              icon: const Icon(Icons.menu_outlined)),
                           Spacer(),
                           refreshButton(),
                         ],
@@ -180,6 +188,33 @@ class _TransactionsState extends State<Transactions> {
         ),
       ),
     );
+  }
+
+  Future<dynamic> RollbackInputDialog(BuildContext context) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Container(
+              width: MediaQuery.of(context).size.width / 2,
+              height: MediaQuery.of(context).size.height / 2,
+              child: Column(
+                children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Icon(Icons.close),
+                    ),
+                  ),
+                  Expanded(child: TransactionRollback())
+                ],
+              ),
+            ),
+          );
+        });
   }
 
   void _showDatePickerModal(BuildContext context) {

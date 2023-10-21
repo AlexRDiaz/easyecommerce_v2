@@ -3258,7 +3258,8 @@ class Connections {
                 "id_origen": idOrigen,
                 "codigo": codigo,
                 "origen": origen,
-                "comentario": comentario
+                "comentario": comentario,
+                "state": 1
               }));
       if (response.statusCode != 200) {
         return 1;
@@ -3286,7 +3287,8 @@ class Connections {
                 "id_origen": idOrigen,
                 "codigo": codigo,
                 "origen": origen,
-                "comentario": comentario
+                "comentario": comentario,
+                "state": 1
               }));
       if (response.statusCode != 200) {
         return 1;
@@ -5534,10 +5536,31 @@ class Connections {
     }
   }
 
-  rollbackTransaction(id) async {
+  getListToRollback(id) async {
     try {
       var response = await http
-          .post(Uri.parse("$serverLaravel/api/transacciones/rollback/$id"));
+          .get(Uri.parse("$serverLaravel/api/transacciones/to-rollback/$id"));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  rollbackTransaction(ids) async {
+    try {
+      var response = await http.post(
+          Uri.parse(
+            "$serverLaravel/api/transacciones/rollback",
+          ),
+          body: json.encode({
+            "ids": ids,
+          }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         // print(decodeData);
