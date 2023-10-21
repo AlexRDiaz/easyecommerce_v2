@@ -46,17 +46,24 @@ List optionsSellers = [
     "name": "Agregar Usuarios Vendedores",
     "icon": Icons.add_circle_outline_outlined
   },
-  {"name": "Mi Cuenta Vendedor", "icon": Icons.person_4_outlined},
+  // {"name": "Mi Cuenta Vendedor", "icon": Icons.person_4_outlined},
 
   {"name": "Ingreso de Pedidos", "icon": Icons.add_circle_outline_outlined},
   {"name": "Estado Entregas Pedidos", "icon": Icons.add_alert_outlined},
   {"name": "Pedidos No Deseados", "icon": Icons.no_sim_outlined},
   {"name": "Billetera", "icon": Icons.wallet},
-  // {"name": "Mi Billetera", "icon": Icons.wallet},
+  {"name": "Mi Billetera", "icon": Icons.wallet},
 
   {"name": "Devoluciones", "icon": Icons.list_outlined},
   {"name": "Retiros en Efectivo", "icon": Icons.monetization_on_outlined},
   {"name": "Conoce a tu Transporte", "icon": Icons.car_rental_outlined},
+
+
+  {"name": "Imprimir Guías", "icon": Icons.print_outlined},
+  {"name": "Guías Impresas", "icon": Icons.print},
+  {"name": "Guías Enviadas", "icon": Icons.send_outlined},
+
+  
   {"name": "Cambiar Contraseña", "icon": Icons.security},
   //{"name": "Cerrar Sesión", "icon": Icons.logout_outlined},
 ];
