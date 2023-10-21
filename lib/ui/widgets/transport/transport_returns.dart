@@ -164,7 +164,7 @@ class _TransportReturnState extends State<TransportReturn> {
                                         "${datacostos['id']}",
                                         "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
                                         "devolucion",
-                                        "costo de devolucion de pedido ");
+                                        "costo de devolucion de pedido por ${datacostos['estado_devolucion']}");
                                     await Connections().updatenueva(widget.id, {
                                       "costo_devolucion": datacostos['users'][0]
                                           ['vendedores'][0]['costo_devolucion'],

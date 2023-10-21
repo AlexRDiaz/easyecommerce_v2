@@ -614,7 +614,7 @@ class _ReturnsState extends State<Returns> {
                                               "${datacostos['id']}",
                                               "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
                                               "devolucion",
-                                              "costo de devolucion de pedido ");
+                                              "costo de devolucion de pedido por ${datacostos['estado_devolucion']}");
                                           await Connections()
                                               .updatenueva(data[index]['id'], {
                                             "costo_devolucion":

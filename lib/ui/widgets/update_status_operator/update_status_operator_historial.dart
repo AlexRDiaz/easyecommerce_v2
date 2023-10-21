@@ -794,8 +794,6 @@ class _UpdateStatusOperatorHistorialState
                       var datacostos = await Connections()
                           .getOrderByIDHistoryLaravel(widget.id);
 
-                      var l = datacostos['estado_devolucion'];
-
                       if (datacostos['estado_devolucion'] ==
                               "ENTREGADO EN OFICINA" ||
                           datacostos['estado_devolucion'] ==
@@ -814,7 +812,7 @@ class _UpdateStatusOperatorHistorialState
                               "${datacostos['id']}",
                               "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
                               "devolucion",
-                              "costo de devolucion de pedido ");
+                              "costo de devolucion de pedido por novedad y ${datacostos['estado_devolucion']}");
 
                           await Connections().updatenueva(widget.id, {
                             "costo_devolucion": datacostos['users'][0]

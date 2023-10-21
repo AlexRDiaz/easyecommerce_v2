@@ -78,7 +78,7 @@ class _ScannerPrintedTransportState extends State<ScannerPrintedTransport> {
                                 "${datacostos['id']}",
                                 "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
                                 "devolucion",
-                                "costo de devolucion de pedido ");
+                                "costo de devolucion de pedido por  ${responseOrder['attributes']['Status']} y  ${datacostos['estado_devolucion']}");
                             await Connections().updatenueva(barcode, {
                               "costo_devolucion": datacostos['users'][0]
                                   ['vendedores'][0]['costo_devolucion'],
