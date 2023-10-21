@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:intl/intl.dart';
 
+import 'package:flutter/material.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
 import 'package:get/get.dart';
@@ -56,6 +58,10 @@ class Connections {
               "NameComercialSeller",
               decodeDataUser['user']['vendedores'][0]['nombre_comercial']
                   .toString());
+          decodeDataUser['user']['vendedores'][0]['referer'] != null
+              ? sharedPrefs!.setString(
+                  "referer", decodeDataUser['user']['vendedores'][0]['referer'])
+              : "";
           List temporalPermisos =
               jsonDecode(decodeDataUser['user']['permisos']);
           List<String> finalPermisos = [];
@@ -307,6 +313,18 @@ class Connections {
     }
   }
 
+  getSellerMaster(id) async {
+    var request =
+        await http.get(Uri.parse("$serverLaravel/api/users/master/$id"));
+    var response = request.body;
+    var decodeData = json.decode(response);
+    if (request.statusCode != 200) {
+      return [false, ""];
+    } else {
+      return decodeData;
+    }
+  }
+
   Future createSellerGeneral(
       comercialName, phone1, phone2, sendCost, returnCost, url) async {
     var request = await http.post(Uri.parse("$server/api/vendedores"),
@@ -330,6 +348,38 @@ class Connections {
     } else {
       return [true, decodeData['data']['id']];
     }
+  }
+
+  Future createSellerGeneralLaravel(username, email, password, comercialName,
+      phone1, phone2, sendCost, returnCost, url, id) async {
+    int res = 0;
+    try {
+      var request =
+          await http.post(Uri.parse("$serverLaravel/api/users/general"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "username": username,
+                "email": email,
+                "password": password,
+                "nombre_comercial": comercialName,
+                "telefono1": phone1,
+                "telefono2": phone2,
+                "costo_envio": 5,
+                "costo_devolucion": 5.50,
+                "fecha_alta":
+                    "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+                "url_tienda": url,
+                "referer": id
+              }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        res = 1;
+      }
+    } catch (e) {
+      res = 2;
+    }
+    return res;
   }
 
   Future updateSellerGeneral(
@@ -3207,58 +3257,62 @@ class Connections {
     }
   }
 
-  postCredit(
-      String idComercial, String monto, String idOrigen, String origen) async {
+  postCredit(String idComercial, String monto, String idOrigen, String codigo,
+      String origen, String comentario) async {
     try {
+      final formattedDate =
+          DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+
       var response =
           await http.post(Uri.parse("$serverLaravel/api/transacciones/credit"),
               headers: {'Content-Type': 'application/json'},
               body: json.encode({
-                "act_date":
-                    "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year} ${DateTime.now().hour}:${DateTime.now().minute}",
+                "act_date": formattedDate,
                 "id": idComercial,
                 "monto": monto,
                 "id_origen": idOrigen,
-                "origen": origen
+                "codigo": codigo,
+                "origen": origen,
+                "comentario": comentario,
+                "state": 1
               }));
-      if (response.statusCode == 200) {
-        var decodeData = json.decode(response.body);
-        return decodeData;
-      } else if (response.statusCode == 400) {
-        print("Error 400: Bad Request");
+      if (response.statusCode != 200) {
+        return 1;
       } else {
-        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+        return 0;
       }
     } catch (error) {
-      print("Ocurrió un error durante la solicitud: $error");
+      return 2;
     }
   }
 
-  postDebit(
-      String idComercial, String monto, String idOrigen, String origen) async {
-    // try {
-    var response =
-        await http.post(Uri.parse("$serverLaravel/api/transacciones/debit"),
-            headers: {'Content-Type': 'application/json'},
-            body: json.encode({
-              "act_date":
-                  "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year} ${DateTime.now().hour}:${DateTime.now().minute}",
-              "id": idComercial,
-              "monto": monto,
-              "id_origen": idOrigen,
-              "origen": origen
-            }));
-    if (response.statusCode == 200) {
-      var decodeData = json.decode(response.body);
-      return decodeData;
-    } else if (response.statusCode == 400) {
-      print("Error 400: Bad Request");
-    } else {
-      print("Error ${response.statusCode}: ${response.reasonPhrase}");
+  postDebit(String idComercial, String monto, String idOrigen, String codigo,
+      String origen, String comentario) async {
+    try {
+      final formattedDate =
+          DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/transacciones/debit"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "act_date": formattedDate,
+                "id": idComercial,
+                "monto": monto,
+                "id_origen": idOrigen,
+                "codigo": codigo,
+                "origen": origen,
+                "comentario": comentario,
+                "state": 1
+              }));
+      if (response.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (error) {
+      return 2;
     }
-    // } catch (error) {
-    // print("Ocurrió un error durante la solicitud: $error");
-    // }
   }
 
   getOrdersOper(List populate, List and, List defaultAnd, List or, currentPage,
@@ -4898,6 +4952,316 @@ class Connections {
     }
   }
 
+  //--- Logistic: Comprobantes Pago 2
+// *
+  Future getOrdersSCalendarLaravel(id, month, year) async {
+    // print('$id: $month/$year');
+    try {
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/shippingcost/bytransportadora/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(
+              // {"month": month, "year": DateTime.now().year.toString()}));
+              {"month": month, "year": year}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return false;
+      } else {
+        if (decodeData['data'] == null) {
+          return [];
+        } else {
+          return decodeData['data'];
+        }
+      }
+    } catch (e) {
+      print("error: $e");
+    }
+  }
+
+  //  * DEPOSITO REALIZADO and RECIBIDO
+  // Future updateOrderPayStateLogisticUserLaravel(status, id) async {
+  Future updateTransportadorasShippingCostLaravel(status, id) async {
+    try {
+      var request = await http.put(
+          Uri.parse("$serverLaravel/api/shippingcost/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"status": status, "rejected_reason": ""}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  //  *
+  // Future updateOrderPayStateLogisticUserRechazadoLaravel(
+  Future updateTransportadorasShippingCostRechazadoLaravel(
+      id, comentarioRechazado) async {
+    try {
+      var request = await http.put(
+          Uri.parse("$serverLaravel/api/shippingcost/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(
+              {"status": "RECHAZADO", "rejected_reason": comentarioRechazado}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future updateOrderStatusPagoLogisticaLaravel(id, status) async {
+    try {
+      var request = await http.put(
+          Uri.parse("$serverLaravel/api/pedidos-shopify/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(
+              {"estado_pago_logistica": status, "comentario_rechazado": ""}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future updateOrderStatusPagoLogisticaRechazadoLaravel(
+      id, status, comment) async {
+    try {
+      var request = await http.put(
+          Uri.parse("$serverLaravel/api/pedidos-shopify/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "estado_pago_logistica": status,
+            "comentario_rechazado": comment
+          }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+//---
+  //  *
+  // Future updateOrderStatusOperatorEntregadoHistorialLaravel(
+  Future createTransaccionPedidoTransportadora(id, id_transportadora,
+      id_operador, status, precio_total, costo_transportadora) async {
+    try {
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/transaccionespedidotransportadora"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "id_pedido": id,
+            "id_transportadora": id_transportadora,
+            "id_operador": id_operador,
+            "status": status,
+            "fecha_entrega":
+                "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+            "precio_total": precio_total,
+            "costo_transportadora": costo_transportadora
+          }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return false;
+      } else {
+        return decodeData;
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+/**
+ * {
+    "status": "PENDIENTE",
+    "rejected_reason": "",
+    "url_proof_payment": ""
+}
+ */
+  Future updateTrasportadoraShippingCost(url_proof_payment, id) async {
+    try {
+      var request = await http.put(
+          Uri.parse("$serverLaravel/api/shippingcost/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"url_proof_payment": url_proof_payment}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  //  *
+  Future getTransaccionesOrdersByTransportadorasDates(
+      id_transportadora, dates) async {
+    try {
+      var request = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/transaccionespedidotransportadora/bydates"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "id_transportadora": id_transportadora,
+            "fechas_entrega": dates
+          }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      return decodeData;
+    } catch (e) {
+      print("error: $e");
+    }
+  }
+
+  //  *
+  // Future getTrasportadoraShippingCostByDate(id_transportadora, fecha) async {
+  Future getTrasportadoraShippingCostByDate(id_transportadora, fecha) async {
+    try {
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/shippingcost/getbydate"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(
+              {"id_transportadora": id_transportadora, "fecha": fecha}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return false;
+      } else {
+        if (decodeData['dailyCosts'] == null) {
+          return [];
+        } else {
+          print(decodeData['dailyCosts']);
+          return decodeData['dailyCosts'];
+        }
+      }
+    } catch (e) {
+      print("error!!!: $e");
+    }
+  }
+
+  //  *
+  Future updateTraccionPedidoTransportadora(id, status) async {
+    try {
+      var request = await http.put(
+          Uri.parse("$serverLaravel/api/transaccionespedidotransportadora/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"status": status}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      return decodeData['transaccion'];
+      // return decodeData;
+    } catch (e) {
+      print("error: $e");
+    }
+  }
+
+  Future deleteTraccionPedidoTransportadora(id) async {
+    try {
+      var request = await http.delete(
+        Uri.parse("$serverLaravel/api/transaccionespedidotransportadora/$id"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (decodeData['code'] != 200) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      print(e);
+
+      return false;
+    }
+  }
+
+  //  *
+  Future getTraccionPedidoTransportadora(
+      id_pedido, id_transportadora, fecha_entrega) async {
+    try {
+      var request = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/transaccionespedidotransportadora/getByDate"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(
+              // {"month": month, "year": DateTime.now().year.toString()}));
+              {
+                "id_pedido": id_pedido,
+                "id_transportadora": id_transportadora,
+                "fecha_entrega": fecha_entrega
+              }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      return decodeData['transaccion'];
+      // return decodeData;
+    } catch (e) {
+      print("error: $e");
+    }
+  }
+
+  //    * sellers: Print
+  Future getOrdersForPrintGuidesLaravel(List or, List defaultAnd, List and,
+      currentPage, sizePage, sortFiled, search) async {
+    List filtersAndAll = [];
+    filtersAndAll.addAll(and);
+    filtersAndAll.addAll(defaultAnd);
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/pedidos-shopifies-prtgd"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "or": or,
+            "and": filtersAndAll,
+            "page_size": sizePage,
+            "page_number": currentPage,
+            "search": search,
+            "sort": sortFiled,
+            "not": []
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
   //TEST
 
   Future getOrdersTest1() async {
@@ -4975,17 +5339,7 @@ class Connections {
     filtersAndAll.addAll(and);
     filtersAndAll.addAll(defaultAnd);
     try {
-      print(json.encode({
-        "start": start,
-        "populate": populate,
-        "or": or,
-        "and": filtersAndAll,
-        "page_size": sizePage,
-        "page_number": currentPage,
-        "search": search,
-        "sort": sortFiled,
-        "not": not
-      }));
+      // print("andAll: $filtersAndAll");
       var response =
           await http.post(Uri.parse("$serverLaravel/api/send-guides/printg"),
               headers: {'Content-Type': 'application/json'},
@@ -5087,7 +5441,7 @@ class Connections {
               body: json.encode({
                 "datos_vista": lista_data,
               }));
-
+      
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         print("ok");
@@ -5158,6 +5512,7 @@ class Connections {
             "date":
                 "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
           }));
+
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         print("ok");
@@ -5173,4 +5528,104 @@ class Connections {
   }
 
 
+  getReferers() async {
+    try {
+      var response = await http.get(
+          Uri.parse(
+              "$serverLaravel/api/vendedores/refereds/${sharedPrefs!.getString("idComercialMasterSeller").toString()}"),
+          headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  getListToRollback(id) async {
+    try {
+      var response = await http
+          .get(Uri.parse("$serverLaravel/api/transacciones/to-rollback/$id"));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  rollbackTransaction(ids) async {
+    try {
+      var response = await http.post(
+          Uri.parse(
+            "$serverLaravel/api/transacciones/rollback",
+          ),
+          body: json.encode({
+            "ids": ids,
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  getExistTransaction(tipo, id_origen, origen, id_vendedor) async {
+    try {
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/transacciones/exist"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "tipo": tipo,
+                "id_origen": id_origen,
+                "origen": origen,
+                "id_vendedor": id_vendedor.toString()
+              }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  getTransactionsByDate(start, end, search, arrayFiltersAnd) async {
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/transacciones/by-date"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "start": start,
+            "end": end,
+            "search": search,
+            "and": arrayFiltersAnd
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
 }

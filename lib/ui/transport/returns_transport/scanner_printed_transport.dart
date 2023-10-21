@@ -39,30 +39,64 @@ class _ScannerPrintedTransportState extends State<ScannerPrintedTransport> {
                   var responseOrder = await Connections().getOrderByID(barcode);
                   if (responseOrder['attributes']['Status'] == 'NO ENTREGADO' ||
                       responseOrder['attributes']['Status'] == 'NOVEDAD') {
-                    if (responseOrder['attributes']['Status'] ==
+                    if (responseOrder['attributes']['Estado_Devolucion'] ==
                             "DEVOLUCION EN RUTA" &&
                         widget.status == "ENTREGADO EN OFICINA") {
-                      _barcode =
-                          "El producto ${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']} no se puede cambiar a entregado en oficina porque tiene estado "
-                          "DEVOLUCION EN RUTA";
+                      setState(() {
+                        _barcode =
+                            "El pedido ${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']} no se puede cambiar a entregado en oficina porque tiene estado "
+                            "DEVOLUCION EN RUTA";
+                      });
+                      Navigator.pop(context);
                     } else {
                       if (widget.status != "PENDIENTE") {
                         String value = "";
                         value = getKeyMDT(value);
                         await Connections().updateOrderReturnTransport(
                             barcode, widget.status, value);
+
+                        //debit devolucion de pedidos
+                        var datacostos = await Connections()
+                            .getOrderByIDHistoryLaravel(barcode);
+
+                        if (datacostos['estado_devolucion'] ==
+                                "ENTREGADO EN OFICINA" ||
+                            datacostos['estado_devolucion'] ==
+                                "DEVOLUCION EN RUTA" ||
+                            datacostos['estado_devolucion'] == "EN BODEGA") {
+                          List existTransaction = await Connections()
+                              .getExistTransaction(
+                                  "debit",
+                                  barcode,
+                                  "devolucion",
+                                  datacostos['users'][0]['vendedores'][0]
+                                      ['id_master']);
+                          if (existTransaction.isEmpty) {
+                            var resDebit = await Connections().postDebit(
+                                "${datacostos['users'][0]['vendedores'][0]['id_master']}",
+                                "${datacostos['users'][0]['vendedores'][0]['costo_devolucion']}",
+                                "${datacostos['id']}",
+                                "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
+                                "devolucion",
+                                "costo de devolucion de pedido por  ${responseOrder['attributes']['Status']} y  ${datacostos['estado_devolucion']}");
+                            await Connections().updatenueva(barcode, {
+                              "costo_devolucion": datacostos['users'][0]
+                                  ['vendedores'][0]['costo_devolucion'],
+                            });
+                          }
+                        }
+                        setState(() {
+                          _barcode =
+                              "${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']}";
+                        });
+                        Navigator.pop(context);
+
+                        //-------------------------------------------------------------
                       } else {
                         await Connections()
                             .updateOrderReturnTransportRestart(barcode);
                       }
                     }
-
-                    setState(() {
-                      _barcode =
-                          "${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']}";
-                    });
-
-                    Navigator.pop(context);
                   } else {
                     setState(() {
                       _barcode =

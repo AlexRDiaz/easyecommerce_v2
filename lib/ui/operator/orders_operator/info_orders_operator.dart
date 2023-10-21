@@ -101,7 +101,8 @@ class _InfoOrdersOperatorState extends State<InfoOrdersOperator> {
                                                 "${data['attributes']['TelefonoShipping']}",
                                             id: widget.id,
                                             novedades: data['attributes']
-                                                ['novedades']['data']);
+                                                ['novedades']['data'],
+                                            currentStatus: '');
                                       });
 
                                   Navigator.pop(context);

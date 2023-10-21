@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,7 @@ class UpdateStatusOperatorHistorial extends StatefulWidget {
   final String numberCliente;
   final String id;
   final List novedades;
+  final String currentStatus;
 
   const UpdateStatusOperatorHistorial(
       {super.key,
@@ -23,7 +25,8 @@ class UpdateStatusOperatorHistorial extends StatefulWidget {
       required this.codigo,
       required this.numberCliente,
       required this.id,
-      required this.novedades});
+      required this.novedades,
+      required this.currentStatus});
 
   @override
   State<UpdateStatusOperatorHistorial> createState() =>
@@ -51,6 +54,11 @@ class _UpdateStatusOperatorHistorialState
   TextEditingController _controllerModalText = TextEditingController();
   XFile? imageSelect = null;
 
+  getRefered(id) async {
+    var refered = await Connections().getSellerMaster(id);
+    return refered;
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -70,6 +78,7 @@ class _UpdateStatusOperatorHistorialState
                       fontWeight: FontWeight.bold),
                 ),
                 items: status
+                    .where((item) => item != widget.currentStatus)
                     .map((item) => DropdownMenuItem(
                           value: item,
                           child: Text(
@@ -122,10 +131,8 @@ class _UpdateStatusOperatorHistorialState
         return _EnRuta();
       case "PEDIDO PROGRAMADO":
         return _PedidoProgramado();
-
       case "EN OFICINA":
         return _EnOficina();
-
       default:
     }
   }
@@ -134,31 +141,31 @@ class _UpdateStatusOperatorHistorialState
     return Container(
       child: Column(
         children: [
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
-          Text("Tipo de Pago",
+          const Text("Tipo de Pago",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           _modelCheckEfectivo(),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           _modelCheckTransferencia(),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           _modelCheckDeposito(),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           transferencia == true
-              ? Text("Foto",
+              ? const Text("Foto",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12))
               : Container(),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           transferencia == true
@@ -172,7 +179,7 @@ class _UpdateStatusOperatorHistorialState
                       imageSelect = image;
                     });
                   },
-                  child: Text(
+                  child: const Text(
                     "Seleccionar:",
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ))
@@ -220,40 +227,94 @@ class _UpdateStatusOperatorHistorialState
                         tipo = "Transferencia";
                       }
                       setState(() {});
-                      var response = await Connections().postDoc(imageSelect!);
-
-                      var responseent = await Connections()
-                          .updateOrderStatusOperatorEntregadoHistorial(
-                              "ENTREGADO",
-                              tipo,
-                              _controllerModalText.text,
-                              response[1],
-                              widget.id);
 
                       var datacostos = await Connections()
                           .getOrderByIDHistoryLaravel(widget.id);
 
-                      print("costos-> $datacostos");
-
-                      await Connections().postCredit(
+                      String resTransaction = "";
+                      var resCredit = await Connections().postCredit(
                           "${datacostos['users'][0]['vendedores'][0]['id_master']}",
                           "${datacostos['precio_total']}",
+                          "${datacostos['id']}",
                           "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                          "recaudo");
-                      await Connections().postDebit(
-                          "${datacostos['users'][0]['vendedores'][0]['id_master']}",
-                          "${datacostos['users'][0]['vendedores'][0]['costo_envio']}",
-                          "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                          "envio");
-                      // if(responseent){
-                      //   print(responseent);
-                      // }
-                      Connections().updatenueva(widget.id, {
-                        "costo_envio": datacostos['users'][0]['vendedores'][0]
-                            ['costo_envio'],
-                        "costo_transportadora": datacostos['users'][0]
-                            ['vendedores'][0]['costo_envio'],
-                      });
+                          "recaudo",
+                          "recaudo de precio total de pedido");
+                      if (resCredit == 0) {
+                        var resDebit = await Connections().postDebit(
+                            "${datacostos['users'][0]['vendedores'][0]['id_master']}",
+                            "${datacostos['users'][0]['vendedores'][0]['costo_envio']}",
+                            "${datacostos['id']}",
+                            "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
+                            "envio",
+                            "costo de envio de pedido entregado");
+
+                        if (resDebit == 0) {
+                          var response =
+                              await Connections().postDoc(imageSelect!);
+
+                          await Connections()
+                              .updateOrderStatusOperatorEntregadoHistorial(
+                                  "ENTREGADO",
+                                  tipo,
+                                  _controllerModalText.text,
+                                  response[1],
+                                  widget.id);
+
+                          if (datacostos['users'][0]['vendedores'][0]
+                                  ['referer'] !=
+                              null) {
+                            var refered = await getRefered(datacostos['users']
+                                [0]['vendedores'][0]['referer']);
+                            if (refered != null) {
+                              if (refered['referer_cost'] != null) {
+                                await Connections().postCredit(
+                                    "${datacostos['users'][0]['vendedores'][0]['referer']}",
+                                    "${refered['referer_cost']}",
+                                    "${datacostos['id']}",
+                                    "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
+                                    "referido",
+                                    "acreditacion por comision de vendedor referido");
+                              }
+                            }
+                          }
+
+                          Connections().updatenueva(widget.id, {
+                            "costo_envio": datacostos['users'][0]['vendedores']
+                                [0]['costo_envio'],
+                            "costo_transportadora": datacostos['users'][0]
+                                ['vendedores'][0]['costo_envio'],
+                          });
+                        } else {
+                          resTransaction =
+                              "Ha ocurrido un error al ejecutar la transacción";
+                        }
+                      } else {
+                        resTransaction =
+                            "Ha ocurrido un error al ejecutar la transacción";
+                      }
+
+                      //add transaccion_pedido
+                      var today = DateTime.now().toString().split(' ')[0];
+                      var getTransaccion = await Connections()
+                          .getTraccionPedidoTransportadora(widget.id,
+                              datacostos['transportadora'][0]['id'], today);
+                      if (getTransaccion == null) {
+                        var resTrans = await Connections()
+                            .createTransaccionPedidoTransportadora(
+                                widget.id,
+                                datacostos['transportadora'][0]['id'],
+                                datacostos['operadore'][0]['id'],
+                                "ENTREGADO",
+                                datacostos['precio_total'],
+                                datacostos['transportadora'][0]
+                                    ['costo_transportadora']);
+                      } else {
+                        var updateTransacc = await Connections()
+                            .updateTraccionPedidoTransportadora(
+                                getTransaccion[0]['id'].toString(),
+                                "ENTREGADO");
+                      }
+
                       setState(() {
                         _controllerModalText.clear();
                         tipo = "";
@@ -263,8 +324,44 @@ class _UpdateStatusOperatorHistorialState
                         imageSelect = null;
                       });
 
-                      Navigator.pop(context);
-                      Navigator.pop(context);
+                      if (resTransaction != "") {
+                        // ignore: use_build_context_synchronously
+                        AwesomeDialog(
+                          width: 500,
+                          context: context,
+                          dialogType: DialogType.error,
+                          animType: AnimType.rightSlide,
+                          title: resTransaction,
+                          //  desc: 'Vuelve a intentarlo',
+                          btnCancel: Container(),
+                          btnOkText: "Aceptar",
+                          btnOkColor: Colors.green,
+
+                          btnCancelOnPress: () {},
+                          btnOkOnPress: () {
+                            Navigator.pop(context);
+                          },
+                        ).show();
+                      } else {
+                        // ignore: use_build_context_synchronously
+                        AwesomeDialog(
+                          width: 500,
+                          context: context,
+                          dialogType: DialogType.success,
+                          animType: AnimType.rightSlide,
+                          title: 'Se ha modificado exitosamente',
+                          desc: 'Pedido entregado',
+                          btnCancel: Container(),
+                          btnOkText: "Aceptar",
+                          btnOkColor: Colors.green,
+                          descTextStyle: const TextStyle(color: Colors.green),
+                          btnCancelOnPress: () {},
+                          btnOkOnPress: () {
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                          },
+                        ).show();
+                      }
                     }
                   : deposito == true || efectivo == true
                       ? () async {
@@ -281,48 +378,98 @@ class _UpdateStatusOperatorHistorialState
                           }
                           setState(() {});
 
-                          var respp = await Connections()
-                              .updateOrderStatusOperatorEntregadoHistorial(
-                                  "ENTREGADO",
-                                  tipo,
-                                  _controllerModalText.text,
-                                  "",
-                                  widget.id);
-
                           // ! aqui consultar para que traiga los costos_envio,costo_devolucion
                           var datacostos = await Connections()
                               .getOrderByIDHistoryLaravel(widget.id);
 
-                          print("costos-> $datacostos");
-
                           // if (datacostos['costo_envio'] != null) {
-                          await Connections().updatenueva(widget.id, {
-                            "costo_envio":
-                                "${datacostos['users'][0]['vendedores'][0]['costo_envio']}"
-                          });
 
                           // }
+                          String resTransaction = "";
 
-                          await Connections().postCredit(
+                          var resCredit = await Connections().postCredit(
                               "${datacostos['users'][0]['vendedores'][0]['id_master']}",
                               "${datacostos['precio_total']}",
+                              "${datacostos['id']}",
                               "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                              "recaudo");
+                              "recaudo",
+                              "recaudo de precio total de pedido");
+                          if (resCredit == 0) {
+                            var resDebit = await Connections().postDebit(
+                                "${datacostos['users'][0]['vendedores'][0]['id_master']}",
+                                "${datacostos['users'][0]['vendedores'][0]['costo_envio']}",
+                                "${datacostos['id']}",
+                                "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
+                                "envio",
+                                "costo de envio de pedido entregado");
 
-                          await Connections().postDebit(
-                              "${datacostos['users'][0]['vendedores'][0]['id_master']}",
-                              "${datacostos['users'][0]['vendedores'][0]['costo_envio']}",
-                              "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                              "envio");
+                            await Connections().updatenueva(widget.id, {
+                              "costo_envio": datacostos['users'][0]
+                                  ['vendedores'][0]['costo_envio'],
+                            });
 
-                          Connections().updatenueva(widget.id, {
-                            "costo_envio": datacostos['users'][0]['vendedores']
-                                [0]['costo_envio'],
-                          });
-                          // ! como usa strapi no trae los valores de los costos ||| cuando cambian ?
-                          // if (respp != null) {
-                          //   print(respp);
-                          // }
+                            if (resDebit == 0) {
+                              var respp = await Connections()
+                                  .updateOrderStatusOperatorEntregadoHistorial(
+                                      "ENTREGADO",
+                                      tipo,
+                                      _controllerModalText.text,
+                                      "",
+                                      widget.id);
+                              if (datacostos['users'][0]['vendedores'][0]
+                                      ['referer'] !=
+                                  null) {
+                                var refered = await getRefered(
+                                    datacostos['users'][0]['vendedores'][0]
+                                        ['referer']);
+
+                                if (refered != null) {
+                                  if (refered['referer_cost'] != null) {
+                                    await Connections().postCredit(
+                                        "${datacostos['users'][0]['vendedores'][0]['referer']}",
+                                        "${refered['referer_cost']}",
+                                        "${datacostos['id']}",
+                                        "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
+                                        "referido",
+                                        "acreditacion por comision de vendedor referido");
+                                  }
+                                }
+                              }
+                            } else {
+                              resTransaction =
+                                  "Ha ocurrido un error al ejecutar la transacción";
+                            }
+                          } else {
+                            resTransaction =
+                                "Ha ocurrido un error al ejecutar la transacción";
+                          }
+
+                          //add transaccion_pedido
+                          var data = await Connections()
+                              .getOrderByIDHistoryLaravel(widget.id);
+
+                          var today = DateTime.now().toString().split(' ')[0];
+                          // today = '2023-10-12';
+                          // print("today: $today");
+                          var getTransaccion = await Connections()
+                              .getTraccionPedidoTransportadora(widget.id,
+                                  data['transportadora'][0]['id'], today);
+                          if (getTransaccion == null) {
+                            var resTrans = await Connections()
+                                .createTransaccionPedidoTransportadora(
+                                    widget.id,
+                                    data['transportadora'][0]['id'],
+                                    data['operadore'][0]['id'],
+                                    "ENTREGADO",
+                                    data['precio_total'],
+                                    data['transportadora'][0]
+                                        ['costo_transportadora']);
+                          } else {
+                            var updateTransacc = await Connections()
+                                .updateTraccionPedidoTransportadora(
+                                    getTransaccion[0]['id'], "ENTREGADO");
+                          }
+
                           setState(() {
                             _controllerModalText.clear();
                             tipo = "";
@@ -331,9 +478,44 @@ class _UpdateStatusOperatorHistorialState
                             transferencia = false;
                             imageSelect = null;
                           });
-
-                          Navigator.pop(context);
-                          Navigator.pop(context);
+                          if (resTransaction != "") {
+                            // ignore: use_build_context_synchronously
+                            AwesomeDialog(
+                              width: 500,
+                              context: context,
+                              dialogType: DialogType.error,
+                              animType: AnimType.rightSlide,
+                              title: resTransaction,
+                              //  desc: 'Vuelve a intentarlo',
+                              btnCancel: Container(),
+                              btnOkText: "Aceptar",
+                              btnOkColor: Colors.green,
+                              btnCancelOnPress: () {},
+                              btnOkOnPress: () {
+                                Navigator.pop(context);
+                              },
+                            ).show();
+                          } else {
+                            // ignore: use_build_context_synchronously
+                            AwesomeDialog(
+                              width: 500,
+                              context: context,
+                              dialogType: DialogType.success,
+                              animType: AnimType.rightSlide,
+                              title: 'Se ha modificado exitosamente',
+                              desc: 'Pedido entregado',
+                              btnCancel: Container(),
+                              btnOkText: "Aceptar",
+                              descTextStyle:
+                                  const TextStyle(color: Colors.green),
+                              btnOkColor: Colors.green,
+                              btnCancelOnPress: () {},
+                              btnOkOnPress: () {
+                                Navigator.pop(context);
+                                Navigator.pop(context);
+                              },
+                            ).show();
+                          }
                         }
                       : null,
               child: Text(
@@ -411,39 +593,104 @@ class _UpdateStatusOperatorHistorialState
                   ? () async {
                       getLoadingModal(context, false);
                       setState(() {});
-                      var response = await Connections().postDoc(imageSelect!);
-
-                      await Connections()
-                          .updateOrderStatusOperatorNoEntregadoHistorial(
-                              "NO ENTREGADO",
-                              _controllerModalText.text,
-                              response[1],
-                              widget.id);
 
                       var datane = await Connections()
                           .getOrderByIDHistoryLaravel(widget.id);
 
-                      print("costos-> $datane");
-
-                      await Connections().postDebit(
+                      var resTransaction = "";
+                      var resDebit = await Connections().postDebit(
                           "${datane['users'][0]['vendedores'][0]['id_master']}",
                           "${datane['users'][0]['vendedores'][0]['costo_envio']}",
+                          "${datane['id']}",
                           "${datane['name_comercial']}-${datane['numero_orden']}",
-                          "envio");
+                          "envio",
+                          "costo de envio por pedido no entregado");
 
-                      Connections().updatenueva(widget.id, {
-                        "costo_envio": datane['users'][0]['vendedores'][0]
-                            ['costo_envio'],
-                      });
+                      if (resDebit == 0) {
+                        var response =
+                            await Connections().postDoc(imageSelect!);
+
+                        await Connections()
+                            .updateOrderStatusOperatorNoEntregadoHistorial(
+                                "NO ENTREGADO",
+                                _controllerModalText.text,
+                                response[1],
+                                widget.id);
+                        Connections().updatenueva(widget.id, {
+                          "costo_envio": datane['users'][0]['vendedores'][0]
+                              ['costo_envio'],
+                        });
+                      } else {
+                        resTransaction =
+                            "Ha ocurrido un error al ejecutar la transacción";
+                      }
+
+                      if (resTransaction != "") {
+                        // ignore: use_build_context_synchronously
+                        AwesomeDialog(
+                          width: 500,
+                          context: context,
+                          dialogType: DialogType.error,
+                          animType: AnimType.rightSlide,
+                          title: resTransaction,
+                          //  desc: 'Vuelve a intentarlo',
+                          btnCancel: Container(),
+                          btnOkText: "Aceptar",
+                          btnOkColor: Colors.green,
+                          dialogBackgroundColor: Colors.red[200],
+                          btnCancelOnPress: () {},
+                          btnOkOnPress: () {
+                            Navigator.pop(context);
+                          },
+                        ).show();
+                      } else {
+                        // ignore: use_build_context_synchronously
+                        AwesomeDialog(
+                          width: 500,
+                          context: context,
+                          dialogType: DialogType.success,
+                          animType: AnimType.rightSlide,
+                          title: 'Se ha modificado exitosamente',
+                          desc: 'Pedio no entregado',
+                          descTextStyle: const TextStyle(color: Colors.red),
+                          btnCancel: Container(),
+                          btnOkText: "Aceptar",
+                          btnOkColor: Colors.green,
+                          btnCancelOnPress: () {},
+                          btnOkOnPress: () {
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                          },
+                        ).show();
+                      }
+
+                      var today = DateTime.now().toString().split(' ')[0];
+                      // today = '2023-10-12';
+                      // print("today: $today");
+                      var getTransaccion = await Connections()
+                          .getTraccionPedidoTransportadora(widget.id,
+                              datane['transportadora'][0]['id'], today);
+                      if (getTransaccion == null) {
+                        var resTrans = await Connections()
+                            .createTransaccionPedidoTransportadora(
+                                widget.id,
+                                datane['transportadora'][0]['id'],
+                                datane['operadore'][0]['id'],
+                                "NO ENTREGADO",
+                                datane['precio_total'],
+                                datane['transportadora'][0]
+                                    ['costo_transportadora']);
+                      } else {
+                        var updateTransacc = await Connections()
+                            .updateTraccionPedidoTransportadora(
+                                getTransaccion[0]['id'], "NO ENTREGADO");
+                      }
 
                       setState(() {
                         _controllerModalText.clear();
 
                         imageSelect = null;
                       });
-
-                      Navigator.pop(context);
-                      Navigator.pop(context);
                     }
                   : null,
               child: Text(
@@ -528,11 +775,7 @@ class _UpdateStatusOperatorHistorialState
                             widget.novedades.length + 1,
                             response[1],
                             _controllerModalText.text);
-                        //  confirmedDialog("Se ha guardado la novedad");
                       }
-                      //  else {
-                      //  // confirmedDialog("Numero maximo de novedades alcanzado");
-                      // }
 
                       if (widget.novedades.isEmpty) {
                         await Connections()
@@ -547,40 +790,105 @@ class _UpdateStatusOperatorHistorialState
                                 _controllerModalText.text,
                                 widget.id);
                       }
-
+                      var resTransaction = "";
                       var datacostos = await Connections()
                           .getOrderByIDHistoryLaravel(widget.id);
 
-                      print("costos-> $datacostos");
+                      if (datacostos['estado_devolucion'] ==
+                              "ENTREGADO EN OFICINA" ||
+                          datacostos['estado_devolucion'] ==
+                              "DEVOLUCION EN RUTA" ||
+                          datacostos['estado_devolucion'] == "EN BODEGA") {
+                        var existTransaction = await Connections()
+                            .getExistTransaction(
+                                "debit",
+                                "${datacostos['id']}",
+                                "devolucion",
+                                datacostos['users'][0]['vendedores'][0]['id']);
+                        if (existTransaction == []) {
+                          var resDebit = await Connections().postDebit(
+                              "${datacostos['users'][0]['vendedores'][0]['id']}",
+                              "${datacostos['users'][0]['vendedores'][0]['costo_devolucion']}",
+                              "${datacostos['id']}",
+                              "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
+                              "devolucion",
+                              "costo de devolucion de pedido por novedad y ${datacostos['estado_devolucion']}");
 
-                      if (datacostos['estado_devolucion'] != "PENDIENTE" ||
-                          datacostos['estado_devolucion'] !=
-                              "ENTREGADO EN OFICINA") {
-                        await Connections().postDebit(
-                            "${datacostos['users'][0]['vendedores'][0]['id']}",
-                            "${datacostos['users'][0]['vendedores'][0]['costo_devolucion']}",
-                            "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                            "devolucion");
+                          await Connections().updatenueva(widget.id, {
+                            "costo_devolucion": datacostos['users'][0]
+                                ['vendedores'][0]['costo_devolucion'],
+                          });
+                          if (resDebit != 1 && resDebit != 2) {
+                            resTransaction =
+                                "Pedido con novedad con costo devolucion";
+                          }
+                        }
                       }
-                      Connections().updatenueva(widget.id, {
-                        "costo_devolucion": datacostos['users'][0]['vendedores']
-                            [0]['costo_devolucion'],
-                      });
+
                       var _url = Uri.parse(
                           """https://api.whatsapp.com/send?phone=${widget.numberTienda}&text=
                                         El pedido con código ${widget.codigo} cambio su estado a novedad, motivo: ${_controllerModalText.text}. Teléfono del cliente: ${widget.numberCliente}""");
                       if (!await launchUrl(_url)) {
                         throw Exception('Could not launch $_url');
                       }
+
+                      if (resTransaction != "") {
+                        // ignore: use_build_context_synchronously
+                        AwesomeDialog(
+                          width: 500,
+                          context: context,
+                          dialogType: DialogType.success,
+                          animType: AnimType.rightSlide,
+                          title: 'Se ha modificado exitosamente',
+                          desc: resTransaction,
+                          descTextStyle: const TextStyle(
+                              color: Color.fromARGB(255, 255, 235, 59)),
+                          btnCancel: Container(),
+                          btnOkText: "Aceptar",
+                          btnOkColor: Colors.green,
+                          btnCancelOnPress: () {},
+                          btnOkOnPress: () {
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                          },
+                        ).show();
+                      } else {
+                        // ignore: use_build_context_synchronously
+                        AwesomeDialog(
+                          width: 500,
+                          context: context,
+                          dialogType: DialogType.success,
+                          animType: AnimType.rightSlide,
+                          title: 'Se ha modificado exitosamente',
+                          desc: 'Pedido con novedad',
+                          btnCancel: Container(),
+                          btnOkText: "Aceptar",
+                          btnOkColor: Colors.green,
+                          descTextStyle: const TextStyle(
+                              color: Color.fromARGB(255, 255, 235, 59)),
+                          btnCancelOnPress: () {},
+                          btnOkOnPress: () {
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                          },
+                        ).show();
+                      }
+
+                      // * if it exists, delete transaccion_pedidos_transportadora
+                      var today = DateTime.now().toString().split(' ')[0];
+                      var getTransaccion = await Connections()
+                          .getTraccionPedidoTransportadora(widget.id,
+                              datacostos['transportadora'][0]['id'], today);
+                      if (getTransaccion != null) {
+                        var deleteTransacc = await Connections()
+                            .deleteTraccionPedidoTransportadora(
+                                getTransaccion[0]['id']);
+                      }
+
                       setState(() {
                         _controllerModalText.clear();
                         imageSelect = null;
                       });
-                      Navigator.pop(context);
-                      Navigator.pop(context);
-
-                      // Navigator.pop(context);
-                      // Navigator.pop(context);
                     }
                   : null,
               child: Text(
@@ -687,16 +995,30 @@ class _UpdateStatusOperatorHistorialState
                   ? () async {
                       getLoadingModal(context, false);
                       List date = dateSelect.split('-');
-                      int d = int.parse(date[2]);
-                      int m = int.parse(date[1]);
-                      int a =int.parse(date[0]);
-
                       await Connections()
                           .updateOrderStatusOperatorPedidoProgramadoHistorial(
                               "REAGENDADO",
                               _controllerModalText.text,
-                              "$d/$m/$a", 
+                              int.parse(date[2]).toString() +
+                                  "/" +
+                                  int.parse(date[1]).toString() +
+                                  "/" +
+                                  date[0].toString(),
                               widget.id);
+
+                      // * if it exists, delete transaccion_pedidos_transportadora
+                      var datares = await Connections()
+                          .getOrderByIDHistoryLaravel(widget.id);
+                      var today = DateTime.now().toString().split(' ')[0];
+                      var getTransaccion = await Connections()
+                          .getTraccionPedidoTransportadora(widget.id,
+                              datares['transportadora'][0]['id'], today);
+                      if (getTransaccion != null) {
+                        var deleteTransacc = await Connections()
+                            .deleteTraccionPedidoTransportadora(
+                                getTransaccion[0]['id']);
+                      }
+
                       setState(() {
                         _controllerModalText.clear();
                         dateSelect = "";
@@ -757,6 +1079,20 @@ class _UpdateStatusOperatorHistorialState
 
                 await Connections().updateOrderStatusOperatorGeneralHistorial(
                     "EN RUTA", _controllerModalText.text, widget.id);
+
+                // * if it exists, delete transaccion_pedidos_transportadora
+                var datares =
+                    await Connections().getOrderByIDHistoryLaravel(widget.id);
+                var today = DateTime.now().toString().split(' ')[0];
+                var getTransaccion = await Connections()
+                    .getTraccionPedidoTransportadora(
+                        widget.id, datares['transportadora'][0]['id'], today);
+                if (getTransaccion != null) {
+                  var deleteTransacc = await Connections()
+                      .deleteTraccionPedidoTransportadora(
+                          getTransaccion[0]['id']);
+                }
+
                 setState(() {
                   _controllerModalText.clear();
                 });
@@ -814,6 +1150,20 @@ class _UpdateStatusOperatorHistorialState
 
                 await Connections().updateOrderStatusOperatorGeneralHistorial(
                     "PEDIDO PROGRAMADO", _controllerModalText.text, widget.id);
+
+                // * if it exists, delete transaccion_pedidos_transportadora
+                var datares =
+                    await Connections().getOrderByIDHistoryLaravel(widget.id);
+                var today = DateTime.now().toString().split(' ')[0];
+                var getTransaccion = await Connections()
+                    .getTraccionPedidoTransportadora(
+                        widget.id, datares['transportadora'][0]['id'], today);
+                if (getTransaccion != null) {
+                  var deleteTransacc = await Connections()
+                      .deleteTraccionPedidoTransportadora(
+                          getTransaccion[0]['id']);
+                }
+
                 setState(() {
                   _controllerModalText.clear();
                 });
@@ -871,6 +1221,20 @@ class _UpdateStatusOperatorHistorialState
 
                 await Connections().updateOrderStatusOperatorGeneralHistorial(
                     "EN OFICINA", _controllerModalText.text, widget.id);
+
+                // * if it exists, delete transaccion_pedidos_transportadora
+                var datares =
+                    await Connections().getOrderByIDHistoryLaravel(widget.id);
+                var today = DateTime.now().toString().split(' ')[0];
+                var getTransaccion = await Connections()
+                    .getTraccionPedidoTransportadora(
+                        widget.id, datares['transportadora'][0]['id'], today);
+                if (getTransaccion != null) {
+                  var deleteTransacc = await Connections()
+                      .deleteTraccionPedidoTransportadora(
+                          getTransaccion[0]['id']);
+                }
+
                 setState(() {
                   _controllerModalText.clear();
                 });

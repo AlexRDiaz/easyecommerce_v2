@@ -90,11 +90,11 @@ class _TransportProDeliveryHistoryDetails
                                   width: 20,
                                 ),
                                 data['attributes']['Estado_Devolucion']
-                                            .toString() !=
-                                        "PENDIENTE" || 
-                                data['attributes']['Status']
-                                            .toString() == 
-                                        "ENTREGADO"
+                                                .toString() !=
+                                            "PENDIENTE" ||
+                                        data['attributes']['Status']
+                                                .toString() ==
+                                            "ENTREGADO"
                                     ? Container()
                                     : Row(
                                         children: [
@@ -144,20 +144,22 @@ class _TransportProDeliveryHistoryDetails
                                                             data['attributes'][
                                                                     'novedades']
                                                                 ['data'],
+                                                        currentStatus:
+                                                            data['attributes']
+                                                                ['Status'],
                                                       );
-
                                                     });
-                                                // // ! POST CREDIT  
+                                                // // ! POST CREDIT
                                                 // await Connections().postCredit(
                                                 //   "${data['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['id']}",
-                                                //   "${data['attributes']['PrecioTotal']}", 
-                                                //   "${data['attributes']['Name_Comercial']}-${data['attributes']['NumeroOrden']}", 
+                                                //   "${data['attributes']['PrecioTotal']}",
+                                                //   "${data['attributes']['Name_Comercial']}-${data['attributes']['NumeroOrden']}",
                                                 //   "valor");
                                                 // // ! POST DEBIT
                                                 // await Connections().postDebit(
                                                 //   "${data['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['id']}",
-                                                //   "${data['attributes']['transportadora']['data']['attributes']['Costo_Transportadora']}", 
-                                                //   "${data['attributes']['Name_Comercial']}-${data['attributes']['NumeroOrden']}", 
+                                                //   "${data['attributes']['transportadora']['data']['attributes']['Costo_Transportadora']}",
+                                                //   "${data['attributes']['Name_Comercial']}-${data['attributes']['NumeroOrden']}",
                                                 //   "envio");
                                                 await loadData();
                                               },
@@ -262,7 +264,8 @@ class _TransportProDeliveryHistoryDetails
                               child: Row(
                                 children: [
                                   Icon(
-                                    Icons.shopping_bag_rounded, // Icono de usuario
+                                    Icons
+                                        .shopping_bag_rounded, // Icono de usuario
                                     color: ColorsSystem()
                                         .colorSelectMenu, // Color del ícono
                                     size: 24, // Tamaño del ícono

@@ -326,6 +326,7 @@ class _TransportDeliveryHistoryDetailsState
                                                           data['attributes']
                                                                   ['novedades']
                                                               ['data'],
+                                                      currentStatus: "",
                                                     );
                                                   });
                                               await loadData();

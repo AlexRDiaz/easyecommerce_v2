@@ -13,6 +13,9 @@ List optionsLogistic = [
   {"name": "Estado de Cuenta", "icon": Icons.insert_drive_file_outlined},
   {"name": "Facturas Vendedores", "icon": Icons.person_outline_outlined},
   {"name": "Comprobantes de Pago", "icon": Icons.calendar_today_sharp},
+
+  {"name": "Comprobantes de Pago2", "icon": Icons.calendar_today_sharp},
+
   {"name": "Saldo Contable", "icon": Icons.monetization_on_outlined},
   {"name": "Saldo Logística", "icon": Icons.monetization_on_outlined},
   {"name": "Solicitud de Retiro Vendedores", "icon": Icons.edit_document},
@@ -31,7 +34,7 @@ List optionsLogistic = [
   {"name": "Devolución en bodega", "icon": Icons.warehouse},
 
   {"name": "Cambiar Contraseña", "icon": Icons.security},
-  {"name": "Configuración de Roles", "icon" : Icons.new_releases_outlined},
+  {"name": "Configuración de Roles", "icon": Icons.new_releases_outlined},
 
   {"name": "Cerrar Sesión", "icon": Icons.logout_outlined},
 ];

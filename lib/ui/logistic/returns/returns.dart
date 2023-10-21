@@ -587,6 +587,48 @@ class _ReturnsState extends State<Returns> {
                                       await Connections()
                                           .updateOrderReturnLogistic(
                                               data[index]['id']);
+
+                                      var resTransaction = "";
+                                      var datacostos = await Connections()
+                                          .getOrderByIDHistoryLaravel(
+                                              data[index]['id']);
+                                      if (datacostos['estado_devolucion'] ==
+                                              "ENTREGADO EN OFICINA" ||
+                                          datacostos['estado_devolucion'] ==
+                                              "DEVOLUCION EN RUTA" ||
+                                          datacostos['estado_devolucion'] ==
+                                              "EN BODEGA") {
+                                        List existTransaction =
+                                            await Connections()
+                                                .getExistTransaction(
+                                                    "debit",
+                                                    "${datacostos["id"]}",
+                                                    "devolucion",
+                                                    datacostos['users']
+                                                            [0]['vendedores'][0]
+                                                        ['id_master']);
+                                        if (existTransaction.isEmpty) {
+                                          var resDebit = await Connections().postDebit(
+                                              "${datacostos['users'][0]['vendedores'][0]['id_master']}",
+                                              "${datacostos['users'][0]['vendedores'][0]['costo_devolucion']}",
+                                              "${datacostos['id']}",
+                                              "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
+                                              "devolucion",
+                                              "costo de devolucion de pedido por ${datacostos['estado_devolucion']}");
+                                          await Connections()
+                                              .updatenueva(data[index]['id'], {
+                                            "costo_devolucion":
+                                                datacostos['users'][0]
+                                                        ['vendedores'][0]
+                                                    ['costo_devolucion'],
+                                          });
+                                          if (resDebit != 1 && resDebit != 2) {
+                                            resTransaction =
+                                                "Pedido con novedad con costo devolucion";
+                                          }
+                                        }
+                                      }
+
                                       await loadData();
                                       Navigator.pop(context);
                                     },

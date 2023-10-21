@@ -6,14 +6,14 @@ import 'package:frontend/connections/connections.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
-class ScannerPrinted extends StatefulWidget {
-  const ScannerPrinted({super.key});
+class ScannerSent extends StatefulWidget {
+  const ScannerSent({super.key});
 
   @override
-  State<ScannerPrinted> createState() => _ScannerPrintedState();
+  State<ScannerSent> createState() => _ScannerStateSent();
 }
 
-class _ScannerPrintedState extends State<ScannerPrinted> {
+class _ScannerStateSent extends State<ScannerSent> {
   String? _barcode;
   late bool visible;
   bool edited = false;
@@ -33,27 +33,28 @@ class _ScannerPrintedState extends State<ScannerPrinted> {
               child: BarcodeKeyboardListener(
                 bufferDuration: Duration(milliseconds: 200),
                 onBarcodeScanned: (barcode) async {
+                  // barcode = "99205";
                   if (!visible) return;
                   getLoadingModal(context, false);
 
-                  var responseOrder = await Connections().getOrderByID(barcode);
+                  var responseOrder =
+                      await Connections().getOrderByIDHistoryLaravel(barcode);
 
-                  if (responseOrder['attributes']['Estado_Logistico'] ==
-                      'ENVIADO') {
+                  if (responseOrder['estado_logistico'] == 'ENVIADO') {
                     setState(() {
                       _barcode =
-                          "El pedido con código ${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']} ya se encuentra enviado"
+                          "El pedido con código ${responseOrder['name_comercial']}-${responseOrder['numero_orden']} ya se encuentra enviado"
                           "";
                     });
                     edited = false;
                   } else {
-                    var response = await Connections()
-                        .updateOrderLogisticStatusPrint(
-                            "ENVIADO", barcode.toString());
+                    var response = await Connections().updatenueva(
+                        barcode.toString(),
+                        {'estado_logistico': "ENVIADO", 'revisado': 1});
 
                     setState(() {
                       _barcode =
-                          "${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']}";
+                          "${responseOrder['name_comercial']}-${responseOrder['numero_orden']}";
                     });
                     edited = true;
                   }
@@ -64,9 +65,9 @@ class _ScannerPrintedState extends State<ScannerPrinted> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    Text("MARCAR ORDENES COMO ENVIADAS",
+                    const Text("MARCAR ORDENES COMO ENVIADAS",
                         style: TextStyle(fontWeight: FontWeight.bold)),
-                    SizedBox(
+                    const SizedBox(
                       height: 30,
                     ),
                     Text(
@@ -82,7 +83,7 @@ class _ScannerPrintedState extends State<ScannerPrinted> {
                 ),
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             Align(
@@ -91,7 +92,7 @@ class _ScannerPrintedState extends State<ScannerPrinted> {
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: Text("CERRAR",
+                  child: const Text("CERRAR",
                       style: TextStyle(fontWeight: FontWeight.bold))),
             )
           ],

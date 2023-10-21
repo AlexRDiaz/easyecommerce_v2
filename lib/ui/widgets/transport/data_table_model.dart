@@ -5,14 +5,15 @@ class DataTableModelPrincipal extends StatelessWidget {
   final List<DataColumn2> columns;
   // final List data;
   final List<DataRow> rows;
+  final double columnWidth;
   // List<DataCell>getRows;
 
-  DataTableModelPrincipal({
-    super.key,
-    required this.columns,
-    // required this.data,
-    required this.rows,
-  });
+  DataTableModelPrincipal(
+      {super.key,
+      required this.columns,
+      // required this.data,
+      required this.rows,
+      required this.columnWidth});
 
   @override
   Widget build(BuildContext context) {
@@ -30,15 +31,15 @@ class DataTableModelPrincipal extends StatelessWidget {
           ),
         ],
       ),
-      headingRowHeight: 53,
+      headingRowHeight: 63,
       showBottomBorder: true,
       headingTextStyle:
           const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
       dataTextStyle: const TextStyle(
           fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black),
-      columnSpacing: 12,
+      columnSpacing: 6,
       horizontalMargin: 12,
-      minWidth: 1400,
+      minWidth: columnWidth,
       columns: columns,
       rows: rows,
     );

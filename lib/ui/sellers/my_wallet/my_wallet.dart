@@ -1,9 +1,13 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/helpers/responsive.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/sellers/my_wallet/controllers/my_wallet_controller.dart';
 import 'package:frontend/ui/widgets/transport/data_table_model.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class Transaction {
   final String title;
@@ -19,16 +23,23 @@ class MyWallet extends StatefulWidget {
 
 class _MyWalletState extends State<MyWallet> {
   MyWalletController walletController = MyWalletController();
-
+  TextEditingController searchController = TextEditingController();
   String saldo = '0';
   List data = [];
-
-  // Saldo inicial de cuenta
-  List<Transaction> transactions = [
-    Transaction('Compra 1', -50.0),
-    Transaction('Compra 2', -75.0),
-    Transaction('Depósito 1', 200.0),
+  String start = "";
+  String end = "";
+  List arrayFiltersAnd = [];
+  List<String> listOrigen = [
+    'TODO',
+    'RECAUDO',
+    'ENVIO',
+    'REFERENCIADO',
+    'DEVOLUCION',
+    'REEMBOLSO'
   ];
+  TextEditingController origenController = TextEditingController(text: "TODO");
+
+  // Saldo
 
   @override
   void initState() {
@@ -53,6 +64,24 @@ class _MyWalletState extends State<MyWallet> {
     }
   }
 
+  filterData() async {
+    arrayFiltersAnd.add({
+      "id_vendedor":
+          sharedPrefs!.getString("idComercialMasterSeller").toString()
+    });
+
+    try {
+      var response = await Connections().getTransactionsByDate(
+          start, end, searchController.text, arrayFiltersAnd);
+
+      setState(() {
+        data = response;
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,7 +89,6 @@ class _MyWalletState extends State<MyWallet> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            TextButton(onPressed: () => loadData(), child: Text("Actualizar")),
             Text(
               'Saldo de Cuenta',
               style: TextStyle(fontSize: 24),
@@ -74,11 +102,54 @@ class _MyWalletState extends State<MyWallet> {
               'Transacciones Recientes',
               style: TextStyle(fontSize: 24),
             ),
+            Container(
+              width: double.infinity,
+              color: Colors.grey.withOpacity(0.3),
+              padding: EdgeInsets.all(10),
+              child: responsive(
+                  Row(
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.3,
+                        child: _modelTextField(
+                            text: "Buscar", controller: searchController),
+                      ),
+
+                      SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: () {
+                          _showDatePickerModal(context);
+                        },
+                        child: Text('Seleccionar fechas'),
+                      ),
+                      SizedBox(width: 10),
+                      Container(
+                        padding: const EdgeInsets.only(left: 15, right: 5),
+                        child: Text(
+                          "Registros: ${data.length}",
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, color: Colors.black),
+                        ),
+                      ),
+                      Spacer(),
+                      TextButton(
+                          onPressed: () => loadData(),
+                          child: Text("Actualizar")),
+
+                      //   Expanded(child: numberPaginator()),
+                    ],
+                  ),
+                  Container(),
+                  context),
+            ),
+
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: DataTableModelPrincipal(
-                    columns: getColumns(), rows: buildDataRows(data)),
+                    columnWidth: 1200,
+                    columns: getColumns(),
+                    rows: buildDataRows(data)),
               ),
             ),
             // Expanded(
@@ -110,16 +181,145 @@ class _MyWalletState extends State<MyWallet> {
     );
   }
 
+  void _showDatePickerModal(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Seleccionar Rango de Fechas'),
+          content: Container(
+            width: MediaQuery.of(context).size.width * 0.4,
+            child: SfDateRangePicker(
+              selectionMode: DateRangePickerSelectionMode.range,
+              onSelectionChanged: _onSelectionChanged,
+            ),
+          ),
+          actions: <Widget>[
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cerrar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
+    if (args.value is PickerDateRange) {
+      final PickerDateRange dateRange = args.value;
+      print('Fecha de inicio: ${dateRange.startDate}');
+      print('Fecha de fin: ${dateRange.endDate}');
+      start = dateRange.startDate.toString();
+      end = dateRange.endDate.toString();
+      if (dateRange.endDate != null) {
+        Navigator.of(context).pop();
+        filterData();
+      }
+    }
+  }
+
+  _modelTextField({text, controller}) {
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10.0),
+        color: Color.fromARGB(255, 245, 244, 244),
+      ),
+      child: TextField(
+        controller: controller,
+        onSubmitted: (value) {
+          filterData();
+          //  paginatorController.navigateToPage(0);
+        },
+        style: const TextStyle(fontWeight: FontWeight.bold),
+        decoration: InputDecoration(
+          fillColor: Colors.grey[500],
+          prefixIcon: const Icon(Icons.search),
+          suffixIcon: searchController.text.isNotEmpty
+              ? GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      searchController.clear();
+                    });
+
+                    Navigator.pop(context);
+                  },
+                  child: Icon(Icons.close))
+              : null,
+          hintText: text,
+          border: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.grey),
+          ),
+          focusColor: Colors.black,
+          iconColor: Colors.black,
+        ),
+      ),
+    );
+  }
+
+  Column SelectFilterNoId(String title, filter,
+      TextEditingController controller, List<String> listOptions) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title),
+        Expanded(
+          child: Container(
+            margin: EdgeInsets.only(bottom: 4.5, top: 4.5),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5.0),
+              border: Border.all(color: Color.fromRGBO(6, 6, 6, 1)),
+            ),
+            height: 50,
+            child: DropdownButtonFormField<String>(
+              isExpanded: true,
+              value: controller.text,
+              onChanged: (String? newValue) {
+                setState(() {
+                  controller.text = newValue ?? "";
+                  arrayFiltersAnd
+                      .removeWhere((element) => element.containsKey(filter));
+
+                  if (newValue != 'TODO') {
+                    arrayFiltersAnd.add({filter: newValue});
+                  } else {}
+
+                  filterData();
+                });
+              },
+              decoration: InputDecoration(
+                  border: UnderlineInputBorder(
+                      borderRadius: BorderRadius.circular(10))),
+              items: listOptions.map<DropdownMenuItem<String>>((String value) {
+                // var nombre = value.split('-')[0];
+                // print(nombre);
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value.split('-')[0],
+                      style: const TextStyle(fontSize: 15)),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   List<DataColumn2> getColumns() {
     return [
-      DataColumn2(
-        label: // Espacio entre iconos
-            Text('Id'),
-        size: ColumnSize.S,
-        onSort: (columnIndex, ascending) {
-          // sortFunc3("marca_tiempo_envio", changevalue);
-        },
-      ),
+      // DataColumn2(
+      //   label: // Espacio entre iconos
+      //       Text('Id'),
+      //   size: ColumnSize.S,
+      //   onSort: (columnIndex, ascending) {
+      //     // sortFunc3("marca_tiempo_envio", changevalue);
+      //   },
+      // ),
       DataColumn2(
         label: Text('Tipo Transacción.'),
         size: ColumnSize.S,
@@ -163,7 +363,15 @@ class _MyWalletState extends State<MyWallet> {
         },
       ),
       DataColumn2(
-        label: Text('Origen'),
+        label: Text('Codigo'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("telefono_shipping", changevalue);
+        },
+      ),
+      DataColumn2(
+        label:
+            SelectFilterNoId('Origen', 'origen', origenController, listOrigen),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
           // sortFunc3("direccion_shipping", changevalue);
@@ -171,6 +379,13 @@ class _MyWalletState extends State<MyWallet> {
       ),
       DataColumn2(
         label: Text('Id Vendedor'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("telefono_shipping", changevalue);
+        },
+      ),
+      DataColumn2(
+        label: Text('Comentario'),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
           // sortFunc3("telefono_shipping", changevalue);
@@ -193,11 +408,11 @@ class _MyWalletState extends State<MyWallet> {
         color: MaterialStateColor.resolveWith(
             (states) => setColor(data[index]['tipo'])!),
         cells: [
-          DataCell(InkWell(
-              child: Text(data[index]['id'].toString()),
-              onTap: () {
-                // OpenShowDialog(context, index);
-              })),
+          // DataCell(InkWell(
+          //     child: Text(data[index]['id'].toString()),
+          //     onTap: () {
+          //       // OpenShowDialog(context, index);
+          //     })),
           DataCell(InkWell(
               child: Text(data[index]['tipo'].toString()),
               onTap: () {
@@ -234,12 +449,22 @@ class _MyWalletState extends State<MyWallet> {
                 // OpenShowDialog(context, index);
               })),
           DataCell(InkWell(
+              child: Text(data[index]['codigo'].toString()),
+              onTap: () {
+                // OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
               child: Text(data[index]['origen'].toString()),
               onTap: () {
                 // OpenShowDialog(context, index);
               })),
           DataCell(InkWell(
               child: Text(data[index]['id_vendedor'].toString()),
+              onTap: () {
+                // OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
+              child: Text(data[index]['comentario'].toString()),
               onTap: () {
                 // OpenShowDialog(context, index);
               })),
