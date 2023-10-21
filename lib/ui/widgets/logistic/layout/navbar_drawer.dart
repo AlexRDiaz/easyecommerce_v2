@@ -96,8 +96,8 @@ getNavbarDrawerLogistic(context) {
 
 getOptionL(name, data) {
   switch (name) {
-    case "Soporte Remoto":
-      return data;
+    // case "Soporte Remoto":
+      // return data;
     case "Cambiar Contraseña":
       return data;
     case "Cerrar Sesión":
@@ -190,7 +190,9 @@ getNavbarDrawerSellers(context) {
                           ),
                           Divider()
                         ],
-                      )))
+                      )
+                    )
+                  )
             ],
           ),
         ),
@@ -201,10 +203,10 @@ getNavbarDrawerSellers(context) {
 
 getOption(name, data) {
   switch (name) {
-    case "Mi Cuenta Vendedor":
-      return data;
-    case "Cambiar Contraseña":
-      return data;
+    // case "Mi Cuenta Vendedor":
+      // return data;
+    // case "Cambiar Contraseña":
+      // return data;
     case "Cerrar Sesión":
       return data;
     default:
@@ -219,6 +221,8 @@ getOption(name, data) {
       }
   }
 }
+
+// ! falta el getoption para  transport
 
 getNavbarDrawerTransport(context) {
   return Material(
@@ -254,7 +258,8 @@ getNavbarDrawerTransport(context) {
               Divider(),
               ...List.generate(
                   optionsTransport.length,
-                  (index) => Column(
+                  (index) =>getOption(optionsTransport[index]['name'], 
+                        Column(
                         children: [
                           ListTile(
                             onTap: () {
@@ -295,13 +300,36 @@ getNavbarDrawerTransport(context) {
                           ),
                           Divider()
                         ],
-                      ))
+                      ))      
+                  )
             ],
           ),
         ),
       ),
     ),
   );
+}
+
+
+getOptionO(name, data) {
+  switch (name) {
+    // case "Estado de Entregas":
+    //   return data;
+    // case "Actualizar Contraseña":
+      // return data;
+    case "Cerrar Sesión":
+      return data;
+    default:
+      if (sharedPrefs!.getStringList("PERMISOS")!.isNotEmpty) {
+        if (sharedPrefs!.getStringList("PERMISOS")![0].contains(name)) {
+          return data;
+        } else {
+          return Container();
+        }
+      } else {
+        return Container();
+      }
+  }
 }
 
 getNavbarDrawerOperator(context) {
@@ -313,7 +341,8 @@ getNavbarDrawerOperator(context) {
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: SingleChildScrollView(
-          child: Column(
+          child: 
+          Column(
             children: [
               Container(
                 width: double.infinity,
@@ -338,7 +367,8 @@ getNavbarDrawerOperator(context) {
               Divider(),
               ...List.generate(
                   optionsOperator.length,
-                  (index) => Column(
+                  (index) => getOptionO(optionsOperator[index]['name'], 
+                        Column(
                         children: [
                           ListTile(
                             onTap: () {
@@ -379,8 +409,11 @@ getNavbarDrawerOperator(context) {
                           Divider()
                         ],
                       ))
+            
+                  )
             ],
           ),
+        
         ),
       ),
     ),
