@@ -5628,4 +5628,23 @@ class Connections {
       return 2;
     }
   }
+    editAccessofWindow(lista_data) async {
+    try {
+      print(json.encode({
+        "datos_vista": lista_data,
+      }));
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/upd-rolesaccess"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "datos_vista": lista_data,
+              }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+  
 }

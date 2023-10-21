@@ -350,6 +350,13 @@ class _RoleConfigurationState extends State<RoleConfiguration> {
           },
         );
 
+         await Connections().editAccessofWindow({
+          "active": false,
+          "view_name": _textFieldController.text.split("-")[0],
+          "id_rol": id
+        });
+        
+        
         if (!filterChipItems.contains(newFilterChipItem)) {
           setState(() {
             filterChipItems.add(newFilterChipItem);
