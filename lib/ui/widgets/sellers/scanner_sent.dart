@@ -33,31 +33,35 @@ class _ScannerStateSent extends State<ScannerSent> {
               child: BarcodeKeyboardListener(
                 bufferDuration: Duration(milliseconds: 200),
                 onBarcodeScanned: (barcode) async {
-                  // barcode = "99205";
+                  // barcode = "99203";
                   if (!visible) return;
                   getLoadingModal(context, false);
 
                   var responseOrder =
                       await Connections().getOrderByIDHistoryLaravel(barcode);
 
-                  if (responseOrder['estado_logistico'] == 'ENVIADO') {
-                    setState(() {
-                      _barcode =
-                          "El pedido con código ${responseOrder['name_comercial']}-${responseOrder['numero_orden']} ya se encuentra enviado"
-                          "";
-                    });
-                    edited = false;
-                  } else {
-                    var response = await Connections().updatenueva(
-                        barcode.toString(),
-                        {'estado_logistico': "ENVIADO", 'revisado': 1});
+                  // if (responseOrder['estado_logistico'] == 'ENVIADO') {
+                  //   setState(() {
+                  //     _barcode =
+                  //         "El pedido con código ${responseOrder['name_comercial']}-${responseOrder['numero_orden']} ya se encuentra enviado"
+                  //         "";
+                  //   });
+                  //   edited = false;
+                  // } else {
+                  var response =
+                      await Connections().updatenueva(barcode.toString(), {
+                    // 'estado_logistico': "ENVIADO",
+                    // "marca_tiempo_envio":
+                    //     "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+                    'revisado': 1
+                  });
 
-                    setState(() {
-                      _barcode =
-                          "${responseOrder['name_comercial']}-${responseOrder['numero_orden']}";
-                    });
-                    edited = true;
-                  }
+                  setState(() {
+                    _barcode =
+                        "${responseOrder['name_comercial']}-${responseOrder['numero_orden']}";
+                  });
+                  edited = true;
+                  // }
 
                   Navigator.pop(context);
                 },
