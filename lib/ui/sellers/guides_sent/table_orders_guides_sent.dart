@@ -452,7 +452,7 @@ class _TableOrdersGuidesSentStateSeller
 
                                   if (value!) {
                                     selectedCheckBox.add({
-                                      "check": false,
+                                      "check": value,
                                       "id": data[index]['id'].toString(),
                                       "numPedido":
                                           "${data[index]['users'] != null ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal'].toString()}-${data[index]['numero_orden']}"
