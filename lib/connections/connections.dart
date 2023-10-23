@@ -98,13 +98,6 @@ class Connections {
               decodeDataUser['user']['transportadora'][0]
                       ['costo_transportadora']
                   .toString());
-          List temporalPermisos =
-              jsonDecode(decodeDataUser['user']['permisos']);
-          List<String> finalPermisos = [];
-          for (var i = 0; i < temporalPermisos.length; i++) {
-            finalPermisos.add(temporalPermisos.toString());
-          }
-          sharedPrefs!.setStringList("PERMISOS", finalPermisos);
         }
         if (decodeDataUser['user']['roles_fronts'][0]['titulo'].toString() ==
             "OPERADOR") {
@@ -113,15 +106,8 @@ class Connections {
           // ! esta es la mia ↓
           sharedPrefs!.setString("idOperadore",
               decodeDataUser['user']['operadores'][0]['id'].toString());
-          // !permisos qu ese incluyen
-          List temporalPermisos =
-              jsonDecode(decodeDataUser['user']['permisos']);
-          List<String> finalPermisos = [];
-          for (var i = 0; i < temporalPermisos.length; i++) {
-            finalPermisos.add(temporalPermisos.toString());
-          }
-          sharedPrefs!.setStringList("PERMISOS", finalPermisos);
         }
+
         // ! ****************
         sharedPrefs!.setString(
             "fechaAlta", decodeDataUser['user']['fecha_alta'].toString());
@@ -5628,4 +5614,23 @@ class Connections {
       return 2;
     }
   }
+    editAccessofWindow(lista_data) async {
+    try {
+      print(json.encode({
+        "datos_vista": lista_data,
+      }));
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/upd-rolesaccess"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "datos_vista": lista_data,
+              }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+  
 }
