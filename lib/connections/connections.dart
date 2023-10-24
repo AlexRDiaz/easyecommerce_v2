@@ -4950,11 +4950,20 @@ class Connections {
               // {"month": month, "year": DateTime.now().year.toString()}));
               {"month": month, "year": year}));
       var response = await request.body;
-      var decodeData = json.decode(response);
 
-      if (request.statusCode != 200) {
-        return false;
-      } else {
+      // if (request.statusCode != 200) {
+      //   return false;
+      // } else {
+      //   if (decodeData['data'] == null) {
+      //     return [];
+      //   } else {
+      //     return decodeData['data'];
+      //   }
+      // }
+      if (request.statusCode == 204) {
+        return [];
+      } else if (request.statusCode == 200) {
+        var decodeData = json.decode(response);
         if (decodeData['data'] == null) {
           return [];
         } else {
@@ -4974,6 +4983,26 @@ class Connections {
           Uri.parse("$serverLaravel/api/shippingcost/$id"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({"status": status, "rejected_reason": ""}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+//    *
+  Future updateGeneralTransportadoraShippingCostLaravel(id, requestjson) async {
+    try {
+      var request = await http.put(
+          Uri.parse("$serverLaravel/api/shippingcost/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(requestjson));
       var response = await request.body;
       var decodeData = json.decode(response);
 
@@ -5112,6 +5141,8 @@ class Connections {
   //  *
   Future getTransaccionesOrdersByTransportadorasDates(
       id_transportadora, dates) async {
+    print(json.encode(
+        {"id_transportadora": id_transportadora, "fechas_entrega": dates}));
     try {
       var request = await http.post(
           Uri.parse(
@@ -5122,8 +5153,14 @@ class Connections {
             "fechas_entrega": dates
           }));
       var response = await request.body;
-      var decodeData = json.decode(response);
-      return decodeData;
+      // var decodeData = json.decode(response);
+      // return decodeData;
+      if (request.statusCode == 204) {
+        return [];
+      } else if (request.statusCode == 200) {
+        var decodeData = json.decode(response);
+        return decodeData;
+      }
     } catch (e) {
       print("error: $e");
     }
@@ -5146,7 +5183,7 @@ class Connections {
         if (decodeData['dailyCosts'] == null) {
           return [];
         } else {
-          print(decodeData['dailyCosts']);
+          // print(decodeData['dailyCosts']);
           return decodeData['dailyCosts'];
         }
       }
@@ -5245,6 +5282,43 @@ class Connections {
       }
     } catch (error) {
       print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+  // transportadora- comprobante New
+  // http://localhost:8000/api/shippingcost/
+  Future createTraspShippingCost(
+      id_transp, shipping_total, total_proceeds, total_day) async {
+    /**
+       * {
+    "id_transportadora": 19,
+    "fecha_entrega": "23/10/2023",
+    "shipping_total": 135.52,
+    "total_proceeds": 826.52,
+    "total_day":113.00
+}
+       */
+    try {
+      var request =
+          await http.post(Uri.parse("$serverLaravel/api/shippingcost/"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "id_transportadora": id_transp,
+                // "fecha_entrega": fecha_entrega,
+                "shipping_total": shipping_total,
+                "total_proceeds": total_proceeds,
+                "total_day": total_day
+              }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return false;
+      } else {
+        return decodeData;
+      }
+    } catch (e) {
+      print(e);
     }
   }
 
@@ -5353,7 +5427,6 @@ class Connections {
     }
   }
 
-
   getUserPedidos(id) async {
     try {
       var response = await http.get(
@@ -5372,8 +5445,6 @@ class Connections {
       print("Ocurrió un error durante la solicitud: $error");
     }
   }
-
-  
 
   getRolesFront() async {
     try {
@@ -5427,7 +5498,7 @@ class Connections {
               body: json.encode({
                 "datos_vista": lista_data,
               }));
-      
+
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         print("ok");
@@ -5492,12 +5563,13 @@ class Connections {
 
   getGeneralDataCronrt() async {
     try {
-      var response = await http.post(Uri.parse("$serverLaravel/api/data-stats-rt"),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({
-            "date":
-                "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
-          }));
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/data-stats-rt"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "date":
+                    "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+              }));
 
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -5512,7 +5584,6 @@ class Connections {
       print("Ocurrió un error durante la solicitud: $error");
     }
   }
-
 
   getReferers() async {
     try {
@@ -5614,7 +5685,8 @@ class Connections {
       return 2;
     }
   }
-    editAccessofWindow(lista_data) async {
+
+  editAccessofWindow(lista_data) async {
     try {
       print(json.encode({
         "datos_vista": lista_data,
@@ -5632,5 +5704,4 @@ class Connections {
       print("Ocurrió un error durante la solicitud: $error");
     }
   }
-  
 }

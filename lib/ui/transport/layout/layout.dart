@@ -10,6 +10,7 @@ import 'package:frontend/ui/transport/my_orders_prv/my_orders_prv.dart';
 import 'package:frontend/ui/transport/my_transporter_account/my_transporter_account.dart';
 import 'package:frontend/ui/transport/orders_history_transport/orders_history_transport.dart';
 import 'package:frontend/ui/transport/payment_vouchers_transport/payment_vouchers_transport.dart';
+import 'package:frontend/ui/transport/payment_vouchers_transport/payment_vouchers_transport_new.dart';
 import 'package:frontend/ui/transport/returns_transport/returns_transport.dart';
 import 'package:frontend/ui/transport/transportation_billing/transportation_billing.dart';
 import 'package:frontend/ui/transport/update_password_transport/update_password_transport.dart';
@@ -42,6 +43,7 @@ class _LayoutTransportPageState extends State<LayoutTransportPage> {
     AddOperatorsTransport(),
     MyTransporterAccount(),
     PaymentVouchersTransport(),
+    PaymentVouchersTransport2(),
     TransportationBilling(),
     ReturnsTransport(),
     UpdatePasswordTransport()
