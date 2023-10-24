@@ -11,6 +11,7 @@ List optionsLogistic = [
   {"name": "Agregar Transportistas", "icon": Icons.add},
   {"name": "Agregar Usuario Logística", "icon": Icons.add},
   {"name": "Estado de Cuenta", "icon": Icons.insert_drive_file_outlined},
+  {"name": "Estado de Cuenta2", "icon": Icons.account_balance_wallet},
   {"name": "Facturas Vendedores", "icon": Icons.person_outline_outlined},
   {"name": "Comprobantes de Pago", "icon": Icons.calendar_today_sharp},
 
