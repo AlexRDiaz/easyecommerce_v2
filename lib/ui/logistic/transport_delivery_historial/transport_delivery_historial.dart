@@ -675,7 +675,7 @@ class _TransportDeliveryHistorialState
                         },
                       ),
                       DataColumn2(
-                        label: SelectFilterNoId('Estado de entrega', '/status',
+                        label: SelectFilterNoId('Estado de entrega', 'equals/status',
                             statusController, listStatus),
                         size: ColumnSize.L,
                         numeric: true,
@@ -1760,7 +1760,8 @@ class _TransportDeliveryHistorialState
           onTap: () {}),
       DataCell(
           Text(
-            data[index]['tienda_temporal'].toString(),
+            // data[index]['tienda_temporal'].toString(),
+            data[index]['users'][0]['vendedores'][0]['nombre_comercial'],
             style: TextStyle(
               color: rowColor,
             ),

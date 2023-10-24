@@ -128,11 +128,11 @@ class _OrderInfoState extends State<OrderInfo> {
                             ),
                             ElevatedButton(
                                 onPressed: () async {
-                                  var responsets = await Connections()
-                                      .updateOrderInteralStatusLaravel(
-                                          "CONFIRMADO", widget.id);
+                                  // var responsets = await Connections()
+                                  //     .updateOrderInteralStatusLaravel(
+                                  //         "CONFIRMADO", widget.id);
 
-                                  print("-> rsp : $responsets");
+                                  // print("-> rsp : $responsets");
 
                                   await showDialog(
                                       context: context,
