@@ -256,9 +256,6 @@ class _TransportDeliveryHistorialState
 
       // var m = response;
 
-      // TODO: Obtiene las transportadores si esque la lista predefinida tiene solo un elemento
-      // * en el caso de que se ingresa se cargan cuando se seleccione esta no se actualizar y no se duplicaran}
-      // * las coincidencias respecto a las trasnportadoras sino se actualiza y da error porque en la lista se duplicara cada que se llame a loadData()
 
       if (listtransportadores.length == 1) {
         var responsetransportadoras = await Connections().getTransportadoras();
@@ -675,7 +672,7 @@ class _TransportDeliveryHistorialState
                         },
                       ),
                       DataColumn2(
-                        label: SelectFilterNoId('Estado de entrega', '/status',
+                        label: SelectFilterNoId('Estado de entrega', 'equals/status',
                             statusController, listStatus),
                         size: ColumnSize.L,
                         numeric: true,
@@ -769,7 +766,7 @@ class _TransportDeliveryHistorialState
                         //     vendedorController,
                         //     'users.vendedores.nombre_comercial'),
                         size: ColumnSize.L,
-                        numeric: true,
+                        // numeric: true,
                         onSort: (columnIndex, ascending) {
                           // sortFunc("Name_Comercial");
                         },
@@ -1760,7 +1757,8 @@ class _TransportDeliveryHistorialState
           onTap: () {}),
       DataCell(
           Text(
-            data[index]['tienda_temporal'].toString(),
+            // data[index]['tienda_temporal'].toString(),
+            data[index]['users'][0]['vendedores'][0]['nombre_comercial'],
             style: TextStyle(
               color: rowColor,
             ),
