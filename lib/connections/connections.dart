@@ -4712,6 +4712,13 @@ class Connections {
 
   getValuesSellerLaravel(arrayfiltersDefaultAnd) async {
     try {
+      print(json.encode({
+            "start": sharedPrefs!.getString("dateDesdeVendedor"),
+            "end": sharedPrefs!.getString("dateHastaVendedor"),
+            "or": [],
+            "and": arrayfiltersDefaultAnd,
+            "not": [],
+          }));
       int res = 0;
       var request = await http.post(
           Uri.parse(
@@ -4720,8 +4727,42 @@ class Connections {
             'Content-Type': 'application/json',
           },
           body: json.encode({
-            "start": sharedPrefs!.getString("dateDesdeVendedor"),
-            "end": sharedPrefs!.getString("dateHastaVendedor"),
+            // "start": sharedPrefs!.getString("dateDesdeVendedor"),
+            // "end": sharedPrefs!.getString("dateHastaVendedor"),
+             "start": "1/1/2021",
+            "end": "1/1/2200",
+            "or": [],
+            "and": arrayfiltersDefaultAnd,
+            "not": [],
+          }));
+
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        res = 1;
+        print("res:" + res.toString());
+      } else {
+        print("res:" + res.toString());
+      }
+      return decodeData;
+    } catch (e) {
+      return (e);
+    }
+  }
+
+// ! para estado de cuente2
+  getValuesSellerLaravelc2(arrayfiltersDefaultAnd) async {
+    try {
+      int res = 0;
+      var request = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/pedidos-shopify/products/values/seller"),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode({
+            "start": "1/1/2021",
+            "end": "1/1/2200",
             "or": [],
             "and": arrayfiltersDefaultAnd,
             "not": [],
