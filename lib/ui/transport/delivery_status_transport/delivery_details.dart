@@ -149,18 +149,7 @@ class _TransportProDeliveryHistoryDetails
                                                                 ['Status'],
                                                       );
                                                     });
-                                                // // ! POST CREDIT
-                                                // await Connections().postCredit(
-                                                //   "${data['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['id']}",
-                                                //   "${data['attributes']['PrecioTotal']}",
-                                                //   "${data['attributes']['Name_Comercial']}-${data['attributes']['NumeroOrden']}",
-                                                //   "valor");
-                                                // // ! POST DEBIT
-                                                // await Connections().postDebit(
-                                                //   "${data['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['id']}",
-                                                //   "${data['attributes']['transportadora']['data']['attributes']['Costo_Transportadora']}",
-                                                //   "${data['attributes']['Name_Comercial']}-${data['attributes']['NumeroOrden']}",
-                                                //   "envio");
+
                                                 await loadData();
                                               },
                                               child: Text(
