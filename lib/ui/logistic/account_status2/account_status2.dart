@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/config/colors.dart';
 import 'dart:math';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/helpers/responsive.dart';
 
 class AccountStatus2 extends StatefulWidget {
   const AccountStatus2({Key? key}) : super(key: key);
@@ -40,29 +41,23 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
   double costoDeEntregas = 0;
   double devoluciones = 0;
   double utilidad = 0;
+  double valueTotalReturns = 0.0;
 
   List<String> listvendedores = ['TODO'];
   TextEditingController searchController = TextEditingController();
-
-  // var arrayfiltersDefaultAnd = [
-  //   {"id_comercial": "74"}
-  // ];
   var arrayfiltersDefaultAnd = [];
-  // {"id_comercial": "74"}
 
   @override
   void initState() {
     super.initState();
-
+    loadData();
     searchController.addListener(() {
-      setState(
-          () {}); // Refresca el widget cuando cambia el valor del TextEditingController
+      setState(() {});
     });
   }
 
   @override
   void didChangeDependencies() {
-    loadData();
     super.didChangeDependencies();
   }
 
@@ -74,13 +69,6 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
 
   Future loadData() async {
     try {
-      // var responseValues =
-      //     await Connections().getValuesSellerLaravelc2(arrayfiltersDefaultAnd);
-      // valuesTransporter = responseValues['data'];
-      // print(responseValues);
-      // print(valuesTransporter);
-      // calculateValues();
-
       if (listvendedores.length == 1) {
         var responsevendedores = await Connections().getVendedores();
         List<dynamic> vendedoresList = responsevendedores['vendedores'];
@@ -109,247 +97,425 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
           (valuesTransporter['totalShippingCost'] +
               valuesTransporter['totalCostoDevolucion']);
       utilidad = double.parse(utilidad.toString());
-      print(utilidad.toStringAsFixed(2));
     });
   }
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double menuHeight = isMenuExpanded ? menuItems.length * 50.0 : 0.0;
-
-    return Container(
-      width: screenWidth,
-      height: double.infinity,
-      margin: EdgeInsets.all(20.0),
-      decoration: BoxDecoration(
-        color: Colors.grey[300],
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      child: Column(
-        children: [
-          Container(
-            margin: EdgeInsets.only(top: 5.0), // Margen superior de 10.0
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                    decoration: BoxDecoration(
+    if (selectedVendedor != null &&
+        !listvendedores
+            .where((vendedor) => vendedor
+                .toLowerCase()
+                .contains(searchController.text.toLowerCase()))
+            .contains(selectedVendedor)) {
+      selectedVendedor = null;
+    }
+    return responsive(
+        Container(
+          width: screenWidth,
+          height: double.infinity,
+          margin: const EdgeInsets.all(50.0),
+          padding: const EdgeInsets.only(top: 20.0),
+          decoration: BoxDecoration(
+            color: Colors.grey[300],
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          child: Column(
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 5.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey, width: 1.0),
-                        borderRadius: BorderRadius.circular(10.0)),
-                    width: screenWidth * 0.2,
-                    height: 50.0,
-                    child: DropdownButton<String>(
-                      value: selectedVendedor,
-                      items: listvendedores
-                          .where((vendedor) => vendedor
-                              .toLowerCase()
-                              .contains(searchController.text.toLowerCase()))
-                          .map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value.split('-')[0]),
-                        );
-                      }).toList(),
-                      onChanged: (newValue) {
-                        setState(() {
-                          selectedVendedor = newValue;
-                          var idComercial = newValue?.split('-').last;
-                          arrayfiltersDefaultAnd = [{"id_comercial": idComercial}];
-                          print(arrayfiltersDefaultAnd);
-                          
-                          _updateValuesBasedOnVendedor();
-                        });
-                      },
-                      hint: Text('Selecciona un vendedor'),
-                    )),
-                SizedBox(width: 30),
-                Container(
-                  width: screenWidth * 0.10,
-                  height: 50.0,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        showSearchSpace =
-                            !showSearchSpace; // Cambia el estado para mostrar u ocultar el TextField
-                      });
-                    },
-                    child: const Icon(Icons.search),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      width: screenWidth * 0.2,
+                      height: 50.0,
+                      padding: const EdgeInsets.only(top: 15.0, left: 5.0),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: selectedVendedor,
+                          items: listvendedores
+                              .where((vendedor) => vendedor
+                                  .toLowerCase()
+                                  .contains(
+                                      searchController.text.toLowerCase()))
+                              .map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.store, color: Colors.blue),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    value.split('-')[0],
+                                    style: const TextStyle(
+                                        color: Color.fromARGB(255, 19, 50, 80),
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (newValue) {
+                            setState(() {
+                              if (newValue != null &&
+                                  listvendedores.contains(newValue)) {
+                                selectedVendedor = newValue;
+                                var idComercial = newValue.split('-').last;
+                                arrayfiltersDefaultAnd = [
+                                  {"id_comercial": idComercial}
+                                ];
+                                if (idComercial != "0") {
+                                  _updateValuesBasedOnVendedor(idComercial);
+                                }
+                              }
+                              searchController.clear();
+                            });
+                          },
+                          icon: const Icon(Icons.arrow_drop_down,
+                              color: Colors.grey),
+                          selectedItemBuilder: (BuildContext context) {
+                            return listvendedores.map((String value) {
+                              return Text(value.split('-')[0]);
+                            }).toList();
+                          },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 30),
+                    Container(
+                      width: screenWidth * 0.10,
+                      height: 50.0,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            showSearchSpace = !showSearchSpace;
+                          });
+                        },
+                        child: const Icon(Icons.search),
+                      ),
+                    ),
+                    const SizedBox(width: 30),
+                    AnimatedOpacity(
+                      opacity: showSearchSpace ? 1.0 : 0.0,
+                      duration: const Duration(milliseconds: 300),
+                      child: Container(
+                        width: screenWidth * 0.20,
+                        height: 50.0,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey, width: 1.0),
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        child: Center(
+                          child: Container(
+                            margin: const EdgeInsets.only(left: 2.0),
+                            child: TextField(
+                              controller: searchController,
+                              decoration: InputDecoration(
+                                hintText: 'Buscar...',
+                                border: InputBorder.none,
+                                suffixIcon: searchController.text.isNotEmpty
+                                    ? IconButton(
+                                        icon: const Icon(Icons.close),
+                                        onPressed: () => setState(() {
+                                          searchController.clear();
+                                        }),
+                                      )
+                                    : null,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10.0),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 5,
+                      blurRadius: 7,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.only(bottom: 10.0, top: 10),
+                width: MediaQuery.of(context).size.width * 0.6,
+                height: MediaQuery.of(context).size.height * 0.5,
+                margin: const EdgeInsets.only(top: 50.0),
+                alignment: Alignment.center,
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        selectedVendedor?.split('-').first ?? '',
+                        style: TextStyle(
+                          fontSize:
+                              max(30, MediaQuery.of(context).size.width * 0.03),
+                          fontWeight: FontWeight.bold,
+                          color: const Color.fromARGB(255, 19, 50, 80),
+                        ),
+                      ),
+                      Icon(
+                        Icons.store,
+                        size: max(140, MediaQuery.of(context).size.width * 0.1),
+                        color: const Color.fromARGB(255, 52, 52, 53),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(5.0),
+                        decoration: BoxDecoration(
+                            border: Border.all(
+                                width: 1.0, color: ColorsSystem().colorBlack),
+                            borderRadius: BorderRadius.circular(5.0),
+                            color: const Color.fromARGB(255, 19, 50, 80)),
+                        child: Text(
+                          '\$ ${(utilidad - valueTotalReturns).toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontSize: max(
+                                40, MediaQuery.of(context).size.width * 0.03),
+                            fontWeight: FontWeight.bold,
+                            // color: const Color.fromARGB(255, 87, 87, 87),
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 10),
-                AnimatedOpacity(
-                  opacity: showSearchSpace ? 1.0 : 0.0,
-                  duration: Duration(milliseconds: 300),
-                  child: Container(
-                    width: screenWidth * 0.20,
-                    height: 50.0,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey, width: 1.0),
-                      borderRadius: BorderRadius.circular(5.0),
+              )
+            ],
+          ),
+        ),
+        Container(
+          width: screenWidth,
+          height: double.infinity,
+          margin: const EdgeInsets.all(50.0),
+          padding: const EdgeInsets.only(top: 20.0),
+          decoration: BoxDecoration(
+            color: Colors.grey[300],
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          child: Column(
+            children: [
+              // Dropdown Row
+              Container(
+                margin: const EdgeInsets.only(top: 5.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey, width: 1.0),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      width: screenWidth * 0.6,
+                      height: 50.0,
+                      padding: const EdgeInsets.only(top: 15.0, left: 5.0),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: selectedVendedor,
+                          items: listvendedores
+                              .where((vendedor) => vendedor
+                                  .toLowerCase()
+                                  .contains(
+                                      searchController.text.toLowerCase()))
+                              .map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.store, color: Colors.blue),
+                                  const SizedBox(width: 10),
+                                  Text(value.split('-')[0]),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (newValue) {
+                            setState(() {
+                              if (newValue != null &&
+                                  listvendedores.contains(newValue)) {
+                                selectedVendedor = newValue;
+                                var idComercial = newValue.split('-').last;
+                                arrayfiltersDefaultAnd = [
+                                  {"id_comercial": idComercial}
+                                ];
+                                if (idComercial != "0") {
+                                  _updateValuesBasedOnVendedor(idComercial);
+                                }
+                              }
+                              searchController.clear();
+                            });
+                          },
+                          icon: const Icon(Icons.arrow_drop_down,
+                              color: Colors.grey),
+                          selectedItemBuilder: (BuildContext context) {
+                            return listvendedores.map((String value) {
+                              return Container(
+                                child: Text(value.split('-')[0]),
+                              );
+                            }).toList();
+                          },
+                        ),
+                      ),
                     ),
-                    child: Center(
+                  ],
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.only(top: 15.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    AnimatedOpacity(
+                      opacity: showSearchSpace ? 1.0 : 0.0,
+                      duration: const Duration(milliseconds: 300),
                       child: Container(
-                        child: TextField(
-                          controller: searchController,
-                          decoration: InputDecoration(
-                            hintText: 'Buscar...',
-                            border: InputBorder.none,
+                        width: screenWidth * 0.4,
+                        height: 50.0,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey, width: 1.0),
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        child: Center(
+                          child: Container(
+                            margin: const EdgeInsets.only(left: 2.0),
+                            child: TextField(
+                              controller: searchController,
+                              decoration: InputDecoration(
+                                hintText: 'Buscar...',
+                                border: InputBorder.none,
+                                suffixIcon: searchController.text.isNotEmpty
+                                    ? IconButton(
+                                        icon: const Icon(Icons.close),
+                                        onPressed: () => setState(() {
+                                          searchController.clear();
+                                        }),
+                                      )
+                                    : null,
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Container(
+                      width: screenWidth * 0.19,
+                      height: 50.0,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            showSearchSpace = !showSearchSpace;
+                          });
+                        },
+                        child: const Icon(Icons.search),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10.0),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 5,
+                      blurRadius: 7,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.only(bottom: 10.0, top: 10),
+                width: MediaQuery.of(context).size.width * 0.6,
+                height: MediaQuery.of(context).size.height * 0.5,
+                margin: const EdgeInsets.only(top: 50.0),
+                alignment: Alignment.center,
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment:
+                        MainAxisAlignment.center, 
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        selectedVendedor?.split('-').first ?? '',
+                        style: TextStyle(
+                          fontSize: max(
+                              30,
+                              MediaQuery.of(context).size.width *
+                                  0.03), 
+                          fontWeight: FontWeight.bold,
+                          color: const Color.fromARGB(255, 19, 50, 80),
+                        ),
+                      ),
+                      Icon(
+                        Icons.store,
+                        size: max(140, MediaQuery.of(context).size.width * 0.1),
+                        color: const Color.fromARGB(255, 52, 52, 53),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(5.0),
+                        decoration: BoxDecoration(
+                            border: Border.all(
+                                width: 1.0, color: ColorsSystem().colorBlack),
+                            borderRadius: BorderRadius.circular(5.0),
+                            color: const Color.fromARGB(255, 19, 50, 80)),
+                        child: Text(
+                          '\$ ${(utilidad - valueTotalReturns).toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontSize: max(
+                                40, MediaQuery.of(context).size.width * 0.03),
+                            fontWeight: FontWeight.bold,
+                            // color: const Color.fromARGB(255, 87, 87, 87),
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                )
-              ],
-            ),
+                ),
+              )
+            ],
           ),
-          Container(
-            padding: EdgeInsets.all(10.0),
-            width: MediaQuery.of(context).size.width *
-                0.6, // Hacer el ancho del contenedor dependiente del ancho de la pantalla
-            margin: const EdgeInsets.only(top: 50.0),
-            alignment: Alignment.center,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  selectedVendedor?.split('-').first ?? '',
-                  style: TextStyle(
-                    fontSize: max(
-                        35,
-                        MediaQuery.of(context).size.width *
-                            0.03), // Hacer el tamaño de fuente dependiente del ancho de la pantalla
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                SizedBox(height: MediaQuery.of(context).size.width * 0.01),
-                Icon(
-                  Icons.store,
-                  size: max(160, MediaQuery.of(context).size.width * 0.1),
-                  color: Colors.blue,
-                ),
-                // SizedBox(height: MediaQuery.of(context).size.width * 0.01),
-                Text(
-                  '\$100',
-                  style: TextStyle(
-                    fontSize: max(40, MediaQuery.of(context).size.width * 0.03),
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                Text(
-                  '\$Utilidad: ${utilidad.toStringAsFixed(2)}',
-                  style: TextStyle(
-                    fontSize: max(40, MediaQuery.of(context).size.width * 0.03),
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  Future<void> _updateValuesBasedOnVendedor() async {
-  try {
-    var responseValues = await Connections().getValuesSellerLaravelc2(arrayfiltersDefaultAnd);
-    setState(() { // Ahora, actualiza el estado después de que hayas terminado la operación asíncrona
-      valuesTransporter = responseValues['data'];
-      print(valuesTransporter);
-      calculateValues();
-    });
-  } catch (e) {
-    print(e);
-  }
-}
-
-
-}
-
-final List<String> menuItems = [
-  'Item 1',
-  'Item 2',
-  'Item 3',
-  'Item 4', // Puedes añadir más elementos a la lista de ejemplo
-];
-
-@override
-Widget build(BuildContext context) {
-  double screenWidth = MediaQuery.of(context).size.width;
-
-  return Container(
-    width: screenWidth,
-    height: double.infinity,
-    decoration: BoxDecoration(
-      color: Colors.grey[300],
-      border: Border.all(color: Colors.red, width: 2.0),
-    ),
-    child: Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: screenWidth * 0.5,
-              height: 50.0,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.red, width: 2.0),
-              ),
-              child: ListView.builder(
-                itemCount: menuItems.length,
-                itemBuilder: (context, index) {
-                  return ListTile(title: Text(menuItems[index]));
-                },
-              ),
-            ),
-            SizedBox(width: 10),
-            Container(
-              width: screenWidth * 0.15,
-              height: 50.0,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.red, width: 2.0),
-              ),
-              child: ElevatedButton(
-                onPressed: () {},
-                child: Icon(Icons.arrow_downward),
-              ),
-            ),
-            SizedBox(width: 10),
-            Container(
-              width: screenWidth * 0.15,
-              height: 50.0,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.red, width: 2.0),
-              ),
-              child: ElevatedButton(
-                onPressed: () {},
-                child: Icon(Icons.search),
-              ),
-            ),
-            SizedBox(width: 10),
-            Container(
-              width: screenWidth * 0.15,
-              height: 50.0,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.red, width: 2.0),
-              ),
-              child: Center(
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Buscar...',
-                    border: InputBorder.none,
-                  ),
-                ),
-              ),
-            ),
-          ],
         ),
-      ],
-    ),
-  );
+        context);
+  }
+
+  Future<void> _updateValuesBasedOnVendedor(idSeller) async {
+    try {
+      var retvalTotal;
+      var responseValues;
+
+      if (idSeller != 0) {
+        responseValues = await Connections()
+            .getValuesSellerLaravelc2(arrayfiltersDefaultAnd);
+        retvalTotal = await Connections().getOrdenesRetiroCount(idSeller);
+      }
+      setState(() {
+        // Ahora, actualiza el estado después de que hayas terminado la operación asíncrona
+        valuesTransporter = responseValues['data'];
+        valueTotalReturns =
+            double.parse(retvalTotal['total_retiros'].toString());
+        calculateValues();
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
 }

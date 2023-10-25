@@ -4692,6 +4692,23 @@ class Connections {
     }
   }
 
+  getOrdenesRetiroCount(id) async {
+    int res = 0;
+    try {
+      print("id > $id");
+      var request = await http.get(
+          Uri.parse("$serverLaravel/api/seller/ordenesretiro/ret-count/$id"),
+          headers: {'Content-Type': 'application/json'});
+
+      var responselaravel = await request.body;  
+      var decodeData = json.decode(responselaravel);
+
+      return decodeData;
+    } catch (e) {
+      return (e);
+    }
+  }
+
   getWalletValueLaravel() async {
     try {
       var request = await http.get(
@@ -4713,12 +4730,12 @@ class Connections {
   getValuesSellerLaravel(arrayfiltersDefaultAnd) async {
     try {
       print(json.encode({
-            "start": sharedPrefs!.getString("dateDesdeVendedor"),
-            "end": sharedPrefs!.getString("dateHastaVendedor"),
-            "or": [],
-            "and": arrayfiltersDefaultAnd,
-            "not": [],
-          }));
+        "start": sharedPrefs!.getString("dateDesdeVendedor"),
+        "end": sharedPrefs!.getString("dateHastaVendedor"),
+        "or": [],
+        "and": arrayfiltersDefaultAnd,
+        "not": [],
+      }));
       int res = 0;
       var request = await http.post(
           Uri.parse(
@@ -4729,7 +4746,7 @@ class Connections {
           body: json.encode({
             // "start": sharedPrefs!.getString("dateDesdeVendedor"),
             // "end": sharedPrefs!.getString("dateHastaVendedor"),
-             "start": "1/1/2021",
+            "start": "1/1/2021",
             "end": "1/1/2200",
             "or": [],
             "and": arrayfiltersDefaultAnd,
@@ -5394,7 +5411,6 @@ class Connections {
     }
   }
 
-
   getUserPedidos(id) async {
     try {
       var response = await http.get(
@@ -5413,8 +5429,6 @@ class Connections {
       print("Ocurrió un error durante la solicitud: $error");
     }
   }
-
-  
 
   getRolesFront() async {
     try {
@@ -5468,7 +5482,7 @@ class Connections {
               body: json.encode({
                 "datos_vista": lista_data,
               }));
-      
+
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         print("ok");
@@ -5533,12 +5547,13 @@ class Connections {
 
   getGeneralDataCronrt() async {
     try {
-      var response = await http.post(Uri.parse("$serverLaravel/api/data-stats-rt"),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({
-            "date":
-                "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
-          }));
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/data-stats-rt"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "date":
+                    "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+              }));
 
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -5553,7 +5568,6 @@ class Connections {
       print("Ocurrió un error durante la solicitud: $error");
     }
   }
-
 
   getReferers() async {
     try {
@@ -5655,7 +5669,8 @@ class Connections {
       return 2;
     }
   }
-    editAccessofWindow(lista_data) async {
+
+  editAccessofWindow(lista_data) async {
     try {
       print(json.encode({
         "datos_vista": lista_data,
@@ -5673,5 +5688,4 @@ class Connections {
       print("Ocurrió un error durante la solicitud: $error");
     }
   }
-  
 }
