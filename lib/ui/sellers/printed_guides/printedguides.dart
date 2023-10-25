@@ -108,7 +108,7 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
     );
 
     var dataL = responseLaravel;
-    print(dataL['total']);
+    // print(dataL['total']);
 //--
 /*
     response =
@@ -672,6 +672,32 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
               },
               child: const Text(
                 "MARCAR ENVIADO",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              )),
+          const SizedBox(
+            width: 20,
+          ),
+          ElevatedButton(
+              onPressed: () async {
+                getLoadingModal(context, false);
+
+                for (var i = 0; i < optionsCheckBox.length; i++) {
+                  if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
+                      optionsCheckBox[i]['id'].toString() != '' &&
+                      optionsCheckBox[i]['check'] == true) {
+                    var response = await Connections().updatenueva(
+                        optionsCheckBox[i]['id'],
+                        {"estado_interno": "RECHAZADO"});
+                  }
+                }
+                Navigator.pop(context);
+
+                setState(() {});
+
+                await loadData();
+              },
+              child: const Text(
+                "RECHAZADO",
                 style: TextStyle(fontWeight: FontWeight.bold),
               )),
         ],

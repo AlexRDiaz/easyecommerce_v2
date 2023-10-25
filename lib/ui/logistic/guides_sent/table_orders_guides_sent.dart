@@ -953,11 +953,19 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
   }
 
   sortByCarrierName(datos) {
-    datos.sort((a, b) {
-      String nombreTransportadoraA = a['transportadora'][0]['nombre'];
-      String nombreTransportadoraB = b['transportadora'][0]['nombre'];
-      return nombreTransportadoraA.compareTo(nombreTransportadoraB);
-    });
+    try {
+      datos.sort((a, b) {
+        String nombreTransportadoraA = a['transportadora'].isNotEmpty
+            ? a['transportadora'][0]['nombre']
+            : "";
+        String nombreTransportadoraB = b['transportadora'].isNotEmpty
+            ? b['transportadora'][0]['nombre']
+            : "";
+        return nombreTransportadoraA.compareTo(nombreTransportadoraB);
+      });
+    } catch (e) {
+      print("Error-sort: $e");
+    }
 
     return datos;
   }
@@ -1020,10 +1028,17 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 4, rowIndex: rowIndex + 1))
             .value = data["ciudad_shipping"];
-        sheet
-            .cell(CellIndex.indexByColumnRow(
-                columnIndex: 5, rowIndex: rowIndex + 1))
-            .value = data["transportadora"][0]["nombre"];
+        if (data["transportadora"].isEmpty) {
+          sheet
+              .cell(CellIndex.indexByColumnRow(
+                  columnIndex: 5, rowIndex: rowIndex + 1))
+              .value = "";
+        } else {
+          sheet
+              .cell(CellIndex.indexByColumnRow(
+                  columnIndex: 5, rowIndex: rowIndex + 1))
+              .value = data["transportadora"][0]["nombre"];
+        }
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 6, rowIndex: rowIndex + 1))
