@@ -42,6 +42,7 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
   double devoluciones = 0;
   double utilidad = 0;
   double valueTotalReturns = 0.0;
+  double valueNewWallet = 0.0;
 
   List<String> listvendedores = ['TODO'];
   TextEditingController searchController = TextEditingController();
@@ -277,7 +278,8 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
                         padding: const EdgeInsets.all(5.0),
                         decoration: BoxDecoration(
                             border: Border.all(
-                                width: 1.0, color: ColorsSystem().colorBlack),
+                                width: 1.0,
+                                color: const Color.fromARGB(255, 19, 50, 80)),
                             borderRadius: BorderRadius.circular(5.0),
                             color: const Color.fromARGB(255, 19, 50, 80)),
                         child: Text(
@@ -288,6 +290,28 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
                             fontWeight: FontWeight.bold,
                             // color: const Color.fromARGB(255, 87, 87, 87),
                             color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        margin: const EdgeInsets.only(top: 10.0),
+                        padding: const EdgeInsets.all(5.0),
+                        decoration: BoxDecoration(
+                            border: Border.all(
+                                width: 1.0,
+                                color: const Color.fromARGB(50, 224, 76,
+                                    7)), // Baja opacidad en el borde
+                            borderRadius: BorderRadius.circular(5.0),
+                            color: const Color.fromARGB(
+                                50, 224, 76, 7)), // Baja opacidad en el fondo
+                        child: Text(
+                          '\$ ${valueNewWallet.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontSize: max(
+                                40, MediaQuery.of(context).size.width * 0.03),
+                            fontWeight: FontWeight.bold,
+                            color: const Color.fromARGB(100, 255, 255,
+                                255), // Baja opacidad en el texto
                           ),
                         ),
                       ),
@@ -449,17 +473,14 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
                 alignment: Alignment.center,
                 child: Center(
                   child: Column(
-                    mainAxisAlignment:
-                        MainAxisAlignment.center, 
+                    mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
                         selectedVendedor?.split('-').first ?? '',
                         style: TextStyle(
-                          fontSize: max(
-                              30,
-                              MediaQuery.of(context).size.width *
-                                  0.03), 
+                          fontSize:
+                              max(30, MediaQuery.of(context).size.width * 0.03),
                           fontWeight: FontWeight.bold,
                           color: const Color.fromARGB(255, 19, 50, 80),
                         ),
@@ -487,6 +508,25 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
                           ),
                         ),
                       ),
+                      Container(
+                        margin: const EdgeInsets.only(top: 10.0),
+                        padding: const EdgeInsets.all(5.0),
+                        decoration: BoxDecoration(
+                            border: Border.all(
+                                width: 1.0,
+                                color: const Color.fromARGB(50, 224, 76, 7)),
+                            borderRadius: BorderRadius.circular(5.0),
+                            color: const Color.fromARGB(50, 224, 76, 7)),
+                        child: Text(
+                          '\$ ${valueNewWallet.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontSize: max(
+                                40, MediaQuery.of(context).size.width * 0.03),
+                            fontWeight: FontWeight.bold,
+                            color: const Color.fromARGB(100, 255, 255, 255),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -501,17 +541,22 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
     try {
       var retvalTotal;
       var responseValues;
+      var resltNewWalletValueSeller;
 
       if (idSeller != 0) {
         responseValues = await Connections()
             .getValuesSellerLaravelc2(arrayfiltersDefaultAnd);
         retvalTotal = await Connections().getOrdenesRetiroCount(idSeller);
+        resltNewWalletValueSeller = await Connections().getSaldoPorId(idSeller);
+        // print("quemado > $resltNewWalletValueSeller");
       }
       setState(() {
         // Ahora, actualiza el estado después de que hayas terminado la operación asíncrona
         valuesTransporter = responseValues['data'];
         valueTotalReturns =
             double.parse(retvalTotal['total_retiros'].toString());
+        valueNewWallet =
+            double.parse(resltNewWalletValueSeller['saldo'].toString());
         calculateValues();
       });
     } catch (e) {

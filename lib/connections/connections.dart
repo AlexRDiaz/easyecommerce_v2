@@ -4708,6 +4708,24 @@ class Connections {
       return (e);
     }
   }
+  getSaldoPorId(id)async {
+    int res = 0;
+    try {
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/vendedores-sld"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "id_master": id,
+          }));
+
+      var responselaravel = await request.body;  
+      var decodeData = json.decode(responselaravel);
+
+      return decodeData;
+    } catch (e) {
+      return (e);
+    }
+  }
 
   getWalletValueLaravel() async {
     try {
