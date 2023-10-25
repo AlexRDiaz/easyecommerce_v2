@@ -209,6 +209,25 @@ class _PrintedGuideInfoState extends State<PrintedGuideInfo> {
                 "MARCAR ENVIADO",
                 style: TextStyle(fontWeight: FontWeight.bold),
               )),
+          SizedBox(
+            width: 20,
+          ),
+          ElevatedButton(
+              onPressed: () async {
+                getLoadingModal(context, false);
+
+                var response = await Connections()
+                    .updatenueva(widget.id, {"estado_interno": "RECHAZADO"});
+                Navigator.pop(context);
+
+                setState(() {});
+
+                await loadData();
+              },
+              child: Text(
+                "RECHAZADO",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              )),
         ],
       ),
     );
