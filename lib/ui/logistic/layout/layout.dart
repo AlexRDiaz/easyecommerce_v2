@@ -5,6 +5,7 @@ import 'package:frontend/config/exports.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/providers/logistic/navigation_provider.dart';
 import 'package:frontend/ui/logistic/account_status/account_status.dart';
+import 'package:frontend/ui/logistic/account_status2/account_status2.dart';
 import 'package:frontend/ui/logistic/add_carrier/add_carrier.dart';
 import 'package:frontend/ui/logistic/add_logistics_user/add_logistics_user.dart';
 import 'package:frontend/ui/logistic/add_sellers/add_sellers.dart';
@@ -93,6 +94,10 @@ class _LayoutPageState extends State<LayoutPage> {
       getOption(
         "Estado de Cuenta",
         AccountStatus(),
+      ),
+      getOption(
+        "Estado de Cuenta2",
+        AccountStatus2(),
       ),
       getOption(
         "Facturas Vendedores",

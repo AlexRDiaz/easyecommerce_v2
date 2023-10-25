@@ -20,6 +20,7 @@ class _AddLogisticUserState extends State<AddLogisticUser> {
   bool agregarT = false;
   bool agregarL = false;
   bool estadoCuenta = false;
+  bool estadoCuenta2 = false;
   bool facturaV = false;
   bool comprobantes = false;
   bool saldoC = false;
@@ -257,6 +258,37 @@ class _AddLogisticUserState extends State<AddLogisticUser> {
                     ))
                   ],
                 ),
+                // ! **************
+                SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  children: [
+                    Checkbox(
+                        value: estadoCuenta2,
+                        onChanged: (v) {
+                          setState(() {
+                            if (v!) {
+                              estadoCuenta2 = true;
+                              vistas.add("Estado de Cuenta2");
+                            } else {
+                              estadoCuenta2 = false;
+                              vistas.remove("Estado de Cuenta2");
+                            }
+                          });
+                        }),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Flexible(
+                        child: Text(
+                      "Estado de Cuenta2",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                    ))
+                  ],
+                ),
+                // ! **************
                 SizedBox(
                   height: 10,
                 ),
