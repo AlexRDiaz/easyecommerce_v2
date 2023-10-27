@@ -27,8 +27,8 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
       UnwantedOrdersSellersControllers();
 
   List arrayFiltersDefaultOr = [
-    // {"status": "NOVEDAD"},
-    // {"status": "NO ENTREGADO"}
+    {"estado_interno": "RECHAZADO"},
+    {"estado_interno": "NO DESEA"}
   ];
 
   var arrayfiltersDefaultAnd = [
@@ -36,7 +36,7 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
       'id_comercial':
           sharedPrefs!.getString("idComercialMasterSeller").toString(),
     },
-    {'estado_interno': 'NO DESEA'}
+    //   {'estado_interno': 'NO DESEA'}
   ];
   List arrayFiltersNotEq = [];
   var sortFieldDefaultValue = "id:DESC";
@@ -66,19 +66,6 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
     'EN BODEGA',
   ];
   NumberPaginatorController paginatorController = NumberPaginatorController();
-  // List filtersDefaultAnd = [
-  //   {
-  //     'operator': '\$and',
-  //     'filter': 'IdComercial',
-  //     'operator_attr': '\$eq',
-  //     'value': sharedPrefs!.getString("idComercialMasterSeller").toString()
-  //   },
-  //   {
-  //     'operator': '\$and',
-  //     'filter': 'Estado_Interno',
-  //     'operator_attr': '\$eq',
-  //     'value': 'NO DESEA'
-  // ];
   List populate = ['users', 'pedido_fecha'];
   List arrayFiltersAnd = [];
 
@@ -212,13 +199,9 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
           arrayFiltersNotEq,
           sortFieldDefaultValue.toString());
 
-      // data = response[0]['data'];
       data = responseLaravel['data'];
 
       setState(() {
-        // pageCount = response[0]['meta']['pagination']['pageCount'];
-        // total = response[0]['meta']['pagination']['total'];
-
         pageCount = responseLaravel['last_page'];
         total = responseLaravel['total'];
       });
@@ -704,6 +687,13 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                     },
                   ),
                   DataColumn2(
+                    label: Text('Estado Interno'),
+                    size: ColumnSize.S,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("status", changevalue);
+                    },
+                  ),
+                  DataColumn2(
                     label: SelectFilter(
                         'Estado Devolución',
                         'estado_devolucion',
@@ -912,6 +902,15 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                         DataCell(
                             Text(
                               data[index]['status'].toString(),
+                              style: TextStyle(
+                                color: rowColor,
+                              ),
+                            ), onTap: () {
+                          showDialogInfoData(data[index]);
+                        }),
+                        DataCell(
+                            Text(
+                              data[index]['estado_interno'].toString(),
                               style: TextStyle(
                                 color: rowColor,
                               ),
