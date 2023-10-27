@@ -74,7 +74,7 @@ List optionsTransport = [
   {"name": "Agregar Operadores", "icon": Icons.add_box_outlined},
   {"name": "Mi Cuenta Transportador", "icon": Icons.account_balance_outlined},
   {"name": "Comprobantes de Pago", "icon": Icons.all_inbox_outlined},
-  {"name": "Comprobantes de Pago2", "icon": Icons.all_inbox_outlined},
+  // {"name": "Comprobantes de Pago2", "icon": Icons.all_inbox_outlined},
   {
     "name": "Facturación transporte PRV",
     "icon": Icons.document_scanner_rounded

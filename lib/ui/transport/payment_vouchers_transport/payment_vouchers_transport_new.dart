@@ -160,7 +160,7 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
         .getTransaccionesOrdersByTransportadorasDates(idTransp, dayDate);
 
     if (ordersDate.isNotEmpty) {
-      print("Transacciones NO esta vacio");
+      // print("Transacciones NO esta vacio");
 
       var dataOrders = ordersDate['data'];
       totalShippingCost = ordersDate['total'];
@@ -176,7 +176,7 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
       total = totalProceeds - totalShippingCost;
       total = double.parse((total).toStringAsFixed(2));
     } else {
-      print("Transacciones esta vacio");
+      // print("Transacciones esta vacio");
     }
 
     var responseTSC = await Connections().getOrdersSCalendarLaravel(
@@ -726,11 +726,11 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
           '$generalServerApiLaravel${dataDay[0]['url_proof_payment']}')) {
         proof =
             "$generalServerApiLaravel${dataDay[0]['url_proof_payment'].toString()}";
-        print("Imagen encontrada en Laravel");
+        // print("Imagen encontrada en Laravel");
       } else if (await checkFileExistence(
           '$generalServer${dataDay[0]['url_proof_payment']}')) {
         proof = "$generalServer${dataDay[0]['url_proof_payment'].toString()}";
-        print("Imagen no encontrada en Laravel, usando el servidor general");
+        // print("Imagen no encontrada en Laravel, usando el servidor general");
       }
       // try {
       //   // Intenta cargar la imagen desde el servidor Laravel

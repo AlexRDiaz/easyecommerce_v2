@@ -43,7 +43,7 @@ class _LayoutTransportPageState extends State<LayoutTransportPage> {
     AddOperatorsTransport(),
     MyTransporterAccount(),
     PaymentVouchersTransport(),
-    PaymentVouchersTransport2(),
+    // PaymentVouchersTransport2(),
     TransportationBilling(),
     ReturnsTransport(),
     UpdatePasswordTransport()
