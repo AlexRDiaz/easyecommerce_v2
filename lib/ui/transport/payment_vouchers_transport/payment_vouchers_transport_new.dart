@@ -723,9 +723,9 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
       _rechazado.text = comentario;
       var proof = "";
       if (await checkFileExistence(
-          '$generalServerApiLaravel/storage${dataDay[0]['url_proof_payment']}')) {
+          '$generalServerApiLaravel${dataDay[0]['url_proof_payment']}')) {
         proof =
-            "$generalServerApiLaravel/storage${dataDay[0]['url_proof_payment'].toString()}";
+            "$generalServerApiLaravel${dataDay[0]['url_proof_payment'].toString()}";
         print("Imagen encontrada en Laravel");
       } else if (await checkFileExistence(
           '$generalServer${dataDay[0]['url_proof_payment']}')) {
