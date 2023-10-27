@@ -15,12 +15,14 @@ import 'package:frontend/helpers/navigators.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/transport/my_orders_prv/controllers/controllers.dart';
+import 'package:frontend/ui/transport/payment_vouchers_transport/create_report_transport.dart';
 import 'package:frontend/ui/transport/payment_vouchers_transport/info_payment_voucher.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/sub_routes.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
 
 class PaymentVouchersTransport2 extends StatefulWidget {
   const PaymentVouchersTransport2({super.key});
@@ -59,6 +61,8 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
   int idTransp = 0;
   bool isToday = false;
   String? currentDayDate = DateTime.now().day.toString(); //
+  List dataTodayTSC = [];
+  var getReport = CreateReportTransport();
 
   @override
   void didChangeDependencies() {
@@ -71,7 +75,7 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
       getLoadingModal(context, false);
     });
 
-    print("today day: $currentDayDate");
+    // print("today day: $currentDayDate");
 
     meses = [
       "Enero-1",
@@ -132,12 +136,23 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
         "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
     var fechaFormatted =
         "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}";
-    // print("idTransp: $id_transp; fecha $day_date");
-    //solo para uno podria para update
-    // var responseTPT =
-    //     await Connections().getTrasportadoraShippingCostByDate(idTransp, fecha);
+
+    //TSC:transportadoras_shipping_cost
+    //TPT:transaccion_pedido_transportadora
 
     //for todayData
+    var responseTodayTSC =
+        await Connections().getTrasportadoraShippingCostByDate(idTransp, fecha);
+
+    dataTodayTSC = responseTodayTSC;
+    if (dataTodayTSC.isNotEmpty) {
+      // print("YA existen TSC para hoy");
+      idTSC = dataTodayTSC[0]['id'];
+    } else {
+      // print("NO existen TSC para hoy");
+    }
+
+    //no lo se, creo que hay que hacer que esto funcione para que si existe no hacer el data.add y ni la consulta de ordersDate
 
     List<String> dayDate = [];
     dayDate.add(fechaFormatted);
@@ -145,7 +160,7 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
         .getTransaccionesOrdersByTransportadorasDates(idTransp, dayDate);
 
     if (ordersDate.isNotEmpty) {
-      print("NO esta vacio");
+      print("Transacciones NO esta vacio");
 
       var dataOrders = ordersDate['data'];
       totalShippingCost = ordersDate['total'];
@@ -156,9 +171,12 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
           totalProceeds += precioTotal;
         }
       }
+      totalProceeds = double.parse((totalProceeds).toStringAsFixed(2));
+      totalShippingCost = double.parse((totalShippingCost).toStringAsFixed(2));
       total = totalProceeds - totalShippingCost;
+      total = double.parse((total).toStringAsFixed(2));
     } else {
-      print("esta vacio");
+      print("Transacciones esta vacio");
     }
 
     var responseTSC = await Connections().getOrdersSCalendarLaravel(
@@ -225,67 +243,6 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
     // print(daysM);
   }
 
-  getTodayOrders() async {
-    idTransp = int.parse(sharedPrefs!.getString("idTransportadora").toString());
-    var fecha =
-        "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}";
-
-    List<String> dayDate = [];
-    dayDate.add(fecha);
-    var ordersDate = await Connections()
-        .getTransaccionesOrdersByTransportadorasDates(idTransp, dayDate);
-
-    if (ordersDate.isNotEmpty) {
-      print("NO esta vacio");
-      var dataL = ordersDate['data'];
-      // print("dataL: $dataL");
-      totalShippingCost = ordersDate['total'];
-
-      for (var pedido in dataL) {
-        if (pedido["status"] == "ENTREGADO") {
-          double precioTotal = double.parse(pedido["precio_total"].toString());
-          totalProceeds += precioTotal;
-        }
-      }
-      total = totalProceeds - totalShippingCost;
-      statusTransportadoraShipping = 'PENDIENTE';
-      bool check = selectedItem.isNotEmpty;
-
-      daysM.add({
-        "day": currentDayDate,
-        "id": "new123",
-        "fecha": fecha,
-        "status": statusTransportadoraShipping,
-        "daily_proceeds": totalProceeds,
-        "daily_shipping_cost": totalShippingCost,
-        "daily_total": total,
-        "rejected_reason": "",
-        "url_proof_payment": "",
-        "check": check,
-      });
-    } else {
-      print("esta vacio");
-      totalProceeds = 0.0;
-      totalShippingCost = 0.0;
-      total = 0.0;
-      statusTransportadoraShipping = 'PENDIENTE';
-      bool check = selectedItem.isNotEmpty;
-
-      daysM.add({
-        "day": currentDayDate,
-        "id": "new123",
-        "fecha": fecha,
-        "status": statusTransportadoraShipping,
-        "daily_proceeds": totalProceeds,
-        "daily_shipping_cost": totalShippingCost,
-        "daily_total": total,
-        "rejected_reason": "",
-        "url_proof_payment": "",
-        "check": check,
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -300,7 +257,7 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
                 child: ListView(
               children: [
                 const SizedBox(
-                  height: 10,
+                  height: 5,
                 ),
                 const Text(
                   "Seleccione los filtros:",
@@ -310,7 +267,7 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
                       fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(
-                  height: 15,
+                  height: 10,
                 ),
                 Row(
                   children: [
@@ -387,7 +344,7 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
                   ],
                 ),
                 const SizedBox(
-                  height: 15,
+                  height: 10,
                 ),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -457,119 +414,29 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
                             ? Visibility(
                                 visible: true,
                                 child: ElevatedButton(
-                                  onPressed: counterChecks > 0
-                                      ? () async {
-                                          showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return AlertDialog(
-                                                title: const Text('Atención'),
-                                                content:
-                                                    const SingleChildScrollView(
-                                                  child: Column(
-                                                    children: [
-                                                      Text(
-                                                          '¿Está seguro de actualizar el estado de los comprobantes?'),
-                                                      Text(''),
-                                                    ],
-                                                  ),
-                                                ),
-                                                actions: [
-                                                  TextButton(
-                                                    child:
-                                                        const Text('Cancelar'),
-                                                    onPressed: () {
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                    },
-                                                  ),
-                                                  TextButton(
-                                                    child:
-                                                        const Text('Aceptar'),
-                                                    onPressed: () async {
-                                                      for (var i = 0;
-                                                          i <
-                                                              selectedChecks
-                                                                  .length;
-                                                          i++) {
-                                                        if (selectedChecks[i]
-                                                                ['id']
-                                                            .toString()
-                                                            .isNotEmpty) {
-                                                          print(
-                                                              "id transpOrderShipp ${selectedChecks[i]['id']}");
-                                                          if (selectedChecks[i]
-                                                                      ['id']
-                                                                  .toString() ==
-                                                              "new123id") {
-                                                            print("new TSC");
-                                                            // createTraspShippingCost
-                                                            // var response = await Connections()
-                                                            //     .createTraspShippingCost(
-                                                            //         idTransp,
-                                                            //         totalShippingCost,
-                                                            //         totalProceeds,
-                                                            //         total);
-
-                                                            //update estado_pago_logistica  a todos los pedidos en estas fechas
-                                                            // if (totalShippingCost !=
-                                                            //     0.0) {
-                                                            updateOrdersPerDay(
-                                                                idTransp,
-                                                                selectedChecks,
-                                                                "PAGADO",
-                                                                "");
-                                                            // } else {
-                                                            //   print(
-                                                            //       "en este dia no hay ordenes to update");
-                                                            // }
-                                                          } else {
-                                                            // var response =
-                                                            //     await Connections()
-                                                            //         .updateGeneralTransportadoraShippingCostLaravel(
-                                                            //             selectedChecks[i]
-                                                            //                 ['id'],
-                                                            //             {
-                                                            //       "status":
-                                                            //           "PAGADO",
-                                                            //       "rejected_reason":
-                                                            //           ""
-                                                            //     });
-
-                                                            //update estado_pago_logistica  a todos los pedidos en estas fechas
-
-                                                            updateOrdersPerDay(
-                                                                idTransp,
-                                                                selectedChecks,
-                                                                "PAGADO",
-                                                                "");
-                                                          }
-
-                                                          counterChecks = 0;
-                                                        }
-                                                      }
-
-                                                      daysM = [];
-                                                      selectedChecks = [];
-                                                      counterChecks = 0;
-                                                      // await getOrders();
-                                                      Navigator.pop(context);
-                                                    },
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          );
-                                        }
-                                      : null,
+                                  onPressed: () {
+                                    // showSelectFilterReportDialog(context);
+                                    getOrdersPerDay(idTransp, selectedChecks);
+                                  },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor:
-                                        const Color.fromARGB(255, 27, 47, 88),
+                                        const Color.fromARGB(255, 58, 163, 81),
                                   ),
-                                  child: const Text(
-                                    "REALIZAR PAGO",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        IconData(0xf6df,
+                                            fontFamily: 'MaterialIcons'),
+                                        size: 24,
+                                        color: Colors.white,
+                                      ),
+                                      Text(
+                                        "Descargar reporte",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               )
@@ -772,132 +639,68 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
     }
   }
 
-//old version
-  void showComprobante(context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          content: SizedBox(
-            width: 500,
-            height: MediaQuery.of(context).size.height,
-            child: Column(
-              children: [
-                const Text(
-                  "Comprobante:",
-                  style: TextStyle(),
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                "$generalServer${getUrlPLFoto(dataGeneral)}" == null
-                    ? Container()
-                    : SizedBox(
-                        width: 480,
-                        height: 500,
-                        child: ListView(
-                          children: [
-                            Image.network(
-                              "$generalServer${getUrlPLFoto(dataGeneral)}",
-                              fit: BoxFit.fill,
-                            ),
-                          ],
-                        ),
-                      ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  String getUrlPLFoto(data) {
-    for (var item in data) {
-      if (item['attributes']['Url_P_L_Foto'].toString().isNotEmpty) {
-        return item['attributes']['Url_P_L_Foto'].toString();
+  getOrdersPerDay(transportadora, selectedIds) async {
+    var dataDay;
+    List<String> dayDates = [];
+    for (var element in selectedIds) {
+      dataDay = getInfoDay(element["id"]);
+      if (dataDay != null && dataDay.isNotEmpty) {
+        dayDates.add(dataDay[0]['fecha']);
       }
     }
-    return ''; // Retorna una cadena vacía si no se encuentra ningún campo no vacío
+    var orders = await Connections()
+        .getTransaccionesOrdersByTransportadorasDates(transportadora, dayDates);
+    if (dataDay != null && orders.isNotEmpty) {
+      getReport.generateExcelFileWithData(orders);
+    } else {
+      // print("No existen datos con este filtro");
+    }
   }
 
   updateOrdersPerDay(transportadora, fecha, statusR, comment) async {
     var dataDay = fecha;
     ordersByDate = [];
     List<String> day_dates = [];
-    print("llega a updateOrdersPerDay");
-    // if (statusR == "DEPOSITO REALIZADO") {
-    for (var element in fecha) {
-      dataDay = getInfoDay(element["id"]);
-      if (dataDay != null && dataDay.isNotEmpty) {
-        day_dates.add(dataDay[0]['fecha']);
-      }
-    }
-    // } else {
-    //   day_dates.add(dataDay);
-    // }
-
-    print("thisss");
+    day_dates.add(dataDay);
 
     var orders = await Connections()
         .getTransaccionesOrdersByTransportadorasDates(
             transportadora, day_dates);
-    print("aquii");
-    if (orders.isNotEmpty) {
+    if (orders.isNotEmpty && orders.containsKey('data')) {
       var ordersData = orders['data'];
 
-      if (ordersData.isNotEmpty) {
-        print("orders NotEmpty");
+      for (int i = 0; i < ordersData.length; i++) {
+        int idOrder =
+            int.parse(ordersData[i]["pedidos_shopify"]["id"].toString());
+        // print("to update: $idOrder");
 
-        for (int i = 0; i < orders.length; i++) {
-          int idOrder =
-              int.parse(orders[i]["pedidos_shopify"]["id"].toString());
-
-          // if (statusR == "PAGADO") {
-          // var updateState = await Connections()
-          //     .updateOrderStatusPagoLogisticaLaravel(idOrder, statusR);
-          print("update to Pagado: $idOrder");
-          // var updateState = await Connections()
-          //     .updatenueva(idOrder.toString(), {"estado_pago_logistica": "PAGADO"});
-          // }
+        if (statusR == "PAGADO") {
+          // print("PAGADO");
+          var updateState = await Connections().updatenueva(idOrder.toString(),
+              {"estado_pago_logistica": "PAGADO", "url_p_l_foto": comment});
+        } else if (statusR == "PENDIENTE") {
+          // print("PENDIENTE");
+          var updateState = await Connections().updatenueva(idOrder.toString(),
+              {"estado_pago_logistica": "PENDIENTE", "url_p_l_foto": ""});
         }
-      } else {
-        print("No existen orders to update");
       }
+    } else {
+      print("No existen orders to update");
     }
   }
 
-  void realizarPago(orders) async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-
-    if (image!.path.isNotEmpty && image!.path.toString() != "null") {
-      getLoadingModal(context, false);
-
-      var responseI = await Connections().postDoc(image);
-
-      for (var i = 0; i < data.length; i++) {
-        if (data[i]['attributes']['Status'].toString() == "ENTREGADO") {
-          var response = await Connections()
-              .updateOrderPayStateLogistic(data[i]['id'], responseI[1]);
-        }
-      }
-
-      //update EN LA NUEVA TABLA
-      // var uptStateTransShipping = await Connections()
-      //     .updateTransportadorasShippingCostLaravel(
-      //         "PAGADO", idTSC);
-      // var responseTransShipping = await Connections()
-      //     .updateTrasportadoraShippingCost(
-      //         responseI[1], idTSC);
-
-      loadData();
-      setState(() {});
-      Navigator.pop(context);
+  Future<bool> checkFileExistence(String url) async {
+    try {
+      final response = await http.head(Uri.parse(url));
+      return response.statusCode == 200;
+    } catch (e) {
+      print(e);
+      // Maneja cualquier error, por ejemplo, si no se puede conectar al servidor.
+      return false;
     }
   }
 
-  void showInfoDetails(context, id) {
+  void showInfoDetails(context, id) async {
     // print("id income: $id");
 
     if (id != null) {
@@ -913,93 +716,227 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
       var comentario = dataDay[0]['rejected_reason'] == null
           ? ""
           : dataDay[0]['rejected_reason'].toString();
-      var fecha = dataDay[0]['fecha'];
+      var fechaSelect = dataDay[0]['fecha'];
       var status = dataDay[0]['status'].toString();
       TextEditingController _rechazado = TextEditingController();
 
       _rechazado.text = comentario;
-
-      if (status == "PENDIENTE" && dataDay[0]['url_proof_payment'] == null) {
-        // realizarPago(id);
-        /*
-        AwesomeDialog(
-          width: 500,
-          context: context,
-          dialogType: DialogType.error,
-          animType: AnimType.rightSlide,
-          title: 'Se requiere que el Comprobante se encuentre en estado Pagado',
-          desc: '',
-          btnCancel: Container(),
-          btnOkText: "Aceptar",
-          btnOkColor: colors.colorGreen,
-          btnCancelOnPress: () {},
-          btnOkOnPress: () {},
-        ).show();
-
-        */
-      } else {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              content: Container(
-                width: 500,
-                height: MediaQuery.of(context).size.height,
-                child: ListView(
-                  children: [
-                    const Text(
-                      "Detalles",
-                      style: TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.bold),
-                    ),
-                    Text("Valores Recibidos: \$$valoresRecibidos"),
-                    Text("Costo Entrega: \$$costoEntrega"),
-                    Text("Total: \$$total"),
-                    Text("Estado Pago Logistica: $status"),
-                    const Divider(),
-                    const Text(
-                      "Comprobante:",
-                      style: TextStyle(),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    dataDay[0]['url_proof_payment'] == null
-                        ? Container()
-                        : SizedBox(
-                            width: 430,
-                            height: 400,
-                            child: ListView(
-                              children: [
-                                Image.network(
-                                  "$generalServer${dataDay[0]['url_proof_payment'].toString()}",
-                                  // fit: BoxFit.none,
-                                  fit: BoxFit.fill,
-                                ),
-                              ],
-                            ),
-                          ),
-                    const Divider(),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Text(
-                          "SALIR",
-                          style: TextStyle(
-                              color: Colors.blueAccent,
-                              fontWeight: FontWeight.bold),
-                        )),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
+      var proof = "";
+      if (await checkFileExistence(
+          '$generalServerApiLaravel/storage${dataDay[0]['url_proof_payment']}')) {
+        proof =
+            "$generalServerApiLaravel/storage${dataDay[0]['url_proof_payment'].toString()}";
+        print("Imagen encontrada en Laravel");
+      } else if (await checkFileExistence(
+          '$generalServer${dataDay[0]['url_proof_payment']}')) {
+        proof = "$generalServer${dataDay[0]['url_proof_payment'].toString()}";
+        print("Imagen no encontrada en Laravel, usando el servidor general");
       }
+      // try {
+      //   // Intenta cargar la imagen desde el servidor Laravel
+      //   proof =
+      //       "$generalServerApiLaravel${dataDay[0]['url_proof_payment'].toString()}";
+      //   print("Imagen encontrada en Laravel");
+      // } catch (e) {
+      //   // Si falla, carga la imagen desde el servidor general
+      //   proof = "$generalServer${dataDay[0]['url_proof_payment'].toString()}";
+      //   print("Imagen no encontrada en Laravel, usando el servidor general");
+      // }
+
+      print("URL de la imagen: $proof");
+
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Container(
+              width: 700,
+              height: MediaQuery.of(context).size.height,
+              child: ListView(
+                children: [
+                  const Text(
+                    "Detalles",
+                    style: TextStyle(
+                        color: Colors.black, fontWeight: FontWeight.bold),
+                  ),
+                  Text("Valores Recibidos: \$$valoresRecibidos"),
+                  Text("Costo Entrega: \$$costoEntrega"),
+                  Text("Total: \$$total"),
+                  Text("Estado Pago Logistica: $status"),
+                  const Divider(),
+                  const Text(
+                    "Comprobante:",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  ((status == "PAGADO" ||
+                              status == "PENDIENTE" ||
+                              status == "RECHAZADO") &&
+                          (dataDay[0]['url_proof_payment'] != null &&
+                              dataDay[0]['url_proof_payment'] != ""))
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IconButton(
+                              iconSize: 20,
+                              onPressed: () async {
+                                getLoadingModal(context, false);
+
+                                var responseUptDelete = await Connections()
+                                    .updateGeneralTransportadoraShippingCostLaravel(
+                                        id, {
+                                  "status": "PENDIENTE",
+                                  "url_proof_payment": ""
+                                });
+
+                                daysM = [];
+                                selectedChecks = [];
+                                counterChecks = 0;
+                                await getOrders();
+                                Navigator.pop(context);
+                                Navigator.pop(context);
+                              },
+                              icon: const Icon(
+                                Icons.restore_from_trash_outlined,
+                                color: Colors.redAccent,
+                              ),
+                            ),
+                          ],
+                        )
+                      : const SizedBox(),
+                  (dataDay[0]['url_proof_payment'] == null ||
+                          dataDay[0]['url_proof_payment'] == "")
+                      ? Container()
+                      : SizedBox(
+                          width: 650,
+                          height: 500,
+                          child: ListView(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.network(
+                                    proof,
+                                    // "$generalServer${dataDay[0]['url_proof_payment'].toString()}",
+                                    //generalServerApiLaravel
+                                    // "$generalServerApiLaravel/storage${dataDay[0]['url_proof_payment'].toString()}",
+
+                                    fit: BoxFit.fill,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                  ((status == "PAGADO" ||
+                              status == "PENDIENTE" ||
+                              status == "RECHAZADO") &&
+                          (dataDay[0]['url_proof_payment'] == null ||
+                              dataDay[0]['url_proof_payment'] == ""))
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () async {
+                                final ImagePicker picker = ImagePicker();
+                                final XFile? image = await picker.pickImage(
+                                    source: ImageSource.gallery);
+
+                                if (image!.path.isNotEmpty &&
+                                    image!.path.toString() != "null") {
+                                  getLoadingModal(context, false);
+
+                                  // var responseI =
+                                  //     await Connections().postDoc(image);
+                                  // print("responseILaravel: $responseI[1]");
+
+                                  var responseIL =
+                                      await Connections().postDocLaravel(image);
+                                  print("responseILaravel: $responseIL");
+                                  //create o update EN LA NUEVA TABLA
+                                  if (id == "new123id") {
+                                    //createTraspShippingCost
+                                    // print("createTraspShippingCost");
+
+                                    var response = await Connections()
+                                        .createTraspShippingCost(
+                                      idTransp,
+                                      totalShippingCost,
+                                      totalProceeds,
+                                      total,
+                                      // responseI[1]
+                                      responseIL,
+                                    );
+                                  } else {
+                                    //update
+                                    // print("TSC to update");
+                                    // print(
+                                    //     "totalShippingCost: $totalShippingCost; totalProceeds: $totalProceeds; total: $total");
+                                    var responseUpt = await Connections()
+                                        .updateGeneralTransportadoraShippingCostLaravel(
+                                            id, {
+                                      "status": "PAGADO",
+                                      "daily_shipping_cost": totalShippingCost,
+                                      "daily_proceeds": totalProceeds,
+                                      "daily_total": total,
+                                      "rejected_reason": "",
+                                      // "url_proof_payment": responseI[1]
+                                      "url_proof_payment": responseIL
+                                    });
+                                    //
+                                  }
+
+                                  // updateOrdersPerDay(idTransp, fechaSelect,
+                                  //     "PAGADO", responseI[1]);
+                                  updateOrdersPerDay(idTransp, fechaSelect,
+                                      "PAGADO", responseIL);
+
+                                  daysM = [];
+                                  selectedChecks = [];
+                                  counterChecks = 0;
+                                  await getOrders();
+                                  Navigator.pop(context);
+                                  Navigator.pop(context);
+                                } else {
+                                  print("No img");
+                                }
+                              },
+                              //#4355B9
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF4355B9),
+                              ),
+                              child: const Text(
+                                "REALIZAR PAGO",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 12),
+                              ),
+                            ),
+                          ],
+                        )
+                      : const SizedBox(),
+                  const Divider(),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text(
+                        "SALIR",
+                        style: TextStyle(
+                            color: Colors.blueAccent,
+                            fontWeight: FontWeight.bold),
+                      )),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+      // }
     } else {
       // print("No existen datos");
       AwesomeDialog(

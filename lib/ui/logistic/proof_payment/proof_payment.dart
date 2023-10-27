@@ -411,28 +411,28 @@ class _ProofPaymentState extends State<ProofPayment> {
                                                       }
                                                     }
 
-                                                    // * update a la nueva tabla transportadoras_shipping_cost
-                                                    var id_transportadora =
-                                                        selectedValueTransportator
-                                                            .toString()
-                                                            .split("-")[1]
-                                                            .toString();
-                                                    var responseLaravel =
-                                                        await Connections()
-                                                            .getTrasportadoraShippingCostByDate(
-                                                                id_transportadora,
-                                                                dateSelect);
-                                                    datares = responseLaravel;
-                                                    if (datares.isNotEmpty) {
-                                                      var idTransaccion =
-                                                          responseLaravel[0]
-                                                              ['id'];
-                                                      var uptStateTransShipping =
-                                                          await Connections()
-                                                              .updateTransportadorasShippingCostLaravel(
-                                                                  "RECIBIDO",
-                                                                  idTransaccion);
-                                                    }
+                                                    // * update a la nueva tabla transportadoras_shipping_cost laravel version
+                                                    // var id_transportadora =
+                                                    //     selectedValueTransportator
+                                                    //         .toString()
+                                                    //         .split("-")[1]
+                                                    //         .toString();
+                                                    // var responseLaravel =
+                                                    //     await Connections()
+                                                    //         .getTrasportadoraShippingCostByDate(
+                                                    //             id_transportadora,
+                                                    //             dateSelect);
+                                                    // datares = responseLaravel;
+                                                    // if (datares.isNotEmpty) {
+                                                    //   var idTransaccion =
+                                                    //       responseLaravel[0]
+                                                    //           ['id'];
+                                                    //   var uptStateTransShipping =
+                                                    //       await Connections()
+                                                    //           .updateTransportadorasShippingCostLaravel(
+                                                    //               "RECIBIDO",
+                                                    //               idTransaccion);
+                                                    // }
 
                                                     Navigator.pop(context);
                                                     await getOrders();
@@ -513,7 +513,8 @@ class _ProofPaymentState extends State<ProofPayment> {
                                                       }
                                                     }
 
-                                                    // * update a la nueva tabla transportadoras_shipping_cost
+                                                    // * update a la nueva tabla transportadoras_shipping_cost laravel version
+                                                    /*
                                                     var id_transportadora =
                                                         selectedValueTransportator
                                                             .toString()
@@ -534,7 +535,7 @@ class _ProofPaymentState extends State<ProofPayment> {
                                                                   "RECHAZADO",
                                                                   idTransaccion);
                                                     }
-
+                                                    */
                                                     Navigator.pop(context);
                                                     await getOrders();
                                                     Navigator.pop(context);

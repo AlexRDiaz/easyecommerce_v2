@@ -39,10 +39,11 @@ class _PaymentVouchersTransportState extends State<PaymentVouchersTransport> {
   bool sort = false;
   var idTransportadora;
   List dataL = [];
-  double suma2 = 0.0;
-  double sumaCosto2 = 0.0;
+  double totalProceeds = 0.0;
+  double totalShippingCost = 0.0;
   double total = 0.0;
   String statusTransportadoraShipping = '';
+  int idTransp = 0;
   var idTSC;
 
   @override
@@ -62,27 +63,64 @@ class _PaymentVouchersTransportState extends State<PaymentVouchersTransport> {
     var responseLaravel = [];
 
     setState(() {
-      // idTSC = 0;
+      idTSC = 0;
       suma = 0.0;
       sumaCosto = 0.0;
-      // suma2 = 0.0;
-      // sumaCosto2 = 0.0;
+      // totalProceeds = 0.0;
+      // totalShippingCost = 0.0;
       // total = 0.0;
       // statusTransportadoraShipping = "";
     });
-    // var id_transportadora =
-    //     int.parse(sharedPrefs!.getString("idTransportadora").toString());
-    // var fecha = sharedPrefs!.getString("dateOperatorState");
-    // responseLaravel = await Connections()
-    //     .getTrasportadoraShippingCostByDate(id_transportadora, fecha);
-    // dataL = responseLaravel;
-    // if (dataL.isNotEmpty) {
-    //   idTSC = dataL[0]['id'];
-    //   suma2 = dataL[0]['daily_proceeds'];
-    //   sumaCosto2 = dataL[0]['daily_shipping_cost'];
-    //   total = dataL[0]['daily_total'];
-    //   statusTransportadoraShipping = dataL[0]['status'];
-    // }
+
+//conexion con laravel version
+/*
+    var fecha = sharedPrefs!.getString("dateOperatorState");
+    var fechaFormatted =
+        "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}";
+
+    var fechaFormateada =
+        DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(fecha!));
+
+    idTransp = int.parse(sharedPrefs!.getString("idTransportadora").toString());
+    print("fecha: $fecha");
+    print("fechaFormatted: $fechaFormateada");
+    responseLaravel =
+        await Connections().getTrasportadoraShippingCostByDate(idTransp, fecha);
+
+    dataL = responseLaravel;
+    if (dataL.isNotEmpty) {
+      idTSC = dataL[0]['id'];
+      // totalProceeds = dataL[0]['daily_proceeds'];
+      // totalShippingCost = dataL[0]['daily_shipping_cost'];
+      // total = dataL[0]['daily_total'];
+      // statusTransportadoraShipping = dataL[0]['status'];
+      print(idTSC);
+    }
+    //calcula 100pre por si hay algun pedido agregado luego de realizar el pago
+    List<String> dayDate = [];
+    dayDate.add(fechaFormateada);
+
+    var ordersDate = await Connections()
+        .getTransaccionesOrdersByTransportadorasDates(idTransp, dayDate);
+
+    if (ordersDate.isNotEmpty) {
+      print("NO esta vacio");
+
+      var dataOrders = ordersDate['data'];
+      totalShippingCost = ordersDate['total'];
+
+      for (var pedido in dataOrders) {
+        if (pedido["status"] == "ENTREGADO") {
+          double precioTotal = double.parse(pedido["precio_total"].toString());
+          totalProceeds += precioTotal;
+        }
+      }
+      total = totalProceeds - totalShippingCost;
+    } else {
+      print("esta vacio");
+    }
+*/
+//
 
     response = await Connections()
         .getOrdersForTransportFiltersState(_controllers.searchController.text);
@@ -257,6 +295,14 @@ class _PaymentVouchersTransportState extends State<PaymentVouchersTransport> {
                                       .updateOrderPayStateLogisticRestart(
                                           data[i]['id']);
                                 }
+
+                                // var responseUpt = await Connections()
+                                //     .updateGeneralTransportadoraShippingCostLaravel(
+                                //         idTSC, {
+                                //   "status": "PENDIENTE",
+                                //   "url_proof_payment": ""
+                                // });
+
                                 await loadData();
                                 setState(() {});
                                 Navigator.pop(context);
@@ -296,14 +342,37 @@ class _PaymentVouchersTransportState extends State<PaymentVouchersTransport> {
                                 }
                               }
 
-                              //update EN LA NUEVA TABLA
-                              // var uptStateTransShipping = await Connections()
-                              //     .updateTransportadorasShippingCostLaravel(
-                              //         "PAGADO", idTSC);
-                              // var responseTransShipping = await Connections()
-                              //     .updateTrasportadoraShippingCost(
-                              //         responseI[1], idTSC);
+                              //create o update EN LA NUEVA TABLA laravel version
+                              /*
+                              if (idTSC != 0) {
+                                //
+                                print("TSC to update");
+                                print(
+                                    "totalShippingCost: $totalShippingCost; totalProceeds: $totalProceeds; total: $total");
 
+                                var responseUpt = await Connections()
+                                    .updateGeneralTransportadoraShippingCostLaravel(
+                                        idTSC, {
+                                  "status": "PAGADO",
+                                  "daily_shipping_cost": totalShippingCost,
+                                  "daily_proceeds": totalProceeds,
+                                  "daily_total": total,
+                                  "rejected_reason": "",
+                                  "url_proof_payment": responseI[1]
+                                });
+                              } else {
+                                //createTraspShippingCost
+                                print("TSC to create");
+
+                                var responseC = await Connections()
+                                    .createTraspShippingCost(
+                                        idTransp,
+                                        totalShippingCost,
+                                        totalProceeds,
+                                        total,
+                                        responseI[1]);
+                              }
+*/
                               await loadData();
                               setState(() {});
                               Navigator.pop(context);

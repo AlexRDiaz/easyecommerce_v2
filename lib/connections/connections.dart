@@ -4998,6 +4998,7 @@ class Connections {
 
 //    *
   Future updateGeneralTransportadoraShippingCostLaravel(id, requestjson) async {
+    // print(json.encode(requestjson));
     try {
       var request = await http.put(
           Uri.parse("$serverLaravel/api/shippingcost/$id"),
@@ -5141,8 +5142,8 @@ class Connections {
   //  *
   Future getTransaccionesOrdersByTransportadorasDates(
       id_transportadora, dates) async {
-    print(json.encode(
-        {"id_transportadora": id_transportadora, "fechas_entrega": dates}));
+    // print(json.encode(
+    //     {"id_transportadora": id_transportadora, "fechas_entrega": dates}));
     try {
       var request = await http.post(
           Uri.parse(
@@ -5288,16 +5289,7 @@ class Connections {
   // transportadora- comprobante New
   // http://localhost:8000/api/shippingcost/
   Future createTraspShippingCost(
-      id_transp, shipping_total, total_proceeds, total_day) async {
-    /**
-       * {
-    "id_transportadora": 19,
-    "fecha_entrega": "23/10/2023",
-    "shipping_total": 135.52,
-    "total_proceeds": 826.52,
-    "total_day":113.00
-}
-       */
+      id_transp, shipping_total, total_proceeds, total_day, proof) async {
     try {
       var request =
           await http.post(Uri.parse("$serverLaravel/api/shippingcost/"),
@@ -5307,18 +5299,58 @@ class Connections {
                 // "fecha_entrega": fecha_entrega,
                 "shipping_total": shipping_total,
                 "total_proceeds": total_proceeds,
-                "total_day": total_day
+                "total_day": total_day,
+                "proof_payment": proof
               }));
       var response = await request.body;
-      var decodeData = json.decode(response);
 
       if (request.statusCode != 200) {
         return false;
       } else {
+        var decodeData = json.decode(response);
         return decodeData;
       }
     } catch (e) {
       print(e);
+    }
+  }
+
+  Future<dynamic> postDocLaravel(XFile xFile) async {
+    try {
+      String url = '$serverLaravel/api/upload';
+      var stream = http.ByteStream(DelegatingStream.typed(xFile.openRead()));
+      var uri = Uri.parse(url);
+      int length = await xFile.length();
+      var request = http.MultipartRequest("POST", uri);
+
+      var multipartFile = http.MultipartFile('files', stream, length,
+          // filename: basename(
+          //     "${xFile.name}.${xFile.mimeType.toString().split("/")[1]}"),
+          filename: basename(xFile.name),
+          contentType: MediaType(xFile.mimeType.toString(),
+              xFile.mimeType.toString().split("/")[1]));
+
+      request.files.add(multipartFile);
+      var response = await request.send();
+
+      if (response.statusCode == 200) {
+        print("status 200");
+        var responseData = await response.stream.toBytes();
+        var responseString = String.fromCharCodes(responseData);
+        var decodeData = json.decode(responseString);
+        print("decodeData $decodeData");
+
+        if (decodeData != null) {
+          return decodeData;
+        } else {
+          return [false, 'URL no encontrada en la respuesta del servidor.'];
+        }
+      } else {
+        return [false, 'Error en la solicitud: ${response.statusCode}'];
+      }
+    } catch (e) {
+      print(e);
+      return [false, 'Excepción en la solicitud: $e'];
     }
   }
 
