@@ -59,12 +59,10 @@ List optionsSellers = [
   {"name": "Retiros en Efectivo", "icon": Icons.monetization_on_outlined},
   {"name": "Conoce a tu Transporte", "icon": Icons.car_rental_outlined},
 
-
   {"name": "Imprimir Guías", "icon": Icons.print_outlined},
   {"name": "Guías Impresas", "icon": Icons.print},
   {"name": "Guías Enviadas", "icon": Icons.send_outlined},
 
-  
   {"name": "Cambiar Contraseña", "icon": Icons.security},
   //{"name": "Cerrar Sesión", "icon": Icons.logout_outlined},
 ];
@@ -76,6 +74,7 @@ List optionsTransport = [
   {"name": "Agregar Operadores", "icon": Icons.add_box_outlined},
   {"name": "Mi Cuenta Transportador", "icon": Icons.account_balance_outlined},
   {"name": "Comprobantes de Pago", "icon": Icons.all_inbox_outlined},
+  {"name": "Comprobantes de Pago2", "icon": Icons.all_inbox_outlined},
   {
     "name": "Facturación transporte PRV",
     "icon": Icons.document_scanner_rounded
