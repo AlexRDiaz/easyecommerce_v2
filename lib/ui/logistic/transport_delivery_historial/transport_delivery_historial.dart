@@ -256,7 +256,6 @@ class _TransportDeliveryHistorialState
 
       // var m = response;
 
-
       if (listtransportadores.length == 1) {
         var responsetransportadoras = await Connections().getTransportadoras();
         List<dynamic> transportadorasList =
@@ -672,8 +671,8 @@ class _TransportDeliveryHistorialState
                         },
                       ),
                       DataColumn2(
-                        label: SelectFilterNoId('Estado de entrega', 'equals/status',
-                            statusController, listStatus),
+                        label: SelectFilterNoId('Estado de entrega',
+                            'equals/status', statusController, listStatus),
                         size: ColumnSize.L,
                         numeric: true,
                         onSort: (columnIndex, ascending) {
@@ -1553,33 +1552,7 @@ class _TransportDeliveryHistorialState
             });
           })),
       DataCell(Text('${data[index]['marca_t_i'].toString()}'), onTap: () {
-        showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                content: Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height,
-                  child: Column(
-                    children: [
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                          child: Icon(Icons.close),
-                        ),
-                      ),
-                      Expanded(
-                          child: TransportDeliveryHistoryDetails(
-                        id: data[index]['id'].toString(),
-                      ))
-                    ],
-                  ),
-                ),
-              );
-            });
+        showDialogInfoData(data[index]);
       }),
       DataCell(
           Text(
