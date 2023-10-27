@@ -685,7 +685,7 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
         }
       }
     } else {
-      print("No existen orders to update");
+      // print("No existen orders to update");
     }
   }
 
@@ -722,28 +722,18 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
 
       _rechazado.text = comentario;
       var proof = "";
-      if (await checkFileExistence(
-          '$generalServerApiLaravel${dataDay[0]['url_proof_payment']}')) {
-        proof =
-            "$generalServerApiLaravel${dataDay[0]['url_proof_payment'].toString()}";
-        // print("Imagen encontrada en Laravel");
-      } else if (await checkFileExistence(
-          '$generalServer${dataDay[0]['url_proof_payment']}')) {
-        proof = "$generalServer${dataDay[0]['url_proof_payment'].toString()}";
-        // print("Imagen no encontrada en Laravel, usando el servidor general");
-      }
-      // try {
-      //   // Intenta cargar la imagen desde el servidor Laravel
+      // if (await checkFileExistence(
+      //     '$generalServerApiLaravel${dataDay[0]['url_proof_payment']}')) {
       //   proof =
       //       "$generalServerApiLaravel${dataDay[0]['url_proof_payment'].toString()}";
-      //   print("Imagen encontrada en Laravel");
-      // } catch (e) {
-      //   // Si falla, carga la imagen desde el servidor general
+      //   // print("Imagen encontrada en Laravel");
+      // } else if (await checkFileExistence(
+      //     '$generalServer${dataDay[0]['url_proof_payment']}')) {
       //   proof = "$generalServer${dataDay[0]['url_proof_payment'].toString()}";
-      //   print("Imagen no encontrada en Laravel, usando el servidor general");
+      //   // print("Imagen no encontrada en Laravel, usando el servidor general");
       // }
 
-      print("URL de la imagen: $proof");
+      // print("URL de la imagen: $proof");
 
       showDialog(
         context: context,
@@ -791,6 +781,9 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
                                   "url_proof_payment": ""
                                 });
 
+                                updateOrdersPerDay(
+                                    idTransp, fechaSelect, "PENDIENTE", "");
+
                                 daysM = [];
                                 selectedChecks = [];
                                 counterChecks = 0;
@@ -818,8 +811,8 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Image.network(
-                                    proof,
-                                    // "$generalServer${dataDay[0]['url_proof_payment'].toString()}",
+                                    // proof,
+                                    "$generalServer${dataDay[0]['url_proof_payment'].toString()}",
                                     //generalServerApiLaravel
                                     // "$generalServerApiLaravel/storage${dataDay[0]['url_proof_payment'].toString()}",
 
@@ -848,13 +841,13 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
                                     image!.path.toString() != "null") {
                                   getLoadingModal(context, false);
 
-                                  // var responseI =
-                                  //     await Connections().postDoc(image);
+                                  var responseI =
+                                      await Connections().postDoc(image);
                                   // print("responseILaravel: $responseI[1]");
 
-                                  var responseIL =
-                                      await Connections().postDocLaravel(image);
-                                  print("responseILaravel: $responseIL");
+                                  // var responseIL =
+                                  //     await Connections().postDocLaravel(image);
+                                  // print("responseILaravel: $responseIL");
                                   //create o update EN LA NUEVA TABLA
                                   if (id == "new123id") {
                                     //createTraspShippingCost
@@ -862,13 +855,13 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
 
                                     var response = await Connections()
                                         .createTraspShippingCost(
-                                      idTransp,
-                                      totalShippingCost,
-                                      totalProceeds,
-                                      total,
-                                      // responseI[1]
-                                      responseIL,
-                                    );
+                                            idTransp,
+                                            totalShippingCost,
+                                            totalProceeds,
+                                            total,
+                                            responseI[1]
+                                            // responseIL,
+                                            );
                                   } else {
                                     //update
                                     // print("TSC to update");
@@ -882,16 +875,16 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
                                       "daily_proceeds": totalProceeds,
                                       "daily_total": total,
                                       "rejected_reason": "",
-                                      // "url_proof_payment": responseI[1]
-                                      "url_proof_payment": responseIL
+                                      "url_proof_payment": responseI[1]
+                                      // "url_proof_payment": responseIL
                                     });
                                     //
                                   }
 
-                                  // updateOrdersPerDay(idTransp, fechaSelect,
-                                  //     "PAGADO", responseI[1]);
                                   updateOrdersPerDay(idTransp, fechaSelect,
-                                      "PAGADO", responseIL);
+                                      "PAGADO", responseI[1]);
+                                  // updateOrdersPerDay(idTransp, fechaSelect,
+                                  //     "PAGADO", responseIL);
 
                                   daysM = [];
                                   selectedChecks = [];
