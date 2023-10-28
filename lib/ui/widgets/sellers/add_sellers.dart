@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/ui/sellers/add_seller_user/custom_filter_seller_user.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 
 class AddSellerI extends StatefulWidget {
-  const AddSellerI({super.key});
+  final List<dynamic> accessTemp;
+  // const AddSellerI({super.key});
+
+  const AddSellerI({required this.accessTemp, Key? key}) : super(key: key);
 
   @override
   State<AddSellerI> createState() => _AddSellerIState();
@@ -57,284 +61,33 @@ class _AddSellerIState extends State<AddSellerI> {
                 controller: _correo,
               ),
               SizedBox(
-                height: 10,
+                height: 20,
               ),
-              Row(
-                children: [
-                  Checkbox(
-                      value: dashboard,
-                      onChanged: (v) {
-                        setState(() {
-                          if (v!) {
-                            dashboard = true;
-                            vistas.add("DashBoard");
-                          } else {
-                            dashboard = false;
-                            vistas.remove("DashBoard");
-                          }
-                        });
-                      }),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Flexible(
-                      child: Text(
-                    "DashBoard",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                  ))
-                ],
+              Text(
+                "ACCESOS ACTUALES",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
               ),
-              Row(
-                children: [
-                  Checkbox(
-                      value: reporteVentas,
-                      onChanged: (v) {
+              Container(
+                margin: EdgeInsets.all(20.0),
+                height: 500,
+                width: 500,
+                decoration: BoxDecoration(
+                    border: Border.all(
+                        width: 1.0, color: Color.fromARGB(255, 224, 222, 222)),
+                    borderRadius: BorderRadius.circular(10.0)),
+                child: Builder(
+                  builder: (context) {
+                    return SimpleFilterChips(
+                      chipLabels: widget.accessTemp,
+                      onSelectionChanged: (selectedChips) {
                         setState(() {
-                          if (v!) {
-                            reporteVentas = true;
-                            vistas.add("Reporte de Ventas");
-                          } else {
-                            reporteVentas = false;
-                            vistas.remove("Reporte de Ventas");
-                          }
+                          vistas = List.from(
+                              selectedChips); 
                         });
-                      }),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Flexible(
-                      child: Text(
-                    "Reporte de Ventas",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                  ))
-                ],
-              ),
-              Row(
-                children: [
-                  Checkbox(
-                      value: agregarUsuarios,
-                      onChanged: (v) {
-                        setState(() {
-                          if (v!) {
-                            agregarUsuarios = true;
-                            vistas.add("Agregar Usuarios Vendedores");
-                          } else {
-                            agregarUsuarios = false;
-                            vistas.remove("Agregar Usuarios Vendedores");
-                          }
-                        });
-                      }),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Flexible(
-                      child: Text(
-                    "Agregar Usuarios Vendedores",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                  ))
-                ],
-              ),
-              // !}}}}}}}}}}}}}}}}}}}}}
-              Row(
-                children: [
-                  Checkbox(
-                      value: transportStats,
-                      onChanged: (v) {
-                        setState(() {
-                          if (v!) {
-                            transportStats = true;
-                            vistas.add("Conoce a tu Transporte");
-                          } else {
-                            transportStats = false;
-                            vistas.remove("Conoce a tu Transporte");
-                          }
-                        });
-                      }),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Flexible(
-                      child: Text(
-                    "Conoce a tu Transporte",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                  ))
-                ],
-              ),
-              // !}}}}}}}}}}}}}}}}}}}}}
-              Row(
-                children: [
-                  Checkbox(
-                      value: ingresoPedidos,
-                      onChanged: (v) {
-                        setState(() {
-                          if (v!) {
-                            ingresoPedidos = true;
-                            vistas.add("Ingreso de Pedidos");
-                          } else {
-                            ingresoPedidos = false;
-                            vistas.remove("Ingreso de Pedidos");
-                          }
-                        });
-                      }),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Flexible(
-                      child: Text(
-                    "Ingreso de Pedidos",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                  ))
-                ],
-              ),
-              Row(
-                children: [
-                  Checkbox(
-                      value: estadoEntregas,
-                      onChanged: (v) {
-                        setState(() {
-                          if (v!) {
-                            estadoEntregas = true;
-                            vistas.add("Estado Entregas Pedidos");
-                          } else {
-                            estadoEntregas = false;
-                            vistas.remove("Estado Entregas Pedidos");
-                          }
-                        });
-                      }),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Flexible(
-                      child: Text(
-                    "Estado Entregas Pedidos",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                  ))
-                ],
-              ),
-              Row(
-                children: [
-                  Checkbox(
-                      value: pedidosNoDeseados,
-                      onChanged: (v) {
-                        setState(() {
-                          if (v!) {
-                            pedidosNoDeseados = true;
-                            vistas.add("Pedidos No Deseados");
-                          } else {
-                            pedidosNoDeseados = false;
-                            vistas.remove("Pedidos No Deseados");
-                          }
-                        });
-                      }),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Flexible(
-                      child: Text(
-                    "Pedidos No Deseados",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                  ))
-                ],
-              ),
-              Row(
-                children: [
-                  Checkbox(
-                      value: billetera,
-                      onChanged: (v) {
-                        setState(() {
-                          if (v!) {
-                            billetera = true;
-                            vistas.add("Billetera");
-                          } else {
-                            billetera = false;
-                            vistas.remove("Billetera");
-                          }
-                        });
-                      }),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Flexible(
-                      child: Text(
-                    "Billetera",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                  ))
-                ],
-              ),
-              Row(
-                children: [
-                  Checkbox(
-                      value: miBilletera,
-                      onChanged: (v) {
-                        setState(() {
-                          if (v!) {
-                            miBilletera = true;
-                            vistas.add("Mi Billetera");
-                          } else {
-                            miBilletera = false;
-                            vistas.remove("Mi Billetera");
-                          }
-                        });
-                      }),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Flexible(
-                      child: Text(
-                    "Mi Billetera",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                  ))
-                ],
-              ),
-              Row(
-                children: [
-                  Checkbox(
-                      value: devoluciones,
-                      onChanged: (v) {
-                        setState(() {
-                          if (v!) {
-                            devoluciones = true;
-                            vistas.add("Devoluciones");
-                          } else {
-                            devoluciones = false;
-                            vistas.remove("Devoluciones");
-                          }
-                        });
-                      }),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Flexible(
-                      child: Text(
-                    "Devoluciones",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                  ))
-                ],
-              ),
-              Row(
-                children: [
-                  Checkbox(
-                      value: retiros,
-                      onChanged: (v) {
-                        setState(() {
-                          if (v!) {
-                            retiros = true;
-                            vistas.add("Retiros en Efectivo");
-                          } else {
-                            retiros = false;
-                            vistas.remove("Retiros en Efectivo");
-                          }
-                        });
-                      }),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Flexible(
-                      child: Text(
-                    "Retiros en Efectivo",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                  ))
-                ],
+                      },
+                    );
+                  },
+                ),
               ),
               SizedBox(
                 height: 30,

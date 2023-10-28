@@ -6,6 +6,7 @@ import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/navigators.dart';
 import 'package:frontend/main.dart';
+import 'package:frontend/ui/logistic/add_sellers/custom_filterchip_for_user.dart';
 import 'package:frontend/ui/transport/add_operators_transport/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/create_sub_route.dart';
@@ -25,6 +26,11 @@ class _EditOperatorTransportState extends State<EditOperatorTransport> {
   List<String> subRoutes = [];
   String? selectedValueRoute;
   TextEditingController _password = TextEditingController();
+  int idUser = 0;
+  List<dynamic> accessTemp = [];
+  Map<String, dynamic> accessGeneralofRol = {};
+
+
   var data = {};
   @override
   void didChangeDependencies() {
@@ -49,6 +55,10 @@ class _EditOperatorTransportState extends State<EditOperatorTransport> {
     }
     var response = await Connections().getOperatorsGeneralByID();
     data = response;
+    idUser = data ["id"];
+    accessTemp = data['PERMISOS'];
+    accessGeneralofRol = await Connections().getAccessofRolById(4);
+    
     _controllers.updateControllersEdit(response);
     setState(() {
       selectedValueRoute =
@@ -252,6 +262,29 @@ class _EditOperatorTransportState extends State<EditOperatorTransport> {
                       )),
                   SizedBox(
                     height: 20,
+                  ),
+                   Text(
+                    "Accesos",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                  Container(
+                    margin: EdgeInsets.all(20.0),
+                    height: 500,
+                    width: 500,
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                            width: 1.0,
+                            color: Color.fromARGB(255, 224, 222, 222)),
+                        borderRadius: BorderRadius.circular(10.0)),
+                    child: Builder(
+                      builder: (context) {
+                        return CustomFilterChips(
+                            accessTemp: accessTemp,
+                            accessGeneralofRol: accessGeneralofRol,
+                            loadData: loadData,
+                            idUser: idUser.toString(),);
+                      },
+                    ),
                   ),
                   SizedBox(
                     height: 30,

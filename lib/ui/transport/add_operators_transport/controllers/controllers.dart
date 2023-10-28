@@ -31,9 +31,11 @@ class AddOperatorsTransportControllers {
         costOperatorController.text,
         subruta,
         sharedPrefs!.getString("idTransportadora").toString());
+    
+    var accesofRol = await Connections().getAccessofSpecificRol("OPERADOR");
 
     var response = await Connections().createOperator(userController.text,
-        mailController.text, responseCreateGeneral[1], code);
+        mailController.text, responseCreateGeneral[1], code,accesofRol);
 
     if (response[0]) {
       success(response[1]);
