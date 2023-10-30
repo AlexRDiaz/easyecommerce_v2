@@ -50,8 +50,13 @@ class _CustomFilterChips extends State<CustomFilterChips> {
       });
     }
 
-    List<Map<String, dynamic>> generalViews = List<Map<String, dynamic>>.from(
-        jsonDecode(widget.accessGeneralofRol['accesos']));
+    List<Map<String, dynamic>> generalViews;
+    if (widget.accessGeneralofRol['accesos'] != null) {
+      generalViews = List<Map<String, dynamic>>.from(
+          jsonDecode(widget.accessGeneralofRol['accesos']));
+    } else {
+      generalViews = [];
+    }
 
     for (var view in generalViews) {
       String viewName = view['view_name'] as String;
@@ -59,8 +64,7 @@ class _CustomFilterChips extends State<CustomFilterChips> {
       if (!chipList.any((chip) => chip['view_name'] == viewName)) {
         chipList.add({
           'view_name': viewName,
-          'active':
-              false, 
+          'active': false,
         });
       }
     }

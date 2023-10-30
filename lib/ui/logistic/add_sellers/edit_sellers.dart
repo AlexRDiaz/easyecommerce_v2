@@ -52,7 +52,7 @@ class _EditSellersState extends State<EditSellers> {
       _controllers.updateControllersEdit(response);
 
       setState(() {
-        idUser = data ["id"];
+        idUser = data["id"];
         usernameTemp = data["username"].toString();
         emailTemp = data["email"].toString();
         idShopify = data['vendedores'][0]['Id_Master'].toString();
@@ -124,6 +124,7 @@ class _EditSellersState extends State<EditSellers> {
                       Padding(
                         padding: const EdgeInsets.only(right: 8.0),
                         child: FloatingActionButton(
+                          heroTag: "fab1",
                           onPressed: () {
                             // Manejo del boton
                           },
@@ -133,6 +134,7 @@ class _EditSellersState extends State<EditSellers> {
                       Padding(
                         padding: const EdgeInsets.only(left: 8.0),
                         child: FloatingActionButton(
+                          heroTag: "fab2",
                           onPressed: () {
                             // Manejo del boton
                           },
@@ -226,10 +228,11 @@ class _EditSellersState extends State<EditSellers> {
                     child: Builder(
                       builder: (context) {
                         return CustomFilterChips(
-                            accessTemp: accessTemp,
-                            accessGeneralofRol: accessGeneralofRol,
-                            loadData: loadData,
-                            idUser: idUser.toString(),);
+                          accessTemp: accessTemp,
+                          accessGeneralofRol: accessGeneralofRol,
+                          loadData: loadData,
+                          idUser: idUser.toString(),
+                        );
                       },
                     ),
                   ),
