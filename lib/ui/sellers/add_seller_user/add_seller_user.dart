@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
@@ -23,6 +25,8 @@ class AddSellerUser extends StatefulWidget {
 class _AddSellerUserState extends State<AddSellerUser> {
   final AddSellerUserControllers _controllers = AddSellerUserControllers();
   List data = [];
+  List<dynamic> accessTemp = [];
+  var response;
 
   @override
   void didChangeDependencies() {
@@ -35,9 +39,22 @@ class _AddSellerUserState extends State<AddSellerUser> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         getLoadingModal(context, false);
       });
-      var response = await Connections()
+      response = await Connections()
           .getSellersByIdMaster(_controllers.searchController.text);
       data = response;
+      print("cero> ${response[0]['permisos']}");
+
+      if (response[0]['permisos'] != null) {
+        if (response[0]['permisos'] is String) {
+          accessTemp = jsonDecode(response[0]['permisos']);
+        } else if (response[0]['permisos'] is List) {
+          accessTemp = response[0]['permisos'];
+        }
+        print("at> $accessTemp");
+      } else {
+        print("response[0]['permisos'] es null");
+      }
+
       Future.delayed(Duration(milliseconds: 500), () {
         Navigator.pop(context);
       });
@@ -57,7 +74,10 @@ class _AddSellerUserState extends State<AddSellerUser> {
           await showDialog(
               context: (context),
               builder: (context) {
-                return AddSellerI();
+                return AddSellerI(
+                  accessTemp: accessTemp,
+                );
+                // return AddSellerI(accessTemp: [],);
               });
           await loadData();
         },

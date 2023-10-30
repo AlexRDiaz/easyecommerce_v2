@@ -5,6 +5,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/ui/logistic/add_sellers/custom_filterchip_for_user.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 
 class UpdateCarrierModal extends StatefulWidget {
@@ -26,6 +27,9 @@ class _UpdateCarrierModalState extends State<UpdateCarrierModal> {
   List<String> routes = [];
   List<String> selectedItems = [];
 
+  List<dynamic> accessTemp = [];
+  Map<String, dynamic> accessGeneralofRol = {};
+  String idUser="";
   @override
   void didChangeDependencies() {
     loadData();
@@ -48,13 +52,15 @@ class _UpdateCarrierModalState extends State<UpdateCarrierModal> {
     var response = await Connections().getPersonalInfoAccountByID(widget.idP);
     var responseT =
         await Connections().getTransporterInfoAccountByID(widget.idT);
-
+    idUser = response['id'].toString();
     _usuario.text = response['username'].toString();
     _correo.text = response['email'].toString();
     _costo.text =
         responseT['data']['attributes']['Costo_Transportadora'].toString();
     _telefono.text = responseT['data']['attributes']['Telefono1'].toString();
     _telefono2.text = responseT['data']['attributes']['Telefono2'].toString();
+    accessTemp = response['PERMISOS'];
+    accessGeneralofRol = await Connections().getAccessofRolById(3);
     if (responseT['data']['attributes']['rutas'] != null) {
       if (responseT['data']['attributes']['rutas']['data'].length != 0) {
         for (var i = 0;
@@ -224,6 +230,32 @@ class _UpdateCarrierModalState extends State<UpdateCarrierModal> {
                 ),
                 SizedBox(
                   height: 30,
+                ),
+                Text(
+                  "Accesos",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                ),
+                Container(
+                  margin: EdgeInsets.all(20.0),
+                  height: 500,
+                  width: 500,
+                  decoration: BoxDecoration(
+                      border: Border.all(
+                          width: 1.0,
+                          color: Color.fromARGB(255, 224, 222, 222)),
+                      borderRadius: BorderRadius.circular(10.0)),
+                  child: Builder(
+                    builder: (context) {
+                      return CustomFilterChips(
+                          accessTemp: accessTemp,
+                          accessGeneralofRol: accessGeneralofRol,
+                          loadData: loadData,
+                          idUser: idUser.toString(),);
+                    },
+                  ),
+                ),
+                SizedBox(
+                  height: 20,
                 ),
                 Align(
                   child: ElevatedButton(

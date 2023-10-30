@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/main.dart';
 
 class AddSellersControllers {
   TextEditingController searchController = TextEditingController(text: "");
@@ -39,8 +40,10 @@ class AddSellersControllers {
         returnCostController.text,
         urlComercialController.text);
 
+    var accesofRol = await Connections().getAccessofSpecificRol("VENDEDOR");
+
     var response = await Connections().createSeller(userController.text,
-        mailController.text, responseCreateGeneral[1], code);
+        mailController.text, responseCreateGeneral[1], code, accesofRol);
 
     var updateSellerGeneralIdMaster = await Connections()
         .updateSellerGeneralIdMaster(response[1], responseCreateGeneral[1]);

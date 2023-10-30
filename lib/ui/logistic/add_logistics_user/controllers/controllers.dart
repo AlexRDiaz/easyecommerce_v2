@@ -48,7 +48,8 @@ class AddLogisticsControllers {
         personEditController.text,
         mailEditController.text,
         passwordEditController.text,
-        permisos);
+        // permisos);
+        );
     if (response) {
       success();
     } else {

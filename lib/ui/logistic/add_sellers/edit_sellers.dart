@@ -7,6 +7,7 @@ import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/navigators.dart';
 import 'package:frontend/ui/logistic/add_sellers/controllers/controllers.dart';
+import 'package:frontend/ui/logistic/add_sellers/custom_filterchip_for_user.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:get/route_manager.dart';
 import 'package:frontend/helpers/server.dart';
@@ -23,6 +24,9 @@ class _EditSellersState extends State<EditSellers> {
   String usernameTemp = "";
   String emailTemp = "";
   String idShopify = "";
+  int idUser = 0;
+  List<dynamic> accessTemp = [];
+  Map<String, dynamic> accessGeneralofRol = {};
 
   @override
   void initState() {
@@ -41,20 +45,34 @@ class _EditSellersState extends State<EditSellers> {
   }
 
   loadData() async {
-    var response = await Connections().getSellerGeneralByID();
-    // data = response;
-    data = response;
-    _controllers.updateControllersEdit(response);
-    setState(() {
-      usernameTemp = data["username"].toString();
-      emailTemp = data["email"].toString();
-      idShopify = data['vendedores'][0]['Id_Master'].toString();
-    });
-    Future.delayed(Duration(milliseconds: 500), () {
-      Navigator.pop(context);
-    });
+    try {
+      var response = await Connections().getSellerGeneralByID();
+      accessGeneralofRol = await Connections().getAccessofRolById(2);
+      data = response;
+      _controllers.updateControllersEdit(response);
 
-    setState(() {});
+      setState(() {
+        idUser = data["id"];
+        usernameTemp = data["username"].toString();
+        emailTemp = data["email"].toString();
+        idShopify = data['vendedores'][0]['Id_Master'].toString();
+        accessTemp = data['PERMISOS'];
+      });
+
+      if (accessTemp == null || accessTemp.isEmpty) {
+        print("ERROR: accessTemp está vacío o es nulo.");
+      }
+
+      if (accessGeneralofRol == null || accessGeneralofRol.isEmpty) {
+        print("ERROR: accessGeneralofRol está vacío o es nulo.");
+      }
+
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
+    } catch (e) {
+      print("ERROR EN loadData: $e");
+    }
   }
 
   @override
@@ -101,11 +119,12 @@ class _EditSellersState extends State<EditSellers> {
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
                   ),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center, 
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(right: 8.0), 
+                        padding: const EdgeInsets.only(right: 8.0),
                         child: FloatingActionButton(
+                          heroTag: "fab1",
                           onPressed: () {
                             // Manejo del boton
                           },
@@ -113,8 +132,9 @@ class _EditSellersState extends State<EditSellers> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(left: 8.0), 
+                        padding: const EdgeInsets.only(left: 8.0),
                         child: FloatingActionButton(
+                          heroTag: "fab2",
                           onPressed: () {
                             // Manejo del boton
                           },
@@ -192,6 +212,33 @@ class _EditSellersState extends State<EditSellers> {
                       "CostoDevolucion", _controllers.returnCostEditController),
                   _modelTextFieldComplete(
                       "Url Tienda", _controllers.urlTiendaEditController),
+                  Text(
+                    "Accesos",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                  Container(
+                    margin: EdgeInsets.all(20.0),
+                    height: 500,
+                    width: 500,
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                            width: 1.0,
+                            color: Color.fromARGB(255, 224, 222, 222)),
+                        borderRadius: BorderRadius.circular(10.0)),
+                    child: Builder(
+                      builder: (context) {
+                        return CustomFilterChips(
+                          accessTemp: accessTemp,
+                          accessGeneralofRol: accessGeneralofRol,
+                          loadData: loadData,
+                          idUser: idUser.toString(),
+                        );
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
                   ElevatedButton(
                       onPressed: () async {
                         getLoadingModal(context, false);
@@ -261,8 +308,8 @@ class _EditSellersState extends State<EditSellers> {
           ),
           TextButton(
               onPressed: () {
-                Clipboard.setData(ClipboardData(
-                    text: "${serverUrlByShopify}/$idShopify"));
+                Clipboard.setData(
+                    ClipboardData(text: "${serverUrlByShopify}/$idShopify"));
                 Get.snackbar('COPIADO', 'Copiado al Clipboard');
               },
               child: Text(

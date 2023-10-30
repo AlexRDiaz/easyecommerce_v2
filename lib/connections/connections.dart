@@ -98,6 +98,13 @@ class Connections {
               decodeDataUser['user']['transportadora'][0]
                       ['costo_transportadora']
                   .toString());
+          List temporalPermisos =
+              jsonDecode(decodeDataUser['user']['permisos']);
+          List<String> finalPermisos = [];
+          for (var i = 0; i < temporalPermisos.length; i++) {
+            finalPermisos.add(temporalPermisos.toString());
+          }
+          sharedPrefs!.setStringList("PERMISOS", finalPermisos);
         }
         if (decodeDataUser['user']['roles_fronts'][0]['titulo'].toString() ==
             "OPERADOR") {
@@ -106,8 +113,15 @@ class Connections {
           // ! esta es la mia ↓
           sharedPrefs!.setString("idOperadore",
               decodeDataUser['user']['operadores'][0]['id'].toString());
+          // !permisos qu ese incluyen
+          List temporalPermisos =
+              jsonDecode(decodeDataUser['user']['permisos']);
+          List<String> finalPermisos = [];
+          for (var i = 0; i < temporalPermisos.length; i++) {
+            finalPermisos.add(temporalPermisos.toString());
+          }
+          sharedPrefs!.setStringList("PERMISOS", finalPermisos);
         }
-
         // ! ****************
         sharedPrefs!.setString(
             "fechaAlta", decodeDataUser['user']['fecha_alta'].toString());
@@ -196,7 +210,7 @@ class Connections {
     );
     var response = await request.body;
     var decodeData = json.decode(response);
-
+    // print(decodeData['users']);
     return decodeData['users'];
   }
 
@@ -236,7 +250,82 @@ class Connections {
     return decodeData;
   }
 
-  Future createSeller(user, mail, id, code) async {
+  getAccessofRolById(id) async {
+    try {
+      var request = await http.get(
+        Uri.parse("$serverLaravel/api/access-ofid/$id"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      var response = request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return [false, ""];
+      } else {
+        return decodeData;
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  getPermissionsSellerPrincipalforNewSeller(id) async {
+    try {
+      var request = await http.get(
+        Uri.parse("$serverLaravel/api/sellerprincipal-for-newseller/$id"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      var response = request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return [false, ""];
+      } else {
+        return decodeData;
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  managePermission(userId, viewName) async {
+    try {
+      var request =
+          await http.post(Uri.parse("$serverLaravel/api/edit-personal-access"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "view_name": viewName,
+                "user_id": userId,
+              }));
+      var response = request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return [false, ""];
+      } else {
+        return decodeData;
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  getAccessofSpecificRol(rol) async {
+    try {
+      var request = await http.get(
+        Uri.parse("$serverLaravel/api/getespc-access/$rol"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      var response = request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return [false, ""];
+      } else {
+        return decodeData;
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future createSeller(user, mail, id, code, access) async {
     var request = await http.post(Uri.parse("$server/api/users"),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
@@ -250,18 +339,19 @@ class Connections {
           "role": "1",
           "confirmed": true,
           "CodigoGenerado": code,
-          "PERMISOS": [
-            "DashBoard",
-            "Reporte de Ventas",
-            "Agregar Usuarios Vendedores",
-            "Ingreso de Pedidos",
-            "Estado Entregas Pedidos",
-            "Pedidos No Deseados",
-            "Billetera",
-            "Devoluciones",
-            "Retiros en Efectivo",
-            "Conoce a tu Transporte"
-          ]
+          "PERMISOS": access
+          // [
+          //   "DashBoard",
+          //   "Reporte de Ventas",
+          //   "Agregar Usuarios Vendedores",
+          //   "Ingreso de Pedidos",
+          //   "Estado Entregas Pedidos",
+          //   "Pedidos No Deseados",
+          //   "Billetera",
+          //   "Devoluciones",
+          //   "Retiros en Efectivo",
+          //   "Conoce a tu Transporte"
+          // ]
         }));
     var response = await request.body;
     var decodeData = json.decode(response);
@@ -595,7 +685,13 @@ class Connections {
   }
 
   Future updateLogisticUser(
-      user, phone1, phone2, person, mail, password, permisos) async {
+      // user, phone1, phone2, person, mail, password, permisos) async {
+      user,
+      phone1,
+      phone2,
+      person,
+      mail,
+      password) async {
     String id = Get.parameters['id'].toString();
     var request = await http.put(Uri.parse("$server/api/users/$id"),
         headers: {'Content-Type': 'application/json'},
@@ -606,7 +702,7 @@ class Connections {
                 "Telefono1": phone1,
                 "Telefono2": phone2,
                 "Persona_Cargo": person,
-                "PERMISOS": permisos
+                // "PERMISOS": permisos
               })
             : json.encode({
                 "username": user,
@@ -615,7 +711,7 @@ class Connections {
                 "Telefono2": phone2,
                 "Persona_Cargo": person,
                 "password": password,
-                "PERMISOS": permisos
+                // "PERMISOS": permisos
               }));
     var response = await request.body;
     var decodeData = json.decode(response);
@@ -3694,7 +3790,7 @@ class Connections {
     }
   }
 
-  Future createOperator(user, mail, id, code) async {
+  Future createOperator(user, mail, id, code, access) async {
     var request = await http.post(Uri.parse("$server/api/users"),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
@@ -3707,7 +3803,8 @@ class Connections {
           "operadore": id,
           "role": "1",
           "confirmed": true,
-          "CodigoGenerado": code
+          "CodigoGenerado": code,
+          "PERMISOS": access
         }));
     var response = await request.body;
     var decodeData = json.decode(response);
@@ -4498,7 +4595,7 @@ class Connections {
     }
   }
 
-  Future createTransporter(user, mail, id, code) async {
+  Future createTransporter(user, mail, id, code, access) async {
     var request = await http.post(Uri.parse("$server/api/users"),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
@@ -4512,6 +4609,7 @@ class Connections {
           "role": "1",
           "confirmed": true,
           "CodigoGenerado": code,
+          "PERMISOS": access
         }));
     var response = await request.body;
     var decodeData = json.decode(response);
@@ -4700,7 +4798,7 @@ class Connections {
           Uri.parse("$serverLaravel/api/seller/ordenesretiro/ret-count/$id"),
           headers: {'Content-Type': 'application/json'});
 
-      var responselaravel = await request.body;  
+      var responselaravel = await request.body;
       var decodeData = json.decode(responselaravel);
 
       return decodeData;
@@ -4708,17 +4806,18 @@ class Connections {
       return (e);
     }
   }
-  getSaldoPorId(id)async {
+
+  getSaldoPorId(id) async {
     int res = 0;
     try {
-      var request = await http.post(
-          Uri.parse("$serverLaravel/api/vendedores-sld"),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({
-            "id_master": id,
-          }));
+      var request =
+          await http.post(Uri.parse("$serverLaravel/api/vendedores-sld"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "id_master": id,
+              }));
 
-      var responselaravel = await request.body;  
+      var responselaravel = await request.body;
       var decodeData = json.decode(responselaravel);
 
       return decodeData;
