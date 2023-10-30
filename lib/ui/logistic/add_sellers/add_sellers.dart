@@ -74,9 +74,12 @@ class _AddSellersState extends State<AddSellers> {
             ),
             Expanded(
               child: DataTable2(
-                  headingTextStyle: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-                  dataTextStyle:
-                      TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black),
+                  headingTextStyle: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.black),
+                  dataTextStyle: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black),
                   columnSpacing: 12,
                   horizontalMargin: 12,
                   minWidth: 800,
@@ -148,9 +151,13 @@ class _AddSellersState extends State<AddSellers> {
                       data.length,
                       (index) => DataRow(cells: [
                             DataCell(
-                                Text(data[index]['vendedores']!=null && data[index]['vendedores'].toString() !="[]"?data[index]['vendedores'][0]
-                                        ['Nombre_Comercial']
-                                    .toString():""), onTap: () {
+                                Text(data[index]['vendedores'] != null &&
+                                        data[index]['vendedores'].toString() !=
+                                            "[]"
+                                    ? data[index]['vendedores'][0]
+                                            ['Nombre_Comercial']
+                                        .toString()
+                                    : ""), onTap: () {
                               Navigators().pushNamed(context,
                                   '/layout/logistic/sellers/info?id=${data[index]['id']}&id_Comercial=${data[index]['vendedores'][0]['id']}');
                             }),
@@ -165,9 +172,12 @@ class _AddSellersState extends State<AddSellers> {
                                   '/layout/logistic/sellers/info?id=${data[index]['id']}&id_Comercial=${data[index]['vendedores'][0]['id']}');
                             }),
                             DataCell(
-                                Text(data[index]['vendedores']!=null && data[index]['vendedores'].toString() !="[]"?data[index]['vendedores'][0]
-                                        ['Telefono2']
-                                    .toString():""), onTap: () {
+                                Text(data[index]['vendedores'] != null &&
+                                        data[index]['vendedores'].toString() !=
+                                            "[]"
+                                    ? data[index]['vendedores'][0]['Telefono2']
+                                        .toString()
+                                    : ""), onTap: () {
                               Navigators().pushNamed(context,
                                   '/layout/logistic/sellers/info?id=${data[index]['id']}&id_Comercial=${data[index]['vendedores'][0]['id']}');
                             }),
@@ -209,14 +219,14 @@ class _AddSellersState extends State<AddSellers> {
                             )),
                             DataCell(
                                 Text(
-                                    '\$${data[index]['vendedores']!=null&&data[index]['vendedores'].toString()!="[]"?data[index]['vendedores'][0]['CostoEnvio']:""}'),
+                                    '\$${data[index]['vendedores'] != null && data[index]['vendedores'].toString() != "[]" ? data[index]['vendedores'][0]['CostoEnvio'] : ""}'),
                                 onTap: () {
                               Navigators().pushNamed(context,
                                   '/layout/logistic/sellers/info?id=${data[index]['id']}&id_Comercial=${data[index]['vendedores'][0]['id']}');
                             }),
                             DataCell(
                                 Text(
-                                    '\$${data[index]['vendedores']!=null&&data[index]['vendedores'].toString()!="[]"?data[index]['vendedores'][0]['CostoDevolucion']:""}'),
+                                    '\$${data[index]['vendedores'] != null && data[index]['vendedores'].toString() != "[]" ? data[index]['vendedores'][0]['CostoDevolucion'] : ""}'),
                                 onTap: () {
                               Navigators().pushNamed(context,
                                   '/layout/logistic/sellers/info?id=${data[index]['id']}&id_Comercial=${data[index]['vendedores'][0]['id']}');
@@ -657,14 +667,14 @@ class _AddSellersState extends State<AddSellers> {
       setState(() {
         sort = false;
       });
-      data.sort((a, b) =>
-          b['email'].toString().compareTo(a['email'].toString()));
+      data.sort(
+          (a, b) => b['email'].toString().compareTo(a['email'].toString()));
     } else {
       setState(() {
         sort = true;
       });
-      data.sort((a, b) =>
-          a['email'].toString().compareTo(b['email'].toString()));
+      data.sort(
+          (a, b) => a['email'].toString().compareTo(b['email'].toString()));
     }
   }
 

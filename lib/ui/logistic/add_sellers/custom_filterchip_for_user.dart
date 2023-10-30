@@ -3,17 +3,21 @@ import 'dart:convert';
 
 import 'package:frontend/connections/connections.dart';
 
+typedef SelectedChipsCallback = void Function(List<String> selectedChips);
+
 class CustomFilterChips extends StatefulWidget {
   final List<dynamic> accessTemp;
   final Map<String, dynamic> accessGeneralofRol;
   final Function loadData;
   final String idUser;
+  final SelectedChipsCallback? onSelectionChanged;
 
   CustomFilterChips({
     required this.accessTemp,
     required this.accessGeneralofRol,
     required this.loadData,
     required this.idUser,
+    this.onSelectionChanged,
   }) : assert(accessTemp != null && accessGeneralofRol != null);
 
   @override
@@ -80,6 +84,16 @@ class _CustomFilterChips extends State<CustomFilterChips> {
         chipList[chipIndex]['active'] = !activeStatus; // Cambiamos el estado
       }
     });
+    // Obtiene los nombres de vista activos y llama al callback
+    // Obtiene los nombres de vista activos y llama al callback si no es nulo
+    List<String> selectedViews = chipList
+        .where((chip) => chip['active'] as bool)
+        .map((chip) => chip['view_name'] as String)
+        .toList();
+
+    if (widget.onSelectionChanged != null) {
+      widget.onSelectionChanged!(selectedViews);
+    }
   }
 
   Future<void> _managePermission(

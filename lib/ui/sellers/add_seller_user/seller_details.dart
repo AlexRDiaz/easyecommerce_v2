@@ -153,6 +153,11 @@ class _AddSellerDetailState extends State<AddSellerDetails> {
                                     accessGeneralofRol: accessGeneralofRol,
                                     loadData: () {},
                                     idUser: idUser.toString(),
+                                    onSelectionChanged: (selectedChips) {
+                                      setState(() {
+                                        vistas = List.from(selectedChips);
+                                      });
+                                    },
                                   );
                                 },
                               ),
@@ -178,7 +183,7 @@ class _AddSellerDetailState extends State<AddSellerDetails> {
                                               _correo.text,
                                               vistas.isNotEmpty
                                                   ? vistas
-                                                  : data['PERMISOS']);
+                                                  : accessTemp);
 
                                       await initControllers();
                                       Navigator.pop(context);
