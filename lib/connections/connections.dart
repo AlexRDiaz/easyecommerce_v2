@@ -3344,7 +3344,7 @@ class Connections {
     try {
       final formattedDate =
           DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
-
+      String? generatedBy = sharedPrefs!.getString("id");
       var response =
           await http.post(Uri.parse("$serverLaravel/api/transacciones/credit"),
               headers: {'Content-Type': 'application/json'},
@@ -3356,7 +3356,8 @@ class Connections {
                 "codigo": codigo,
                 "origen": origen,
                 "comentario": comentario,
-                "state": 1
+                "state": 1,
+                "generated_by": generatedBy
               }));
       if (response.statusCode != 200) {
         return 1;
@@ -3373,6 +3374,7 @@ class Connections {
     try {
       final formattedDate =
           DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+      String? generatedBy = sharedPrefs!.getString("id");
 
       var response =
           await http.post(Uri.parse("$serverLaravel/api/transacciones/debit"),
@@ -3385,7 +3387,8 @@ class Connections {
                 "codigo": codigo,
                 "origen": origen,
                 "comentario": comentario,
-                "state": 1
+                "state": 1,
+                "generated_by": generatedBy
               }));
       if (response.statusCode != 200) {
         return 1;
@@ -5827,14 +5830,13 @@ class Connections {
   }
 
   rollbackTransaction(ids) async {
+    String? generatedBy = sharedPrefs!.getString("id");
     try {
       var response = await http.post(
           Uri.parse(
             "$serverLaravel/api/transacciones/rollback",
           ),
-          body: json.encode({
-            "ids": ids,
-          }));
+          body: json.encode({"ids": ids, "generated_by": generatedBy}));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         // print(decodeData);
