@@ -3,6 +3,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:flutter_barcode_listener/flutter_barcode_listener.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -18,6 +19,8 @@ class _ScannerPrintedDevolucionesState
     extends State<ScannerPrintedDevoluciones> {
   String? _barcode;
   late bool visible;
+  var idUser = sharedPrefs!.getString("id");
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -38,8 +41,11 @@ class _ScannerPrintedDevolucionesState
                   getLoadingModal(context, false);
                   //print(barcode);
 
-                  await Connections()
-                      .updateOrderReturnLogistic(barcode.toString());
+                  // await Connections()
+                  //     .updateOrderReturnLogistic(barcode.toString());
+                  // new
+                  await Connections().updateOrderWithTime(barcode.toString(),
+                      "estado_devolucion:EN BODEGA", idUser);
 
                   var responseOrder =
                       await Connections().getOrderByID(barcode.toString());

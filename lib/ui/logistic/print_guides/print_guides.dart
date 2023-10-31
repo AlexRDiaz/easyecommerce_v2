@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/providers/filters_orders/filters_orders.dart';
 import 'package:frontend/ui/logistic/print_guides/controllers/controllers.dart';
 import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
@@ -36,6 +37,7 @@ class _PrintGuidesState extends State<PrintGuides> {
   bool selectAll = false;
   //Create an instance of ScreenshotController
   ScreenshotController screenshotController = ScreenshotController();
+  var idUser = sharedPrefs!.getString("id");
 
   @override
   void didChangeDependencies() {
@@ -522,9 +524,15 @@ class _PrintGuidesState extends State<PrintGuides> {
                         );
                       },
                     ));
-                    var response = await Connections()
-                        .updateOrderLogisticStatus(
-                            "IMPRESO", optionsCheckBox[i]['id'].toString());
+                    // var response = await Connections()
+                    //     .updateOrderLogisticStatus(
+                    //         "IMPRESO", optionsCheckBox[i]['id'].toString());
+
+                    //new
+                    var responseL = await Connections().updateOrderWithTime(
+                        optionsCheckBox[i]['id'].toString(),
+                        "estado_logistico:IMPRESO",
+                        idUser);
                   }
                 }
                 Navigator.pop(context);

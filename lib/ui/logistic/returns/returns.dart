@@ -88,6 +88,8 @@ class _ReturnsState extends State<Returns> {
     {'filter': 'Estado_Logistico'},
   ];
 
+  var idUser = sharedPrefs!.getString("id");
+
   @override
   void didChangeDependencies() {
     if (Provider.of<FiltersOrdersProviders>(context).indexActive == 2) {
@@ -584,9 +586,15 @@ class _ReturnsState extends State<Returns> {
                                     btnCancelOnPress: () {},
                                     btnOkOnPress: () async {
                                       getLoadingModal(context, false);
-                                      await Connections()
-                                          .updateOrderReturnLogistic(
-                                              data[index]['id']);
+                                      // await Connections()
+                                      //     .updateOrderReturnLogistic(
+                                      //         data[index]['id']);
+
+                                      //new
+                                      await Connections().updateOrderWithTime(
+                                          data[index]['id'].toString(),
+                                          "estado_devolucion:EN BODEGA",
+                                          idUser);
 
                                       var resTransaction = "";
                                       var datacostos = await Connections()

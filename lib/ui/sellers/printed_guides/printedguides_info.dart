@@ -3,6 +3,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/navigators.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:get/route_manager.dart';
 
@@ -17,6 +18,7 @@ class PrintedGuideInfoSeller extends StatefulWidget {
 class _PrintedGuideInfoStateSeller extends State<PrintedGuideInfoSeller> {
   var data = {};
   bool loading = true;
+  var idUser = sharedPrefs!.getString("id");
 
   @override
   void didChangeDependencies() {
@@ -198,15 +200,11 @@ class _PrintedGuideInfoStateSeller extends State<PrintedGuideInfoSeller> {
 
                 // var response = await Connections()
                 //     .updateOrderLogisticStatusPrint("ENVIADO", widget.id);
-                var responseL =
-                    await Connections().updatenueva(widget.id.toString(), {
-                  "estado_logistico": "ENVIADO",
-                  "estado_interno": "CONFIRMADO",
-                  "fecha_entrega":
-                      "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
-                  "marca_tiempo_envio":
-                      "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
-                });
+
+                //new
+                var responseL = await Connections().updateOrderWithTime(
+                    widget.id.toString(), "estado_logistico:ENVIADO", idUser);
+
                 Navigator.pop(context);
 
                 setState(() {});

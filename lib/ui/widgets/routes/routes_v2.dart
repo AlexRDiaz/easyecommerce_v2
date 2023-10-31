@@ -264,9 +264,13 @@ class _RoutesModalStatev2 extends State<RoutesModalv2> {
                               var response3 = await Connections().updatenueva(
                                   widget.idOrder[i]['id'].toString(), {
                                 "estado_logistico": "PENDIENTE",
+                                "printed_at": null,
                                 "printed_by": null,
                                 "marca_tiempo_envio": null,
-                                'revisado': 0
+                                "revisado": 0,
+                                // "fecha_entrega": null,
+                                // "sent_at": null,
+                                // "sent_by": null,
                               });
                               // print("response3");
                             }

@@ -24,6 +24,7 @@ import 'package:screenshot/screenshot.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'package:intl/intl.dart';
 
 class TableOrdersGuidesSent extends StatefulWidget {
   const TableOrdersGuidesSent({super.key});
@@ -79,8 +80,10 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
     "users",
     "users.vendedores",
     "pedidoFecha",
-    "ruta"
+    "ruta",
+    "sentBy"
   ];
+  var idUser = sharedPrefs!.getString("id");
 
   @override
   void didChangeDependencies() {
@@ -464,10 +467,17 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                     },
                   ),
                   DataColumn2(
-                    label: const Text('Impreso por'),
+                    label: const Text('Enviado por'),
                     size: ColumnSize.M,
                     onSort: (columnIndex, ascending) {
-                      sortFunc("printed_by", changevalue);
+                      // sortFunc("sent_by", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: const Text('Fecha hora Envio'),
+                    size: ColumnSize.M,
+                    onSort: (columnIndex, ascending) {
+                      // sortFunc("sent_at", changevalue);
                     },
                   ),
                 ],
@@ -475,9 +485,11 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                   data.length,
                   (index) {
                     Color rowColor = Colors.white;
-                    if (data[index]['printed_by'] != null) {
-                      // print(data[index]['id']);
-                      rowColor = Colors.lightBlue.shade50;
+                    if ((data[index]['sent_by'] != null &&
+                        data[index]['sent_by'].isNotEmpty)) {
+                      if (data[index]['sent_by']['id'].toString() != idUser) {
+                        rowColor = Colors.lightBlue.shade50;
+                      }
                     }
                     return DataRow(
                         color: MaterialStateProperty.resolveWith<Color>(
@@ -641,8 +653,15 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                             getInfoModal(index);
                           }),
                           DataCell(
-                              Text(data[index]['printed_by'] != null
-                                  ? "${data[index]['name_comercial'].toString()}-${data[index]['printed_by']}"
+                              Text(data[index]['sent_by'] != null &&
+                                      data[index]['sent_by'].isNotEmpty
+                                  ? "${data[index]['sent_by']['username'].toString()}-${data[index]['sent_by']['id'].toString()}"
+                                  : ''), onTap: () {
+                            getInfoModal(index);
+                          }),
+                          DataCell(
+                              Text(data[index]['sent_at'] != null
+                                  ? "${formatDate(data[index]['sent_at'])}"
                                   : ''), onTap: () {
                             getInfoModal(index);
                           }),
@@ -655,6 +674,14 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
         ),
       ),
     );
+  }
+
+  formatDate(dateStringFromDatabase) {
+    DateTime dateTime = DateTime.parse(dateStringFromDatabase);
+    Duration offset = const Duration(hours: -5);
+    dateTime = dateTime.toUtc().add(offset);
+    String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
+    return formattedDate;
   }
 
   Container _buttons() {

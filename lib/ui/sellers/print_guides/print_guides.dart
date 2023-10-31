@@ -665,11 +665,15 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
                       },
                     ));
 
-                    // DateTime now = DateTime.now();
-                    // print('Fecha y hora actual: $now');
-                    var responseL = await Connections().updatenueva(
+                    // var responseL = await Connections().updatenueva(
+                    //     selectedCheckBox[i]['id'].toString(),
+                    //     {"estado_logistico": "IMPRESO", "printed_by": idUser});
+
+                    //new
+                    var responseL = await Connections().updateOrderWithTime(
                         selectedCheckBox[i]['id'].toString(),
-                        {"estado_logistico": "IMPRESO", "printed_by": idUser});
+                        "estado_logistico:IMPRESO",
+                        idUser);
                   }
                 }
                 Navigator.pop(context);

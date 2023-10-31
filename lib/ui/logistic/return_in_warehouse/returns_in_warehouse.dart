@@ -36,56 +36,102 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
   bool enabledBusqueda = true;
   bool isLoading = false;
   NumberPaginatorController paginatorController = NumberPaginatorController();
-  List filtersDefaultOr = [
-    {
-      'operator': '\$or',
-      'filter': 'Status',
-      'operator_attr': '\$eq',
-      'value': 'NOVEDAD'
-    },
-    {
-      'operator': '\$or',
-      'filter': 'Status',
-      'operator_attr': '\$eq',
-      'value': 'NO ENTREGADO'
-    },
-  ];
+  // List filtersDefaultOr = [
+  //   {
+  //     'operator': '\$or',
+  //     'filter': 'Status',
+  //     'operator_attr': '\$eq',
+  //     'value': 'NOVEDAD'
+  //   },
+  //   {
+  //     'operator': '\$or',
+  //     'filter': 'Status',
+  //     'operator_attr': '\$eq',
+  //     'value': 'NO ENTREGADO'
+  //   },
+  // ];
 
-  List filtersDefaultAnd = [
-    {
-      'operator': '\$and',
-      'filter': 'Estado_Devolucion',
-      'operator_attr': '\$eq',
-      'value': 'EN BODEGA'
-    },
-  ];
-  List populate = [
-    'users',
-    'pedido_fecha',
-    'ruta',
-    'transportadora',
-    'users.vendedores',
-    'operadore',
-    'operadore.user'
-  ];
-  List filtersAnd = [];
+  // List filtersDefaultAnd = [
+  //   {
+  //     'operator': '\$and',
+  //     'filter': 'Estado_Devolucion',
+  //     'operator_attr': '\$eq',
+  //     'value': 'EN BODEGA'
+  //   },
+  // ];
+  // List populate = [
+  //   'users',
+  //   'pedido_fecha',
+  //   'ruta',
+  //   'transportadora',
+  //   'users.vendedores',
+  //   'operadore',
+  //   'operadore.user'
+  // ];
+  // List filtersAnd = [];
+
+  // List filtersOrCont = [
+  //   {'filter': 'Marca_T_I'},
+  //   {'filter': 'CiudadShipping'},
+  //   {'filter': 'NombreShipping'},
+  //   {'filter': 'DireccionShipping'},
+  //   {'filter': 'TelefonoShipping'},
+  //   {'filter': 'NumeroOrden'},
+  //   {'filter': 'Cantidad_Total'},
+  //   {'filter': 'ProductoP'},
+  //   {'filter': 'ProductoExtra'},
+  //   {'filter': 'PrecioTotal'},
+  //   {'filter': 'Observacion'},
+  //   {'filter': 'Status'},
+  //   {'filter': 'Estado_Interno'},
+  //   {'filter': 'Estado_Logistico'},
+  // ];
+
+  //  *
+
+  bool isFirst = true;
 
   List filtersOrCont = [
-    {'filter': 'Marca_T_I'},
-    {'filter': 'CiudadShipping'},
-    {'filter': 'NombreShipping'},
-    {'filter': 'DireccionShipping'},
-    {'filter': 'TelefonoShipping'},
-    {'filter': 'NumeroOrden'},
-    {'filter': 'Cantidad_Total'},
-    {'filter': 'ProductoP'},
-    {'filter': 'ProductoExtra'},
-    {'filter': 'PrecioTotal'},
-    {'filter': 'Observacion'},
-    {'filter': 'Status'},
-    {'filter': 'Estado_Interno'},
-    {'filter': 'Estado_Logistico'},
+    'name_comercial',
+    'numero_orden',
+    'marca_tiempo_envio',
+    'direccion_shipping',
+    'cantidad_total',
+    'precio_total',
+    'producto_p',
+    'ciudad_shipping',
+    'status',
+    'comentario',
+    'fecha_entrega',
+    'nombre_shipping',
+    'telefono_shipping',
+    'estado_devolucion',
+    'marca_t_d',
+    'marca_t_d_t',
+    'marca_t_d_l'
   ];
+
+  List arrayFiltersDefaultOr = [
+    {"status": "NOVEDAD"},
+    {"status": "NO ENTREGADO"}
+  ];
+
+  var arrayfiltersDefaultAnd = [
+    {"estado_devolucion": "EN BODEGA"}
+  ];
+
+  List arrayFiltersAnd = [];
+  List arrayFiltersNotEq = [];
+  var sortFieldDefaultValue = "id:DESC";
+  bool changevalue = false;
+
+  getOldValue(Arrayrestoration) {
+    if (Arrayrestoration) {
+      setState(() {
+        sortFieldDefaultValue = "id:DESC";
+      });
+    }
+  }
 
   @override
   void didChangeDependencies() {
@@ -104,7 +150,7 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
     loadData();
     super.didChangeDependencies();
   }
-
+/*
   loadData2() async {
     var response = [];
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -121,9 +167,12 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
     });
     setState(() {});
   }
+  */
 
   loadData() async {
     isLoading = true;
+    currentPage = 1;
+
     var response = [];
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
@@ -133,20 +182,37 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
       data.clear();
     });
 
-    response = await Connections().getOrdersSellersFilter(
-        _controllers.searchController.text,
+    var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
+        filtersOrCont,
+        arrayFiltersDefaultOr,
+        arrayfiltersDefaultAnd,
+        arrayFiltersAnd,
         currentPage,
         pageSize,
-        populate,
-        filtersOrCont,
-        filtersAnd,
-        filtersDefaultOr,
-        filtersDefaultAnd, []);
+        _controllers.searchController.text,
+        [],
+        sortFieldDefaultValue.toString());
+    data = responseLaravel['data'];
 
-    data = response[0]['data'];
+    // response = await Connections().getOrdersSellersFilter(
+    //     _controllers.searchController.text,
+    //     currentPage,
+    //     pageSize,
+    //     populate,
+    //     filtersOrCont,
+    //     filtersAnd,
+    //     filtersDefaultOr,
+    //     filtersDefaultAnd, []);
+
+    // data = response[0]['data'];
+
     setState(() {
-      pageCount = response[0]['meta']['pagination']['pageCount'];
-      total = response[0]['meta']['pagination']['total'];
+      pageCount = responseLaravel['last_page'];
+      if (sortFieldDefaultValue.toString() == "id:DESC") {
+        total = responseLaravel['total'];
+      }
+      // pageCount = response[0]['meta']['pagination']['pageCount'];
+      // total = response[0]['meta']['pagination']['total'];
 
       // print("metadatar"+pageCount.toString());
     });
@@ -170,31 +236,50 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
     });
     var response = [];
     setState(() {
+      isLoading = true;
       data.clear();
     });
 
     // print("actual pagina valor" + currentPage.toString());
 
-    response = await Connections().getOrdersSellersFilter(
-        _controllers.searchController.text,
+    var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
+        filtersOrCont,
+        arrayFiltersDefaultOr,
+        arrayfiltersDefaultAnd,
+        arrayFiltersAnd,
         currentPage,
         pageSize,
-        populate,
-        filtersOrCont,
-        filtersAnd,
+        _controllers.searchController.text,
         [],
-        filtersDefaultAnd,
-        []);
-    data = response[0]['data'];
+        sortFieldDefaultValue.toString());
+    data = responseLaravel['data'];
+
+    // response = await Connections().getOrdersSellersFilter(
+    //     _controllers.searchController.text,
+    //     currentPage,
+    //     pageSize,
+    //     populate,
+    //     filtersOrCont,
+    //     filtersAnd,
+    //     [],
+    //     filtersDefaultAnd,
+    //     []);
+    // data = response[0]['data'];
+
     setState(() {
-      pageCount = response[0]['meta']['pagination']['pageCount'];
-      total = response[0]['meta']['pagination']['total'];
+      pageCount = responseLaravel['last_page'];
+      total = responseLaravel['total'];
+      // pageCount = response[0]['meta']['pagination']['pageCount'];
+      // total = response[0]['meta']['pagination']['total'];
     });
 
     await Future.delayed(Duration(milliseconds: 500), () {
       Navigator.pop(context);
     });
-    setState(() {});
+    setState(() {
+      isFirst = false;
+      isLoading = false;
+    });
   }
 
   @override
@@ -217,6 +302,7 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
                     optionsCheckBox = [];
                     counterChecks = 0;
                     enabledBusqueda = true;
+                    resetFilters();
                   });
                   await loadData();
                 },
@@ -578,6 +664,428 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
                       label: Text('Código'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
+                        // sortFunc("NumeroOrden");
+                        sortFunc2("numero_orden", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Marca de Tiempo'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        // sortFunc("Marca_Tiempo_Envio");
+                        sortFunc2("marca_tiempo_envio", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Fecha'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        // sortFunc("Marca_Tiempo_Envio");
+                        sortFunc2("marca_tiempo_envio", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Dirección'),
+                      size: ColumnSize.L,
+                      onSort: (columnIndex, ascending) {
+                        // sortFunc("DireccionShipping");
+                        sortFunc2("direccion_shipping", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Cantidad'),
+                      size: ColumnSize.M,
+                      numeric: true,
+                      onSort: (columnIndex, ascending) {
+                        // sortFunc("Cantidad_Total");
+                        sortFunc2("cantidad_total", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Precio Total'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        // sortFunc("PrecioTotal");
+                        sortFunc2("precio_total", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Producto'),
+                      size: ColumnSize.L,
+                      onSort: (columnIndex, ascending) {
+                        // sortFunc("ProductoP");
+                        sortFunc2("producto_p", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Ciudad'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        // sortFunc("CiudadShipping");
+                        sortFunc2("ciudad_shipping", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Status'),
+                      size: ColumnSize.S,
+                      onSort: (columnIndex, ascending) {
+                        // sortFunc("Status");
+                        sortFunc2("status", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Comentario'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        // sortFunc("Comentario");
+                        sortFunc2("comentario", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Fecha de Entrega'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        // sortFunc("Fecha_Entrega");
+                        sortFunc2("fecha_entrega", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Nombre Cliente'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        // sortFunc("NombreShipping");
+                        sortFunc2("nombre_shipping", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Teléfono'),
+                      numeric: true,
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        // sortFunc("TelefonoShipping");
+                        sortFunc2("telefono_shipping", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Estado Devolución'),
+                      size: ColumnSize.M,
+                      numeric: true,
+                      onSort: (columnIndex, ascending) {
+                        // sortFunc("Estado_Devolucion");
+                        sortFunc2("estado_devolucion", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Marca. O'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        // sortFunc("Marca_T_D");
+                        sortFunc2("marca_t_d", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Marca TR'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        // sortFunc("Marca_T_D_T");
+                        sortFunc2("marca_t_d_t", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Marca TL'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        // sortFunc("Marca_T_D_L");
+                        sortFunc2("marca_t_d_l", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: Text('Recibido por'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        // sortFunc("Marca_T_D_L");
+                      },
+                    ),
+                  ],
+                  rows: List<DataRow>.generate(data.length, (index) {
+                    Color rowColor = Colors.black;
+
+                    return DataRow(cells: [
+                      DataCell(ElevatedButton(
+                          onPressed:
+                              // data[index]['attributes']
+                              //                 ['Estado_Devolucion']
+                              //             .toString() ==
+                              //         "EN BODEGA"
+                              data[index]['estado_devolucion'].toString() ==
+                                      "EN BODEGA"
+                                  ? null
+                                  : () {
+                                      AwesomeDialog(
+                                        width: 500,
+                                        context: context,
+                                        dialogType: DialogType.info,
+                                        animType: AnimType.rightSlide,
+                                        title:
+                                            '¿Estás seguro de marcar el pedido en BODEGA?',
+                                        desc: '',
+                                        btnOkText: "Confirmar",
+                                        btnCancelText: "Cancelar",
+                                        btnOkColor: Colors.blueAccent,
+                                        btnCancelOnPress: () {},
+                                        btnOkOnPress: () async {
+                                          getLoadingModal(context, false);
+                                          await Connections()
+                                              .updateOrderReturnLogistic(
+                                                  data[index]['id']);
+                                          await loadData();
+                                          Navigator.pop(context);
+                                        },
+                                      ).show();
+                                    },
+                          child: Text(
+                            "Devolver",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 10),
+                          ))),
+                      DataCell(
+                          Text(
+                            // "${data[index]['attributes']['Name_Comercial']}-${data[index]['attributes']['NumeroOrden']}",
+                            '${data[index]['name_comercial'].toString()}-${data[index]['numero_orden'].toString()}',
+                            style: TextStyle(
+                              color: rowColor,
+                            ),
+                          ), onTap: () {
+                        getInfoModal(index);
+                      }),
+                      DataCell(
+                          Text(
+                            // data[index]['attributes']['Marca_Tiempo_Envio']
+                            //     .toString(),
+                            data[index]['marca_tiempo_envio'].toString(),
+                            style: TextStyle(
+                              color: rowColor,
+                            ),
+                          ), onTap: () {
+                        getInfoModal(index);
+                      }),
+                      DataCell(
+                          Text(
+                            // data[index]['attributes']['Marca_Tiempo_Envio']
+                            //     .toString()
+                            //     .split(" ")[0]
+                            //     .toString(),
+                            data[index]['marca_tiempo_envio']
+                                .toString()
+                                .split(" ")[0]
+                                .toString(),
+                            style: TextStyle(
+                              color: rowColor,
+                            ),
+                          ), onTap: () {
+                        getInfoModal(index);
+                      }),
+                      DataCell(
+                          Text(
+                            // data[index]['attributes']['DireccionShipping']
+                            //     .toString(),
+                            data[index]['direccion_shipping'].toString(),
+                            style: TextStyle(
+                              color: rowColor,
+                            ),
+                          ), onTap: () {
+                        getInfoModal(index);
+                      }),
+                      DataCell(
+                          Text(
+                            // data[index]['attributes']['Cantidad_Total']
+                            //     .toString(),
+                            data[index]['cantidad_total'].toString(),
+                            style: TextStyle(
+                              color: rowColor,
+                            ),
+                          ), onTap: () {
+                        getInfoModal(index);
+                      }),
+                      DataCell(
+                          Text(
+                            // '\$${data[index]['attributes']['PrecioTotal'].toString()}',
+                            '\$${data[index]['precio_total'].toString()}',
+                            style: TextStyle(
+                              color: rowColor,
+                            ),
+                          ), onTap: () {
+                        getInfoModal(index);
+                      }),
+                      DataCell(
+                          Text(
+                            // '${data[index]['attributes']['ProductoP'].toString()}',
+                            data[index]['producto_p'].toString(),
+                            style: TextStyle(
+                              color: rowColor,
+                            ),
+                          ), onTap: () {
+                        getInfoModal(index);
+                      }),
+                      DataCell(Text(
+                          // '${data[index]['attributes']['CiudadShipping'].toString()}'),
+                          data[index]['ciudad_shipping'].toString()), onTap: () {
+                        getInfoModal(index);
+                      }),
+                      DataCell(
+                          Text(
+                            // data[index]['attributes']['Status'].toString(),
+                            data[index]['status'].toString(),
+                            style: TextStyle(
+                              color: rowColor,
+                            ),
+                          ), onTap: () {
+                        getInfoModal(index);
+                      }),
+                      DataCell(
+                          Text(
+                            // data[index]['attributes']['Comentario'].toString(),
+                            data[index]['comentario'] == null ||
+                                    data[index]['comentario'] == "null"
+                                ? ""
+                                : data[index]['comentario'].toString(),
+                            style: TextStyle(
+                              color: rowColor,
+                            ),
+                          ), onTap: () {
+                        getInfoModal(index);
+                      }),
+                      DataCell(
+                          Text(
+                            // data[index]['attributes']['Fecha_Entrega']
+                            //     .toString(),
+                            data[index]['fecha_entrega'].toString(),
+                            style: TextStyle(
+                              color: rowColor,
+                            ),
+                          ), onTap: () {
+                        getInfoModal(index);
+                      }),
+                      DataCell(
+                          Text(
+                            // data[index]['attributes']['NombreShipping']
+                            //     .toString(),
+                            data[index]['nombre_shipping'].toString(),
+                            style: TextStyle(
+                              color: rowColor,
+                            ),
+                          ), onTap: () {
+                        getInfoModal(index);
+                      }),
+                      DataCell(
+                          Text(
+                            // data[index]['attributes']['TelefonoShipping']
+                            //     .toString(),
+                            data[index]['telefono_shipping'].toString(),
+                            style: TextStyle(
+                              color: rowColor,
+                            ),
+                          ), onTap: () {
+                        getInfoModal(index);
+                      }),
+                      DataCell(
+                          Text(
+                            // data[index]['attributes']['Estado_Devolucion']
+                            //     .toString(),
+                            data[index]['estado_devolucion'].toString(),
+                            style: TextStyle(
+                              color: rowColor,
+                            ),
+                          ), onTap: () {
+                        getInfoModal(index);
+                      }),
+                      DataCell(
+                          Text(
+                            // data[index]['attributes']['Marca_T_D'].toString(),
+                            data[index]['marca_t_d'] == null ||
+                                    data[index]['marca_t_d'] == "null"
+                                ? ""
+                                : data[index]['marca_t_d'].toString(),
+                            style: TextStyle(
+                              color: rowColor,
+                            ),
+                          ), onTap: () {
+                        getInfoModal(index);
+                      }),
+                      DataCell(
+                          Text(
+                            // data[index]['attributes']['Marca_T_D_T'].toString(),
+                            data[index]['marca_t_d_t'] == null ||
+                                    data[index]['marca_t_d_t'] == "null"
+                                ? ""
+                                : data[index]['marca_t_d_t'].toString(),
+                            style: TextStyle(
+                              color: rowColor,
+                            ),
+                          ), onTap: () {
+                        getInfoModal(index);
+                      }),
+                      DataCell(
+                          Text(
+                            // data[index]['attributes']['Marca_T_D_L'].toString(),
+                            data[index]['marca_t_d_l'].toString(),
+                            style: TextStyle(
+                              color: rowColor,
+                            ),
+                          ), onTap: () {
+                        getInfoModal(index);
+                      }),
+                      DataCell(
+                          Text(data[index]['received_by'] != null &&
+                                  data[index]['received_by'].isNotEmpty
+                              ? "${data[index]['received_by']['username'].toString()}-${data[index]['received_by']['id'].toString()}"
+                              : ''), onTap: () {
+                        getInfoModal(index);
+                      }),
+                      /*
+                      DataCell(
+                          Text(
+                            data[index]['received_by'] == null ||
+                                    data[index]['received_by'] == "null"
+                                ? ""
+                                : data[index]['received_by'].toString(),
+                            style: TextStyle(
+                              color: rowColor,
+                            ),
+                          ), onTap: () {
+                        getInfoModal(index);
+                      }),
+                      */
+                    ]);
+                  })),
+            ),
+            /*
+            Expanded(
+              child: DataTable2(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: const BorderRadius.all(Radius.circular(4)),
+                    border: Border.all(color: Colors.blueGrey),
+                  ),
+                  headingTextStyle: const TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.black),
+                  dataTextStyle: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black),
+                  columnSpacing: 12,
+                  headingRowHeight: 80,
+                  horizontalMargin: 12,
+                  minWidth: 3500,
+                  columns: [
+                    DataColumn2(
+                      label: Text(''),
+                      size: ColumnSize.M,
+                    ),
+                    DataColumn2(
+                      label: Text('Código'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
                         sortFunc("NumeroOrden");
                       },
                     ),
@@ -898,6 +1406,7 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
                     ]);
                   })),
             ),
+            */
           ],
         ),
       ),
@@ -926,6 +1435,36 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
                       )
                     ],
                   ),
+                  _model(
+                      "Código: ${data[index]['name_comercial'].toString()}-${data[index]['numero_orden'].toString()}"),
+                  _model(
+                      "Marca de Tiempo: ${data[index]['marca_tiempo_envio'].toString()}"),
+                  _model(
+                      "Fecha: ${data[index]['marca_tiempo_envio'].toString().split(" ")[0].toString()}"),
+                  _model(
+                      "Direccion: ${data[index]['direccion_shipping'].toString()}"),
+                  _model(
+                      "Cantidad: ${data[index]['cantidad_total'].toString()}"),
+                  _model(
+                      "Precio Total: ${data[index]['precio_total'].toString()}"),
+                  _model("Producto: ${data[index]['producto_p'].toString()}"),
+                  _model(
+                      "Producto Extra: ${data[index]['producto_extra'] == null || data[index]['producto_extra'] == "null" ? "" : data[index]['producto_extra'].toString()}"),
+                  _model("Ciudad: ${data[index]['ciudad_shipping']}"),
+                  _model("Status: ${data[index]['status']}"),
+                  _model(
+                      "Comentario: ${data[index]['comentario'] == null || data[index]['comentario'] == "null" ? "" : data[index]['comentario']}"),
+                  _model("Fecha de Entrega: ${data[index]['fecha_entrega']}"),
+                  _model("Nombre Cliente: ${data[index]['nombre_shipping']}"),
+                  _model("Teléfono: ${data[index]['telefono_shipping']}"),
+                  _model(
+                      "Estado Devolución: ${data[index]['estado_devolucion']}"),
+                  _model(
+                      "Marca. O: ${data[index]['marca_t_d'] == null || data[index]['marca_t_d'] == "null" ? "" : data[index]['marca_t_d']}"),
+                  _model(
+                      "Marca. TR: ${data[index]['marca_t_d_t'] == null || data[index]['marca_t_d_t'] == "null" ? "" : data[index]['marca_t_d_t']}"),
+                  _model("Marca. TL: ${data[index]['marca_t_d_l']}")
+                  /* strapi version
                   _model(
                       "Código: ${data[index]['attributes']['Name_Comercial']}-${data[index]['attributes']['NumeroOrden']}"),
                   _model(
@@ -959,11 +1498,25 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
                       "Marca. TR: ${data[index]['attributes']['Marca_T_D_T']}"),
                   _model(
                       "Marca. TL: ${data[index]['attributes']['Marca_T_D_L']}")
+                      */
                 ],
               ),
             ),
           );
         });
+  }
+
+  sortFunc2(filtro, changevalu) {
+    setState(() {
+      if (changevalu) {
+        sortFieldDefaultValue = "$filtro:DESC";
+        changevalue = false;
+      } else {
+        sortFieldDefaultValue = "$filtro:ASC";
+        changevalue = true;
+      }
+      loadData();
+    });
   }
 
   Container _buttons() {
@@ -1036,6 +1589,56 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
         color: Color.fromARGB(255, 245, 244, 244),
       ),
       child: TextField(
+        controller: controller,
+        onSubmitted: (value) {
+          getOldValue(true);
+          paginatorController.navigateToPage(0);
+          // loadData();
+        },
+        style: TextStyle(fontWeight: FontWeight.bold),
+        decoration: InputDecoration(
+          fillColor: Colors.grey[500],
+          prefixIcon: Icon(Icons.search),
+          suffixIcon: _controllers.searchController.text.isNotEmpty
+              ? GestureDetector(
+                  onTap: () {
+                    getLoadingModal(context, false);
+                    setState(() {
+                      _controllers.searchController.clear();
+                    });
+                    resetFilters();
+                    paginatorController.navigateToPage(0);
+                    // loadData();
+
+                    Navigator.pop(context);
+                  },
+                  child: Icon(Icons.close))
+              : null,
+          hintText: text,
+          border: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.grey),
+          ),
+          focusColor: Colors.black,
+          iconColor: Colors.black,
+        ),
+      ),
+    );
+  }
+
+  void resetFilters() {
+    getOldValue(true);
+    arrayFiltersAnd = [];
+    _controllers.searchController.text = "";
+  }
+/*
+  _modelTextField({text, controller}) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10.0),
+        color: Color.fromARGB(255, 245, 244, 244),
+      ),
+      child: TextField(
         enabled: enabledBusqueda,
         controller: controller,
         onSubmitted: (value) async {
@@ -1060,7 +1663,7 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
                     getLoadingModal(context, false);
                     setState(() {
                       _controllers.searchController.clear();
-                      filtersAnd = [];
+                      // filtersAnd = [];
                     });
 
                     setState(() {
@@ -1080,6 +1683,7 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
       ),
     );
   }
+  */
 
   sortFunc(name) {
     if (sort) {
