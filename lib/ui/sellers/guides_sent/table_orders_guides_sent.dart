@@ -28,6 +28,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:excel/excel.dart';
+import 'package:intl/intl.dart';
 
 class TableOrdersGuidesSentSeller extends StatefulWidget {
   const TableOrdersGuidesSentSeller({super.key});
@@ -89,7 +90,8 @@ class _TableOrdersGuidesSentStateSeller
     "users",
     "users.vendedores",
     "pedidoFecha",
-    "ruta"
+    "ruta",
+    "sentBy"
   ];
 
   @override
@@ -174,6 +176,8 @@ class _TableOrdersGuidesSentStateSeller
     }
 
     data = responseL['data'];
+    // print(data);
+
     setState(() {
       selectedCheckBox = [];
       counterChecks = 0;
@@ -439,6 +443,20 @@ class _TableOrdersGuidesSentStateSeller
                         sortFunc("marca_tiempo_envio", changevalue);
                       },
                     ),
+                    DataColumn2(
+                      label: const Text('Enviado por'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        // sortFunc("sent_by", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: const Text('Fecha hora Envio'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        // sortFunc("sent_at", changevalue);
+                      },
+                    ),
                   ],
                   rows: List<DataRow>.generate(
                       data.length,
@@ -596,12 +614,33 @@ class _TableOrdersGuidesSentStateSeller
                                     .toString()), onTap: () {
                               getInfoModal(index);
                             }),
+                            DataCell(
+                                Text(data[index]['sent_by'] != null &&
+                                        data[index]['sent_by'].isNotEmpty
+                                    ? "${data[index]['sent_by']['username'].toString()}-${data[index]['sent_by']['id'].toString()}"
+                                    : ''), onTap: () {
+                              getInfoModal(index);
+                            }),
+                            DataCell(
+                                Text(data[index]['sent_at'] != null
+                                    ? "${formatDate(data[index]['sent_at'].toString())}"
+                                    : ''), onTap: () {
+                              getInfoModal(index);
+                            }),
                           ]))),
             ),
           ],
         ),
       ),
     );
+  }
+
+  formatDate(dateStringFromDatabase) {
+    DateTime dateTime = DateTime.parse(dateStringFromDatabase);
+    Duration offset = const Duration(hours: -5);
+    dateTime = dateTime.toUtc().add(offset);
+    String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
+    return formattedDate;
   }
 
   Container _buttons() {

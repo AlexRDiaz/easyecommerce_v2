@@ -3,6 +3,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/navigators.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:get/route_manager.dart';
 
@@ -17,6 +18,7 @@ class PrintedGuideInfo extends StatefulWidget {
 class _PrintedGuideInfoState extends State<PrintedGuideInfo> {
   var data = {};
   bool loading = true;
+  var idUser = sharedPrefs!.getString("id");
 
   @override
   void didChangeDependencies() {
@@ -197,8 +199,13 @@ class _PrintedGuideInfoState extends State<PrintedGuideInfo> {
               onPressed: () async {
                 getLoadingModal(context, false);
 
-                var response = await Connections()
-                    .updateOrderLogisticStatusPrint("ENVIADO", widget.id);
+                // var response = await Connections()
+                //     .updateOrderLogisticStatusPrint("ENVIADO", widget.id);
+
+                //new
+                var responseL = await Connections().updateOrderWithTime(
+                    widget.id.toString(), "estado_logistico:ENVIADO", idUser);
+
                 Navigator.pop(context);
 
                 setState(() {});

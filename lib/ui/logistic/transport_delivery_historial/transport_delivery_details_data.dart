@@ -1,4 +1,5 @@
 import 'package:flutter_animated_icons/icons8.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
 import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
@@ -78,6 +79,8 @@ class _TransportDeliveryHistoryDetailsDataState
   //   loadTextEdtingControllers();
   //   super.didChangeDependencies();
   // }
+  var idUser = sharedPrefs!.getString("id");
+
   @override
   void initState() {
     loadTextEdtingControllers(widget.data);
@@ -920,10 +923,16 @@ class _TransportDeliveryHistoryDetailsDataState
             ElevatedButton(
               onPressed: () async {
                 getLoadingModal(context, false);
-                var response = await Connections().updateOrderLogisticStatus(
-                  "IMPRESO",
-                  widget.data['id'],
-                );
+                // var response = await Connections().updateOrderLogisticStatus(
+                //   "IMPRESO",
+                //   widget.data['id'],
+                // );
+
+                //new
+                var response = await Connections().updateOrderWithTime(
+                    widget.data['id'].toString(),
+                    "estado_logistico:IMPRESO",
+                    idUser);
 
                 Navigator.pop(context);
                 showCustomModal(response, context);
@@ -948,11 +957,18 @@ class _TransportDeliveryHistoryDetailsDataState
             ElevatedButton(
               onPressed: () async {
                 getLoadingModal(context, false);
-                var response =
-                    await Connections().updateOrderLogisticStatusPrint(
-                  "ENVIADO",
-                  widget.data['id'],
-                );
+                // var response =
+                //     await Connections().updateOrderLogisticStatusPrint(
+                //   "ENVIADO",
+                //   widget.data['id'],
+                // );
+
+                //new
+                var response = await Connections().updateOrderWithTime(
+                    widget.data['id'].toString(),
+                    "estado_logistico:ENVIADO",
+                    idUser);
+
                 Navigator.pop(context);
                 showCustomModal(response, context);
                 await Future.delayed(const Duration(seconds: 3), () {

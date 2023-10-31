@@ -22,6 +22,7 @@ import 'package:printing/printing.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:universal_html/html.dart' as html;
 import 'dart:js' as js;
+import 'package:intl/intl.dart';
 
 class PrintedGuidesSeller extends StatefulWidget {
   const PrintedGuidesSeller({super.key});
@@ -77,9 +78,9 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
 
   bool changevalue = false;
 
-  //"Estado_Logistico" sea igual a "IMPRESO" y el "Estado_Interno" sea igual a "CONFIRMADO."
-
   int counterChecks = 0;
+  var idUser = sharedPrefs!.getString("id");
+
   void didChangeDependencies() {
     loadData();
     super.didChangeDependencies();
@@ -359,6 +360,20 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                           // sortFuncTransporte();
                         },
                       ),
+                      DataColumn2(
+                        label: const Text('Impreso por'),
+                        size: ColumnSize.M,
+                        onSort: (columnIndex, ascending) {
+                          sortFunc("printed_by", changevalue);
+                        },
+                      ),
+                      DataColumn2(
+                        label: const Text('Fecha Impresion'),
+                        size: ColumnSize.M,
+                        onSort: (columnIndex, ascending) {
+                          sortFunc("printed_at", changevalue);
+                        },
+                      ),
                     ],
                     rows: List<DataRow>.generate(
                         data.length,
@@ -488,6 +503,19 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                                       : ''), onTap: () {
                                 info(context, index);
                               }),
+                              DataCell(
+                                  Text(data[index]['printed_by'] != null &&
+                                          data[index]['printed_by'].isNotEmpty
+                                      ? "${data[index]['printed_by']['username'].toString()}-${data[index]['printed_by']['id'].toString()}"
+                                      : ''), onTap: () {
+                                info(context, index);
+                              }),
+                              DataCell(
+                                  Text(data[index]['printed_at'] != null
+                                      ? formatDate(data[index]['printed_at'])
+                                      : ''), onTap: () {
+                                info(context, index);
+                              }),
                             ]))),
               ),
             ],
@@ -495,6 +523,14 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
         ),
       ),
     );
+  }
+
+  formatDate(dateStringFromDatabase) {
+    DateTime dateTime = DateTime.parse(dateStringFromDatabase);
+    Duration offset = const Duration(hours: -5);
+    dateTime = dateTime.toUtc().add(offset);
+    String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
+    return formattedDate;
   }
 
   _modelTextField({text, controller}) {
@@ -652,15 +688,12 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                     // var response = await Connections()
                     //     .updateOrderLogisticStatusPrint(
                     //         "ENVIADO", optionsCheckBox[i]['id'].toString());
-                    var responseL = await Connections()
-                        .updatenueva(optionsCheckBox[i]['id'].toString(), {
-                      "estado_logistico": "ENVIADO",
-                      "estado_interno": "CONFIRMADO",
-                      "fecha_entrega":
-                          "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
-                      "marca_tiempo_envio":
-                          "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
-                    });
+
+                    //new
+                    var responseL = await Connections().updateOrderWithTime(
+                        optionsCheckBox[i]['id'].toString(),
+                        "estado_logistico:ENVIADO",
+                        idUser);
                   }
                 }
                 Navigator.pop(context);

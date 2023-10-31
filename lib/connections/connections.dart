@@ -923,8 +923,8 @@ class Connections {
     filtersAndAll.addAll(arrayfiltersDefaultAnd);
     filtersAndAll.addAll(arrayFiltersAnd);
 
-    print(sharedPrefs!.getString("dateDesdeVendedor"));
-    print(sharedPrefs!.getString("dateHastaVendedor"));
+    // print(sharedPrefs!.getString("dateDesdeVendedor"));
+    // print(sharedPrefs!.getString("dateHastaVendedor"));
     // print("todo and: \n $filtersAndAll");
     //print("sort conn: \n $sort");
 
@@ -953,16 +953,16 @@ class Connections {
 
       if (requestlaravel.statusCode != 200) {
         res = 1;
-        print("res:" + res.toString());
+        // print("res:" + res.toString());
       } else {
-        print('Total_L: $totalRes');
+        // print('Total_L: $totalRes');
       }
-      print("res:" + res.toString());
+      // print("res:" + res.toString());
       return decodeData;
     } catch (e) {
       print("Error: $e");
       res = 2;
-      print("res:" + res.toString());
+      // print("res:" + res.toString());
     }
   }
 
@@ -5509,11 +5509,11 @@ class Connections {
       var response = await request.send();
 
       if (response.statusCode == 200) {
-        print("status 200");
+        // print("status 200");
         var responseData = await response.stream.toBytes();
         var responseString = String.fromCharCodes(responseData);
         var decodeData = json.decode(responseString);
-        print("decodeData $decodeData");
+        // print("decodeData $decodeData");
 
         if (decodeData != null) {
           return decodeData;
@@ -5526,6 +5526,30 @@ class Connections {
     } catch (e) {
       print(e);
       return [false, 'Excepción en la solicitud: $e'];
+    }
+  }
+
+  //    *
+  // Future updateOrderWithTime(id, key, value, iduser) async {
+  Future updateOrderWithTime(id, keyvalue, iduser) async {
+    try {
+      var request = await http.put(
+          Uri.parse("$serverLaravel/api/pedidos-shopify/updatefieldtime/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "keyvalue": keyvalue,
+            "iduser": iduser,
+          }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return false;
+      } else {
+        return decodeData;
+      }
+    } catch (e) {
+      print(e);
     }
   }
 

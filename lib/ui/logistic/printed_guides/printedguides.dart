@@ -20,6 +20,7 @@ import 'package:printing/printing.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:universal_html/html.dart' as html;
 import 'dart:js' as js;
+import 'package:intl/intl.dart';
 
 class PrintedGuides extends StatefulWidget {
   const PrintedGuides({super.key});
@@ -72,6 +73,8 @@ class _PrintedGuidesState extends State<PrintedGuides> {
   bool changevalue = false;
 
   int counterChecks = 0;
+  var idUser = sharedPrefs!.getString("id");
+
   void didChangeDependencies() {
     loadData();
     super.didChangeDependencies();
@@ -374,12 +377,22 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                           sortFunc("printed_by", changevalue);
                         },
                       ),
+                      DataColumn2(
+                        label: const Text('Fecha Impresion'),
+                        size: ColumnSize.M,
+                        onSort: (columnIndex, ascending) {
+                          sortFunc("printed_at", changevalue);
+                        },
+                      ),
                     ],
                     rows: List<DataRow>.generate(data.length, (index) {
                       Color rowColor = Colors.white;
-                      if (data[index]['printed_by'] != null) {
-                        // print(data[index]['id']);
-                        rowColor = Colors.lightBlue.shade50;
+                      if ((data[index]['printed_by'] != null &&
+                          data[index]['printed_by'].isNotEmpty)) {
+                        if (data[index]['printed_by']['id'].toString() !=
+                            idUser) {
+                          rowColor = Colors.lightBlue.shade50;
+                        }
                       }
                       return DataRow(
                           color: MaterialStateProperty.resolveWith<Color>(
@@ -596,8 +609,15 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                               info(context, index);
                             }),
                             DataCell(
-                                Text(data[index]['printed_by'] != null
-                                    ? "${data[index]['name_comercial'].toString()}-${data[index]['printed_by']}"
+                                Text(data[index]['printed_by'] != null &&
+                                        data[index]['printed_by'].isNotEmpty
+                                    ? "${data[index]['printed_by']['username'].toString()}-${data[index]['printed_by']['id'].toString()}"
+                                    : ''), onTap: () {
+                              info(context, index);
+                            }),
+                            DataCell(
+                                Text(data[index]['printed_at'] != null
+                                    ? "${formatDate(data[index]['printed_at'])}"
                                     : ''), onTap: () {
                               info(context, index);
                             }),
@@ -609,6 +629,14 @@ class _PrintedGuidesState extends State<PrintedGuides> {
         ),
       ),
     );
+  }
+
+  formatDate(dateStringFromDatabase) {
+    DateTime dateTime = DateTime.parse(dateStringFromDatabase);
+    Duration offset = const Duration(hours: -5);
+    dateTime = dateTime.toUtc().add(offset);
+    String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
+    return formattedDate;
   }
 
   _modelTextField({text, controller}) {
@@ -832,9 +860,15 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                   if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
                       optionsCheckBox[i]['id'].toString() != '' &&
                       optionsCheckBox[i]['check'] == true) {
-                    var response = await Connections()
-                        .updateOrderLogisticStatusPrint(
-                            "ENVIADO", optionsCheckBox[i]['id'].toString());
+                    // var response = await Connections()
+                    //     .updateOrderLogisticStatusPrint(
+                    //         "ENVIADO", optionsCheckBox[i]['id'].toString());
+
+                    //new
+                    var responseL = await Connections().updateOrderWithTime(
+                        optionsCheckBox[i]['id'].toString(),
+                        "estado_logistico:ENVIADO",
+                        idUser);
                   }
                 }
                 Navigator.pop(context);
