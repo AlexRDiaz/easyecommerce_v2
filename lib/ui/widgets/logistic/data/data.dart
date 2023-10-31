@@ -36,6 +36,7 @@ List optionsLogistic = [
 
   {"name": "Cambiar Contraseña", "icon": Icons.security},
   {"name": "Configuración de Roles", "icon": Icons.new_releases_outlined},
+  {"name": "Novedades", "icon": Icons.warning_amber_outlined},
 
   {"name": "Cerrar Sesión", "icon": Icons.logout_outlined},
 ];

@@ -19,6 +19,7 @@ import 'package:frontend/ui/logistic/guides_sent/table_orders_guides_sent.dart';
 import 'package:frontend/ui/logistic/income_and_expenses/income_and_expenses.dart';
 import 'package:frontend/ui/logistic/logistic_balance/logistic_balance.dart';
 import 'package:frontend/ui/logistic/logistics_products/logistics_products.dart';
+import 'package:frontend/ui/logistic/novelties/novelties.dart';
 import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
 import 'package:frontend/ui/logistic/print_guides/print_guides.dart';
 import 'package:frontend/ui/logistic/printed_guides/printedguides.dart';
@@ -167,6 +168,7 @@ class _LayoutPageState extends State<LayoutPage> {
         "Configuración de Roles",
         RoleConfiguration(),
       ),
+      getOption("Novedades", NoveltiesL())
       // AddStockToVendors(),
       // WithdrawalAssignment(),
     ];

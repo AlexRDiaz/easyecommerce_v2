@@ -1278,7 +1278,47 @@ class Connections {
       print("Ocurrió un error durante la solicitud: $error");
     }
   }
+
   // ! *******************
+  getOrdersForNoveltiesByDatesLaravel(List populate, List defaultAnd, List and,
+      List or, currentPage, sizePage, search, sortField) async {
+    int res = 0;
+    try {
+      print('start: ${sharedPrefs!.getString("dateDesdeLogistica")}');
+      print('end: ${sharedPrefs!.getString("dateHastaLogistica")}');
+
+      List filtersAndAll = [];
+      filtersAndAll.addAll(and);
+      filtersAndAll.addAll(defaultAnd);
+
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/pedidos-shopify/filter/logistic"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "start": sharedPrefs!.getString("dateDesdeLogistica"),
+            "end": sharedPrefs!.getString("dateHastaLogistica"),
+            "or": or,
+            "and": filtersAndAll,
+            "not": [],
+            "sort": sortField,
+            "page_size": sizePage,
+            "page_number": currentPage,
+            "search": search
+          }));
+      print(and);
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        res = 1;
+      }
+      // print(decodeData);
+      return decodeData;
+    } catch (e) {
+      print('Error en la solicitud: $e');
+      res = 2;
+    }
+    return res;
+  }
 
   getOrdersForHistorialTransportByDatesLaravel(List populate, List and, List or,
       currentPage, sizePage, search, sortField) async {
