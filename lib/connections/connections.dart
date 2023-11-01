@@ -1292,14 +1292,16 @@ class Connections {
       filtersAndAll.addAll(defaultAnd);
 
       var request = await http.post(
-          Uri.parse("$serverLaravel/api/pedidos-shopify/filter/logistic"),
+          Uri.parse("$serverLaravel/api/logistic/filter/novelties"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
             "start": sharedPrefs!.getString("dateDesdeLogistica"),
             "end": sharedPrefs!.getString("dateHastaLogistica"),
             "or": or,
             "and": filtersAndAll,
-            "not": [],
+            "not": [
+              {"status": "ENTREGADO"}
+            ],
             "sort": sortField,
             "page_size": sizePage,
             "page_number": currentPage,
@@ -5972,6 +5974,25 @@ class Connections {
               }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+  editStatusandComment(idOrder, status, comment) async {
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/logistic/update-status-comment"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "iddepedido": idOrder,
+            "status": status,
+            "comentario": comment,
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        print("ok updt!");
       }
     } catch (error) {
       print("Ocurrió un error durante la solicitud: $error");

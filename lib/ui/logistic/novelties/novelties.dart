@@ -7,6 +7,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
+import 'package:frontend/ui/logistic/novelties/novelties_info.dart';
 import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_details.dart';
@@ -63,43 +64,19 @@ class _NoveltiesLState extends State<NoveltiesL> {
     'NOVEDAD RESUELTA',
     'NO ENTREGADO',
     'REAGENDADO',
-    // 'EN OFICINA',
-    // 'EN RUTA'
   ];
-  List<String> listEstadoConfirmacion = [
-    'TODO',
-    'CONFIRMADO',
-    'PENDIENTE',
-    'NO DESEA',
-  ];
-  List<String> listEstadoLogistico = [
-    'TODO',
-    'PENDIENTE',
-    'ENVIADO',
-    'IMPRESO',
-  ];
-  List<String> listEstadoDevolucion = [
-    'TODO',
-    'PENDIENTE',
-    'DEVOLUCION EN RUTA',
-  ];
-  List<String> listEstadoPago = [
-    'TODO',
-    'PENDIENTE',
-    'RECIBIDO',
-  ];
+
   List populate = [
     'pedido_fecha',
     'transportadora',
     'ruta',
-    'sub_ruta',
     'operadore',
     "operadore.user",
     "users",
     "users.vendedores"
   ];
   List defaultArrayFiltersAnd = [
-    {"estado_devolucion": "PENDIENTE"}
+    {"equals/estado_devolucion": "PENDIENTE"}
   ];
   List arrayFiltersAnd = [];
   List arrayFiltersOr = [
@@ -113,7 +90,8 @@ class _NoveltiesLState extends State<NoveltiesL> {
     "estado_interno",
     "producto_p",
     "status",
-    "estado_logistico"
+    "estado_logistico",
+    "estado_devolucion"
   ];
 
   NumberPaginatorController paginatorController = NumberPaginatorController();
@@ -161,7 +139,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
   TextEditingController costoDevolucionController =
       TextEditingController(text: "");
   TextEditingController estadoDevolucionController =
-      TextEditingController(text: "TODO");
+      TextEditingController(text: "");
   TextEditingController marcaTiempoDevolucionController =
       TextEditingController(text: "");
   TextEditingController estadoPagoLogisticoController =
@@ -247,25 +225,6 @@ class _NoveltiesLState extends State<NoveltiesL> {
           _controllers.searchController.text,
           sortFieldDefaultValue.toString());
 
-      // var response = await Connections()
-      //     .getOrdersForHistorialTransportByDatesLaravel(
-      //         populate,
-      //         arrayFiltersAnd,
-      //         arrayFiltersOr,
-      //         currentPage,
-      //         pageSize,
-      //         _controllers.searchController.text,
-      //         sortFieldDefaultValue.toString());
-
-      // var response = await Connections().getOrdersForHistorialTransportByDates(
-      //   populate,
-      //   arrayFiltersAnd,
-      //   currentPage,
-      //   pageSize,
-      // );
-
-      // var m = response;
-
       if (listtransportadores.length == 1) {
         var responsetransportadoras = await Connections().getTransportadoras();
         List<dynamic> transportadorasList =
@@ -287,25 +246,11 @@ class _NoveltiesLState extends State<NoveltiesL> {
         data = [];
         data = response['data'];
 
-        data = data.map((item) {
-          bool check =
-              optionsCheckBox.any((element) => element['id'] == item['id']);
-          return {...item, 'check': check};
-        }).toList();
-
         total = response['total'];
 
         pageCount = response['last_page'];
-        //paginate();
 
         paginatorController.navigateToPage(0);
-
-        // _scrollController.jumpTo(0);
-      });
-
-      setState(() {
-        optionsCheckBox = [];
-        counterChecks = 0;
       });
 
       Future.delayed(const Duration(milliseconds: 500), () {
@@ -334,28 +279,19 @@ class _NoveltiesLState extends State<NoveltiesL> {
       setState(() {
         search = false;
       });
-
-      var response = await Connections()
-          .getOrdersForHistorialTransportByDatesLaravel(
-              populate,
-              arrayFiltersAnd,
-              arrayFiltersOr,
-              currentPage,
-              pageSize,
-              _controllers.searchController.text,
-              sortFieldDefaultValue.toString());
+      var response = await Connections().getOrdersForNoveltiesByDatesLaravel(
+          populate,
+          defaultArrayFiltersAnd,
+          arrayFiltersAnd,
+          arrayFiltersOr,
+          currentPage,
+          pageSize,
+          _controllers.searchController.text,
+          sortFieldDefaultValue.toString());
 
       setState(() {
         data = [];
         data = response['data'];
-
-        data = data.map((item) {
-          bool check =
-              optionsCheckBox.any((element) => element['id'] == item['id']);
-          return {...item, 'check': check};
-        }).toList();
-
-        // _scrollController.jumpTo(0);
       });
 
       Future.delayed(const Duration(milliseconds: 500), () {
@@ -381,21 +317,9 @@ class _NoveltiesLState extends State<NoveltiesL> {
     );
   }
 
-  // int calcularTotalPaginas(int totalRegistros, int registrosPorPagina) {
-  //   final int totalPaginas = totalRegistros ~/ registrosPorPagina;
-  //   final int registrosRestantes = totalRegistros % registrosPorPagina;
-
-  //   return registrosRestantes > 0
-  //       ? totalPaginas + 1
-  //       : totalPaginas == 0
-  //           ? 1
-  //           : totalPaginas;
-  // }
-
   final VendorInvoicesControllers _controllers = VendorInvoicesControllers();
   @override
   Widget build(BuildContext context) {
-    String status = "TODO";
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -403,17 +327,10 @@ class _NoveltiesLState extends State<NoveltiesL> {
         color: Colors.grey[200],
         child: Column(
           children: [
-            SizedBox(
-              height: 10,
-            ),
-            Text(
-              "BUSQUEDA POR RANGO DE FECHA",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            SizedBox(
-              height: 10,
-            ),
             _dates(context),
+            SizedBox(
+              height: 10,
+            ),
             Container(
                 width: double.infinity,
                 color: Colors.white,
@@ -546,119 +463,74 @@ class _NoveltiesLState extends State<NoveltiesL> {
                         color: Colors.black),
                     columnSpacing: 12,
                     horizontalMargin: 12,
-                    minWidth: 5000,
+                    minWidth: 4500,
                     columns: [
                       DataColumn2(
-                        //['pedido_fecha']['Fecha']
-                        label: InputFilter(
-                            'Fecha',
-                            {
-                              'pedido_fecha': {'Fecha': 'valor'}
-                            },
-                            fechaController,
-                            '/pedidoFecha.fecha'),
-
+                        label: const Text('Fecha'),
                         size: ColumnSize.S,
                         onSort: (columnIndex, ascending) {
-                          sortFunc("Fecha");
+                          // sortFunc("Fecha");
                         },
                       ),
                       DataColumn2(
-                        label: InputFilter('Código', 'NumeroOrden',
-                            codigoController, '/numero_orden'),
+                        label: const Text('Código'),
                         size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {
-                          sortFunc("NumeroOrden");
-                        },
+                        onSort: (columnIndex, ascending) {},
                       ),
                       DataColumn2(
-                        label: InputFilter('Ciudad', 'CiudadShipping',
-                            ciudadShippingController, '/ciudad_shipping'),
+                        label: Text("Ciudad"),
                         size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {
-                          sortFunc("CiudadShipping");
-                        },
+                        onSort: (columnIndex, ascending) {},
                       ),
                       DataColumn2(
-                        label: InputFilter('Nombre Cliente', 'NombreShipping',
-                            nombreShippingController, '/nombre_shipping'),
+                        label: Text("Nombre Cliente"),
+                        size: ColumnSize.S,
+                        onSort: (columnIndex, ascending) {},
+                      ),
+                      DataColumn2(
+                        label: Text("Teléfono Cliente"),
                         size: ColumnSize.S,
                         numeric: true,
-                        onSort: (columnIndex, ascending) {
-                          sortFunc("NombreShipping");
-                        },
+                        onSort: (columnIndex, ascending) {},
                       ),
                       DataColumn2(
-                        label: InputFilter(
-                            'Teléfono Cliente',
-                            'TelefonoShipping',
-                            telefonoShippingController,
-                            '/telefono_shipping'),
+                        label: Text("Dirección"),
                         size: ColumnSize.S,
                         numeric: true,
-                        onSort: (columnIndex, ascending) {
-                          sortFunc("TelefonoShipping");
-                        },
+                        onSort: (columnIndex, ascending) {},
                       ),
                       DataColumn2(
-                        label: InputFilter('Dirección', 'DireccionShipping',
-                            direccionShippingController, '/direccion_shipping'),
+                        label: Text("Cantidad"),
                         size: ColumnSize.S,
-                        numeric: true,
-                        onSort: (columnIndex, ascending) {
-                          sortFunc("DireccionShipping");
-                        },
+                        onSort: (columnIndex, ascending) {},
                       ),
                       DataColumn2(
-                        label: InputFilter('Cantidad', 'Cantidad_Total',
-                            cantidadTotalController, '/cantidad_total'),
-                        size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {
-                          sortFunc("Cantidad_Total");
-                        },
-                      ),
-                      DataColumn2(
-                        label: InputFilter('Producto', 'ProductoP',
-                            productoPController, '/producto_p'),
+                        label: Text("Producto"),
                         numeric: true,
                         size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {
-                          sortFunc("ProductoP");
-                        },
+                        onSort: (columnIndex, ascending) {},
                       ),
                       DataColumn2(
-                        label: InputFilter('Producto Extra', 'ProductoExtra',
-                            productoExtraController, '/producto_extra'),
+                        label: Text("Producto Extra"),
                         size: ColumnSize.S,
                         numeric: true,
-                        onSort: (columnIndex, ascending) {
-                          sortFunc("ProductoExtra");
-                        },
+                        onSort: (columnIndex, ascending) {},
                       ),
                       DataColumn2(
-                        label: InputFilter('Precio Total', 'PrecioTotal',
-                            precioTotalController, '/precio_total'),
+                        label: Text("Precio Total"),
                         size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {
-                          sortFunc("PrecioTotal");
-                        },
+                        onSort: (columnIndex, ascending) {},
                       ),
                       DataColumn2(
-                        label: InputFilter('Observación', 'Observacion',
-                            observacionController, '/observacion'),
+                        label: Text("Observación"),
                         size: ColumnSize.S,
                         numeric: true,
-                        onSort: (columnIndex, ascending) {
-                          sortFunc("Observacion");
-                        },
+                        onSort: (columnIndex, ascending) {},
                       ),
                       DataColumn2(
-                        label: InputFilter('Comentario', 'Comentario',
-                            comentarioController, '/comentario'),
+                        label: Text("Comentario"),
                         size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {
-                          sortFunc("Comentario");
-                        },
+                        onSort: (columnIndex, ascending) {},
                       ),
                       DataColumn2(
                         label: SelectFilterNoId('Status', 'equals/status',
@@ -691,49 +563,20 @@ class _NoveltiesLState extends State<NoveltiesL> {
                         },
                       ),
                       DataColumn2(
-                        label: InputFilter(
-                            'Operador',
-                            {
-                              'operadore': {
-                                'user': {
-                                  'username': {'\$contains': 'valor'}
-                                },
-                              },
-                            },
-                            operadorController,
-                            '/operadore.up_users.username'),
+                        label: Text("Operador"),
                         size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {
-                          sortFunc("DireccionShipping");
-                        },
+                        onSort: (columnIndex, ascending) {},
                       ),
                       DataColumn2(
-                        label: InputFilter(
-                            'Estado Devolución',
-                            {
-                              // ! falta editar esta parte para estado devolucion no esta puesto
-                              'users': {
-                                'vendedores': {
-                                  'CostoDevolucion': {'\$contains': 'valor'}
-                                }
-                              },
-                            },
-                            estadoDevolucionController,
-                            '/estado_devolucion'),
+                        label: Text("Estado Devolución"),
                         size: ColumnSize.S,
                         numeric: true,
-                        onSort: (columnIndex, ascending) {
-                          // sortFunc("DireccionShipping");
-                          sortFunc("Estado_Devolucion");
-                        },
+                        onSort: (columnIndex, ascending) {},
                       ),
                       DataColumn2(
-                        label: InputFilter('Fecha Entrega', 'Fecha_Entrega',
-                            fechaEntregaController, '/fecha_entrega'),
+                        label: Text("Fecha Entrega"),
                         size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {
-                          sortFunc("Fecha_Entrega");
-                        },
+                        onSort: (columnIndex, ascending) {},
                       ),
                     ],
                     rows: List<DataRow>.generate(data.length, (index) {
@@ -1312,25 +1155,6 @@ class _NoveltiesLState extends State<NoveltiesL> {
     Color rowColor = Colors.black;
 
     return [
-      DataCell(Checkbox(
-          value: data[index]['check'],
-          onChanged: (value) {
-            setState(() {
-              data[index]['check'] = value;
-            });
-            if (value == true) {
-              optionsCheckBox.add(data[index]);
-            } else {
-              optionsCheckBox
-                  .removeWhere((option) => option['id'] == data[index]['id']);
-            }
-            setState(() {
-              counterChecks = optionsCheckBox.length;
-            });
-          })),
-      DataCell(Text('${data[index]['marca_t_i'].toString()}'), onTap: () {
-        showDialogInfoData(data[index]);
-      }),
       DataCell(
           Text(
             data[index]['marca_t_i'].toString().split(' ')[0].toString(),
@@ -1338,7 +1162,8 @@ class _NoveltiesLState extends State<NoveltiesL> {
               color: rowColor,
             ),
           ), onTap: () {
-        showDialogInfoData(data[index]);
+        info(context, index);
+        // showDialogInfoData(data[index]);
       }),
       DataCell(
           Text(
@@ -1347,7 +1172,8 @@ class _NoveltiesLState extends State<NoveltiesL> {
               color: rowColor,
             ),
           ), onTap: () {
-        showDialogInfoData(data[index]);
+        // showDialogInfoData(data[index]);
+        // info(context, index);
       }),
       DataCell(
           Text(
@@ -1356,7 +1182,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
               color: rowColor,
             ),
           ), onTap: () {
-        showDialogInfoData(data[index]);
+        // info(context, index);
       }),
       DataCell(
           Text(
@@ -1365,16 +1191,8 @@ class _NoveltiesLState extends State<NoveltiesL> {
               color: rowColor,
             ),
           ), onTap: () {
-        showDialogInfoData(data[index]);
-      }),
-      DataCell(
-          Text(
-            '${data[index]['direccion_shipping'].toString()}',
-            style: TextStyle(
-              color: rowColor,
-            ),
-          ), onTap: () {
-        showDialogInfoData(data[index]);
+        // showDialogInfoData(data[index]);
+        // info(context, index);
       }),
       DataCell(
           Text(
@@ -1383,7 +1201,20 @@ class _NoveltiesLState extends State<NoveltiesL> {
               color: rowColor,
             ),
           ), onTap: () {
-        showDialogInfoData(data[index]);
+        // showDialogInfoData(data[index]);
+        // info(context, index);
+
+      }),
+      DataCell(
+          Text(
+            '${data[index]['direccion_shipping'].toString()}',
+            style: TextStyle(
+              color: rowColor,
+            ),
+          ), onTap: () {
+        // showDialogInfoData(data[index]);
+        // info(context, index);
+
       }),
       DataCell(
           Text(
@@ -1392,7 +1223,9 @@ class _NoveltiesLState extends State<NoveltiesL> {
               color: rowColor,
             ),
           ), onTap: () {
-        showDialogInfoData(data[index]);
+        // showDialogInfoData(data[index]);
+        // info(context, index);
+
       }),
       DataCell(
           Text(
@@ -1401,7 +1234,8 @@ class _NoveltiesLState extends State<NoveltiesL> {
               color: rowColor,
             ),
           ), onTap: () {
-        showDialogInfoData(data[index]);
+        // showDialogInfoData(data[index]);
+        // info(context, index);
       }),
       DataCell(
           Text(
@@ -1446,23 +1280,14 @@ class _NoveltiesLState extends State<NoveltiesL> {
           onTap: () {}),
       DataCell(
           Text(
-            data[index]['tipo_pago'].toString(),
+            // data[index]['tienda_temporal'].toString(),
+            data[index]['users'][0]['vendedores'][0]['nombre_comercial'],
             style: TextStyle(
               color: rowColor,
             ),
-          ),
-          onTap: () {}),
-      DataCell(
-          Text(
-            data[index]['ruta'] != null &&
-                    data[index]['ruta'].toString() != "[]"
-                ? data[index]['ruta'][0]['titulo'].toString()
-                : "",
-            style: TextStyle(
-              color: rowColor,
-            ),
-          ),
-          onTap: () {}),
+          ), onTap: () {
+        // info(context, index);
+      }),
       DataCell(
           Text(
             data[index]['transportadora'] != null &&
@@ -1472,19 +1297,9 @@ class _NoveltiesLState extends State<NoveltiesL> {
             style: TextStyle(
               color: rowColor,
             ),
-          ),
-          onTap: () {}),
-      DataCell(
-          Text(
-            data[index]['sub_ruta'] != null &&
-                    data[index]['sub_ruta'].toString() != "[]"
-                ? data[index]['sub_ruta'][0]['titulo'].toString()
-                : "",
-            style: TextStyle(
-              color: rowColor,
-            ),
-          ),
-          onTap: () {}),
+          ), onTap: () {
+        // info(context, index);
+      }),
       DataCell(
           Text(
             data[index]['operadore'] != null &&
@@ -1495,101 +1310,8 @@ class _NoveltiesLState extends State<NoveltiesL> {
             style: TextStyle(
               color: rowColor,
             ),
-          ),
-          onTap: () {}),
-      DataCell(
-          Text(
-            data[index]['fecha_entrega'].toString(),
-            style: TextStyle(
-              color: rowColor,
-            ),
-          ),
-          onTap: () {}),
-      DataCell(
-          Text(
-            // data[index]['tienda_temporal'].toString(),
-            data[index]['users'][0]['vendedores'][0]['nombre_comercial'],
-            style: TextStyle(
-              color: rowColor,
-            ),
-          ),
-          onTap: () {}),
-      DataCell(
-          Text(
-            data[index]['estado_interno'].toString(),
-            style: TextStyle(
-              color: rowColor,
-            ),
-          ),
-          onTap: () {}),
-      DataCell(
-          Text(
-            data[index]['estado_logistico'].toString(),
-            style: TextStyle(
-              color: rowColor,
-            ),
-          ),
-          onTap: () {}),
-      DataCell(
-          Text(
-            data[index]['costo_transportadora'] == null
-                ? ""
-                : data[index]['costo_transportadora'],
-            style: TextStyle(
-              color: rowColor,
-            ),
           ), onTap: () {
-        showDialogInfoData(data[index]);
-      }),
-      DataCell(
-          Text(
-            data[index]['transportadora'] != null &&
-                    data[index]['transportadora'].toString() != "[]"
-                ? data[index]['transportadora'][0]['costo_transportadora']
-                    .toString()
-                : "",
-            style: TextStyle(
-              color: rowColor,
-            ),
-          ), onTap: () {
-        showDialogInfoData(data[index]);
-      }),
-      DataCell(
-          Text(
-            data[index]['operadore'] != null &&
-                    data[index]['operadore'].toString() != "[]"
-                ? data[index]['operadore'][0]['costo_operador'].toString()
-                : "",
-            style: TextStyle(
-              color: rowColor,
-            ),
-          ),
-          onTap: () {}),
-      DataCell(
-          Text(data[index]['costo_envio'] != null
-              ? data[index]['costo_envio']
-              : ""),
-          onTap: () {}),
-      DataCell(
-          Text(data[index]['users'] != null &&
-                  data[index]['users'].toString() != "[]"
-              ? data[index]['users'][0]['vendedores'][0]['costo_envio']
-                  .toString()
-              : ""),
-          onTap: () {}),
-      DataCell(
-          Text(data[index]['costo_devolucion'] != null
-              ? data[index]['costo_devolucion']
-              : ""), onTap: () {
-        showDialogInfoData(data[index]);
-      }),
-      DataCell(
-          Text(data[index]['users'] != null &&
-                  data[index]['users'].toString() != "[]"
-              ? data[index]['users'][0]['vendedores'][0]['costo_devolucion']
-                  .toString()
-              : ""), onTap: () {
-        showDialogInfoData(data[index]);
+        // info(context, index);
       }),
       DataCell(
           Text(
@@ -1598,58 +1320,18 @@ class _NoveltiesLState extends State<NoveltiesL> {
               color: rowColor,
             ),
           ), onTap: () {
-        showDialogInfoData(data[index]);
+        // showDialogInfoData(data[index]);
+        // info(context, index);
       }),
       DataCell(
           Text(
-            data[index]['marca_t_d'].toString(),
-            style: TextStyle(
-              color: rowColor,
-            ),
-          ),
-          onTap: () {}),
-      DataCell(
-          Text(
-            data[index]['estado_pago_logistica'].toString(),
+            data[index]['fecha_entrega'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
           ), onTap: () {
-        showDialogInfoData(data[index]);
+        // info(context, index);
       }),
-      DataCell(InkWell(
-          child: Center(child: Icon(Icons.restart_alt_outlined)),
-          onTap: () async {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: const Text('Atención'),
-                  content: const SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        Text(
-                            '¿Se reestableceran los costos ingresados y estados del pedido?'),
-                        Text(''),
-                      ],
-                    ),
-                  ),
-                  actions: [
-                    TextButton(
-                      child: const Text('Cancelar'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                    TextButton(
-                      child: const Text('Continuar'),
-                      onPressed: () async {},
-                    ),
-                  ],
-                );
-              },
-            );
-          })),
     ];
   }
 
@@ -2499,49 +2181,49 @@ class _NoveltiesLState extends State<NoveltiesL> {
     }
   }
 
-  sortFuncCostoEntrega() {
-    if (search == false) {
-      if (sort) {
-        setState(() {
-          sort = false;
-        });
-        data.sort((a, b) => b['users'][0]['vendedores'][0]['CostoEnvio']
-            .toString()
-            .compareTo(
-                a['users'][0]['vendedores'][0]['CostoEnvio'].toString()));
-      } else {
-        setState(() {
-          sort = true;
-        });
-        data.sort((a, b) => a['users'][0]['vendedores'][0]['CostoEnvio']
-            .toString()
-            .compareTo(
-                b['users'][0]['vendedores'][0]['CostoEnvio'].toString()));
-      }
-    } else {
-      if (sort) {
-        setState(() {
-          sort = false;
-        });
-        data.sort((a, b) => b['attributes']['users']['data'][0]['attributes']
-                ['vendedores']['data'][0]['attributes']['CostoEnvio']
-            .toString()
-            .compareTo(a['attributes']['users']['data'][0]['attributes']
-                    ['vendedores']['data'][0]['attributes']['CostoEnvio']
-                .toString()));
-      } else {
-        setState(() {
-          sort = true;
-        });
-        data.sort((a, b) => a['attributes']['users']['data'][0]['attributes']
-                ['vendedores']['data'][0]['attributes']['CostoEnvio']
-            .toString()
-            .compareTo(b['attributes']['users']['data'][0]['attributes']
-                    ['vendedores']['data'][0]['attributes']['CostoEnvio']
-                .toString()));
-      }
-    }
-  }
+  // sortFuncCostoEntrega() {
+  //   if (search == false) {
+  //     if (sort) {
+  //       setState(() {
+  //         sort = false;
+  //       });
+  //       data.sort((a, b) => b['users'][0]['vendedores'][0]['CostoEnvio']
+  //           .toString()
+  //           .compareTo(
+  //               a['users'][0]['vendedores'][0]['CostoEnvio'].toString()));
+  //     } else {
+  //       setState(() {
+  //         sort = true;
+  //       });
+  //       data.sort((a, b) => a['users'][0]['vendedores'][0]['CostoEnvio']
+  //           .toString()
+  //           .compareTo(
+  //               b['users'][0]['vendedores'][0]['CostoEnvio'].toString()));
+  //     }
+  //   } else {
+  //     if (sort) {
+  //       setState(() {
+  //         sort = false;
+  //       });
+  //       data.sort((a, b) => b['attributes']['users']['data'][0]['attributes']
+  //               ['vendedores']['data'][0]['attributes']['CostoEnvio']
+  //           .toString()
+  //           .compareTo(a['attributes']['users']['data'][0]['attributes']
+  //                   ['vendedores']['data'][0]['attributes']['CostoEnvio']
+  //               .toString()));
+  //     } else {
+  //       setState(() {
+  //         sort = true;
+  //       });
+  //       data.sort((a, b) => a['attributes']['users']['data'][0]['attributes']
+  //               ['vendedores']['data'][0]['attributes']['CostoEnvio']
+  //           .toString()
+  //           .compareTo(b['attributes']['users']['data'][0]['attributes']
+  //                   ['vendedores']['data'][0]['attributes']['CostoEnvio']
+  //               .toString()));
+  //     }
+  //   }
+  // }
 
   sortFuncDevolucion() {
     if (search == false) {
@@ -2590,7 +2272,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
   void limpiar() {
     _controllers.searchController.text = "";
     arrayFiltersAnd.clear();
-    sortFieldDefaultValue = "marca_t_i:DESC";
+    // sortFieldDefaultValue = "marca_t_i:DESC";
     _search.clear();
     marcaTiController.clear();
     fechaController.clear();
@@ -2623,4 +2305,38 @@ class _NoveltiesLState extends State<NoveltiesL> {
     marcaTiempoDevolucionController.clear();
     estadoPagoLogisticoController.text = 'TODO';
   }
+
+  Future<dynamic> info(BuildContext context, int index) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              child: Column(
+                children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Icon(Icons.close),
+                    ),
+                  ),
+                  Expanded(
+                      child: NoveltiesInfo(
+                    id: data[index]['id'].toString(),
+                    data: data,
+                  ))
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
+
+
 }
