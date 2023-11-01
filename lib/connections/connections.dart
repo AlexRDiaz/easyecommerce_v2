@@ -1300,7 +1300,9 @@ class Connections {
             "or": or,
             "and": filtersAndAll,
             "not": [
-              {"status": "ENTREGADO"}
+              {"status": "ENTREGADO"},
+              {"status": "EN RUTA"},
+              {"status": "EN OFICINA"},
             ],
             "sort": sortField,
             "page_size": sizePage,
@@ -5992,7 +5994,6 @@ class Connections {
           }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
-        print("ok updt!");
       }
     } catch (error) {
       print("Ocurrió un error durante la solicitud: $error");

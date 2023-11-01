@@ -3,25 +3,16 @@ import 'dart:convert';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/novelties/novelties_info.dart';
-import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
-import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_details.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_details_data.dart';
 import 'package:frontend/ui/logistic/vendor_invoices/controllers/controllers.dart';
-import 'package:frontend/ui/widgets/routes/routes.dart';
-import 'package:frontend/ui/widgets/routes/sub_routes_historial.dart';
 import 'package:number_paginator/number_paginator.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../helpers/navigators.dart';
 import '../../widgets/loading.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
 import 'package:screenshot/screenshot.dart';
 
 class NoveltiesL extends StatefulWidget {
@@ -80,18 +71,21 @@ class _NoveltiesLState extends State<NoveltiesL> {
   ];
   List arrayFiltersAnd = [];
   List arrayFiltersOr = [
+    "marca_t_i",
     "numero_orden",
-    "direccion_shipping",
+    "ciudad_shipping",
     "nombre_shipping",
     "telefono_shipping",
+    "direccion_shipping",
+    "cantidad_total",
+    "producto_p",
+    "producto_extra",
     "precio_total",
     "observacion",
-    "ciudad_shipping",
-    "estado_interno",
-    "producto_p",
+    "comentario",
     "status",
-    "estado_logistico",
-    "estado_devolucion"
+    "estado_devolucion",
+    "fecha_entrega"
   ];
 
   NumberPaginatorController paginatorController = NumberPaginatorController();
@@ -147,56 +141,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
   // ! mia
   TextEditingController transportadorasController =
       TextEditingController(text: "TODO");
-  List bools = [
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false
-  ];
-  List titlesFilters = [
-    "Fecha",
-    "Código",
-    "Ciudad",
-    "Nombre Cliente",
-    "Dirección",
-    "Teléfono Cliente",
-    "Cantidad",
-    "Producto",
-    "Producto Extra",
-    "Precio Total",
-    "Observación",
-    "Comentario",
-    "Status",
-    "Fecha Entrega",
-    "Est. Devolución",
-    "Vendedor",
-    "Transportadora",
-    "Operador",
-    "Estado Pago",
-    "Est. logistic",
-    "Est. Confir",
-    "Ruta",
-    "SubRuta"
-  ];
+
   @override
   void didChangeDependencies() {
     loadData();
@@ -357,33 +302,6 @@ class _NoveltiesLState extends State<NoveltiesL> {
                                         color: Colors.black),
                                   ),
                                 ),
-                                Container(
-                                  padding:
-                                      const EdgeInsets.only(left: 5, right: 5),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        counterChecks > 0
-                                            ? "Seleccionados: ${counterChecks}"
-                                            : "",
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black),
-                                      ),
-                                      counterChecks > 0
-                                          ? Visibility(
-                                              visible: true,
-                                              child: IconButton(
-                                                iconSize: 20,
-                                                onPressed: () =>
-                                                    {clearSelected()},
-                                                icon: Icon(Icons.close_rounded),
-                                              ),
-                                            )
-                                          : Container(),
-                                    ],
-                                  ),
-                                ),
                               ],
                             ),
                           ),
@@ -407,33 +325,6 @@ class _NoveltiesLState extends State<NoveltiesL> {
                                   style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.black),
-                                ),
-                              ),
-                              Container(
-                                padding:
-                                    const EdgeInsets.only(left: 5, right: 5),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      counterChecks > 0
-                                          ? "Seleccionados: ${counterChecks}"
-                                          : "",
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black),
-                                    ),
-                                    counterChecks > 0
-                                        ? Visibility(
-                                            visible: true,
-                                            child: IconButton(
-                                              iconSize: 20,
-                                              onPressed: () =>
-                                                  {clearSelected()},
-                                              icon: Icon(Icons.close_rounded),
-                                            ),
-                                          )
-                                        : Container(),
-                                  ],
                                 ),
                               ),
                             ],
@@ -461,9 +352,9 @@ class _NoveltiesLState extends State<NoveltiesL> {
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                         color: Colors.black),
-                    columnSpacing: 12,
-                    horizontalMargin: 12,
-                    minWidth: 4500,
+                    columnSpacing: 5,
+                    horizontalMargin: 5,
+                    minWidth: 2500,
                     columns: [
                       DataColumn2(
                         label: const Text('Fecha'),
@@ -490,13 +381,11 @@ class _NoveltiesLState extends State<NoveltiesL> {
                       DataColumn2(
                         label: Text("Teléfono Cliente"),
                         size: ColumnSize.S,
-                        numeric: true,
                         onSort: (columnIndex, ascending) {},
                       ),
                       DataColumn2(
                         label: Text("Dirección"),
                         size: ColumnSize.S,
-                        numeric: true,
                         onSort: (columnIndex, ascending) {},
                       ),
                       DataColumn2(
@@ -506,14 +395,12 @@ class _NoveltiesLState extends State<NoveltiesL> {
                       ),
                       DataColumn2(
                         label: Text("Producto"),
-                        numeric: true,
                         size: ColumnSize.S,
                         onSort: (columnIndex, ascending) {},
                       ),
                       DataColumn2(
                         label: Text("Producto Extra"),
                         size: ColumnSize.S,
-                        numeric: true,
                         onSort: (columnIndex, ascending) {},
                       ),
                       DataColumn2(
@@ -524,7 +411,6 @@ class _NoveltiesLState extends State<NoveltiesL> {
                       DataColumn2(
                         label: Text("Observación"),
                         size: ColumnSize.S,
-                        numeric: true,
                         onSort: (columnIndex, ascending) {},
                       ),
                       DataColumn2(
@@ -536,10 +422,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
                         label: SelectFilterNoId('Status', 'equals/status',
                             statusController, listStatus),
                         size: ColumnSize.S,
-                        numeric: true,
-                        onSort: (columnIndex, ascending) {
-                          sortFunc("Status");
-                        },
+                        onSort: (columnIndex, ascending) {},
                       ),
                       DataColumn2(
                         label: SelectFilter('Vendedor', 'equals/id_comercial',
@@ -557,7 +440,6 @@ class _NoveltiesLState extends State<NoveltiesL> {
                             transportadorasController,
                             listtransportadores),
                         size: ColumnSize.S,
-                        // numeric: true,
                         onSort: (columnIndex, ascending) {
                           // sortFunc("Estado_Interno");
                         },
@@ -570,7 +452,6 @@ class _NoveltiesLState extends State<NoveltiesL> {
                       DataColumn2(
                         label: Text("Estado Devolución"),
                         size: ColumnSize.S,
-                        numeric: true,
                         onSort: (columnIndex, ascending) {},
                       ),
                       DataColumn2(
@@ -638,519 +519,6 @@ class _NoveltiesLState extends State<NoveltiesL> {
     });
   }
 
-  _buttons() {
-    return Wrap(
-      runSpacing: 10.0,
-      spacing: 10.0,
-      children: [
-        ElevatedButton(
-            onPressed: () async {
-              showDialog(
-                  context: (context),
-                  builder: (context) {
-                    return AlertDialog(
-                      content: Container(
-                        width: 500,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: GestureDetector(
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Icon(Icons.close)),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            ElevatedButton(
-                                onPressed: () async {
-                                  await showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return RoutesModal(
-                                            idOrder: optionsCheckBox,
-                                            someOrders: true,
-                                            phoneClient: "",
-                                            codigo: "");
-                                      });
-
-                                  setState(() {});
-                                  await loadData();
-                                },
-                                child: Text(
-                                  "Asignar Ruta",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                )),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            ElevatedButton(
-                                onPressed: () async {
-                                  await showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return SubRoutesModalHistorial(
-                                          idOrder: optionsCheckBox,
-                                          someOrders: true,
-                                        );
-                                      });
-
-                                  setState(() {});
-                                  await loadData();
-                                },
-                                child: Text(
-                                  "Asignar SubRuta y Operador",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                )),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            ElevatedButton(
-                                onPressed: () async {
-                                  getLoadingModal(context, false);
-                                  for (var option in optionsCheckBox) {
-                                    await Connections()
-                                        .updateOrderLogisticStatus(
-                                            "IMPRESO", option['id'].toString());
-                                  }
-
-                                  Navigator.pop(context);
-                                  await loadData();
-                                },
-                                child: Text(
-                                  "IMPRESO",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                )),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            ElevatedButton(
-                                onPressed: () async {
-                                  getLoadingModal(context, false);
-
-                                  for (var option in optionsCheckBox) {
-                                    await Connections()
-                                        .updateOrderLogisticStatusPrint(
-                                            "ENVIADO", option['id'].toString());
-                                  }
-
-                                  Navigator.pop(context);
-                                  await loadData();
-                                },
-                                child: Text(
-                                  "ENVIADO",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                )),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            ElevatedButton(
-                                onPressed: () async {
-                                  const double point = 1.0;
-                                  const double inch = 72.0;
-                                  const double cm = inch / 2.54;
-                                  const double mm = inch / 25.4;
-                                  getLoadingModal(context, false);
-                                  final doc = pw.Document();
-
-                                  for (var option in optionsCheckBox) {
-                                    final capturedImage =
-                                        await screenshotController
-                                            .captureFromWidget(Container(
-                                                child: ModelGuide(
-                                      address: option['address'],
-                                      city: option['city'],
-                                      date: option['date'],
-                                      extraProduct: option['extraProduct'],
-                                      idForBarcode: option['id'],
-                                      name: option['name'],
-                                      numPedido: option['numPedido'],
-                                      observation: option['obervation'],
-                                      phone: option['phone'],
-                                      price: option['price'],
-                                      product: option['product'],
-                                      qrLink: option['qrLink'],
-                                      quantity: option['quantity'],
-                                      transport: option['transport'],
-                                    )));
-                                    doc.addPage(pw.Page(
-                                      pageFormat: PdfPageFormat(
-                                          21.0 * cm, 21.0 * cm,
-                                          marginAll: 0.1 * cm),
-                                      build: (pw.Context context) {
-                                        return pw.Row(
-                                          children: [
-                                            pw.Image(
-                                                pw.MemoryImage(capturedImage),
-                                                fit: pw.BoxFit.contain)
-                                          ],
-                                        );
-                                      },
-                                    ));
-                                  }
-
-                                  Navigator.pop(context);
-                                  await Printing.layoutPdf(
-                                      onLayout: (PdfPageFormat format) async =>
-                                          await doc.save());
-                                },
-                                child: Text(
-                                  "Imprimir",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                )),
-                          ],
-                        ),
-                      ),
-                    );
-                  });
-            },
-            child: Text(
-              "Logistico",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            )),
-        ElevatedButton(
-            onPressed: () async {
-              showDialog(
-                  context: (context),
-                  builder: (context) {
-                    return AlertDialog(
-                      content: Container(
-                        width: 500,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: GestureDetector(
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Icon(Icons.close)),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            ElevatedButton(
-                                onPressed: () async {
-                                  getLoadingModal(context, false);
-
-                                  for (var i = 0;
-                                      i < optionsCheckBox.length;
-                                      i++) {
-                                    if (optionsCheckBox[i]['id']
-                                            .toString()
-                                            .isNotEmpty &&
-                                        optionsCheckBox[i]['id'].toString() !=
-                                            '' &&
-                                        optionsCheckBox[i]['check'] == true) {
-                                      var response = await Connections()
-                                          .updateOrderInteralStatusHistorial(
-                                              "PENDIENTE",
-                                              optionsCheckBox[i]['id']
-                                                  .toString());
-                                    }
-                                  }
-
-                                  Navigator.pop(context);
-                                  await loadData();
-                                },
-                                child: Text(
-                                  "Pendiente",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                )),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            ElevatedButton(
-                                onPressed: () async {
-                                  getLoadingModal(context, false);
-
-                                  for (var i = 0;
-                                      i < optionsCheckBox.length;
-                                      i++) {
-                                    if (optionsCheckBox[i]['id']
-                                            .toString()
-                                            .isNotEmpty &&
-                                        optionsCheckBox[i]['id'].toString() !=
-                                            '' &&
-                                        optionsCheckBox[i]['check'] == true) {
-                                      var response = await Connections()
-                                          .updateOrderInteralStatusHistorial(
-                                              "CONFIRMADO",
-                                              optionsCheckBox[i]['id']
-                                                  .toString());
-                                    }
-                                  }
-
-                                  Navigator.pop(context);
-                                  await loadData();
-                                },
-                                child: Text(
-                                  "Confirmar",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                )),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            ElevatedButton(
-                                onPressed: () async {
-                                  getLoadingModal(context, false);
-
-                                  for (var i = 0;
-                                      i < optionsCheckBox.length;
-                                      i++) {
-                                    if (optionsCheckBox[i]['id']
-                                            .toString()
-                                            .isNotEmpty &&
-                                        optionsCheckBox[i]['id'].toString() !=
-                                            '' &&
-                                        optionsCheckBox[i]['check'] == true) {
-                                      var response = await Connections()
-                                          .updateOrderInteralStatusHistorial(
-                                              "NO DESEA",
-                                              optionsCheckBox[i]['id']
-                                                  .toString());
-                                    }
-                                  }
-
-                                  Navigator.pop(context);
-                                  await loadData();
-                                },
-                                child: Text(
-                                  "No Desea",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                )),
-                          ],
-                        ),
-                      ),
-                    );
-                  });
-            },
-            child: Text(
-              "Confirmado",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            )),
-        ElevatedButton(
-            onPressed: () async {
-              showDialog(
-                  context: (context),
-                  builder: (context) {
-                    return AlertDialog(
-                      content: Container(
-                        width: 500,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: GestureDetector(
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Icon(Icons.close)),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            ElevatedButton(
-                                onPressed: () async {
-                                  getLoadingModal(context, false);
-
-                                  for (var i = 0;
-                                      i < optionsCheckBox.length;
-                                      i++) {
-                                    if (optionsCheckBox[i]['id']
-                                            .toString()
-                                            .isNotEmpty &&
-                                        optionsCheckBox[i]['id'].toString() !=
-                                            '' &&
-                                        optionsCheckBox[i]['check'] == true) {
-                                      await Connections().updateOrderReturnAll(
-                                          optionsCheckBox[i]['id'].toString());
-                                    }
-                                  }
-
-                                  Navigator.pop(context);
-                                  await loadData();
-                                },
-                                child: Text(
-                                  "PENDIENTE",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                )),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            ElevatedButton(
-                                onPressed: () async {
-                                  getLoadingModal(context, false);
-
-                                  for (var i = 0;
-                                      i < optionsCheckBox.length;
-                                      i++) {
-                                    if (optionsCheckBox[i]['id']
-                                            .toString()
-                                            .isNotEmpty &&
-                                        optionsCheckBox[i]['id'].toString() !=
-                                            '' &&
-                                        optionsCheckBox[i]['check'] == true) {
-                                      await Connections()
-                                          .updateOrderReturnOperator(
-                                              optionsCheckBox[i]['id']
-                                                  .toString());
-                                    }
-                                  }
-
-                                  Navigator.pop(context);
-                                  await loadData();
-                                },
-                                child: Text(
-                                  "En Oficina",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                )),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            ElevatedButton(
-                                onPressed: () async {
-                                  getLoadingModal(context, false);
-
-                                  for (var i = 0;
-                                      i < optionsCheckBox.length;
-                                      i++) {
-                                    if (optionsCheckBox[i]['id']
-                                            .toString()
-                                            .isNotEmpty &&
-                                        optionsCheckBox[i]['id'].toString() !=
-                                            '' &&
-                                        optionsCheckBox[i]['check'] == true) {
-                                      await Connections()
-                                          .updateOrderReturnLogistic(
-                                              optionsCheckBox[i]['id']
-                                                  .toString());
-                                    }
-                                  }
-
-                                  Navigator.pop(context);
-                                  await loadData();
-                                },
-                                child: Text(
-                                  "En Bodega",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                )),
-                          ],
-                        ),
-                      ),
-                    );
-                  });
-            },
-            child: Text(
-              "Devolución",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            )),
-        ElevatedButton(
-            onPressed: () async {
-              showDialog(
-                  context: (context),
-                  builder: (context) {
-                    return AlertDialog(
-                      content: Container(
-                        width: 500,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: GestureDetector(
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Icon(Icons.close)),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            ElevatedButton(
-                                onPressed: () async {
-                                  for (var i = 0;
-                                      i < optionsCheckBox.length;
-                                      i++) {
-                                    if (optionsCheckBox[i]['id']
-                                            .toString()
-                                            .isNotEmpty &&
-                                        optionsCheckBox[i]['id'].toString() !=
-                                            '' &&
-                                        optionsCheckBox[i]['check'] == true) {
-                                      var _url = Uri.parse(
-                                          """https://api.whatsapp.com/send?phone=${optionsCheckBox[i]['phone'].toString()}""");
-                                      if (!await launchUrl(_url)) {
-                                        throw Exception(
-                                            'Could not launch $_url');
-                                      }
-                                    }
-                                  }
-                                },
-                                child: Text(
-                                  "WhatsApp",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                )),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            ElevatedButton(
-                                onPressed: () async {
-                                  for (var i = 0;
-                                      i < optionsCheckBox.length;
-                                      i++) {
-                                    if (optionsCheckBox[i]['id']
-                                            .toString()
-                                            .isNotEmpty &&
-                                        optionsCheckBox[i]['id'].toString() !=
-                                            '' &&
-                                        optionsCheckBox[i]['check'] == true) {
-                                      var _url = Uri(
-                                          scheme: 'tel',
-                                          path:
-                                              '${optionsCheckBox[i]['phone'].toString()}');
-
-                                      if (!await launchUrl(_url)) {
-                                        throw Exception(
-                                            'Could not launch $_url');
-                                      }
-                                    }
-                                  }
-                                },
-                                child: Text(
-                                  "Llamada",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ))
-                          ],
-                        ),
-                      ),
-                    );
-                  });
-            },
-            child: Text(
-              "Llamadas",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            )),
-      ],
-    );
-  }
-
-  isChecked(dataCheck) {
-    Map<String, dynamic>? foundMap = optionsCheckBox
-        .firstWhere((map) => map['id'] == dataCheck['id'], orElse: () => null);
-
-    if (foundMap != null) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   List<DataCell> getRows(index) {
     Color rowColor = Colors.black;
 
@@ -1163,17 +531,15 @@ class _NoveltiesLState extends State<NoveltiesL> {
             ),
           ), onTap: () {
         info(context, index);
-        // showDialogInfoData(data[index]);
       }),
       DataCell(
           Text(
             "${data[index]['users'] != null && data[index]['users'].toString() != "[]" ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal']}-${data[index]['numero_orden']}",
             style: TextStyle(
-              color: rowColor,
+              color: GetColor(data[index]['status']!),
             ),
           ), onTap: () {
-        // showDialogInfoData(data[index]);
-        // info(context, index);
+        info(context, index);
       }),
       DataCell(
           Text(
@@ -1182,7 +548,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
               color: rowColor,
             ),
           ), onTap: () {
-        // info(context, index);
+        info(context, index);
       }),
       DataCell(
           Text(
@@ -1191,8 +557,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
               color: rowColor,
             ),
           ), onTap: () {
-        // showDialogInfoData(data[index]);
-        // info(context, index);
+        info(context, index);
       }),
       DataCell(
           Text(
@@ -1201,9 +566,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
               color: rowColor,
             ),
           ), onTap: () {
-        // showDialogInfoData(data[index]);
-        // info(context, index);
-
+        info(context, index);
       }),
       DataCell(
           Text(
@@ -1212,9 +575,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
               color: rowColor,
             ),
           ), onTap: () {
-        // showDialogInfoData(data[index]);
-        // info(context, index);
-
+        info(context, index);
       }),
       DataCell(
           Text(
@@ -1223,9 +584,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
               color: rowColor,
             ),
           ), onTap: () {
-        // showDialogInfoData(data[index]);
-        // info(context, index);
-
+        info(context, index);
       }),
       DataCell(
           Text(
@@ -1234,8 +593,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
               color: rowColor,
             ),
           ), onTap: () {
-        // showDialogInfoData(data[index]);
-        // info(context, index);
+        info(context, index);
       }),
       DataCell(
           Text(
@@ -1243,16 +601,18 @@ class _NoveltiesLState extends State<NoveltiesL> {
             style: TextStyle(
               color: rowColor,
             ),
-          ),
-          onTap: () {}),
+          ), onTap: () {
+        info(context, index);
+      }),
       DataCell(
           Text(
             data[index]['precio_total'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
-          ),
-          onTap: () {}),
+          ), onTap: () {
+        info(context, index);
+      }),
       DataCell(
           Text(
             data[index]['observacion'].toString(),
@@ -1260,7 +620,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
               color: rowColor,
             ),
           ), onTap: () {
-        showDialogInfoData(data[index]);
+        info(context, index);
       }),
       DataCell(
           Text(
@@ -1268,16 +628,19 @@ class _NoveltiesLState extends State<NoveltiesL> {
             style: TextStyle(
               color: rowColor,
             ),
-          ),
-          onTap: () {}),
+          ), onTap: () {
+        info(context, index);
+      }),
       DataCell(
           Text(
-            data[index]['status'].toString(),
             style: TextStyle(
-              color: rowColor,
+              color: GetColor(data[index]['status']),
+              // color: Colors.blue,
             ),
-          ),
-          onTap: () {}),
+            data[index]['status'].toString(),
+          ), onTap: () {
+        info(context, index);
+      }),
       DataCell(
           Text(
             // data[index]['tienda_temporal'].toString(),
@@ -1286,7 +649,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
               color: rowColor,
             ),
           ), onTap: () {
-        // info(context, index);
+        info(context, index);
       }),
       DataCell(
           Text(
@@ -1298,7 +661,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
               color: rowColor,
             ),
           ), onTap: () {
-        // info(context, index);
+        info(context, index);
       }),
       DataCell(
           Text(
@@ -1311,7 +674,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
               color: rowColor,
             ),
           ), onTap: () {
-        // info(context, index);
+        info(context, index);
       }),
       DataCell(
           Text(
@@ -1320,8 +683,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
               color: rowColor,
             ),
           ), onTap: () {
-        // showDialogInfoData(data[index]);
-        // info(context, index);
+        info(context, index);
       }),
       DataCell(
           Text(
@@ -1330,71 +692,9 @@ class _NoveltiesLState extends State<NoveltiesL> {
               color: rowColor,
             ),
           ), onTap: () {
-        // info(context, index);
+        info(context, index);
       }),
     ];
-  }
-
-  Future<dynamic> showDialogInfoData(data) {
-    return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            content: Container(
-              width: MediaQuery.of(context).size.width * 0.4,
-              height: MediaQuery.of(context).size.height,
-              child: Column(
-                children: [
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
-                        paginateData();
-                      },
-                      child: Icon(Icons.close),
-                    ),
-                  ),
-                  Expanded(
-                      child: TransportDeliveryHistoryDetailsData(
-                    data: data,
-                    function: paginateData,
-                  ))
-                ],
-              ),
-            ),
-          );
-        });
-  }
-
-  Future<dynamic> showDialogInfo(index) {
-    return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            content: Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              child: Column(
-                children: [
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      child: Icon(Icons.close),
-                    ),
-                  ),
-                  Expanded(
-                      child: TransportDeliveryHistoryDetails(
-                    id: data[index]['id'].toString(),
-                  ))
-                ],
-              ),
-            ),
-          );
-        });
   }
 
   SizedBox _dates(BuildContext context) {
@@ -1489,203 +789,54 @@ class _NoveltiesLState extends State<NoveltiesL> {
                 "HASTA: ${sharedPrefs!.getString("dateHastaLogistica")}",
                 style: TextStyle(fontWeight: FontWeight.bold),
               )),
-          SizedBox(
-            width: 10,
-          ),
-          ElevatedButton(
-              onPressed: () async {
-                setState(() {
-                  _search.clear();
-                });
-                await loadData();
-              },
-              child: Text(
-                "BUSCAR",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              )),
-          SizedBox(
-            width: 10,
-          ),
-          ElevatedButton(
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(
-                Color.fromARGB(255, 167, 7, 7),
+          Row(
+            children: [
+              SizedBox(
+                width: 10,
               ),
-            ),
-            onPressed: () async {
-              // await applyDateFilter();
-              setState(() {
-                limpiar();
-                loadData();
-              });
-            },
-            child: const Row(
-              // Usar un Row para combinar el icono y el texto
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.filter_alt), // Agregar el icono de filtro aquí
-                SizedBox(width: 8), // Espacio entre el icono y el texto
-                Text(
-                  'Quitar Filtros',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(
-            width: 10,
-          )
-        ],
-      ),
-    );
-  }
-
-  _filters(BuildContext context) {
-    return Row(
-      children: [
-        IconButton(
-            onPressed: () async {
-              await showDialog(
-                  context: context,
-                  builder: (context) {
-                    return StatefulBuilder(builder: (context, setState) {
-                      return AlertDialog(
-                        content: Container(
-                          width: 500,
-                          height: MediaQuery.of(context).size.height,
-                          child: Column(
-                            children: [
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: GestureDetector(
-                                    onTap: () {
-                                      Navigator.pop(context);
-                                    },
-                                    child: Icon(Icons.close)),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Text(
-                                "Filtros:",
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Expanded(
-                                child: Center(
-                                  child: ListView(
-                                    children: [
-                                      Wrap(
-                                        children: [
-                                          ...List.generate(
-                                              titlesFilters.length,
-                                              (index) => Container(
-                                                    width: 140,
-                                                    child: Row(
-                                                      children: [
-                                                        Checkbox(
-                                                            value: bools[index],
-                                                            onChanged: (v) {
-                                                              if (bools[
-                                                                      index] ==
-                                                                  true) {
-                                                                setState(() {
-                                                                  bools[index] =
-                                                                      false;
-                                                                  option = "";
-                                                                });
-                                                              } else {
-                                                                setState(() {
-                                                                  bools[index] =
-                                                                      true;
-                                                                  option =
-                                                                      titlesFilters[
-                                                                          index];
-                                                                  for (int i =
-                                                                          0;
-                                                                      i <
-                                                                          bools
-                                                                              .length;
-                                                                      i++) {
-                                                                    if (i !=
-                                                                        index) {
-                                                                      bools[i] =
-                                                                          false;
-                                                                    }
-                                                                  }
-                                                                });
-                                                              }
-                                                              Navigator.pop(
-                                                                  context);
-                                                            }),
-                                                        SizedBox(
-                                                          width: 5,
-                                                        ),
-                                                        Text(
-                                                          titlesFilters[index],
-                                                          style: TextStyle(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              fontSize: 12),
-                                                        )
-                                                      ],
-                                                    ),
-                                                  ))
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
+              ElevatedButton(
+                  onPressed: () async {
+                    setState(() {
+                      _search.clear();
                     });
+                    await loadData();
+                  },
+                  child: Text(
+                    "BUSCAR",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  )),
+              SizedBox(
+                width: 10,
+              ),
+              ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(
+                    Color.fromARGB(255, 167, 7, 7),
+                  ),
+                ),
+                onPressed: () async {
+                  setState(() {
+                    limpiar();
+                    loadData();
                   });
-              setState(() {});
-            },
-            icon: Icon(Icons.filter_alt_outlined)),
-        Flexible(
-            child: Text(
-          "Activo: $option",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
-        ))
-      ],
-    );
-  }
-
-  _invoiceTile({
-    required String name,
-    required int id,
-    String status = "",
-  }) {
-    return ListTile(
-      onTap: () {
-        Navigators().pushNamed(
-          context,
-          '/layout/logistic/transport-delivery-history-by-transport?id=$id',
-        );
-      },
-      trailing: const Icon(
-        Icons.arrow_forward_ios_sharp,
-        size: 15,
-      ),
-      title: Row(
-        children: [
-          Text(
-            "$name",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-            ),
-          ),
+                },
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Icon(Icons.filter_alt),
+                    // SizedBox(width: 8),
+                    Text(
+                      'Quitar Filtros',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                width: 10,
+              )
+            ],
+          )
         ],
       ),
     );
@@ -1739,181 +890,6 @@ class _NoveltiesLState extends State<NoveltiesL> {
         ),
       ),
     );
-  }
-
-  sortFunc(name) {
-    if (search == false) {
-      if (sort) {
-        setState(() {
-          sort = false;
-        });
-        data.sort((a, b) => b[name].toString().compareTo(a[name].toString()));
-      } else {
-        setState(() {
-          sort = true;
-        });
-        data.sort((a, b) => a[name].toString().compareTo(b[name].toString()));
-      }
-    } else {
-      if (sort) {
-        setState(() {
-          sort = false;
-        });
-        data.sort((a, b) => b['attributes'][name]
-            .toString()
-            .compareTo(a['attributes'][name].toString()));
-      } else {
-        setState(() {
-          sort = true;
-        });
-        data.sort((a, b) => a['attributes'][name]
-            .toString()
-            .compareTo(b['attributes'][name].toString()));
-      }
-    }
-  }
-
-  sortFuncrutaAsignada() {
-    if (search == false) {
-      if (sort) {
-        setState(() {
-          sort = false;
-        });
-        data.sort((a, b) => b['ruta']['Titulo']
-            .toString()
-            .compareTo(a['ruta']['Titulo'].toString()));
-      } else {
-        setState(() {
-          sort = true;
-        });
-        data.sort((a, b) => a['ruta']['Titulo']
-            .toString()
-            .compareTo(b['ruta']['Titulo'].toString()));
-      }
-    } else {
-      if (sort) {
-        setState(() {
-          sort = false;
-        });
-        data.sort((a, b) => b['attributes']['ruta']["data"]['attributes']
-                ['Titulo']
-            .toString()
-            .compareTo(a['attributes']['ruta']["data"]['attributes']['Titulo']
-                .toString()));
-      } else {
-        setState(() {
-          sort = true;
-        });
-        data.sort((a, b) => a['attributes']['ruta']["data"]['attributes']
-                ['Titulo']
-            .toString()
-            .compareTo(b['attributes']['ruta']["data"]['attributes']['Titulo']
-                .toString()));
-      }
-    }
-  }
-
-  sortFuncTransportadora() {
-    if (search == false) {
-      if (sort) {
-        setState(() {
-          sort = false;
-        });
-        data.sort((a, b) => b['transportadora']['Nombre']
-            .toString()
-            .compareTo(a['transportadora']['Nombre'].toString()));
-      } else {
-        setState(() {
-          sort = true;
-        });
-        data.sort((a, b) => a['transportadora']['Nombre']
-            .toString()
-            .compareTo(b['transportadora']['Nombre'].toString()));
-      }
-    } else {
-      if (sort) {
-        setState(() {
-          sort = false;
-        });
-        data.sort((a, b) => b['attributes']['transportadora']['data']
-                ['attributes']['Nombre']
-            .toString()
-            .compareTo(a['attributes']['transportadora']['data']['attributes']
-                    ['Nombre']
-                .toString()));
-      } else {
-        setState(() {
-          sort = true;
-        });
-        data.sort((a, b) => a['attributes']['transportadora']['data']
-                ['attributes']['Nombre']
-            .toString()
-            .compareTo(b['attributes']['transportadora']['data']['attributes']
-                    ['Nombre']
-                .toString()));
-      }
-    }
-  }
-
-  sortFuncSubRuta() {
-    if (search == false) {
-      if (sort) {
-        setState(() {
-          sort = false;
-        });
-        data.sort((a, b) => b['sub_ruta'] != null
-            ? b['sub_ruta']['Titulo']
-            : "".toString().compareTo(a['sub_ruta'] != null
-                ? a['sub_ruta']['Titulo'].toString()
-                : ""));
-      } else {
-        setState(() {
-          sort = true;
-        });
-        data.sort((a, b) => a['sub_ruta'] != null
-            ? a['sub_ruta']['Titulo']
-            : "".toString().compareTo(b['sub_ruta'] != null
-                ? b['sub_ruta']['Titulo'].toString()
-                : ""));
-      }
-    } else {
-      if (sort) {
-        setState(() {
-          sort = false;
-        });
-        data.sort((a, b) => b['attributes']['sub_ruta']['data']['attributes']
-                ['Titulo']
-            .toString()
-            .compareTo(a['attributes']['sub_ruta']['data']['attributes']
-                    ['Titulo']
-                .toString()));
-      } else {
-        setState(() {
-          sort = true;
-        });
-        data.sort((a, b) => a['attributes']['sub_ruta']['data']['attributes']
-                ['Titulo']
-            .toString()
-            .compareTo(b['attributes']['sub_ruta']['data']['attributes']
-                    ['Titulo']
-                .toString()));
-      }
-    }
-  }
-
-  bool verificarIndice(int index) {
-    try {
-      dynamic elemento =
-          optionsCheckBox.elementAt(index + ((currentPage - 1) * pageSize));
-
-      if (elemento['id'] != data[index]['id'].toString()) {
-        return false;
-      } else {
-        return true;
-      }
-    } catch (error) {
-      return false;
-    }
   }
 
   Column SelectFilter(String title, filter, TextEditingController controller,
@@ -2055,220 +1031,6 @@ class _NoveltiesLState extends State<NoveltiesL> {
     );
   }
 
-  sortFuncOperador() {
-    if (search == false) {
-      if (sort) {
-        setState(() {
-          sort = false;
-        });
-        data.sort((a, b) => b['operadore']['user']['username']
-            .toString()
-            .compareTo(a['operadore']['user']['username'].toString()));
-      } else {
-        setState(() {
-          sort = true;
-        });
-        data.sort((a, b) => a['operadore']['user']['username']
-            .toString()
-            .compareTo(b['operadore']['user']['username'].toString()));
-      }
-    } else {
-      if (sort) {
-        setState(() {
-          sort = false;
-        });
-        data.sort((a, b) => b['attributes']['operadore']['data']['attributes']
-                ['user']['data']['attributes']['username']
-            .toString()
-            .compareTo(a['attributes']['operadore']['data']['attributes']
-                    ['user']['data']['attributes']['username']
-                .toString()));
-      } else {
-        setState(() {
-          sort = true;
-        });
-        data.sort((a, b) => a['attributes']['operadore']['data']['attributes']
-                ['user']['data']['attributes']['username']
-            .toString()
-            .compareTo(b['attributes']['operadore']['data']['attributes']
-                    ['user']['data']['attributes']['username']
-                .toString()));
-      }
-    }
-  }
-
-  sortFuncCostoTrans() {
-    if (search == false) {
-      if (sort) {
-        setState(() {
-          sort = false;
-        });
-        data.sort((a, b) => b['transportadora']['Costo_Transportadora']
-            .toString()
-            .compareTo(a['transportadora']['Costo_Transportadora'].toString()));
-      } else {
-        setState(() {
-          sort = true;
-        });
-        data.sort((a, b) => a['transportadora']['Costo_Transportadora']
-            .toString()
-            .compareTo(b['transportadora']['Costo_Transportadora'].toString()));
-      }
-    } else {
-      if (sort) {
-        setState(() {
-          sort = false;
-        });
-        data.sort((a, b) => b['attributes']['transportadora']['data']
-                ['attributes']['Costo_Transportadora']
-            .toString()
-            .compareTo(a['attributes']['transportadora']['data']['attributes']
-                    ['Costo_Transportadora']
-                .toString()));
-      } else {
-        setState(() {
-          sort = true;
-        });
-        data.sort((a, b) => a['attributes']['transportadora']['data']
-                ['attributes']['Costo_Transportadora']
-            .toString()
-            .compareTo(b['attributes']['transportadora']['data']['attributes']
-                    ['Costo_Transportadora']
-                .toString()));
-      }
-    }
-  }
-
-  sortFuncCostoOperador() {
-    if (search == false) {
-      if (sort) {
-        setState(() {
-          sort = false;
-        });
-        data.sort((a, b) => b['operadore']['Costo_Operador']
-            .toString()
-            .compareTo(a['operadore']['Costo_Operador'].toString()));
-      } else {
-        setState(() {
-          sort = true;
-        });
-        data.sort((a, b) => a['operadore']['Costo_Operador']
-            .toString()
-            .compareTo(b['operadore']['Costo_Operador'].toString()));
-      }
-    } else {
-      if (sort) {
-        setState(() {
-          sort = false;
-        });
-        data.sort((a, b) => b['attributes']['operadore']['data']['attributes']
-                ['Costo_Operador']
-            .toString()
-            .compareTo(a['attributes']['operadore']['data']['attributes']
-                    ['Costo_Operador']
-                .toString()));
-      } else {
-        setState(() {
-          sort = true;
-        });
-        data.sort((a, b) => a['attributes']['operadore']['data']['attributes']
-                ['Costo_Operador']
-            .toString()
-            .compareTo(b['attributes']['operadore']['data']['attributes']
-                    ['Costo_Operador']
-                .toString()));
-      }
-    }
-  }
-
-  // sortFuncCostoEntrega() {
-  //   if (search == false) {
-  //     if (sort) {
-  //       setState(() {
-  //         sort = false;
-  //       });
-  //       data.sort((a, b) => b['users'][0]['vendedores'][0]['CostoEnvio']
-  //           .toString()
-  //           .compareTo(
-  //               a['users'][0]['vendedores'][0]['CostoEnvio'].toString()));
-  //     } else {
-  //       setState(() {
-  //         sort = true;
-  //       });
-  //       data.sort((a, b) => a['users'][0]['vendedores'][0]['CostoEnvio']
-  //           .toString()
-  //           .compareTo(
-  //               b['users'][0]['vendedores'][0]['CostoEnvio'].toString()));
-  //     }
-  //   } else {
-  //     if (sort) {
-  //       setState(() {
-  //         sort = false;
-  //       });
-  //       data.sort((a, b) => b['attributes']['users']['data'][0]['attributes']
-  //               ['vendedores']['data'][0]['attributes']['CostoEnvio']
-  //           .toString()
-  //           .compareTo(a['attributes']['users']['data'][0]['attributes']
-  //                   ['vendedores']['data'][0]['attributes']['CostoEnvio']
-  //               .toString()));
-  //     } else {
-  //       setState(() {
-  //         sort = true;
-  //       });
-  //       data.sort((a, b) => a['attributes']['users']['data'][0]['attributes']
-  //               ['vendedores']['data'][0]['attributes']['CostoEnvio']
-  //           .toString()
-  //           .compareTo(b['attributes']['users']['data'][0]['attributes']
-  //                   ['vendedores']['data'][0]['attributes']['CostoEnvio']
-  //               .toString()));
-  //     }
-  //   }
-  // }
-
-  sortFuncDevolucion() {
-    if (search == false) {
-      if (sort) {
-        setState(() {
-          sort = false;
-        });
-        data.sort((a, b) => b['users'][0]['vendedores'][0]['CostoDevolucion']
-            .toString()
-            .compareTo(
-                a['users'][0]['vendedores'][0]['CostoDevolucion'].toString()));
-      } else {
-        setState(() {
-          sort = true;
-        });
-        data.sort((a, b) => a['users'][0]['vendedores'][0]['CostoDevolucion']
-            .toString()
-            .compareTo(
-                b['users'][0]['vendedores'][0]['CostoDevolucion'].toString()));
-      }
-    } else {
-      if (sort) {
-        setState(() {
-          sort = false;
-        });
-        data.sort((a, b) => b['attributes']['users']['data'][0]['attributes']
-                ['vendedores']['data'][0]['attributes']['CostoDevolucion']
-            .toString()
-            .compareTo(a['attributes']['users']['data'][0]['attributes']
-                    ['vendedores']['data'][0]['attributes']['CostoDevolucion']
-                .toString()));
-      } else {
-        setState(() {
-          sort = true;
-        });
-        data.sort((a, b) => a['attributes']['users']['data'][0]['attributes']
-                ['vendedores']['data'][0]['attributes']['CostoDevolucion']
-            .toString()
-            .compareTo(b['attributes']['users']['data'][0]['attributes']
-                    ['vendedores']['data'][0]['attributes']['CostoDevolucion']
-                .toString()));
-      }
-    }
-  }
-
   void limpiar() {
     _controllers.searchController.text = "";
     arrayFiltersAnd.clear();
@@ -2337,6 +1099,27 @@ class _NoveltiesLState extends State<NoveltiesL> {
         });
   }
 
+  Color? GetColor(state) {
+    int color = 0xFF000000;
+    switch (state) {
+      case "NOVEDAD RESUELTA":
+        color = 0xFF2E7D32;
+        break;
+      case "NOVEDAD":
+        color = 0xFFF57F17;
+        break;
+      case "NO ENTREGADO":
+        color = 0xFFE61414;
+        break;
+      case "REAGENDADO":
+        color = 0xFFAB47BC;
+        break;
+      case "PEDIDO PROGRAMADO":
+        color = 0xFF3341FF;
+        break;
+      default:
+    }
 
-
+    return Color(color);
+  }
 }

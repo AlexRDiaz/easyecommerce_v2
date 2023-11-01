@@ -21,10 +21,10 @@ class NoveltiesInfo extends StatefulWidget {
 class _NoveltiesInfo extends State<NoveltiesInfo> {
   var data = {};
   bool loading = true;
-  OrderInfoOperatorControllers _controllers = OrderInfoOperatorControllers();
-  TextEditingController _statusController =
+  // OrderInfoOperatorControllers _controllers = OrderInfoOperatorControllers();
+  final TextEditingController _statusController =
       TextEditingController(text: "NOVEDAD RESUELTA");
-  TextEditingController _comentarioController = TextEditingController();
+  final TextEditingController _comentarioController = TextEditingController();
 
   @override
   void didChangeDependencies() {
@@ -37,8 +37,6 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
       getLoadingModal(context, false);
     });
 
-    // print("aqui> ${widget.data}");
-
     var order = widget.data.firstWhere(
         (item) => item['id'].toString() == widget.id,
         orElse: () => null);
@@ -48,10 +46,9 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
       _comentarioController.text = safeValue(data['comentario']);
     } else {
       print("Error: No se encontró el pedido con el ID proporcionado.");
-      // Puedes manejar este error como desees. Por ejemplo, mostrar un mensaje al usuario.
     }
 
-    Future.delayed(Duration(milliseconds: 500), () {
+    Future.delayed(const Duration(milliseconds: 500), () {
       Navigator.pop(context);
       setState(() {
         loading = false;
@@ -83,7 +80,7 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
         backgroundColor: Colors.white,
         leading: Container(),
         centerTitle: true,
-        title: Text(
+        title: const Text(
           "Información Pedido",
           style: TextStyle(
               fontWeight: FontWeight.bold, color: Colors.black, fontSize: 20),
@@ -237,23 +234,18 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 20,
                         ),
-                        // Text(
-                        //   "  Costo Devolución: ${data['users'] != null ? data['users'][0]['vendedores'][0]['costo_devolucion'].toString() : ""}",
-                        //   style: TextStyle(
-                        //       fontWeight: FontWeight.bold, fontSize: 18),
-                        // ),
-                        SizedBox(
+                        const SizedBox(
                           height: 20,
                         ),
                         Text(
                           "  Fecha Entrega: ${safeValue(data['fecha_entrega'].toString())}",
-                          style: TextStyle(
+                          style: const TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 20,
                         ),
                         // Text(
@@ -287,8 +279,8 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
       floatingActionButton: (safeValue(data['status']) == "NOVEDAD")
           ? FloatingActionButton.extended(
               onPressed: _showResolveModal,
-              label: Text('Resolver Novedad'),
-              icon: Icon(Icons.check_circle),
+              label: const Text('Resolver Novedad'),
+              icon: const Icon(Icons.check_circle),
             )
           : null,
     );
@@ -299,25 +291,25 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
         context: context,
         builder: (BuildContext context) {
           return Container(
-            padding: EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(20.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
                   children: [
-                    Expanded(
+                    const Expanded(
                       child: Text('Status:',
                           style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Expanded(
                       flex: 3,
                       child: TextFormField(
                         controller: _statusController,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                         ),
-                        enabled: false, // makes the input non-editable
+                        enabled: false,
                       ),
                     ),
                   ],
@@ -325,58 +317,49 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
                 SizedBox(height: 20),
                 Row(
                   children: [
-                    Expanded(
+                    const Expanded(
                       child: Text('Comentario:',
                           style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Expanded(
                       flex: 3,
                       child: TextFormField(
                         controller: _comentarioController,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                         ),
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     ElevatedButton.icon(
                       onPressed: () {
-                        Navigator.pop(context); 
+                        Navigator.pop(context);
                       },
-                      icon: Icon(Icons.cancel),
-                      label: Text('Cancelar'),
+                      icon: const Icon(Icons.cancel),
+                      label: const Text('Cancelar'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent, 
+                        backgroundColor: Colors.redAccent,
                       ),
                     ),
                     ElevatedButton.icon(
                       onPressed: () async {
-                        
-                        var respupdtstcmt = await Connections()
-                            .editStatusandComment(
-                                data['id'],
-                                _statusController.text,
-                                _comentarioController.text);
-
-                        if (respupdtstcmt == true) {
-                          print("okk!");
-
-                        }
-                        await sendWhatsAppMessage(context,data);
-
-                        Navigator.pop(context); 
-                        // loadData();
+                        await sendWhatsAppMessage(
+                            context, data, _comentarioController.text);
+                        await Connections().editStatusandComment(data['id'],
+                            _statusController.text, _comentarioController.text);
+                        Navigator.pop(context);
+                        Navigator.pop(context);
                       },
-                      icon: Icon(Icons.check),
-                      label: Text('Guardar'),
+                      icon: const Icon(Icons.check),
+                      label: const Text('Guardar'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green, 
+                        backgroundColor: Colors.green,
                       ),
                     ),
                   ],
@@ -387,52 +370,62 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
         });
   }
 
-  Future<void> sendWhatsAppMessage(
-      BuildContext context, Map<dynamic, dynamic> orderData) async {
-    // Verificar si el operador está asignado y tiene un número de teléfono
+  Future<void> sendWhatsAppMessage(BuildContext context,
+      Map<dynamic, dynamic> orderData, String newComment) async {
     String? phoneNumber = orderData['operadore']?.isNotEmpty == true
         ? orderData['operadore'][0]['telefono']
         : null;
 
     if (phoneNumber != null && phoneNumber.isNotEmpty) {
-      // Construir la URL de WhatsApp
       var message =
-          "Buen Día, la guía con el código >> ${orderData['numero_orden']} << de la tienda >> ${orderData['tienda_temporal']} << indica: ' ${orderData['comentario']} ' .";
+          "Buen Día, la guía con el código >> ${orderData['numero_orden']} << de la tienda >> ${orderData['tienda_temporal']} << indica: ' $newComment ' .";
       var whatsappUrl =
           "https://api.whatsapp.com/send?phone=$phoneNumber&text=${Uri.encodeFull(message)}";
 
       if (!await launchUrl(Uri.parse(whatsappUrl))) {
-        // No se pudo abrir la URL, manejar el error aquí
         throw Exception('Could not launch $whatsappUrl');
       }
     } else {
-      // Operador no asignado o no tiene teléfono, mostrar la alerta
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            contentPadding: EdgeInsets.all(20),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
-            backgroundColor: const Color.fromARGB(255, 20, 38, 53),
-            content: Center(
-              child: Text(
-                'Operador No Asignado',
-                style: TextStyle(color: Colors.white, fontSize: 18),
-              ),
-            ),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Cierra el diálogo
-                },
-                child: Text('Ok', style: TextStyle(color: Colors.white)),
-              ),
-            ],
-          );
-        },
-      );
+      _showErrorSnackBar(context, "El pedido no tiene un operador asignado.");
+      // showDialog(
+      //   context: context,
+      //   builder: (BuildContext context) {
+      //     return AlertDialog(
+      //       contentPadding: const EdgeInsets.all(20),
+      //       shape: RoundedRectangleBorder(
+      //         borderRadius: BorderRadius.circular(15),
+      //       ),
+      //       backgroundColor: const Color.fromARGB(255, 20, 38, 53),
+      //       content: const Center(
+      //         child: Text(
+      //           'Operador No Asignado',
+      //           style: TextStyle(color: Colors.white, fontSize: 18),
+      //         ),
+      //       ),
+      //       actions: <Widget>[
+      //         TextButton(
+      //           onPressed: () {
+      //             Navigator.of(context).pop();
+      //           },
+      //           child: const Text('Ok', style: TextStyle(color: Colors.white)),
+      //         ),
+      //       ],
+      //     );
+      //   },
+      // );
     }
+  }
+
+  void _showErrorSnackBar(BuildContext context, String errorMessage) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          errorMessage,
+          style: TextStyle(color: Color.fromRGBO(7, 0, 0, 1)),
+        ),
+        backgroundColor: Color.fromARGB(255, 253, 101, 90),
+        duration: Duration(seconds: 4),
+      ),
+    );
   }
 }
