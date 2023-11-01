@@ -12,7 +12,13 @@ import 'package:url_launcher/url_launcher.dart';
 class NoveltiesInfo extends StatefulWidget {
   final String id;
   final List data;
-  const NoveltiesInfo({super.key, required this.id, required this.data});
+  final Function function;
+
+  const NoveltiesInfo(
+      {super.key,
+      required this.id,
+      required this.data,
+      required this.function});
 
   @override
   State<NoveltiesInfo> createState() => _NoveltiesInfo();
@@ -237,9 +243,6 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
                         const SizedBox(
                           height: 20,
                         ),
-                        const SizedBox(
-                          height: 20,
-                        ),
                         Text(
                           "  Fecha Entrega: ${safeValue(data['fecha_entrega'].toString())}",
                           style: const TextStyle(
@@ -353,8 +356,13 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
                             context, data, _comentarioController.text);
                         await Connections().editStatusandComment(data['id'],
                             _statusController.text, _comentarioController.text);
+
+                        // await widget.functionpass;
+
                         Navigator.pop(context);
                         Navigator.pop(context);
+
+                        await widget.function();
                       },
                       icon: const Icon(Icons.check),
                       label: const Text('Guardar'),

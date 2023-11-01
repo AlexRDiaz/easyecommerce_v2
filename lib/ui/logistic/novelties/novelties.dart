@@ -10,6 +10,7 @@ import 'package:frontend/ui/logistic/novelties/novelties_info.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_details.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_details_data.dart';
 import 'package:frontend/ui/logistic/vendor_invoices/controllers/controllers.dart';
+import 'package:lottie/lottie.dart';
 import 'package:number_paginator/number_paginator.dart';
 import '../../../helpers/navigators.dart';
 import '../../widgets/loading.dart';
@@ -149,7 +150,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
     super.didChangeDependencies();
   }
 
-  loadData() async {
+  Future loadData() async {
     isLoading = true;
     currentPage = 1;
     try {
@@ -700,97 +701,99 @@ class _NoveltiesLState extends State<NoveltiesL> {
   SizedBox _dates(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
+      child: Column(
         children: [
-          TextButton(
-              onPressed: () async {
-                var results = await showCalendarDatePicker2Dialog(
-                  context: context,
-                  config: CalendarDatePicker2WithActionButtonsConfig(
-                    dayTextStyle: TextStyle(fontWeight: FontWeight.bold),
-                    yearTextStyle: TextStyle(fontWeight: FontWeight.bold),
-                    selectedYearTextStyle:
-                        TextStyle(fontWeight: FontWeight.bold),
-                    weekdayLabelTextStyle:
-                        TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  dialogSize: const Size(325, 400),
-                  value: [],
-                  borderRadius: BorderRadius.circular(15),
-                );
-                setState(() {
-                  if (results != null) {
-                    String fechaOriginal = results![0]
-                        .toString()
-                        .split(" ")[0]
-                        .split('-')
-                        .reversed
-                        .join('-')
-                        .replaceAll("-", "/");
-                    List<String> componentes = fechaOriginal.split('/');
-
-                    String dia = int.parse(componentes[0]).toString();
-                    String mes = int.parse(componentes[1]).toString();
-                    String anio = componentes[2];
-
-                    String nuevaFecha = "$dia/$mes/$anio";
-
-                    sharedPrefs!.setString("dateDesdeLogistica", nuevaFecha);
-                  }
-                });
-              },
-              child: Text(
-                "DESDE: ${sharedPrefs!.getString("dateDesdeLogistica")}",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              )),
-          SizedBox(
-            width: 10,
-          ),
-          TextButton(
-              onPressed: () async {
-                var results = await showCalendarDatePicker2Dialog(
-                  context: context,
-                  config: CalendarDatePicker2WithActionButtonsConfig(
-                    dayTextStyle: TextStyle(fontWeight: FontWeight.bold),
-                    yearTextStyle: TextStyle(fontWeight: FontWeight.bold),
-                    selectedYearTextStyle:
-                        TextStyle(fontWeight: FontWeight.bold),
-                    weekdayLabelTextStyle:
-                        TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  dialogSize: const Size(325, 400),
-                  value: [],
-                  borderRadius: BorderRadius.circular(15),
-                );
-                setState(() {
-                  if (results != null) {
-                    String fechaOriginal = results![0]
-                        .toString()
-                        .split(" ")[0]
-                        .split('-')
-                        .reversed
-                        .join('-')
-                        .replaceAll("-", "/");
-                    List<String> componentes = fechaOriginal.split('/');
-
-                    String dia = int.parse(componentes[0]).toString();
-                    String mes = int.parse(componentes[1]).toString();
-                    String anio = componentes[2];
-
-                    String nuevaFecha = "$dia/$mes/$anio";
-
-                    sharedPrefs!.setString("dateHastaLogistica", nuevaFecha);
-                  }
-                });
-              },
-              child: Text(
-                "HASTA: ${sharedPrefs!.getString("dateHastaLogistica")}",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              )),
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              TextButton(
+                  onPressed: () async {
+                    var results = await showCalendarDatePicker2Dialog(
+                      context: context,
+                      config: CalendarDatePicker2WithActionButtonsConfig(
+                        dayTextStyle: TextStyle(fontWeight: FontWeight.bold),
+                        yearTextStyle: TextStyle(fontWeight: FontWeight.bold),
+                        selectedYearTextStyle:
+                            TextStyle(fontWeight: FontWeight.bold),
+                        weekdayLabelTextStyle:
+                            TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      dialogSize: const Size(325, 400),
+                      value: [],
+                      borderRadius: BorderRadius.circular(15),
+                    );
+                    setState(() {
+                      if (results != null) {
+                        String fechaOriginal = results![0]
+                            .toString()
+                            .split(" ")[0]
+                            .split('-')
+                            .reversed
+                            .join('-')
+                            .replaceAll("-", "/");
+                        List<String> componentes = fechaOriginal.split('/');
+
+                        String dia = int.parse(componentes[0]).toString();
+                        String mes = int.parse(componentes[1]).toString();
+                        String anio = componentes[2];
+
+                        String nuevaFecha = "$dia/$mes/$anio";
+
+                        sharedPrefs!
+                            .setString("dateDesdeLogistica", nuevaFecha);
+                      }
+                    });
+                  },
+                  child: Text(
+                    "DESDE: ${sharedPrefs!.getString("dateDesdeLogistica")}",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  )),
+              SizedBox(
+                width: 10,
+              ),
+              TextButton(
+                  onPressed: () async {
+                    var results = await showCalendarDatePicker2Dialog(
+                      context: context,
+                      config: CalendarDatePicker2WithActionButtonsConfig(
+                        dayTextStyle: TextStyle(fontWeight: FontWeight.bold),
+                        yearTextStyle: TextStyle(fontWeight: FontWeight.bold),
+                        selectedYearTextStyle:
+                            TextStyle(fontWeight: FontWeight.bold),
+                        weekdayLabelTextStyle:
+                            TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      dialogSize: const Size(325, 400),
+                      value: [],
+                      borderRadius: BorderRadius.circular(15),
+                    );
+                    setState(() {
+                      if (results != null) {
+                        String fechaOriginal = results![0]
+                            .toString()
+                            .split(" ")[0]
+                            .split('-')
+                            .reversed
+                            .join('-')
+                            .replaceAll("-", "/");
+                        List<String> componentes = fechaOriginal.split('/');
+
+                        String dia = int.parse(componentes[0]).toString();
+                        String mes = int.parse(componentes[1]).toString();
+                        String anio = componentes[2];
+
+                        String nuevaFecha = "$dia/$mes/$anio";
+
+                        sharedPrefs!
+                            .setString("dateHastaLogistica", nuevaFecha);
+                      }
+                    });
+                  },
+                  child: Text(
+                    "HASTA: ${sharedPrefs!.getString("dateHastaLogistica")}",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  )),
               SizedBox(
                 width: 10,
               ),
@@ -832,11 +835,8 @@ class _NoveltiesLState extends State<NoveltiesL> {
                   ],
                 ),
               ),
-              SizedBox(
-                width: 10,
-              )
             ],
-          )
+          ),
         ],
       ),
     );
@@ -1091,6 +1091,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
                       child: NoveltiesInfo(
                     id: data[index]['id'].toString(),
                     data: data,
+                    function: paginateData,
                   ))
                 ],
               ),
