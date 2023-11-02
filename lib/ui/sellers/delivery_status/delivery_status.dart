@@ -772,15 +772,6 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                   rows: List<DataRow>.generate(
                       data.isNotEmpty ? data.length : [].length,
                       (index) => DataRow(cells: [
-                            // DataCell(
-
-                            //  Text(
-                            //             style:
-                            //                 const TextStyle(color: Colors.blue),
-                            //             '${(index * currentPage) + 1}'),
-                            //     onTap: () {
-                            //   openDialog(context, index);
-                            // }),
                             DataCell(
                                 Row(
                                   children: [
@@ -806,7 +797,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                     style: TextStyle(
                                         color: GetColor(
                                             data[index]['status'].toString())!),
-                                    '${data[index]['name_comercial'].toString()}-${data[index]['numero_orden'].toString()}'),
+                                    '${data[index]['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data[index]['numero_orden'].toString()}'),
                                 onTap: () {
                               openDialog(context, index);
                             }),
