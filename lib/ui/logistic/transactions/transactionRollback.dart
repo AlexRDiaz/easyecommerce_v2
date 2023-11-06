@@ -29,7 +29,6 @@ class _TransactionRollbackState extends State<TransactionRollback> {
                 decoration: InputDecoration(
                   fillColor: Colors.white, // Color del fondo del TextFormField
                   filled: true,
-                  labelText: 'Nombre Comercial',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
                   ),
