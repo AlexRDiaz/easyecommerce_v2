@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/config/colors.dart';
 
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/navigators.dart';
@@ -32,7 +33,8 @@ class _InfoNovedadesState extends State<InfoNovedades> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
-    var response = await Connections().getOrdersByIdLaravel2(int.parse(widget.id),widget.data);
+    var response = await Connections()
+        .getOrdersByIdLaravel2(int.parse(widget.id), widget.data);
     data = response;
 
     //
@@ -54,13 +56,13 @@ class _InfoNovedadesState extends State<InfoNovedades> {
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: ColorsSystem().colorBlack,
           leading: Container(),
           centerTitle: true,
           title: Text(
             "Gestión de Novedades",
             style: TextStyle(
-                fontWeight: FontWeight.bold, color: Colors.black, fontSize: 20),
+                fontWeight: FontWeight.bold, color: Colors.white, fontSize: 20),
           ),
         ),
         body: SafeArea(
@@ -84,8 +86,7 @@ class _InfoNovedadesState extends State<InfoNovedades> {
                           height: 500,
                           width: 500,
                           child: ListView.builder(
-                            itemCount:
-                                data['novedades'].length,
+                            itemCount: data['novedades'].length,
                             itemBuilder: (context, index) {
                               return ListTile(
                                 title: Container(
@@ -116,14 +117,10 @@ class _InfoNovedadesState extends State<InfoNovedades> {
                                               color: Colors.white,
                                             ),
                                             "Comentario: ${data['novedades'][index]['comment']}"),
-                                        data['novedades']
-                                                                [index]
-                                                            
-                                                        ['url_image']
+                                        data['novedades'][index]['url_image']
                                                     .toString()
                                                     .isEmpty ||
-                                                data['novedades']
-                                                                    [index]
+                                                data['novedades'][index]
                                                             ['url_image']
                                                         .toString() ==
                                                     "null"

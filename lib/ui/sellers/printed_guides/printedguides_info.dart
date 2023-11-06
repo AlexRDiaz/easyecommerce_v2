@@ -203,7 +203,11 @@ class _PrintedGuideInfoStateSeller extends State<PrintedGuideInfoSeller> {
 
                 //new
                 var responseL = await Connections().updateOrderWithTime(
-                    widget.id.toString(), "estado_logistico:ENVIADO", idUser);
+                    widget.id.toString(),
+                    "estado_logistico:ENVIADO",
+                    idUser,
+                    "",
+                    "");
 
                 Navigator.pop(context);
 

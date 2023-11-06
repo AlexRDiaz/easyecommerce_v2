@@ -125,6 +125,8 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
   var sortFieldDefaultValue = "id:DESC";
   bool changevalue = false;
 
+  var idUser = sharedPrefs!.getString("id");
+
   getOldValue(Arrayrestoration) {
     if (Arrayrestoration) {
       setState(() {
@@ -835,9 +837,19 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
                                         btnCancelOnPress: () {},
                                         btnOkOnPress: () async {
                                           getLoadingModal(context, false);
+                                          // await Connections()
+                                          //     .updateOrderReturnLogistic(
+                                          //         data[index]['id']);
+
+                                          //new
                                           await Connections()
-                                              .updateOrderReturnLogistic(
-                                                  data[index]['id']);
+                                              .updateOrderWithTime(
+                                                  data[index]['id'].toString(),
+                                                  "estado_devolucion:EN BODEGA",
+                                                  idUser,
+                                                  "",
+                                                  "");
+
                                           await loadData();
                                           Navigator.pop(context);
                                         },

@@ -31,115 +31,167 @@ class _ReturnsTransportState extends State<ReturnsTransport> {
   int pageCount = 100;
   bool isLoading = false;
   List filtersAnd = [];
-  List<String> listOperators = [];
-  List arrayFiltersAnd = [];
+  // List<String> listOperators = [];
+  List<String> listOperators = ['TODO'];
+
+  // List arrayFiltersAnd = [];
   int total = 0;
   TextEditingController estadoDevolucionController =
       TextEditingController(text: "TODO");
+//for strapi
   List<String> listEstadoDevolucion = [
     'TODO',
     'PENDIENTE',
     'DEVOLUCION EN RUTA',
     'ENTREGADO EN OFICINA',
-    'NO ENTREGADO'
+    'EN BODEGA'
   ];
-  List populate = [
-    'transportadora.operadores.user',
-    'pedido_fecha',
-    'ruta',
-    'operadore',
-    'operadore.user',
-    'users',
-    'users.vendedores'
-  ];
-  List filtersDefaultOr = [
-    {
-      'operator': '\$or',
-      'filter': 'Status',
-      'operator_attr': '\$eq',
-      'value': 'NO ENTREGADO'
-    },
-    {
-      'operator': '\$or',
-      'filter': 'Status',
-      'operator_attr': '\$eq',
-      'value': 'NOVEDAD'
-    },
-  ];
-  List filtersDefaultAnd = [
-    //  {
-    //   'operator': '\$and',
-    //   'filter': 'IdComercial',
-    //   'operator_attr': '\$eq',
-    //   'value': sharedPrefs!.getString("idComercialMasterSeller").toString()
-    // }
-  ];
-  //filters[transportadora][id][\$eq]=${sharedPrefs!.getString("idTransportadora")}&filters[NumeroOrden][\$contains]=$code&filters[\$or][0][Status][\$eq]=NOVEDAD&filters[\$or][1][Status][\$eq]=NO ENTREGADO&pagination[limit]=-1"),
-//  "Fecha",
-//     "Devolución"
-  List filtersOrCont = [
-    {'filter': 'Fecha_Entrega'},
-    {'filter': 'NumeroOrden'},
-    {'filter': 'NombreShipping'},
-    {'filter': 'CiudadShipping'},
-    {'filter': 'DireccionShipping'},
-    {'filter': 'TelefonoShipping'},
-    {'filter': 'Cantidad_Total'},
-    {'filter': 'ProductoP'},
-    {'filter': 'ProductoExtra'},
-    {'filter': 'PrecioTotal'},
-    {'filter': 'Observacion'},
-    {'filter': 'Comentario'},
-    {'filter': 'Status'},
-    {'filter': 'TipoPago'},
-    {'filter': 'Estado_Pagado'},
-  ];
-  List arrayUniqueFilters = [
-    "filters[transportadora][id][\$eq]=${sharedPrefs!.getString("idTransportadora")}&"
-  ];
+//   List populate = [
+//     'transportadora.operadores.user',
+//     'pedido_fecha',
+//     'ruta',
+//     'operadore',
+//     'operadore.user',
+//     'users',
+//     'users.vendedores'
+//   ];
+//   List filtersDefaultOr = [
+//     {
+//       'operator': '\$or',
+//       'filter': 'Status',
+//       'operator_attr': '\$eq',
+//       'value': 'NO ENTREGADO'
+//     },
+//     {
+//       'operator': '\$or',
+//       'filter': 'Status',
+//       'operator_attr': '\$eq',
+//       'value': 'NOVEDAD'
+//     },
+//   ];
+//   List filtersDefaultAnd = [
+//     //  {
+//     //   'operator': '\$and',
+//     //   'filter': 'IdComercial',
+//     //   'operator_attr': '\$eq',
+//     //   'value': sharedPrefs!.getString("idComercialMasterSeller").toString()
+//     // }
+//   ];
+//   //filters[transportadora][id][\$eq]=${sharedPrefs!.getString("idTransportadora")}&filters[NumeroOrden][\$contains]=$code&filters[\$or][0][Status][\$eq]=NOVEDAD&filters[\$or][1][Status][\$eq]=NO ENTREGADO&pagination[limit]=-1"),
+// //  "Fecha",
+// //     "Devolución"
+//   List filtersOrCont = [
+//     {'filter': 'Fecha_Entrega'},
+//     {'filter': 'NumeroOrden'},
+//     {'filter': 'NombreShipping'},
+//     {'filter': 'CiudadShipping'},
+//     {'filter': 'DireccionShipping'},
+//     {'filter': 'TelefonoShipping'},
+//     {'filter': 'Cantidad_Total'},
+//     {'filter': 'ProductoP'},
+//     {'filter': 'ProductoExtra'},
+//     {'filter': 'PrecioTotal'},
+//     {'filter': 'Observacion'},
+//     {'filter': 'Comentario'},
+//     {'filter': 'Status'},
+//     {'filter': 'TipoPago'},
+//     {'filter': 'Estado_Pagado'},
+//   ];
+//   List arrayUniqueFilters = [
+//     "filters[transportadora][id][\$eq]=${sharedPrefs!.getString("idTransportadora")}&"
+//   ];
 
   NumberPaginatorController paginatorController = NumberPaginatorController();
   TextEditingController operadorController =
       TextEditingController(text: "TODO");
-  List bools = [
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false
+//   List bools = [
+//     false,
+//     false,
+//     false,
+//     false,
+//     false,
+//     false,
+//     false,
+//     false,
+//     false,
+//     false,
+//     false,
+//     false,
+//     false,
+//     false,
+//     false
+//   ];
+//   List titlesFilters = [
+//     "Fecha",
+//     "Código",
+//     "Ciudad",
+//     "Nombre Cliente",
+//     "Dirección",
+//     "Teléfono Cliente",
+//     "Cantidad",
+//     "Producto",
+//     "Producto Extra",
+//     "Precio Total",
+//     "Observación",
+//     "Comentario",
+//     "Status",
+//     "Fecha Entrega",
+//     "Devolución"
+//   ];
+
+  bool isFirst = true;
+
+  List filtersOrCont = [
+    'name_comercial',
+    'numero_orden',
+    'marca_tiempo_envio',
+    'direccion_shipping',
+    'cantidad_total',
+    'precio_total',
+    'producto_p',
+    'ciudad_shipping',
+    'status',
+    'comentario',
+    'fecha_entrega',
+    'nombre_shipping',
+    'telefono_shipping',
+    'estado_devolucion',
+    'marca_t_d',
+    'marca_t_d_t',
+    'marca_t_d_l'
   ];
-  List titlesFilters = [
-    "Fecha",
-    "Código",
-    "Ciudad",
-    "Nombre Cliente",
-    "Dirección",
-    "Teléfono Cliente",
-    "Cantidad",
-    "Producto",
-    "Producto Extra",
-    "Precio Total",
-    "Observación",
-    "Comentario",
-    "Status",
-    "Fecha Entrega",
-    "Devolución"
+
+  List arrayFiltersDefaultOr = [
+    {"status": "NOVEDAD"},
+    {"status": "NO ENTREGADO"}
   ];
+
+  var arrayfiltersDefaultAnd = [
+    {
+      "transportadora.transportadora_id":
+          sharedPrefs!.getString("idTransportadora")
+    }
+  ];
+
+  List arrayFiltersAnd = [];
+  List arrayFiltersNotEq = [];
+  var sortFieldDefaultValue = "id:DESC";
+  bool changevalue = false;
+
+  var idUser = sharedPrefs!.getString("id");
+
+  getOldValue(Arrayrestoration) {
+    if (Arrayrestoration) {
+      setState(() {
+        sortFieldDefaultValue = "id:DESC";
+      });
+    }
+  }
 
   @override
   void didChangeDependencies() {
     loadData();
-    getOperatorsList();
+    // getOperatorsList();
 
     super.didChangeDependencies();
   }
@@ -154,24 +206,51 @@ class _ReturnsTransportState extends State<ReturnsTransport> {
       data.clear();
     });
     currentPage = 1;
-    response = await Connections().getOrdersSellersFilter(
-        _controllers.searchController.text,
+
+    if (listOperators.length == 1) {
+      var responsetransportadoras = await Connections()
+          .getOperatoresbyTransport(
+              sharedPrefs!.getString("idTransportadora").toString());
+      List<dynamic> transportadorasList = responsetransportadoras['operadores'];
+      for (var transportadora in transportadorasList) {
+        listOperators.add(transportadora);
+      }
+    }
+
+    // response = await Connections().getOrdersSellersFilter(
+    //     _controllers.searchController.text,
+    //     currentPage,
+    //     pageSize,
+    //     populate,
+    //     filtersOrCont,
+    //     arrayFiltersAnd,
+    //     filtersDefaultOr,
+    //     filtersDefaultAnd,
+    //     arrayUniqueFilters);
+
+    // data = response[0]['data'];
+
+    var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
+        filtersOrCont,
+        arrayFiltersDefaultOr,
+        arrayfiltersDefaultAnd,
+        arrayFiltersAnd,
         currentPage,
         pageSize,
-        populate,
-        filtersOrCont,
-        arrayFiltersAnd,
-        filtersDefaultOr,
-        filtersDefaultAnd,
-        arrayUniqueFilters);
-
-    data = response[0]['data'];
+        _controllers.searchController.text,
+        [],
+        sortFieldDefaultValue.toString());
+    data = responseLaravel['data'];
     setState(() {
-      pageCount = response[0]['meta']['pagination']['pageCount'];
-      total = response[0]['meta']['pagination']['total'];
+      // pageCount = response[0]['meta']['pagination']['pageCount'];
+      // total = response[0]['meta']['pagination']['total'];
+      pageCount = responseLaravel['last_page'];
+      if (sortFieldDefaultValue.toString() == "id:DESC") {
+        total = responseLaravel['total'];
+      }
     });
 
-    //print("total" + total.toString());
+    print("totalLa:" + total.toString());
 
     Future.delayed(Duration(milliseconds: 500), () {
       Navigator.pop(context);
@@ -193,20 +272,34 @@ class _ReturnsTransportState extends State<ReturnsTransport> {
 
     // print("actual pagina valor" + currentPage.toString());
 
-    response = await Connections().getOrdersSellersFilter(
-        _controllers.searchController.text,
+    // response = await Connections().getOrdersSellersFilter(
+    //     _controllers.searchController.text,
+    //     currentPage,
+    //     pageSize,
+    //     populate,
+    //     filtersOrCont,
+    //     [],
+    //     filtersDefaultOr,
+    //     filtersDefaultAnd,
+    //     arrayUniqueFilters);
+    // data = response[0]['data'];
+    var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
+        filtersOrCont,
+        arrayFiltersDefaultOr,
+        arrayfiltersDefaultAnd,
+        arrayFiltersAnd,
         currentPage,
         pageSize,
-        populate,
-        filtersOrCont,
+        _controllers.searchController.text,
         [],
-        filtersDefaultOr,
-        filtersDefaultAnd,
-        arrayUniqueFilters);
-    data = response[0]['data'];
+        sortFieldDefaultValue.toString());
+    data = responseLaravel['data'];
     setState(() {
-      pageCount = response[0]['meta']['pagination']['pageCount'];
-      total = response[0]['meta']['pagination']['total'];
+      // pageCount = response[0]['meta']['pagination']['pageCount'];
+      // total = response[0]['meta']['pagination']['total'];
+      pageCount = responseLaravel['last_page'];
+      total = responseLaravel['total'];
+      print("totalPag: $total");
     });
 
     await Future.delayed(Duration(milliseconds: 500), () {
@@ -247,7 +340,7 @@ class _ReturnsTransportState extends State<ReturnsTransport> {
         width: double.infinity,
         child: Column(
           children: [
-            _filters(context),
+            // _filters(context),
             Container(
               width: double.infinity,
               color: Colors.white,
@@ -359,6 +452,313 @@ class _ReturnsTransportState extends State<ReturnsTransport> {
                 columnSpacing: 12,
                 horizontalMargin: 12,
                 minWidth: 2500,
+                columns: [
+                  const DataColumn2(
+                    label: Text(''),
+                    size: ColumnSize.M,
+                  ),
+                  DataColumn2(
+                    label: const Text('Código'),
+                    size: ColumnSize.M,
+                    onSort: (columnIndex, ascending) {
+                      // sortFunc("NumeroOrden");
+                      sortFunc2("numero_orden", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: const Text('Marca de Tiempo'),
+                    size: ColumnSize.M,
+                    onSort: (columnIndex, ascending) {
+                      // sortFuncDate("Marca_T_I");
+                      sortFunc2("marca_t_i", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: const Text('Fecha'),
+                    size: ColumnSize.M,
+                    onSort: (columnIndex, ascending) {
+                      // sortFuncDate("Marca_Tiempo_Envio");
+                      sortFunc2("marca_tiempo_envio", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: const Text('Direccion'),
+                    size: ColumnSize.L,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("direccion_shipping", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: const Text('Cantidad'),
+                    size: ColumnSize.M,
+                    numeric: true,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("cantidad_total", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: const Text('Precio Total'),
+                    size: ColumnSize.M,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("precio_total", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: const Text('Producto'),
+                    size: ColumnSize.L,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("producto_p", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: const Text('Ciudad'),
+                    size: ColumnSize.M,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("ciudad_shipping", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: const Text("Status"),
+                    size: ColumnSize.L,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("status", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: const Text('Comentario'),
+                    size: ColumnSize.M,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("comentario", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: const Text('Fecha de Entrega'),
+                    size: ColumnSize.M,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("fecha_entrega", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: const Text('Nombre Cliente'),
+                    size: ColumnSize.M,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("nombre_shipping", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: const Text('Teléfono'),
+                    numeric: true,
+                    size: ColumnSize.M,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("telefono_shipping", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: SelectFilter(
+                        'Operador',
+                        'operadore.up_users.operadore_id',
+                        operadorController,
+                        listOperators),
+                    size: ColumnSize.L,
+                    onSort: (columnIndex, ascending) {},
+                  ),
+                  DataColumn2(
+                    label: SelectFilter2(
+                        'Estado Devolución',
+                        'estado_devolucion',
+                        estadoDevolucionController,
+                        listEstadoDevolucion),
+                    size: ColumnSize.L,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("estado_devolucion", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: const Text('MDT.OF'),
+                    size: ColumnSize.M,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("marca_t_d", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: const Text('MDT.RUTA'),
+                    size: ColumnSize.M,
+                    numeric: true,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("marca_t_d_t", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: const Text('MDT. BOD'),
+                    size: ColumnSize.M,
+                    numeric: true,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("marca_t_d_l", changevalue);
+                    },
+                  ),
+                  DataColumn2(
+                    label: const Text('Recibido por'),
+                    size: ColumnSize.M,
+                    onSort: (columnIndex, ascending) {
+                      // sortFunc("Marca_T_D_L");
+                    },
+                  ),
+                ],
+                rows: List<DataRow>.generate(
+                  data.length,
+                  (index) {
+                    Color rowColor = Colors.black;
+
+                    return DataRow(
+                      // onSelectChanged: (bool? selected) {},
+                      cells: [
+                        DataCell(ElevatedButton(
+                            onPressed: () async {
+                              await showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return TransportReturn(
+                                      id: data[index]['id'].toString(),
+                                      status: data[index]['estado_devolucion']
+                                          .toString(),
+                                    );
+                                  });
+                              await loadData();
+                            },
+                            child: const Text(
+                              "Devolver",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 10),
+                            ))),
+                        DataCell(
+                            Text(
+                              "${data[index]['name_comercial'].toString()}-${data[index]['numero_orden'].toString()}",
+                              style: TextStyle(
+                                color:
+                                    getColor(data[index]['estado_devolucion']),
+                              ),
+                            ),
+                            onTap: () {}),
+                        DataCell(Text(
+                          data[index]['marca_t_i'].toString(),
+                          style: TextStyle(
+                            color: rowColor,
+                          ),
+                        )),
+                        DataCell(Text(
+                          data[index]['marca_tiempo_envio'].toString(),
+                          style: TextStyle(
+                            color: rowColor,
+                          ),
+                        )),
+                        DataCell(Text(
+                          data[index]['direccion_shipping'].toString(),
+                          style: TextStyle(
+                            color: rowColor,
+                          ),
+                        )),
+                        DataCell(Text(
+                          data[index]['cantidad_total'].toString(),
+                          style: TextStyle(
+                            color: rowColor,
+                          ),
+                        )),
+                        DataCell(Text(
+                          '\$${data[index]['precio_total'].toString()}',
+                          style: TextStyle(
+                            color: rowColor,
+                          ),
+                        )),
+                        DataCell(Text(
+                          data[index]['producto_p'].toString(),
+                          style: TextStyle(
+                            color: rowColor,
+                          ),
+                        )),
+                        DataCell(
+                            Text(data[index]['ciudad_shipping'].toString())),
+                        DataCell(Text(
+                          data[index]['status'].toString(),
+                          style: TextStyle(
+                            color: rowColor,
+                          ),
+                        )),
+                        DataCell(Text(
+                          data[index]['comentario'] == null ||
+                                  data[index]['comentario'] == "null"
+                              ? ""
+                              : data[index]['comentario'].toString(),
+                          style: TextStyle(
+                            color: rowColor,
+                          ),
+                        )),
+                        DataCell(Text(
+                          data[index]['fecha_entrega'].toString(),
+                          style: TextStyle(
+                            color: rowColor,
+                          ),
+                        )),
+                        DataCell(Text(
+                          data[index]['nombre_shipping'].toString(),
+                          style: TextStyle(
+                            color: rowColor,
+                          ),
+                        )),
+                        DataCell(Text(
+                          data[index]['telefono_shipping'].toString(),
+                          style: TextStyle(
+                            color: rowColor,
+                          ),
+                        )),
+                        DataCell(
+                            Text(
+                              data[index]['operadore'] != null &&
+                                      data[index]['operadore'].toString() !=
+                                          "[]"
+                                  ? data[index]['operadore'][0]['up_users'][0]
+                                          ['username']
+                                      .toString()
+                                  : "",
+                            ),
+                            onTap: () {}),
+                        DataCell(Text(
+                          data[index]['estado_devolucion'].toString(),
+                          style: TextStyle(
+                            color: rowColor,
+                          ),
+                        )),
+                        DataCell(Text(
+                          data[index]['marca_t_d'] ?? "".toString(),
+                          style: TextStyle(
+                            color: rowColor,
+                          ),
+                        )),
+                        DataCell(Text(
+                          data[index]['marca_t_d_t'] ?? "".toString(),
+                          style: TextStyle(
+                            color: rowColor,
+                          ),
+                        )),
+                        DataCell(Text(
+                          data[index]['marca_t_d_l'] ?? "".toString(),
+                          style: TextStyle(
+                            color: rowColor,
+                          ),
+                        )),
+                        DataCell(
+                          Text(
+                            data[index]['received_by'] != null &&
+                                    data[index]['received_by'].isNotEmpty
+                                ? "${data[index]['received_by']['username'].toString()}-${data[index]['received_by']['id'].toString()}"
+                                : '',
+                            style: TextStyle(
+                              color: rowColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                    /*
                 columns: [
                   DataColumn2(
                     label: Text(''),
@@ -652,6 +1052,7 @@ class _ReturnsTransportState extends State<ReturnsTransport> {
                         )),
                       ],
                     );
+                    */
                   },
                 ),
               ),
@@ -662,6 +1063,140 @@ class _ReturnsTransportState extends State<ReturnsTransport> {
     );
   }
 
+  sortFunc2(filtro, changevalu) {
+    setState(() {
+      if (changevalu) {
+        sortFieldDefaultValue = "$filtro:DESC";
+        changevalue = false;
+      } else {
+        sortFieldDefaultValue = "$filtro:ASC";
+        changevalue = true;
+      }
+      loadData();
+    });
+  }
+
+  Column SelectFilter(String title, filter, TextEditingController controller,
+      List<String> listOptions) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title),
+        Expanded(
+          child: Container(
+            margin: EdgeInsets.only(bottom: 4.5, top: 4.5),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5.0),
+              border: Border.all(color: Color.fromRGBO(6, 6, 6, 1)),
+            ),
+            height: 50,
+            child: DropdownButtonFormField<String>(
+              isExpanded: true,
+              value: controller.text,
+              onChanged: (String? newValue) {
+                setState(() {
+                  controller.text = newValue ?? "";
+
+                  arrayFiltersAnd
+                      .removeWhere((element) => element.containsKey(filter));
+
+                  if (newValue != 'TODO') {
+                    arrayFiltersAnd.add({filter: newValue?.split('-')[1]});
+                    // reemplazarValor(value, newValue!);
+                    //  print(value);
+                  }
+
+                  paginateData();
+                });
+              },
+              decoration: InputDecoration(
+                  border: UnderlineInputBorder(
+                      borderRadius: BorderRadius.circular(10))),
+              items: listOptions.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child:
+                      Text(value.split("-")[0], style: TextStyle(fontSize: 15)),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Column SelectFilter2(String title, filter, TextEditingController controller,
+      List<String> listOptions) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title),
+        Expanded(
+          child: Container(
+            margin: EdgeInsets.only(bottom: 4.5, top: 4.5),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5.0),
+              border: Border.all(color: Color.fromRGBO(6, 6, 6, 1)),
+            ),
+            height: 0,
+            child: DropdownButtonFormField<String>(
+              isExpanded: true,
+              value: controller.text,
+              onChanged: (String? newValue) {
+                setState(() {
+                  controller.text = newValue ?? "";
+                  arrayFiltersAnd
+                      .removeWhere((element) => element.containsKey(filter));
+
+                  if (newValue != 'TODO') {
+                    if (filter is String) {
+                      arrayFiltersAnd.add({filter: newValue});
+                    } else {
+                      reemplazarValor(filter, newValue!);
+                      arrayFiltersAnd.add(filter);
+                    }
+                    print(filter);
+                  } else {}
+
+                  paginateData();
+                });
+              },
+              decoration: InputDecoration(
+                  border: UnderlineInputBorder(
+                      borderRadius: BorderRadius.circular(10))),
+              items: listOptions.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value, style: TextStyle(fontSize: 15)),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void reemplazarValor(Map<dynamic, dynamic> mapa, String nuevoValor) {
+    mapa.forEach((key, value) {
+      if (value is Map) {
+        reemplazarValor(value, nuevoValor);
+      } else if (key is String && value == 'valor') {
+        mapa[key] = nuevoValor;
+      }
+    });
+  }
+
+  void resetFilters() {
+    operadorController.text = "TODO";
+    estadoDevolucionController.text = "TODO";
+
+    _controllers.searchController.clear();
+    arrayFiltersAnd = [];
+  }
+
+/*
   _filters(BuildContext context) {
     return Row(
       children: [
@@ -782,7 +1317,7 @@ class _ReturnsTransportState extends State<ReturnsTransport> {
       ],
     );
   }
-
+*/
   _modelTextField({text, controller}) {
     return Container(
       width: double.infinity,
@@ -931,7 +1466,7 @@ class _ReturnsTransportState extends State<ReturnsTransport> {
         color = Color.fromARGB(255, 8, 61, 153);
         break;
       case "EN BODEGA":
-        color = Colors.yellow;
+        color = Color.fromARGB(255, 216, 200, 54);
         break;
       default:
     }
@@ -952,6 +1487,7 @@ class _ReturnsTransportState extends State<ReturnsTransport> {
     Navigator.pop(context);
   }
 
+/*
   Column SelectFilter(String title, filter, value,
       TextEditingController controller, List<String> listOptions) {
     return Column(
@@ -1000,4 +1536,5 @@ class _ReturnsTransportState extends State<ReturnsTransport> {
       ],
     );
   }
+  */
 }

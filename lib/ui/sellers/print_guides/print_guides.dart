@@ -673,7 +673,9 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
                     var responseL = await Connections().updateOrderWithTime(
                         selectedCheckBox[i]['id'].toString(),
                         "estado_logistico:IMPRESO",
-                        idUser);
+                        idUser,
+                        "",
+                        "");
                   }
                 }
                 Navigator.pop(context);

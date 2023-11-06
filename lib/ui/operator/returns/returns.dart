@@ -130,6 +130,8 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
     'EN BODEGA',
   ];
 
+  var idUser = sharedPrefs!.getString("id");
+
   @override
   Future<void> didChangeDependencies() async {
     loadData(context);
@@ -433,9 +435,17 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
                                       btnCancelOnPress: () {},
                                       btnOkOnPress: () async {
                                         getLoadingModal(context, false);
-                                        await Connections()
-                                            .updateOrderReturnOperator(
-                                                data[index]['id']);
+                                        // await Connections()
+                                        //     .updateOrderReturnOperator(
+                                        //         data[index]['id']);
+
+                                        //new
+                                        await Connections().updateOrderWithTime(
+                                            data[index]['id'].toString(),
+                                            "estado_devolucion:ENTREGADO EN OFICINA",
+                                            idUser,
+                                            "operator",
+                                            "");
 
                                         var datane = await Connections()
                                             .getOrderByIDHistoryLaravel(

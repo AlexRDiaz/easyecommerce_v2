@@ -1328,34 +1328,62 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                   ),
                 ],
               ),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.end,
+              //   children: [
+              //     const Text(
+              //       "Descargar reporte",
+              //       style: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
+              //     ),
+              //     const SizedBox(width: 5),
+              //     ElevatedButton(
+              //       onPressed: () {
+              //         showSelectFilterReportDialog(context);
+              //       },
+              //       style: ElevatedButton.styleFrom(
+              //         backgroundColor: Color.fromARGB(255, 79, 192, 103),
+              //       ),
+              //       child: const Row(
+              //         mainAxisSize: MainAxisSize.min,
+              //         children: [
+              //           Icon(
+              //             IconData(0xf6df, fontFamily: 'MaterialIcons'),
+              //             size: 24,
+              //             color: Colors.white,
+              //           ),
+              //         ],
+              //       ),
+              //     ),
+              //   ],
+              // ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  const Text(
-                    "Descargar reporte",
-                    style: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
-                  ),
-                  const SizedBox(width: 5),
+                  const SizedBox(width: 10),
                   ElevatedButton(
                     onPressed: () {
                       showSelectFilterReportDialog(context);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color.fromARGB(255, 79, 192, 103),
+                      backgroundColor: const Color.fromARGB(255, 58, 163, 81),
                     ),
                     child: const Row(
-                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Icon(
                           IconData(0xf6df, fontFamily: 'MaterialIcons'),
                           size: 24,
                           color: Colors.white,
                         ),
+                        Text(
+                          "Descargar reporte",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ],
                     ),
                   ),
                 ],
-              )
+              ),
             ],
           ),
           const SizedBox(height: 10),

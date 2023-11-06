@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 
 class TransportReturn extends StatefulWidget {
@@ -17,6 +18,8 @@ class _TransportReturnState extends State<TransportReturn> {
   bool entregado = false;
   bool ruta = false;
   bool reiniciar = false;
+  var idUser = sharedPrefs!.getString("id");
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -127,10 +130,18 @@ class _TransportReturnState extends State<TransportReturn> {
                           : () async {
                               getLoadingModal(context, false);
                               if (entregado) {
-                                await Connections().updateOrderReturnTransport(
-                                    widget.id,
-                                    "ENTREGADO EN OFICINA",
-                                    "Marca_T_D");
+                                // await Connections().updateOrderReturnTransport(
+                                //     widget.id,
+                                //     "ENTREGADO EN OFICINA",
+                                //     "Marca_T_D");
+
+                                //new with Laravel
+                                await Connections().updateOrderWithTime(
+                                    widget.id.toString(),
+                                    "estado_devolucion:ENTREGADO EN OFICINA",
+                                    idUser,
+                                    "carrier",
+                                    "");
 
                                 //debit by return here
                                 var resTransaction = "";
@@ -177,10 +188,18 @@ class _TransportReturnState extends State<TransportReturn> {
                                 Navigator.pop(context);
                               }
                               if (ruta) {
-                                await Connections().updateOrderReturnTransport(
-                                    widget.id,
-                                    "DEVOLUCION EN RUTA",
-                                    "Marca_T_D_T");
+                                // await Connections().updateOrderReturnTransport(
+                                //     widget.id,
+                                //     "DEVOLUCION EN RUTA",
+                                //     "Marca_T_D_T");
+
+                                // new with Laravel
+                                await Connections().updateOrderWithTime(
+                                    widget.id.toString(),
+                                    "estado_devolucion:DEVOLUCION EN RUTA",
+                                    idUser,
+                                    "carrier",
+                                    "");
 
                                 //debit by return here
                                 var resTransaction = "";
@@ -228,9 +247,17 @@ class _TransportReturnState extends State<TransportReturn> {
                                 Navigator.pop(context);
                               }
                               if (reiniciar) {
-                                await Connections()
-                                    .updateOrderReturnTransportRestart(
-                                        widget.id);
+                                // await Connections()
+                                //     .updateOrderReturnTransportRestart(
+                                //         widget.id);
+
+                                // new with Laravel
+                                await Connections().updateOrderWithTime(
+                                    widget.id.toString(),
+                                    "estado_devolucion:PENDIENTE",
+                                    idUser,
+                                    "carrier",
+                                    "");
                                 Navigator.pop(context);
                                 Navigator.pop(context);
                               }

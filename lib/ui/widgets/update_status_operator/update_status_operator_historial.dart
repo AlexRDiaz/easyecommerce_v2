@@ -6,6 +6,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/server.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/novedad_dialog.dart';
 import 'package:image_picker/image_picker.dart';
@@ -53,6 +54,8 @@ class _UpdateStatusOperatorHistorialState
   bool deposito = false;
   TextEditingController _controllerModalText = TextEditingController();
   XFile? imageSelect = null;
+
+  var idUser = sharedPrefs!.getString("id");
 
   getRefered(id) async {
     var refered = await Connections().getSellerMaster(id);
@@ -252,13 +255,24 @@ class _UpdateStatusOperatorHistorialState
                           var response =
                               await Connections().postDoc(imageSelect!);
 
-                          await Connections()
-                              .updateOrderStatusOperatorEntregadoHistorial(
-                                  "ENTREGADO",
-                                  tipo,
-                                  _controllerModalText.text,
-                                  response[1],
-                                  widget.id);
+                          // await Connections()
+                          //     .updateOrderStatusOperatorEntregadoHistorial(
+                          //         "ENTREGADO",
+                          //         tipo,
+                          //         _controllerModalText.text,
+                          //         response[1],
+                          //         widget.id);
+
+                          //upt for the above and status_last_modified_by and by
+                          await Connections().updateOrderWithTime(
+                              widget.id.toString(),
+                              "status:ENTREGADO",
+                              idUser,
+                              "", {
+                            "tipo_pago": tipo,
+                            "comentario": _controllerModalText.text,
+                            "archivo": response[1]
+                          });
 
                           if (datacostos['users'][0]['vendedores'][0]
                                   ['referer'] !=
@@ -422,13 +436,25 @@ class _UpdateStatusOperatorHistorialState
                             });
 
                             if (resDebit == 0) {
-                              var respp = await Connections()
-                                  .updateOrderStatusOperatorEntregadoHistorial(
-                                      "ENTREGADO",
-                                      tipo,
-                                      _controllerModalText.text,
-                                      "",
-                                      widget.id);
+                              // var respp = await Connections()
+                              //     .updateOrderStatusOperatorEntregadoHistorial(
+                              //         "ENTREGADO",
+                              //         tipo,
+                              //         _controllerModalText.text,
+                              //         "",
+                              //         widget.id);
+
+                              //upt for the above and status_last_modified_by and by
+                              await Connections().updateOrderWithTime(
+                                  widget.id.toString(),
+                                  "status:ENTREGADO",
+                                  idUser,
+                                  "", {
+                                "tipo_pago": tipo,
+                                "comentario": _controllerModalText.text,
+                                "archivo": ""
+                              });
+
                               if (datacostos['users'][0]['vendedores'][0]
                                       ['referer'] !=
                                   null) {
@@ -638,12 +664,23 @@ class _UpdateStatusOperatorHistorialState
                         var response =
                             await Connections().postDoc(imageSelect!);
 
-                        await Connections()
-                            .updateOrderStatusOperatorNoEntregadoHistorial(
-                                "NO ENTREGADO",
-                                _controllerModalText.text,
-                                response[1],
-                                widget.id);
+                        // await Connections()
+                        //     .updateOrderStatusOperatorNoEntregadoHistorial(
+                        //         "NO ENTREGADO",
+                        //         _controllerModalText.text,
+                        //         response[1],
+                        //         widget.id);
+
+                        //upt for the above and status_last_modified_by and by
+                        await Connections().updateOrderWithTime(
+                            widget.id.toString(),
+                            "status:NO ENTREGADO",
+                            idUser,
+                            "", {
+                          "comentario": _controllerModalText.text,
+                          "archivo": response[1]
+                        });
+
                         Connections().updatenueva(widget.id, {
                           "costo_envio": datane['users'][0]['vendedores'][0]
                               ['costo_envio'],
@@ -825,17 +862,39 @@ class _UpdateStatusOperatorHistorialState
                       }
 
                       if (widget.novedades.isEmpty) {
-                        await Connections()
-                            .updateOrderStatusOperatorGeneralHistorialAndDate(
-                                "NOVEDAD",
-                                _controllerModalText.text,
-                                widget.id);
+                        // await Connections()
+                        //     .updateOrderStatusOperatorGeneralHistorialAndDate(
+                        //         "NOVEDAD",
+                        //         _controllerModalText.text,
+                        //         widget.id);
+                        // print("with date");
+                        //upt for the above and status_last_modified_by and by
+                        await Connections().updateOrderWithTime(
+                            widget.id.toString(),
+                            "status:NOVEDAD_date",
+                            idUser,
+                            "", {
+                          "comentario": _controllerModalText.text,
+                          "archivo": ""
+                        });
+                        //
                       } else {
-                        await Connections()
-                            .updateOrderStatusOperatorGeneralHistorial(
-                                "NOVEDAD",
-                                _controllerModalText.text,
-                                widget.id);
+                        // await Connections()
+                        //     .updateOrderStatusOperatorGeneralHistorial(
+                        //         "NOVEDAD",
+                        //         _controllerModalText.text,
+                        //         widget.id);
+                        // print("without date");
+
+                        //upt for the above and status_last_modified_by and by
+                        await Connections().updateOrderWithTime(
+                            widget.id.toString(),
+                            "status:NOVEDAD",
+                            idUser,
+                            "", {
+                          "comentario": _controllerModalText.text,
+                          "archivo": ""
+                        });
                       }
                       var resTransaction = "";
                       var datacostos = await Connections()
@@ -1042,16 +1101,28 @@ class _UpdateStatusOperatorHistorialState
                   ? () async {
                       getLoadingModal(context, false);
                       List date = dateSelect.split('-');
-                      await Connections()
-                          .updateOrderStatusOperatorPedidoProgramadoHistorial(
-                              "REAGENDADO",
-                              _controllerModalText.text,
-                              int.parse(date[2]).toString() +
-                                  "/" +
-                                  int.parse(date[1]).toString() +
-                                  "/" +
-                                  date[0].toString(),
-                              widget.id);
+                      // await Connections()
+                      //     .updateOrderStatusOperatorPedidoProgramadoHistorial(
+                      //         "REAGENDADO",
+                      //         _controllerModalText.text,
+                      //         int.parse(date[2]).toString() +
+                      //             "/" +
+                      //             int.parse(date[1]).toString() +
+                      //             "/" +
+                      //             date[0].toString(),
+                      //         widget.id);
+
+                      //upt for the above and status_last_modified_by and by
+                      await Connections().updateOrderWithTime(
+                          widget.id.toString(),
+                          "status:REAGENDADO",
+                          idUser,
+                          "", {
+                        "comentario": _controllerModalText.text,
+                        "archivo": "",
+                        "fecha_entrega":
+                            "${int.parse(date[2])}/${int.parse(date[1])}/${date[0]}"
+                      });
 
                       // * if it exists, delete transaccion_pedidos_transportadora
                       var datares = await Connections()
@@ -1124,8 +1195,16 @@ class _UpdateStatusOperatorHistorialState
               onPressed: () async {
                 getLoadingModal(context, false);
 
-                await Connections().updateOrderStatusOperatorGeneralHistorial(
-                    "EN RUTA", _controllerModalText.text, widget.id);
+                // await Connections().updateOrderStatusOperatorGeneralHistorial(
+                //     "EN RUTA", _controllerModalText.text, widget.id);
+
+                //upt for the above and status_last_modified_by and by
+                await Connections().updateOrderWithTime(
+                    widget.id.toString(),
+                    "status:EN RUTA",
+                    idUser,
+                    "",
+                    {"comentario": _controllerModalText.text, "archivo": ""});
 
                 // * if it exists, delete transaccion_pedidos_transportadora
                 var datares =
@@ -1195,8 +1274,16 @@ class _UpdateStatusOperatorHistorialState
               onPressed: () async {
                 getLoadingModal(context, false);
 
-                await Connections().updateOrderStatusOperatorGeneralHistorial(
-                    "PEDIDO PROGRAMADO", _controllerModalText.text, widget.id);
+                // await Connections().updateOrderStatusOperatorGeneralHistorial(
+                //     "PEDIDO PROGRAMADO", _controllerModalText.text, widget.id);
+
+                //upt for the above and status_last_modified_by and by
+                await Connections().updateOrderWithTime(
+                    widget.id.toString(),
+                    "status:PEDIDO PROGRAMADO",
+                    idUser,
+                    "",
+                    {"comentario": _controllerModalText.text, "archivo": ""});
 
                 // * if it exists, delete transaccion_pedidos_transportadora
                 var datares =
@@ -1266,8 +1353,16 @@ class _UpdateStatusOperatorHistorialState
               onPressed: () async {
                 getLoadingModal(context, false);
 
-                await Connections().updateOrderStatusOperatorGeneralHistorial(
-                    "EN OFICINA", _controllerModalText.text, widget.id);
+                // await Connections().updateOrderStatusOperatorGeneralHistorial(
+                //     "EN OFICINA", _controllerModalText.text, widget.id);
+
+                // //upt for the above and status_last_modified_by and by
+                await Connections().updateOrderWithTime(
+                    widget.id.toString(),
+                    "status:EN OFICINA",
+                    idUser,
+                    "",
+                    {"comentario": _controllerModalText.text, "archivo": ""});
 
                 // * if it exists, delete transaccion_pedidos_transportadora
                 var datares =

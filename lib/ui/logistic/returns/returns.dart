@@ -594,7 +594,9 @@ class _ReturnsState extends State<Returns> {
                                       await Connections().updateOrderWithTime(
                                           data[index]['id'].toString(),
                                           "estado_devolucion:EN BODEGA",
-                                          idUser);
+                                          idUser,
+                                          "",
+                                          "");
 
                                       var resTransaction = "";
                                       var datacostos = await Connections()
