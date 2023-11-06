@@ -218,6 +218,8 @@ class _TransportDeliveryHistorialState
     "Ruta",
     "SubRuta"
   ];
+  var idUser = sharedPrefs!.getString("id");
+
   @override
   void didChangeDependencies() {
     loadData();
@@ -1092,9 +1094,16 @@ class _TransportDeliveryHistorialState
                                 onPressed: () async {
                                   getLoadingModal(context, false);
                                   for (var option in optionsCheckBox) {
-                                    await Connections()
-                                        .updateOrderLogisticStatus(
-                                            "IMPRESO", option['id'].toString());
+                                    // await Connections()
+                                    //     .updateOrderLogisticStatus(
+                                    //         "IMPRESO", option['id'].toString());
+                                    //new
+                                    var responseL = await Connections()
+                                        .updateOrderWithTime(
+                                            option['id'].toString(),
+                                            "estado_logistico:IMPRESO",
+                                            idUser,
+                                            "","");
                                   }
 
                                   Navigator.pop(context);
@@ -1112,9 +1121,17 @@ class _TransportDeliveryHistorialState
                                   getLoadingModal(context, false);
 
                                   for (var option in optionsCheckBox) {
-                                    await Connections()
-                                        .updateOrderLogisticStatusPrint(
-                                            "ENVIADO", option['id'].toString());
+                                    // await Connections()
+                                    //     .updateOrderLogisticStatusPrint(
+                                    //         "ENVIADO", option['id'].toString());
+
+                                    //new
+                                    var responseL = await Connections()
+                                        .updateOrderWithTime(
+                                            option['id'].toString(),
+                                            "estado_logistico:ENVIADO",
+                                            idUser,
+                                            "","");
                                   }
 
                                   Navigator.pop(context);
@@ -1376,10 +1393,17 @@ class _TransportDeliveryHistorialState
                                         optionsCheckBox[i]['id'].toString() !=
                                             '' &&
                                         optionsCheckBox[i]['check'] == true) {
-                                      await Connections()
-                                          .updateOrderReturnOperator(
-                                              optionsCheckBox[i]['id']
-                                                  .toString());
+                                      // await Connections()
+                                      //     .updateOrderReturnOperator(
+                                      //         optionsCheckBox[i]['id']
+                                      //             .toString());
+
+                                      //new
+                                      await Connections().updateOrderWithTime(
+                                          optionsCheckBox[i]['id'].toString(),
+                                          "estado_devolucion:ENTREGADO EN OFICINA",
+                                          idUser,
+                                          "operator","");
                                     }
                                   }
 
@@ -1406,10 +1430,16 @@ class _TransportDeliveryHistorialState
                                         optionsCheckBox[i]['id'].toString() !=
                                             '' &&
                                         optionsCheckBox[i]['check'] == true) {
-                                      await Connections()
-                                          .updateOrderReturnLogistic(
-                                              optionsCheckBox[i]['id']
-                                                  .toString());
+                                      // await Connections()
+                                      //     .updateOrderReturnLogistic(
+                                      //         optionsCheckBox[i]['id']
+                                      //             .toString());
+
+                                      await Connections().updateOrderWithTime(
+                                          optionsCheckBox[i]['id'].toString(),
+                                          "estado_devolucion:EN BODEGA",
+                                          idUser,
+                                          "","");
                                     }
                                   }
 

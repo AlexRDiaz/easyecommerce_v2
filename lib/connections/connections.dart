@@ -3126,8 +3126,8 @@ class Connections {
     filtersAndAll.addAll(arrayfiltersDefaultAnd);
     filtersAndAll.addAll(arrayFiltersAnd);
 
-    print(sharedPrefs!.getString("dateDesdeVendedor"));
-    print(sharedPrefs!.getString("dateHastaVendedor"));
+    // print(sharedPrefs!.getString("dateDesdeVendedor"));
+    // print(sharedPrefs!.getString("dateHastaVendedor"));
     // print("todo and: \n $filtersAndAll");
 
     String urlnew = "$serverLaravel/api/pedidos-shopify/filter";
@@ -3156,16 +3156,16 @@ class Connections {
 
       if (requestlaravel.statusCode != 200) {
         res = 1;
-        print("" + res.toString());
+        // print("" + res.toString());
       } else {
-        print(' $totalRes');
+        // print(' $totalRes');
       }
-      print("" + res.toString());
+      // print("" + res.toString());
       return decodeData;
     } catch (e) {
       print("error!!!: $e");
       res = 2;
-      print("" + res.toString());
+      // print("" + res.toString());
     }
   }
 
@@ -5534,7 +5534,7 @@ class Connections {
 
   //    *
   // Future updateOrderWithTime(id, key, value, iduser) async {
-  Future updateOrderWithTime(id, keyvalue, iduser) async {
+  Future updateOrderWithTime(id, keyvalue, iduser, from, datarequest) async {
     try {
       var request = await http.put(
           Uri.parse("$serverLaravel/api/pedidos-shopify/updatefieldtime/$id"),
@@ -5542,6 +5542,8 @@ class Connections {
           body: json.encode({
             "keyvalue": keyvalue,
             "iduser": iduser,
+            "from": from,
+            "datarequest": datarequest
           }));
       var response = await request.body;
       var decodeData = json.decode(response);

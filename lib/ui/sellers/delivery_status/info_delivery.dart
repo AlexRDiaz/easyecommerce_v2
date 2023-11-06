@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/config/colors.dart';
 
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/server.dart';
@@ -8,6 +9,7 @@ import 'package:frontend/ui/operator/orders_operator/controllers/controllers.dar
 import 'package:frontend/ui/operator/orders_operator/info_novedades.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 // import 'package:frontend/ui/widgets/update_status_operator/update_status_operator.dart';
+import 'package:intl/intl.dart';
 
 class DeliveryStatusSellerInfo extends StatefulWidget {
   final String id;
@@ -61,17 +63,19 @@ class _DeliveryStatusSellerInfo extends State<DeliveryStatusSellerInfo> {
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: ColorsSystem().colorBlack,
           leading: Container(),
           centerTitle: true,
           title: const Text(
             "Información Pedido",
             style: TextStyle(
-                fontWeight: FontWeight.bold, color: Colors.black, fontSize: 20),
+                fontWeight: FontWeight.bold, color: Colors.white, fontSize: 20),
           ),
         ),
         body: SafeArea(
             child: Container(
+          decoration: BoxDecoration(
+              border: Border.all(color: ColorsSystem().colorBlack, width: 2.0)),
           width: double.infinity,
           child: Padding(
             padding: const EdgeInsets.all(20.0),
@@ -89,11 +93,11 @@ class _DeliveryStatusSellerInfo extends State<DeliveryStatusSellerInfo> {
                                 onPressed: () async {
                                   infoNovedades(context, widget.id);
                                 },
-                                child: Text(
+                                child: const Text(
                                   "Estado Entrega",
                                   style: TextStyle(fontWeight: FontWeight.bold),
                                 )),
-                            SizedBox(
+                            const SizedBox(
                               width: 10,
                             ),
                             data['status'] == 'NOVEDAD' &&
@@ -105,7 +109,7 @@ class _DeliveryStatusSellerInfo extends State<DeliveryStatusSellerInfo> {
                                         'status': 'REAGENDADO'
                                       });
                                     },
-                                    child: Text(
+                                    child: const Text(
                                       "Reagendar",
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold),
@@ -113,13 +117,43 @@ class _DeliveryStatusSellerInfo extends State<DeliveryStatusSellerInfo> {
                                 : Container(),
                           ],
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 20,
                         ),
                         _modelText("Fecha de Entrega",
                             data['fecha_entrega'].toString()),
+                        _modelText(
+                            "Marca Tiempo de Estado Entrega",
+                            data['status_last_modified_at'] != null
+                                ? formatDate(
+                                    data['status_last_modified_at'].toString())
+                                : ""),
                         _modelText("Código",
                             '${data['name_comercial'].toString()}-${data['numero_orden'].toString()}'),
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.account_circle,
+                                color: ColorsSystem().colorSelectMenu,
+                                size: 24,
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                "DATOS DEL CLIENTE",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: ColorsSystem().colorSelectMenu,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 18,
+                        ),
                         _modelText(
                             "Ciudad", data['ciudad_shipping'].toString()),
                         _modelText("Nombre Cliente",
@@ -128,6 +162,30 @@ class _DeliveryStatusSellerInfo extends State<DeliveryStatusSellerInfo> {
                             "Dirección", data['direccion_shipping'].toString()),
                         _modelText("Teléfono Cliente",
                             data['telefono_shipping'].toString()),
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.shopping_bag_rounded,
+                                color: ColorsSystem().colorSelectMenu,
+                                size: 24,
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                "DETALLES DEL PEDIDO",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: ColorsSystem().colorSelectMenu,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 18,
+                        ),
                         _modelText(
                             "Cantidad", data['cantidad_total'].toString()),
                         _modelText("Producto", data['producto_p'].toString()),
@@ -251,13 +309,21 @@ class _DeliveryStatusSellerInfo extends State<DeliveryStatusSellerInfo> {
       children: [
         Text(
           "  $label: $text",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
-        SizedBox(
-          height: 20,
+        const SizedBox(
+          height: 15,
         ),
       ],
     );
+  }
+
+  formatDate(dateStringFromDatabase) {
+    DateTime dateTime = DateTime.parse(dateStringFromDatabase);
+    Duration offset = const Duration(hours: -5);
+    dateTime = dateTime.toUtc().add(offset);
+    String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
+    return formattedDate;
   }
 
   _modelTextField({text, controller}) {

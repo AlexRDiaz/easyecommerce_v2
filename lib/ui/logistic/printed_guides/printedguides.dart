@@ -868,7 +868,9 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                     var responseL = await Connections().updateOrderWithTime(
                         optionsCheckBox[i]['id'].toString(),
                         "estado_logistico:ENVIADO",
-                        idUser);
+                        idUser,
+                        "",
+                        "");
                   }
                 }
                 Navigator.pop(context);

@@ -56,7 +56,11 @@ class _ScannerPrintedState extends State<ScannerPrinted> {
 
                     //new
                     var responseL = await Connections().updateOrderWithTime(
-                        barcode.toString(), "estado_logistico:ENVIADO", idUser);
+                        barcode.toString(),
+                        "estado_logistico:ENVIADO",
+                        idUser,
+                        "",
+                        "");
 
                     setState(() {
                       _barcode =

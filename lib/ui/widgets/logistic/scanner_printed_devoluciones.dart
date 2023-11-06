@@ -45,7 +45,7 @@ class _ScannerPrintedDevolucionesState
                   //     .updateOrderReturnLogistic(barcode.toString());
                   // new
                   await Connections().updateOrderWithTime(barcode.toString(),
-                      "estado_devolucion:EN BODEGA", idUser);
+                      "estado_devolucion:EN BODEGA", idUser, "", "");
 
                   var responseOrder =
                       await Connections().getOrderByID(barcode.toString());

@@ -25,6 +25,7 @@ import 'package:screenshot/screenshot.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'package:intl/intl.dart';
 
 class TransportDeliveryHistoryDetailsData extends StatefulWidget {
   final Map data;
@@ -673,6 +674,56 @@ class _TransportDeliveryHistoryDetailsDataState
               ),
               _modelText("Código", codigo),
               _modelText("Marca de Tiempo", _marcaTiempo.text),
+              Visibility(
+                visible: data['status_last_modified_at'] != null,
+                child: Container(
+                  width: 500,
+                  margin: const EdgeInsets.symmetric(vertical: 10),
+                  padding: const EdgeInsets.all(15),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.3),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Marca de Tiempo de Estado Entrega",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        "${data['status_last_modified_at'] != null ? formatDate(data['status_last_modified_at'].toString()) : ""}",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[800],
+                        ),
+                      ),
+                      Text(
+                        data['status_last_modified_by'] != null
+                            ? "${data['status_last_modified_by']['username'].toString()}-${data['status_last_modified_by']['id'].toString()}"
+                            : '',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[800],
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                    ],
+                  ),
+                ),
+              ),
               _modelText("Fecha", _fecha.text),
               _modelTextField("Cantidad", _cantidad),
               _modelTextField("Precio Total", _precioTotal),
@@ -738,6 +789,14 @@ class _TransportDeliveryHistoryDetailsDataState
         ),
       ),
     );
+  }
+
+  formatDate(dateStringFromDatabase) {
+    DateTime dateTime = DateTime.parse(dateStringFromDatabase);
+    Duration offset = const Duration(hours: -5);
+    dateTime = dateTime.toUtc().add(offset);
+    String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
+    return formattedDate;
   }
 
   Container confirmadoOptions(BuildContext context) {
@@ -932,7 +991,9 @@ class _TransportDeliveryHistoryDetailsDataState
                 var response = await Connections().updateOrderWithTime(
                     widget.data['id'].toString(),
                     "estado_logistico:IMPRESO",
-                    idUser);
+                    idUser,
+                    "",
+                    "");
 
                 Navigator.pop(context);
                 showCustomModal(response, context);
@@ -967,7 +1028,9 @@ class _TransportDeliveryHistoryDetailsDataState
                 var response = await Connections().updateOrderWithTime(
                     widget.data['id'].toString(),
                     "estado_logistico:ENVIADO",
-                    idUser);
+                    idUser,
+                    "",
+                    "");
 
                 Navigator.pop(context);
                 showCustomModal(response, context);
