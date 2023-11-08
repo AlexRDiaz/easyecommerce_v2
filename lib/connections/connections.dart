@@ -4923,10 +4923,8 @@ class Connections {
             'Content-Type': 'application/json',
           },
           body: json.encode({
-            // "start": sharedPrefs!.getString("dateDesdeVendedor"),
-            // "end": sharedPrefs!.getString("dateHastaVendedor"),
-            "start": "1/1/2021",
-            "end": "1/1/2200",
+            "start": sharedPrefs!.getString("dateDesdeVendedor"),
+            "end": sharedPrefs!.getString("dateHastaVendedor"),
             "or": [],
             "and": arrayfiltersDefaultAnd,
             "not": [],
