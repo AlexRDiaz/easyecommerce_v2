@@ -1098,7 +1098,7 @@ class _TransportDeliveryHistoryDetailsDataState
                             id: widget.data['id'].toString(),
                             novedades: data['novedades'],
                             currentStatus: data['status'],
-                            rolidinvoke: 3,
+                            rolidinvoke: 1,
                             comment: data['comentario'].toString(),
                             dataL: widget.dataL,
                             function: widget.function,
