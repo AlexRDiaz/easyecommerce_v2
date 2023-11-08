@@ -289,7 +289,7 @@ class _UpdateStatusOperatorHistorialState
                           "${datacostos['id']}",
                           "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
                           "recaudo",
-                          "recaudo de precio total de pedido  ${datacostos['status']}");
+                          "recaudo de precio total de pedido  ENTREGADO");
                       if (resCredit == 0) {
                         var resDebit = await Connections().postDebit(
                             "${datacostos['users'][0]['vendedores'][0]['id_master']}",
@@ -468,7 +468,7 @@ class _UpdateStatusOperatorHistorialState
                               "${datacostos['id']}",
                               "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
                               "recaudo",
-                              "recaudo de precio total de pedido  ${datacostos['status']}");
+                              "recaudo de precio total de pedido  ENTREGADO");
                           if (resCredit == 0) {
                             var resDebit = await Connections().postDebit(
                                 "${datacostos['users'][0]['vendedores'][0]['id_master']}",
