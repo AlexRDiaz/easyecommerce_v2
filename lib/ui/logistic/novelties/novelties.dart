@@ -48,6 +48,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
 
   List<String> listvendedores = ['TODO'];
   List<String> listtransportadores = ['TODO'];
+  // name_comerial
 
   List<String> listStatus = [
     'TODO',
@@ -68,7 +69,9 @@ class _NoveltiesLState extends State<NoveltiesL> {
     "users.vendedores"
   ];
   List defaultArrayFiltersAnd = [
-    {"equals/estado_devolucion": "PENDIENTE"}
+    {"equals/estado_devolucion": "PENDIENTE"},
+    {"/estado_interno": "CONFIRMADO"},
+    {"/estado_logistico": "ENVIADO"}
   ];
   List arrayFiltersAnd = [];
   List arrayFiltersOr = [
@@ -369,11 +372,9 @@ class _NoveltiesLState extends State<NoveltiesL> {
                     minWidth: 2500,
                     columns: [
                       DataColumn2(
-                        label: const Text('Fecha'),
+                        label: Text("Fecha Entrega"),
                         size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {
-                          // sortFunc("Fecha");
-                        },
+                        onSort: (columnIndex, ascending) {},
                       ),
                       DataColumn2(
                         label: const Text('Código'),
@@ -467,10 +468,19 @@ class _NoveltiesLState extends State<NoveltiesL> {
                         onSort: (columnIndex, ascending) {},
                       ),
                       DataColumn2(
-                        label: Text("Fecha Entrega"),
+                        label: const Text('Fecha Marca T I'),
                         size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {},
+                        onSort: (columnIndex, ascending) {
+                          // sortFunc("Fecha");
+                        },
                       ),
+                      // DataColumn2(
+                      //   label: const Text('Numero Intentos'),
+                      //   size: ColumnSize.S,
+                      //   onSort: (columnIndex, ascending) {
+                      //     // sortFunc("Fecha");
+                      //   },
+                      // ),
                     ],
                     rows: List<DataRow>.generate(data.length, (index) {
                       final color =
@@ -534,10 +544,12 @@ class _NoveltiesLState extends State<NoveltiesL> {
   List<DataCell> getRows(index) {
     Color rowColor = Colors.black;
 
+    // print("cmt> ${data[index]['novedades']}");
+
     return [
       DataCell(
           Text(
-            data[index]['marca_t_i'].toString().split(' ')[0].toString(),
+            data[index]['fecha_entrega'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
@@ -699,13 +711,24 @@ class _NoveltiesLState extends State<NoveltiesL> {
       }),
       DataCell(
           Text(
-            data[index]['fecha_entrega'].toString(),
+            data[index]['marca_t_i'].toString().split(' ')[0].toString(),
             style: TextStyle(
               color: rowColor,
             ),
           ), onTap: () {
         info(context, index);
       }),
+      // ! *********
+      // DataCell(
+      //     Text(data[index]['novedades'][0]['try'].toString()
+      //         // data[index]['novedades'][0]['comment'].toString(),
+      //         // "hola"
+      //         // style: TextStyle(
+      //         //   color: rowColor,
+      //         // ),
+      //         ), onTap: () {
+      //   info(context, index);
+      // }),
     ];
   }
 
