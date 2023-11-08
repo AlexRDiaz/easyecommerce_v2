@@ -128,7 +128,7 @@ class _InfoNovedadesState extends State<InfoNovedades> {
                                             : Container(
                                                 margin: EdgeInsets.all(30),
                                                 child: Image.network(
-                                                  "$generalServerApiLaravel${data['novedades'][index]['url_image'].toString()}",
+                                                  "$generalServer${data['novedades'][index]['url_image'].toString()}",
                                                   fit: BoxFit.fill,
                                                 )),
                                       ],
