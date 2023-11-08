@@ -1,5 +1,6 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/config/colors.dart';
 
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/navigators.dart';
@@ -49,6 +50,7 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
 
     if (order != null) {
       data = order;
+      print("data> $data");
       _comentarioController.text = safeValue(data['comentario']);
     } else {
       print("Error: No se encontró el pedido con el ID proporcionado.");
@@ -81,212 +83,261 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
         : 'No disponible';
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
         backgroundColor: Colors.white,
-        leading: Container(),
-        centerTitle: true,
-        title: const Text(
-          "Información Pedido",
-          style: TextStyle(
-              fontWeight: FontWeight.bold, color: Colors.black, fontSize: 20),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          leading: Container(),
+          centerTitle: true,
+          title: const Text(
+            "Información Pedido",
+            style: TextStyle(
+                fontWeight: FontWeight.bold, color: Colors.black, fontSize: 20),
+          ),
         ),
-      ),
-      body: SafeArea(
-        child: Container(
-          width: double.infinity,
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: SingleChildScrollView(
-              child: loading == true
-                  ? Container()
-                  : Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Código: ${safeValue(data['numero_orden'].toString())}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Fecha Envio: ${safeValue(data['marca_tiempo_envio'].toString())}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Nombre Cliente: ${safeValue(data['nombre_shipping'])}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Ciudad: ${safeValue(data['ciudad_shipping'])}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  DIRECCIÓN: ${safeValue(data['direccion_shipping'])}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  TELEFÓNO CLIENTE: ${safeValue(data['telefono_shipping'])}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Cantidad: ${safeValue(data['cantidad_total'])}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Producto: ${safeValue(data['producto_p'])}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Producto Extra: ${safeValue(data['producto_extra'])}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Precio Total: ${safeValue(data['precio_total'])}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Observación: ${safeValue(data['observacion'].toString())}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Comentario: ${safeValue(data['comentario'].toString())}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Status: ${safeValue(data['status'].toString())}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Vendedor: ${safeValue(data['tienda_temporal'].toString())}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Transportadora: ${safeValue(transportadoraNombre)}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Operador: ${safeValue(operadorUsername)}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Estado Devolución: ${safeValue(data['estado_devolucion'].toString())}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Fecha Entrega: ${safeValue(data['fecha_entrega'].toString())}",
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        // Text(
-                        //   "  Archivo:",
-                        //   style: TextStyle(
-                        //       fontWeight: FontWeight.bold, fontSize: 18),
-                        // ),
-                        // SizedBox(
-                        //   height: 20,
-                        // ),
-                        // data['archivo'].toString().isEmpty ||
-                        //         data['archivo'].toString() ==
-                        //             "null"
-                        //     ? Container()
-                        //     : Container(
-                        //         width: 300,
-                        //         height: 400,
-                        //         child: Image.network(
-                        //           "$generalServer${data['archivo'].toString()}",
-                        //           fit: BoxFit.fill,
-                        //         )),
-                        // SizedBox(
-                        //   height: 20,
-                        // ),
-                      ],
-                    ),
+        body: SafeArea(
+          child: Container(
+            width: double.infinity,
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: SingleChildScrollView(
+                child: loading == true
+                    ? Container()
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Text(
+                            "  Código: ${data['users'][0]['vendedores'][0]['nombre_comercial']}-${safeValue(data['numero_orden'].toString())}",
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal, fontSize: 18),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Text(
+                            "  Fecha Envio: ${safeValue(data['marca_tiempo_envio'].toString())}",
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal, fontSize: 18),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Divider(
+                            height: 1.0,
+                            color: Colors.grey[200],
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Text(
+                            "  Datos Cliente ",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                color: ColorsSystem().colorSelectMenu),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Text(
+                            "  Nombre Cliente: ${safeValue(data['nombre_shipping'])}",
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal, fontSize: 18),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Text(
+                            "  Ciudad: ${safeValue(data['ciudad_shipping'])}",
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal, fontSize: 18),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Text(
+                            "  Dirección: ${safeValue(data['direccion_shipping'])}",
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal, fontSize: 18),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Text(
+                            "  Teléfono Cliente: ${safeValue(data['telefono_shipping'])}",
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal, fontSize: 18),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Divider(
+                            height: 1.0,
+                            color: Colors.grey[200],
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Text(
+                            "  Detalle Pedido ",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                color: ColorsSystem().colorSelectMenu),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Text(
+                            "  Cantidad: ${safeValue(data['cantidad_total'])}",
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal, fontSize: 18),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Text(
+                            "  Producto: ${safeValue(data['producto_p'])}",
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal, fontSize: 18),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Text(
+                            "  Producto Extra: ${safeValue(data['producto_extra'])}",
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal, fontSize: 18),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Text(
+                            "  Precio Total: \$ ${safeValue(data['precio_total'])}",
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                                fontSize: 18,
+                                color: Colors.green[600]),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Text(
+                            "  Observación: ${safeValue(data['observacion'].toString())}",
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal, fontSize: 18),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Text(
+                            "  Comentario: ${safeValue(data['comentario'].toString())}",
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal, fontSize: 18),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Text(
+                            "  Status: ${safeValue(data['status'].toString())}",
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal, fontSize: 18),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Divider(
+                            height: 1.0,
+                            color: Colors.grey[200],
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Text(
+                            "  Datos Adicionales ",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                color: ColorsSystem().colorSelectMenu),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Text(
+                            "  Vendedor: ${safeValue(data['tienda_temporal'].toString())}",
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal, fontSize: 18),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Text(
+                            "  Transportadora: ${safeValue(transportadoraNombre)}",
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal, fontSize: 18),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Text(
+                            "  Operador: ${safeValue(operadorUsername)}",
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal, fontSize: 18),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Text(
+                            "  Estado Devolución: ${safeValue(data['estado_devolucion'].toString())}",
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal, fontSize: 18),
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          Text(
+                            "  Fecha Entrega: ${safeValue(data['fecha_entrega'].toString())}",
+                            style: const TextStyle(
+                                fontWeight: FontWeight.normal, fontSize: 18),
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          // Text(
+                          //   "  Archivo:",
+                          //   style: TextStyle(
+                          //       fontWeight: FontWeight.bold, fontSize: 18),
+                          // ),
+                          // SizedBox(
+                          //   height: 20,
+                          // ),
+                          // data['archivo'].toString().isEmpty ||
+                          //         data['archivo'].toString() == "null"
+                          //     ? Container()
+                          //     : Container(
+                          //         width: 300,
+                          //         height: 400,
+                          //         child: Image.network(
+                          //           "$generalServer${data['archivo'].toString()}",
+                          //           fit: BoxFit.fill,
+                          //         )),
+                          // const SizedBox(
+                          //   height: 20,
+                          // ),
+                        ],
+                      ),
+              ),
             ),
           ),
         ),
-      ),
-      floatingActionButton: (safeValue(data['status']) == "NOVEDAD")
-          ? FloatingActionButton.extended(
-              onPressed: _showResolveModal,
-              label: const Text('Resolver Novedad'),
-              icon: const Icon(Icons.check_circle),
-            )
-          : null,
-    );
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: _showResolveModal,
+          label: const Text('Resolver Novedad'),
+          icon: const Icon(Icons.check_circle),
+        ));
   }
 
   void _showResolveModal() {

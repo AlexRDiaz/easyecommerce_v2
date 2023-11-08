@@ -1632,7 +1632,8 @@ class _UpdateStatusOperatorHistorialState
       var whatsappUrl = "";
       if (widget.rolidinvoke == 3 || widget.rolidinvoke == 1) {
         message =
-            "Buen Día, la guía con el código >> ${orderData['numero_orden']} << de la tienda >> ${orderData['tienda_temporal']} << indica: ' $newComment ' .";
+            // "Buen Día, la guía con el código ${orderData['name_comercial']}-${orderData['numero_orden']} << de la tienda >> ${orderData['tienda_temporal']} << indica: ' $newComment ' .";
+            "Buen Día, la guía con el código ${orderData['name_comercial']}-${orderData['numero_orden']} indica que ' $newComment ' .";
         whatsappUrl =
             "https://api.whatsapp.com/send?phone=$phoneNumber&text=${Uri.encodeFull(message)}";
       } else if (widget.rolidinvoke == 4) {

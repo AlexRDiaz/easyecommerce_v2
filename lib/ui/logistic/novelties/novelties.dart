@@ -368,13 +368,12 @@ class _NoveltiesLState extends State<NoveltiesL> {
                     horizontalMargin: 5,
                     minWidth: 2500,
                     columns: [
-                      DataColumn2(
-                        label: const Text('Fecha'),
+                       DataColumn2(
+                        label: Text("Fecha Entrega"),
                         size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {
-                          // sortFunc("Fecha");
-                        },
+                        onSort: (columnIndex, ascending) {},
                       ),
+                     
                       DataColumn2(
                         label: const Text('Código'),
                         size: ColumnSize.S,
@@ -467,9 +466,11 @@ class _NoveltiesLState extends State<NoveltiesL> {
                         onSort: (columnIndex, ascending) {},
                       ),
                       DataColumn2(
-                        label: Text("Fecha Entrega"),
+                        label: const Text('Fecha Marca TI'),
                         size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {},
+                        onSort: (columnIndex, ascending) {
+                          // sortFunc("Fecha");
+                        },
                       ),
                     ],
                     rows: List<DataRow>.generate(data.length, (index) {
@@ -537,7 +538,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
     return [
       DataCell(
           Text(
-            data[index]['marca_t_i'].toString().split(' ')[0].toString(),
+            data[index]['fecha_entrega'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
@@ -699,7 +700,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
       }),
       DataCell(
           Text(
-            data[index]['fecha_entrega'].toString(),
+            data[index]['marca_t_i'].toString().split(' ')[0].toString(),
             style: TextStyle(
               color: rowColor,
             ),
