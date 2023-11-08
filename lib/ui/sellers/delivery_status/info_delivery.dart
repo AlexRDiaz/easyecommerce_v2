@@ -285,7 +285,7 @@ class _DeliveryStatusSellerInfo extends State<DeliveryStatusSellerInfo> {
                                                 margin:
                                                     const EdgeInsets.all(30),
                                                 child: Image.network(
-                                                  "$generalServerApiLaravel${data['novedades'][index]['url_image'].toString()}",
+                                                  "$generalServer${data['novedades'][index]['url_image'].toString()}",
                                                   fit: BoxFit.fill,
                                                 )),
                                       ],
