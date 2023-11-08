@@ -426,7 +426,7 @@ class _MySellerAccountState extends State<MySellerAccount> {
                       onTap: () {
                         Clipboard.setData(ClipboardData(
                             text:
-                                "$generalServerApiLaravel/register/$idShopify"));
+                                "$generalServeserverppweb/register/$idShopify"));
                         Get.snackbar('COPIADO', 'Copiado al Clipboard');
                       },
                       child: const Icon(
