@@ -310,7 +310,7 @@ class _TransportDeliveryHistoryDetailsState
                                                       "${data['attributes']['IdComercial'].toString()}");
                                               await showDialog(
                                                   context: context,
-                                                  builder: (context) {
+                                                  builder: (context) { 
                                                     return UpdateStatusOperatorHistorial(
                                                       numberTienda:
                                                           response['vendedores']
@@ -327,6 +327,8 @@ class _TransportDeliveryHistoryDetailsState
                                                                   ['novedades']
                                                               ['data'],
                                                       currentStatus: "",
+                                                      rolidinvoke: 4,
+                                                      comment: data['attributes']['Comentario'].toString(),
                                                     );
                                                   });
                                               await loadData();

@@ -5,6 +5,7 @@ import 'package:frontend/providers/operator/navigation_provider.dart';
 import 'package:frontend/ui/operator/my_operator_account/my_operator_account.dart';
 import 'package:frontend/ui/operator/orders_operator/orders_operator.dart';
 import 'package:frontend/ui/operator/received_values.dart/received_values.dart';
+import 'package:frontend/ui/operator/resolved_novelties/resolved_novelties.dart';
 import 'package:frontend/ui/operator/returns/returns.dart';
 import 'package:frontend/ui/operator/state_orders/state_orders.dart';
 import 'package:frontend/ui/operator/update_password_operator/update_password_operator.dart';
@@ -37,6 +38,7 @@ class _LayoutOperatorPageState extends State<LayoutOperatorPage> {
     StateOrdersOperator(),
     ReceivedValues(),
     ReturnsOperator(),
+    ResolvedNovelties(idRolInvokeClass: 4),
     UpdatePasswordOperator(),
     Container(),
   ];

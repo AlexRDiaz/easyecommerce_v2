@@ -36,6 +36,7 @@ class _TransportDeliveryHistorialState
   TextEditingController _search = TextEditingController();
   List allData = [];
   List data = [];
+  List dataL = [];
   bool sort = false;
   ScreenshotController screenshotController = ScreenshotController();
   ScrollController _scrollController = ScrollController();
@@ -62,6 +63,7 @@ class _TransportDeliveryHistorialState
     'TODO',
     'PEDIDO PROGRAMADO',
     'NOVEDAD',
+    'NOVEDAD RESUELTA',
     'ENTREGADO',
     'NO ENTREGADO',
     'REAGENDADO',
@@ -276,6 +278,8 @@ class _TransportDeliveryHistorialState
       setState(() {
         data = [];
         data = response['data'];
+
+        dataL = response['data'];
 
         data = data.map((item) {
           bool check =
@@ -1887,7 +1891,7 @@ class _TransportDeliveryHistorialState
               child: Column(
                 children: [
                   Align(
-                    alignment: Alignment.centerRight,
+                    alignment: Alignment.centerRight, 
                     child: GestureDetector(
                       onTap: () {
                         Navigator.pop(context);
@@ -1900,6 +1904,7 @@ class _TransportDeliveryHistorialState
                       child: TransportDeliveryHistoryDetailsData(
                     data: data,
                     function: paginateData,
+                    dataL: dataL,
                   ))
                 ],
               ),

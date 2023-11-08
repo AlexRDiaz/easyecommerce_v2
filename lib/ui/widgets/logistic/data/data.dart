@@ -81,6 +81,7 @@ List optionsTransport = [
     "icon": Icons.document_scanner_rounded
   },
   {"name": "Devoluciones", "icon": Icons.list_outlined},
+  {"name": "Novedades Resueltas", "icon": Icons.done_all},
   {"name": "Cambiar Contraseña", "icon": Icons.security},
   {"name": "Cerrar Sesión", "icon": Icons.logout_outlined},
 ];
@@ -92,6 +93,7 @@ List optionsOperator = [
   {"name": "Estado de Entregas", "icon": Icons.emoji_transportation},
   {"name": "Valores Recibidos", "icon": Icons.monetization_on_outlined},
   {"name": "Devoluciones", "icon": Icons.list_alt_outlined},
+  {"name": "Novedades Resueltas", "icon": Icons.done_all},
   {"name": "Actualizar Contraseña", "icon": Icons.security_outlined},
   {"name": "Cerrar Sesión", "icon": Icons.logout_outlined},
 ];

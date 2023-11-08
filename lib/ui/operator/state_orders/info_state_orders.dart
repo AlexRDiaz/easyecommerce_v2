@@ -10,7 +10,11 @@ import 'package:frontend/ui/widgets/update_status_operator/update_status_operato
 
 class InfoStateOrdersOperator extends StatefulWidget {
   final String id;
-  const InfoStateOrdersOperator({super.key, required this.id});
+  final String? comment;
+  final Function? function;
+  final List? data;
+  const InfoStateOrdersOperator(
+      {super.key, required this.id, this.comment, this.function, this.data});
 
   @override
   State<InfoStateOrdersOperator> createState() =>
@@ -86,25 +90,39 @@ class _InfoStateOrdersOperatorState extends State<InfoStateOrdersOperator> {
                                           .getSellersByIdMasterOnly(
                                               "${data['attributes']['IdComercial'].toString()}");
 
+                                      // print(
+                                      //     "cmt> ${data['attributes']['Comentario'].toString()}");
+
                                       // ignore: use_build_context_synchronously
                                       await showDialog(
                                           context: context,
                                           builder: (context) {
                                             return UpdateStatusOperatorHistorial(
-                                                numberTienda:
-                                                    response['vendedores'][0]
-                                                            ['Telefono2']
-                                                        .toString(),
-                                                codigo:
-                                                    "${data['attributes']['Name_Comercial']}-${data['attributes']['NumeroOrden']}",
-                                                numberCliente:
-                                                    "${data['attributes']['TelefonoShipping']}",
-                                                id: widget.id,
-                                                novedades: data['attributes']
-                                                    ['novedades']['data'],
-                                                currentStatus: '');
+                                              numberTienda:
+                                                  response['vendedores'][0]
+                                                          ['Telefono2']
+                                                      .toString(),
+                                              codigo:
+                                                  "${data['attributes']['Name_Comercial']}-${data['attributes']['NumeroOrden']}",
+                                              numberCliente:
+                                                  "${data['attributes']['TelefonoShipping']}",
+                                              id: widget.id,
+                                              novedades: data['attributes']
+                                                  ['novedades']['data'],
+                                              currentStatus: '',
+                                              comment: widget.comment!,
+                                              // function: widget.function!,
+                                              dataL: widget.data!,
+                                              rolidinvoke: 4,
+                                            );
                                           });
-                                      await loadData();
+                                      // print("cmt> ${ data['attributes']
+                                      //             ['Comentario']
+                                      //         .toString()}");
+                                      // await loadData();
+
+
+                                      Navigator.pop(context);
                                     },
                                     child: Text(
                                       "Estado Entrega",
