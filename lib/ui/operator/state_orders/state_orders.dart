@@ -548,6 +548,9 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
       case "NOVEDAD":
         color = 0xFFD6DC27;
         break;
+      case "NOVEDAD RESUELTA":
+        color = 0xFF6A1B9A;
+        break;
       case "NO ENTREGADO":
         color = 0xFFFF3333;
         break;
@@ -823,8 +826,11 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
                   ),
                   Expanded(
                       child: InfoStateOrdersOperator(
-                    id: data[index]['id'].toString(),
-                  ))
+                          id: data[index]['id'].toString(),
+                          comment: data[index]['attributes']['Comentario']
+                              .toString(),
+                          // function: loadData,
+                          data: data))
                 ],
               ),
             ),

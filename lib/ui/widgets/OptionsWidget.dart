@@ -19,8 +19,8 @@ class OptionsWidget extends StatefulWidget {
 }
 
 class _OptionsWidgetState extends State<OptionsWidget> {
-  List<bool> hoveredList = List.generate(7, (_) => false);
-  List<bool> selectedList = List.generate(7, (_) => false);
+  List<bool> hoveredList = List.generate(8, (_) => false);
+  List<bool> selectedList = List.generate(8, (_) => false);
   int selectedIndex = -1;
 
   // Variable para almacenar el valor actual del String

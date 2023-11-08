@@ -19,6 +19,10 @@ class UpdateStatusOperatorHistorial extends StatefulWidget {
   final String id;
   final List novedades;
   final String currentStatus;
+  final String? comment;
+  final Function? function;
+  final List? dataL;
+  final int? rolidinvoke;
 
   const UpdateStatusOperatorHistorial(
       {super.key,
@@ -27,7 +31,11 @@ class UpdateStatusOperatorHistorial extends StatefulWidget {
       required this.numberCliente,
       required this.id,
       required this.novedades,
-      required this.currentStatus});
+      required this.currentStatus,
+      this.comment,
+      this.function,
+      this.dataL,
+      this.rolidinvoke});
 
   @override
   State<UpdateStatusOperatorHistorial> createState() =>
@@ -36,15 +44,7 @@ class UpdateStatusOperatorHistorial extends StatefulWidget {
 
 class _UpdateStatusOperatorHistorialState
     extends State<UpdateStatusOperatorHistorial> {
-  List<String> status = [
-    "ENTREGADO",
-    "NO ENTREGADO",
-    "NOVEDAD",
-    "REAGENDADO",
-    "EN RUTA",
-    "PEDIDO PROGRAMADO",
-    "EN OFICINA"
-  ];
+  List<String> status = [];
   String? selectedValueStatus;
   List<DateTime?> _dates = [];
   List novedades = [];
@@ -54,16 +54,61 @@ class _UpdateStatusOperatorHistorialState
   bool deposito = false;
   TextEditingController _controllerModalText = TextEditingController();
   XFile? imageSelect = null;
+  var dataL = {};
+
+  final TextEditingController _statusController =
+      TextEditingController(text: "NOVEDAD RESUELTA");
+  final TextEditingController _comentarioController = TextEditingController();
+
+  createlistStatus() {
+    if (widget.rolidinvoke == 1) {
+      status = [
+        "ENTREGADO",
+        "NO ENTREGADO",
+        "NOVEDAD",
+        "NOVEDAD RESUELTA",
+        "REAGENDADO",
+        "EN RUTA",
+        "PEDIDO PROGRAMADO",
+        "EN OFICINA"
+      ];
+    } else {
+      status = [
+        "ENTREGADO",
+        "NO ENTREGADO",
+        "NOVEDAD",
+        "REAGENDADO",
+        "EN RUTA",
+        "PEDIDO PROGRAMADO",
+        "EN OFICINA"
+      ];
+    }
+  }
+
+  loadData() async {
+    createlistStatus();
+
+    var order = widget.dataL!.firstWhere(
+        (item) => item['id'].toString() == widget.id,
+        orElse: () => null);
+
+    dataL = order;
+
+    // _comentarioController.text = safeValue(dataL['comentario']);
+    _comentarioController.text = widget.comment!;
+  }
 
   var idUser = sharedPrefs!.getString("id");
 
   getRefered(id) async {
+    // loadData();
     var refered = await Connections().getSellerMaster(id);
     return refered;
   }
 
   @override
   Widget build(BuildContext context) {
+    loadData();
     return AlertDialog(
       content: Container(
         width: 400,
@@ -108,7 +153,7 @@ class _UpdateStatusOperatorHistorialState
                 child: ListView(
               children: [
                 Column(
-                  children: [generateContent()],
+                  children: [generateContent(_statusController)],
                 )
               ],
             )),
@@ -118,7 +163,7 @@ class _UpdateStatusOperatorHistorialState
     );
   }
 
-  generateContent() {
+  generateContent(_statusController) {
     switch (selectedValueStatus) {
       case null:
         return Container();
@@ -128,6 +173,7 @@ class _UpdateStatusOperatorHistorialState
         return _NoEntregado();
       case "NOVEDAD":
         return _Novdedad();
+
       case "REAGENDADO":
         return _Reagendado();
       case "EN RUTA":
@@ -136,6 +182,8 @@ class _UpdateStatusOperatorHistorialState
         return _PedidoProgramado();
       case "EN OFICINA":
         return _EnOficina();
+      case "NOVEDAD RESUELTA":
+        return _NovedadResuelta(_statusController);
       default:
     }
   }
@@ -1476,5 +1524,147 @@ class _UpdateStatusOperatorHistorialState
   Future<void> saveNovedad(id_pedido, intento, url_imagen, comment) async {
     var response = await Connections()
         .createNovedad(id_pedido, intento, url_imagen, comment);
+  }
+
+  // ! **********************************************
+
+  Container _NovedadResuelta(_statusController) {
+    return Container(
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              const Expanded(
+                child: Text('Status:',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 13.0)),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                flex: 3,
+                child: TextFormField(
+                  controller: _statusController,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                  ),
+                  enabled: false,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 20),
+          Row(
+            children: [
+              const Expanded(
+                child: Text('Comentario:',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 13.0)),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                flex: 3,
+                child: TextFormField(
+                  controller: _comentarioController,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: const Icon(Icons.cancel),
+                label: const Text('Cancelar'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.redAccent,
+                ),
+              ),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  await sendWhatsAppMessage(
+                      context, dataL, _comentarioController.text);
+                  await Connections().editStatusandComment(dataL['id'],
+                      _statusController.text, _comentarioController.text);
+
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                  await widget.function!();
+                },
+                icon: const Icon(Icons.check),
+                label: const Text('Guardar'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> sendWhatsAppMessage(BuildContext context,
+      Map<dynamic, dynamic> orderData, String newComment) async {
+    String? phoneNumber = "";
+    if (widget.rolidinvoke == 3 || widget.rolidinvoke == 1) {
+      phoneNumber = orderData['operadore'].isNotEmpty == true &&
+              orderData['operadore'] != null
+          ? orderData['operadore'][0]['telefono']
+          : null;
+    } else if (widget.rolidinvoke == 4) {
+      phoneNumber = orderData['attributes']['operadore'] != null
+          ? orderData['attributes']['operadore']['data']['attributes']
+              ['Telefono']
+          : null;
+    }
+
+    if (phoneNumber != null && phoneNumber.isNotEmpty) {
+      var message = "";
+      var whatsappUrl = "";
+      if (widget.rolidinvoke == 3 || widget.rolidinvoke == 1) {
+        message =
+            "Buen Día, la guía con el código >> ${orderData['numero_orden']} << de la tienda >> ${orderData['tienda_temporal']} << indica: ' $newComment ' .";
+        whatsappUrl =
+            "https://api.whatsapp.com/send?phone=$phoneNumber&text=${Uri.encodeFull(message)}";
+      } else if (widget.rolidinvoke == 4) {
+        // "${data['attributes']['Name_Comercial']}-${data['attributes']['NumeroOrden']}
+        message =
+            "Buen Día, la guía con el código >> ${orderData['attributes']['NumeroOrden']} << de la tienda >> ${orderData['attributes']['Tienda_Temporal']} << indica: ' $newComment ' .";
+        whatsappUrl =
+            "https://api.whatsapp.com/send?phone=$phoneNumber&text=${Uri.encodeFull(message)}";
+      }
+
+      if (!await launchUrl(Uri.parse(whatsappUrl))) {
+        throw Exception('Could not launch $whatsappUrl');
+      }
+    } else {
+      // _showErrorSnackBar(context, "El pedido no tiene un operador asignado.");
+    }
+  }
+
+  void _showErrorSnackBar(BuildContext context, String errorMessage) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          errorMessage,
+          style: TextStyle(color: Color.fromRGBO(7, 0, 0, 1)),
+        ),
+        backgroundColor: Color.fromARGB(255, 253, 101, 90),
+        duration: Duration(seconds: 4),
+      ),
+    );
+  }
+
+  String safeValue(dynamic value, [String defaultValue = '']) {
+    return (value ?? defaultValue).toString();
   }
 }

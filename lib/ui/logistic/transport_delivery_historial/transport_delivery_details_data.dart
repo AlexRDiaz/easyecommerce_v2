@@ -1,6 +1,7 @@
 import 'package:flutter_animated_icons/icons8.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
+import 'package:frontend/ui/sellers/returns_seller/returns_seller.dart';
 import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/forms/date_input.dart';
@@ -30,8 +31,9 @@ import 'package:intl/intl.dart';
 class TransportDeliveryHistoryDetailsData extends StatefulWidget {
   final Map data;
   final Function function;
+  final List? dataL;
   const TransportDeliveryHistoryDetailsData(
-      {super.key, required this.data, required this.function});
+      {super.key, required this.data, required this.function, this.dataL});
 
   @override
   State<TransportDeliveryHistoryDetailsData> createState() =>
@@ -75,6 +77,9 @@ class _TransportDeliveryHistoryDetailsDataState
   TextEditingController _estadoPago = TextEditingController();
 
   var data = {};
+  List<dynamic> dataL = [];
+  List<Map<String, dynamic>> listaPedidoEspecifico = [];
+
   // @override
   // void didChangeDependencies() {
   //   loadTextEdtingControllers();
@@ -85,7 +90,6 @@ class _TransportDeliveryHistoryDetailsDataState
   @override
   void initState() {
     loadTextEdtingControllers(widget.data);
-
     super.initState();
   }
 
@@ -97,10 +101,32 @@ class _TransportDeliveryHistoryDetailsDataState
       var response =
           await Connections().getOrderByIDHistoryLaravel(widget.data['id']);
 
+      // print("res> $response");
+      dataL = widget.dataL!;
+
+      var pedidoEspecifico = dataL.firstWhere(
+        (pedido) => pedido['id'].toString() == widget.data['id'].toString(),
+        orElse: () => null,
+      );
+
+      listaPedidoEspecifico.add(pedidoEspecifico);
+      // dataL = response;
+      // List<Map<String, dynamic>> responseList = response.entries.map((entry) {
+      //   if (entry.value is List) {
+      //     // Si el valor es una lista, simplemente asigna la lista
+      //     return {entry.key: entry.value};
+      //   } else {
+      //     // Para valores no lista, crea un mapa con un solo par clave-valor
+      //     return {entry.key: entry.value};
+      //   }
+      // }).toList();
+      // print("dataL> $listaPedidoEspecifico");
+
       setState(() {
         data = response;
         loadTextEdtingControllers(data);
       });
+      // print("data> $data");
 
       Future.delayed(const Duration(milliseconds: 500), () {
         Navigator.pop(context);
@@ -1059,6 +1085,7 @@ class _TransportDeliveryHistoryDetailsDataState
                           await Connections().getSellersByIdMasterOnly(
                         data['id_comercial'],
                       );
+                      // print("dataLpen> $widget.dataL!");
                       await showDialog(
                         context: context,
                         builder: (context) {
@@ -1071,9 +1098,17 @@ class _TransportDeliveryHistoryDetailsDataState
                             id: widget.data['id'].toString(),
                             novedades: data['novedades'],
                             currentStatus: data['status'],
+                            rolidinvoke: 1,
+                            comment: data['comentario'].toString(),
+                            dataL: widget.dataL,
+                            function: widget.function,
                           );
                         },
                       );
+                      // Navigator.pop(context);
+                      // Navigator.pop(context);
+
+                      // await widget.function();
                       await loadData();
                     },
                     child: SizedBox(

@@ -91,6 +91,14 @@ class Connections {
 
         if (decodeDataUser['user']['roles_fronts'][0]['titulo'].toString() ==
             "TRANSPORTADOR") {
+            sharedPrefs!.setString(
+            "dateDesdeTransportadora",
+            "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+          );
+          sharedPrefs!.setString(
+            "dateHastaTransportadora",
+            "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+          );
           sharedPrefs!.setString("idTransportadora",
               decodeDataUser['user']['transportadora'][0]['id'].toString());
           sharedPrefs!.setString(
@@ -108,6 +116,15 @@ class Connections {
         }
         if (decodeDataUser['user']['roles_fronts'][0]['titulo'].toString() ==
             "OPERADOR") {
+            sharedPrefs!.setString(
+            "dateDesdeOperador",
+            "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+          );
+          sharedPrefs!.setString(
+            "dateHastaOperador",
+            "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+          );
+
           sharedPrefs!.setString("numero",
               decodeDataUser['user']['operadores'][0]['telefono'].toString());
           // ! esta es la mia ↓
@@ -1281,7 +1298,7 @@ class Connections {
 
   // ! *******************
   getOrdersForNoveltiesByDatesLaravel(List populate, List defaultAnd, List and,
-      List or, currentPage, sizePage, search, sortField) async {
+      List or, List not, currentPage, sizePage, search, sortField, String dateStart, String dateEnd) async {
     int res = 0;
     try {
       print('start: ${sharedPrefs!.getString("dateDesdeLogistica")}');
@@ -1295,15 +1312,13 @@ class Connections {
           Uri.parse("$serverLaravel/api/logistic/filter/novelties"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
-            "start": sharedPrefs!.getString("dateDesdeLogistica"),
-            "end": sharedPrefs!.getString("dateHastaLogistica"),
+            "start": dateStart,
+            "end": dateEnd,
+            // "start": sharedPrefs!.getString("dateDesdeLogistica"),
+            // "end": sharedPrefs!.getString("dateHastaLogistica"),
             "or": or,
             "and": filtersAndAll,
-            "not": [
-              {"status": "ENTREGADO"},
-              {"status": "EN RUTA"},
-              {"status": "EN OFICINA"},
-            ],
+            "not": not,
             "sort": sortField,
             "page_size": sizePage,
             "page_number": currentPage,

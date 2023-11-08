@@ -15,7 +15,11 @@ import 'package:intl/intl.dart';
 
 class TransportProDeliveryHistoryDetails extends StatefulWidget {
   final String id;
-  const TransportProDeliveryHistoryDetails({super.key, required this.id});
+  final String? comment;
+  final Function? function;
+  final List? data;
+  const TransportProDeliveryHistoryDetails(
+      {super.key, required this.id, this.comment, this.function, this.data});
 
   @override
   State<TransportProDeliveryHistoryDetails> createState() =>
@@ -587,10 +591,17 @@ class _TransportProDeliveryHistoryDetails
                                                         currentStatus:
                                                             data['attributes']
                                                                 ['Status'],
+                                                        comment: data['attributes']['Comentario'].toString(),
+                                                        function: widget.function!,
+                                                        dataL: widget.data!,
+                                                        rolidinvoke: 3,
                                                       );
                                                     });
+                                                // await loadData();
+                                                // await widget.function!();
+                                                // await loadData();
+                                                Navigator.pop(context);
 
-                                                await loadData();
                                               },
                                               child: Text(
                                                 "Estado de Entrega",
@@ -844,14 +855,14 @@ class _TransportProDeliveryHistoryDetails
                             SizedBox(
                               height: 20,
                             ),
-                            Text(
-                              "  Status: ${data['attributes']['Status'].toString()}",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 18),
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
+                            // Text(
+                            //   "  Status: ${data['attributes']['Status'].toString()}",
+                            //   style: TextStyle(
+                            //       fontWeight: FontWeight.bold, fontSize: 18),
+                            // ),
+                            // SizedBox(
+                            //   height: 20,
+                            // ),
                             Text(
                               "  Archivo:",
                               style: TextStyle(

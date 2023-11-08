@@ -41,6 +41,8 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
   int reagendados = 0;
   int enRuta = 0;
   int programado = 0;
+  int novedadResuelta = 0;
+
   double totalValoresRecibidos = 0;
   double costoTransportadora = 0;
   bool isFirst = true;
@@ -387,6 +389,12 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
           filtro: 'Novedad',
           valor: conNovedad,
           color: const Color.fromARGB(255, 244, 225, 57)),
+      Opcion(
+          icono: const Icon(Icons.done_all),
+          titulo: 'Novedad Resuelta',
+          filtro: 'Novedad Resuelta',
+          valor: novedadResuelta,
+          color: Color.fromARGB(255, 85, 57, 244)),
     ];
 
     Column InputFilter(String title, filter, var controller) {
@@ -1034,6 +1042,10 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                   Expanded(
                       child: TransportProDeliveryHistoryDetails(
                     id: data[index]['id'].toString(),
+                    comment : data[index]['comentario'].toString(),
+                    function : paginateData,
+                    data : data
+
                   ))
                 ],
               ),
@@ -1314,10 +1326,12 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
     reagendados = 0;
     enRuta = 0;
     programado = 0;
+    novedadResuelta = 0; 
     setState(() {
       entregados = int.parse(dataCounters['ENTREGADO'].toString()) ?? 0;
       noEntregados = int.parse(dataCounters['NO ENTREGADO'].toString()) ?? 0;
       conNovedad = int.parse(dataCounters['NOVEDAD'].toString()) ?? 0;
+      novedadResuelta = int.parse(dataCounters['NOVEDAD RESUELTA'].toString()) ?? 0;
       reagendados = int.parse(dataCounters['REAGENDADO'].toString()) ?? 0;
       enRuta = int.parse(dataCounters['EN RUTA'].toString()) ?? 0;
       // programado = int.parse(data['EN OFICINA'].toString()) ?? 0;
@@ -1334,6 +1348,9 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
         break;
       case "NOVEDAD":
         color = 0xFFD6DC27;
+        break;
+      case "NOVEDAD RESUELTA":
+        color = 0xFF6A1B9A;
         break;
       case "NO ENTREGADO":
         color = 0xFFFF3333;

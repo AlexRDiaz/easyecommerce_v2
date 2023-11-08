@@ -44,6 +44,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   int entregados = 0;
   int noEntregados = 0;
   int conNovedad = 0;
+  int novedadResuelta = 0;
   int reagendados = 0;
   int enRuta = 0;
   int programado = 0;
@@ -145,6 +146,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     'TODO',
     'PEDIDO PROGRAMADO',
     'NOVEDAD',
+    'NOVEDAD RESUELTA',
     'ENTREGADO',
     'NO ENTREGADO',
     'REAGENDADO',
@@ -378,6 +380,12 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           filtro: 'Novedad',
           valor: conNovedad,
           color: const Color.fromARGB(255, 244, 225, 57)),
+      Opcion(
+          icono: Icon(Icons.done_all),
+          titulo: 'Novedad Resuelta',
+          filtro: 'Novedad Resuelta',
+          valor: novedadResuelta,
+          color: Color.fromARGB(255, 244, 132, 57)),
       Opcion(
           icono: Icon(Icons.schedule),
           titulo: 'Reagendado',
@@ -1781,6 +1789,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     entregados = 0;
     noEntregados = 0;
     conNovedad = 0;
+    novedadResuelta = 0;
     reagendados = 0;
     enRuta = 0;
     programado = 0;
@@ -1789,6 +1798,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       entregados = int.parse(dataCounters['ENTREGADO'].toString()) ?? 0;
       noEntregados = int.parse(dataCounters['NO ENTREGADO'].toString()) ?? 0;
       conNovedad = int.parse(dataCounters['NOVEDAD'].toString()) ?? 0;
+      novedadResuelta =
+          int.parse(dataCounters['NOVEDAD RESUELTA'].toString()) ?? 0;
       reagendados = int.parse(dataCounters['REAGENDADO'].toString()) ?? 0;
       enRuta = int.parse(dataCounters['EN RUTA'].toString()) ?? 0;
       programado = int.parse(dataCounters['PEDIDO PROGRAMADO'].toString()) ?? 0;
@@ -1844,6 +1855,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
         break;
       case "NOVEDAD":
         color = 0xFFD6DC27;
+        break;
+      case "NOVEDAD RESUELTA":
+        color = 0xFFFF5722;
         break;
       case "NO ENTREGADO":
         color = 0xFFF32121;

@@ -917,6 +917,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       case "NOVEDAD":
         color = 0xFFD6DC27;
         break;
+      case "NOVEDAD RESUELTA":
+        color = 0xFFF57F17;
+        break;
       case "NO ENTREGADO":
         color = 0xFFE61414;
         break;
@@ -932,23 +935,6 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
 
       default:
     }
-
-    // if (state == "ENTREGADO") {
-    //   return Color(0xFF33FF6D);
-    // } else if (state == "NOVEDAD") {
-    //   return Color(0xFF3366FF);
-    // } else if (state == "NO ENTREGADO") {
-    //   return Color(0xFFE61414);
-    // } else if (state == "REAGENDADO") {
-    //   return Color(0xFFD6FA37);
-    // } else if (state == "EN RUTA") {
-    //   return Color(0xFF4733FF);
-    // } else if (state == "EN OFICINA") {
-    //   return Color(0xFF63615F);
-    // } else {
-    //   return Color(0xFFFFFFF);
-    // }
-
     return Color(color);
   }
 }

@@ -1,29 +1,25 @@
-import 'dart:convert';
-
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
-import 'package:frontend/ui/logistic/novelties/novelties_info.dart';
-import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_details.dart';
-import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_details_data.dart';
 import 'package:frontend/ui/logistic/vendor_invoices/controllers/controllers.dart';
-import 'package:lottie/lottie.dart';
+import 'package:frontend/ui/operator/resolved_novelties/resolved_novelties_info.dart';
 import 'package:number_paginator/number_paginator.dart';
-import '../../../helpers/navigators.dart';
 import '../../widgets/loading.dart';
 import 'package:screenshot/screenshot.dart';
 
-class NoveltiesL extends StatefulWidget {
-  const NoveltiesL({super.key});
+class ResolvedNovelties extends StatefulWidget {
+  final int? idRolInvokeClass;
+
+  const ResolvedNovelties({super.key, this.idRolInvokeClass});
 
   @override
-  State<NoveltiesL> createState() => _NoveltiesLState();
+  State<ResolvedNovelties> createState() => _ResolvedNoveltiesState();
 }
 
-class _NoveltiesLState extends State<NoveltiesL> {
+class _ResolvedNoveltiesState extends State<ResolvedNovelties> {
   TextEditingController _search = TextEditingController();
   List allData = [];
   List data = [];
@@ -67,9 +63,18 @@ class _NoveltiesLState extends State<NoveltiesL> {
     "users",
     "users.vendedores"
   ];
-  List defaultArrayFiltersAnd = [
-    {"equals/estado_devolucion": "PENDIENTE"}
-  ];
+  // List defaultArrayFiltersAnd = [
+  //   {"equals/estado_devolucion": "PENDIENTE"}
+  // ];
+
+  // List defaultArrayFiltersAnd = [
+  //       {"equals/estado_devolucion": "PENDIENTE"},
+  //       {
+  //         "equals/transportadora.transportadora_id":
+  //             sharedPrefs!.getString("idTransportadora")
+  //       }
+  //     ];
+  List defaultArrayFiltersAnd = [];
   List arrayFiltersAnd = [];
   List arrayFiltersOr = [
     "marca_t_i",
@@ -90,9 +95,16 @@ class _NoveltiesLState extends State<NoveltiesL> {
   ];
   List not = [
     {"status": "ENTREGADO"},
+    {"status": "NO ENTREGADO"},
+    {"status": "NOVEDAD"},
     {"status": "EN RUTA"},
     {"status": "EN OFICINA"},
+    {"status": "REAGENDADO"},
+    {"status": "PEDIDO PROGRAMADO"},
   ];
+
+  String dateStart = "";
+  String dateEnd = "";
 
   NumberPaginatorController paginatorController = NumberPaginatorController();
 
@@ -166,6 +178,9 @@ class _NoveltiesLState extends State<NoveltiesL> {
       setState(() {
         search = false;
       });
+
+      identifiedRolInvoke();
+
       var response = await Connections().getOrdersForNoveltiesByDatesLaravel(
           populate,
           defaultArrayFiltersAnd,
@@ -176,8 +191,8 @@ class _NoveltiesLState extends State<NoveltiesL> {
           pageSize,
           _controllers.searchController.text,
           sortFieldDefaultValue.toString(),
-          sharedPrefs!.getString("dateDesdeLogistica").toString(),
-          sharedPrefs!.getString("dateHastaLogistica").toString());
+          dateStart,
+          dateEnd);
 
       if (listtransportadores.length == 1) {
         var responsetransportadoras = await Connections().getTransportadoras();
@@ -224,6 +239,28 @@ class _NoveltiesLState extends State<NoveltiesL> {
     }
   }
 
+  identifiedRolInvoke() {
+    if (widget.idRolInvokeClass == 3) {
+      defaultArrayFiltersAnd = [
+        {"equals/estado_devolucion": "PENDIENTE"},
+        {
+          "equals/transportadora.transportadora_id":
+              sharedPrefs!.getString("idTransportadora")
+        }
+      ];
+
+      dateStart = sharedPrefs!.getString("dateDesdeTransportadora").toString();
+      dateEnd = sharedPrefs!.getString("dateHastaTransportadora").toString();
+    } else if (widget.idRolInvokeClass == 4) {
+      defaultArrayFiltersAnd = [
+        {"equals/estado_devolucion": "PENDIENTE"},
+        {"equals/operadore.operadore_id": sharedPrefs!.getString("idOperadore")}
+      ];
+      dateStart = sharedPrefs!.getString("dateDesdeOperador").toString();
+      dateEnd = sharedPrefs!.getString("dateHastaOperador").toString();
+    }
+  }
+
   paginateData() async {
     try {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -243,8 +280,8 @@ class _NoveltiesLState extends State<NoveltiesL> {
           pageSize,
           _controllers.searchController.text,
           sortFieldDefaultValue.toString(),
-          sharedPrefs!.getString("dateDesdeLogistica").toString(),
-          sharedPrefs!.getString("dateHastaLogistica").toString());
+          dateStart,
+          dateEnd);
 
       setState(() {
         data = [];
@@ -431,8 +468,9 @@ class _NoveltiesLState extends State<NoveltiesL> {
                         onSort: (columnIndex, ascending) {},
                       ),
                       DataColumn2(
-                        label: SelectFilterNoId('Status', 'equals/status',
-                            statusController, listStatus),
+                        // label: SelectFilterNoId('Status', 'equals/status',
+                        //     statusController, listStatus),
+                        label: Text("Status"),
                         size: ColumnSize.S,
                         onSort: (columnIndex, ascending) {},
                       ),
@@ -446,11 +484,12 @@ class _NoveltiesLState extends State<NoveltiesL> {
                         },
                       ),
                       DataColumn2(
-                        label: SelectFilter(
-                            'Transportadora',
-                            'equals/transportadora.transportadora_id',
-                            transportadorasController,
-                            listtransportadores),
+                        // label: SelectFilter(
+                        //     'Transportadora',
+                        //     'equals/transportadora.transportadora_id',
+                        //     transportadorasController,
+                        //     listtransportadores),
+                        label: Text("Transportadora"),
                         size: ColumnSize.S,
                         onSort: (columnIndex, ascending) {
                           // sortFunc("Estado_Interno");
@@ -751,15 +790,25 @@ class _NoveltiesLState extends State<NoveltiesL> {
 
                         String nuevaFecha = "$dia/$mes/$anio";
 
-                        sharedPrefs!
-                            .setString("dateDesdeLogistica", nuevaFecha);
+                        if (widget.idRolInvokeClass! == 4) {
+                          sharedPrefs!
+                              .setString("dateDesdeOperador", nuevaFecha);
+                        } else if (widget.idRolInvokeClass! == 3) {
+                          sharedPrefs!
+                              .setString("dateDesdeTransportadora", nuevaFecha);
+                        }
                       }
                     });
                   },
-                  child: Text(
-                    "DESDE: ${sharedPrefs!.getString("dateDesdeLogistica")}",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  )),
+                  child: widget.idRolInvokeClass == 4
+                      ? Text(
+                          "DESDE: ${sharedPrefs!.getString("dateDesdeOperador")}",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )
+                      : Text(
+                          "DESDE: ${sharedPrefs!.getString("dateDesdeTransportadora")}",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )),
               SizedBox(
                 width: 10,
               ),
@@ -796,15 +845,25 @@ class _NoveltiesLState extends State<NoveltiesL> {
 
                         String nuevaFecha = "$dia/$mes/$anio";
 
-                        sharedPrefs!
-                            .setString("dateHastaLogistica", nuevaFecha);
+                        if (widget.idRolInvokeClass! == 4) {
+                          sharedPrefs!
+                              .setString("dateHastaOperador", nuevaFecha);
+                        } else if (widget.idRolInvokeClass! == 3) {
+                          sharedPrefs!
+                              .setString("dateHastaTransportadora", nuevaFecha);
+                        }
                       }
                     });
                   },
-                  child: Text(
-                    "HASTA: ${sharedPrefs!.getString("dateHastaLogistica")}",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  )),
+                  child: widget.idRolInvokeClass == 4
+                      ? Text(
+                          "HASTA: ${sharedPrefs!.getString("dateHastaOperador")}",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )
+                      : Text(
+                          "HASTA: ${sharedPrefs!.getString("dateHastaTransportadora")}",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )),
               SizedBox(
                 width: 10,
               ),
@@ -1099,7 +1158,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
                     ),
                   ),
                   Expanded(
-                      child: NoveltiesInfo(
+                      child: ResolvedNoveltiesInfo(
                     id: data[index]['id'].toString(),
                     data: data,
                     function: paginateData,
