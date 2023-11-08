@@ -886,11 +886,6 @@ class _OrderEntryState extends State<OrderEntry> {
                                 ),
                                 GestureDetector(
                                   onTap: () async {
-                                    //este response no debe hacerce aqui si no en el modal
-                                    // var response = await Connections()
-                                    //     .updateOrderInteralStatusLaravel(
-                                    //         "CONFIRMADO",
-                                    //         data[index]['id'].toString());
                                     setState(() {});
                                     await showDialog(
                                         context: context,

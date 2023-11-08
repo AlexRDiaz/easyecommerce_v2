@@ -146,6 +146,7 @@ class _TransportProDeliveryHistoryDetails
                                                             data['novedades'],
                                                         currentStatus:
                                                             data['status'],
+                                                        dataL: widget.data!,
                                                       );
                                                     });
 
