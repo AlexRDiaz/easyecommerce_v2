@@ -127,6 +127,15 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
                         SizedBox(
                           height: 20,
                         ),
+                        Text(
+                          "  Marca Tiempo Entrega: ${safeValue(data['status_last_modified_at'].toString())}",
+                          style: TextStyle(
+                              fontWeight: FontWeight.normal, fontSize: 18),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+
                         Divider(
                           height: 1.0,
                           color: Colors.grey[200],

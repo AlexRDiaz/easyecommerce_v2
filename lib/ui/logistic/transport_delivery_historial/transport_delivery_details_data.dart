@@ -116,17 +116,6 @@ class _TransportDeliveryHistoryDetailsDataState
       );
 
       listaPedidoEspecifico.add(pedidoEspecifico);
-      // dataL = response;
-      // List<Map<String, dynamic>> responseList = response.entries.map((entry) {
-      //   if (entry.value is List) {
-      //     // Si el valor es una lista, simplemente asigna la lista
-      //     return {entry.key: entry.value};
-      //   } else {
-      //     // Para valores no lista, crea un mapa con un solo par clave-valor
-      //     return {entry.key: entry.value};
-      //   }
-      // }).toList();
-      // print("dataL> $listaPedidoEspecifico");
 
       if (mounted) {
         setState(() {
@@ -1094,7 +1083,6 @@ class _TransportDeliveryHistoryDetailsDataState
                           await Connections().getSellersByIdMasterOnly(
                         data['id_comercial'],
                       );
-                      // print("dataLpen> $widget.dataL!");
                       await showDialog(
                         context: context,
                         builder: (context) {

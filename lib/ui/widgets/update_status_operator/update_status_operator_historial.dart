@@ -85,6 +85,12 @@ class _UpdateStatusOperatorHistorialState
     }
   }
 
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
   loadData() async {
     createlistStatus();
 
@@ -1529,6 +1535,8 @@ class _UpdateStatusOperatorHistorialState
   // ! **********************************************
 
   Container _NovedadResuelta(_statusController) {
+    var resChange = "";
+
     return Container(
       padding: const EdgeInsets.all(20.0),
       child: Column(
@@ -1594,22 +1602,60 @@ class _UpdateStatusOperatorHistorialState
                       dataL['operadore'].isNotEmpty) {
                     await sendWhatsAppMessage(
                         context, dataL, _comentarioController.text);
-                      await Connections().updateOrderWithTime(
-                              dataL['id'].toString(),
-                              "status:${_statusController.text}",
-                              idUser,
-                              "",
-                              {"comentario": _comentarioController.text});
-                    // Navigator.pop(context);
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-                    await widget.function!();
+                    var resaux = await Connections().updateOrderWithTime(
+                        dataL['id'].toString(),
+                        "status:${_statusController.text}",
+                        idUser,
+                        "",
+                        {"comentario": _comentarioController.text});
+                    if (resaux != null) {
+                      resChange = "ok";
+                    }
                   } else {
-                    // Navigator.pop(context);
-                    // Navigator.pop(context);
-                    Navigator.pop(context);
                     _showErrorSnackBar(
                         context, "El pedido no tiene un Operador Asignado.");
+                  }
+
+                  if (resChange == "ok") {
+                    AwesomeDialog(
+                      width: 500,
+                      context: context,
+                      dialogType: DialogType.success,
+                      animType: AnimType.rightSlide,
+                      title: 'Estado Actualizado a Novedad Resuelta',
+                      // desc: resChange,
+                      descTextStyle: const TextStyle(
+                          color: Color.fromARGB(255, 255, 235, 59)),
+                      btnCancel: Container(),
+                      btnOkText: "Aceptar",
+                      btnOkColor: Colors.green,
+                      btnCancelOnPress: () {},
+                      btnOkOnPress: () {
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                        // widget.function!();
+                      },
+                    ).show();
+                  } else {
+                    // ignore: use_build_context_synchronously
+                    AwesomeDialog(
+                      width: 500,
+                      context: context,
+                      dialogType: DialogType.error,
+                      animType: AnimType.rightSlide,
+                      title: 'Error ',
+                      // desc: 'Pedido con novedad',
+                      btnCancel: Container(),
+                      btnOkText: "Aceptar",
+                      btnOkColor: Colors.green,
+                      descTextStyle: const TextStyle(
+                          color: Color.fromARGB(255, 255, 235, 59)),
+                      btnCancelOnPress: () {},
+                      btnOkOnPress: () {
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                      },
+                    ).show();
                   }
                 },
                 icon: const Icon(Icons.check),

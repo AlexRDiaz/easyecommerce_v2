@@ -68,7 +68,13 @@ class _NoveltiesLState extends State<NoveltiesL> {
     "users.vendedores"
   ];
   List defaultArrayFiltersAnd = [
-    {"equals/estado_devolucion": "PENDIENTE"}
+    {"equals/estado_devolucion": "PENDIENTE"},
+     {
+      "/estado_interno": "CONFIRMADO"
+    },
+    {
+      "/estado_logistico": "ENVIADO"
+    }
   ];
   List arrayFiltersAnd = [];
   List arrayFiltersOr = [
