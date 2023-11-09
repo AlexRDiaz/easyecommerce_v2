@@ -89,8 +89,14 @@ class _TransportDeliveryHistoryDetailsDataState
 
   @override
   void initState() {
-    loadTextEdtingControllers(widget.data);
     super.initState();
+    loadTextEdtingControllers(widget.data);
+  }
+
+  @override
+  void dispose() {
+    // Cancelar cualquier trabajo activo, como suscripciones o controladores
+    super.dispose();
   }
 
   loadData() async {
@@ -128,16 +134,17 @@ class _TransportDeliveryHistoryDetailsDataState
       });
       // print("data> $data");
 
-      Future.delayed(const Duration(milliseconds: 500), () {
-        Navigator.pop(context);
-        Navigator.pop(context);
-      });
+      // Future.delayed(const Duration(milliseconds: 500), () {
+      // Navigator.pop(context);
+      Navigator.pop(context);
+      Navigator.pop(context);
+      // });
       setState(() {});
     } catch (e) {
-      Future.delayed(const Duration(milliseconds: 500), () {
-        Navigator.pop(context);
-      });
-      SnackBarHelper.showErrorSnackBar(context, "Error al guardar los datos");
+      // Future.delayed(const Duration(milliseconds: 500), ()
+      // Navigator.pop(context);
+      // });
+      // SnackBarHelper.showErrorSnackBar(context, "Error al guardar los datos");
     }
   }
 
@@ -348,7 +355,7 @@ class _TransportDeliveryHistoryDetailsDataState
                                               const Duration(seconds: 3), () {
                                             Navigator.pop(context);
                                           });
-                                          await loadData();
+                                          // await loadData();
                                         },
                                         child: SizedBox(
                                           width: double.infinity,
@@ -1099,7 +1106,10 @@ class _TransportDeliveryHistoryDetailsDataState
                             novedades: data['novedades'],
                             currentStatus: data['status'],
                             rolidinvoke: 1,
-                            comment: data['comentario'].toString(),
+                            comment: data['comentario'].toString() != null &&
+                                    data['comentario'].toString().isNotEmpty
+                                ? data['comentario'].toString()
+                                : "",
                             dataL: widget.dataL,
                             function: widget.function,
                           );

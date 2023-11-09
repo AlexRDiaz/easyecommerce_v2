@@ -1590,14 +1590,23 @@ class _UpdateStatusOperatorHistorialState
               ),
               ElevatedButton.icon(
                 onPressed: () async {
-                  await sendWhatsAppMessage(
-                      context, dataL, _comentarioController.text);
-                  await Connections().editStatusandComment(dataL['id'],
-                      _statusController.text, _comentarioController.text);
-
-                  Navigator.pop(context);
-                  Navigator.pop(context);
-                  await widget.function!();
+                  if (dataL['operadore'] != null &&
+                      dataL['operadore'].isNotEmpty) {
+                    await sendWhatsAppMessage(
+                        context, dataL, _comentarioController.text);
+                    await Connections().editStatusandComment(dataL['id'],
+                        _statusController.text, _comentarioController.text);
+                    // Navigator.pop(context);
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                    await widget.function!();
+                  } else {
+                    // Navigator.pop(context);
+                    // Navigator.pop(context);
+                    Navigator.pop(context);
+                    _showErrorSnackBar(
+                        context, "El pedido no tiene un Operador Asignado.");
+                  }
                 },
                 icon: const Icon(Icons.check),
                 label: const Text('Guardar'),
@@ -1630,13 +1639,13 @@ class _UpdateStatusOperatorHistorialState
     if (phoneNumber != null && phoneNumber.isNotEmpty) {
       var message = "";
       var whatsappUrl = "";
-      if (widget.rolidinvoke == 3 || widget.rolidinvoke == 1) {
+      if (widget.rolidinvoke! == 3 || widget.rolidinvoke! == 1) {
         message =
             // "Buen Día, la guía con el código ${orderData['name_comercial']}-${orderData['numero_orden']} << de la tienda >> ${orderData['tienda_temporal']} << indica: ' $newComment ' .";
             "Buen Día, la guía con el código ${orderData['name_comercial']}-${orderData['numero_orden']} indica que ' $newComment ' .";
         whatsappUrl =
             "https://api.whatsapp.com/send?phone=$phoneNumber&text=${Uri.encodeFull(message)}";
-      } else if (widget.rolidinvoke == 4) {
+      } else if (widget.rolidinvoke! == 4) {
         // "${data['attributes']['Name_Comercial']}-${data['attributes']['NumeroOrden']}
         message =
             "Buen Día, la guía con el código >> ${orderData['attributes']['NumeroOrden']} << de la tienda >> ${orderData['attributes']['Tienda_Temporal']} << indica: ' $newComment ' .";

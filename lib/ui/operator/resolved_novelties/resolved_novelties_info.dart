@@ -222,9 +222,9 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Código: ${safeValue(data['numero_orden'].toString())}",
+                          "  Código: ${data['users'][0]['vendedores'][0]['nombre_comercial']}-${safeValue(data['numero_orden'].toString())}",
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                              fontWeight: FontWeight.normal, fontSize: 18),
                         ),
                         SizedBox(
                           height: 20,
@@ -232,7 +232,32 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                         Text(
                           "  Fecha Envio: ${safeValue(data['marca_tiempo_envio'].toString())}",
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                              fontWeight: FontWeight.normal, fontSize: 18),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Divider(
+                          height: 1.0,
+                          color: Colors.grey[200],
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.person,
+                              color: ColorsSystem().colorSelectMenu,
+                            ),
+                            Text(
+                              "  Datos Cliente ",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: ColorsSystem().colorSelectMenu),
+                            ),
+                          ],
                         ),
                         SizedBox(
                           height: 20,
@@ -240,7 +265,7 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                         Text(
                           "  Nombre Cliente: ${safeValue(data['nombre_shipping'])}",
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                              fontWeight: FontWeight.normal, fontSize: 18),
                         ),
                         SizedBox(
                           height: 20,
@@ -248,23 +273,48 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                         Text(
                           "  Ciudad: ${safeValue(data['ciudad_shipping'])}",
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                              fontWeight: FontWeight.normal, fontSize: 18),
                         ),
                         SizedBox(
                           height: 20,
                         ),
                         Text(
-                          "  DIRECCIÓN: ${safeValue(data['direccion_shipping'])}",
+                          "  Dirección: ${safeValue(data['direccion_shipping'])}",
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                              fontWeight: FontWeight.normal, fontSize: 18),
                         ),
                         SizedBox(
                           height: 20,
                         ),
                         Text(
-                          "  TELEFÓNO CLIENTE: ${safeValue(data['telefono_shipping'])}",
+                          "  Teléfono Cliente: ${safeValue(data['telefono_shipping'])}",
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                              fontWeight: FontWeight.normal, fontSize: 18),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Divider(
+                          height: 1.0,
+                          color: Colors.grey[200],
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.list,
+                              color: ColorsSystem().colorSelectMenu,
+                            ),
+                            Text(
+                              "  Detalle Pedido ",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: ColorsSystem().colorSelectMenu),
+                            ),
+                          ],
                         ),
                         SizedBox(
                           height: 20,
@@ -272,7 +322,7 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                         Text(
                           "  Cantidad: ${safeValue(data['cantidad_total'])}",
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                              fontWeight: FontWeight.normal, fontSize: 18),
                         ),
                         SizedBox(
                           height: 20,
@@ -280,7 +330,7 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                         Text(
                           "  Producto: ${safeValue(data['producto_p'])}",
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                              fontWeight: FontWeight.normal, fontSize: 18),
                         ),
                         SizedBox(
                           height: 20,
@@ -288,7 +338,7 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                         Text(
                           "  Producto Extra: ${safeValue(data['producto_extra'])}",
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                              fontWeight: FontWeight.normal, fontSize: 18),
                         ),
                         SizedBox(
                           height: 20,
@@ -296,7 +346,7 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                         Text(
                           "  Precio Total: ${safeValue(data['precio_total'])}",
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                              fontWeight: FontWeight.normal, fontSize: 18),
                         ),
                         SizedBox(
                           height: 20,
@@ -304,7 +354,7 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                         Text(
                           "  Observación: ${safeValue(data['observacion'].toString())}",
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                              fontWeight: FontWeight.normal, fontSize: 18),
                         ),
                         SizedBox(
                           height: 20,
@@ -312,7 +362,7 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                         Text(
                           "  Comentario: ${safeValue(data['comentario'].toString())}",
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                              fontWeight: FontWeight.normal, fontSize: 18),
                         ),
                         SizedBox(
                           height: 20,
@@ -320,7 +370,32 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                         Text(
                           "  Status: ${safeValue(data['status'].toString())}",
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                              fontWeight: FontWeight.normal, fontSize: 18),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Divider(
+                          height: 1.0,
+                          color: Colors.grey[200],
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.info,
+                              color: ColorsSystem().colorSelectMenu,
+                            ),
+                            Text(
+                              "  Datos Adicionales ",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: ColorsSystem().colorSelectMenu),
+                            ),
+                          ],
                         ),
                         SizedBox(
                           height: 20,
@@ -328,7 +403,7 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                         Text(
                           "  Vendedor: ${safeValue(data['tienda_temporal'].toString())}",
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                              fontWeight: FontWeight.normal, fontSize: 18),
                         ),
                         SizedBox(
                           height: 20,
@@ -336,7 +411,7 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                         Text(
                           "  Transportadora: ${safeValue(transportadoraNombre)}",
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                              fontWeight: FontWeight.normal, fontSize: 18),
                         ),
                         SizedBox(
                           height: 20,
@@ -344,7 +419,7 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                         Text(
                           "  Operador: ${safeValue(operadorUsername)}",
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                              fontWeight: FontWeight.normal, fontSize: 18),
                         ),
                         SizedBox(
                           height: 20,
@@ -352,7 +427,7 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                         Text(
                           "  Estado Devolución: ${safeValue(data['estado_devolucion'].toString())}",
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                              fontWeight: FontWeight.normal, fontSize: 18),
                         ),
                         const SizedBox(
                           height: 20,
@@ -360,33 +435,92 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                         Text(
                           "  Fecha Entrega: ${safeValue(data['fecha_entrega'].toString())}",
                           style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                              fontWeight: FontWeight.normal, fontSize: 18),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Divider(
+                          height: 1.0,
+                          color: Colors.grey[200],
                         ),
                         const SizedBox(
                           height: 20,
                         ),
-                        // Text(
-                        //   "  Archivo:",
-                        //   style: TextStyle(
-                        //       fontWeight: FontWeight.bold, fontSize: 18),
-                        // ),
-                        // SizedBox(
-                        //   height: 20,
-                        // ),
-                        // data['archivo'].toString().isEmpty ||
-                        //         data['archivo'].toString() ==
-                        //             "null"
-                        //     ? Container()
-                        //     : Container(
-                        //         width: 300,
-                        //         height: 400,
-                        //         child: Image.network(
-                        //           "$generalServer${data['archivo'].toString()}",
-                        //           fit: BoxFit.fill,
-                        //         )),
-                        // SizedBox(
-                        //   height: 20,
-                        // ),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.folder,
+                              color: ColorsSystem().colorSelectMenu,
+                            ),
+                            Text(
+                              "  Archivo ",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: ColorsSystem().colorSelectMenu),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          height: 500,
+                          width: 500,
+                          child: ListView.builder(
+                            itemCount: data['novedades'].length,
+                            itemBuilder: (context, index) {
+                              return ListTile(
+                                title: Container(
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: Color.fromARGB(255, 172, 169, 169),
+                                      border: Border.all(color: Colors.black)),
+                                  child: Container(
+                                    margin: EdgeInsets.all(10),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                            "Intento: ${data['novedades'][index]['m_t_novedad']}"),
+                                        Text(
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                            "Intento: ${data['novedades'][index]['try']}"),
+                                        data['novedades'][index]['url_image']
+                                                    .toString()
+                                                    .isEmpty ||
+                                                data['novedades'][index]
+                                                            ['url_image']
+                                                        .toString() ==
+                                                    "null"
+                                            ? Container()
+                                            : Container(
+                                                margin: EdgeInsets.all(30),
+                                                child: Image.network(
+                                                  "$generalServer${data['novedades'][index]['url_image'].toString()}",
+                                                  fit: BoxFit.fill,
+                                                )),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                // Otros widgets adicionales para cada elemento
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
                       ],
                     ),
             ),
@@ -394,12 +528,6 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
         ),
       ),
     );
-    //   floatingActionButton: FloatingActionButton.extended(
-    //     onPressed: _showResolveModal,
-    //     label: const Text('Cambiar Status'),
-    //     icon: const Icon(Icons.check_circle),
-    //   ),
-    // );
   }
 
   void _changeStatus(String status) {

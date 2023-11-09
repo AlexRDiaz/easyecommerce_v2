@@ -354,9 +354,9 @@ class _TransportDeliveryHistorialState
         // _scrollController.jumpTo(0);
       });
 
-      Future.delayed(const Duration(milliseconds: 500), () {
+      // Future.delayed(const Duration(milliseconds: 500), () {
         Navigator.pop(context);
-      });
+      // });
     } catch (e) {
       Navigator.pop(context);
 

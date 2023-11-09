@@ -368,12 +368,12 @@ class _NoveltiesLState extends State<NoveltiesL> {
                     horizontalMargin: 5,
                     minWidth: 2500,
                     columns: [
-                       DataColumn2(
+                      DataColumn2(
                         label: Text("Fecha Entrega"),
                         size: ColumnSize.S,
                         onSort: (columnIndex, ascending) {},
                       ),
-                     
+
                       DataColumn2(
                         label: const Text('Código'),
                         size: ColumnSize.S,
@@ -466,12 +466,20 @@ class _NoveltiesLState extends State<NoveltiesL> {
                         onSort: (columnIndex, ascending) {},
                       ),
                       DataColumn2(
-                        label: const Text('Fecha Marca TI'),
+                        label: const Text('Fecha Marcar TI'),
                         size: ColumnSize.S,
                         onSort: (columnIndex, ascending) {
                           // sortFunc("Fecha");
                         },
                       ),
+                      DataColumn2(
+                        label: const Text('Numero Intentos'),
+                        size: ColumnSize.S,
+                        onSort: (columnIndex, ascending) {
+                          // sortFunc("Fecha");
+                        },
+                      ),
+                      // data['novedades'][index]['try']
                     ],
                     rows: List<DataRow>.generate(data.length, (index) {
                       final color =
@@ -532,9 +540,19 @@ class _NoveltiesLState extends State<NoveltiesL> {
     });
   }
 
+  getLengthArrayMap(List data) {
+    var arraylength = data.length;
+    return Text(
+      arraylength.toString(),
+      style: TextStyle(
+          color: arraylength > 3
+              ? Color.fromARGB(255, 185, 10, 10)
+              : Colors.black),
+    );
+  }
+
   List<DataCell> getRows(index) {
     Color rowColor = Colors.black;
-
     return [
       DataCell(
           Text(
@@ -707,6 +725,25 @@ class _NoveltiesLState extends State<NoveltiesL> {
           ), onTap: () {
         info(context, index);
       }),
+      DataCell(getLengthArrayMap(data[index]['novedades']), onTap: () {
+        info(context, index);
+      }),
+      // DataCell(
+      //   Text(
+      //     data[index]['novedades'] != null &&
+      //             data[index]['novedades'].isNotEmpty
+      //         ? data[index]['novedades'][0]['try'].toString()
+      //         : '',
+      //     style: TextStyle(
+      //       color: GetColor(data[index]['status']!),
+      //     ),
+      //   ),
+      //   onTap: () {
+      //     info(context, index);
+      //   },
+      // ),
+
+      // data['novedades'][index]['try']
     ];
   }
 
@@ -1114,23 +1151,35 @@ class _NoveltiesLState extends State<NoveltiesL> {
 
   Color? GetColor(state) {
     int color = 0xFF000000;
+
     switch (state) {
-      case "NOVEDAD RESUELTA":
-        color = 0xFF2E7D32;
+      case "ENTREGADO":
+        color = 0xFF33FF6D;
         break;
       case "NOVEDAD":
-        color = 0xFFF57F17;
+        color = 0xFFD6DC27;
+        break;
+      case "NOVEDAD RESUELTA":
+        color = 0xFF6A1B9A;
         break;
       case "NO ENTREGADO":
-        color = 0xFFE61414;
+        color = 0xFFFF3333;
         break;
       case "REAGENDADO":
-        color = 0xFFAB47BC;
+        color = 0xFFFA37BF;
         break;
-      case "PEDIDO PROGRAMADO":
+      case "EN RUTA":
         color = 0xFF3341FF;
         break;
+      case "EN OFICINA":
+        color = 0xFF4B4C4B;
+        break;
+      case "PEDIDO PROGRAMADO":
+        color = 0xFFEF7F0E;
+        break;
+
       default:
+        color = 0xFF000000;
     }
 
     return Color(color);
