@@ -128,10 +128,12 @@ class _TransportDeliveryHistoryDetailsDataState
       // }).toList();
       // print("dataL> $listaPedidoEspecifico");
 
-      setState(() {
-        data = response;
-        loadTextEdtingControllers(data);
-      });
+      if (mounted) {
+        setState(() {
+          data = response;
+          loadTextEdtingControllers(data);
+        });
+      }
       // print("data> $data");
 
       // Future.delayed(const Duration(milliseconds: 500), () {

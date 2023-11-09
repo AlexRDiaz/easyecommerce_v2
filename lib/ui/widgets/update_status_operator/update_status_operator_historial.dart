@@ -1594,8 +1594,12 @@ class _UpdateStatusOperatorHistorialState
                       dataL['operadore'].isNotEmpty) {
                     await sendWhatsAppMessage(
                         context, dataL, _comentarioController.text);
-                    await Connections().editStatusandComment(dataL['id'],
-                        _statusController.text, _comentarioController.text);
+                      await Connections().updateOrderWithTime(
+                              dataL['id'].toString(),
+                              "status:${_statusController.text}",
+                              idUser,
+                              "",
+                              {"comentario": _comentarioController.text});
                     // Navigator.pop(context);
                     Navigator.pop(context);
                     Navigator.pop(context);
