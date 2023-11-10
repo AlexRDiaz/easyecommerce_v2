@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/providers/sellers/navigation_provider.dart';
-import 'package:frontend/ui/logistic/add_provider/providers_view.dart';
+import 'package:frontend/ui/provider/products/products_view.dart';
 import 'package:frontend/ui/sellers/add_seller_user/add_seller_user.dart';
 import 'package:frontend/ui/sellers/cash_withdrawals_sellers/cash_withdrawals_sellers.dart';
 import 'package:frontend/ui/sellers/dashboard/dashboard.dart';
@@ -31,14 +31,14 @@ import 'package:provider/provider.dart';
 
 import 'package:frontend/ui/sellers/transport_stats/transport_stats.dart';
 
-class LayoutSellersPage extends StatefulWidget {
-  const LayoutSellersPage({super.key});
+class LayoutProvidersPage extends StatefulWidget {
+  const LayoutProvidersPage({super.key});
 
   @override
-  State<LayoutSellersPage> createState() => _LayoutSellersPageState();
+  State<LayoutProvidersPage> createState() => _LayoutProvidersPageState();
 }
 
-class _LayoutSellersPageState extends State<LayoutSellersPage> {
+class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
   final GlobalKey<ScaffoldState> _key = GlobalKey();
   var email = sharedPrefs!.getString("email").toString();
   var username = sharedPrefs!.getString("username").toString();
@@ -55,65 +55,10 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
   @override
   Widget build(BuildContext context) {
     List pages = [
-      getOption("DashBoard", DashBoardSellers()),
       getOption(
-        "Reporte de Ventas",
-        SalesReport(),
+        "Productos",
+        const ProductsView(),
       ),
-      // getOption(
-      //   "Mi Cuenta Vendedor",
-      //   MySellerAccount(),
-      // ),
-      getOption(
-        "Agregar Usuarios Vendedores",
-        AddSellerUser(),
-      ),
-
-      getOption(
-        "Ingreso de Pedidos",
-        OrderEntry(),
-      ),
-      getOption(
-        "Estado Entregas Pedidos",
-        DeliveryStatus(),
-      ),
-      getOption(
-        "Pedidos No Deseados",
-        UnwantedOrdersSellers(),
-      ),
-      getOption(
-        "Billetera",
-        WalletSellers(),
-      ),
-      getOption(
-        "Mi Billetera",
-        MyWallet(),
-      ),
-      getOption(
-        "Devoluciones",
-        ReturnsSeller(),
-      ),
-      getOption(
-        "Retiros en Efectivo",
-        CashWithdrawalsSellers(),
-      ),
-      getOption(
-        "Conoce a tu Transporte",
-        tansportStats(),
-      ),
-      getOption(
-        "Imprimir Guías",
-        PrintGuidesSeller(),
-      ),
-
-      getOption(
-        "Guías Impresas",
-        PrintedGuidesSeller(),
-      ),
-      getOption("Guías Enviadas", TableOrdersGuidesSentSeller()
-          // GuidesSent(),
-          ),
-      // getOption("Cambiar Contraseña", UpdatePasswordSellers()),
     ];
     return Scaffold(
       key: _key,
@@ -245,7 +190,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
       ),
       drawer: Drawer(
         backgroundColor: Colors.white,
-        child: getNavbarDrawerSellers(context),
+        child: getNavbarDrawerProviders(context),
       ),
       body: SafeArea(child: pages[navigation.index]),
     );

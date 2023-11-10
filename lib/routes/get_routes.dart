@@ -16,6 +16,7 @@ import 'package:frontend/ui/operator/layout/layout.dart';
 import 'package:frontend/ui/operator/orders_operator/info_orders_operator.dart';
 import 'package:frontend/ui/operator/received_values.dart/info_received_orders.dart';
 import 'package:frontend/ui/operator/state_orders/info_state_orders.dart';
+import 'package:frontend/ui/provider/layout/layout.dart';
 import 'package:frontend/ui/sellers/cash_withdrawals_sellers/withdrawal_info.dart';
 import 'package:frontend/ui/sellers/delivery_status/info_delivery.dart';
 import 'package:frontend/ui/sellers/layout/layout.dart';
@@ -383,6 +384,11 @@ getRoutes() {
     GetPage(
         name: '/layout/operator',
         page: () => LayoutOperatorPage(),
+        middlewares: [AuthMiddleware()]),
+
+    GetPage(
+        name: '/layout/provider',
+        page: () => LayoutProvidersPage(),
         middlewares: [AuthMiddleware()]),
     // GetPage(
     //     name: '/layout/operator/order',
