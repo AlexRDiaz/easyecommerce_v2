@@ -97,7 +97,7 @@ getNavbarDrawerLogistic(context) {
 getOptionL(name, data) {
   switch (name) {
     // case "Soporte Remoto":
-      // return data;
+    // return data;
     case "Cambiar Contraseña":
       return data;
     case "Cerrar Sesión":
@@ -190,9 +190,86 @@ getNavbarDrawerSellers(context) {
                           ),
                           Divider()
                         ],
-                      )
-                    )
-                  )
+                      )))
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+getNavbarDrawerProviders(context) {
+  return Material(
+    elevation: 5,
+    child: Container(
+      color: Colors.white,
+      height: double.infinity,
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                width: double.infinity,
+                height: 80,
+                child: Row(
+                  children: [
+                    Image.asset(
+                      images.logoEasyEcommercce,
+                      width: 30,
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      "EASY ECOMMER",
+                      style:
+                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+              Divider(),
+              ...List.generate(
+                  optionsProvider.length,
+                  (index) => getOption(
+                      optionsProvider[index]['name'],
+                      Column(
+                        children: [
+                          ListTile(
+                            onTap: () {
+                              Provider.of<NavigationProviderSellers>(context,
+                                      listen: false)
+                                  .changeIndex(
+                                      index, optionsProvider[index]['name']);
+                              Navigator.pop(context);
+                            },
+                            leading: Icon(
+                              optionsProvider[index]['icon'],
+                              color: Provider.of<NavigationProviderSellers>(
+                                        context,
+                                      ).index ==
+                                      index
+                                  ? colors.colorSelectMenu
+                                  : Colors.black,
+                            ),
+                            title: Text(
+                              optionsProvider[index]['name'],
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Provider.of<NavigationProviderSellers>(
+                                            context,
+                                          ).index ==
+                                          index
+                                      ? colors.colorSelectMenu
+                                      : Colors.black),
+                            ),
+                          ),
+                          Divider()
+                        ],
+                      )))
             ],
           ),
         ),
@@ -204,9 +281,9 @@ getNavbarDrawerSellers(context) {
 getOption(name, data) {
   switch (name) {
     // case "Mi Cuenta Vendedor":
-      // return data;
+    // return data;
     // case "Cambiar Contraseña":
-      // return data;
+    // return data;
     case "Cerrar Sesión":
       return data;
     default:
@@ -258,8 +335,9 @@ getNavbarDrawerTransport(context) {
               Divider(),
               ...List.generate(
                   optionsTransport.length,
-                  (index) =>getOption(optionsTransport[index]['name'], 
-                        Column(
+                  (index) => getOption(
+                      optionsTransport[index]['name'],
+                      Column(
                         children: [
                           ListTile(
                             onTap: () {
@@ -300,8 +378,7 @@ getNavbarDrawerTransport(context) {
                           ),
                           Divider()
                         ],
-                      ))      
-                  )
+                      )))
             ],
           ),
         ),
@@ -310,13 +387,12 @@ getNavbarDrawerTransport(context) {
   );
 }
 
-
 getOptionO(name, data) {
   switch (name) {
     // case "Estado de Entregas":
     //   return data;
     // case "Actualizar Contraseña":
-      // return data;
+    // return data;
     case "Cerrar Sesión":
       return data;
     default:
@@ -341,8 +417,7 @@ getNavbarDrawerOperator(context) {
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: SingleChildScrollView(
-          child: 
-          Column(
+          child: Column(
             children: [
               Container(
                 width: double.infinity,
@@ -367,8 +442,9 @@ getNavbarDrawerOperator(context) {
               Divider(),
               ...List.generate(
                   optionsOperator.length,
-                  (index) => getOptionO(optionsOperator[index]['name'], 
-                        Column(
+                  (index) => getOptionO(
+                      optionsOperator[index]['name'],
+                      Column(
                         children: [
                           ListTile(
                             onTap: () {
@@ -408,12 +484,9 @@ getNavbarDrawerOperator(context) {
                           ),
                           Divider()
                         ],
-                      ))
-            
-                  )
+                      )))
             ],
           ),
-        
         ),
       ),
     ),

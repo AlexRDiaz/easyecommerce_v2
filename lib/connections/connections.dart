@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:frontend/models/provider_model.dart';
 import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
@@ -91,7 +92,7 @@ class Connections {
 
         if (decodeDataUser['user']['roles_fronts'][0]['titulo'].toString() ==
             "TRANSPORTADOR") {
-            sharedPrefs!.setString(
+          sharedPrefs!.setString(
             "dateDesdeTransportadora",
             "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
           );
@@ -116,7 +117,7 @@ class Connections {
         }
         if (decodeDataUser['user']['roles_fronts'][0]['titulo'].toString() ==
             "OPERADOR") {
-            sharedPrefs!.setString(
+          sharedPrefs!.setString(
             "dateDesdeOperador",
             "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
           );
@@ -146,6 +147,31 @@ class Connections {
           "dateOperatorState",
           "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
         );
+
+        if (decodeDataUser['user']['roles_fronts'][0]['titulo'].toString() ==
+            "PROVEEDOR") {
+          sharedPrefs!.setString(
+            "dateDesdeProveedor",
+            "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+          );
+          sharedPrefs!.setString(
+            "dateHastaProveedor",
+            "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+          );
+          sharedPrefs!.setString("idProvider",
+              decodeDataUser['user']['providers'][0]['id'].toString());
+          sharedPrefs!.setString("idProviderUserMaster",
+              decodeDataUser['user']['providers'][0]['id_user'].toString());
+          sharedPrefs!.setString("NameProvider",
+              decodeDataUser['user']['providers'][0]['name'].toString());
+          List temporalPermisos =
+              jsonDecode(decodeDataUser['user']['permisos']);
+          List<String> finalPermisos = [];
+          for (var i = 0; i < temporalPermisos.length; i++) {
+            finalPermisos.add(temporalPermisos.toString());
+          }
+          sharedPrefs!.setStringList("PERMISOS", finalPermisos);
+        }
 
         // print(decodeData);
         // print(decodeDataUser);
@@ -1297,8 +1323,18 @@ class Connections {
   }
 
   // ! *******************
-  getOrdersForNoveltiesByDatesLaravel(List populate, List defaultAnd, List and,
-      List or, List not, currentPage, sizePage, search, sortField, String dateStart, String dateEnd) async {
+  getOrdersForNoveltiesByDatesLaravel(
+      List populate,
+      List defaultAnd,
+      List and,
+      List or,
+      List not,
+      currentPage,
+      sizePage,
+      search,
+      sortField,
+      String dateStart,
+      String dateEnd) async {
     int res = 0;
     try {
       print('start: ${sharedPrefs!.getString("dateDesdeLogistica")}');
@@ -6012,6 +6048,55 @@ class Connections {
       }
     } catch (error) {
       print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+  getProviders() async {
+    try {
+      var response = await http.get(
+        Uri.parse("$serverLaravel/api/providers/all"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData['providers'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  createProvider(ProviderModel provider) async {
+    try {
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/users/providers"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "username": provider.user!.username,
+                "email": provider.user!.email,
+                "provider_name": provider.name,
+                "phone": provider.phone,
+                "password": provider.user!.id,
+                "description": provider.description
+                //"username": "Alex Diaz",
+                // "email": "radiaza2weww02eec3@hotmail.com",
+                // "provider_name": "Nombre proveedor test",
+                // "phone": "0992107483",
+                // "password": "123456789",
+                // "description": "test de proedor"
+              }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData['providers'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
     }
   }
 }

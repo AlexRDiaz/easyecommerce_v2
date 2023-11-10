@@ -7,9 +7,10 @@ List optionsLogistic = [
   {"name": "DashBoard", "icon": Icons.home_outlined},
   {"name": "Ingresos y Egresos", "icon": Icons.list},
   {"name": "Agregar Vendedores", "icon": Icons.add},
-  // {"name": "Agregar Proveedores", "icon": Icons.add},
   {"name": "Agregar Transportistas", "icon": Icons.add},
   {"name": "Agregar Usuario Logística", "icon": Icons.add},
+  {"name": "Proveedores", "icon": Icons.add},
+
   {"name": "Estado de Cuenta", "icon": Icons.insert_drive_file_outlined},
   {"name": "Estado de Cuenta2", "icon": Icons.account_balance_wallet},
   {"name": "Facturas Vendedores", "icon": Icons.person_outline_outlined},
@@ -96,4 +97,9 @@ List optionsOperator = [
   {"name": "Novedades Resueltas", "icon": Icons.done_all},
   {"name": "Actualizar Contraseña", "icon": Icons.security_outlined},
   {"name": "Cerrar Sesión", "icon": Icons.logout_outlined},
+];
+
+List optionsProvider = [
+  {"name": "Proveedores", "icon": Icons.home_outlined},
+  {"name": "Productos", "icon": Icons.home_outlined},
 ];

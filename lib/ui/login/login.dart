@@ -313,6 +313,9 @@ class _LoginPageState extends State<LoginPage> {
     if (sharedPrefs!.getString('role') == "OPERADOR") {
       Navigators().pushNamedAndRemoveUntil(context, '/layout/operator');
     }
+    if (sharedPrefs!.getString('role') == "PROVEEDOR") {
+      Navigators().pushNamedAndRemoveUntil(context, '/layout/provider');
+    }
   }
 
   Future<void> showTermsAndConditionsDialog(context, String userId) async {
