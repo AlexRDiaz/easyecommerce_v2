@@ -6079,7 +6079,7 @@ class Connections {
                 "email": provider.user!.email,
                 "provider_name": provider.name,
                 "phone": provider.phone,
-                "password": provider.user!.id,
+                "password": '123456789',
                 "description": provider.description
                 //"username": "Alex Diaz",
                 // "email": "radiaza2weww02eec3@hotmail.com",
