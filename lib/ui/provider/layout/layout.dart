@@ -56,9 +56,14 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
   Widget build(BuildContext context) {
     List pages = [
       getOption(
+        "Home",
+        const WelcomeScreen(),
+      ),
+      getOption(
         "Productos",
         const ProductsView(),
       ),
+      //WelcomeScreen(),
     ];
     return Scaffold(
       key: _key,
