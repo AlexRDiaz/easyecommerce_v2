@@ -16,6 +16,8 @@ class _ProviderViewState extends StateMVC<ProviderView> {
   late ProviderController _controller;
   late TextEditingController _searchController;
   late Future<List<ProviderModel>> _futureProviderData;
+  int _selectedRowIndex =
+      -1; // Variable para almacenar el índice de la fila seleccionada
 
   @override
   void initState() {
@@ -29,42 +31,50 @@ class _ProviderViewState extends StateMVC<ProviderView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
+      appBar: AppBar(
+        title: Text('Proveedores'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.only(left: 90, right: 90),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
               controller: _searchController,
               decoration: InputDecoration(
                 labelText: 'Buscar proveedor',
                 prefixIcon: Icon(Icons.search),
               ),
-              onChanged: (value) {
-                // Agrega aquí la lógica para filtrar la lista según la búsqueda
-              },
+              onChanged: (value) {},
             ),
-          ),
-          TextButton(
-              onPressed: () {
-                openDialog(context);
-              },
-              child: Text("Nuevo")),
-          Expanded(
-            child: FutureBuilder(
-              future: _loadProviders(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  SnackBarHelper.showErrorSnackBar(context, "error");
-                  return Center(child: Text('Error al cargar proveedores'));
-                } else {
-                  return _buildProviderList(_controller.providers);
-                }
-              },
+            SizedBox(height: 16),
+            Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () => openDialog(context),
+                  child: Text("Nuevo Proveedor"),
+                ),
+              ],
             ),
-          ),
-        ],
+            SizedBox(height: 16),
+            Expanded(
+              child: FutureBuilder(
+                future: _loadProviders(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text('Error al cargar proveedores'),
+                    );
+                  } else {
+                    return _buildProviderList(_controller.providers);
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -76,66 +86,139 @@ class _ProviderViewState extends StateMVC<ProviderView> {
 
   Widget _buildProviderList(List<ProviderModel> providers) {
     return DataTableModelPrincipal(
-        columnWidth: 1200,
-        columns: getColumns(),
-        rows: buildDataRows(_controller.providers));
+      columnWidth: 1200,
+      columns: getColumns(),
+      rows: buildDataRows(_controller.providers),
+    );
   }
 
   List<DataColumn2> getColumns() {
     return [
       DataColumn2(
-        label: // Espacio entre iconos
-            Text('Id'),
+        label: Padding(
+          padding: EdgeInsets.only(left: 16.0),
+          child: Text('Nombre'),
+        ),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
-          // sortFunc3("marca_tiempo_envio", changevalue);
+          // Lógica de ordenamiento
         },
       ),
       DataColumn2(
-        label: Text('Nombre'),
+        label: Text('Propietario'),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
-          // sortFunc3("fecha_entrega", changevalue);
+          // Lógica de ordenamiento
+        },
+      ),
+      DataColumn2(
+        label: Text('Descripción'),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // Lógica de ordenamiento
+        },
+      ),
+      DataColumn2(
+        label: Text(''),
+        size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          // Lógica de ordenamiento
         },
       ),
     ];
   }
 
   List<DataRow> buildDataRows(List<ProviderModel> data) {
-    List<DataRow> rows = [];
-    for (int index = 0; index < data.length; index++) {
-      DataRow row = DataRow(
+    return data.asMap().entries.map((entry) {
+      int index = entry.key;
+      ProviderModel provider = entry.value;
+
+      return DataRow(
+        onSelectChanged: (isSelected) {
+          // setState(() {
+          //   _selectedRowIndex = isSelected! ? index : -1;
+          // });
+
+          // if (isSelected!) {
+          //   // Lógica para mostrar un diálogo con la información completa
+          //   _showInfoDialog(context, provider);
+          // }
+        },
         cells: [
           DataCell(InkWell(
-              child: Text(data[index].id.toString()),
-              onTap: () {
-                // OpenShowDialog(context index);
-              })),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(provider.name.toString()),
+            ),
+            onTap: () {
+              _showInfoDialog(context, provider);
+            },
+          )),
+          DataCell(GestureDetector(
+            child: Text(provider.user!.username.toString()),
+            onTap: () {
+              _showInfoDialog(context, provider);
+            },
+          )),
           DataCell(InkWell(
-              child: Text(data[index].name.toString()),
-              onTap: () {
-                // OpenShowDialog(context index);
-              })),
+            child: Text(provider.description.toString()),
+            onTap: () {
+              _showInfoDialog(context, provider);
+            },
+          )),
+          DataCell(Row(
+            children: [
+              IconButton(
+                icon: Icon(Icons.edit),
+                onPressed: () {},
+              ),
+              IconButton(
+                icon: Icon(Icons.delete),
+                onPressed: () {},
+              ),
+            ],
+          )),
         ],
       );
-      rows.add(row);
-    }
-
-    return rows;
+    }).toList();
   }
 
-  Future<dynamic> openDialog(BuildContext context) {
-    return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            content: Container(
-              width: MediaQuery.of(context).size.width * 0.5,
-              child: AddProvider(),
-            ),
-          );
-        }).then((value) => setState(() {
+  Future<void> openDialog(BuildContext context) async {
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: Container(
+            width: MediaQuery.of(context).size.width * 0.5,
+            child: AddProvider(),
+          ),
+        );
+      },
+    ).then((value) => setState(() {
           _futureProviderData = _loadProviders(); // Actualiza el Future
         }));
+  }
+
+  Future<void> _showInfoDialog(
+      BuildContext context, ProviderModel provider) async {
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Información completa'),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('ID: ${provider.id}'),
+              Text('Nombre: ${provider.name}'),
+              Text('Propietario: ${provider.user!.username}'),
+              Text('Descripción: ${provider.description}'),
+              // Agrega más información según los campos de ProviderModel
+            ],
+          ),
+        );
+      },
+    );
   }
 }

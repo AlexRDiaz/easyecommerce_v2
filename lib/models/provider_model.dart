@@ -6,8 +6,6 @@ class ProviderModel {
   String? name;
   String? phone;
   String? description;
-  int? idMaster;
-
   UserModel? user;
 
   // Constructor
@@ -17,7 +15,6 @@ class ProviderModel {
     this.name,
     this.phone,
     this.description,
-    this.idMaster,
     this.user,
   });
 
@@ -29,7 +26,6 @@ class ProviderModel {
       name: json['name'],
       phone: json['phone'],
       description: json['description'],
-      idMaster: json['id_master'],
       user: UserModel.fromJson(json['user']),
     );
   }
@@ -41,7 +37,6 @@ class ProviderModel {
       'name': name,
       'phone': phone,
       'description': description,
-      'id_master': idMaster,
     };
   }
 }
