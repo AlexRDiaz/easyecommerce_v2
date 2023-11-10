@@ -354,9 +354,9 @@ class _TransportDeliveryHistorialState
         // _scrollController.jumpTo(0);
       });
 
-      Future.delayed(const Duration(milliseconds: 500), () {
+      // Future.delayed(const Duration(milliseconds: 500), () {
         Navigator.pop(context);
-      });
+      // });
     } catch (e) {
       Navigator.pop(context);
 
@@ -1940,7 +1940,7 @@ class _TransportDeliveryHistorialState
               ),
             ),
           );
-        });
+        }).then((value) => loadData());
   }
 
   Future<dynamic> showDialogInfo(index) {
@@ -1970,7 +1970,8 @@ class _TransportDeliveryHistorialState
               ),
             ),
           );
-        });
+        // });
+        }).then((value) => SnackBarHelper.showErrorSnackBar(context, "Error"));
   }
 
   SizedBox _dates(BuildContext context) {

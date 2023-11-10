@@ -406,7 +406,7 @@ class _ResolvedNoveltiesState extends State<ResolvedNovelties> {
                     minWidth: 2500,
                     columns: [
                       DataColumn2(
-                        label: const Text('Fecha'),
+                        label: const Text('Fecha Entrega'),
                         size: ColumnSize.S,
                         onSort: (columnIndex, ascending) {
                           // sortFunc("Fecha");
@@ -505,10 +505,19 @@ class _ResolvedNoveltiesState extends State<ResolvedNovelties> {
                         size: ColumnSize.S,
                         onSort: (columnIndex, ascending) {},
                       ),
-                      DataColumn2(
-                        label: Text("Fecha Entrega"),
+                       DataColumn2(
+                        label: const Text('Fecha Marcar TI'),
                         size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {},
+                        onSort: (columnIndex, ascending) {
+                          // sortFunc("Fecha");
+                        },
+                      ),
+                      DataColumn2(
+                        label: const Text('Numero Intentos'),
+                        size: ColumnSize.S,
+                        onSort: (columnIndex, ascending) {
+                          // sortFunc("Fecha");
+                        },
                       ),
                     ],
                     rows: List<DataRow>.generate(data.length, (index) {
@@ -574,9 +583,9 @@ class _ResolvedNoveltiesState extends State<ResolvedNovelties> {
     Color rowColor = Colors.black;
 
     return [
-      DataCell(
+       DataCell(
           Text(
-            data[index]['marca_t_i'].toString().split(' ')[0].toString(),
+            data[index]['fecha_entrega'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
@@ -738,15 +747,29 @@ class _ResolvedNoveltiesState extends State<ResolvedNovelties> {
       }),
       DataCell(
           Text(
-            data[index]['fecha_entrega'].toString(),
+            data[index]['marca_t_i'].toString().split(' ')[0].toString(),
             style: TextStyle(
               color: rowColor,
             ),
           ), onTap: () {
         info(context, index);
       }),
+      DataCell(getLengthArrayMap(data[index]['novedades']), onTap: () {
+        info(context, index);
+      }),
     ];
   }
+   getLengthArrayMap(List data) {
+    var arraylength = data.length;
+    return Text(
+      arraylength.toString(),
+      style: TextStyle(
+          color: arraylength > 3
+              ? Color.fromARGB(255, 185, 10, 10)
+              : Colors.black),
+    );
+  }
+
 
   SizedBox _dates(BuildContext context) {
     return SizedBox(
