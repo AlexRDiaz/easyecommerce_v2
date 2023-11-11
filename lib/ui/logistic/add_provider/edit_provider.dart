@@ -16,15 +16,16 @@ import 'package:progress_state_button/iconed_button.dart';
 import 'package:progress_state_button/progress_button.dart';
 import 'package:provider/provider.dart';
 
-class AddProvider extends StatefulWidget {
-  const AddProvider({super.key});
+class EditProvider extends StatefulWidget {
+  final ProviderModel provider;
+  const EditProvider({super.key, required this.provider});
 
   @override
-  // State<AddProvider> createState() => _AddProviderState();
-  _AddProviderState createState() => _AddProviderState();
+  // State<EditProvider> createState() => _EditProviderState();
+  _EditProviderState createState() => _EditProviderState();
 }
 
-class _AddProviderState extends StateMVC<AddProvider> {
+class _EditProviderState extends StateMVC<EditProvider> {
   late ProviderController _controller;
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
@@ -40,6 +41,7 @@ class _AddProviderState extends StateMVC<AddProvider> {
   @override
   void initState() {
     _controller = ProviderController();
+    _nameController.text = "maruchan";
     super.initState();
   }
 
@@ -76,7 +78,7 @@ class _AddProviderState extends StateMVC<AddProvider> {
       child: Column(
         children: [
           const Text(
-            'Nuevo   Proveedor',
+            'Editar  Proveedor',
             style: TextStyle(
               fontSize: 30.0, // Tamaño de fuente grande
               fontWeight: FontWeight.bold, // Texto en negrita
@@ -232,7 +234,7 @@ class _AddProviderState extends StateMVC<AddProvider> {
 
           ElevatedButton(
             onPressed: () async {
-              _controller.addProvider(ProviderModel(
+              _controller.editProvider(ProviderModel(
                   name: _nameController.text,
                   phone: _phone1Controller.text,
                   description: _descriptionController.text,

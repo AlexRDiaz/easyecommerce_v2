@@ -12,6 +12,11 @@ class ProviderController extends ControllerMVC {
     setState(() {});
   }
 
+  editProvider(ProviderModel provider) async {
+    await Connections().createProvider(provider);
+    setState(() {});
+  }
+
   // Método para actualizar un proveedor existente
 
   // Método para eliminar un proveedor

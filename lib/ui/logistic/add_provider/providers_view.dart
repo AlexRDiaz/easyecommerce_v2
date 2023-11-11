@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:frontend/ui/logistic/add_provider/add_provider.dart';
 import 'package:frontend/ui/logistic/add_provider/controllers/provider_controller.dart';
+import 'package:frontend/ui/logistic/add_provider/edit_provider.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class ProviderView extends StatefulWidget {
@@ -19,6 +20,21 @@ class _ProviderViewState extends State<ProviderView> {
   void initState() {
     super.initState();
     _providerController = ProviderController();
+  }
+
+  Future<dynamic> editProviderDialog(BuildContext context) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Container(
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: EditProvider(provider: ProviderModel()),
+            ),
+          );
+        }).then((value) => setState(() {
+          //_futureProviderData = _loadProviders(); // Actualiza el Future
+        }));
   }
 
   @override
@@ -57,6 +73,22 @@ class _ProviderViewState extends State<ProviderView> {
                   return Center(child: Text('No data available'));
                 } else {
                   final providerModelDataSource = ProviderModelDataSource(
+                    options: Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: () {
+                            editProviderDialog(context);
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete),
+                          onPressed: () {
+                            // Lógica para eliminar la fila correspondiente
+                          },
+                        ),
+                      ],
+                    ),
                     providers: snapshot.data!,
                   );
 
@@ -189,7 +221,9 @@ class _ProviderViewState extends State<ProviderView> {
 }
 
 class ProviderModelDataSource extends DataGridSource {
-  ProviderModelDataSource({required List<ProviderModel> providers}) {
+  final Widget options;
+  ProviderModelDataSource(
+      {required List<ProviderModel> providers, required this.options}) {
     _providersData = providers
         .map<DataGridRow>((e) => DataGridRow(cells: [
               DataGridCell<String>(columnName: 'name', value: e.name),
@@ -215,24 +249,24 @@ class ProviderModelDataSource extends DataGridSource {
     return DataGridRowAdapter(
         cells: row.getCells().map<Widget>((e) {
       if (e.columnName == 'actions') {
-        return Expanded(
-          child: Row(
-            children: [
-              IconButton(
-                icon: Icon(Icons.edit),
-                onPressed: () {
-                  // Lógica para editar la fila correspondiente
-                },
-              ),
-              IconButton(
-                icon: Icon(Icons.delete),
-                onPressed: () {
-                  // Lógica para eliminar la fila correspondiente
-                },
-              ),
-            ],
-          ),
-        );
+        return Expanded(child: options
+            //  Row(
+            //   children: [
+            //     IconButton(
+            //       icon: Icon(Icons.edit),
+            //       onPressed: () {
+            //          EditProvider(provider: ProviderModel())
+            //       },
+            //     ),
+            //     IconButton(
+            //       icon: Icon(Icons.delete),
+            //       onPressed: () {
+            //         // Lógica para eliminar la fila correspondiente
+            //       },
+            //     ),
+            //   ],
+            // ),
+            );
       }
       return Container(
         alignment: Alignment.center,
