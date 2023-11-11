@@ -71,6 +71,7 @@ dependencies:
   smooth_page_indicator: ^1.1.0
   mvc_pattern: ^8.12.0
   intl: ^0.18.1
+  syncfusion_flutter_datagrid: ^22.1.44
   
 
 
