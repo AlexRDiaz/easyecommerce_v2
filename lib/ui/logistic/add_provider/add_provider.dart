@@ -7,8 +7,10 @@ import 'package:frontend/models/user_model.dart';
 import 'package:frontend/ui/logistic/add_provider/controllers/provider_controller.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
+import 'package:frontend/ui/widgets/html_editor.dart';
 import 'package:frontend/ui/widgets/my_carousel.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 import 'package:progress_state_button/iconed_button.dart';
 import 'package:progress_state_button/progress_button.dart';
@@ -32,6 +34,8 @@ class _AddProviderState extends StateMVC<AddProvider> {
   final TextEditingController _emailController = TextEditingController();
 
   final TextEditingController _descriptionController = TextEditingController();
+  String?
+      _selectedImageURL; // Esta variable almacenará la URL de la imagen seleccionada
 
   @override
   void initState() {
@@ -189,6 +193,31 @@ class _AddProviderState extends StateMVC<AddProvider> {
               ),
             )),
           ),
+          Container(width: 200, height: 300, child: HtmlEditor()),
+          TextButton(
+            onPressed: () {
+              // Aquí puedes implementar la lógica para seleccionar una imagen
+              // Al seleccionar una imagen, actualiza la variable _selectedImageURL con la URL de la imagen
+              // _selectedImageURL = 'URL de la imagen seleccionada';
+              _selectImage();
+              setState(
+                  () {}); // Para actualizar la interfaz de usuario con la imagen seleccionada
+            },
+            child: Row(
+              children: [
+                Icon(Icons.image), // Icono para seleccionar imagen
+                SizedBox(width: 10),
+                Text(
+                    'Seleccionar Imagen'), // Texto del botón para seleccionar imagen
+              ],
+            ),
+          ),
+          if (_selectedImageURL != null)
+            Image.network(
+              _selectedImageURL!, // URL de la imagen seleccionada
+              width: 300, // Ancho de la imagen
+              height: 300, // Alto de la imagen
+            ),
           ElevatedButton(
             onPressed: () async {
               _controller.addProvider(ProviderModel(
@@ -227,5 +256,18 @@ class _AddProviderState extends StateMVC<AddProvider> {
       ),
     );
     // Segunda sección con información adicional
+  }
+
+  Future<void> _selectImage() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      setState(() {
+        _selectedImageURL = image.path;
+      });
+      // La variable 'image' contiene la ruta de la imagen seleccionada
+      print('Ruta de la imagen: ${image.path}');
+      // Aquí puedes mostrar la imagen o realizar otras operaciones con ella
+    }
   }
 }

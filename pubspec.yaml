@@ -72,8 +72,7 @@ dependencies:
   mvc_pattern: ^8.12.0
   intl: ^0.18.1
   syncfusion_flutter_datagrid: ^22.1.44
-  
-
+  quill_html_editor: ^2.0.1
 
 dev_dependencies:
   flutter_test:

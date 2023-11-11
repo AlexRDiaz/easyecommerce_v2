@@ -14,6 +14,7 @@ class ProviderView extends StatefulWidget {
 class _ProviderViewState extends State<ProviderView> {
   late ProviderController _providerController;
   TextEditingController _searchController = TextEditingController();
+  bool isFilterIconVisible = false;
   @override
   void initState() {
     super.initState();
@@ -24,7 +25,7 @@ class _ProviderViewState extends State<ProviderView> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.only(left: 590, right: 590),
+        padding: const EdgeInsets.only(left: 350, right: 350),
         child: Column(
           children: [
             Padding(
@@ -59,47 +60,49 @@ class _ProviderViewState extends State<ProviderView> {
                     providers: snapshot.data!,
                   );
 
-                  return SingleChildScrollView(
+                  return Container(
+                    color: Colors.white,
                     child: SfDataGrid(
                       source: providerModelDataSource,
-                      columnWidthMode: ColumnWidthMode.auto,
-                      allowSorting: true,
+                      columnWidthMode: ColumnWidthMode.fill,
                       isScrollbarAlwaysShown: true,
                       showVerticalScrollbar: true,
                       showHorizontalScrollbar: true,
-                      swipeMaxOffset: 50,
-                      showCheckboxColumn: true,
                       columns: <GridColumn>[
                         GridColumn(
-                          columnName: 'id',
-                          label: Container(
-                            padding: EdgeInsets.all(16.0),
-                            alignment: Alignment.center,
-                            child: Text('ID'),
-                          ),
-                        ),
+                            autoFitPadding: EdgeInsets.all(30.0),
+                            columnName: 'nombre',
+                            label: FilterIcon(
+                              name: "nombre",
+                              onFilterPressed: () {
+                                // Lógica para aplicar el filtro
+                              },
+                            )),
                         GridColumn(
-                          columnName: 'name',
-                          label: Container(
-                            padding: EdgeInsets.all(16.0),
-                            alignment: Alignment.center,
-                            child: Text('name'),
-                          ),
-                        ),
+                            autoFitPadding: EdgeInsets.all(30.0),
+                            columnName: 'username',
+                            label: FilterIcon(
+                              name: "PROPIETARIO",
+                              onFilterPressed: () {
+                                // Lógica para aplicar el filtro
+                              },
+                            )),
                         GridColumn(
-                          columnName: 'description',
-                          label: Container(
-                            padding: EdgeInsets.all(16.0),
-                            alignment: Alignment.center,
-                            child: Text('descripción'),
-                          ),
-                        ),
+                            autoFitPadding: EdgeInsets.all(30.0),
+                            columnName: 'description',
+                            label: FilterIcon(
+                              name: "descripción",
+                              onFilterPressed: () {
+                                // Lógica para aplicar el filtro
+                              },
+                            )),
                         GridColumn(
-                          columnName: '',
+                          autoFitPadding: EdgeInsets.all(30.0),
+                          columnName: 'Actions',
                           label: Container(
-                            padding: EdgeInsets.all(16.0),
+                            padding: EdgeInsets.all(50.0),
                             alignment: Alignment.center,
-                            child: Text(''),
+                            child: Text('actions'),
                           ),
                         ),
                       ],
@@ -189,9 +192,11 @@ class ProviderModelDataSource extends DataGridSource {
   ProviderModelDataSource({required List<ProviderModel> providers}) {
     _providersData = providers
         .map<DataGridRow>((e) => DataGridRow(cells: [
-              DataGridCell<int>(columnName: 'id', value: e.id),
               DataGridCell<String>(columnName: 'name', value: e.name),
-              DataGridCell<String>(columnName: 'designation', value: e.phone),
+              DataGridCell<String>(
+                  columnName: 'username', value: e.user!.username),
+              DataGridCell<String>(
+                  columnName: 'description', value: e.description),
               DataGridCell<int>(
                 columnName: 'actions',
                 value: e.userId,
@@ -210,7 +215,7 @@ class ProviderModelDataSource extends DataGridSource {
     return DataGridRowAdapter(
         cells: row.getCells().map<Widget>((e) {
       if (e.columnName == 'actions') {
-        return Container(
+        return Expanded(
           child: Row(
             children: [
               IconButton(
@@ -235,5 +240,79 @@ class ProviderModelDataSource extends DataGridSource {
         child: Text(e.value.toString()),
       );
     }).toList());
+  }
+}
+
+class FilterIcon extends StatefulWidget {
+  final VoidCallback onFilterPressed;
+  final String name;
+  const FilterIcon({required this.onFilterPressed, required this.name});
+
+  @override
+  State<FilterIcon> createState() => _FilterIconState();
+}
+
+class _FilterIconState extends State<FilterIcon> {
+  bool isVisible = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (event) => setState(() {
+        isVisible = true;
+      }),
+      onExit: (event) => setState(() {
+        isVisible = false;
+      }),
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(16.0),
+            alignment: Alignment.center,
+            child: Text(widget.name),
+          ),
+          Visibility(
+            visible: isVisible,
+            child: PopupMenuButton<String>(
+              onSelected: (String value) {
+                // Aquí puedes manejar la opción seleccionada del menú emergente
+                print('Selected: $value');
+                // Llama a una función que aplique el filtro seleccionado
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                PopupMenuItem<String>(
+                  value: 'Filter 1',
+                  child: Text('Filter 1'),
+                ),
+                PopupMenuItem<String>(
+                  value: 'Filter 2',
+                  child: Text('Filter 2'),
+                ),
+                PopupMenuItem<String>(
+                  value: 'Filter 3',
+                  child: Text('Filter 3'),
+                ),
+                PopupMenuDivider(),
+                PopupMenuItem<String>(
+                  value: 'Custom Filter',
+                  child: Row(
+                    children: <Widget>[
+                      Icon(Icons.search),
+                      SizedBox(width: 8),
+                      Text('Custom Filter'),
+                    ],
+                  ),
+                ),
+              ],
+              child: Row(
+                children: [
+                  Icon(Icons.filter_alt),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
