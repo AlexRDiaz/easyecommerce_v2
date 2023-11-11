@@ -438,7 +438,7 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                                   })),
                               DataCell(
                                   Text(
-                                      "${data[index]['name_comercial'].toString()}-${data[index]['numero_orden']}"
+                                      "${data[index]["users"][0]["vendedores"][0]["nombre_comercial"].toString()}-${data[index]['numero_orden']}"
                                           .toString()), onTap: () {
                                 info(context, index);
                               }),

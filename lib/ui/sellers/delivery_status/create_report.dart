@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:data_table_2/data_table_2.dart';
 import 'package:excel/excel.dart';
+import 'package:frontend/main.dart';
 
 class CreateReport {
 //
@@ -13,7 +14,8 @@ class CreateReport {
       final sheet = excel.sheets[excel.getDefaultSheet() as String];
       sheet!.setColWidth(2, 50);
       sheet.setColAutoFit(3);
-      var name_comercial = "";
+      var nameComercial =
+          sharedPrefs!.getString("NameComercialSeller").toString();
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0))
           .value = 'Fecha de Ingreso';
@@ -35,7 +37,6 @@ class CreateReport {
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 6, rowIndex: 0))
           .value = 'Teléfono';
-//Cantidad	Producto	Producto Extra	Precio Total	Comentario	Estado de Confirmacion	Status	Estado de Entrega	Estado Devolucion	Costo Transporte	Costo Devolucion
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 7, rowIndex: 0))
           .value = 'Cantidad';
@@ -81,10 +82,10 @@ class CreateReport {
                 columnIndex: 1, rowIndex: rowIndex + 1))
             .value = data["fecha_entrega"];
         sheet
-            .cell(CellIndex.indexByColumnRow(
-                columnIndex: 2, rowIndex: rowIndex + 1))
-            .value = "${data["name_comercial"]}-${data["numero_orden"]}";
-        name_comercial = data["name_comercial"];
+                .cell(CellIndex.indexByColumnRow(
+                    columnIndex: 2, rowIndex: rowIndex + 1))
+                .value =
+            "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data["numero_orden"]}";
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 3, rowIndex: rowIndex + 1))
@@ -191,7 +192,7 @@ class CreateReport {
       }
 
       var nombreFile =
-          "$name_comercial-EasyEcommerce-${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
+          "$nameComercial-EasyEcommerce-${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
       excel.save(fileName: '${nombreFile}.xlsx');
     } catch (e) {
       print("Error en Generar el reporte!");
