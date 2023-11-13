@@ -5,8 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animated_icons/icons8.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/helpers/server.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
+import 'package:frontend/ui/widgets/loading.dart';
 import 'package:image_picker/image_picker.dart';
 
 class AddProduct extends StatefulWidget {
@@ -37,6 +39,7 @@ class _AddProductState extends State<AddProduct> {
   List<String> selectedCategories = [];
 
   List<String> features = [];
+  String? img_url;
 
   bool containsEmoji(String text) {
     final emojiPattern = RegExp(
@@ -64,16 +67,14 @@ class _AddProductState extends State<AddProduct> {
 
       var responseBodegas = await Connections().getWarehouses();
       warehouseList = responseBodegas;
-      print(warehouseList);
-      for (var i = 0; i < warehouseList.length; i++) {
-        setState(() {
-          if (warehouseList != null) {
+      if (warehouseList != null) {
+        warehouseList.forEach((warehouse) {
+          setState(() {
             warehouses.add(
-                '${warehouseList[i]["branch_name"]}-${warehouseList[i]["warehouse_id"]}');
-          }
+                '${warehouse["branch_name"]}-${warehouse["warehouse_id"]}');
+          });
         });
       }
-//Hogar,Mascota,Moda,Tecnología,Cocina,Belleza
       categories = [
         "Hogar",
         "Mascota",
@@ -321,7 +322,7 @@ class _AddProductState extends State<AddProduct> {
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Text(selectedCategories[index]),
-                                        SizedBox(width: 4),
+                                        const SizedBox(width: 4),
                                         InkWell(
                                           onTap: () {
                                             setState(() {
@@ -442,9 +443,9 @@ class _AddProductState extends State<AddProduct> {
                       ],
                     ),
                     const SizedBox(height: 10),
-                    const Text(
-                      'Agregar imagen',
-                    ),
+                    // const Text(
+                    //   'Agregar imagen',
+                    // ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -454,11 +455,14 @@ class _AddProductState extends State<AddProduct> {
                             final XFile? image = await picker.pickImage(
                                 source: ImageSource.gallery);
 
-                            if (image!.path.isNotEmpty &&
-                                image!.path.toString() != "null") {
+                            if (image != null && image.path.isNotEmpty) {
                               var responseI =
                                   await Connections().postDoc(image);
                               print("ImgSaveStrapi: $responseI");
+
+                              setState(() {
+                                img_url = responseI[1];
+                              });
 
                               // Navigator.pop(context);
                               // Navigator.pop(context);
@@ -472,9 +476,30 @@ class _AddProductState extends State<AddProduct> {
                           child: const Text(
                             "Agregar imagen",
                             style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 12),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Mostrar la imagen si está disponible
+                        img_url != null
+                            ? Container(
+                                margin: const EdgeInsets.only(left: 16.0),
+                                child: SizedBox(
+                                  width: 300,
+                                  height: 400,
+                                  child: Image.network(
+                                    "$generalServer$img_url",
+                                    fit: BoxFit.fill,
+                                  ),
+                                ),
+                              )
+                            : Container(),
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -565,9 +590,11 @@ class _AddProductState extends State<AddProduct> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               ElevatedButton(
-                                onPressed: () {
+                                onPressed: () async {
                                   print("Guardar");
                                   if (formKey.currentState!.validate()) {
+                                    getLoadingModal(context, false);
+
                                     if (selectedType == null ||
                                         selectedCategories.isEmpty ||
                                         selectedWarehouse == null) {
@@ -619,11 +646,58 @@ class _AddProductState extends State<AddProduct> {
                                       print(
                                           "Descripcion: ${_descriptionController.text}");
                                       print("Stock: ${_stockController.text}");
-                                      print("Bodega: $selectedWarehouse");
+                                      print(
+                                          "Bodega: ${selectedWarehouse.toString().split("-")[1].toString()}");
                                       print("Img: ");
                                       print("Email: ${_emailController.text}");
                                       print(
                                           "CantidadPriv: ${_quantityController.text}");
+
+                                      //build json for features
+                                      /*
+                                          "features": [
+        {
+            "feature_name": "type",
+            "value": "simple"
+        },
+        {
+            "feature_name": "categories",
+            "value": "hogar,moda"
+        },
+        {
+            "feature_name": "description",
+            "value": "A Unique Kids Night Light: Moon lamp with the diameter is 4.8 INCH, made with 3D printing technology, realistic full moon shape."
+        }
+    ]
+    */
+
+                                      var featuresToSend = [
+                                        {
+                                          "feature_name": "type",
+                                          "value": selectedType
+                                        },
+                                        {
+                                          "feature_name": "categories",
+                                          "value": selectedCategories
+                                        },
+                                        {
+                                          "feature_name": "description",
+                                          "value": _descriptionController.text
+                                        },
+                                      ];
+                                      await Connections().createProduct(
+                                          _nameController.text,
+                                          _stockController.text,
+                                          featuresToSend,
+                                          _priceController.text,
+                                          img_url,
+                                          selectedWarehouse
+                                              .toString()
+                                              .split("-")[1]
+                                              .toString());
+
+                                      Navigator.pop(context);
+                                      Navigator.pop(context);
                                     }
                                   }
                                 },

@@ -101,5 +101,5 @@ List optionsOperator = [
 
 List optionsProvider = [
   {"name": "Home", "icon": Icons.home_outlined},
-  {"name": "Productos", "icon": Icons.home_outlined},
+  {"name": "Productos", "icon": Icons.shopping_bag_outlined},
 ];

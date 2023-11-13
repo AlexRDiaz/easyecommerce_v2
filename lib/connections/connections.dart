@@ -5269,7 +5269,7 @@ class Connections {
 
 //    *
   Future updateGeneralTransportadoraShippingCostLaravel(id, requestjson) async {
-    // print(json.encode(requestjson));
+    print(json.encode(requestjson));
     try {
       var request = await http.put(
           Uri.parse("$serverLaravel/api/shippingcost/$id"),
@@ -5668,6 +5668,110 @@ class Connections {
       }
     } catch (error) {
       print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+  getProducts(populate, page_size, current_page, or, and, sort, search) async {
+    try {
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/products/all"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "populate": populate,
+                "page_size": page_size,
+                "page_number": current_page,
+                "or": or,
+                "and": and,
+                "sort": sort,
+                "search": search
+              }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+  createProduct(nameProduct, stock, features, price, url_img, warehouse) async {
+    print(json.encode({
+      "product_name": nameProduct,
+      "stock": stock,
+      "features": features,
+      "price": price,
+      "url_img": url_img,
+      "warehouse_id": warehouse
+    }));
+    try {
+      var response = await http.post(Uri.parse("$serverLaravel/api/products"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "product_name": nameProduct,
+            "stock": stock,
+            "features": features,
+            "price": price,
+            "url_img": url_img,
+            "warehouse_id": warehouse
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+  getProductByID(id, populate) async {
+    try {
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/products/$id"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "populate": populate,
+              }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+  Future updateProduct(id, datajson) async {
+    int res;
+    print(json.encode(datajson));
+    try {
+      var response = await http.put(
+          Uri.parse("$serverLaravel/api/products/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(datajson));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (e) {
+      res = 3;
+      return res;
     }
   }
 

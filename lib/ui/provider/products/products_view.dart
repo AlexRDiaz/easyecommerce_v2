@@ -1,8 +1,15 @@
+import 'dart:convert';
+
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/connections/connections.dart';
+import 'package:frontend/helpers/server.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/provider/products/add_product.dart';
+import 'package:frontend/ui/provider/products/product_details.dart';
+import 'package:frontend/ui/widgets/loading.dart';
 import 'package:number_paginator/number_paginator.dart';
+import 'package:intl/intl.dart';
 
 class ProductsView extends StatefulWidget {
   const ProductsView({super.key});
@@ -12,12 +19,22 @@ class ProductsView extends StatefulWidget {
 }
 
 class _ProductsViewState extends State<ProductsView> {
-  final TextEditingController _controllers = TextEditingController();
+  final TextEditingController _search = TextEditingController();
   NumberPaginatorController paginatorController = NumberPaginatorController();
   int currentPage = 1;
   int pageSize = 70;
   int pageCount = 100;
   bool isLoading = false;
+  List populate = ["warehouse"];
+  List arrayFiltersAnd = [];
+  List arrayFiltersOr = [
+    "product_id",
+    "product_name",
+    "stock",
+    //"features",
+    "price"
+  ];
+  var sortFieldDefaultValue = "product_id:DESC";
 
   List<String> warehouse = [];
   var warehouseList = [];
@@ -27,7 +44,6 @@ class _ProductsViewState extends State<ProductsView> {
   String? selectedType;
   String? selectedCat;
 
-  List<String> features = [];
   List selectedCategories = [];
 
   List data = [];
@@ -36,6 +52,8 @@ class _ProductsViewState extends State<ProductsView> {
 
   @override
   void initState() {
+    data = [];
+
     loadData();
     super.initState();
   }
@@ -43,30 +61,66 @@ class _ProductsViewState extends State<ProductsView> {
   loadData() async {
     print("loadData");
     try {
-      warehouse = [
-        "warehouseA-1",
-        "warehouseB-2",
-        "warehouseC-3",
-        "warehouseD-4",
-        "warehouseE-5",
-      ];
-//Hogar,Mascota,Moda,Tecnología,Cocina,Belleza
-      categories = [
-        "Hogar",
-        "Mascota",
-        "Moda",
-        "Tecnología",
-        "Cocina",
-        "Belleza"
-      ];
-//simple: b/n; variable: colores
-      types = ["SIMPLE", "VARIABLE"];
+      setState(() {
+        data.clear();
+      });
 
+      isLoading = true;
+      currentPage = 1;
+
+      var response = await Connections().getProducts(
+        populate,
+        pageSize,
+        currentPage,
+        arrayFiltersOr,
+        arrayFiltersAnd,
+        sortFieldDefaultValue,
+        _search.text,
+      );
+      data = response["data"];
+      // print("prductos: $data");
+
+      setState(() {
+        data = [];
+        data = response['data'];
+
+        paginatorController.navigateToPage(0);
+      });
       //
     } catch (e) {
       Navigator.pop(context);
       SnackBarHelper.showErrorSnackBar(
           context, "Ha ocurrido un error de conexión");
+    }
+  }
+
+  paginateData() async {
+    try {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
+
+      var response = await Connections().getProducts(
+        populate,
+        pageSize,
+        currentPage,
+        arrayFiltersOr,
+        arrayFiltersAnd,
+        sortFieldDefaultValue,
+        _search.text,
+      );
+
+      setState(() {
+        data = [];
+        data = response['data'];
+        // _scrollController.jumpTo(0);
+      });
+
+      // Future.delayed(const Duration(milliseconds: 500), () {
+      Navigator.pop(context);
+      // });
+    } catch (e) {
+      Navigator.pop(context);
     }
   }
 
@@ -85,6 +139,34 @@ class _ProductsViewState extends State<ProductsView> {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
+                      const SizedBox(height: 10),
+                      Row(children: [
+                        Expanded(
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                              ElevatedButton.icon(
+                                onPressed: () async {
+                                  // resetFilters();
+                                  await loadData();
+                                },
+                                icon: const Icon(
+                                    Icons.replay_circle_filled_sharp,
+                                    color: Colors.white),
+                                label: const Text(
+                                  // "Recargar Información",
+                                  "",
+                                  style: TextStyle(
+                                    decoration: TextDecoration.underline,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                ),
+                              ),
+                            ]))
+                      ]),
                       const SizedBox(height: 10),
                       Row(children: [
                         Expanded(
@@ -129,7 +211,7 @@ class _ProductsViewState extends State<ProductsView> {
                       Row(children: [
                         Expanded(
                           child: _modelTextField(
-                              text: "Busqueda", controller: _controllers.text),
+                              text: "Busqueda", controller: _search.text),
                         ),
                         Expanded(
                           child: Row(
@@ -151,7 +233,7 @@ class _ProductsViewState extends State<ProductsView> {
                                   children: [
                                     Text(
                                       counterChecks > 0
-                                          ? "Seleccionados: ${counterChecks}"
+                                          ? "Seleccionados: $counterChecks"
                                           : "",
                                       style: const TextStyle(
                                           fontWeight: FontWeight.bold,
@@ -172,6 +254,7 @@ class _ProductsViewState extends State<ProductsView> {
                                   ],
                                 ),
                               ),
+                              const SizedBox(width: 30),
                               Expanded(child: numberPaginator()),
                             ],
                           ),
@@ -222,7 +305,7 @@ class _ProductsViewState extends State<ProductsView> {
                               ),
                               DataColumn2(
                                 label: const Text(''), //img
-                                size: ColumnSize.M,
+                                size: ColumnSize.L,
                                 onSort: (columnIndex, ascending) {
                                   // sortFunc3("marca_t_i", changevalue);
                                 },
@@ -290,7 +373,7 @@ class _ProductsViewState extends State<ProductsView> {
                             ],
                             rows: List<DataRow>.generate(
                                 // data.length,
-                                10,
+                                data.length,
                                 (index) => DataRow(cells: [
                                       DataCell(Checkbox(
                                           //  verificarIndice
@@ -298,62 +381,73 @@ class _ProductsViewState extends State<ProductsView> {
                                           onChanged: (value) {
                                             setState(() {});
                                           })),
-                                      /**
-                                        data['archivo'].toString().isEmpty ||
-                                        data['archivo'].toString() == "null"
-                                        ? Container()
-                                        : Container(
-                                            width: 300,
-                                            height: 400,
-                                            child: Image.network(
-                                              "$generalServer${data['archivo'].toString()}",
-                                              fit: BoxFit.fill,
-                                            )),
-                                           */
                                       DataCell(
-                                        Text('img'),
+                                        FractionallySizedBox(
+                                          widthFactor:
+                                              0.7, // Ajusta según tus necesidades
+                                          heightFactor:
+                                              1, // Ajusta según tus necesidades
+                                          child: data[index]['url_img']
+                                                      .toString()
+                                                      .isEmpty ||
+                                                  data[index]['url_img']
+                                                          .toString() ==
+                                                      "null"
+                                              ? Container()
+                                              : Image.network(
+                                                  "$generalServer${data[index]['url_img'].toString()}",
+                                                  fit: BoxFit.fill,
+                                                ),
+                                        ),
+                                      ),
+                                      DataCell(
+                                        Text(data[index]['product_id']
+                                            .toString()),
                                         onTap: () {
                                           // info(context, index);
                                         },
                                       ),
                                       DataCell(
-                                        Text('ID'),
+                                        Text(data[index]['product_name']),
                                         onTap: () {
                                           // info(context, index);
                                         },
                                       ),
                                       DataCell(
-                                        Text('product'),
+                                        Text(getTypeValue(
+                                            data[index]['features'])),
+                                        // Text(data[index]['features']),
                                         onTap: () {
                                           // info(context, index);
                                         },
                                       ),
                                       DataCell(
-                                        Text('type'),
+                                        Text(data[index]['stock'].toString()),
                                         onTap: () {
                                           // info(context, index);
                                         },
                                       ),
                                       DataCell(
-                                        Text('cantidad: '),
+                                        Text(
+                                            '\$${data[index]['price'].toString()}'),
                                         onTap: () {
                                           // info(context, index);
                                         },
                                       ),
                                       DataCell(
-                                        Text('precio'),
+                                        // Text(data[index]['created_at']
+                                        //     .toString()),
+                                        Text(formatDate(data[index]
+                                                ['created_at']
+                                            .toString())),
                                         onTap: () {
                                           // info(context, index);
                                         },
                                       ),
                                       DataCell(
-                                        Text('created_At'),
-                                        onTap: () {
-                                          // info(context, index);
-                                        },
-                                      ),
-                                      DataCell(
-                                        Text('Bodega'),
+                                        Text(data[index]['warehouse']
+                                                ['branch_name']
+                                            .toString()),
                                         onTap: () {
                                           // info(context, index);
                                         },
@@ -370,6 +464,15 @@ class _ProductsViewState extends State<ProductsView> {
                                           GestureDetector(
                                             onTap: () async {
                                               print("edit");
+                                              showDialogInfoData(data[index]);
+
+                                              // await showDialog(
+                                              //     context: (context),
+                                              //     builder: (context) {
+                                              //       return const ProductDetails(
+                                              //           data: data[index],
+                                              //           function: loadData());
+                                              //     });
                                             },
                                             child: const Icon(
                                               Icons.edit_square,
@@ -406,6 +509,59 @@ class _ProductsViewState extends State<ProductsView> {
     );
   }
 
+  String getTypeValue(features) {
+    // Busca la característica con el nombre 'type'
+    List<dynamic> dataFeatures = json.decode(features);
+    // print("data: $dataFeatures");
+
+    try {
+      var typeFeature = dataFeatures.firstWhere(
+        (dataFeatures) => dataFeatures['feature_name'] == 'type',
+        orElse: () => null,
+      );
+
+      // Si se encuentra la característica 'type', devuelve su valor, de lo contrario, devuelve un valor predeterminado o un mensaje de error.
+      return typeFeature != null
+          ? typeFeature['value'].toString()
+          : 'Tipo no encontrado';
+    } catch (e) {
+      return "";
+    }
+  }
+
+  Future<dynamic> showDialogInfoData(data) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Container(
+              // width: MediaQuery.of(context).size.width * 0.4,
+              // height: MediaQuery.of(context).size.height,
+              child: Column(
+                children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                        paginateData();
+                      },
+                      child: Icon(Icons.close),
+                    ),
+                  ),
+                  Expanded(
+                      child: ProductDetails(
+                    data: data,
+                    function: paginateData,
+                    // function: loadData(),
+                  ))
+                ],
+              ),
+            ),
+          );
+        }).then((value) => loadData());
+  }
+
   _modelTextField({text, controller}) {
     return Container(
       width: double.infinity,
@@ -415,6 +571,14 @@ class _ProductsViewState extends State<ProductsView> {
       ),
       child: TextField(),
     );
+  }
+
+  formatDate(dateStringFromDatabase) {
+    DateTime dateTime = DateTime.parse(dateStringFromDatabase);
+    Duration offset = const Duration(hours: -5);
+    dateTime = dateTime.toUtc().add(offset);
+    String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
+    return formattedDate;
   }
 
   NumberPaginator numberPaginator() {
