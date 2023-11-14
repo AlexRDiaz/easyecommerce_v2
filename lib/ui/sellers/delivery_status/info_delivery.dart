@@ -129,7 +129,7 @@ class _DeliveryStatusSellerInfo extends State<DeliveryStatusSellerInfo> {
                                     data['status_last_modified_at'].toString())
                                 : ""),
                         _modelText("Código",
-                            '${data['name_comercial'].toString()}-${data['numero_orden'].toString()}'),
+                            '${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data['numero_orden'].toString()}'),
                         Container(
                           padding: const EdgeInsets.all(10),
                           child: Row(
@@ -189,11 +189,20 @@ class _DeliveryStatusSellerInfo extends State<DeliveryStatusSellerInfo> {
                         _modelText(
                             "Cantidad", data['cantidad_total'].toString()),
                         _modelText("Producto", data['producto_p'].toString()),
-                        _modelText("Producto Extra",
-                            data['producto_extra'].toString()),
+                        _modelText(
+                            "Producto Extra",
+                            data['producto_extra'] == null ||
+                                    data['producto_extra'] == "null"
+                                ? ""
+                                : data['producto_extra'].toString()),
                         _modelText(
                             "Precio Total", data['precio_total'].toString()),
-                        _modelText("Comentario", data['comentario'].toString()),
+                        _modelText(
+                            "Comentario",
+                            data['comentario'] == null ||
+                                    data['comentario'] == "null"
+                                ? ""
+                                : data['comentario'].toString()),
                         _modelText("Status", data['status'].toString()),
                         _modelText(
                             "Confirmado", data['estado_interno'].toString()),

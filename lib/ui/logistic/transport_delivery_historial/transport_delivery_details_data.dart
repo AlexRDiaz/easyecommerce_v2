@@ -157,7 +157,7 @@ class _TransportDeliveryHistoryDetailsDataState
         : "";
     _transportadora.text = data['transportadora'] != null &&
             data['transportadora'].toString() != "[]"
-        ? data['transportadora'][0]['costo_transportadora'].toString()
+        ? data['transportadora'][0]['nombre'].toString()
         : "";
     _subRuta.text = //   data['sub_ruta'] != null &&
         data['sub_ruta'].toString() != "[]"
@@ -180,7 +180,7 @@ class _TransportDeliveryHistoryDetailsDataState
     _telefonoCliente.text = data['telefono_shipping'].toString();
     _costoTrans.text = data['transportadora'] != null &&
             data['transportadora'].toString() != "[]"
-        ? data['transportadora'][0]['nombre'].toString()
+        ? data['transportadora'][0]['costo_transportadora'].toString()
         : "";
     _costoOperador.text =
         data['operadore'] != null && data['operadore'].toString() != "[]"
@@ -874,6 +874,14 @@ class _TransportDeliveryHistoryDetailsDataState
               var response = await Connections()
                   .updateOrderInteralStatusHistorial(
                       "CONFIRMADO", widget.data['id']);
+
+              var responseL = await Connections().updateOrderWithTime(
+                  widget.data['id'].toString(),
+                  "estado_interno:CONFIRMADO",
+                  idUser,
+                  "",
+                  "");
+
               Navigator.pop(context);
 
               showCustomModal(response, context);
