@@ -796,7 +796,7 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                                     color: GetColor(data[index]
                                             ['estado_devolucion']
                                         .toString())!),
-                                '${data[index]['name_comercial'].toString()}-${data[index]['numero_orden'].toString()}'),
+                                '${data[index]['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data[index]['numero_orden'].toString()}'),
                             onTap: () {
                           showDialogInfoData(data[index]);
                         }),
