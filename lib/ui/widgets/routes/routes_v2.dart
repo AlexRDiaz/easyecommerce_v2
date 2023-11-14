@@ -219,6 +219,14 @@ class _RoutesModalStatev2 extends State<RoutesModalv2> {
                             "fecha_confirmacion":
                                 "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
                           });
+
+                          var response3 = await Connections()
+                              .updateOrderWithTime(
+                                  widget.idOrder.toString(),
+                                  "estado_interno:CONFIRMADO",
+                                  sharedPrefs!.getString("id"),
+                                  "",
+                                  "");
                           // print("response2");
 
                           //for guides sent
@@ -257,6 +265,14 @@ class _RoutesModalStatev2 extends State<RoutesModalv2> {
                               "fecha_confirmacion":
                                   "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
                             });
+
+                            var response3 = await Connections()
+                                .updateOrderWithTime(
+                                    widget.idOrder.toString(),
+                                    "estado_interno:CONFIRMADO",
+                                    sharedPrefs!.getString("id"),
+                                    "",
+                                    "");
                             // print("response2");
 
                             //for guides sent

@@ -874,6 +874,14 @@ class _TransportDeliveryHistoryDetailsDataState
               var response = await Connections()
                   .updateOrderInteralStatusHistorial(
                       "CONFIRMADO", widget.data['id']);
+
+              var responseL = await Connections().updateOrderWithTime(
+                  widget.data['id'].toString(),
+                  "estado_interno:CONFIRMADO",
+                  idUser,
+                  "",
+                  "");
+
               Navigator.pop(context);
 
               showCustomModal(response, context);

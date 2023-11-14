@@ -510,6 +510,14 @@ class _AddOrderSellersState extends State<AddOrderSellers> {
                                             .split("-")[1],
                                         response[1]);
 
+                                var response3 = await Connections()
+                                    .updateOrderWithTime(
+                                        response[1].toString(),
+                                        "estado_interno:CONFIRMADO",
+                                        sharedPrefs!.getString("id"),
+                                        "",
+                                        "");
+
                                 var _url = Uri.parse(
                                     """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, te saludo de la tienda ${comercial}, Me comunico con usted para confirmar su pedido de compra de: ${_producto.text}${_productoE.text.isNotEmpty ? ' y ${_productoE.text}' : ''}, por un valor total de: ${priceTotal}. Su dirección de entrega será: ${_direccion.text} Es correcto...? Desea mas información del producto?""");
                                 if (!await launchUrl(_url)) {
