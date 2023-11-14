@@ -5,6 +5,7 @@ import 'package:frontend/config/exports.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/providers/sellers/navigation_provider.dart';
 import 'package:frontend/ui/provider/products/products_view.dart';
+import 'package:frontend/ui/provider/warehouses/warehouses.dart';
 import 'package:frontend/ui/sellers/add_seller_user/add_seller_user.dart';
 import 'package:frontend/ui/sellers/cash_withdrawals_sellers/cash_withdrawals_sellers.dart';
 import 'package:frontend/ui/sellers/dashboard/dashboard.dart';
@@ -55,10 +56,15 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
   @override
   Widget build(BuildContext context) {
     List pages = [
+      
       getOption(
         "Productos",
         const ProductsView(),
       ),
+      getOption(
+        "Bodegas",
+        const WarehousesView(),
+      )
     ];
     return Scaffold(
       key: _key,

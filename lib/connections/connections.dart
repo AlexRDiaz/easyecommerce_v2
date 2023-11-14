@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:frontend/models/provider_model.dart';
+import 'package:frontend/models/warehouses_model.dart';
 import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
@@ -6099,4 +6100,46 @@ class Connections {
       return 2;
     }
   }
+
+  // ! warehouses
+  getWarehouses() async {
+    try {
+      var response = await http.get(
+        Uri.parse("$serverLaravel/api/warehouses"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData['warehouses'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+    createWarehouse(WarehouseModel warehouse) async {
+    try {
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/warehouses"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "branch_name": warehouse.branchName,
+                "address": warehouse.address,
+                "reference": warehouse.reference,
+                "description": warehouse.description,
+                "provider_id": sharedPrefs!.getString("idProvider")
+              }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData['providers'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
 }
