@@ -138,7 +138,7 @@ class _TransportProDeliveryHistoryDetails
                                                                 [0]['Telefono2']
                                                             .toString(),
                                                         codigo:
-                                                            "${data['name_comercial']}-${data['numero_orden']}",
+                                                            "${data['users'][0]['vendedores'][0]['nombre_comercial']}-${data['numero_orden']}",
                                                         numberCliente:
                                                             "${data['telefono_shipping']}",
                                                         id: widget.id,
@@ -198,7 +198,7 @@ class _TransportProDeliveryHistoryDetails
                               height: 20,
                             ),
                             Text(
-                              "  Código: ${data['name_comercial'].toString()}-${data['numero_orden'].toString()}",
+                              "  Código: ${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data['numero_orden'].toString()}",
                               style: TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 18),
                             ),
