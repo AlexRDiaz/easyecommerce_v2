@@ -576,7 +576,7 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                           }),
                           DataCell(
                               Text(
-                                  "${data[index]['name_comercial'].toString()}-${data[index]['numero_orden']}"
+                                  "${data[index]['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data[index]['numero_orden']}"
                                       .toString()), onTap: () {
                             getInfoModal(index);
                           }),
@@ -906,7 +906,6 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
               const SizedBox(width: 10),
               ElevatedButton(
                 onPressed: () {
-                  print("data");
                   generateExcelFileWithData(data);
                 },
                 style: ElevatedButton.styleFrom(
@@ -1006,7 +1005,6 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
       sheet.setColAutoFit(3);
       var numItem = 1;
 
-      var name_comercial = "";
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0))
           .value = 'Item';
@@ -1043,10 +1041,10 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                 columnIndex: 1, rowIndex: rowIndex + 1))
             .value = data["fecha_entrega"];
         sheet
-            .cell(CellIndex.indexByColumnRow(
-                columnIndex: 2, rowIndex: rowIndex + 1))
-            .value = "${data["name_comercial"]}-${data["numero_orden"]}";
-        name_comercial = data["name_comercial"];
+                .cell(CellIndex.indexByColumnRow(
+                    columnIndex: 2, rowIndex: rowIndex + 1))
+                .value =
+            "${data["users"][0]["vendedores"][0]["nombre_comercial"]}-${data["numero_orden"]}";
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 3, rowIndex: rowIndex + 1))
@@ -1167,7 +1165,7 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                     ],
                   ),
                   _model(
-                      "Código: ${data[index]['name_comercial']}-${data[index]['numero_orden']}"),
+                      "Código: ${data[index]['users'][0]['vendedores'][0]['nombre_comercial']}-${data[index]['numero_orden']}"),
                   _model(
                       "Marca de Tiempo Envio: ${data[index]['marca_tiempo_envio']}"),
                   _model(

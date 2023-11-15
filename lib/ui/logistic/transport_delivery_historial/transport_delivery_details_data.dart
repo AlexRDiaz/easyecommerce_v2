@@ -89,8 +89,14 @@ class _TransportDeliveryHistoryDetailsDataState
 
   @override
   void initState() {
-    loadTextEdtingControllers(widget.data);
     super.initState();
+    loadTextEdtingControllers(widget.data);
+  }
+
+  @override
+  void dispose() {
+    // Cancelar cualquier trabajo activo, como suscripciones o controladores
+    super.dispose();
   }
 
   loadData() async {
@@ -110,34 +116,26 @@ class _TransportDeliveryHistoryDetailsDataState
       );
 
       listaPedidoEspecifico.add(pedidoEspecifico);
-      // dataL = response;
-      // List<Map<String, dynamic>> responseList = response.entries.map((entry) {
-      //   if (entry.value is List) {
-      //     // Si el valor es una lista, simplemente asigna la lista
-      //     return {entry.key: entry.value};
-      //   } else {
-      //     // Para valores no lista, crea un mapa con un solo par clave-valor
-      //     return {entry.key: entry.value};
-      //   }
-      // }).toList();
-      // print("dataL> $listaPedidoEspecifico");
 
-      setState(() {
-        data = response;
-        loadTextEdtingControllers(data);
-      });
+      if (mounted) {
+        setState(() {
+          data = response;
+          loadTextEdtingControllers(data);
+        });
+      }
       // print("data> $data");
 
-      Future.delayed(const Duration(milliseconds: 500), () {
-        Navigator.pop(context);
-        Navigator.pop(context);
-      });
+      // Future.delayed(const Duration(milliseconds: 500), () {
+      // Navigator.pop(context);
+      Navigator.pop(context);
+      Navigator.pop(context);
+      // });
       setState(() {});
     } catch (e) {
-      Future.delayed(const Duration(milliseconds: 500), () {
-        Navigator.pop(context);
-      });
-      SnackBarHelper.showErrorSnackBar(context, "Error al guardar los datos");
+      // Future.delayed(const Duration(milliseconds: 500), ()
+      // Navigator.pop(context);
+      // });
+      // SnackBarHelper.showErrorSnackBar(context, "Error al guardar los datos");
     }
   }
 
@@ -159,7 +157,7 @@ class _TransportDeliveryHistoryDetailsDataState
         : "";
     _transportadora.text = data['transportadora'] != null &&
             data['transportadora'].toString() != "[]"
-        ? data['transportadora'][0]['costo_transportadora'].toString()
+        ? data['transportadora'][0]['nombre'].toString()
         : "";
     _subRuta.text = //   data['sub_ruta'] != null &&
         data['sub_ruta'].toString() != "[]"
@@ -182,7 +180,7 @@ class _TransportDeliveryHistoryDetailsDataState
     _telefonoCliente.text = data['telefono_shipping'].toString();
     _costoTrans.text = data['transportadora'] != null &&
             data['transportadora'].toString() != "[]"
-        ? data['transportadora'][0]['nombre'].toString()
+        ? data['transportadora'][0]['costo_transportadora'].toString()
         : "";
     _costoOperador.text =
         data['operadore'] != null && data['operadore'].toString() != "[]"
@@ -348,7 +346,7 @@ class _TransportDeliveryHistoryDetailsDataState
                                               const Duration(seconds: 3), () {
                                             Navigator.pop(context);
                                           });
-                                          await loadData();
+                                          // await loadData();
                                         },
                                         child: SizedBox(
                                           width: double.infinity,
@@ -876,6 +874,14 @@ class _TransportDeliveryHistoryDetailsDataState
               var response = await Connections()
                   .updateOrderInteralStatusHistorial(
                       "CONFIRMADO", widget.data['id']);
+
+              var responseL = await Connections().updateOrderWithTime(
+                  widget.data['id'].toString(),
+                  "estado_interno:CONFIRMADO",
+                  idUser,
+                  "",
+                  "");
+
               Navigator.pop(context);
 
               showCustomModal(response, context);
@@ -1085,7 +1091,6 @@ class _TransportDeliveryHistoryDetailsDataState
                           await Connections().getSellersByIdMasterOnly(
                         data['id_comercial'],
                       );
-                      // print("dataLpen> $widget.dataL!");
                       await showDialog(
                         context: context,
                         builder: (context) {
@@ -1099,7 +1104,10 @@ class _TransportDeliveryHistoryDetailsDataState
                             novedades: data['novedades'],
                             currentStatus: data['status'],
                             rolidinvoke: 1,
-                            comment: data['comentario'].toString(),
+                            comment: data['comentario'].toString() != null &&
+                                    data['comentario'].toString().isNotEmpty
+                                ? data['comentario'].toString()
+                                : "",
                             dataL: widget.dataL,
                             function: widget.function,
                           );

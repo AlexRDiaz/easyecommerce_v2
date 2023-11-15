@@ -74,7 +74,7 @@ class _PrintedGuideInfoStateSeller extends State<PrintedGuideInfoSeller> {
                         height: 20,
                       ),
                       Text(
-                        "  Código: ${data['name_comercial'].toString()}-${data['numero_orden']}",
+                        "  Código: ${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data['numero_orden']}",
                         style: const TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
