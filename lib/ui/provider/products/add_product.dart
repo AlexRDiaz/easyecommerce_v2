@@ -57,14 +57,6 @@ class _AddProductState extends State<AddProduct> {
 
   loadData() async {
     try {
-      // warehouse = [
-      //   "warehouseA-1",
-      //   "warehouseB-2",
-      //   "warehouseC-3",
-      //   "warehouseD-4",
-      //   "warehouseE-5",
-      // ];
-
       var responseBodegas = await Connections().getWarehouses();
       warehouseList = responseBodegas;
       if (warehouseList != null) {
@@ -240,36 +232,6 @@ class _AddProductState extends State<AddProduct> {
                             children: [
                               const Text('Categoría'),
                               const SizedBox(height: 3),
-                              // DropdownButtonHideUnderline(
-                              //   child: DropdownButton2<String>(
-                              //     isExpanded: true,
-                              //     hint: Text(
-                              //       'Seleccione',
-                              //       style: TextStyle(
-                              //           fontSize: 14,
-                              //           color: Theme.of(context).hintColor,
-                              //           fontWeight: FontWeight.bold),
-                              //     ),
-                              //     items: categories
-                              //         .map((item) => DropdownMenuItem(
-                              //               value: item,
-                              //               child: Text(
-                              //                 item,
-                              //                 style: const TextStyle(
-                              //                     fontSize: 14,
-                              //                     fontWeight: FontWeight.bold),
-                              //               ),
-                              //             ))
-                              //         .toList(),
-                              //     value: selectedCat,
-                              //     onChanged: (value) async {
-                              //       setState(() {
-                              //         selectedCat = value as String;
-                              //       });
-                              //     },
-                              //   ),
-                              // ),
-                              //
                               DropdownButtonFormField<String>(
                                 isExpanded: true,
                                 hint: Text(
@@ -297,10 +259,9 @@ class _AddProductState extends State<AddProduct> {
                                     : null,
                                 onChanged: (value) {
                                   setState(() {
-                                    if (selectedCategories.contains(value)) {
-                                      selectedCategories.remove(value);
-                                    } else {
-                                      selectedCategories.add(value!);
+                                    selectedCat = value;
+                                    if (value != null) {
+                                      selectedCategories.add(value);
                                     }
                                   });
                                 },
@@ -314,28 +275,19 @@ class _AddProductState extends State<AddProduct> {
                               ),
                               Wrap(
                                 spacing: 8.0,
-                                runSpacing: 4.0,
-                                children: List.generate(
-                                  selectedCategories.length,
-                                  (index) => Chip(
-                                    label: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(selectedCategories[index]),
-                                        const SizedBox(width: 4),
-                                        InkWell(
-                                          onTap: () {
-                                            setState(() {
-                                              selectedCategories
-                                                  .removeAt(index);
-                                            });
-                                          },
-                                          child: Icon(Icons.close, size: 16),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
+                                runSpacing: 8.0,
+                                children:
+                                    selectedCategories.map<Widget>((category) {
+                                  return Chip(
+                                    label: Text(category),
+                                    onDeleted: () {
+                                      setState(() {
+                                        selectedCategories.remove(category);
+                                        // print("catAct: $selectedCategories");
+                                      });
+                                    },
+                                  );
+                                }).toList(),
                               ),
                             ],
                           ),
@@ -443,60 +395,71 @@ class _AddProductState extends State<AddProduct> {
                       ],
                     ),
                     const SizedBox(height: 10),
-                    // const Text(
-                    //   'Agregar imagen',
-                    // ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () async {
-                            final ImagePicker picker = ImagePicker();
-                            final XFile? image = await picker.pickImage(
-                                source: ImageSource.gallery);
-
-                            if (image != null && image.path.isNotEmpty) {
-                              var responseI =
-                                  await Connections().postDoc(image);
-                              print("ImgSaveStrapi: $responseI");
-
-                              setState(() {
-                                img_url = responseI[1];
-                              });
-
-                              // Navigator.pop(context);
-                              // Navigator.pop(context);
-                            } else {
-                              print("No img");
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue[300],
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 10),
+                      padding: const EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.3),
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                            offset: const Offset(0, 3),
                           ),
-                          child: const Text(
-                            "Agregar imagen",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () async {
+                              final ImagePicker picker = ImagePicker();
+                              final XFile? image = await picker.pickImage(
+                                  source: ImageSource.gallery);
+
+                              if (image != null && image.path.isNotEmpty) {
+                                var responseI =
+                                    await Connections().postDoc(image);
+                                print("ImgSaveStrapi: $responseI");
+
+                                setState(() {
+                                  img_url = responseI[1];
+                                });
+
+                                // Navigator.pop(context);
+                                // Navigator.pop(context);
+                              } else {
+                                print("No img");
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue[300],
+                            ),
+                            child: const Text(
+                              "Agregar imagen",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
+                    const SizedBox(height: 15),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         // Mostrar la imagen si está disponible
                         img_url != null
-                            ? Container(
-                                margin: const EdgeInsets.only(left: 16.0),
-                                child: SizedBox(
-                                  width: 300,
-                                  height: 400,
-                                  child: Image.network(
-                                    "$generalServer$img_url",
-                                    fit: BoxFit.fill,
-                                  ),
+                            ? SizedBox(
+                                width: 300,
+                                height: 400,
+                                child: Image.network(
+                                  "$generalServer$img_url",
+                                  fit: BoxFit.fill,
                                 ),
                               )
                             : Container(),
@@ -652,24 +615,6 @@ class _AddProductState extends State<AddProduct> {
                                       print("Email: ${_emailController.text}");
                                       print(
                                           "CantidadPriv: ${_quantityController.text}");
-
-                                      //build json for features
-                                      /*
-                                          "features": [
-        {
-            "feature_name": "type",
-            "value": "simple"
-        },
-        {
-            "feature_name": "categories",
-            "value": "hogar,moda"
-        },
-        {
-            "feature_name": "description",
-            "value": "A Unique Kids Night Light: Moon lamp with the diameter is 4.8 INCH, made with 3D printing technology, realistic full moon shape."
-        }
-    ]
-    */
 
                                       var featuresToSend = [
                                         {

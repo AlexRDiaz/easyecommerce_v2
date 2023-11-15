@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/server.dart';
@@ -21,17 +23,33 @@ class _ProductDetailsState extends State<ProductDetails> {
   String codigo = "";
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _stockController = TextEditingController();
   String createdAt = "";
   String warehouse = "";
   String img_url = "";
+  var type;
+  var descripcion;
+  var categories;
+  final TextEditingController _typeController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
   var data = {};
   List<dynamic> dataL = [];
   List<Map<String, dynamic>> listaProduct = [];
+  List<String> listCategories = [
+    "Hogar",
+    "Mascota",
+    "Moda",
+    "Tecnología",
+    "Cocina",
+    "Belleza"
+  ];
+
+  List<String> types = ["SIMPLE", "VARIABLE"];
+
+  var selectedCat;
 
   @override
   void initState() {
@@ -44,8 +62,8 @@ class _ProductDetailsState extends State<ProductDetails> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         getLoadingModal(context, false);
       });
-      print("data incoming:");
-      print(widget.data);
+      // print("data incoming:");
+      // print(widget.data);
       // var response =
       //     await Connections().getProductByID(widget.data['id'], 'warehouse');
 
@@ -92,11 +110,34 @@ class _ProductDetailsState extends State<ProductDetails> {
     // _descriptionController.text = data['direccion_shipping'].toString();
     // var type = data['ciudad_shipping'].toString();
     // img_url = data['url_img'].toString();
-    img_url = data['url_img'] != null && data['url_img'].toString() != "null"
-        ? data['transportadora'].toString()
-        : "";
+
+    img_url = data['url_img'].toString();
+    if (img_url == "null" || img_url == "") {
+      img_url = "";
+    }
+    // print("img incoming: ${img_url.toString()}");
+
+    List<dynamic> dataFeatures = json.decode(data['features']);
+    type = findValue(dataFeatures, 'type')?.toString();
+    descripcion = findValue(dataFeatures, 'description')?.toString();
+    categories =
+        findValue(dataFeatures, 'categories')?.cast<String>() ?? <String>[];
+    _typeController.text = type;
+    _descriptionController.text = descripcion;
+    // print("type: $type");
+    // print("descripcion: $descripcion");
+    // print("categories: $categories");
 
     setState(() {});
+  }
+
+  dynamic findValue(List<dynamic> dataFeatures, String featureName) {
+    var feature = dataFeatures.firstWhere(
+      (dataFeature) => dataFeature['feature_name'] == featureName,
+      orElse: () => null,
+    );
+
+    return feature != null ? feature['value'] : null;
   }
 
   @override
@@ -123,99 +164,368 @@ class _ProductDetailsState extends State<ProductDetails> {
             children: [
               Column(
                 children: [
-                  _modelText("Código", codigo),
-                  _modelTextField("Producto", _nameController),
-                  _modelText("Creado", createdAt),
-                  _modelTextField("Stock", _stockController),
-                  _modelTextField("Precio Total", _priceController),
-                  _modelText("Bodega", warehouse),
-                  const SizedBox(height: 15),
-                  // Column(
-                  //   children: [
-                  //     SizedBox(
-                  //         width: 500,
-                  //         height: 500,
-                  //         child: Image.network(
-                  //           "$generalServer${'/uploads/pago_test185_jpeg_c334bbe4fd.jpeg'}",
-                  //           //           "$generalServer${data['url_img'].toString()}",
-                  //           fit: BoxFit.fill,
-                  //         )),
-                  //   ],
-                  // ),
-                  data['url_img'].toString().isEmpty ||
-                          data['url_img'].toString() == "null"
-                      ? Container()
-                      : SizedBox(
-                          width: 300,
-                          height: 400,
-                          child: Image.network(
-                            "$generalServer${data['url_img'].toString()}",
-                            fit: BoxFit.fill,
+                  // _modelText("Código", codigo),
+                  // _modelText("Creado", createdAt),
+                  // _modelTextField("Producto", _nameController),
+                  // _modelTextField("Stock", _stockController),
+                  // _modelTextField("Precio Total", _priceController),
+                  // _modelTextField("Tipo", _typeController),
+
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Text(
+                            "Código:",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: Colors.black,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            codigo,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[800],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          const Text(
+                            "Creado:",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: Colors.black,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            createdAt,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[800],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        "Producto",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      TextFormField(
+                        controller: _nameController,
+                        maxLines: null,
+                        decoration: InputDecoration(
+                          fillColor: Colors.white,
+                          filled: true,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5.0),
                           ),
                         ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      final ImagePicker picker = ImagePicker();
-                      final XFile? image =
-                          await picker.pickImage(source: ImageSource.gallery);
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          const Text(
+                            "Creado:",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: Colors.black,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            createdAt,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[800],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        "Stock",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      TextFormField(
+                        controller: _stockController,
+                        maxLines: null,
+                        decoration: InputDecoration(
+                          fillColor: Colors.white,
+                          filled: true,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5.0),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        "Precio Total",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      TextFormField(
+                        controller: _priceController,
+                        maxLines: null,
+                        decoration: InputDecoration(
+                          fillColor: Colors.white,
+                          filled: true,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5.0),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        "Tipo",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      DropdownButton<String>(
+                        hint: const Text("Seleccione un tipo"),
+                        value: type,
+                        onChanged: (value) {
+                          setState(() {
+                            type = value ?? "";
+                          });
+                        },
+                        items: types.map((String category) {
+                          return DropdownMenuItem<String>(
+                            value: category,
+                            child: Text(category),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        "Descripción",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      TextFormField(
+                        controller: _descriptionController,
+                        maxLines: null,
+                        decoration: InputDecoration(
+                          fillColor: Colors.white,
+                          filled: true,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5.0),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        "Categorias",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Wrap(
+                        spacing: 8.0,
+                        runSpacing: 8.0,
+                        children: categories.map<Widget>((category) {
+                          return Chip(
+                            label: Text(category),
+                            onDeleted: () {
+                              setState(() {
+                                categories.remove(category);
+                                // print("catAct: $categories");
+                              });
+                            },
+                          );
+                        }).toList(),
+                      ),
+                      DropdownButton<String>(
+                        hint: const Text("Seleccione una categoría"),
+                        value: selectedCat,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedCat = value;
+                            if (value != null) {
+                              categories.add(value);
+                            }
+                          });
+                        },
+                        items: listCategories.map((String category) {
+                          return DropdownMenuItem<String>(
+                            value: category,
+                            child: Text(category),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        "Bodega",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        warehouse,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[800],
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () async {
+                              final ImagePicker picker = ImagePicker();
+                              final XFile? image = await picker.pickImage(
+                                  source: ImageSource.gallery);
 
-                      if (image!.path.isNotEmpty &&
-                          image!.path.toString() != "null") {
-                        var responseI = await Connections().postDoc(image);
-                        img_url = responseI[1];
-                        print("ImgSavedStrapi: $img_url");
+                              if (image != null && image.path.isNotEmpty) {
+                                var responseI =
+                                    await Connections().postDoc(image);
+                                // print("ImgSaveStrapi: $responseI");
 
-                        // Navigator.pop(context);
-                        // Navigator.pop(context);
-                      } else {
-                        print("No img");
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue[300],
-                    ),
-                    child: const Text(
-                      "Subir imagen",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                    ),
+                                setState(() {
+                                  img_url = responseI[1];
+                                });
+
+                                // Navigator.pop(context);
+                                // Navigator.pop(context);
+                              } else {
+                                print("No img");
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue[300],
+                            ),
+                            child: const Text(
+                              "Agregar imagen",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
                   ),
-                  const SizedBox(height: 30),
-                  ElevatedButton(
-                    onPressed: () async {
-                      getLoadingModal(context, false);
+                  const SizedBox(height: 15),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      img_url.isNotEmpty || img_url != ""
+                          ? SizedBox(
+                              width: 300,
+                              height: 400,
+                              child: Image.network(
+                                "$generalServer$img_url",
+                                fit: BoxFit.fill,
+                              ),
+                            )
+                          : Container(),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () async {
+                                getLoadingModal(context, false);
+                                // print(img_url);
 
-                      var responseUpt =
-                          await Connections().updateProduct(codigo, {
-                        "product_name": _nameController.text.toString(),
-                        "stock": int.parse(_stockController.text.toString()),
-                        "price": double.parse(_priceController.text.toString()),
-                        "url_img": img_url.toString()
-                      });
+                                var featuresToSend = [
+                                  {"feature_name": "type", "value": type},
+                                  {
+                                    "feature_name": "categories",
+                                    "value": categories
+                                  },
+                                  {
+                                    "feature_name": "description",
+                                    "value": _descriptionController.text
+                                  },
+                                ];
 
-                      Navigator.pop(context);
-                      Navigator.pop(context);
+                                var responseUpt =
+                                    await Connections().updateProduct(codigo, {
+                                  "product_name":
+                                      _nameController.text.toString(),
+                                  "stock": int.parse(
+                                      _stockController.text.toString()),
+                                  "features": featuresToSend,
+                                  "price": double.parse(
+                                      _priceController.text.toString()),
+                                  "url_img": img_url.toString()
+                                });
 
-                      //  await loadData();
-                      await widget.function();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green[400],
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.save_rounded,
-                          size: 24,
-                          color: Colors.white,
+                                Navigator.pop(context);
+                                Navigator.pop(context);
+
+                                //  await loadData();
+                                await widget.function();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green[400],
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.save_rounded,
+                                    size: 24,
+                                    color: Colors.white,
+                                  ),
+                                  Text(
+                                    "Guardar",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          "Guardar",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                   const SizedBox(
                     height: 30,
@@ -231,7 +541,6 @@ class _ProductDetailsState extends State<ProductDetails> {
 
   Container _modelText(String text, String data) {
     return Container(
-      width: 500,
       margin: const EdgeInsets.symmetric(vertical: 10),
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
@@ -249,12 +558,15 @@ class _ProductDetailsState extends State<ProductDetails> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            text,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              color: Colors.black,
+          SizedBox(
+            width: double.infinity,
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: Colors.black,
+              ),
             ),
           ),
           const SizedBox(height: 5),
@@ -265,7 +577,7 @@ class _ProductDetailsState extends State<ProductDetails> {
               color: Colors.grey[800],
             ),
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 10),
         ],
       ),
     );
@@ -273,7 +585,7 @@ class _ProductDetailsState extends State<ProductDetails> {
 
   Container _modelTextField(String text, TextEditingController controller) {
     return Container(
-      width: 500,
+      // width: 500,
       margin: const EdgeInsets.symmetric(vertical: 10),
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
@@ -322,7 +634,7 @@ class _ProductDetailsState extends State<ProductDetails> {
               ),
             ),
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 10),
         ],
       ),
     );

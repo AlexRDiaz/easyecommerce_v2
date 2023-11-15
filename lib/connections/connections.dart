@@ -5671,6 +5671,7 @@ class Connections {
     }
   }
 
+//  *
   getProducts(populate, page_size, current_page, or, and, sort, search) async {
     try {
       var response =
@@ -5698,6 +5699,7 @@ class Connections {
     }
   }
 
+  //  *
   createProduct(nameProduct, stock, features, price, url_img, warehouse) async {
     print(json.encode({
       "product_name": nameProduct,
@@ -5731,6 +5733,7 @@ class Connections {
     }
   }
 
+  //  *
   getProductByID(id, populate) async {
     try {
       var response =
@@ -5754,12 +5757,34 @@ class Connections {
 
   Future updateProduct(id, datajson) async {
     int res;
-    print(json.encode(datajson));
+    // print(json.encode(datajson));
     try {
       var response = await http.put(
           Uri.parse("$serverLaravel/api/products/$id"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode(datajson));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (e) {
+      res = 3;
+      return res;
+    }
+  }
+
+  //  *
+  Future deleteProduct(id) async {
+    int res;
+    try {
+      var response = await http.put(
+          Uri.parse("$serverLaravel/api/products/delete/$id"),
+          headers: {'Content-Type': 'application/json'});
 
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
