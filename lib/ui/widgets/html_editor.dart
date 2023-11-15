@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:quill_html_editor/quill_html_editor.dart';
 
 class HtmlEditor extends StatefulWidget {
-  const HtmlEditor({super.key});
+  final String description;
+  final Function(dynamic) getValue;
+  const HtmlEditor(
+      {super.key, required this.description, required this.getValue});
 
   @override
   State<HtmlEditor> createState() => _HtmlEditorState();
@@ -15,7 +18,7 @@ class _HtmlEditorState extends State<HtmlEditor> {
   late QuillEditorController controller;
 
   ///[customToolBarList] pass the custom toolbarList to show only selected styles in the editor
-
+  String description = "";
   final customToolBarList = [
     ToolBarStyle.bold,
     ToolBarStyle.italic,
@@ -42,6 +45,7 @@ class _HtmlEditorState extends State<HtmlEditor> {
   @override
   void initState() {
     controller = QuillEditorController();
+    controller.setText(widget.description);
     // controller.onTextChanged((text) {
     //   debugPrint('listening to $text');
     // });
@@ -60,10 +64,11 @@ class _HtmlEditorState extends State<HtmlEditor> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        children: [
-          ToolBar(
+    return Column(
+      children: [
+        Container(
+          height: 35,
+          child: ToolBar(
             toolBarConfig: customToolBarList,
             toolBarColor: _toolbarColor,
             padding: const EdgeInsets.all(8),
@@ -101,49 +106,55 @@ class _HtmlEditorState extends State<HtmlEditor> {
               )),
             ],
           ),
-          Expanded(
-            child: QuillHtmlEditor(
-              text: "<h1>Hello</h1>This is a quill html editor example 😊",
-              hintText: 'Hint text goes here',
-              controller: controller,
-              isEnabled: true,
-              ensureVisible: false,
-              minHeight: 500,
-              autoFocus: false,
-              textStyle: _editorTextStyle,
-              hintTextStyle: _hintTextStyle,
-              hintTextAlign: TextAlign.start,
-              padding: const EdgeInsets.only(left: 10, top: 10),
-              hintTextPadding: const EdgeInsets.only(left: 20),
-              backgroundColor: _backgroundColor,
-              inputAction: InputAction.newline,
-              onEditingComplete: (s) => debugPrint('Editing completed $s'),
-              loadingBuilder: (context) {
-                return const Center(
-                    child: CircularProgressIndicator(
-                  strokeWidth: 1,
-                  color: Color.fromARGB(255, 237, 221, 220),
-                ));
-              },
-              onFocusChanged: (focus) {
-                debugPrint('has focus $focus');
-                setState(() {
-                  _hasFocus = focus;
-                });
-              },
-              onTextChanged: (text) => debugPrint('widget text change $text'),
-              onEditorCreated: () {
-                debugPrint('Editor has been loaded');
-                //   setHtmlText('Testing text on load');
-              },
-              onEditorResized: (height) => debugPrint('Editor resized $height'),
-              onSelectionChanged: (sel) =>
-                  debugPrint('index ${sel.index}, range ${sel.length}'),
-            ),
+        ),
+        Expanded(
+          child: QuillHtmlEditor(
+            text: widget.description,
+            hintText: 'Hint text goes here',
+            controller: controller,
+            isEnabled: true,
+            ensureVisible: false,
+            minHeight: 500,
+            autoFocus: false,
+            textStyle: _editorTextStyle,
+            hintTextStyle: _hintTextStyle,
+            hintTextAlign: TextAlign.start,
+            padding: const EdgeInsets.only(left: 10, top: 10),
+            hintTextPadding: const EdgeInsets.only(left: 20),
+            backgroundColor: _backgroundColor,
+            inputAction: InputAction.newline,
+            onEditingComplete: (s) => debugPrint('Editing completed $s'),
+            loadingBuilder: (context) {
+              return const Center(
+                  child: CircularProgressIndicator(
+                strokeWidth: 1,
+                color: Color.fromARGB(255, 237, 221, 220),
+              ));
+            },
+            onFocusChanged: (focus) {
+              debugPrint('has focus $focus');
+              setState(() {
+                _hasFocus = focus;
+              });
+            },
+            onTextChanged: (text) {
+              widget.getValue(text);
+            },
+            onEditorCreated: () {
+              debugPrint('Editor has been loaded');
+              //   setHtmlText('Testing text on load');
+            },
+            onEditorResized: (height) => debugPrint('Editor resized $height'),
+            onSelectionChanged: (sel) =>
+                debugPrint('index ${sel.index}, range ${sel.length}'),
           ),
-        ],
-      ),
+        ),
+      ],
     );
+  }
+
+  String getEditorContent() {
+    return description;
   }
 
   Widget textButton({required String text, required VoidCallback onPressed}) {

@@ -1,45 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animated_icons/icons8.dart';
+import 'package:flutter_switch/flutter_switch.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:frontend/models/user_model.dart';
 import 'package:frontend/ui/logistic/add_provider/controllers/provider_controller.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
+import 'package:frontend/ui/provider/add_provider/controllers/sub_provider_controller.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/html_editor.dart';
 import 'package:frontend/ui/widgets/my_carousel.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 import 'package:progress_state_button/iconed_button.dart';
 import 'package:progress_state_button/progress_button.dart';
 import 'package:provider/provider.dart';
 
-class AddProvider extends StatefulWidget {
-  const AddProvider({super.key});
+class EditSubProvider extends StatefulWidget {
+  final UserModel provider;
+  final Function(dynamic) hasEdited;
+  const EditSubProvider(
+      {super.key, required this.provider, required this.hasEdited});
 
   @override
-  // State<AddProvider> createState() => _AddProviderState();
-  _AddProviderState createState() => _AddProviderState();
+  // State<EditSubProvider> createState() => _EditSubProviderState();
+  _EditSubProviderState createState() => _EditSubProviderState();
 }
 
-class _AddProviderState extends StateMVC<AddProvider> {
-  late ProviderController _controller;
+class _EditSubProviderState extends StateMVC<EditSubProvider> {
+  late SubProviderController _controller;
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phone1Controller = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
 
   final TextEditingController _emailController = TextEditingController();
-
-  final TextEditingController _descriptionController = TextEditingController();
+  bool _blocked = false;
   String?
       _selectedImageURL; // Esta variable almacenará la URL de la imagen seleccionada
 
   @override
   void initState() {
-    _controller = ProviderController();
+    _controller = SubProviderController();
+    _usernameController.text = widget.provider.username!;
+    _emailController.text = widget.provider.email!;
+    _blocked = widget.provider.blocked!;
+
     super.initState();
   }
 
@@ -76,7 +85,7 @@ class _AddProviderState extends StateMVC<AddProvider> {
       child: Column(
         children: [
           const Text(
-            'Nuevo   Proveedor',
+            'Editar  Usuario',
             style: TextStyle(
               fontSize: 30.0, // Tamaño de fuente grande
               fontWeight: FontWeight.bold, // Texto en negrita
@@ -95,48 +104,6 @@ class _AddProviderState extends StateMVC<AddProvider> {
               key: _formKey,
               child: Column(
                 children: <Widget>[
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: InputDecoration(
-                      fillColor:
-                          Colors.white, // Color del fondo del TextFormField
-                      filled: true,
-                      labelText: 'Nombre de bodega',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                    ),
-                    style: const TextStyle(
-                        fontFamily:
-                            'AtractivaFont'), // Estilo de fuente personalizado
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return 'Ingresa el nombre de la bodega';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 10),
-                  TextFormField(
-                    keyboardType: TextInputType.phone,
-                    controller: _phone1Controller,
-                    decoration: InputDecoration(
-                      fillColor:
-                          Colors.white, // Color del fondo del TextFormField
-                      filled: true,
-                      labelText: 'Telefono',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return 'Por favor, ingresa tu número de telefono';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 10),
                   TextFormField(
                     controller: _usernameController,
                     decoration: InputDecoration(
@@ -177,56 +144,23 @@ class _AddProviderState extends StateMVC<AddProvider> {
                     },
                   ),
                   SizedBox(height: 10),
-                  TextFormField(
-                    controller: _descriptionController,
-                    decoration: InputDecoration(
-                      fillColor:
-                          Colors.white, // Color del fondo del TextFormField
-                      filled: true,
-                      labelText: 'Descripcion',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.symmetric(vertical: 10.0),
-                    padding: EdgeInsets.all(8.0),
-                    height: 300,
-                    //  width: 600,
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(color: Colors.black)),
-                    child: HtmlEditor(
-                      description: "",
-                      getValue: getValue,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      // Aquí puedes implementar la lógica para seleccionar una imagen
-                      // Al seleccionar una imagen, actualiza la variable _selectedImageURL con la URL de la imagen
-                      // _selectedImageURL = 'URL de la imagen seleccionada';
-                      _selectImage();
-                      setState(
-                          () {}); // Para actualizar la interfaz de usuario con la imagen seleccionada
+                  FlutterSwitch(
+                    width: 120.0,
+                    height: 30.0,
+                    activeText: "Desbloquear",
+                    inactiveText: "Bloquear",
+                    valueFontSize: 14.0,
+                    toggleSize: 25.0,
+                    value: _blocked,
+                    borderRadius: 30.0,
+                    padding: 2.0,
+                    showOnOff: true,
+                    onToggle: (value) {
+                      setState(() {
+                        _blocked = value;
+                      });
                     },
-                    child: Row(
-                      children: [
-                        Icon(Icons.image), // Icono para seleccionar imagen
-                        SizedBox(width: 10),
-                        Text(
-                            'Seleccionar Imagen'), // Texto del botón para seleccionar imagen
-                      ],
-                    ),
                   ),
-                  if (_selectedImageURL != null)
-                    Image.network(
-                      _selectedImageURL!, // URL de la imagen seleccionada
-                      width: 300, // Ancho de la imagen
-                      height: 300, // Alto de la imagen
-                    ),
                 ],
               ),
             )),
@@ -235,15 +169,13 @@ class _AddProviderState extends StateMVC<AddProvider> {
 
           ElevatedButton(
             onPressed: () async {
-              _controller.addProvider(ProviderModel(
-                  name: _nameController.text,
-                  phone: _phone1Controller.text,
-                  description: _descriptionController.text,
-                  user: UserModel(
-                    username: _usernameController.text,
-                    email: _emailController.text,
-                  )));
-
+              _controller.editSubProvider(UserModel(
+                id: widget.provider.id,
+                username: _usernameController.text,
+                email: _emailController.text,
+                blocked: _blocked,
+              ));
+              widget.hasEdited(true);
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(
@@ -260,7 +192,7 @@ class _AddProviderState extends StateMVC<AddProvider> {
               elevation: 3, // Agrega una sombra al botón
             ),
             child: Text(
-              'Aceptar',
+              'Guardar',
               style: TextStyle(
                 fontSize: 18, // Cambia el tamaño del texto
                 fontWeight: FontWeight.bold, // Aplica negrita al texto
@@ -271,11 +203,6 @@ class _AddProviderState extends StateMVC<AddProvider> {
       ),
     );
     // Segunda sección con información adicional
-  }
-
-  getValue(value) {
-    _descriptionController.text = value;
-    return value;
   }
 
   Future<void> _selectImage() async {

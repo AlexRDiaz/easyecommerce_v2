@@ -10,6 +10,7 @@ import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/html_editor.dart';
 import 'package:frontend/ui/widgets/my_carousel.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 import 'package:progress_state_button/iconed_button.dart';
@@ -18,7 +19,9 @@ import 'package:provider/provider.dart';
 
 class EditProvider extends StatefulWidget {
   final ProviderModel provider;
-  const EditProvider({super.key, required this.provider});
+  final Function(dynamic) hasEdited;
+  const EditProvider(
+      {super.key, required this.provider, required this.hasEdited});
 
   @override
   // State<EditProvider> createState() => _EditProviderState();
@@ -41,7 +44,12 @@ class _EditProviderState extends StateMVC<EditProvider> {
   @override
   void initState() {
     _controller = ProviderController();
-    _nameController.text = "maruchan";
+    _nameController.text = widget.provider.name!;
+    _phone1Controller.text = widget.provider.phone!;
+    _usernameController.text = widget.provider.user!.username!;
+    _emailController.text = widget.provider.user!.email!;
+    _descriptionController.text = widget.provider.description!;
+
     super.initState();
   }
 
@@ -179,18 +187,18 @@ class _EditProviderState extends StateMVC<EditProvider> {
                     },
                   ),
                   SizedBox(height: 10),
-                  TextFormField(
-                    controller: _descriptionController,
-                    decoration: InputDecoration(
-                      fillColor:
-                          Colors.white, // Color del fondo del TextFormField
-                      filled: true,
-                      labelText: 'Descripcion',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                    ),
-                  ),
+                  // TextFormField(
+                  //   controller: _descriptionController,
+                  //   decoration: InputDecoration(
+                  //     fillColor:
+                  //         Colors.white, // Color del fondo del TextFormField
+                  //     filled: true,
+                  //     labelText: 'Descripcion',
+                  //     border: OutlineInputBorder(
+                  //       borderRadius: BorderRadius.circular(10.0),
+                  //     ),
+                  //   ),
+                  // ),
                   Container(
                     margin: EdgeInsets.symmetric(vertical: 10.0),
                     padding: EdgeInsets.all(8.0),
@@ -200,7 +208,9 @@ class _EditProviderState extends StateMVC<EditProvider> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(10.0),
                         border: Border.all(color: Colors.black)),
-                    child: HtmlEditor(),
+                    child: HtmlEditor(
+                        description: _descriptionController.text,
+                        getValue: getValue),
                   ),
                   TextButton(
                     onPressed: () {
@@ -211,7 +221,7 @@ class _EditProviderState extends StateMVC<EditProvider> {
                       setState(
                           () {}); // Para actualizar la interfaz de usuario con la imagen seleccionada
                     },
-                    child: Row(
+                    child: const Row(
                       children: [
                         Icon(Icons.image), // Icono para seleccionar imagen
                         SizedBox(width: 10),
@@ -235,14 +245,16 @@ class _EditProviderState extends StateMVC<EditProvider> {
           ElevatedButton(
             onPressed: () async {
               _controller.editProvider(ProviderModel(
+                  id: widget.provider.id,
                   name: _nameController.text,
                   phone: _phone1Controller.text,
                   description: _descriptionController.text,
                   user: UserModel(
+                    id: widget.provider.user!.id,
                     username: _usernameController.text,
                     email: _emailController.text,
                   )));
-
+              widget.hasEdited(true);
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(
@@ -259,7 +271,7 @@ class _EditProviderState extends StateMVC<EditProvider> {
               elevation: 3, // Agrega una sombra al botón
             ),
             child: Text(
-              'Aceptar',
+              'Guardar',
               style: TextStyle(
                 fontSize: 18, // Cambia el tamaño del texto
                 fontWeight: FontWeight.bold, // Aplica negrita al texto
@@ -270,6 +282,11 @@ class _EditProviderState extends StateMVC<EditProvider> {
       ),
     );
     // Segunda sección con información adicional
+  }
+
+  getValue(value) {
+    _descriptionController.text = value;
+    return value;
   }
 
   Future<void> _selectImage() async {
