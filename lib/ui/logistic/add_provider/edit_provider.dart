@@ -10,21 +10,25 @@ import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/html_editor.dart';
 import 'package:frontend/ui/widgets/my_carousel.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 import 'package:progress_state_button/iconed_button.dart';
 import 'package:progress_state_button/progress_button.dart';
 import 'package:provider/provider.dart';
 
-class AddProvider extends StatefulWidget {
-  const AddProvider({super.key});
+class EditProvider extends StatefulWidget {
+  final ProviderModel provider;
+  final Function(dynamic) hasEdited;
+  const EditProvider(
+      {super.key, required this.provider, required this.hasEdited});
 
   @override
-  // State<AddProvider> createState() => _AddProviderState();
-  _AddProviderState createState() => _AddProviderState();
+  // State<EditProvider> createState() => _EditProviderState();
+  _EditProviderState createState() => _EditProviderState();
 }
 
-class _AddProviderState extends StateMVC<AddProvider> {
+class _EditProviderState extends StateMVC<EditProvider> {
   late ProviderController _controller;
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
@@ -40,6 +44,12 @@ class _AddProviderState extends StateMVC<AddProvider> {
   @override
   void initState() {
     _controller = ProviderController();
+    _nameController.text = widget.provider.name!;
+    _phone1Controller.text = widget.provider.phone!;
+    _usernameController.text = widget.provider.user!.username!;
+    _emailController.text = widget.provider.user!.email!;
+    _descriptionController.text = widget.provider.description!;
+
     super.initState();
   }
 
@@ -76,7 +86,7 @@ class _AddProviderState extends StateMVC<AddProvider> {
       child: Column(
         children: [
           const Text(
-            'Nuevo   Proveedor',
+            'Editar  Proveedor',
             style: TextStyle(
               fontSize: 30.0, // Tamaño de fuente grande
               fontWeight: FontWeight.bold, // Texto en negrita
@@ -177,18 +187,18 @@ class _AddProviderState extends StateMVC<AddProvider> {
                     },
                   ),
                   SizedBox(height: 10),
-                  TextFormField(
-                    controller: _descriptionController,
-                    decoration: InputDecoration(
-                      fillColor:
-                          Colors.white, // Color del fondo del TextFormField
-                      filled: true,
-                      labelText: 'Descripcion',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                    ),
-                  ),
+                  // TextFormField(
+                  //   controller: _descriptionController,
+                  //   decoration: InputDecoration(
+                  //     fillColor:
+                  //         Colors.white, // Color del fondo del TextFormField
+                  //     filled: true,
+                  //     labelText: 'Descripcion',
+                  //     border: OutlineInputBorder(
+                  //       borderRadius: BorderRadius.circular(10.0),
+                  //     ),
+                  //   ),
+                  // ),
                   Container(
                     margin: EdgeInsets.symmetric(vertical: 10.0),
                     padding: EdgeInsets.all(8.0),
@@ -199,9 +209,8 @@ class _AddProviderState extends StateMVC<AddProvider> {
                         borderRadius: BorderRadius.circular(10.0),
                         border: Border.all(color: Colors.black)),
                     child: HtmlEditor(
-                      description: "",
-                      getValue: getValue,
-                    ),
+                        description: _descriptionController.text,
+                        getValue: getValue),
                   ),
                   TextButton(
                     onPressed: () {
@@ -212,7 +221,7 @@ class _AddProviderState extends StateMVC<AddProvider> {
                       setState(
                           () {}); // Para actualizar la interfaz de usuario con la imagen seleccionada
                     },
-                    child: Row(
+                    child: const Row(
                       children: [
                         Icon(Icons.image), // Icono para seleccionar imagen
                         SizedBox(width: 10),
@@ -235,15 +244,17 @@ class _AddProviderState extends StateMVC<AddProvider> {
 
           ElevatedButton(
             onPressed: () async {
-              _controller.addProvider(ProviderModel(
+              _controller.editProvider(ProviderModel(
+                  id: widget.provider.id,
                   name: _nameController.text,
                   phone: _phone1Controller.text,
                   description: _descriptionController.text,
                   user: UserModel(
+                    id: widget.provider.user!.id,
                     username: _usernameController.text,
                     email: _emailController.text,
                   )));
-
+              widget.hasEdited(true);
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(
@@ -260,7 +271,7 @@ class _AddProviderState extends StateMVC<AddProvider> {
               elevation: 3, // Agrega una sombra al botón
             ),
             child: Text(
-              'Aceptar',
+              'Guardar',
               style: TextStyle(
                 fontSize: 18, // Cambia el tamaño del texto
                 fontWeight: FontWeight.bold, // Aplica negrita al texto

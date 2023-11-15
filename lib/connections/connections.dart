@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:frontend/models/provider_model.dart';
+import 'package:frontend/models/user_model.dart';
 import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
@@ -2969,6 +2970,7 @@ class Connections {
 
   getOrdersForTransportPRV(code) async {
     print(
+
         "$server/api/pedidos-shopifies?populate=transportadora&populate=pedido_fecha&populate=sub_ruta&populate=operadore&populate=operadore.user&populate=users&filters[\$and][0][transportadora][id][\$eq]=${sharedPrefs!.getString("idTransportadora").toString()}&filters[\$or][1][NumeroOrden][\$contains]=$code&filters[Estado_Logistico][\$eq]=ENVIADO&filters&filters[\$or][2][CiudadShipping][\$contains]=$code&filters[\$or][3][NombreShipping][\$contains]=$code&filters[\$or][4][DireccionShipping][\$contains]=$code&filters[\$or][5][TelefonoShipping][\$contains]=$code&filters[\$or][6][ProductoP][\$contains]=$code&filters[\$or][7][ProductoExtra][\$contains]=$code&filters[\$or][8][PrecioTotal][\$contains]=$code&filters[\$or][9][Status][\$contains]=$code&filters[\$or][10][Estado_Interno][\$contains]=$code&filters[\$or][11][Estado_Logistico][\$contains]=$code&filters[\$or][12][pedido_fecha][Fecha][\$contains]=$code&filters[\$or][13][sub_ruta][Titulo][\$contains]=$code&filters[\$or][14][operadore][user][username][\$contains]=$code&filters[\$or][15][Cantidad_Total][\$contains]=$code&filters[Status][\$eq]=PEDIDO PROGRAMADO&filters[Estado_Interno][\$eq]=CONFIRMADO&pagination[limit]=-1");
     var request = await http.get(
       Uri.parse(
@@ -6069,6 +6071,25 @@ class Connections {
     }
   }
 
+  getSubProviders() async {
+    try {
+      var response = await http.get(
+        Uri.parse(
+            "$serverLaravel/api/users/subproviders/${sharedPrefs!.getString("id")}"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData['users'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
   createProvider(ProviderModel provider) async {
     try {
       var response =
@@ -6078,7 +6099,7 @@ class Connections {
                 "username": provider.user!.username,
                 "email": provider.user!.email,
                 "provider_name": provider.name,
-                "phone": provider.phone,
+                "provider_phone": provider.phone,
                 "password": '123456789',
                 "description": provider.description
                 //"username": "Alex Diaz",
@@ -6088,6 +6109,81 @@ class Connections {
                 // "password": "123456789",
                 // "description": "test de proedor"
               }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData['providers'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  updateProvider(ProviderModel provider) async {
+    try {
+      var name = provider.user!.id;
+      var response = await http.put(
+          Uri.parse("$serverLaravel/api/users/providers/${provider.user!.id}"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "username": provider.user!.username,
+            "email": provider.user!.email,
+            "provider_name": provider.name,
+            "provider_phone": provider.phone,
+            "password": "123456789",
+            "description": provider.description
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData['providers'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  createSubProvider(UserModel user) async {
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/users/subproviders/add"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "username": user.username,
+            "email": user.email,
+            "fecha_alta": "",
+            "password": "123456789",
+            "providers": sharedPrefs!.getString("idProvider"),
+            "role": 2,
+            "roles_front": 5
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData['providers'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  updateSubProvider(UserModel provider) async {
+    try {
+      var response = await http.put(
+          Uri.parse(
+              "$serverLaravel/api/users/subproviders/update/${provider.id}"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "username": provider.username,
+            "email": provider.email,
+            "blocked": provider.blocked
+          }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         // print(decodeData);
