@@ -1,3 +1,4 @@
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
 import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/forms/date_input.dart';
@@ -66,6 +67,7 @@ class _TransportDeliveryHistoryDetailsState
   TextEditingController _estadoDevolucion = TextEditingController();
   TextEditingController _marcaTiempoEnvio = TextEditingController();
   TextEditingController _estadoPago = TextEditingController();
+  var idUser = sharedPrefs!.getString("id");
 
   var data = {};
   @override
@@ -494,6 +496,14 @@ class _TransportDeliveryHistoryDetailsState
                                               var response = await Connections()
                                                   .updateOrderInteralStatusHistorial(
                                                       "CONFIRMADO", widget.id);
+
+                                              var responseL = await Connections()
+                                                  .updateOrderWithTime(
+                                                      widget.id.toString(),
+                                                      "estado_interno:CONFIRMADO",
+                                                      idUser,
+                                                      "",
+                                                      "");
                                               Navigator.pop(context);
                                               await loadData();
                                             },

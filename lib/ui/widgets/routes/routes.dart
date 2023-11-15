@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/create_sub_route.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -30,6 +31,7 @@ class _RoutesModalState extends State<RoutesModal> {
   List<String> transports = [];
   String? selectedValueRoute;
   String? selectedValueTransport;
+  var idUser = sharedPrefs!.getString("id");
 
   @override
   void didChangeDependencies() {
@@ -192,6 +194,10 @@ class _RoutesModalState extends State<RoutesModal> {
                           var response2 = await Connections()
                               .updateOrderInteralStatusLaravel(
                                   "CONFIRMADO", widget.idOrder);
+
+                          var response3 = await Connections()
+                              .updateOrderWithTime(widget.idOrder.toString(),
+                                  "estado_interno:CONFIRMADO", idUser, "", "");
                         } else {
                           for (var i = 0; i < widget.idOrder.length; i++) {
                             var response = await Connections()
@@ -205,6 +211,14 @@ class _RoutesModalState extends State<RoutesModal> {
                             var response2 = await Connections()
                                 .updateOrderInteralStatusLaravel(
                                     "CONFIRMADO", widget.idOrder[i]['id']);
+
+                            var response3 = await Connections()
+                                .updateOrderWithTime(
+                                    widget.idOrder.toString(),
+                                    "estado_interno:CONFIRMADO",
+                                    sharedPrefs!.getString("id"),
+                                    "",
+                                    "");
                           }
                         }
                         if (widget.phoneClient != "") {

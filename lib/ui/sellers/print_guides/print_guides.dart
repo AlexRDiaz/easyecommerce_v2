@@ -423,7 +423,7 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
                               getInfoModal(index);
                             }),
                             DataCell(Text(
-                                "${data[index]['name_comercial'].toString()}-${data[index]['numero_orden']}"
+                                "${data[index]["users"][0]["vendedores"][0]["nombre_comercial"]}-${data[index]['numero_orden']}"
                                     .toString())),
                             DataCell(
                                 Text(data[index]['ciudad_shipping'].toString()),

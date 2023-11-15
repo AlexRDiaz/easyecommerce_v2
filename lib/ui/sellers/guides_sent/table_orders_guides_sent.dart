@@ -538,7 +538,7 @@ class _TableOrdersGuidesSentStateSeller
                                     style: TextStyle(
                                         color:
                                             GetColor(data[index]['revisado'])!),
-                                    '${data[index]['name_comercial'].toString()}-${data[index]['numero_orden'].toString()}'),
+                                    '${data[index]['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data[index]['numero_orden'].toString()}'),
                                 onTap: () {
                               getInfoModal(index);
                             }),
@@ -1126,10 +1126,11 @@ class _TableOrdersGuidesSentStateSeller
                 columnIndex: 1, rowIndex: rowIndex + 1))
             .value = data["fecha_entrega"];
         sheet
-            .cell(CellIndex.indexByColumnRow(
-                columnIndex: 2, rowIndex: rowIndex + 1))
-            .value = "${data["name_comercial"]}-${data["numero_orden"]}";
-        name_comercial = data["name_comercial"];
+                .cell(CellIndex.indexByColumnRow(
+                    columnIndex: 2, rowIndex: rowIndex + 1))
+                .value =
+            "${data["users"][0]["vendedores"][0]["nombre_comercial"]}-${data["numero_orden"]}";
+        name_comercial = data["users"][0]["vendedores"][0]["nombre_comercial"];
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 3, rowIndex: rowIndex + 1))
@@ -1221,7 +1222,7 @@ class _TableOrdersGuidesSentStateSeller
                     ],
                   ),
                   _model(
-                      "Código: ${data[index]['name_comercial']}-${data[index]['numero_orden']}"),
+                      "Código: ${data[index]['users'][0]['vendedores'][0]['nombre_comercial']}-${data[index]['numero_orden']}"),
                   _model(
                       "Marca de Tiempo Envio: ${data[index]['marca_tiempo_envio']}"),
                   _model(

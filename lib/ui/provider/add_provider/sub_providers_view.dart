@@ -1,28 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/provider_model.dart';
+import 'package:frontend/models/user_model.dart';
 import 'package:frontend/ui/logistic/add_provider/add_provider.dart';
 import 'package:frontend/ui/logistic/add_provider/controllers/provider_controller.dart';
 import 'package:frontend/ui/logistic/add_provider/edit_provider.dart';
+import 'package:frontend/ui/provider/add_provider/add_sub_provider.dart';
+import 'package:frontend/ui/provider/add_provider/controllers/sub_provider_controller.dart';
+import 'package:frontend/ui/provider/add_provider/edit_sub_provider.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-class ProviderView extends StatefulWidget {
-  ProviderView({Key? key}) : super(key: key);
+class SubProviderView extends StatefulWidget {
+  SubProviderView({Key? key}) : super(key: key);
 
   @override
-  _ProviderViewState createState() => _ProviderViewState();
+  _SubProviderViewState createState() => _SubProviderViewState();
 }
 
-class _ProviderViewState extends State<ProviderView> {
-  late ProviderController _providerController;
+class _SubProviderViewState extends State<SubProviderView> {
+  late SubProviderController _subProviderController;
   TextEditingController _searchController = TextEditingController();
-  ProviderModel _selctedProvider = ProviderModel();
+  UserModel _selctedProvider = UserModel();
   bool edited = false;
   bool isFilterIconVisible = false;
+  bool selectable = false;
 
   @override
   void initState() {
     super.initState();
-    _providerController = ProviderController();
+    _subProviderController = SubProviderController();
   }
 
   hasEdited(value) {
@@ -37,8 +42,9 @@ class _ProviderViewState extends State<ProviderView> {
         builder: (context) {
           return AlertDialog(
             content: Container(
-              width: MediaQuery.of(context).size.width * 0.5,
-              child: EditProvider(
+              width: MediaQuery.of(context).size.width * 0.35,
+              height: MediaQuery.of(context).size.height * 0.35,
+              child: EditSubProvider(
                 provider: provider,
                 hasEdited: hasEdited,
               ),
@@ -73,12 +79,35 @@ class _ProviderViewState extends State<ProviderView> {
                 },
               ),
             ),
-            TextButton(
-                onPressed: () {
-                  openDialog(context);
-                },
-                child: Text("Nuevo")),
-            FutureBuilder<List<ProviderModel>>(
+            Padding(
+              padding: EdgeInsets.all(10),
+              child: Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: () => openDialog(context),
+                    child: Text("Nuevo"),
+                  ),
+                  SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: () => setState(() {
+                      selectable = !selectable;
+                    }),
+                    child: Text("Seleccionar"),
+                  ),
+                  SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: () => setState(() {
+                      selectable = !selectable;
+                    }),
+                    child: Text("Eliminar"),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            FutureBuilder<List<UserModel>>(
               future: _getProviderModelData(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -88,7 +117,7 @@ class _ProviderViewState extends State<ProviderView> {
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return Center(child: Text('No data available'));
                 } else {
-                  final providerModelDataSource = ProviderModelDataSource(
+                  final subProviderModelDataSource = SubProviderModelDataSource(
                     editProviderDialog: editProviderDialog,
                     providers: snapshot.data!,
                   );
@@ -96,9 +125,13 @@ class _ProviderViewState extends State<ProviderView> {
                   return Container(
                     color: Colors.white,
                     child: SfDataGrid(
-                      source: providerModelDataSource,
+                      source: subProviderModelDataSource,
                       columnWidthMode: ColumnWidthMode.fill,
                       isScrollbarAlwaysShown: true,
+                      selectionMode: SelectionMode
+                          .multiple, // Habilita la selección múltiple
+                      onSelectionChanged: (addedRows, removedRows) {},
+                      showCheckboxColumn: selectable,
                       showVerticalScrollbar: true,
                       showHorizontalScrollbar: true,
                       columns: <GridColumn>[
@@ -106,7 +139,7 @@ class _ProviderViewState extends State<ProviderView> {
                             autoFitPadding: EdgeInsets.all(30.0),
                             columnName: 'nombre',
                             label: FilterIcon(
-                              name: "nombre",
+                              name: "Nombre",
                               onFilterPressed: () {
                                 // Lógica para aplicar el filtro
                               },
@@ -115,7 +148,7 @@ class _ProviderViewState extends State<ProviderView> {
                             autoFitPadding: EdgeInsets.all(30.0),
                             columnName: 'username',
                             label: FilterIcon(
-                              name: "PROPIETARIO",
+                              name: "Correo",
                               onFilterPressed: () {
                                 // Lógica para aplicar el filtro
                               },
@@ -124,7 +157,7 @@ class _ProviderViewState extends State<ProviderView> {
                             autoFitPadding: EdgeInsets.all(30.0),
                             columnName: 'description',
                             label: FilterIcon(
-                              name: "descripción",
+                              name: "Bloqueado",
                               onFilterPressed: () {
                                 // Lógica para aplicar el filtro
                               },
@@ -141,10 +174,12 @@ class _ProviderViewState extends State<ProviderView> {
                       ],
                       onCellTap: (DataGridCellTapDetails details) {
                         if (details.rowColumnIndex.rowIndex > 0) {
-                          _selctedProvider = _providerController
-                              .providers[details.rowColumnIndex.rowIndex - 1];
+                          _selctedProvider = _subProviderController
+                              .users[details.rowColumnIndex.rowIndex - 1];
 
                           _showDialog(_selctedProvider);
+
+                          if (details.rowColumnIndex.columnIndex == 0) {}
                         }
                       },
                     ),
@@ -163,25 +198,25 @@ class _ProviderViewState extends State<ProviderView> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Información de la fila seleccionada'),
-          content: Column(
-            children: [
-              Container(child: Text(selectedRow.name.toString())),
-              Container(child: Text(selectedRow.phone.toString())),
-              Container(child: Text(selectedRow.description.toString())),
-              Container(child: Text(selectedRow.user!.username.toString())),
-              Container(child: Text(selectedRow.user!.email.toString())),
-              Container(child: Text(selectedRow.user!.username.toString())),
-            ],
+          title: Text('Datos del usuario'),
+          content: Container(
+            width: MediaQuery.of(context).size.width * 0.35,
+            height: MediaQuery.of(context).size.height * 0.35,
+            child: Column(
+              children: [
+                Container(child: Text(selectedRow.username.toString())),
+                Container(child: Text(selectedRow.email.toString())),
+              ],
+            ),
           ),
         );
       },
     );
   }
 
-  Future<List<ProviderModel>> _getProviderModelData() async {
-    await _providerController.loadProviders();
-    return _providerController.providers;
+  Future<List<UserModel>> _getProviderModelData() async {
+    await _subProviderController.loadSubProviders();
+    return _subProviderController.users;
   }
 
   Future<dynamic> openDialog(BuildContext context) {
@@ -190,8 +225,9 @@ class _ProviderViewState extends State<ProviderView> {
         builder: (context) {
           return AlertDialog(
             content: Container(
-              width: MediaQuery.of(context).size.width * 0.5,
-              child: AddProvider(),
+              width: MediaQuery.of(context).size.width * 0.35,
+              height: MediaQuery.of(context).size.height * 0.35,
+              child: AddSubProvider(),
             ),
           );
         }).then((value) => setState(() {
@@ -223,19 +259,16 @@ class _ProviderViewState extends State<ProviderView> {
   }
 }
 
-class ProviderModelDataSource extends DataGridSource {
+class SubProviderModelDataSource extends DataGridSource {
   final Function(dynamic) editProviderDialog;
-  ProviderModelDataSource(
-      {required List<ProviderModel> providers,
-      required this.editProviderDialog}) {
+  SubProviderModelDataSource(
+      {required List<UserModel> providers, required this.editProviderDialog}) {
     _providersData = providers
         .map<DataGridRow>((e) => DataGridRow(cells: [
-              DataGridCell<String>(columnName: 'name', value: e.name),
-              DataGridCell<String>(
-                  columnName: 'username', value: e.user!.username),
-              DataGridCell<String>(
-                  columnName: 'description', value: e.description),
-              DataGridCell<ProviderModel>(
+              DataGridCell<String>(columnName: 'name', value: e.username),
+              DataGridCell<String>(columnName: 'email', value: e.email),
+              DataGridCell<bool>(columnName: 'description', value: e.blocked),
+              DataGridCell<UserModel>(
                 columnName: 'actions',
                 value: e,
               ),
