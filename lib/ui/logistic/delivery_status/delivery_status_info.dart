@@ -261,6 +261,4 @@ class _DeliveryStatusInfo extends State<DeliveryStatusInfo> {
           ),
         )));
   }
-
-
 }
