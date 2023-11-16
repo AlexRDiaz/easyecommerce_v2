@@ -1,4 +1,7 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:frontend/models/warehouses_model.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
@@ -7,21 +10,30 @@ import 'package:frontend/models/user_model.dart';
 class WrehouseController extends ControllerMVC {
   List<WarehouseModel> warehouses = [];
 
-  addProvider(WarehouseModel warehouse) async {
+  addWarehouse(WarehouseModel warehouse) async {
     await Connections().createWarehouse(warehouse);
     setState(() {});
   }
 
+  updateWarehouse(int warehouseId, String nameSucursal, String address,
+      String reference, String description) async {
+    await Connections().updateWarehouse(
+        warehouseId, nameSucursal, address, reference, description);
+    setState(() {});
+  }
 
-  void deleteProvider(int warehouseId) {
+  deleteWarehouse(int warehouseId) async {
+    await Connections().deleteWarehouse(warehouseId);
     setState(() {
       warehouses.removeWhere((warehouse) => warehouse.id == warehouseId);
     });
+    await loadWarehouses();
   }
 
   Future<void> loadWarehouses() async {
     try {
-      var data = await Connections().getWarehouses();
+      var data = await Connections().getWarehousesProvider(
+          int.parse(sharedPrefs!.getString("idProvider").toString()));
       if (data == 1) {
         // Maneja el caso de error 1
         print('Error: Status Code 1');

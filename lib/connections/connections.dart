@@ -6118,6 +6118,22 @@ class Connections {
       return 2;
     }
   }
+  getWarehousesProvider(int providerId) async {
+    try {
+      var response = await http.get(
+        Uri.parse("$serverLaravel/api/warehouses/provider/$providerId"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData['warehouses'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
     createWarehouse(WarehouseModel warehouse) async {
     try {
       var response =
@@ -6134,6 +6150,45 @@ class Connections {
         var decodeData = json.decode(response.body);
         // print(decodeData);
         return decodeData['providers'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+  updateWarehouse(int id,String nameSucursal,String address,String reference,String description) async {
+    try {
+      var response =
+          await http.put(Uri.parse("$serverLaravel/api/warehouses/$id"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "branch_name": nameSucursal,
+                "address": address,
+                "reference": reference,
+                "description": description,
+              }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData['providers'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  deleteWarehouse(int ?warehouseId) async {
+    try {
+      var response =
+          await http.delete(Uri.parse("$serverLaravel/api/warehouses/$warehouseId"),
+              headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData['message'];
       } else {
         return 1;
       }

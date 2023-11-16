@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
+import 'package:frontend/ui/logistic/novelties/generate_report_novelties.dart';
 import 'package:frontend/ui/logistic/novelties/novelties_info.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_details.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_details_data.dart';
@@ -44,6 +45,8 @@ class _NoveltiesLState extends State<NoveltiesL> {
   bool enabledBusqueda = true;
   int totalRegistros = 0;
 
+  var getReport = CreateReportNovelties();
+
   var sortFieldDefaultValue = "marca_t_i:DESC";
 
   List<String> listvendedores = ['TODO'];
@@ -69,12 +72,8 @@ class _NoveltiesLState extends State<NoveltiesL> {
   ];
   List defaultArrayFiltersAnd = [
     {"equals/estado_devolucion": "PENDIENTE"},
-     {
-      "/estado_interno": "CONFIRMADO"
-    },
-    {
-      "/estado_logistico": "ENVIADO"
-    }
+    {"/estado_interno": "CONFIRMADO"},
+    {"/estado_logistico": "ENVIADO"}
   ];
   List arrayFiltersAnd = [];
   List arrayFiltersOr = [
@@ -285,220 +284,657 @@ class _NoveltiesLState extends State<NoveltiesL> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        width: double.infinity,
-        padding: EdgeInsets.all(15),
-        color: Colors.grey[200],
-        child: Column(
-          children: [
-            _dates(context),
-            SizedBox(
-              height: 10,
-            ),
-            Container(
-                width: double.infinity,
-                color: Colors.white,
-                padding: EdgeInsets.only(top: 5, bottom: 5),
-                child: SizedBox(
-                  child: responsive(
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _modelTextField(
-                                text: "Buscar",
-                                controller: _controllers.searchController),
-                          ),
-                          Expanded(
-                            child: Row(
+          width: double.infinity,
+          padding: EdgeInsets.all(15),
+          color: Colors.grey[200],
+          child: responsive(
+              Column(
+                children: [
+                  _dates(context),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Container(
+                      width: double.infinity,
+                      color: Colors.white,
+                      padding: EdgeInsets.only(top: 5, bottom: 5),
+                      child: SizedBox(
+                        child: responsive(
+                            Row(
                               children: [
-                                Container(
-                                  padding:
-                                      const EdgeInsets.only(left: 15, right: 5),
-                                  child: Text(
-                                    "Registros: ${total}",
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black),
+                                Expanded(
+                                  child: _modelTextField(
+                                      text: "Buscar",
+                                      controller:
+                                          _controllers.searchController),
+                                ),
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.only(
+                                            left: 15, right: 5),
+                                        child: Text(
+                                          "Registros: ${total}",
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
+                                Expanded(child: numberPaginator()),
                               ],
                             ),
-                          ),
-                          Expanded(child: numberPaginator()),
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          Container(
-                            child: _modelTextField(
-                                text: "Buscar",
-                                controller: _controllers.searchController),
-                          ),
-                          Row(
-                            children: [
-                              Container(
-                                padding:
-                                    const EdgeInsets.only(left: 15, right: 5),
-                                child: Text(
-                                  "Registros: ${total}",
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black),
+                            Column(
+                              children: [
+                                Container(
+                                  child: _modelTextField(
+                                      text: "Buscar",
+                                      controller:
+                                          _controllers.searchController),
                                 ),
-                              ),
-                            ],
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.only(
+                                          left: 15, right: 5),
+                                      child: Text(
+                                        "Registros: ${total}",
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                numberPaginator(),
+                              ],
+                            ),
+                            context),
+                      )),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Expanded(
+                      child: DataTable2(
+                          scrollController: _scrollController,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(4)),
+                            border: Border.all(color: Colors.blueGrey),
                           ),
-                          numberPaginator(),
-                        ],
-                      ),
-                      context),
-                )),
-            SizedBox(
-              height: 10,
-            ),
-            Expanded(
-                child: DataTable2(
-                    scrollController: _scrollController,
-                    decoration: BoxDecoration(
+                          headingRowHeight: 63,
+                          headingTextStyle: const TextStyle(
+                              fontWeight: FontWeight.bold, color: Colors.black),
+                          dataTextStyle: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black),
+                          columnSpacing: 5,
+                          horizontalMargin: 5,
+                          minWidth: 2500,
+                          columns: [
+                            DataColumn2(
+                              label: Text("Fecha Entrega"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+
+                            DataColumn2(
+                              label: const Text('Código'),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Ciudad"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Nombre Cliente"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Teléfono Cliente"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Dirección"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Cantidad"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Producto"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Producto Extra"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Precio Total"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Observación"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Comentario"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: SelectFilterNoId('Status', 'equals/status',
+                                  statusController, listStatus),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: SelectFilter(
+                                  'Vendedor',
+                                  'equals/id_comercial',
+                                  vendedorController,
+                                  listvendedores),
+                              size: ColumnSize.S,
+                              // numeric: true,
+                              onSort: (columnIndex, ascending) {
+                                // sortFunc("Name_Comercial");
+                              },
+                            ),
+                            DataColumn2(
+                              label: SelectFilter(
+                                  'Transportadora',
+                                  'equals/transportadora.transportadora_id',
+                                  transportadorasController,
+                                  listtransportadores),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {
+                                // sortFunc("Estado_Interno");
+                              },
+                            ),
+                            DataColumn2(
+                              label: Text("Operador"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Estado Devolución"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: const Text('Fecha Marcar TI'),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {
+                                // sortFunc("Fecha");
+                              },
+                            ),
+                            DataColumn2(
+                              label: const Text('Numero Intentos'),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {
+                                // sortFunc("Fecha");
+                              },
+                            ),
+                            // data['novedades'][index]['try']
+                          ],
+                          rows: List<DataRow>.generate(data.length, (index) {
+                            final color = index % 2 == 0
+                                ? Colors.grey[400]
+                                : Colors.white;
+
+                            return DataRow(
+                                color: MaterialStateColor.resolveWith(
+                                    (states) => color!),
+                                cells: getRows(index));
+                          }))),
+                ],
+              ),
+              Column(
+                children: [
+                  _datesMovil(context),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Container(
+                      width: double.infinity,
                       color: Colors.white,
-                      borderRadius: const BorderRadius.all(Radius.circular(4)),
-                      border: Border.all(color: Colors.blueGrey),
-                    ),
-                    headingRowHeight: 63,
-                    headingTextStyle: const TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.black),
-                    dataTextStyle: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black),
-                    columnSpacing: 5,
-                    horizontalMargin: 5,
-                    minWidth: 2500,
-                    columns: [
-                      DataColumn2(
-                        label: Text("Fecha Entrega"),
-                        size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {},
-                      ),
+                      padding: EdgeInsets.only(top: 5, bottom: 5),
+                      child: SizedBox(
+                        child: responsive(
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _modelTextField(
+                                      text: "Buscar",
+                                      controller:
+                                          _controllers.searchController),
+                                ),
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.only(
+                                            left: 15, right: 5),
+                                        child: Text(
+                                          "Registros: ${total}",
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Expanded(child: numberPaginator()),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Container(
+                                  child: _modelTextField(
+                                      text: "Buscar",
+                                      controller:
+                                          _controllers.searchController),
+                                ),
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.only(
+                                          left: 15, right: 5),
+                                      child: Text(
+                                        "Registros: ${total}",
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                numberPaginator(),
+                              ],
+                            ),
+                            context),
+                      )),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Expanded(
+                      child: DataTable2(
+                          scrollController: _scrollController,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(4)),
+                            border: Border.all(color: Colors.blueGrey),
+                          ),
+                          headingRowHeight: 63,
+                          headingTextStyle: const TextStyle(
+                              fontWeight: FontWeight.bold, color: Colors.black),
+                          dataTextStyle: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black),
+                          columnSpacing: 5,
+                          horizontalMargin: 5,
+                          minWidth: 2500,
+                          columns: [
+                            DataColumn2(
+                              label: Text("Fecha Entrega"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
 
-                      DataColumn2(
-                        label: const Text('Código'),
-                        size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {},
-                      ),
-                      DataColumn2(
-                        label: Text("Ciudad"),
-                        size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {},
-                      ),
-                      DataColumn2(
-                        label: Text("Nombre Cliente"),
-                        size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {},
-                      ),
-                      DataColumn2(
-                        label: Text("Teléfono Cliente"),
-                        size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {},
-                      ),
-                      DataColumn2(
-                        label: Text("Dirección"),
-                        size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {},
-                      ),
-                      DataColumn2(
-                        label: Text("Cantidad"),
-                        size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {},
-                      ),
-                      DataColumn2(
-                        label: Text("Producto"),
-                        size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {},
-                      ),
-                      DataColumn2(
-                        label: Text("Producto Extra"),
-                        size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {},
-                      ),
-                      DataColumn2(
-                        label: Text("Precio Total"),
-                        size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {},
-                      ),
-                      DataColumn2(
-                        label: Text("Observación"),
-                        size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {},
-                      ),
-                      DataColumn2(
-                        label: Text("Comentario"),
-                        size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {},
-                      ),
-                      DataColumn2(
-                        label: SelectFilterNoId('Status', 'equals/status',
-                            statusController, listStatus),
-                        size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {},
-                      ),
-                      DataColumn2(
-                        label: SelectFilter('Vendedor', 'equals/id_comercial',
-                            vendedorController, listvendedores),
-                        size: ColumnSize.S,
-                        // numeric: true,
-                        onSort: (columnIndex, ascending) {
-                          // sortFunc("Name_Comercial");
-                        },
-                      ),
-                      DataColumn2(
-                        label: SelectFilter(
-                            'Transportadora',
-                            'equals/transportadora.transportadora_id',
-                            transportadorasController,
-                            listtransportadores),
-                        size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {
-                          // sortFunc("Estado_Interno");
-                        },
-                      ),
-                      DataColumn2(
-                        label: Text("Operador"),
-                        size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {},
-                      ),
-                      DataColumn2(
-                        label: Text("Estado Devolución"),
-                        size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {},
-                      ),
-                      DataColumn2(
-                        label: const Text('Fecha Marcar TI'),
-                        size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {
-                          // sortFunc("Fecha");
-                        },
-                      ),
-                      DataColumn2(
-                        label: const Text('Numero Intentos'),
-                        size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {
-                          // sortFunc("Fecha");
-                        },
-                      ),
-                      // data['novedades'][index]['try']
-                    ],
-                    rows: List<DataRow>.generate(data.length, (index) {
-                      final color =
-                          index % 2 == 0 ? Colors.grey[400] : Colors.white;
+                            DataColumn2(
+                              label: const Text('Código'),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Ciudad"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Nombre Cliente"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Teléfono Cliente"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Dirección"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Cantidad"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Producto"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Producto Extra"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Precio Total"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Observación"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Comentario"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: SelectFilterNoId('Status', 'equals/status',
+                                  statusController, listStatus),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: SelectFilter(
+                                  'Vendedor',
+                                  'equals/id_comercial',
+                                  vendedorController,
+                                  listvendedores),
+                              size: ColumnSize.S,
+                              // numeric: true,
+                              onSort: (columnIndex, ascending) {
+                                // sortFunc("Name_Comercial");
+                              },
+                            ),
+                            DataColumn2(
+                              label: SelectFilter(
+                                  'Transportadora',
+                                  'equals/transportadora.transportadora_id',
+                                  transportadorasController,
+                                  listtransportadores),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {
+                                // sortFunc("Estado_Interno");
+                              },
+                            ),
+                            DataColumn2(
+                              label: Text("Operador"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Estado Devolución"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: const Text('Fecha Marcar TI'),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {
+                                // sortFunc("Fecha");
+                              },
+                            ),
+                            DataColumn2(
+                              label: const Text('Numero Intentos'),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {
+                                // sortFunc("Fecha");
+                              },
+                            ),
+                            // data['novedades'][index]['try']
+                          ],
+                          rows: List<DataRow>.generate(data.length, (index) {
+                            final color = index % 2 == 0
+                                ? Colors.grey[400]
+                                : Colors.white;
 
-                      return DataRow(
-                          color: MaterialStateColor.resolveWith(
-                              (states) => color!),
-                          cells: getRows(index));
-                    }))),
-          ],
-        ),
-      ),
+                            return DataRow(
+                                color: MaterialStateColor.resolveWith(
+                                    (states) => color!),
+                                cells: getRows(index));
+                          }))),
+                ],
+              ),
+              context)
+
+          // Column(
+          //   children: [
+          //     _dates(context),
+          //     SizedBox(
+          //       height: 10,
+          //     ),
+          //     Container(
+          //         width: double.infinity,
+          //         color: Colors.white,
+          //         padding: EdgeInsets.only(top: 5, bottom: 5),
+          //         child: SizedBox(
+          //           child: responsive(
+          //               Row(
+          //                 children: [
+          //                   Expanded(
+          //                     child: _modelTextField(
+          //                         text: "Buscar",
+          //                         controller: _controllers.searchController),
+          //                   ),
+          //                   Expanded(
+          //                     child: Row(
+          //                       children: [
+          //                         Container(
+          //                           padding:
+          //                               const EdgeInsets.only(left: 15, right: 5),
+          //                           child: Text(
+          //                             "Registros: ${total}",
+          //                             style: const TextStyle(
+          //                                 fontWeight: FontWeight.bold,
+          //                                 color: Colors.black),
+          //                           ),
+          //                         ),
+          //                       ],
+          //                     ),
+          //                   ),
+          //                   Expanded(child: numberPaginator()),
+          //                 ],
+          //               ),
+          //               Column(
+          //                 children: [
+          //                   Container(
+          //                     child: _modelTextField(
+          //                         text: "Buscar",
+          //                         controller: _controllers.searchController),
+          //                   ),
+          //                   Row(
+          //                     children: [
+          //                       Container(
+          //                         padding:
+          //                             const EdgeInsets.only(left: 15, right: 5),
+          //                         child: Text(
+          //                           "Registros: ${total}",
+          //                           style: const TextStyle(
+          //                               fontWeight: FontWeight.bold,
+          //                               color: Colors.black),
+          //                         ),
+          //                       ),
+          //                     ],
+          //                   ),
+          //                   numberPaginator(),
+          //                 ],
+          //               ),
+          //               context),
+          //         )),
+          //     SizedBox(
+          //       height: 10,
+          //     ),
+          //     Expanded(
+          //         child: DataTable2(
+          //             scrollController: _scrollController,
+          //             decoration: BoxDecoration(
+          //               color: Colors.white,
+          //               borderRadius: const BorderRadius.all(Radius.circular(4)),
+          //               border: Border.all(color: Colors.blueGrey),
+          //             ),
+          //             headingRowHeight: 63,
+          //             headingTextStyle: const TextStyle(
+          //                 fontWeight: FontWeight.bold, color: Colors.black),
+          //             dataTextStyle: const TextStyle(
+          //                 fontSize: 12,
+          //                 fontWeight: FontWeight.bold,
+          //                 color: Colors.black),
+          //             columnSpacing: 5,
+          //             horizontalMargin: 5,
+          //             minWidth: 2500,
+          //             columns: [
+          //               DataColumn2(
+          //                 label: Text("Fecha Entrega"),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+
+          //               DataColumn2(
+          //                 label: const Text('Código'),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: Text("Ciudad"),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: Text("Nombre Cliente"),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: Text("Teléfono Cliente"),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: Text("Dirección"),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: Text("Cantidad"),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: Text("Producto"),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: Text("Producto Extra"),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: Text("Precio Total"),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: Text("Observación"),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: Text("Comentario"),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: SelectFilterNoId('Status', 'equals/status',
+          //                     statusController, listStatus),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: SelectFilter('Vendedor', 'equals/id_comercial',
+          //                     vendedorController, listvendedores),
+          //                 size: ColumnSize.S,
+          //                 // numeric: true,
+          //                 onSort: (columnIndex, ascending) {
+          //                   // sortFunc("Name_Comercial");
+          //                 },
+          //               ),
+          //               DataColumn2(
+          //                 label: SelectFilter(
+          //                     'Transportadora',
+          //                     'equals/transportadora.transportadora_id',
+          //                     transportadorasController,
+          //                     listtransportadores),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {
+          //                   // sortFunc("Estado_Interno");
+          //                 },
+          //               ),
+          //               DataColumn2(
+          //                 label: Text("Operador"),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: Text("Estado Devolución"),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: const Text('Fecha Marcar TI'),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {
+          //                   // sortFunc("Fecha");
+          //                 },
+          //               ),
+          //               DataColumn2(
+          //                 label: const Text('Numero Intentos'),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {
+          //                   // sortFunc("Fecha");
+          //                 },
+          //               ),
+          //               // data['novedades'][index]['try']
+          //             ],
+          //             rows: List<DataRow>.generate(data.length, (index) {
+          //               final color =
+          //                   index % 2 == 0 ? Colors.grey[400] : Colors.white;
+
+          //               return DataRow(
+          //                   color: MaterialStateColor.resolveWith(
+          //                       (states) => color!),
+          //                   cells: getRows(index));
+          //             }))),
+          //   ],
+          // ),
+          ),
     );
   }
 
@@ -890,8 +1326,272 @@ class _NoveltiesLState extends State<NoveltiesL> {
                   ],
                 ),
               ),
+              SizedBox(
+                width: 10,
+              ),
+              ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(
+                    Colors.green,
+                  ),
+                ),
+                onPressed: () async {
+                  // Mostrar indicador de carga antes de iniciar la descarga
+                  getLoadingModal(context,
+                      true); // Asumiendo que esta función muestra un modal de carga.
+
+                  try {
+                    // Suponiendo que tu función necesita parámetros como 'populate', 'defaultArrayFiltersAnd', etc.
+                    var response =
+                        await Connections().getOrdersForNoveltiesByDatesLaravel(
+                      populate,
+                      defaultArrayFiltersAnd,
+                      arrayFiltersAnd,
+                      arrayFiltersOr,
+                      not,
+                      1,
+                      100000,
+                      _controllers.searchController.text,
+                      sortFieldDefaultValue,
+                      sharedPrefs!.getString("dateDesdeLogistica").toString(),
+                      sharedPrefs!.getString("dateHastaLogistica").toString(),
+                    );
+
+                    // Suponiendo que 'generateExcelFileWithData' toma la lista de datos como parámetro
+                    await getReport.generateExcelFileWithData(response['data']);
+
+                    // Si llegamos aquí, la operación fue exitosa y cerramos el modal de carga
+                    Navigator.of(context).pop();
+                  } catch (e) {
+                    // Cerrar el modal de carga si hay un error
+                    Navigator.of(context).pop();
+
+                    // Mostrar un mensaje de error
+                    _showErrorSnackBar(context,
+                        "Ha ocurrido un error al generar el reporte: $e");
+                  }
+                },
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Icon(Icons.filter_alt),
+                    // SizedBox(width: 8),
+                    Text(
+                      'Reportes',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
+        ],
+      ),
+    );
+  }
+
+  SizedBox _datesMovil(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              TextButton(
+                  onPressed: () async {
+                    var results = await showCalendarDatePicker2Dialog(
+                      context: context,
+                      config: CalendarDatePicker2WithActionButtonsConfig(
+                        dayTextStyle: TextStyle(fontWeight: FontWeight.bold),
+                        yearTextStyle: TextStyle(fontWeight: FontWeight.bold),
+                        selectedYearTextStyle:
+                            TextStyle(fontWeight: FontWeight.bold),
+                        weekdayLabelTextStyle:
+                            TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      dialogSize: const Size(325, 400),
+                      value: [],
+                      borderRadius: BorderRadius.circular(15),
+                    );
+                    setState(() {
+                      if (results != null) {
+                        String fechaOriginal = results![0]
+                            .toString()
+                            .split(" ")[0]
+                            .split('-')
+                            .reversed
+                            .join('-')
+                            .replaceAll("-", "/");
+                        List<String> componentes = fechaOriginal.split('/');
+
+                        String dia = int.parse(componentes[0]).toString();
+                        String mes = int.parse(componentes[1]).toString();
+                        String anio = componentes[2];
+
+                        String nuevaFecha = "$dia/$mes/$anio";
+
+                        sharedPrefs!
+                            .setString("dateDesdeLogistica", nuevaFecha);
+                      }
+                    });
+                  },
+                  child: Text(
+                    "DESDE: ${sharedPrefs!.getString("dateDesdeLogistica")}",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  )),
+              SizedBox(
+                width: 10,
+              ),
+              TextButton(
+                  onPressed: () async {
+                    var results = await showCalendarDatePicker2Dialog(
+                      context: context,
+                      config: CalendarDatePicker2WithActionButtonsConfig(
+                        dayTextStyle: TextStyle(fontWeight: FontWeight.bold),
+                        yearTextStyle: TextStyle(fontWeight: FontWeight.bold),
+                        selectedYearTextStyle:
+                            TextStyle(fontWeight: FontWeight.bold),
+                        weekdayLabelTextStyle:
+                            TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      dialogSize: const Size(325, 400),
+                      value: [],
+                      borderRadius: BorderRadius.circular(15),
+                    );
+                    setState(() {
+                      if (results != null) {
+                        String fechaOriginal = results![0]
+                            .toString()
+                            .split(" ")[0]
+                            .split('-')
+                            .reversed
+                            .join('-')
+                            .replaceAll("-", "/");
+                        List<String> componentes = fechaOriginal.split('/');
+
+                        String dia = int.parse(componentes[0]).toString();
+                        String mes = int.parse(componentes[1]).toString();
+                        String anio = componentes[2];
+
+                        String nuevaFecha = "$dia/$mes/$anio";
+
+                        sharedPrefs!
+                            .setString("dateHastaLogistica", nuevaFecha);
+                      }
+                    });
+                  },
+                  child: Text(
+                    "HASTA: ${sharedPrefs!.getString("dateHastaLogistica")}",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  )),
+              SizedBox(
+                width: 10,
+              ),
+            ],
+          ),
+          Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                    onPressed: () async {
+                      setState(() {
+                        _search.clear();
+                      });
+                      await loadData();
+                    },
+                    child: Text(
+                      "BUSCAR",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    )),
+                SizedBox(
+                  width: 10,
+                ),
+                ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(
+                      Color.fromARGB(255, 167, 7, 7),
+                    ),
+                  ),
+                  onPressed: () async {
+                    setState(() {
+                      limpiar();
+                      loadData();
+                    });
+                  },
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Icon(Icons.filter_alt),
+                      // SizedBox(width: 8),
+                      Text(
+                        'Quitar Filtros',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(
+                      Colors.green,
+                    ),
+                  ),
+                  onPressed: () async {
+                    // Mostrar indicador de carga antes de iniciar la descarga
+                    getLoadingModal(context,
+                        true); // Asumiendo que esta función muestra un modal de carga.
+
+                    try {
+                      // Suponiendo que tu función necesita parámetros como 'populate', 'defaultArrayFiltersAnd', etc.
+                      var response = await Connections()
+                          .getOrdersForNoveltiesByDatesLaravel(
+                        populate,
+                        defaultArrayFiltersAnd,
+                        arrayFiltersAnd,
+                        arrayFiltersOr,
+                        not,
+                        1,
+                        100000,
+                        _controllers.searchController.text,
+                        sortFieldDefaultValue,
+                        sharedPrefs!.getString("dateDesdeLogistica").toString(),
+                        sharedPrefs!.getString("dateHastaLogistica").toString(),
+                      );
+
+                      // Suponiendo que 'generateExcelFileWithData' toma la lista de datos como parámetro
+                      await getReport
+                          .generateExcelFileWithData(response['data']);
+
+                      // Si llegamos aquí, la operación fue exitosa y cerramos el modal de carga
+                      Navigator.of(context).pop();
+                    } catch (e) {
+                      // Cerrar el modal de carga si hay un error
+                      Navigator.of(context).pop();
+
+                      // Mostrar un mensaje de error
+                      _showErrorSnackBar(context,
+                          "Ha ocurrido un error al generar el reporte: $e");
+                    }
+                  },
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Icon(Icons.filter_alt),
+                      // SizedBox(width: 8),
+                      Text(
+                        'Reportes',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ])
         ],
       ),
     );
@@ -1155,24 +1855,24 @@ class _NoveltiesLState extends State<NoveltiesL> {
         });
   }
 
-  Color? GetColor(state) {
+    Color? GetColor(state) {
     int color = 0xFF000000;
 
     switch (state) {
       case "ENTREGADO":
-        color = 0xFF33FF6D;
+        color = 0xFF66BB6A;
         break;
       case "NOVEDAD":
         color = 0xFFD6DC27;
         break;
       case "NOVEDAD RESUELTA":
-        color = 0xFF6A1B9A;
+        color = 0xFFFF5722;
         break;
       case "NO ENTREGADO":
-        color = 0xFFFF3333;
+        color = 0xFFF32121;
         break;
       case "REAGENDADO":
-        color = 0xFFFA37BF;
+        color = 0xFFE320F1;
         break;
       case "EN RUTA":
         color = 0xFF3341FF;
@@ -1181,7 +1881,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
         color = 0xFF4B4C4B;
         break;
       case "PEDIDO PROGRAMADO":
-        color = 0xFFEF7F0E;
+        color = 0xFF7E84F2;
         break;
 
       default:
