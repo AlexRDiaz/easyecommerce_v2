@@ -69,12 +69,17 @@ class _SubProviderViewState extends State<SubProviderView> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextField(
-                controller: _searchController,
+                controller: _subProviderController.searchController,
                 decoration: InputDecoration(
                   labelText: 'Buscar proveedor',
                   prefixIcon: Icon(Icons.search),
                 ),
-                onChanged: (value) {
+                onSubmitted: (value) {
+                  _subProviderController.searchController.text = value;
+                  setState(() {
+                    _getSubProviderModelData();
+                  });
+
                   // Agrega aquí la lógica para filtrar la lista según la búsqueda
                 },
               ),
@@ -108,7 +113,7 @@ class _SubProviderViewState extends State<SubProviderView> {
               height: 10,
             ),
             FutureBuilder<List<UserModel>>(
-              future: _getProviderModelData(),
+              future: _getSubProviderModelData(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
@@ -214,7 +219,7 @@ class _SubProviderViewState extends State<SubProviderView> {
     );
   }
 
-  Future<List<UserModel>> _getProviderModelData() async {
+  Future<List<UserModel>> _getSubProviderModelData() async {
     await _subProviderController.loadSubProviders();
     return _subProviderController.users;
   }

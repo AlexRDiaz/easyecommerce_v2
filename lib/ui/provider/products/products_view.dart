@@ -89,7 +89,7 @@ class _ProductsViewState extends State<ProductsView> {
       });
       //
     } catch (e) {
-      Navigator.pop(context);
+      //     Navigator.pop(context);
       SnackBarHelper.showErrorSnackBar(
           context, "Ha ocurrido un error de conexión");
     }

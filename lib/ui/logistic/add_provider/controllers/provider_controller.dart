@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
@@ -5,6 +6,7 @@ import 'package:frontend/models/user_model.dart';
 
 class ProviderController extends ControllerMVC {
   List<ProviderModel> providers = [];
+  TextEditingController searchController = TextEditingController();
 
   // Método para agregar un nuevo proveedor
   addProvider(ProviderModel provider) async {
@@ -28,7 +30,7 @@ class ProviderController extends ControllerMVC {
 
   Future<void> loadProviders() async {
     try {
-      var data = await Connections().getProviders();
+      var data = await Connections().getProviders(searchController.text);
       if (data == 1) {
         // Maneja el caso de error 1
         print('Error: Status Code 1');

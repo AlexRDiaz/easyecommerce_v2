@@ -14,15 +14,17 @@ class ProviderView extends StatefulWidget {
 
 class _ProviderViewState extends State<ProviderView> {
   late ProviderController _providerController;
-  TextEditingController _searchController = TextEditingController();
   ProviderModel _selctedProvider = ProviderModel();
   bool edited = false;
   bool isFilterIconVisible = false;
+
+  TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _providerController = ProviderController();
+    //  _providerController.searchController.text = "";
   }
 
   hasEdited(value) {
@@ -57,19 +59,24 @@ class _ProviderViewState extends State<ProviderView> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.only(left: 350, right: 350),
+        padding: EdgeInsets.only(
+            left: MediaQuery.of(context).size.width * 0.2,
+            right: MediaQuery.of(context).size.width * 0.2),
         child: Column(
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextField(
                 controller: _searchController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Buscar proveedor',
                   prefixIcon: Icon(Icons.search),
                 ),
-                onChanged: (value) {
-                  // Agrega aquí la lógica para filtrar la lista según la búsqueda
+                onSubmitted: (value) {
+                  _providerController.searchController.text = value;
+                  setState(() {
+                    _getProviderModelData();
+                  });
                 },
               ),
             ),
@@ -116,6 +123,15 @@ class _ProviderViewState extends State<ProviderView> {
                             columnName: 'username',
                             label: FilterIcon(
                               name: "PROPIETARIO",
+                              onFilterPressed: () {
+                                // Lógica para aplicar el filtro
+                              },
+                            )),
+                        GridColumn(
+                            autoFitPadding: EdgeInsets.all(30.0),
+                            columnName: 'email',
+                            label: FilterIcon(
+                              name: "EMAIL",
                               onFilterPressed: () {
                                 // Lógica para aplicar el filtro
                               },
@@ -233,6 +249,7 @@ class ProviderModelDataSource extends DataGridSource {
               DataGridCell<String>(columnName: 'name', value: e.name),
               DataGridCell<String>(
                   columnName: 'username', value: e.user!.username),
+              DataGridCell<String>(columnName: 'email', value: e.user!.email),
               DataGridCell<String>(
                   columnName: 'description', value: e.description),
               DataGridCell<ProviderModel>(

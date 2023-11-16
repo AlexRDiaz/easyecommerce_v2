@@ -2970,7 +2970,6 @@ class Connections {
 
   getOrdersForTransportPRV(code) async {
     print(
-
         "$server/api/pedidos-shopifies?populate=transportadora&populate=pedido_fecha&populate=sub_ruta&populate=operadore&populate=operadore.user&populate=users&filters[\$and][0][transportadora][id][\$eq]=${sharedPrefs!.getString("idTransportadora").toString()}&filters[\$or][1][NumeroOrden][\$contains]=$code&filters[Estado_Logistico][\$eq]=ENVIADO&filters&filters[\$or][2][CiudadShipping][\$contains]=$code&filters[\$or][3][NombreShipping][\$contains]=$code&filters[\$or][4][DireccionShipping][\$contains]=$code&filters[\$or][5][TelefonoShipping][\$contains]=$code&filters[\$or][6][ProductoP][\$contains]=$code&filters[\$or][7][ProductoExtra][\$contains]=$code&filters[\$or][8][PrecioTotal][\$contains]=$code&filters[\$or][9][Status][\$contains]=$code&filters[\$or][10][Estado_Interno][\$contains]=$code&filters[\$or][11][Estado_Logistico][\$contains]=$code&filters[\$or][12][pedido_fecha][Fecha][\$contains]=$code&filters[\$or][13][sub_ruta][Titulo][\$contains]=$code&filters[\$or][14][operadore][user][username][\$contains]=$code&filters[\$or][15][Cantidad_Total][\$contains]=$code&filters[Status][\$eq]=PEDIDO PROGRAMADO&filters[Estado_Interno][\$eq]=CONFIRMADO&pagination[limit]=-1");
     var request = await http.get(
       Uri.parse(
@@ -6202,10 +6201,10 @@ class Connections {
     }
   }
 
-  getProviders() async {
+  getProviders(search) async {
     try {
       var response = await http.get(
-        Uri.parse("$serverLaravel/api/providers/all"),
+        Uri.parse("$serverLaravel/api/providers/all/$search"),
         headers: {'Content-Type': 'application/json'},
       );
       if (response.statusCode == 200) {
@@ -6220,11 +6219,11 @@ class Connections {
     }
   }
 
-  getSubProviders() async {
+  getSubProviders(search) async {
     try {
       var response = await http.get(
         Uri.parse(
-            "$serverLaravel/api/users/subproviders/${sharedPrefs!.getString("id")}"),
+            "$serverLaravel/api/users/subproviders/${sharedPrefs!.getString("id")}/$search"),
         headers: {'Content-Type': 'application/json'},
       );
       if (response.statusCode == 200) {
