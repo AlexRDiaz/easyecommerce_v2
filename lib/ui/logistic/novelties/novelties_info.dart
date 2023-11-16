@@ -9,6 +9,7 @@ import 'package:frontend/main.dart';
 import 'package:frontend/ui/operator/orders_operator/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/update_status_operator/update_status_operator.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class NoveltiesInfo extends StatefulWidget {
@@ -71,6 +72,14 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
     return (value ?? defaultValue).toString();
   }
 
+  String formatDate(dateStringFromDatabase) {
+    DateTime dateTime = DateTime.parse(dateStringFromDatabase);
+    Duration offset = const Duration(hours: -5);
+    dateTime = dateTime.toUtc().add(offset);
+    String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
+    return formattedDate;
+  }
+
   @override
   Widget build(BuildContext context) {
     String transportadoraNombre =
@@ -128,7 +137,7 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Marca Tiempo Entrega: ${safeValue(data['status_last_modified_at'].toString())}",
+                          "  Marca Tiempo Entrega: ${formatDate(safeValue(data['status_last_modified_at'].toString()))}",
                           style: TextStyle(
                               fontWeight: FontWeight.normal, fontSize: 18),
                         ),
@@ -362,6 +371,51 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
                             ),
                           ],
                         ),
+                        Container(
+                          height: 500,
+                          width: 500,
+                          child: Column(
+                            children: [
+                              data['archivo'].toString().isEmpty ||
+                                      data['archivo'].toString() == "null"
+                                  ? Container()
+                                  : Container(
+                                      margin: EdgeInsets.only(top:20.0),
+                                      child: Image.network(
+                                        "$generalServer${data['archivo'].toString()}",
+                                        fit: BoxFit.fill,
+                                      )),
+                            ],
+                          ),
+                        ),
+                        // Otros widgets adicionales para cada elemento
+
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Divider(
+                          height: 1.0,
+                          color: Colors.grey[200],
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.warning,
+                              color: ColorsSystem().colorSelectMenu,
+                            ),
+                            Text(
+                              "  Novedades ",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: ColorsSystem().colorSelectMenu),
+                            ),
+                          ],
+                        ),
                         SizedBox(
                           height: 10,
                         ),
@@ -418,21 +472,6 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
                             },
                           ),
                         ),
-
-                        // data['novedades'][0]['url_image'].toString().isEmpty ||
-                        //         data['novedades'][0]['url_image'].toString() ==
-                        //             "null"
-                        //     ? Container()
-                        //     : Container(
-                        //         decoration: BoxDecoration(
-                        //             border: Border.all(width: 1.0,color: Color.fromRGBO(104, 103, 103, 1)),
-                        //             borderRadius: BorderRadius.circular(5.0)),
-                        //         margin: EdgeInsets.only(top: 20.0),
-                        //         padding: EdgeInsets.all(5.0),
-                        //         child: Image.network(
-                        //           "$generalServer${data['novedades'][0]['url_image'].toString()}",
-                        //           fit: BoxFit.fill,
-                        //         )),
                         const SizedBox(
                           height: 20,
                         ),

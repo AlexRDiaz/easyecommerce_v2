@@ -22,13 +22,17 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
   late TextEditingController _searchController;
   late Future<List<WarehouseModel>> _futureWarehouseData;
 
-  @override
   void initState() {
+    super.initState();
     _controller = WrehouseController();
     _searchController = TextEditingController();
     _futureWarehouseData = _loadWarehouses();
-    _loadWarehouses();
-    super.initState();
+
+    _searchController.addListener(() {
+      setState(() {
+        _futureWarehouseData = _loadWarehouses(_searchController.text);
+      });
+    });
   }
 
   @override
@@ -170,9 +174,18 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
     );
   }
 
-  Future<List<WarehouseModel>> _loadWarehouses() async {
+  Future<List<WarehouseModel>> _loadWarehouses([String query = '']) async {
     await _controller.loadWarehouses();
-    return _controller.warehouses;
+    if (query.isEmpty) {
+      return _controller.warehouses;
+    } else {
+      return _controller.warehouses.where((warehouse) {
+        // Puedes ajustar los criterios de búsqueda según tus necesidades
+        return warehouse.branchName!
+            .toLowerCase()
+            .contains(query.toLowerCase());
+      }).toList();
+    }
   }
 
   Future<dynamic> openDialog(BuildContext context) {
@@ -214,8 +227,7 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
               padding: EdgeInsets.all(
                   20.0), // Ancho del 80% del ancho de la pantalla
               child: Column(
-                mainAxisSize: MainAxisSize
-                    .min,
+                mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Row(
                     children: [
@@ -232,7 +244,6 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
                           _controller.deleteWarehouse(warehouse.id!).then((_) {
                             Navigator.of(context).pop();
                             setState(() {
-                            
                               _futureWarehouseData = _loadWarehouses();
                               SnackBarHelper.showOkSnackBar(
                                   context, "BODEGA ELIMINADA.");
