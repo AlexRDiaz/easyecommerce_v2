@@ -12,6 +12,7 @@ import 'package:frontend/ui/logistic/add_provider/providers_view.dart';
 import 'package:frontend/ui/logistic/add_sellers/add_sellers.dart';
 import 'package:frontend/ui/logistic/add_stock_to_vendors/add_stock_to_vendors.dart';
 import 'package:frontend/ui/logistic/assign_routes/assign_routes.dart';
+import 'package:frontend/ui/logistic/audit/audit_data.dart';
 import 'package:frontend/ui/logistic/dashboard/dashboard.dart';
 import 'package:frontend/ui/logistic/delivery_historial/delivery_historial.dart';
 import 'package:frontend/ui/logistic/delivery_status/delivery_status.dart';
@@ -152,6 +153,10 @@ class _LayoutPageState extends State<LayoutPage> {
       getOption(
         "Soporte Remoto",
         RemoteSupport(),
+      ),
+      getOption(
+        "Auditoria",
+        Audit(),
       ),
       getOption(
         "Devoluciones",

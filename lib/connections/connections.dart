@@ -217,6 +217,14 @@ class Connections {
     var decodeDataUser = json.decode(responseUser);
     return decodeDataUser['user'];
   }
+  getPersonalInfoAccountforConfirmOrder(idUser) async {
+
+    var getUserSpecificRequest =
+        await http.get(Uri.parse("$serverLaravel/api/users/$idUser"));
+    var responseUser = await getUserSpecificRequest.body;
+    var decodeDataUser = json.decode(responseUser);
+    return decodeDataUser['user'];
+  }
 
   // SELLERS
   // FILTER BY USERNAME AND NombreComercial
@@ -1344,7 +1352,6 @@ class Connections {
       List filtersAndAll = [];
       filtersAndAll.addAll(and);
       filtersAndAll.addAll(defaultAnd);
-
       var request = await http.post(
           Uri.parse("$serverLaravel/api/logistic/filter/novelties"),
           headers: {'Content-Type': 'application/json'},
