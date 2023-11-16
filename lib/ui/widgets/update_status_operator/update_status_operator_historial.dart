@@ -431,25 +431,8 @@ class _UpdateStatusOperatorHistorialState
     );
   }
 
-  void dialogEntregado(String resTransaction) {
-    if (resTransaction != "") {
-      // ignore: use_build_context_synchronously
-      AwesomeDialog(
-        width: 500,
-        context: context,
-        dialogType: DialogType.error,
-        animType: AnimType.rightSlide,
-        title: resTransaction,
-        //  desc: 'Vuelve a intentarlo',
-        btnCancel: Container(),
-        btnOkText: "Aceptar",
-        btnOkColor: Colors.green,
-        btnCancelOnPress: () {},
-        btnOkOnPress: () {
-          Navigator.pop(context);
-        },
-      ).show();
-    } else {
+  void dialogEntregado(resCredit, resDebit, resUpdate, datacostos) {
+    if (resCredit == 0 && resDebit == 0 && resUpdate == 0) {
       // ignore: use_build_context_synchronously
       AwesomeDialog(
         width: 500,
@@ -468,6 +451,24 @@ class _UpdateStatusOperatorHistorialState
           Navigator.pop(context);
         },
       ).show();
+    } else {
+      // ignore: use_build_context_synchronously
+
+      AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.rightSlide,
+        title: "Error al realizar la transaccion",
+        //  desc: 'Vuelve a intentarlo',
+        btnCancel: Container(),
+        btnOkText: "Aceptar",
+        btnOkColor: Colors.green,
+        btnCancelOnPress: () {},
+        btnOkOnPress: () {
+          Navigator.pop(context);
+        },
+      ).show();
     }
   }
 
@@ -481,60 +482,53 @@ class _UpdateStatusOperatorHistorialState
         "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
         "recaudo",
         "recaudo de precio total de pedido  ENTREGADO");
-    if (resCredit == 0) {
-      var resDebit = await Connections().postDebit(
-          "${datacostos['users'][0]['vendedores'][0]['id_master']}",
-          "${datacostos['users'][0]['vendedores'][0]['costo_envio']}",
-          "${datacostos['id']}",
-          "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-          "envio",
-          "costo de envio de pedido entregado");
 
-      await Connections().updatenueva(widget.id, {
-        "costo_envio": datacostos['users'][0]['vendedores'][0]['costo_envio'],
-      });
+    var resDebit = await Connections().postDebit(
+        "${datacostos['users'][0]['vendedores'][0]['id_master']}",
+        "${datacostos['users'][0]['vendedores'][0]['costo_envio']}",
+        "${datacostos['id']}",
+        "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
+        "envio",
+        "costo de envio de pedido entregado");
 
-      if (resDebit == 0) {
-        // var respp = await Connections()
-        //     .updateOrderStatusOperatorEntregadoHistorial(
-        //         "ENTREGADO",
-        //         tipo,
-        //         _controllerModalText.text,
-        //         "",
-        //         widget.id);
+    await Connections().updatenueva(widget.id, {
+      "costo_envio": datacostos['users'][0]['vendedores'][0]['costo_envio'],
+    });
 
-        //upt for the above and status_last_modified_by and by
-        await Connections().updateOrderWithTime(
-            widget.id.toString(), "status:ENTREGADO", idUser, "", {
-          "tipo_pago": tipo,
-          "comentario": _controllerModalText.text,
-          "archivo": ""
-        });
+    // var respp = await Connections()
+    //     .updateOrderStatusOperatorEntregadoHistorial(
+    //         "ENTREGADO",
+    //         tipo,
+    //         _controllerModalText.text,
+    //         "",
+    //         widget.id);
 
-        if (datacostos['users'][0]['vendedores'][0]['referer'] != null) {
-          var refered = await getRefered(
-              datacostos['users'][0]['vendedores'][0]['referer']);
+    //upt for the above and status_last_modified_by and by
+    var resUpdate = await Connections().updateOrderWithTime(
+        widget.id.toString(), "status:ENTREGADO", idUser, "", {
+      "tipo_pago": tipo,
+      "comentario": _controllerModalText.text,
+      "archivo": ""
+    });
 
-          if (refered != null) {
-            if (refered['referer_cost'] != null) {
-              await Connections().postCredit(
-                  "${datacostos['users'][0]['vendedores'][0]['referer']}",
-                  "${refered['referer_cost']}",
-                  "${datacostos['id']}",
-                  "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                  "referido",
-                  "acreditacion por comision de vendedor referido");
-            }
-          }
+    if (datacostos['users'][0]['vendedores'][0]['referer'] != null) {
+      var refered =
+          await getRefered(datacostos['users'][0]['vendedores'][0]['referer']);
+
+      if (refered != null) {
+        if (refered['referer_cost'] != null) {
+          await Connections().postCredit(
+              "${datacostos['users'][0]['vendedores'][0]['referer']}",
+              "${refered['referer_cost']}",
+              "${datacostos['id']}",
+              "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
+              "referido",
+              "acreditacion por comision de vendedor referido");
         }
-      } else {
-        resTransaction = "Ha ocurrido un error al ejecutar la transacción";
       }
-    } else {
-      resTransaction = "Ha ocurrido un error al ejecutar la transacción";
     }
 
-    dialogEntregado(resTransaction);
+    dialogEntregado(resCredit, resDebit, resUpdate, datacostos);
   }
 
   Container _NoEntregado() {
