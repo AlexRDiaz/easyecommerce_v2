@@ -391,9 +391,15 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                                             "${data[index]['users'] != null ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal'].toString()}-${data[index]['numero_orden']}"
                                                 .toString();
                                         optionsCheckBox[index]['date'] =
-                                            data[index]['pedido_fecha'][0]
-                                                    ['fecha']
-                                                .toString();
+                                            data[index]
+                                                            ['pedido_fecha'] !=
+                                                        null &&
+                                                    data[index]['pedido_fecha']
+                                                        .isNotEmpty
+                                                ? data[index]['pedido_fecha'][0]
+                                                        ['fecha']
+                                                    .toString()
+                                                : "";
                                         optionsCheckBox[index]['city'] =
                                             data[index]['ciudad_shipping']
                                                 .toString();
@@ -438,7 +444,7 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                                   })),
                               DataCell(
                                   Text(
-                                      "${data[index]["users"][0]["vendedores"][0]["nombre_comercial"].toString()}-${data[index]['numero_orden']}"
+                                      "${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden']}"
                                           .toString()), onTap: () {
                                 info(context, index);
                               }),
@@ -828,8 +834,10 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
             optionsCheckBox[i]['numPedido'] =
                 "${data[i]['users'] != null ? data[i]['users'][0]['vendedores'][0]['nombre_comercial'] : data[i]['tienda_temporal'].toString()}-${data[i]['numero_orden']}"
                     .toString();
-            optionsCheckBox[i]['date'] =
-                data[i]['pedido_fecha'][0]['fecha'].toString();
+            optionsCheckBox[i]['date'] = data[i]['pedido_fecha'] != null &&
+                    data[i]['pedido_fecha'].isNotEmpty
+                ? data[i]['pedido_fecha'][0]['fecha'].toString()
+                : "";
             optionsCheckBox[i]['city'] = data[i]['ciudad_shipping'].toString();
             optionsCheckBox[i]['product'] = data[i]['producto_p'].toString();
             optionsCheckBox[i]['extraProduct'] =

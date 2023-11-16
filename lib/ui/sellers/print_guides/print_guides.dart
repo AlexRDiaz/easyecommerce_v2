@@ -418,12 +418,15 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
                               getInfoModal(index);
                             }),
                             DataCell(
-                                Text(data[index]['pedido_fecha'][0]['fecha']
-                                    .toString()), onTap: () {
+                                Text(data[index]['pedido_fecha'] != null &&
+                                        data[index]['pedido_fecha'].isNotEmpty
+                                    ? data[index]['pedido_fecha'][0]['fecha']
+                                        .toString()
+                                    : ""), onTap: () {
                               getInfoModal(index);
                             }),
                             DataCell(Text(
-                                "${data[index]["users"][0]["vendedores"][0]["nombre_comercial"]}-${data[index]['numero_orden']}"
+                                "${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden']}"
                                     .toString())),
                             DataCell(
                                 Text(data[index]['ciudad_shipping'].toString()),
