@@ -5626,8 +5626,6 @@ class Connections {
     }
   }
 
-  //    *
-  // Future updateOrderWithTime(id, key, value, iduser) async {
   Future updateOrderWithTime(id, keyvalue, iduser, from, datarequest) async {
     try {
       var request = await http.put(
@@ -5643,12 +5641,12 @@ class Connections {
       var decodeData = json.decode(response);
 
       if (request.statusCode != 200) {
-        return false;
+        return 1;
       } else {
-        return decodeData;
+        return 0;
       }
     } catch (e) {
-      print(e);
+      return 2;
     }
   }
 
@@ -6337,6 +6335,21 @@ class Connections {
         // print(decodeData);
         return decodeData['providers'];
       } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  cleanTransactionsFailed(id) async {
+    try {
+      var response = await http.put(
+        Uri.parse(
+            "$serverLaravel/api/transacciones/cleanTransactionsFailed/$id"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode != 200) {
         return 1;
       }
     } catch (error) {
