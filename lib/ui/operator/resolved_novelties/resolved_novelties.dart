@@ -505,7 +505,7 @@ class _ResolvedNoveltiesState extends State<ResolvedNovelties> {
                         size: ColumnSize.S,
                         onSort: (columnIndex, ascending) {},
                       ),
-                       DataColumn2(
+                      DataColumn2(
                         label: const Text('Fecha Marcar TI'),
                         size: ColumnSize.S,
                         onSort: (columnIndex, ascending) {
@@ -583,7 +583,7 @@ class _ResolvedNoveltiesState extends State<ResolvedNovelties> {
     Color rowColor = Colors.black;
 
     return [
-       DataCell(
+      DataCell(
           Text(
             data[index]['fecha_entrega'].toString(),
             style: TextStyle(
@@ -704,7 +704,9 @@ class _ResolvedNoveltiesState extends State<ResolvedNovelties> {
       DataCell(
           Text(
             // data[index]['tienda_temporal'].toString(),
-            data[index]['users'][0]['vendedores'][0]['nombre_comercial'],
+            data[index]['users'] != null && data[index]['users'].isNotEmpty
+                ? data[index]['users'][0]['vendedores'][0]['nombre_comercial']
+                : "NaN",
             style: TextStyle(
               color: rowColor,
             ),
@@ -759,7 +761,8 @@ class _ResolvedNoveltiesState extends State<ResolvedNovelties> {
       }),
     ];
   }
-   getLengthArrayMap(List data) {
+
+  getLengthArrayMap(List data) {
     var arraylength = data.length;
     return Text(
       arraylength.toString(),
@@ -769,7 +772,6 @@ class _ResolvedNoveltiesState extends State<ResolvedNovelties> {
               : Colors.black),
     );
   }
-
 
   SizedBox _dates(BuildContext context) {
     return SizedBox(

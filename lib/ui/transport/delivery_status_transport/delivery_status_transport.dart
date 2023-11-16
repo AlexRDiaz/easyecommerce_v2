@@ -161,7 +161,6 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
   }
 
   loadData(context) async {
-    print("thissssssss");
     isLoading = true;
     currentPage = 1;
 
@@ -661,7 +660,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
               child: Text(
                   style: TextStyle(
                       color: GetColor(data[index]['status'].toString())!),
-                  '${data[index]['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data[index]['numero_orden'].toString()}'),
+                  '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
               onTap: () {
                 OpenShowDialog(context, index);
               })),
