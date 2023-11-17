@@ -5158,23 +5158,21 @@ class Connections {
 
   Future updateOrderRouteAndTransportLaravel(route, transport, id) async {
     try {
-      // var body2= json.encode({"ruta": route, "transportadora": transport});
-      // print(body2);
       var request = await http.put(
           Uri.parse(
               "$serverLaravel/api/pedidos-shopify/updateroutetransport/$id"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({"ruta": route, "transportadora": transport}));
       var response = await request.body;
-      var decodeData = json.decode(response);
 
       if (request.statusCode != 200) {
-        return false;
+        return 1;
       } else {
-        return true;
+        var decodeData = json.decode(response);
+        return decodeData;
       }
     } catch (e) {
-      print(e);
+      2;
     }
   }
 

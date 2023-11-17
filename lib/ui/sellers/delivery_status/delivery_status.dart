@@ -805,7 +805,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                     style: TextStyle(
                                         color: GetColor(
                                             data[index]['status'].toString())!),
-                                    '${data[index]['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data[index]['numero_orden'].toString()}'),
+                                    '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
                                 onTap: () {
                               openDialog(context, index);
                             }),
