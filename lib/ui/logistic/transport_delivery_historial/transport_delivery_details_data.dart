@@ -1098,7 +1098,7 @@ class _TransportDeliveryHistoryDetailsDataState
                             numberTienda: response['vendedores'][0]['Telefono2']
                                 .toString(),
                             codigo:
-                                "${data['name_comercial']}-${data['numero_orden']}",
+                                "${data['users'] != null && data['users'].toString() != "[]" ? data['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data['numero_orden']}",
                             numberCliente: "${data['telefono_shipping']}",
                             id: widget.data['id'].toString(),
                             novedades: data['novedades'],

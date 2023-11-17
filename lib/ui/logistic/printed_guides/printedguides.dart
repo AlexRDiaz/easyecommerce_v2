@@ -1032,40 +1032,7 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                 data[i]['observacion'].toString();
             optionsCheckBox[i]['qrLink'] =
                 data[i]['users'][0]['vendedores'][0]['url_tienda'].toString();
-            /*
-            optionsCheckBox[i]['check'] = true;
-            optionsCheckBox[i]['id'] = data[i]['id'].toString();
-            optionsCheckBox[i]['numPedido'] =
-                "${data[i]['attributes']['users']['data'] != null ? data[i]['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['attributes']['Nombre_Comercial'] : data[i]['attributes']['Tienda_Temporal'].toString()}-${data[i]['attributes']['NumeroOrden']}"
-                    .toString();
-            optionsCheckBox[i]['date'] = data[i]['attributes']['pedido_fecha']
-                    ['data']['attributes']['Fecha']
-                .toString();
-            optionsCheckBox[i]['city'] =
-                data[i]['attributes']['CiudadShipping'].toString();
-            optionsCheckBox[i]['product'] =
-                data[i]['attributes']['ProductoP'].toString();
-            optionsCheckBox[i]['extraProduct'] =
-                data[i]['attributes']['ProductoExtra'].toString();
-            optionsCheckBox[i]['quantity'] =
-                data[i]['attributes']['Cantidad_Total'].toString();
-            optionsCheckBox[i]['phone'] =
-                data[i]['attributes']['TelefonoShipping'].toString();
-            optionsCheckBox[i]['price'] =
-                data[i]['attributes']['PrecioTotal'].toString();
-            optionsCheckBox[i]['name'] =
-                data[i]['attributes']['NombreShipping'].toString();
-            optionsCheckBox[i]['transport'] =
-                "${data[i]['attributes']['transportadora']['data'] != null ? data[i]['attributes']['transportadora']['data']['attributes']['Nombre'].toString() : ''}";
-            optionsCheckBox[i]['address'] =
-                data[i]['attributes']['DireccionShipping'].toString();
-            optionsCheckBox[i]['obervation'] =
-                data[i]['attributes']['Observacion'].toString();
-            optionsCheckBox[i]['qrLink'] = data[i]['attributes']['users']
-                        ['data'][0]['attributes']['vendedores']['data'][0]
-                    ['attributes']['Url_Tienda']
-                .toString();
-*/
+
             counterChecks += 1;
           }
           //   print("tamanio a imprimir"+optionsCheckBox.length.toString());

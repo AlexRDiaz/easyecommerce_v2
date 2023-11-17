@@ -1849,7 +1849,7 @@ class _TransportDeliveryHistorialState
           onTap: () {}),
       DataCell(
           Text(data[index]['costo_devolucion'] != null
-              ? data[index]['costo_devolucion']
+              ? data[index]['costo_devolucion'].toString()
               : ""), onTap: () {
         showDialogInfoData(data[index]);
       }),

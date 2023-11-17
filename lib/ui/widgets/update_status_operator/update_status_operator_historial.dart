@@ -431,7 +431,8 @@ class _UpdateStatusOperatorHistorialState
     );
   }
 
-  void dialogEntregado(resCredit, resDebit, resUpdate, datacostos) {
+  Future<void> dialogEntregado(
+      resCredit, resDebit, resUpdate, datacostos) async {
     if (resCredit == 0 && resDebit == 0 && resUpdate == 0) {
       // ignore: use_build_context_synchronously
       AwesomeDialog(
@@ -453,7 +454,7 @@ class _UpdateStatusOperatorHistorialState
       ).show();
     } else {
       // ignore: use_build_context_synchronously
-
+      await Connections().cleanTransactionsFailed(datacostos['id']);
       AwesomeDialog(
         width: 500,
         context: context,
@@ -528,7 +529,7 @@ class _UpdateStatusOperatorHistorialState
       }
     }
 
-    dialogEntregado(resCredit, resDebit, resUpdate, datacostos);
+    dialogEntregado(resCredit, resDebit, resUpdate, datacostos['id']);
   }
 
   Container _NoEntregado() {

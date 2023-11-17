@@ -138,7 +138,7 @@ class _TransportProDeliveryHistoryDetails
                                                                 [0]['Telefono2']
                                                             .toString(),
                                                         codigo:
-                                                            "${data['users'][0]['vendedores'][0]['nombre_comercial']}-${data['numero_orden']}",
+                                                            "${data['users'] != null && data['users'].toString() != "[]" ? data['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data['numero_orden']}",
                                                         numberCliente:
                                                             "${data['telefono_shipping']}",
                                                         id: widget.id,

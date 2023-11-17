@@ -320,7 +320,7 @@ class _TransportDeliveryHistoryDetailsState
                                                                   ['Telefono2']
                                                               .toString(),
                                                       codigo:
-                                                          "${data['attributes']['Name_Comercial']}-${data['attributes']['NumeroOrden']}",
+                                                          "${data['users'] != null && data['users'].toString() != "[]" ? data['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data['attributes']['NumeroOrden']}",
                                                       numberCliente:
                                                           "${data['attributes']['TelefonoShipping']}",
                                                       id: widget.id,

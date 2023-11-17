@@ -4583,17 +4583,21 @@ class Connections {
 
   Future updatenueva(id, datajson) async {
     // {{base_api_laravel}}/api/pedidos-shopify/update/56
-    var request = await http.put(
-        Uri.parse("$serverLaravel/api/pedidos-shopify/update/$id"),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(datajson));
-    var response = await request.body;
-    var decodeData = json.decode(response);
+    try {
+      var request = await http.put(
+          Uri.parse("$serverLaravel/api/pedidos-shopify/update/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(datajson));
+      var response = await request.body;
+      var decodeData = json.decode(response);
 
-    if (request.statusCode != 200) {
-      return false;
-    } else {
-      return decodeData;
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      return 2;
     }
   }
 
@@ -6344,13 +6348,15 @@ class Connections {
 
   cleanTransactionsFailed(id) async {
     try {
-      var response = await http.put(
+      var response = await http.post(
         Uri.parse(
             "$serverLaravel/api/transacciones/cleanTransactionsFailed/$id"),
         headers: {'Content-Type': 'application/json'},
       );
       if (response.statusCode != 200) {
         return 1;
+      } else {
+        0;
       }
     } catch (error) {
       return 2;
