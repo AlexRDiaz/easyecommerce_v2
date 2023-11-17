@@ -660,7 +660,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
               child: Text(
                   style: TextStyle(
                       color: GetColor(data[index]['status'].toString())!),
-                  '${data[index]['name_comercial'].toString()}-${data[index]['numero_orden'].toString()}'),
+                  '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
               onTap: () {
                 OpenShowDialog(context, index);
               })),
@@ -1041,12 +1041,10 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                   ),
                   Expanded(
                       child: TransportProDeliveryHistoryDetails(
-                    id: data[index]['id'].toString(),
-                    comment : data[index]['comentario'].toString(),
-                    function : paginateData,
-                    data : data
-
-                  ))
+                          id: data[index]['id'].toString(),
+                          comment: data[index]['comentario'].toString(),
+                          function: paginateData,
+                          data: data))
                 ],
               ),
             ),
@@ -1326,12 +1324,13 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
     reagendados = 0;
     enRuta = 0;
     programado = 0;
-    novedadResuelta = 0; 
+    novedadResuelta = 0;
     setState(() {
       entregados = int.parse(dataCounters['ENTREGADO'].toString()) ?? 0;
       noEntregados = int.parse(dataCounters['NO ENTREGADO'].toString()) ?? 0;
       conNovedad = int.parse(dataCounters['NOVEDAD'].toString()) ?? 0;
-      novedadResuelta = int.parse(dataCounters['NOVEDAD RESUELTA'].toString()) ?? 0;
+      novedadResuelta =
+          int.parse(dataCounters['NOVEDAD RESUELTA'].toString()) ?? 0;
       reagendados = int.parse(dataCounters['REAGENDADO'].toString()) ?? 0;
       enRuta = int.parse(dataCounters['EN RUTA'].toString()) ?? 0;
       // programado = int.parse(data['EN OFICINA'].toString()) ?? 0;

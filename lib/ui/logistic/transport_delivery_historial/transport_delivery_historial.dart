@@ -355,7 +355,7 @@ class _TransportDeliveryHistorialState
       });
 
       // Future.delayed(const Duration(milliseconds: 500), () {
-        Navigator.pop(context);
+      Navigator.pop(context);
       // });
     } catch (e) {
       Navigator.pop(context);
@@ -1107,7 +1107,8 @@ class _TransportDeliveryHistorialState
                                             option['id'].toString(),
                                             "estado_logistico:IMPRESO",
                                             idUser,
-                                            "","");
+                                            "",
+                                            "");
                                   }
 
                                   Navigator.pop(context);
@@ -1135,7 +1136,8 @@ class _TransportDeliveryHistorialState
                                             option['id'].toString(),
                                             "estado_logistico:ENVIADO",
                                             idUser,
-                                            "","");
+                                            "",
+                                            "");
                                   }
 
                                   Navigator.pop(context);
@@ -1283,6 +1285,15 @@ class _TransportDeliveryHistorialState
                                               "CONFIRMADO",
                                               optionsCheckBox[i]['id']
                                                   .toString());
+
+                                      var responseL = await Connections()
+                                          .updateOrderWithTime(
+                                              optionsCheckBox[i]['id']
+                                                  .toString(),
+                                              "estado_interno:CONFIRMADO",
+                                              idUser,
+                                              "",
+                                              "");
                                     }
                                   }
 
@@ -1407,7 +1418,8 @@ class _TransportDeliveryHistorialState
                                           optionsCheckBox[i]['id'].toString(),
                                           "estado_devolucion:ENTREGADO EN OFICINA",
                                           idUser,
-                                          "operator","");
+                                          "operator",
+                                          "");
                                     }
                                   }
 
@@ -1443,7 +1455,8 @@ class _TransportDeliveryHistorialState
                                           optionsCheckBox[i]['id'].toString(),
                                           "estado_devolucion:EN BODEGA",
                                           idUser,
-                                          "","");
+                                          "",
+                                          "");
                                     }
                                   }
 
@@ -1765,7 +1778,9 @@ class _TransportDeliveryHistorialState
       DataCell(
           Text(
             // data[index]['tienda_temporal'].toString(),
-            data[index]['users'][0]['vendedores'][0]['nombre_comercial'],
+            data[index]['users'] != null && data[index]['users'].isNotEmpty
+                ? data[index]['users'][0]['vendedores'][0]['nombre_comercial']
+                : "NaN",
             style: TextStyle(
               color: rowColor,
             ),
@@ -1836,7 +1851,7 @@ class _TransportDeliveryHistorialState
           onTap: () {}),
       DataCell(
           Text(data[index]['costo_devolucion'] != null
-              ? data[index]['costo_devolucion']
+              ? data[index]['costo_devolucion'].toString()
               : ""), onTap: () {
         showDialogInfoData(data[index]);
       }),
@@ -1921,7 +1936,7 @@ class _TransportDeliveryHistorialState
               child: Column(
                 children: [
                   Align(
-                    alignment: Alignment.centerRight, 
+                    alignment: Alignment.centerRight,
                     child: GestureDetector(
                       onTap: () {
                         Navigator.pop(context);
@@ -1970,7 +1985,7 @@ class _TransportDeliveryHistorialState
               ),
             ),
           );
-        // });
+          // });
         }).then((value) => SnackBarHelper.showErrorSnackBar(context, "Error"));
   }
 

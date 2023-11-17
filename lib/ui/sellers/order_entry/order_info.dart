@@ -8,6 +8,7 @@ import 'package:frontend/ui/sellers/order_entry/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/routes.dart';
 import 'package:frontend/main.dart';
+import 'package:frontend/ui/widgets/routes/routes_v2.dart';
 
 class OrderInfo extends StatefulWidget {
   final String id;
@@ -131,13 +132,24 @@ class _OrderInfoState extends State<OrderInfo> {
                                   await showDialog(
                                       context: context,
                                       builder: (context) {
-                                        return RoutesModal(
-                                          idOrder: widget.id,
-                                          someOrders: false,
-                                          phoneClient: data['telefono_shipping']
-                                              .toString(),
-                                          codigo: widget.codigo,
-                                        );
+                                        // return RoutesModal(
+                                        //   idOrder: widget.id,
+                                        //   someOrders: false,
+                                        //   phoneClient: data['telefono_shipping']
+                                        //       .toString(),
+                                        //   codigo: widget.codigo,
+                                        // );
+
+                                        // * laravel version
+                                        return RoutesModalv2(
+                                            idOrder: widget.id,
+                                            someOrders: false,
+                                            phoneClient:
+                                                data['telefono_shipping']
+                                                    .toString(),
+                                            codigo: widget.codigo,
+                                            origin: "");
+                                        //
                                       });
                                   loadData();
                                 },
@@ -208,7 +220,8 @@ class _OrderInfoState extends State<OrderInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Fecha: ${data['pedido_fecha'][0]['fecha'].toString()}",
+                          // "  Fecha: ${data['pedido_fecha'][0]['fecha'].toString()}",
+                          "  Fecha: ${data['pedido_fecha'] != null && data['pedido_fecha'].isNotEmpty ? data['pedido_fecha'][0]['fecha'].toString() : ""}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),

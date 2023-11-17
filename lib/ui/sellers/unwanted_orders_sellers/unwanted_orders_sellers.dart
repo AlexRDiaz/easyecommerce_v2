@@ -7,6 +7,7 @@ import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/providers/filters_orders/filters_orders.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/routes.dart';
+import 'package:frontend/ui/widgets/routes/routes_v2.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/main.dart';
@@ -782,8 +783,11 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                         }),
                         DataCell(
                             Text(
-                              data[index]['pedido_fecha'][0]['fecha']
-                                  .toString(),
+                              data[index]['pedido_fecha'] != null &&
+                                      data[index]['pedido_fecha'].isNotEmpty
+                                  ? data[index]['pedido_fecha'][0]['fecha']
+                                      .toString()
+                                  : "",
                               style: TextStyle(
                                 color: rowColor,
                               ),
@@ -796,7 +800,7 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                                     color: GetColor(data[index]
                                             ['estado_devolucion']
                                         .toString())!),
-                                '${data[index]['name_comercial'].toString()}-${data[index]['numero_orden'].toString()}'),
+                                '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
                             onTap: () {
                           showDialogInfoData(data[index]);
                         }),
@@ -804,20 +808,29 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                           children: [
                             GestureDetector(
                               onTap: () async {
-                                var response = await Connections()
-                                    // .updateOrderInteralStatus("CONFIRMADO",
-                                    .updateOrderInteralStatusLaravel2(
-                                        "CONFIRMADO", data[index]['id']);
+                                // var response = await Connections()
+                                //     // .updateOrderInteralStatus("CONFIRMADO",
+                                //     .updateOrderInteralStatusLaravel2(
+                                //         "CONFIRMADO", data[index]['id']);
                                 setState(() {});
                                 await showDialog(
                                     context: context,
                                     builder: (context) {
-                                      return RoutesModal(
+                                      // return RoutesModal(
+                                      //     idOrder: data[index]['id'].toString(),
+                                      //     someOrders: false,
+                                      //     phoneClient: "",
+                                      //     codigo: "");
+
+                                      // * laravel version
+                                      return RoutesModalv2(
                                           idOrder: data[index]['id'].toString(),
                                           someOrders: false,
                                           phoneClient: "",
-                                          codigo: "");
+                                          codigo: "",
+                                          origin: "");
                                     });
+
                                 loadData();
                               },
                               child: Icon(

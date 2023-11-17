@@ -1117,7 +1117,9 @@ class _NoveltiesLState extends State<NoveltiesL> {
       DataCell(
           Text(
             // data[index]['tienda_temporal'].toString(),
-            data[index]['users'][0]['vendedores'][0]['nombre_comercial'],
+            data[index]['users'] != null && data[index]['users'].isNotEmpty
+                ? data[index]['users'][0]['vendedores'][0]['nombre_comercial']
+                : "NaN",
             style: TextStyle(
               color: rowColor,
             ),

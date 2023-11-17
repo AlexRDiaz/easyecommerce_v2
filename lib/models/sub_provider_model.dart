@@ -1,6 +1,6 @@
 import 'package:frontend/models/user_model.dart';
 
-class ProviderModel {
+class SubProviderModel {
   int? id;
   int? userId;
   String? name;
@@ -9,7 +9,7 @@ class ProviderModel {
   UserModel? user;
 
   // Constructor
-  ProviderModel({
+  SubProviderModel({
     this.id,
     this.userId,
     this.name,
@@ -18,9 +18,9 @@ class ProviderModel {
     this.user,
   });
 
-  // Método para crear un objeto ProviderModel desde un mapa
-  factory ProviderModel.fromJson(Map<String, dynamic> json) {
-    return ProviderModel(
+  // Método para crear un objeto SubProviderModel desde un mapa
+  factory SubProviderModel.fromJson(Map<String, dynamic> json) {
+    return SubProviderModel(
       id: json['id'],
       userId: json['user_id'],
       name: json['name'],

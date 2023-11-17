@@ -10,6 +10,7 @@ import 'package:frontend/ui/sellers/order_entry/controllers/controllers.dart';
 import 'package:frontend/ui/sellers/order_entry/order_info.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/routes.dart';
+import 'package:frontend/ui/widgets/routes/routes_v2.dart';
 import 'package:frontend/ui/widgets/sellers/add_order.dart';
 import 'package:frontend/ui/widgets/sellers/add_order_laravel.dart';
 import 'package:provider/provider.dart';
@@ -890,14 +891,25 @@ class _OrderEntryState extends State<OrderEntry> {
                                     await showDialog(
                                         context: context,
                                         builder: (context) {
-                                          return RoutesModal(
-                                            idOrder:
-                                                data[index]['id'].toString(),
-                                            someOrders: false,
-                                            phoneClient: "",
-                                            codigo:
-                                                "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}",
-                                          );
+                                          // return RoutesModal(
+                                          //   idOrder:
+                                          //       data[index]['id'].toString(),
+                                          //   someOrders: false,
+                                          //   phoneClient: "",
+                                          //   codigo:
+                                          //       "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}",
+                                          // );
+
+                                          // * laravel version
+                                          return RoutesModalv2(
+                                              idOrder:
+                                                  data[index]['id'].toString(),
+                                              someOrders: false,
+                                              phoneClient: "",
+                                              codigo:
+                                                  "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}",
+                                              origin: "");
+                                          //
                                         });
                                     loadData();
                                   },

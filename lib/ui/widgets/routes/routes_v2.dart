@@ -49,8 +49,6 @@ class _RoutesModalStatev2 extends State<RoutesModalv2> {
       transports = [];
     });
 
-    // print("idOrder ${widget.idOrder.length}");
-
     routesList = await Connections().getRoutesLaravel();
     for (var i = 0; i < routesList.length; i++) {
       setState(() {
@@ -99,7 +97,7 @@ class _RoutesModalStatev2 extends State<RoutesModalv2> {
     return AlertDialog(
       content: Container(
         width: 400,
-        height: MediaQuery.of(context).size.height,
+        height: MediaQuery.of(context).size.height * 0.6,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -111,7 +109,7 @@ class _RoutesModalStatev2 extends State<RoutesModalv2> {
               ),
             ),
             const SizedBox(
-              height: 15,
+              height: 20,
             ),
             DropdownButtonHideUnderline(
               child: DropdownButton2<String>(
@@ -192,26 +190,60 @@ class _RoutesModalStatev2 extends State<RoutesModalv2> {
               ),
             ),
             const SizedBox(
-              height: 15,
+              height: 30,
             ),
             ElevatedButton(
-                onPressed: selectedValueRoute == null ||
-                        selectedValueTransport == null
-                    ? null
-                    : () async {
-                        if (widget.someOrders == false) {
-                          // print("if just one");
+              onPressed: selectedValueRoute == null ||
+                      selectedValueTransport == null
+                  ? null
+                  : () async {
+                      if (widget.someOrders == false) {
+                        // print("if just one");
+                        var response = await Connections()
+                            .updateOrderRouteAndTransportLaravel(
+                                selectedValueRoute.toString().split("-")[1],
+                                selectedValueTransport.toString().split("-")[1],
+                                widget.idOrder);
+
+                        var response2 = await Connections()
+                            .updatenueva(widget.idOrder.toString(), {
+                          "estado_interno": "CONFIRMADO",
+                          "name_comercial": sharedPrefs!
+                              .getString("NameComercialSeller")
+                              .toString(),
+                          "fecha_confirmacion":
+                              "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
+                        });
+
+                        var response3 = await Connections().updateOrderWithTime(
+                            widget.idOrder.toString(),
+                            "estado_interno:CONFIRMADO",
+                            sharedPrefs!.getString("id"),
+                            "",
+                            "");
+
+                        //for guides sent
+                        if (widget.origin == "sent") {
+                          var response3 = await Connections()
+                              .updatenueva(widget.idOrder.toString(), {
+                            "estado_logistico": "PENDIENTE",
+                            "printed_by": null,
+                            "marca_tiempo_envio": null,
+                            'revisado': 0
+                          });
+                        }
+                      } else {
+                        for (var i = 0; i < widget.idOrder.length; i++) {
                           var response = await Connections()
-                              // .updateOrderRouteAndTransport(
                               .updateOrderRouteAndTransportLaravel(
                                   selectedValueRoute.toString().split("-")[1],
                                   selectedValueTransport
                                       .toString()
                                       .split("-")[1],
-                                  widget.idOrder);
+                                  widget.idOrder[i]['id']);
 
                           var response2 = await Connections()
-                              .updatenueva(widget.idOrder.toString(), {
+                              .updatenueva(widget.idOrder[i]['id'].toString(), {
                             "estado_interno": "CONFIRMADO",
                             "name_comercial": sharedPrefs!
                                 .getString("NameComercialSeller")
@@ -219,73 +251,48 @@ class _RoutesModalStatev2 extends State<RoutesModalv2> {
                             "fecha_confirmacion":
                                 "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
                           });
-                          // print("response2");
+
+                          var response3 = await Connections()
+                              .updateOrderWithTime(
+                                  widget.idOrder.toString(),
+                                  "estado_interno:CONFIRMADO",
+                                  sharedPrefs!.getString("id"),
+                                  "",
+                                  "");
 
                           //for guides sent
                           if (widget.origin == "sent") {
-                            var response3 = await Connections()
-                                .updatenueva(widget.idOrder.toString(), {
+                            var response3 = await Connections().updatenueva(
+                                widget.idOrder[i]['id'].toString(), {
                               "estado_logistico": "PENDIENTE",
+                              "printed_at": null,
                               "printed_by": null,
                               "marca_tiempo_envio": null,
-                              'revisado': 0
+                              "revisado": 0,
+                              // "fecha_entrega": null,
+                              // "sent_at": null,
+                              // "sent_by": null,
                             });
-                            // print("response3");
-                          }
-                        } else {
-                          // print("else for varios");
-                          var r = widget.idOrder.length;
-                          // print("length: $r");
-                          for (var i = 0; i < widget.idOrder.length; i++) {
-                            // print("vez: $i");
-
-                            var response = await Connections()
-                                .updateOrderRouteAndTransportLaravel(
-                                    selectedValueRoute.toString().split("-")[1],
-                                    selectedValueTransport
-                                        .toString()
-                                        .split("-")[1],
-                                    widget.idOrder[i]['id']);
-                            // print("response");
-
-                            var response2 = await Connections().updatenueva(
-                                widget.idOrder[i]['id'].toString(), {
-                              "estado_interno": "CONFIRMADO",
-                              "name_comercial": sharedPrefs!
-                                  .getString("NameComercialSeller")
-                                  .toString(),
-                              "fecha_confirmacion":
-                                  "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
-                            });
-                            // print("response2");
-
-                            //for guides sent
-                            if (widget.origin == "sent") {
-                              var response3 = await Connections().updatenueva(
-                                  widget.idOrder[i]['id'].toString(), {
-                                "estado_logistico": "PENDIENTE",
-                                "printed_at": null,
-                                "printed_by": null,
-                                "marca_tiempo_envio": null,
-                                "revisado": 0,
-                                // "fecha_entrega": null,
-                                // "sent_at": null,
-                                // "sent_by": null,
-                              });
-                              // print("response3");
-                            }
                           }
                         }
-                        if (widget.phoneClient != "") {
-                          sendMessage(widget.phoneClient, widget.codigo);
-                        }
-                        setState(() {});
-                        Navigator.pop(context);
-                      },
-                child: const Text(
-                  "ACEPTAR",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ))
+                      }
+                      if (widget.phoneClient != "") {
+                        sendMessage(widget.phoneClient, widget.codigo);
+                      }
+                      setState(() {});
+                      Navigator.pop(context);
+                    },
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.all(16.0),
+                backgroundColor: const Color(0xFF4688B1),
+                elevation: 5,
+                shadowColor: const Color.fromARGB(255, 97, 162, 203),
+              ),
+              child: const Text(
+                "ACEPTAR",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            )
           ],
         ),
       ),

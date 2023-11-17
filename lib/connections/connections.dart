@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:frontend/models/provider_model.dart';
 import 'package:frontend/models/warehouses_model.dart';
+import 'package:frontend/models/user_model.dart';
 import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
@@ -2977,10 +2978,10 @@ class Connections {
 
   getOrdersForTransportPRV(code) async {
     print(
-        "$server/api/pedidos-shopifies?populate=transportadora&populate=pedido_fecha&populate=sub_ruta&populate=operadore&populate=operadore.user&filters[\$and][0][transportadora][id][\$eq]=${sharedPrefs!.getString("idTransportadora").toString()}&filters[\$or][1][NumeroOrden][\$contains]=$code&filters[Estado_Logistico][\$eq]=ENVIADO&filters&filters[\$or][2][CiudadShipping][\$contains]=$code&filters[\$or][3][NombreShipping][\$contains]=$code&filters[\$or][4][DireccionShipping][\$contains]=$code&filters[\$or][5][TelefonoShipping][\$contains]=$code&filters[\$or][6][ProductoP][\$contains]=$code&filters[\$or][7][ProductoExtra][\$contains]=$code&filters[\$or][8][PrecioTotal][\$contains]=$code&filters[\$or][9][Status][\$contains]=$code&filters[\$or][10][Estado_Interno][\$contains]=$code&filters[\$or][11][Estado_Logistico][\$contains]=$code&filters[\$or][12][pedido_fecha][Fecha][\$contains]=$code&filters[\$or][13][sub_ruta][Titulo][\$contains]=$code&filters[\$or][14][operadore][user][username][\$contains]=$code&filters[\$or][15][Cantidad_Total][\$contains]=$code&filters[Status][\$eq]=PEDIDO PROGRAMADO&filters[Estado_Interno][\$eq]=CONFIRMADO&pagination[limit]=-1");
+        "$server/api/pedidos-shopifies?populate=transportadora&populate=pedido_fecha&populate=sub_ruta&populate=operadore&populate=operadore.user&populate=users&filters[\$and][0][transportadora][id][\$eq]=${sharedPrefs!.getString("idTransportadora").toString()}&filters[\$or][1][NumeroOrden][\$contains]=$code&filters[Estado_Logistico][\$eq]=ENVIADO&filters&filters[\$or][2][CiudadShipping][\$contains]=$code&filters[\$or][3][NombreShipping][\$contains]=$code&filters[\$or][4][DireccionShipping][\$contains]=$code&filters[\$or][5][TelefonoShipping][\$contains]=$code&filters[\$or][6][ProductoP][\$contains]=$code&filters[\$or][7][ProductoExtra][\$contains]=$code&filters[\$or][8][PrecioTotal][\$contains]=$code&filters[\$or][9][Status][\$contains]=$code&filters[\$or][10][Estado_Interno][\$contains]=$code&filters[\$or][11][Estado_Logistico][\$contains]=$code&filters[\$or][12][pedido_fecha][Fecha][\$contains]=$code&filters[\$or][13][sub_ruta][Titulo][\$contains]=$code&filters[\$or][14][operadore][user][username][\$contains]=$code&filters[\$or][15][Cantidad_Total][\$contains]=$code&filters[Status][\$eq]=PEDIDO PROGRAMADO&filters[Estado_Interno][\$eq]=CONFIRMADO&pagination[limit]=-1");
     var request = await http.get(
       Uri.parse(
-          "$server/api/pedidos-shopifies?populate=transportadora&populate=pedido_fecha&populate=sub_ruta&populate=operadore&populate=operadore.user&filters[\$and][0][transportadora][id][\$eq]=${sharedPrefs!.getString("idTransportadora").toString()}&filters[\$or][1][NumeroOrden][\$contains]=$code&filters[Estado_Logistico][\$eq]=ENVIADO&filters&filters[\$or][2][CiudadShipping][\$contains]=$code&filters[\$or][3][NombreShipping][\$contains]=$code&filters[\$or][4][DireccionShipping][\$contains]=$code&filters[\$or][5][TelefonoShipping][\$contains]=$code&filters[\$or][6][ProductoP][\$contains]=$code&filters[\$or][7][ProductoExtra][\$contains]=$code&filters[\$or][8][PrecioTotal][\$contains]=$code&filters[\$or][9][Status][\$contains]=$code&filters[\$or][10][Estado_Interno][\$contains]=$code&filters[\$or][11][Estado_Logistico][\$contains]=$code&filters[\$or][12][pedido_fecha][Fecha][\$contains]=$code&filters[\$or][13][sub_ruta][Titulo][\$contains]=$code&filters[\$or][14][operadore][user][username][\$contains]=$code&filters[\$or][15][Cantidad_Total][\$contains]=$code&filters[Status][\$eq]=PEDIDO PROGRAMADO&filters[Estado_Interno][\$eq]=CONFIRMADO&pagination[limit]=-1"),
+          "$server/api/pedidos-shopifies?populate=transportadora&populate=pedido_fecha&populate=sub_ruta&populate=operadore&populate=operadore.user&populate=users.vendedores&filters[\$and][0][transportadora][id][\$eq]=${sharedPrefs!.getString("idTransportadora").toString()}&filters[\$or][1][NumeroOrden][\$contains]=$code&filters[Estado_Logistico][\$eq]=ENVIADO&filters&filters[\$or][2][CiudadShipping][\$contains]=$code&filters[\$or][3][NombreShipping][\$contains]=$code&filters[\$or][4][DireccionShipping][\$contains]=$code&filters[\$or][5][TelefonoShipping][\$contains]=$code&filters[\$or][6][ProductoP][\$contains]=$code&filters[\$or][7][ProductoExtra][\$contains]=$code&filters[\$or][8][PrecioTotal][\$contains]=$code&filters[\$or][9][Status][\$contains]=$code&filters[\$or][10][Estado_Interno][\$contains]=$code&filters[\$or][11][Estado_Logistico][\$contains]=$code&filters[\$or][12][pedido_fecha][Fecha][\$contains]=$code&filters[\$or][13][sub_ruta][Titulo][\$contains]=$code&filters[\$or][14][operadore][user][username][\$contains]=$code&filters[\$or][15][Cantidad_Total][\$contains]=$code&filters[Status][\$eq]=PEDIDO PROGRAMADO&filters[Estado_Interno][\$eq]=CONFIRMADO&pagination[limit]=-1"),
       headers: {'Content-Type': 'application/json'},
     );
     var response = await request.body;
@@ -4590,17 +4591,21 @@ class Connections {
 
   Future updatenueva(id, datajson) async {
     // {{base_api_laravel}}/api/pedidos-shopify/update/56
-    var request = await http.put(
-        Uri.parse("$serverLaravel/api/pedidos-shopify/update/$id"),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(datajson));
-    var response = await request.body;
-    var decodeData = json.decode(response);
+    try {
+      var request = await http.put(
+          Uri.parse("$serverLaravel/api/pedidos-shopify/update/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(datajson));
+      var response = await request.body;
+      var decodeData = json.decode(response);
 
-    if (request.statusCode != 200) {
-      return false;
-    } else {
-      return decodeData;
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      return 2;
     }
   }
 
@@ -5161,23 +5166,21 @@ class Connections {
 
   Future updateOrderRouteAndTransportLaravel(route, transport, id) async {
     try {
-      // var body2= json.encode({"ruta": route, "transportadora": transport});
-      // print(body2);
       var request = await http.put(
           Uri.parse(
               "$serverLaravel/api/pedidos-shopify/updateroutetransport/$id"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({"ruta": route, "transportadora": transport}));
       var response = await request.body;
-      var decodeData = json.decode(response);
 
       if (request.statusCode != 200) {
-        return false;
+        return 1;
       } else {
-        return true;
+        var decodeData = json.decode(response);
+        return decodeData;
       }
     } catch (e) {
-      print(e);
+      2;
     }
   }
 
@@ -5277,7 +5280,7 @@ class Connections {
 
 //    *
   Future updateGeneralTransportadoraShippingCostLaravel(id, requestjson) async {
-    // print(json.encode(requestjson));
+    print(json.encode(requestjson));
     try {
       var request = await http.put(
           Uri.parse("$serverLaravel/api/shippingcost/$id"),
@@ -5633,8 +5636,6 @@ class Connections {
     }
   }
 
-  //    *
-  // Future updateOrderWithTime(id, key, value, iduser) async {
   Future updateOrderWithTime(id, keyvalue, iduser, from, datarequest) async {
     try {
       var request = await http.put(
@@ -5650,12 +5651,161 @@ class Connections {
       var decodeData = json.decode(response);
 
       if (request.statusCode != 200) {
-        return false;
+        return 1;
       } else {
-        return decodeData;
+        return 0;
       }
     } catch (e) {
-      print(e);
+      return 2;
+    }
+  }
+
+  getWarehouses() async {
+    try {
+      var response = await http.get(
+        Uri.parse("$serverLaravel/api/warehouses"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      // var decodeData = json.decode(response);
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+//  *
+  getProducts(populate, page_size, current_page, or, and, sort, search) async {
+    try {
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/products/all"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "populate": populate,
+                "page_size": page_size,
+                "page_number": current_page,
+                "or": or,
+                "and": and,
+                "sort": sort,
+                "search": search
+              }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+  //  *
+  createProduct(nameProduct, stock, features, price, url_img, warehouse) async {
+    print(json.encode({
+      "product_name": nameProduct,
+      "stock": stock,
+      "features": features,
+      "price": price,
+      "url_img": url_img,
+      "warehouse_id": warehouse
+    }));
+    try {
+      var response = await http.post(Uri.parse("$serverLaravel/api/products"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "product_name": nameProduct,
+            "stock": stock,
+            "features": features,
+            "price": price,
+            "url_img": url_img,
+            "warehouse_id": warehouse
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+  //  *
+  getProductByID(id, populate) async {
+    try {
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/products/$id"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "populate": populate,
+              }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+  Future updateProduct(id, datajson) async {
+    int res;
+    // print(json.encode(datajson));
+    try {
+      var response = await http.put(
+          Uri.parse("$serverLaravel/api/products/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(datajson));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (e) {
+      res = 3;
+      return res;
+    }
+  }
+
+  //  *
+  Future deleteProduct(id) async {
+    int res;
+    try {
+      var response = await http.put(
+          Uri.parse("$serverLaravel/api/products/delete/$id"),
+          headers: {'Content-Type': 'application/json'});
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (e) {
+      res = 3;
+      return res;
     }
   }
 
@@ -6059,16 +6209,35 @@ class Connections {
     }
   }
 
-  getProviders() async {
+  getProviders(search) async {
     try {
       var response = await http.get(
-        Uri.parse("$serverLaravel/api/providers/all"),
+        Uri.parse("$serverLaravel/api/providers/all/$search"),
         headers: {'Content-Type': 'application/json'},
       );
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         // print(decodeData);
         return decodeData['providers'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  getSubProviders(search) async {
+    try {
+      var response = await http.get(
+        Uri.parse(
+            "$serverLaravel/api/users/subproviders/${sharedPrefs!.getString("id")}/$search"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData['users'];
       } else {
         return 1;
       }
@@ -6086,7 +6255,7 @@ class Connections {
                 "username": provider.user!.username,
                 "email": provider.user!.email,
                 "provider_name": provider.name,
-                "phone": provider.phone,
+                "provider_phone": provider.phone,
                 "password": '123456789',
                 "description": provider.description
                 //"username": "Alex Diaz",
@@ -6108,6 +6277,7 @@ class Connections {
     }
   }
 
+
   // ! warehouses
   getWarehouses() async {
     try {
@@ -6125,7 +6295,7 @@ class Connections {
       return 2;
     }
   }
-  getWarehousesProvider(int providerId) async {
+getWarehousesProvider(int providerId) async {
     try {
       var response = await http.get(
         Uri.parse("$serverLaravel/api/warehouses/provider/$providerId"),
@@ -6141,7 +6311,33 @@ class Connections {
       return 2;
     }
   }
-    createWarehouse(WarehouseModel warehouse) async {
+  updateProvider(ProviderModel provider) async {
+    try {
+      var name = provider.user!.id;
+      var response = await http.put(
+          Uri.parse("$serverLaravel/api/users/providers/${provider.user!.id}"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "username": provider.user!.username,
+            "email": provider.user!.email,
+            "provider_name": provider.name,
+            "provider_phone": provider.phone,
+            "password": "123456789",
+            "description": provider.description
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData['providers'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+      createWarehouse(WarehouseModel warehouse) async {
     try {
       var response =
           await http.post(Uri.parse("$serverLaravel/api/warehouses"),
@@ -6163,8 +6359,39 @@ class Connections {
     } catch (error) {
       return 2;
     }
+  }      
+
+  createSubProvider(UserModel user) async {
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/users/subproviders/add"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "username": user.username,
+            "email": user.email,
+            "fecha_alta": "",
+            "password": "123456789",
+            "providers": sharedPrefs!.getString("idProvider"),
+            "role": 2,
+            "roles_front": 5
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData['providers'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
   }
-  updateWarehouse(int id,String nameSucursal,String address,String reference,String description) async {
+
+        
+        
+        
+        
+    updateWarehouse(int id,String nameSucursal,String address,String reference,String description) async {
     try {
       var response =
           await http.put(Uri.parse("$serverLaravel/api/warehouses/$id"),
@@ -6187,7 +6414,31 @@ class Connections {
     }
   }
 
-  deleteWarehouse(int ?warehouseId) async {
+  updateSubProvider(UserModel provider) async {
+    try {
+      var response = await http.put(
+          Uri.parse(
+              "$serverLaravel/api/users/subproviders/update/${provider.id}"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "username": provider.username,
+            "email": provider.email,
+            "blocked": provider.blocked
+          }));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData['providers'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+deleteWarehouse(int ?warehouseId) async {
     try {
       var response =
           await http.delete(Uri.parse("$serverLaravel/api/warehouses/$warehouseId"),
@@ -6198,6 +6449,22 @@ class Connections {
         return decodeData['message'];
       } else {
         return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+  cleanTransactionsFailed(id) async {
+    try {
+      var response = await http.post(
+        Uri.parse(
+            "$serverLaravel/api/transacciones/cleanTransactionsFailed/$id"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode != 200) {
+        return 1;
+      } else {
+        0;
       }
     } catch (error) {
       return 2;

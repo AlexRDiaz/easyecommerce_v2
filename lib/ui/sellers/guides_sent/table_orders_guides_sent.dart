@@ -475,9 +475,14 @@ class _TableOrdersGuidesSentStateSeller
                                       "numPedido":
                                           "${data[index]['users'] != null ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal'].toString()}-${data[index]['numero_orden']}"
                                               .toString(),
-                                      "date": data[index]['pedido_fecha'][0]
-                                              ['fecha']
-                                          .toString(),
+                                      "date":
+                                          data[index]['pedido_fecha'] != null &&
+                                                  data[index]['pedido_fecha']
+                                                      .isNotEmpty
+                                              ? data[index]['pedido_fecha'][0]
+                                                      ['fecha']
+                                                  .toString()
+                                              : "",
                                       "city": data[index]['ciudad_shipping']
                                           .toString(),
                                       "product":
@@ -524,8 +529,11 @@ class _TableOrdersGuidesSentStateSeller
                               getInfoModal(index);
                             }),
                             DataCell(
-                                Text(data[index]['pedido_fecha'][0]['fecha']
-                                    .toString()), onTap: () {
+                                Text(data[index]['pedido_fecha'] != null &&
+                                        data[index]['pedido_fecha'].isNotEmpty
+                                    ? data[index]['pedido_fecha'][0]['fecha']
+                                        .toString()
+                                    : ""), onTap: () {
                               getInfoModal(index);
                             }),
                             DataCell(
@@ -538,7 +546,7 @@ class _TableOrdersGuidesSentStateSeller
                                     style: TextStyle(
                                         color:
                                             GetColor(data[index]['revisado'])!),
-                                    '${data[index]['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data[index]['numero_orden'].toString()}'),
+                                    '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
                                 onTap: () {
                               getInfoModal(index);
                             }),
@@ -1129,8 +1137,9 @@ class _TableOrdersGuidesSentStateSeller
                 .cell(CellIndex.indexByColumnRow(
                     columnIndex: 2, rowIndex: rowIndex + 1))
                 .value =
-            "${data["users"][0]["vendedores"][0]["nombre_comercial"]}-${data["numero_orden"]}";
-        name_comercial = data["users"][0]["vendedores"][0]["nombre_comercial"];
+            "${data['users'] != null && data['users'].isNotEmpty ? data['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data["numero_orden"]}";
+        name_comercial =
+            sharedPrefs!.getString("NameComercialSeller").toString();
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 3, rowIndex: rowIndex + 1))

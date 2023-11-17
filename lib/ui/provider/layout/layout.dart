@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/providers/sellers/navigation_provider.dart';
+import 'package:frontend/ui/provider/add_provider/sub_providers_view.dart';
 import 'package:frontend/ui/provider/products/products_view.dart';
 import 'package:frontend/ui/provider/warehouses/warehouses.dart';
 import 'package:frontend/ui/sellers/add_seller_user/add_seller_user.dart';
@@ -58,8 +59,16 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
     List pages = [
       
       getOption(
-        "Productos",
-        const ProductsView(),
+        "Home",
+        const WelcomeScreen(),
+      ),
+      // getOption(
+      //   "Productos",
+      //   const ProductsView(),
+      // ),
+      getOption(
+        "Proveedores",
+        SubProviderView(),
       ),
       getOption(
         "Bodegas",
@@ -103,9 +112,13 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
           ],
         ),
         actions: [
-          const Icon(
-            Icons.account_circle,
-            color: const Color.fromARGB(255, 255, 255, 255),
+          Container(
+            padding: EdgeInsets.all(10),
+            child: const Icon(
+              size: 40,
+              Icons.account_circle,
+              color: const Color.fromARGB(255, 255, 255, 255),
+            ),
           ),
           PopupMenuButton<String>(
             padding: EdgeInsets.zero, // Elimina el relleno alrededor del botón

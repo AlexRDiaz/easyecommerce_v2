@@ -576,7 +576,7 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                           }),
                           DataCell(
                               Text(
-                                  "${data[index]['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data[index]['numero_orden']}"
+                                  "${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden']}"
                                       .toString()), onTap: () {
                             getInfoModal(index);
                           }),
@@ -1165,7 +1165,7 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                     ],
                   ),
                   _model(
-                      "Código: ${data[index]['users'][0]['vendedores'][0]['nombre_comercial']}-${data[index]['numero_orden']}"),
+                      "Código: ${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden']}"),
                   _model(
                       "Marca de Tiempo Envio: ${data[index]['marca_tiempo_envio']}"),
                   _model(

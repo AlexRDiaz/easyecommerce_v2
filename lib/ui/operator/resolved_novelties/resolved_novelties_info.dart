@@ -191,7 +191,7 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                                                           ['Telefono2']
                                                       .toString(),
                                               codigo:
-                                                  "${data['name_cComercial']}-${data['numero_orden']}",
+                                                  "${data['users'] != null && data['users'].toString() != "[]" ? data['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data['numero_orden']}",
                                               numberCliente:
                                                   "${data['telefono_shipping']}",
                                               id: widget.id,

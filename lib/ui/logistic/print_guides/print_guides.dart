@@ -375,7 +375,7 @@ class _PrintGuidesState extends State<PrintGuides> {
                               getInfoModal(index);
                             }),
                             DataCell(Text(
-                                "${data[index]['attributes']['Name_Comercial'].toString()}-${data[index]['attributes']['NumeroOrden']}"
+                                "${data[index]['attributes']['users']['data'] != null ? data[index]['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['attributes']['Nombre_Comercial'] : data[index]['attributes']['Tienda_Temporal'].toString()}-${data[index]['attributes']['NumeroOrden']}"
                                     .toString())),
                             DataCell(
                                 Text(data[index]['attributes']['CiudadShipping']
@@ -533,7 +533,8 @@ class _PrintGuidesState extends State<PrintGuides> {
                         optionsCheckBox[i]['id'].toString(),
                         "estado_logistico:IMPRESO",
                         idUser,
-                        "","");
+                        "",
+                        "");
                   }
                 }
                 Navigator.pop(context);
