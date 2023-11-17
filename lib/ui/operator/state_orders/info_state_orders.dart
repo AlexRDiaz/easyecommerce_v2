@@ -103,7 +103,7 @@ class _InfoStateOrdersOperatorState extends State<InfoStateOrdersOperator> {
                                                           ['Telefono2']
                                                       .toString(),
                                               codigo:
-                                                  "${data['users'] != null && data['users'].toString() != "[]" ? data['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data['attributes']['NumeroOrden']}",
+                                                  "${data['attributes']['users'] != null && data['attributes']['users'].toString() != "[]" ? data['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['attributes']['Nombre_Comercial'] : "NaN"}-${data['attributes']['NumeroOrden']}",
                                               numberCliente:
                                                   "${data['attributes']['TelefonoShipping']}",
                                               id: widget.id,

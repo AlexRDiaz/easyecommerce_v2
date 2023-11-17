@@ -404,7 +404,7 @@ class _UpdateStatusOperatorState extends State<UpdateStatusOperator> {
                     "NOVEDAD", _controllerModalText.text);
                 var _url = Uri.parse(
                     """https://api.whatsapp.com/send?phone=${widget.numberTienda}&text= 
-                                        El pedido con código ${widget.codigo} cambio su estado a novedad, motivo: ${_controllerModalText.text}. Teléfono del cliente: ${widget.numberCliente}""");
+                                        El pedido con código ${widget.codigo} cambió su estado a novedad, motivo: ${_controllerModalText.text}. Teléfono del cliente: ${widget.numberCliente}""");
                 if (!await launchUrl(_url)) {
                   throw Exception('Could not launch $_url');
                 }

@@ -454,65 +454,6 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                                                   [0]['url_tienda']
                                               .toString();
 
-                                      /*  // strapi version
-                                        optionsCheckBox[index]['check'] = value;
-                                        optionsCheckBox[index]['id'] =
-                                            data[index]['id'].toString();
-                                        optionsCheckBox[index]['numPedido'] =
-                                            "${data[index]['attributes']['users']['data'] != null ? data[index]['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['attributes']['Nombre_Comercial'] : data[index]['attributes']['Tienda_Temporal'].toString()}-${data[index]['attributes']['NumeroOrden']}"
-                                                .toString();
-                                        optionsCheckBox[index]
-                                            ['date'] = data[index]['attributes']
-                                                    ['pedido_fecha']['data']
-                                                ['attributes']['Fecha']
-                                            .toString();
-                                        optionsCheckBox[index]['city'] =
-                                            data[index]['attributes']
-                                                    ['CiudadShipping']
-                                                .toString();
-                                        optionsCheckBox[index]['product'] =
-                                            data[index]['attributes']
-                                                    ['ProductoP']
-                                                .toString();
-                                        optionsCheckBox[index]['extraProduct'] =
-                                            data[index]['attributes']
-                                                    ['ProductoExtra']
-                                                .toString();
-                                        optionsCheckBox[index]['quantity'] =
-                                            data[index]['attributes']
-                                                    ['Cantidad_Total']
-                                                .toString();
-                                        optionsCheckBox[index]['phone'] =
-                                            data[index]['attributes']
-                                                    ['TelefonoShipping']
-                                                .toString();
-                                        optionsCheckBox[index]['price'] =
-                                            data[index]['attributes']
-                                                    ['PrecioTotal']
-                                                .toString();
-                                        optionsCheckBox[index]['name'] =
-                                            data[index]['attributes']
-                                                    ['NombreShipping']
-                                                .toString();
-                                        optionsCheckBox[index]['transport'] =
-                                            "${data[index]['attributes']['transportadora']['data'] != null ? data[index]['attributes']['transportadora']['data']['attributes']['Nombre'].toString() : ''}";
-                                        optionsCheckBox[index]['address'] =
-                                            data[index]['attributes']
-                                                    ['DireccionShipping']
-                                                .toString();
-                                        optionsCheckBox[index]['obervation'] =
-                                            data[index]['attributes']
-                                                    ['Observacion']
-                                                .toString();
-                                        optionsCheckBox[index]['qrLink'] =
-                                            data[index]['attributes']['users']
-                                                                    ['data'][0]
-                                                                ['attributes']
-                                                            ['vendedores']
-                                                        ['data'][0]
-                                                    ['attributes']['Url_Tienda']
-                                                .toString();
-                                        */
                                       counterChecks += 1;
                                     } else {
                                       optionsCheckBox[index]['check'] = value;
