@@ -12,28 +12,28 @@ import 'package:frontend/ui/widgets/update_status_operator/update_status_operato
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class NoveltiesInfo extends StatefulWidget {
+class AuditDataInfo extends StatefulWidget {
   final String id;
   final List data;
   final Function function;
 
-  const NoveltiesInfo(
+  const AuditDataInfo(
       {super.key,
       required this.id,
       required this.data,
       required this.function});
 
   @override
-  State<NoveltiesInfo> createState() => _NoveltiesInfo();
+  State<AuditDataInfo> createState() => _AuditDataInfo();
 }
 
-class _NoveltiesInfo extends State<NoveltiesInfo> {
+class _AuditDataInfo extends State<AuditDataInfo> {
   var data = {};
   bool loading = true;
   // OrderInfoOperatorControllers _controllers = OrderInfoOperatorControllers();
-  final TextEditingController _statusController =
-      TextEditingController(text: "NOVEDAD RESUELTA");
-  final TextEditingController _comentarioController = TextEditingController();
+  // final TextEditingController _statusController =
+  // TextEditingController(text: "NOVEDAD RESUELTA");
+  // final TextEditingController _comentarioController = TextEditingController();
   var idUser = sharedPrefs!.getString("id");
 
   @override
@@ -53,8 +53,8 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
 
     if (order != null) {
       data = order;
-      // print("data> $data");
-      _comentarioController.text = safeValue(data['comentario']);
+      //   // print("data> $data");
+      //   // _comentarioController.text = safeValue(data['comentario']);
     } else {
       print("Error: No se encontró el pedido con el ID proporcionado.");
     }
@@ -129,7 +129,7 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Fecha Envio: ${safeValue(data['marca_tiempo_envio'].toString())}",
+                          "  Fecha Ingreso Pedido: ${extractDateFromBrackets(safeValue(data['marca_t_i'].toString()))}",
                           style: TextStyle(
                               fontWeight: FontWeight.normal, fontSize: 18),
                         ),
@@ -137,14 +137,30 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Marca Tiempo Entrega: ${formatDate(safeValue(data['status_last_modified_at'].toString()))}",
+                          "  Marca Tiempo Envio: ${safeValue(data['marca_tiempo_envio'].toString())}",
                           style: TextStyle(
                               fontWeight: FontWeight.normal, fontSize: 18),
                         ),
                         SizedBox(
                           height: 20,
                         ),
-
+                        Text(
+                          "  Fecha de Confirmación: ${safeValue(data['fecha_confirmacion'].toString())}",
+                          style: TextStyle(
+                              fontWeight: FontWeight.normal, fontSize: 18),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          "  Fecha Entrega: ${safeValue(data['fecha_entrega'].toString())}",
+                          style: TextStyle(
+                              fontWeight: FontWeight.normal, fontSize: 18),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        // ! ***********
                         Divider(
                           height: 1.0,
                           color: Colors.grey[200],
@@ -186,19 +202,40 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
                         SizedBox(
                           height: 20,
                         ),
-                        Text(
-                          "  Dirección: ${safeValue(data['direccion_shipping'])}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
+                        // ! **********
+                        FutureBuilder<String>(
+                          future: userNametotoConfirmOrder(
+                              data['confirmed_by'] != null
+                                  ? data['confirmed_by']
+                                  : 0),
+                          builder: (BuildContext context,
+                              AsyncSnapshot<String> snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.done) {
+                              // Cuando el Future se complete, muestra el resultado
+                              return Text(
+                                "  Usuario de Confirmación: ${snapshot.data}",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.normal,
+                                    fontSize: 18),
+                              );
+                            } else {
+                              // Mientras el Future se está resolviendo, muestra un indicador de carga
+                              return CircularProgressIndicator();
+                            }
+                          },
                         ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Teléfono Cliente: ${safeValue(data['telefono_shipping'])}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
-                        ),
+                        // ! aqui va el ususario que confirma
+                        // Text("Usuario de Confirmación: ${FutureBuilder<String>(
+                        //   future: userNametotoConfirmOrder(
+                        //       data['confirmed_by'] != null
+                        //           ? data['confirmed_by']
+                        //           : 0),
+                        //   builder: (BuildContext context,
+                        //       AsyncSnapshot<String> snapshot) {
+                        //     return Text(snapshot.data ?? 'Desconocido');
+                        //   },
+                        // )}"),
                         SizedBox(
                           height: 20,
                         ),
@@ -228,7 +265,7 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Cantidad: ${safeValue(data['cantidad_total'])}",
+                          "  Status: ${safeValue(data['status'].toString())}",
                           style: TextStyle(
                               fontWeight: FontWeight.normal, fontSize: 18),
                         ),
@@ -236,7 +273,7 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Producto: ${safeValue(data['producto_p'])}",
+                          "  Transportadora: ${safeValue(transportadoraNombre)}",
                           style: TextStyle(
                               fontWeight: FontWeight.normal, fontSize: 18),
                         ),
@@ -244,7 +281,10 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Producto Extra: ${safeValue(data['producto_extra'])}",
+                          data['ruta'] != null &&
+                                  data['ruta'].toString() != "[]"
+                              ? "  Ruta: ${data['ruta'][0]['titulo'].toString()}"
+                              : "",
                           style: TextStyle(
                               fontWeight: FontWeight.normal, fontSize: 18),
                         ),
@@ -252,7 +292,18 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Precio Total: \$ ${safeValue(data['precio_total'])}",
+                          data['sub_ruta'] != null &&
+                                  data['sub_ruta'].toString() != "[]"
+                              ? "  Sub-Ruta: ${data['sub_ruta'][0]['titulo'].toString()}"
+                              : "  Sub-Ruta: No Disponible",
+                          style: TextStyle(
+                              fontWeight: FontWeight.normal, fontSize: 18),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          "  Operador: ${safeValue(operadorUsername)}",
                           style: TextStyle(
                               fontWeight: FontWeight.normal, fontSize: 18),
                         ),
@@ -275,14 +326,7 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
                         SizedBox(
                           height: 20,
                         ),
-                        Text(
-                          "  Status: ${safeValue(data['status'].toString())}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
+
                         Divider(
                           height: 1.0,
                           color: Colors.grey[200],
@@ -309,7 +353,7 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Vendedor: ${safeValue(data['tienda_temporal'].toString())}",
+                          "  Estado Interno: ${safeValue(data['estado_interno'].toString())}",
                           style: TextStyle(
                               fontWeight: FontWeight.normal, fontSize: 18),
                         ),
@@ -317,21 +361,14 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Transportadora: ${safeValue(transportadoraNombre)}",
+                          "  Estado Logístico: ${safeValue(data['estado_logistico'].toString())}",
                           style: TextStyle(
                               fontWeight: FontWeight.normal, fontSize: 18),
                         ),
                         SizedBox(
                           height: 20,
                         ),
-                        Text(
-                          "  Operador: ${safeValue(operadorUsername)}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
+
                         Text(
                           "  Estado Devolución: ${safeValue(data['estado_devolucion'].toString())}",
                           style: TextStyle(
@@ -340,22 +377,10 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
                         const SizedBox(
                           height: 20,
                         ),
-                        Text(
-                          "  Fecha Entrega: ${safeValue(data['fecha_entrega'].toString())}",
-                          style: const TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
                         Divider(
                           height: 1.0,
                           color: Colors.grey[200],
                         ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-
                         Row(
                           children: [
                             Icon(
@@ -380,7 +405,7 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
                                       data['archivo'].toString() == "null"
                                   ? Container()
                                   : Container(
-                                      margin: EdgeInsets.only(top:20.0),
+                                      margin: EdgeInsets.only(top: 20.0),
                                       child: Image.network(
                                         "$generalServer${data['archivo'].toString()}",
                                         fit: BoxFit.fill,
@@ -481,152 +506,51 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
           ),
         ),
       ),
-      floatingActionButton: data['status'] != "NOVEDAD RESUELTA"
-          ? FloatingActionButton.extended(
-              onPressed: _showResolveModal,
-              label: const Text('Resolver Novedad'),
-              icon: const Icon(Icons.check_circle),
-            )
-          : null,
+      // floatingActionButton: data['status'] != "NOVEDAD RESUELTA"
+      //     ? FloatingActionButton.extended(
+      //         onPressed: _showResolveModal,
+      //         label: const Text('Resolver Novedad'),
+      //         icon: const Icon(Icons.check_circle),
+      //       )
+      //     : null,
     );
   }
 
-  void _showResolveModal() {
-    showModalBottomSheet(
-        context: context,
-        builder: (BuildContext context) {
-          return Container(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    const Expanded(
-                      child: Text('Status:',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      flex: 3,
-                      child: TextFormField(
-                        controller: _statusController,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                        ),
-                        enabled: false,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20),
-                Row(
-                  children: [
-                    const Expanded(
-                      child: Text('Comentario:',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      flex: 3,
-                      child: TextFormField(
-                        controller: _comentarioController,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(Icons.cancel),
-                      label: const Text('Cancelar'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent,
-                      ),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () async {
-                        if (data['operadore'] != null &&
-                            data['operadore'].isNotEmpty) {
-                          // await Connections().editStatusandComment(
-                          //     data['id'],
-                          //     _statusController.text,
-                          //     _comentarioController.text);
+  String extractDateFromBrackets(String input) {
+    int startIndex = input.indexOf('[');
+    int endIndex = input.indexOf(']');
 
-                          await Connections().updateOrderWithTime(
-                              data['id'].toString(),
-                              "status:${_statusController.text}",
-                              idUser,
-                              "",
-                              {"comentario": _comentarioController.text});
+    if (startIndex != -1 && endIndex != -1 && startIndex < endIndex) {
+      return input.substring(startIndex + 1, endIndex);
+    }
 
-                          await sendWhatsAppMessage(
-                              context, data, _comentarioController.text);
-                        } else {
-                          //  Navigator.pop(context);
-                          _showErrorSnackBar(context,
-                              "El pedido no tiene un Operador Asignado.");
-                        }
-
-                        // await widget.functionpass;
-
-                        Navigator.pop(context);
-                        Navigator.pop(context);
-
-                        await widget.function();
-                      },
-                      icon: const Icon(Icons.check),
-                      label: const Text('Guardar'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          );
-        });
+    return input; // Retorna la entrada original si no hay corchetes o el formato es incorrecto
   }
 
-  Future<void> sendWhatsAppMessage(BuildContext context,
-      Map<dynamic, dynamic> orderData, String newComment) async {
-    String? phoneNumber = orderData['operadore']?.isNotEmpty == true
-        ? orderData['operadore'][0]['telefono']
-        : null;
-
-    if (phoneNumber != null && phoneNumber.isNotEmpty) {
-      var message =
-          "Buen Día, la guía con el código ${orderData['name_comercial']}-${orderData['numero_orden']} indica que ' $newComment ' .";
-      var whatsappUrl =
-          "https://api.whatsapp.com/send?phone=$phoneNumber&text=${Uri.encodeFull(message)}";
-
-      if (!await launchUrl(Uri.parse(whatsappUrl))) {
-        throw Exception('Could not launch $whatsappUrl');
-      }
+  Future<String> userNametotoConfirmOrder(userId) async {
+    if (userId == 0) {
+      return 'Desconocido';
     } else {
-      _showErrorSnackBar(context, "El pedido no tiene un operador asignado.");
+      var user =
+          await Connections().getPersonalInfoAccountforConfirmOrder(userId);
+      if (user != null && user.containsKey('username')) {
+        return user['username'].toString();
+      } else {
+        return 'Desconocido';
+      }
     }
   }
 
-  void _showErrorSnackBar(BuildContext context, String errorMessage) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          errorMessage,
-          style: TextStyle(color: Color.fromRGBO(7, 0, 0, 1)),
-        ),
-        backgroundColor: Color.fromARGB(255, 253, 101, 90),
-        duration: Duration(seconds: 4),
-      ),
-    );
-  }
+  // void _showErrorSnackBar(BuildContext context, String errorMessage) {
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     SnackBar(
+  //       content: Text(
+  //         errorMessage,
+  //         style: TextStyle(color: Color.fromRGBO(7, 0, 0, 1)),
+  //       ),
+  //       backgroundColor: Color.fromARGB(255, 253, 101, 90),
+  //       duration: Duration(seconds: 4),
+  //     ),
+  //   );
+  // }
 }

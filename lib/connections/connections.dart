@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:frontend/models/provider_model.dart';
+import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/models/user_model.dart';
 import 'package:intl/intl.dart';
 
@@ -213,6 +214,14 @@ class Connections {
 
     var getUserSpecificRequest =
         await http.get(Uri.parse("$serverLaravel/api/users/$id"));
+    var responseUser = await getUserSpecificRequest.body;
+    var decodeDataUser = json.decode(responseUser);
+    return decodeDataUser['user'];
+  }
+  getPersonalInfoAccountforConfirmOrder(idUser) async {
+
+    var getUserSpecificRequest =
+        await http.get(Uri.parse("$serverLaravel/api/users/$idUser"));
     var responseUser = await getUserSpecificRequest.body;
     var decodeDataUser = json.decode(responseUser);
     return decodeDataUser['user'];
@@ -1344,7 +1353,6 @@ class Connections {
       List filtersAndAll = [];
       filtersAndAll.addAll(and);
       filtersAndAll.addAll(defaultAnd);
-
       var request = await http.post(
           Uri.parse("$serverLaravel/api/logistic/filter/novelties"),
           headers: {'Content-Type': 'application/json'},
@@ -6269,6 +6277,40 @@ class Connections {
     }
   }
 
+
+  // ! warehouses
+  getWarehouses() async {
+    try {
+      var response = await http.get(
+        Uri.parse("$serverLaravel/api/warehouses"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData['warehouses'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+getWarehousesProvider(int providerId) async {
+    try {
+      var response = await http.get(
+        Uri.parse("$serverLaravel/api/warehouses/provider/$providerId"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData['warehouses'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
   updateProvider(ProviderModel provider) async {
     try {
       var name = provider.user!.id;
@@ -6294,6 +6336,30 @@ class Connections {
       return 2;
     }
   }
+
+      createWarehouse(WarehouseModel warehouse) async {
+    try {
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/warehouses"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "branch_name": warehouse.branchName,
+                "address": warehouse.address,
+                "reference": warehouse.reference,
+                "description": warehouse.description,
+                "provider_id": sharedPrefs!.getString("idProvider")
+              }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData['providers'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }      
 
   createSubProvider(UserModel user) async {
     try {
@@ -6321,17 +6387,21 @@ class Connections {
     }
   }
 
-  updateSubProvider(UserModel provider) async {
+        
+        
+        
+        
+    updateWarehouse(int id,String nameSucursal,String address,String reference,String description) async {
     try {
-      var response = await http.put(
-          Uri.parse(
-              "$serverLaravel/api/users/subproviders/update/${provider.id}"),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({
-            "username": provider.username,
-            "email": provider.email,
-            "blocked": provider.blocked
-          }));
+      var response =
+          await http.put(Uri.parse("$serverLaravel/api/warehouses/$id"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "branch_name": nameSucursal,
+                "address": address,
+                "reference": reference,
+                "description": description,
+              }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         // print(decodeData);
@@ -6344,6 +6414,46 @@ class Connections {
     }
   }
 
+  updateSubProvider(UserModel provider) async {
+    try {
+      var response = await http.put(
+          Uri.parse(
+              "$serverLaravel/api/users/subproviders/update/${provider.id}"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "username": provider.username,
+            "email": provider.email,
+            "blocked": provider.blocked
+          }));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData['providers'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+deleteWarehouse(int ?warehouseId) async {
+    try {
+      var response =
+          await http.delete(Uri.parse("$serverLaravel/api/warehouses/$warehouseId"),
+              headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData['message'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
   cleanTransactionsFailed(id) async {
     try {
       var response = await http.post(
@@ -6360,4 +6470,5 @@ class Connections {
       return 2;
     }
   }
+
 }

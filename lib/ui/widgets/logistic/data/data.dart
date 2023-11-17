@@ -30,6 +30,8 @@ List optionsLogistic = [
   {"name": "Guías Enviadas", "icon": Icons.send_outlined},
   // {"name": "Añadir Stock a Vendedores", "icon": Icons.add},
   {"name": "Soporte Remoto", "icon": Icons.help_outline_outlined},
+  {"name": "Auditoria", "icon": Icons.analytics},
+
   // {"name": "Asignar Retiros", "icon": Icons.add_box_outlined},
   {"name": "Devoluciones", "icon": Icons.assignment_return_outlined},
   {"name": "Transacciones", "icon": Icons.payment},
@@ -102,4 +104,6 @@ List optionsOperator = [
 List optionsProvider = [
   {"name": "Home", "icon": Icons.home_outlined},
   {"name": "Productos", "icon": Icons.shopping_bag_outlined},
+  {"name": "Bodegas", "icon": Icons.store},
+  {"name": "Proveedores", "icon": Icons.home_outlined},
 ];
