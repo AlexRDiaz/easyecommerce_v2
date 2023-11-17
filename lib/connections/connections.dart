@@ -5660,26 +5660,6 @@ class Connections {
     }
   }
 
-  getWarehouses() async {
-    try {
-      var response = await http.get(
-        Uri.parse("$serverLaravel/api/warehouses"),
-        headers: {'Content-Type': 'application/json'},
-      );
-      // var decodeData = json.decode(response);
-      if (response.statusCode == 200) {
-        var decodeData = json.decode(response.body);
-        return decodeData;
-      } else if (response.statusCode == 400) {
-        print("Error 400: Bad Request");
-      } else {
-        print("Error ${response.statusCode}: ${response.reasonPhrase}");
-      }
-    } catch (error) {
-      print("Ocurrió un error durante la solicitud: $error");
-    }
-  }
-
 //  *
   getProducts(populate, page_size, current_page, or, and, sort, search) async {
     try {
