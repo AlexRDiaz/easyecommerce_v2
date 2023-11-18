@@ -49,22 +49,28 @@ class _LoginPageState extends State<LoginPage> {
               child: Center(
                 child: SingleChildScrollView(
                     child: responsive(
-                        Container(
-                            width: MediaQuery.of(context).size.width * 0.25,
-                            padding: EdgeInsets.all(20.0), // Espaciado interno
-                            decoration: BoxDecoration(
-                              color: Color.fromRGBO(
-                                  194, 199, 204, 0.973), // Color de fondo
-                              border: Border.all(
-                                color: ColorsSystem()
-                                    .colorBlack
-                                    .withOpacity(0.3), // Color del borde
-                                width: 1.5, // Ancho del borde
-                              ),
-                              borderRadius:
-                                  BorderRadius.circular(12.0), // Radio de borde
-                            ),
-                            child: _content()),
+                        Column(
+                          children: [
+                            _logo(),
+                            Container(
+                                width: MediaQuery.of(context).size.width * 0.25,
+                                padding:
+                                    EdgeInsets.all(20.0), // Espaciado interno
+                                decoration: BoxDecoration(
+                                  color: Color.fromRGBO(
+                                      194, 199, 204, 0.973), // Color de fondo
+                                  border: Border.all(
+                                    color: ColorsSystem()
+                                        .colorBlack
+                                        .withOpacity(0.3), // Color del borde
+                                    width: 1.5, // Ancho del borde
+                                  ),
+                                  borderRadius: BorderRadius.circular(
+                                      12.0), // Radio de borde
+                                ),
+                                child: _content()),
+                          ],
+                        ),
                         Container(
                             width: MediaQuery.of(context).size.width * 0.82,
                             padding: EdgeInsets.all(20.0), // Espaciado interno
@@ -120,7 +126,6 @@ class _LoginPageState extends State<LoginPage> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        _logo(),
         const SizedBox(
           height: 10,
         ),
@@ -222,7 +227,7 @@ class _LoginPageState extends State<LoginPage> {
       children: [
         Image.asset(
           images.logoEasyEcommercce,
-          width: 100,
+          width: MediaQuery.of(context).size.width * 0.25,
         ),
         SizedBox(
           height: 20,
