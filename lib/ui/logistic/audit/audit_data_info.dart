@@ -137,7 +137,7 @@ class _AuditDataInfo extends State<AuditDataInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Marca Tiempo Envio: ${safeValue(data['marca_tiempo_envio'].toString())}",
+                          "  Fecha de Confirmación: ${safeValue(data['fecha_confirmacion'].toString())}",
                           style: TextStyle(
                               fontWeight: FontWeight.normal, fontSize: 18),
                         ),
@@ -145,7 +145,7 @@ class _AuditDataInfo extends State<AuditDataInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Fecha de Confirmación: ${safeValue(data['fecha_confirmacion'].toString())}",
+                          "  Marca Tiempo Envio: ${safeValue(data['marca_tiempo_envio'].toString())}",
                           style: TextStyle(
                               fontWeight: FontWeight.normal, fontSize: 18),
                         ),

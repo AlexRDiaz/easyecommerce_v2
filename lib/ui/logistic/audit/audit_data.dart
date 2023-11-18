@@ -76,13 +76,15 @@ class _AuditState extends State<Audit> {
     "users",
     "users.vendedores"
   ];
-  // List<String> returnStates = [
-  //   'TODO',
-  //   'PENDIENTE',
-  //   'EN BODEGA',
-  //   'DEVOLUCION EN RUTA',
-  //   'ENTREGADO EN OFICINA'
-  // ];
+
+  List<String> returnStates = [
+    'TODO',
+    'PENDIENTE',
+    'EN BODEGA',
+    'DEVOLUCION EN RUTA',
+    'ENTREGADO EN OFICINA'
+  ];
+
   List defaultArrayFiltersAnd = [
     // {"equals/estado_devolucion": "PENDIENTE"},
     {"/estado_interno": "CONFIRMADO"},
@@ -143,6 +145,8 @@ class _AuditState extends State<Audit> {
       TextEditingController(text: "");
   TextEditingController vendedorController =
       TextEditingController(text: "TODO");
+  TextEditingController returnStatesController =
+      TextEditingController(text: "TODO");
   TextEditingController estadoConfirmacionController =
       TextEditingController(text: "TODO");
   TextEditingController estadoLogisticoController =
@@ -190,7 +194,7 @@ class _AuditState extends State<Audit> {
           not,
           currentPage,
           pageSize,
-         searchController.text.toString(),
+          searchController.text.toString(),
           sortFieldDefaultValue.toString(),
           sharedPrefs!.getString("dateDesdeLogistica").toString(),
           sharedPrefs!.getString("dateHastaLogistica").toString());
@@ -317,8 +321,7 @@ class _AuditState extends State<Audit> {
                                 Expanded(
                                   child: _modelTextField(
                                       text: "Buscar",
-                                      controller:
-                                         searchController),
+                                      controller: searchController),
                                 ),
                                 Expanded(
                                   child: Row(
@@ -344,8 +347,7 @@ class _AuditState extends State<Audit> {
                                 Container(
                                   child: _modelTextField(
                                       text: "Buscar",
-                                      controller:
-                                         searchController),
+                                      controller: searchController),
                                 ),
                                 Row(
                                   children: [
@@ -412,12 +414,12 @@ class _AuditState extends State<Audit> {
                               onSort: (columnIndex, ascending) {},
                             ),
                             DataColumn2(
-                              label: Text("Fecha Entrega"),
+                              label: Text("Marca Tiempo Envio"),
                               size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {},
                             ),
                             DataColumn2(
-                              label: Text("Marca Tiempo Envio"),
+                              label: Text("Fecha Entrega"),
                               size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {},
                             ),
@@ -495,9 +497,16 @@ class _AuditState extends State<Audit> {
                               onSort: (columnIndex, ascending) {},
                             ),
                             DataColumn2(
-                              label: Text("Estado Devolución"),
+                              label: SelectFilter(
+                                  'Estado Devolución',
+                                  'equals/estado_devolucion',
+                                  returnStatesController,
+                                  returnStates),
                               size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
+                              // numeric: true,
+                              onSort: (columnIndex, ascending) {
+                                // sortFunc("Name_Comercial");
+                              },
                             ),
 
                             // data['novedades'][index]['try']
@@ -529,8 +538,7 @@ class _AuditState extends State<Audit> {
                                 Expanded(
                                   child: _modelTextField(
                                       text: "Buscar",
-                                      controller:
-                                          searchController),
+                                      controller: searchController),
                                 ),
                                 Expanded(
                                   child: Row(
@@ -556,8 +564,7 @@ class _AuditState extends State<Audit> {
                                 Container(
                                   child: _modelTextField(
                                       text: "Buscar",
-                                      controller:
-                                          searchController),
+                                      controller: searchController),
                                 ),
                                 Row(
                                   children: [
@@ -624,12 +631,12 @@ class _AuditState extends State<Audit> {
                               onSort: (columnIndex, ascending) {},
                             ),
                             DataColumn2(
-                              label: Text("Fecha Entrega"),
+                              label: Text("Marca Tiempo Envio"),
                               size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {},
                             ),
                             DataColumn2(
-                              label: Text("Marca Tiempo Envio"),
+                              label: Text("Fecha Entrega"),
                               size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {},
                             ),
@@ -707,9 +714,16 @@ class _AuditState extends State<Audit> {
                               onSort: (columnIndex, ascending) {},
                             ),
                             DataColumn2(
-                              label: Text("Estado Devolución"),
+                              label: SelectFilter(
+                                  'Estado Devolución',
+                                  'equals/estado_devolucion',
+                                  returnStatesController,
+                                  returnStates),
                               size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
+                              // numeric: true,
+                              onSort: (columnIndex, ascending) {
+                                // sortFunc("Name_Comercial");
+                              },
                             ),
                             // data['novedades'][index]['try']
                           ],
@@ -817,7 +831,7 @@ class _AuditState extends State<Audit> {
       }),
       DataCell(
           Text(
-            data[index]['fecha_entrega'].toString(),
+            data[index]['marca_tiempo_envio'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
@@ -826,7 +840,7 @@ class _AuditState extends State<Audit> {
       }),
       DataCell(
           Text(
-            data[index]['marca_tiempo_envio'].toString(),
+            data[index]['fecha_entrega'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
@@ -1368,7 +1382,7 @@ class _AuditState extends State<Audit> {
                         not,
                         1,
                         100000,
-                       searchController.text.toString(),
+                        searchController.text.toString(),
                         sortFieldDefaultValue,
                         sharedPrefs!.getString("dateDesdeLogistica").toString(),
                         sharedPrefs!.getString("dateHastaLogistica").toString(),
@@ -1597,7 +1611,7 @@ class _AuditState extends State<Audit> {
   }
 
   void limpiar() {
-   searchController.text = "";
+    searchController.text = "";
     arrayFiltersAnd.clear();
     // sortFieldDefaultValue = "marca_t_i:DESC";
     _search.clear();
