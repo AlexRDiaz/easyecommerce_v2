@@ -326,7 +326,6 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       });
       print("datos paginados");
     } catch (e) {
-      Navigator.pop(context);
       SnackBarHelper.showErrorSnackBar(
           context, "Ha ocurrido un error de conexión");
     }

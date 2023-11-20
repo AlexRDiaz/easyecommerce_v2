@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/server.dart';
+import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
+import 'package:frontend/ui/widgets/html_editor.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -27,9 +29,9 @@ class _ProductDetailsState extends State<ProductDetails> {
   String createdAt = "";
   String warehouse = "";
   String img_url = "";
-  var type;
+  var typeValue;
   var descripcion;
-  var categories;
+  List<String> categories = [];
   final TextEditingController _typeController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
@@ -50,7 +52,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   List<String> types = ["SIMPLE", "VARIABLE"];
 
   var selectedCat;
-
+  List<dynamic> dataFeatures = [];
   @override
   void initState() {
     super.initState();
@@ -92,10 +94,7 @@ class _ProductDetailsState extends State<ProductDetails> {
       // });
       setState(() {});
     } catch (e) {
-      // Future.delayed(const Duration(milliseconds: 500), ()
-      // Navigator.pop(context);
-      // });
-      // SnackBarHelper.showErrorSnackBar(context, "Error al guardar los datos");
+      SnackBarHelper.showErrorSnackBar(context, "Error al guardar los datos");
     }
   }
 
@@ -107,37 +106,45 @@ class _ProductDetailsState extends State<ProductDetails> {
     _stockController.text = data['stock'].toString();
     _priceController.text = data['price'].toString();
     warehouse = data['warehouse']['branch_name'].toString();
-    // _descriptionController.text = data['direccion_shipping'].toString();
-    // var type = data['ciudad_shipping'].toString();
-    // img_url = data['url_img'].toString();
 
     img_url = data['url_img'].toString();
     if (img_url == "null" || img_url == "") {
       img_url = "";
     }
+
     // print("img incoming: ${img_url.toString()}");
 
-    List<dynamic> dataFeatures = json.decode(data['features']);
-    type = findValue(dataFeatures, 'type')?.toString();
-    descripcion = findValue(dataFeatures, 'description')?.toString();
-    categories =
-        findValue(dataFeatures, 'categories')?.cast<String>() ?? <String>[];
-    _typeController.text = type;
+    dataFeatures = json.decode(data['features']);
+    print(dataFeatures);
+    // type = findValue(dataFeatures, 'type')?.toString();
+    typeValue = findValue(dataFeatures, 'type');
+    _typeController.text = typeValue;
+    descripcion = findValue(dataFeatures, 'description');
     _descriptionController.text = descripcion;
-    // print("type: $type");
-    // print("descripcion: $descripcion");
-    // print("categories: $categories");
-
+    // Acceder a las categorías
+    // Acceder a las categorías
+    categories = findCategories(dataFeatures);
     setState(() {});
   }
 
   dynamic findValue(List<dynamic> dataFeatures, String featureName) {
-    var feature = dataFeatures.firstWhere(
-      (dataFeature) => dataFeature['feature_name'] == featureName,
+    for (var feature in dataFeatures) {
+      if (feature.containsKey(featureName)) {
+        return feature[featureName];
+      }
+    }
+    return null; // Valor predeterminado si no se encuentra la característica
+  }
+
+  List<String> findCategories(List<dynamic> dataFeatures) {
+    var categoriesFeature = dataFeatures.firstWhere(
+      (feature) => feature.containsKey('categories'),
       orElse: () => null,
     );
 
-    return feature != null ? feature['value'] : null;
+    return categoriesFeature != null
+        ? List<String>.from(categoriesFeature['categories'] ?? [])
+        : [];
   }
 
   @override
@@ -164,53 +171,63 @@ class _ProductDetailsState extends State<ProductDetails> {
             children: [
               Column(
                 children: [
-                  // _modelText("Código", codigo),
-                  // _modelText("Creado", createdAt),
-                  // _modelTextField("Producto", _nameController),
-                  // _modelTextField("Stock", _stockController),
-                  // _modelTextField("Precio Total", _priceController),
-                  // _modelTextField("Tipo", _typeController),
-
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          const Text(
-                            "Código:",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              color: Colors.black,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Text(
+                                      "Código:",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      codigo,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.grey[800],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(width: 10),
-                          Text(
-                            codigo,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[800],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          const Text(
-                            "Creado:",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              color: Colors.black,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Text(
-                            createdAt,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[800],
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Text(
+                                      "Creado:",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      createdAt,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.grey[800],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
                         ],
@@ -236,299 +253,363 @@ class _ProductDetailsState extends State<ProductDetails> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       Row(
                         children: [
                           const Text(
-                            "Creado:",
+                            "Tipo",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
                               color: Colors.black,
                             ),
                           ),
-                          const SizedBox(width: 10),
-                          Text(
-                            createdAt,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[800],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        "Stock",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: Colors.black,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      TextFormField(
-                        controller: _stockController,
-                        maxLines: null,
-                        decoration: InputDecoration(
-                          fillColor: Colors.white,
-                          filled: true,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5.0),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        "Precio Total",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: Colors.black,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      TextFormField(
-                        controller: _priceController,
-                        maxLines: null,
-                        decoration: InputDecoration(
-                          fillColor: Colors.white,
-                          filled: true,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5.0),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        "Tipo",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: Colors.black,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      DropdownButton<String>(
-                        hint: const Text("Seleccione un tipo"),
-                        value: type,
-                        onChanged: (value) {
-                          setState(() {
-                            type = value ?? "";
-                          });
-                        },
-                        items: types.map((String category) {
-                          return DropdownMenuItem<String>(
-                            value: category,
-                            child: Text(category),
-                          );
-                        }).toList(),
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        "Descripción",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: Colors.black,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      TextFormField(
-                        controller: _descriptionController,
-                        maxLines: null,
-                        decoration: InputDecoration(
-                          fillColor: Colors.white,
-                          filled: true,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5.0),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        "Categorias",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: Colors.black,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      Wrap(
-                        spacing: 8.0,
-                        runSpacing: 8.0,
-                        children: categories.map<Widget>((category) {
-                          return Chip(
-                            label: Text(category),
-                            onDeleted: () {
+                          const SizedBox(width: 20),
+                          DropdownButton<String>(
+                            hint: const Text("Seleccione un tipo"),
+                            value: typeValue,
+                            onChanged: (value) {
                               setState(() {
-                                categories.remove(category);
-                                // print("catAct: $categories");
+                                typeValue = value ?? "";
                               });
                             },
-                          );
-                        }).toList(),
+                            items: types.map((String category) {
+                              return DropdownMenuItem<String>(
+                                value: category,
+                                child: Text(
+                                  category,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ],
                       ),
-                      DropdownButton<String>(
-                        hint: const Text("Seleccione una categoría"),
-                        value: selectedCat,
-                        onChanged: (value) {
-                          setState(() {
-                            selectedCat = value;
-                            if (value != null) {
-                              categories.add(value);
-                            }
-                          });
-                        },
-                        items: listCategories.map((String category) {
-                          return DropdownMenuItem<String>(
-                            value: category,
-                            child: Text(category),
-                          );
-                        }).toList(),
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        "Bodega",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: Colors.black,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        warehouse,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey[800],
-                        ),
-                      ),
-                      const SizedBox(height: 15),
+                      const SizedBox(height: 20),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          ElevatedButton(
-                            onPressed: () async {
-                              final ImagePicker picker = ImagePicker();
-                              final XFile? image = await picker.pickImage(
-                                  source: ImageSource.gallery);
-
-                              if (image != null && image.path.isNotEmpty) {
-                                var responseI =
-                                    await Connections().postDoc(image);
-                                // print("ImgSaveStrapi: $responseI");
-
-                                setState(() {
-                                  img_url = responseI[1];
-                                });
-
-                                // Navigator.pop(context);
-                                // Navigator.pop(context);
-                              } else {
-                                print("No img");
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue[300],
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Text(
+                                      "Stock",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    SizedBox(
+                                      width: 150,
+                                      child: TextFormField(
+                                        controller: _stockController,
+                                        decoration: InputDecoration(
+                                          fillColor: Colors.white,
+                                          filled: true,
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(5.0),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-                            child: const Text(
-                              "Agregar imagen",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
-                              ),
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Text(
+                                      "Precio Total",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    SizedBox(
+                                      width: 150,
+                                      child: TextFormField(
+                                        controller: _priceController,
+                                        decoration: InputDecoration(
+                                          fillColor: Colors.white,
+                                          filled: true,
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(5.0),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
                         ],
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 15),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      img_url.isNotEmpty || img_url != ""
-                          ? SizedBox(
-                              width: 300,
-                              height: 400,
-                              child: Image.network(
-                                "$generalServer$img_url",
-                                fit: BoxFit.fill,
-                              ),
-                            )
-                          : Container(),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  "Categorias",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Wrap(
+                                  spacing: 8.0,
+                                  runSpacing: 8.0,
+                                  children: categories.map<Widget>((category) {
+                                    return Chip(
+                                      label: Text(category),
+                                      onDeleted: () {
+                                        setState(() {
+                                          categories.remove(category);
+                                          // print("catAct: $categories");
+                                        });
+                                      },
+                                    );
+                                  }).toList(),
+                                ),
+                                DropdownButton<String>(
+                                  hint: const Text("Seleccione una categoría"),
+                                  value: selectedCat,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      selectedCat = value;
+                                      if (value != null) {
+                                        categories.add(value);
+                                      }
+                                    });
+                                  },
+                                  items: listCategories.map((String category) {
+                                    return DropdownMenuItem<String>(
+                                      value: category,
+                                      child: Text(category),
+                                    );
+                                  }).toList(),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  "Bodega",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Text(
+                                  warehouse,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey[800],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Expanded(
+                              child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                const Text('Descripción'),
+                                const SizedBox(height: 5),
+                                Container(
+                                  margin: const EdgeInsets.symmetric(
+                                      vertical: 10.0),
+                                  padding: const EdgeInsets.all(8.0),
+                                  height: 250,
+                                  //  width: 600,
+                                  decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      border: Border.all(color: Colors.black)),
+                                  child: HtmlEditor(
+                                    description: findValue(
+                                            dataFeatures, 'description') ??
+                                        "",
+                                    getValue: getValue,
+                                  ),
+                                ),
+                              ]))
+                        ],
+                      ),
+                      const SizedBox(height: 15),
+                      Container(
+                        margin: const EdgeInsets.symmetric(vertical: 10),
+                        padding: const EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: Colors.green,
+                            width: 1.0, // Ancho del borde
+                          ),
+                        ),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            ElevatedButton(
-                              onPressed: () async {
-                                getLoadingModal(context, false);
-                                // print(img_url);
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    final ImagePicker picker = ImagePicker();
+                                    final XFile? image = await picker.pickImage(
+                                        source: ImageSource.gallery);
 
-                                var featuresToSend = [
-                                  {"feature_name": "type", "value": type},
-                                  {
-                                    "feature_name": "categories",
-                                    "value": categories
+                                    if (image != null &&
+                                        image.path.isNotEmpty) {
+                                      var responseI =
+                                          await Connections().postDoc(image);
+                                      // print("ImgSaveStrapi: $responseI");
+
+                                      setState(() {
+                                        img_url = responseI[1];
+                                      });
+
+                                      // Navigator.pop(context);
+                                      // Navigator.pop(context);
+                                    } else {
+                                      print("No img");
+                                    }
                                   },
-                                  {
-                                    "feature_name": "description",
-                                    "value": _descriptionController.text
-                                  },
-                                ];
-
-                                var responseUpt =
-                                    await Connections().updateProduct(codigo, {
-                                  "product_name":
-                                      _nameController.text.toString(),
-                                  "stock": int.parse(
-                                      _stockController.text.toString()),
-                                  "features": featuresToSend,
-                                  "price": double.parse(
-                                      _priceController.text.toString()),
-                                  "url_img": img_url.toString()
-                                });
-
-                                Navigator.pop(context);
-                                Navigator.pop(context);
-
-                                //  await loadData();
-                                await widget.function();
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green[400],
-                              ),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.save_rounded,
-                                    size: 24,
-                                    color: Colors.white,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue[300],
                                   ),
-                                  Text(
-                                    "Guardar",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                  child: const Text(
+                                    "Agregar imagen",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                    ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 15),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                img_url.isNotEmpty || img_url != ""
+                                    ? SizedBox(
+                                        width: 300,
+                                        height: 400,
+                                        child: Image.network(
+                                          "$generalServer$img_url",
+                                          fit: BoxFit.fill,
+                                        ),
+                                      )
+                                    : Container(),
+                              ],
                             ),
                           ],
                         ),
                       ),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    getLoadingModal(context, false);
+                                    // print(img_url);
+
+                                    var featuresToSend = [
+                                      {
+                                        "feature_name": "type",
+                                        "value": typeValue
+                                      },
+                                      {
+                                        "feature_name": "categories",
+                                        "value": categories
+                                      },
+                                      {
+                                        "feature_name": "description",
+                                        "value": _descriptionController.text
+                                      },
+                                    ];
+
+                                    var responseUpt = await Connections()
+                                        .updateProduct(codigo, {
+                                      "product_name":
+                                          _nameController.text.toString(),
+                                      "stock": int.parse(
+                                          _stockController.text.toString()),
+                                      "features": featuresToSend,
+                                      "price": double.parse(
+                                          _priceController.text.toString()),
+                                      "url_img": img_url.toString()
+                                    });
+
+                                    Navigator.pop(context);
+                                    Navigator.pop(context);
+
+                                    //  await loadData();
+                                    await widget.function();
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green[400],
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.save_rounded,
+                                        size: 24,
+                                        color: Colors.white,
+                                      ),
+                                      Text(
+                                        "Guardar",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
-                  ),
-                  const SizedBox(
-                    height: 30,
                   ),
                 ],
               ),
@@ -537,6 +618,11 @@ class _ProductDetailsState extends State<ProductDetails> {
         ),
       ),
     );
+  }
+
+  getValue(value) {
+    _descriptionController.text = value;
+    return value;
   }
 
   Container _modelText(String text, String data) {

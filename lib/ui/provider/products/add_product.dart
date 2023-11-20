@@ -6,8 +6,10 @@ import 'package:flutter_animated_icons/icons8.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/server.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
+import 'package:frontend/ui/widgets/html_editor.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -22,24 +24,51 @@ class _AddProductState extends State<AddProduct> {
   final formKey = GlobalKey<FormState>();
 
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _stockUntController = TextEditingController();
+
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _stockController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
+
   List<String> warehouses = [];
-  // var warehouseList = [];
   List warehouseList = [];
 
   String? selectedWarehouse;
-  List<String> categories = [];
-  List<String> types = [];
-  String? selectedType;
-  String? selectedCat;
+  List<String> categories = [
+    "Hogar",
+    "Mascota",
+    "Moda",
+    "Tecnología",
+    "Cocina",
+    "Belleza"
+  ];
+
+  String? selectedCategory;
   List<String> selectedCategories = [];
 
   List<String> features = [];
   String? img_url;
+
+  List<String> types = ["SIMPLE", "VARIABLE"];
+  String? selectedType;
+  List<String> typesVariables = ["Tallas", "Colores", "Tamaños"];
+  String? selectedVariable;
+  List<String> sizesToSelect = ["XS", "S", "M", "L", "XL"];
+  List<String> colorsToSelect = ["Blanco", "Negro", "Amarillo", "Azul", "Rojo"];
+  List<String> dimensionToSelect = ["Grande", "Mediano", "Pequeño"];
+  String? chosenColor;
+  String? chosenSize;
+  String? chosenDimension;
+  List<String> selectedColores = [];
+  List<String> selectedTallas = [];
+  List<String> selectedDimensions = [];
+
+  List variantTypes = [];
+  List variantsList = [];
+  final TextEditingController _showVariantsController = TextEditingController();
+  int showStockTotal = 0;
 
   bool containsEmoji(String text) {
     final emojiPattern = RegExp(
@@ -56,33 +85,16 @@ class _AddProductState extends State<AddProduct> {
   }
 
   loadData() async {
-    try {
-      var responseBodegas = await Connections().getWarehouses();
-      warehouseList = responseBodegas;
-      if (warehouseList != null) {
-        warehouseList.forEach((warehouse) {
-          setState(() {
-            warehouses.add(
-                '${warehouse["branch_name"]}-${warehouse["warehouse_id"]}');
-          });
+    var responseBodegas = await Connections().getWarehousesProvider(
+        int.parse(sharedPrefs!.getString("idProvider").toString()));
+    warehouseList = responseBodegas;
+    if (warehouseList != null) {
+      warehouseList.forEach((warehouse) {
+        setState(() {
+          warehouses
+              .add('${warehouse["branch_name"]}-${warehouse["warehouse_id"]}');
         });
-      }
-      categories = [
-        "Hogar",
-        "Mascota",
-        "Moda",
-        "Tecnología",
-        "Cocina",
-        "Belleza"
-      ];
-//simple: b/n; variable: colores
-      types = ["SIMPLE", "VARIABLE"];
-
-      //
-    } catch (e) {
-      Navigator.pop(context);
-      SnackBarHelper.showErrorSnackBar(
-          context, "Ha ocurrido un error de conexión");
+      });
     }
   }
 
@@ -147,11 +159,7 @@ class _AddProductState extends State<AddProduct> {
                             ],
                           ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
+                        const SizedBox(width: 20),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -186,6 +194,10 @@ class _AddProductState extends State<AddProduct> {
                     ),
                     const SizedBox(height: 10),
                     Row(
+                      children: [],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
                       children: [
                         Expanded(
                           child: Column(
@@ -193,33 +205,544 @@ class _AddProductState extends State<AddProduct> {
                             children: [
                               const Text('Tipo'),
                               const SizedBox(height: 3),
-                              DropdownButtonHideUnderline(
-                                child: DropdownButton2<String>(
+                              DropdownButtonFormField<String>(
+                                isExpanded: true,
+                                hint: Text(
+                                  'Seleccione',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Theme.of(context).hintColor,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                items: types
+                                    .map((item) => DropdownMenuItem(
+                                          value: item,
+                                          child: Text(
+                                            item,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ))
+                                    .toList(),
+                                value: selectedType,
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedType = value;
+                                    if (value != null) {
+                                      selectedType = value;
+                                    }
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(5.0),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 20),
+                        Visibility(
+                          visible: selectedType == 'VARIABLE',
+                          child: Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Datos'),
+                                const SizedBox(height: 3),
+                                Visibility(
+                                  visible: selectedType == 'VARIABLE',
+                                  child: TextFormField(
+                                    controller: _showVariantsController,
+                                    maxLines: null,
+                                    decoration: InputDecoration(
+                                      fillColor: Colors.white,
+                                      filled: true,
+                                      border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(5.0),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Visibility(
+                      visible: selectedType == 'VARIABLE',
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                DropdownButtonFormField<String>(
                                   isExpanded: true,
                                   hint: Text(
-                                    'Seleccione',
+                                    'Seleccione Variable',
                                     style: TextStyle(
-                                        fontSize: 14,
-                                        color: Theme.of(context).hintColor,
-                                        fontWeight: FontWeight.bold),
+                                      fontSize: 14,
+                                      color: Theme.of(context).hintColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                  items: types
+                                  items: typesVariables
                                       .map((item) => DropdownMenuItem(
                                             value: item,
                                             child: Text(
                                               item,
                                               style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold),
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
                                           ))
                                       .toList(),
-                                  value: selectedType,
-                                  onChanged: (value) async {
+                                  value: selectedVariable,
+                                  onChanged: (value) {
                                     setState(() {
-                                      selectedType = value as String;
+                                      selectedVariable = value;
+                                      if (value != null) {
+                                        selectedVariable = value;
+                                      }
                                     });
                                   },
+                                  decoration: InputDecoration(
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(5.0),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Visibility(
+                                  visible: selectedVariable == "Tallas",
+                                  child: DropdownButtonFormField<String>(
+                                    isExpanded: true,
+                                    hint: Text(
+                                      'Seleccione Talla',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Theme.of(context).hintColor,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    items: sizesToSelect
+                                        .map((item) => DropdownMenuItem(
+                                              value: item,
+                                              child: Text(
+                                                item,
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ))
+                                        .toList(),
+                                    value: chosenSize,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        chosenSize = value;
+                                      });
+                                    },
+                                    decoration: InputDecoration(
+                                      fillColor: Colors.white,
+                                      filled: true,
+                                      border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(5.0),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Visibility(
+                                  visible: selectedVariable == "Colores",
+                                  child: DropdownButtonFormField<String>(
+                                    isExpanded: true,
+                                    hint: Text(
+                                      'Seleccione Color',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Theme.of(context).hintColor,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    items: colorsToSelect
+                                        .map((item) => DropdownMenuItem(
+                                              value: item,
+                                              child: Text(
+                                                item,
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ))
+                                        .toList(),
+                                    value: chosenColor,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        chosenColor = value;
+                                      });
+                                    },
+                                    decoration: InputDecoration(
+                                      fillColor: Colors.white,
+                                      filled: true,
+                                      border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(5.0),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Visibility(
+                                  visible: selectedVariable == "Tamaños",
+                                  child: DropdownButtonFormField<String>(
+                                    isExpanded: true,
+                                    hint: Text(
+                                      'Seleccione Tamaño',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Theme.of(context).hintColor,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    items: dimensionToSelect
+                                        .map((item) => DropdownMenuItem(
+                                              value: item,
+                                              child: Text(
+                                                item,
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ))
+                                        .toList(),
+                                    value: chosenDimension,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        chosenDimension = value;
+                                      });
+                                    },
+                                    decoration: InputDecoration(
+                                      fillColor: Colors.white,
+                                      filled: true,
+                                      border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(5.0),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                /*
+                                DropdownButtonFormField<String>(
+                                  isExpanded: true,
+                                  hint: Text(
+                                    'Seleccione Talla',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Theme.of(context).hintColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  items: sizesToSelect
+                                      .map((item) => DropdownMenuItem(
+                                            value: item,
+                                            child: Text(
+                                              item,
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ))
+                                      .toList(),
+                                  value: chosenSize,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      chosenSize = value;
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(5.0),
+                                    ),
+                                  ),
+                                ),
+                                DropdownButtonFormField<String>(
+                                  isExpanded: true,
+                                  hint: Text(
+                                    'Seleccione Color',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Theme.of(context).hintColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  items: colorsToSelect
+                                      .map((item) => DropdownMenuItem(
+                                            value: item,
+                                            child: Text(
+                                              item,
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ))
+                                      .toList(),
+                                  value: chosenColor,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      chosenColor = value;
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(5.0),
+                                    ),
+                                  ),
+                                ),
+                                DropdownButtonFormField<String>(
+                                  isExpanded: true,
+                                  hint: Text(
+                                    'Seleccione Tamaño',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Theme.of(context).hintColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  items: dimensionToSelect
+                                      .map((item) => DropdownMenuItem(
+                                            value: item,
+                                            child: Text(
+                                              item,
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ))
+                                      .toList(),
+                                  value: chosenDimension,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      chosenDimension = value;
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(5.0),
+                                    ),
+                                  ),
+                                )
+                                */
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          Expanded(
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: _stockUntController,
+                                    keyboardType: TextInputType.number,
+                                    inputFormatters: <TextInputFormatter>[
+                                      FilteringTextInputFormatter.digitsOnly
+                                    ],
+                                    decoration: const InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      hintText: 'Cantidad',
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    if (int.parse(_stockUntController.text) <
+                                        1) {
+                                      showSuccessModal(
+                                          context,
+                                          "Por favor, ingrese una Cantidad válida.",
+                                          Icons8.alert);
+                                    } else {
+                                      if (selectedVariable == "Colores") {
+                                        selectedColores.add(chosenColor!);
+                                        var variant = {
+                                          "color": "$chosenColor",
+                                          "stock": _stockUntController.text
+                                        };
+                                        variantsList.add(variant);
+                                        //
+                                      } else if (selectedVariable == "Tallas") {
+                                        selectedTallas.add(chosenSize!);
+                                        var variant = {
+                                          "talla": "$chosenSize",
+                                          "stock": _stockUntController.text
+                                        };
+                                        variantsList.add(variant);
+                                        //
+                                      } else if (selectedVariable ==
+                                          "Tamaños") {
+                                        selectedDimensions
+                                            .add(chosenDimension!);
+                                        var variant = {
+                                          "dimension": "$chosenDimension",
+                                          "stock": _stockUntController.text
+                                        };
+                                        variantsList.add(variant);
+                                        //
+                                      }
+
+                                      showVariants(variantsList);
+
+                                      calcuateStockTotal(
+                                          _stockUntController.text);
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green[400],
+                                  ),
+                                  child: const Text(
+                                    "Añadir",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Row(
+                    //   children: [
+                    //     Expanded(
+                    //       child: SingleChildScrollView(
+                    //         child: Column(
+                    //           crossAxisAlignment: CrossAxisAlignment.start,
+                    //           children: [
+                    //             const Text('Descripción'),
+                    //             const SizedBox(height: 3),
+                    //             TextFormField(
+                    //               controller: _descriptionController,
+                    //               maxLines: null,
+                    //               decoration: InputDecoration(
+                    //                 fillColor: Colors.white,
+                    //                 filled: true,
+                    //                 border: OutlineInputBorder(
+                    //                   borderRadius: BorderRadius.circular(5.0),
+                    //                 ),
+                    //               ),
+                    //             ),
+                    //           ],
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Cantidad en Stock'),
+                              const SizedBox(height: 3),
+                              TextFormField(
+                                controller: _stockController,
+                                keyboardType: TextInputType.number,
+                                inputFormatters: <TextInputFormatter>[
+                                  FilteringTextInputFormatter.digitsOnly
+                                ],
+                                decoration: InputDecoration(
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(5.0),
+                                  ),
+                                ),
+                                validator: (value) {
+                                  if (value!.isEmpty) {
+                                    return 'Por favor, ingrese la cantidad en stock del producto';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 20),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Bodega:'),
+                              const SizedBox(height: 3),
+                              DropdownButtonFormField<String>(
+                                isExpanded: true,
+                                hint: Text(
+                                  'Seleccione Bodega',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Theme.of(context).hintColor,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                items: warehouses
+                                    .map((item) => DropdownMenuItem(
+                                          value: item,
+                                          child: Text(
+                                            item.split('-')[0],
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ))
+                                    .toList(),
+                                value: selectedWarehouse,
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedWarehouse = value as String;
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(5.0),
+                                  ),
                                 ),
                               ),
                             ],
@@ -259,7 +782,7 @@ class _AddProductState extends State<AddProduct> {
                                     : null,
                                 onChanged: (value) {
                                   setState(() {
-                                    selectedCat = value;
+                                    selectedCategory = value;
                                     if (value != null) {
                                       selectedCategories.add(value);
                                     }
@@ -294,106 +817,31 @@ class _AddProductState extends State<AddProduct> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: SingleChildScrollView(
-                            child: Column(
+                    const SizedBox(height: 30),
+                    Row(children: [
+                      Expanded(
+                          child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Descripción'),
-                                const SizedBox(height: 3),
-                                TextFormField(
-                                  controller: _descriptionController,
-                                  maxLines: null,
-                                  decoration: InputDecoration(
-                                    fillColor: Colors.white,
-                                    filled: true,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(5.0),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                            const Text('Descripción'),
+                            const SizedBox(height: 5),
+                            Container(
+                              margin:
+                                  const EdgeInsets.symmetric(vertical: 10.0),
+                              padding: const EdgeInsets.all(8.0),
+                              height: 250,
+                              //  width: 600,
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  border: Border.all(color: Colors.black)),
+                              child: HtmlEditor(
+                                description: "",
+                                getValue: getValue,
+                              ),
                             ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('Cantidad en Stock'),
-                              const SizedBox(height: 3),
-                              TextFormField(
-                                controller: _stockController,
-                                keyboardType: TextInputType.number,
-                                inputFormatters: <TextInputFormatter>[
-                                  FilteringTextInputFormatter.digitsOnly
-                                ],
-                                decoration: InputDecoration(
-                                  fillColor: Colors.white,
-                                  filled: true,
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(5.0),
-                                  ),
-                                ),
-                                validator: (value) {
-                                  if (value!.isEmpty) {
-                                    return 'Por favor, ingrese la cantidad en stock del producto';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 20),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('Bodega:'),
-                              const SizedBox(height: 3),
-                              DropdownButtonHideUnderline(
-                                child: DropdownButton2<String>(
-                                  isExpanded: true,
-                                  hint: Text(
-                                    'Seleccione',
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        color: Theme.of(context).hintColor,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  items: warehouses
-                                      .map((item) => DropdownMenuItem(
-                                            value: item,
-                                            child: Text(
-                                              item.split('-')[0],
-                                              style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                          ))
-                                      .toList(),
-                                  value: selectedWarehouse,
-                                  onChanged: (value) async {
-                                    setState(() {
-                                      selectedWarehouse = value as String;
-                                    });
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                          ]))
+                    ]),
                     const SizedBox(height: 10),
                     Container(
                       margin: const EdgeInsets.symmetric(vertical: 10),
@@ -401,69 +849,66 @@ class _AddProductState extends State<AddProduct> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.3),
-                            spreadRadius: 2,
-                            blurRadius: 5,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
+                        border: Border.all(
+                          color: Colors.green,
+                          width: 1.0,
+                        ),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ElevatedButton(
-                            onPressed: () async {
-                              final ImagePicker picker = ImagePicker();
-                              final XFile? image = await picker.pickImage(
-                                  source: ImageSource.gallery);
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              TextButton(
+                                onPressed: () async {
+                                  final ImagePicker picker = ImagePicker();
+                                  final XFile? image = await picker.pickImage(
+                                      source: ImageSource.gallery);
 
-                              if (image != null && image.path.isNotEmpty) {
-                                var responseI =
-                                    await Connections().postDoc(image);
-                                print("ImgSaveStrapi: $responseI");
+                                  if (image != null && image.path.isNotEmpty) {
+                                    var responseI =
+                                        await Connections().postDoc(image);
+                                    // print("ImgSaveStrapi: $responseI");
 
-                                setState(() {
-                                  img_url = responseI[1];
-                                });
+                                    setState(() {
+                                      img_url = responseI[1];
+                                    });
 
-                                // Navigator.pop(context);
-                                // Navigator.pop(context);
-                              } else {
-                                print("No img");
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue[300],
-                            ),
-                            child: const Text(
-                              "Agregar imagen",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
+                                    // Navigator.pop(context);
+                                    // Navigator.pop(context);
+                                  } else {
+                                    print("No img");
+                                  }
+                                },
+                                child: const Row(
+                                  children: [
+                                    Icon(Icons.image),
+                                    SizedBox(width: 10),
+                                    Text('Seleccionar Imagen'),
+                                  ],
+                                ),
                               ),
-                            ),
+                            ],
+                          ),
+                          const SizedBox(height: 15),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              img_url != null
+                                  ? SizedBox(
+                                      width: 300,
+                                      height: 400,
+                                      child: Image.network(
+                                        "$generalServer$img_url",
+                                        fit: BoxFit.fill,
+                                      ),
+                                    )
+                                  : Container(),
+                            ],
                           ),
                         ],
                       ),
-                    ),
-                    const SizedBox(height: 15),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Mostrar la imagen si está disponible
-                        img_url != null
-                            ? SizedBox(
-                                width: 300,
-                                height: 400,
-                                child: Image.network(
-                                  "$generalServer$img_url",
-                                  fit: BoxFit.fill,
-                                ),
-                              )
-                            : Container(),
-                      ],
                     ),
                     const SizedBox(height: 20),
                     const Row(
@@ -554,7 +999,6 @@ class _AddProductState extends State<AddProduct> {
                             children: [
                               ElevatedButton(
                                 onPressed: () async {
-                                  print("Guardar");
                                   if (formKey.currentState!.validate()) {
                                     getLoadingModal(context, false);
 
@@ -575,8 +1019,11 @@ class _AddProductState extends State<AddProduct> {
                                         btnCancelOnPress: () {},
                                         btnOkOnPress: () {},
                                       ).show();
-                                      print(
-                                          "Selecciona Tipo, Categoría y bodegaa");
+
+                                      // showSuccessModal(
+                                      //     context,
+                                      //     "Por favor, Es necesario que seleccione el Tipo, Categoría/as y Bodega.",
+                                      //     Icons8.alert);
                                     } else {
                                       if (_emailController.text.isNotEmpty) {
                                         if (!_emailController.text
@@ -601,35 +1048,43 @@ class _AddProductState extends State<AddProduct> {
                                         }
                                       }
 
-                                      print(
-                                          "Producto: ${_nameController.text}");
-                                      print("Precio: ${_priceController.text}");
-                                      print("Tipo: $selectedType");
-                                      print("Categoria: $selectedCat");
-                                      print(
-                                          "Descripcion: ${_descriptionController.text}");
-                                      print("Stock: ${_stockController.text}");
-                                      print(
-                                          "Bodega: ${selectedWarehouse.toString().split("-")[1].toString()}");
-                                      print("Img: ");
-                                      print("Email: ${_emailController.text}");
-                                      print(
-                                          "CantidadPriv: ${_quantityController.text}");
+                                      if (selectedType == "SIMPLE") {
+                                        variantTypes = [];
+                                        variantsList = [];
+                                      } else {
+                                        if (selectedColores.isNotEmpty) {
+                                          var colores = {
+                                            "colors": selectedColores
+                                          };
+                                          variantTypes.add(colores);
+                                        }
+
+                                        if (selectedTallas.isNotEmpty) {
+                                          var tallas = {
+                                            "sizes": selectedTallas
+                                          };
+                                          variantTypes.add(tallas);
+                                        }
+
+                                        if (selectedDimensions.isNotEmpty) {
+                                          var dimensions = {
+                                            "dimensions": selectedDimensions
+                                          };
+                                          variantTypes.add(dimensions);
+                                        }
+                                      }
 
                                       var featuresToSend = [
+                                        {"type": selectedType},
+                                        {"categories": selectedCategories},
                                         {
-                                          "feature_name": "type",
-                                          "value": selectedType
+                                          "description":
+                                              _descriptionController.text
                                         },
-                                        {
-                                          "feature_name": "categories",
-                                          "value": selectedCategories
-                                        },
-                                        {
-                                          "feature_name": "description",
-                                          "value": _descriptionController.text
-                                        },
+                                        {"variant_types": variantTypes},
+                                        {"variants": variantsList}
                                       ];
+
                                       await Connections().createProduct(
                                           _nameController.text,
                                           _stockController.text,
@@ -665,6 +1120,7 @@ class _AddProductState extends State<AddProduct> {
                                   ],
                                 ),
                               ),
+                              const SizedBox(height: 10),
                             ],
                           ),
                         ),
@@ -680,5 +1136,22 @@ class _AddProductState extends State<AddProduct> {
         ),
       ),
     );
+  }
+
+  getValue(value) {
+    _descriptionController.text = value;
+    return value;
+  }
+
+  showVariants(variantsList) {
+    String variantText =
+        variantsList.map((variant) => variant.values.join(': ')).join('\n');
+    _showVariantsController.text = variantText;
+  }
+
+  calcuateStockTotal(String valor) {
+    int val = int.parse(valor);
+    showStockTotal = showStockTotal + val;
+    _stockController.text = showStockTotal.toString();
   }
 }

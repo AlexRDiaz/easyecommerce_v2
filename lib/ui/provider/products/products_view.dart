@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/server.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/provider/products/add_product.dart';
 import 'package:frontend/ui/provider/products/product_details.dart';
@@ -21,26 +22,20 @@ class ProductsView extends StatefulWidget {
 }
 
 class _ProductsViewState extends State<ProductsView> {
-  final TextEditingController _search = TextEditingController();
+  TextEditingController _search = TextEditingController(text: "");
   NumberPaginatorController paginatorController = NumberPaginatorController();
   int currentPage = 1;
-  int pageSize = 70;
+  int pageSize = 10;
   int pageCount = 100;
   bool isLoading = false;
-  List populate = ["warehouse"];
-  List arrayFiltersAnd = [];
-  List arrayFiltersOr = [
-    "product_id",
-    "product_name",
-    "stock",
-    //"features",
-    "price"
+  bool isFirst = false;
+  List populate = ["warehouse.provider"];
+  List arrayFiltersAnd = [
+    // {"warehouse.warehouse_id": 1}
   ];
+  List arrayFiltersOr = ["product_id", "product_name", "stock", "price"];
   var sortFieldDefaultValue = "product_id:DESC";
 
-  List<String> warehouse = [];
-  var warehouseList = [];
-  String? selectedWarehouse;
   List<String> categories = [];
   List<String> types = [];
   String? selectedType;
@@ -51,6 +46,10 @@ class _ProductsViewState extends State<ProductsView> {
   List data = [];
   int counterChecks = 1;
   int total = 0;
+
+  List warehouseList = [];
+  List<String> warehouses = [];
+  String? selectedWarehouse;
 
   @override
   void initState() {
@@ -63,65 +62,91 @@ class _ProductsViewState extends State<ProductsView> {
   loadData() async {
     try {
       setState(() {
-        data.clear();
+        warehouses = [];
+        isLoading = true;
       });
 
-      isLoading = true;
-      currentPage = 1;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
 
-      var response = await Connections().getProducts(
-        populate,
-        pageSize,
-        currentPage,
-        arrayFiltersOr,
-        arrayFiltersAnd,
-        sortFieldDefaultValue,
-        _search.text,
-      );
+      var responseBodegas = await Connections().getWarehousesProvider(
+          int.parse(sharedPrefs!.getString("idProvider").toString()));
+      warehouseList = responseBodegas;
+      if (warehouseList != null) {
+        warehouseList.forEach((warehouse) {
+          setState(() {
+            warehouses.add(
+                '${warehouse["branch_name"]}-${warehouse["warehouse_id"]}');
+          });
+        });
+      }
+
+      var response = await Connections().getProductsByProvider(
+          sharedPrefs!.getString("idProvider"),
+          populate,
+          pageSize,
+          currentPage,
+          arrayFiltersOr,
+          arrayFiltersAnd,
+          sortFieldDefaultValue.toString(),
+          _search.text);
       data = response["data"];
       // print("prductos: $data");
+      total = response['total'];
+      pageCount = response['last_page'];
 
+      paginatorController.navigateToPage(0);
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
+      print("datos cargados correctamente");
       setState(() {
-        data = [];
-        data = response['data'];
-
-        paginatorController.navigateToPage(0);
+        isFirst = false;
+        isLoading = false;
       });
       //
     } catch (e) {
-      Navigator.pop(context);
       SnackBarHelper.showErrorSnackBar(
           context, "Ha ocurrido un error de conexión");
     }
   }
 
   paginateData() async {
+    setState(() {
+      isLoading = true;
+    });
     try {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         getLoadingModal(context, false);
       });
 
-      var response = await Connections().getProducts(
-        populate,
-        pageSize,
-        currentPage,
-        arrayFiltersOr,
-        arrayFiltersAnd,
-        sortFieldDefaultValue,
-        _search.text,
-      );
+      var response = await Connections().getProductsByProvider(
+          sharedPrefs!.getString("idProvider"),
+          populate,
+          pageSize,
+          currentPage,
+          arrayFiltersOr,
+          arrayFiltersAnd,
+          sortFieldDefaultValue.toString(),
+          _search.text);
 
       setState(() {
-        data = [];
         data = response['data'];
-        // _scrollController.jumpTo(0);
+        pageCount = response['last_page'];
       });
 
-      // Future.delayed(const Duration(milliseconds: 500), () {
-      Navigator.pop(context);
-      // });
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
+      setState(() {
+        isFirst = false;
+        isLoading = false;
+      });
+      print("datos paginados");
     } catch (e) {
-      Navigator.pop(context);
+      SnackBarHelper.showErrorSnackBar(
+          context, "Ha ocurrido un error de conexión");
     }
   }
 
@@ -142,6 +167,7 @@ class _ProductsViewState extends State<ProductsView> {
                     children: [
                       const SizedBox(height: 10),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           ElevatedButton(
@@ -152,6 +178,7 @@ class _ProductsViewState extends State<ProductsView> {
                                   return const AddProduct();
                                 },
                               );
+                              arrayFiltersAnd.clear();
                               await loadData();
                             },
                             style: ElevatedButton.styleFrom(
@@ -186,7 +213,6 @@ class _ProductsViewState extends State<ProductsView> {
                               color: Colors.white,
                             ),
                             label: const Text(
-                              // "Recargar Información",
                               "",
                               style: TextStyle(
                                 decoration: TextDecoration.underline,
@@ -200,10 +226,77 @@ class _ProductsViewState extends State<ProductsView> {
                         ],
                       ),
                       const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.2,
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: DropdownButtonFormField<String>(
+                                isExpanded: true,
+                                hint: Text(
+                                  'TODO',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Theme.of(context).hintColor,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                items: warehouses
+                                    .map((item) => DropdownMenuItem(
+                                          value: item,
+                                          child: Text(
+                                            item.split('-')[0],
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ))
+                                    .toList(),
+                                value: selectedWarehouse,
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedWarehouse = value;
+                                  });
+                                  // print(value);
+                                  // print(selectedWarehouse);
+
+                                  if (value != 'TODO') {
+                                    if (value is String) {
+                                      //"warehouse.warehouse_id": 1
+                                      arrayFiltersAnd.add({
+                                        "warehouse.warehouse_id":
+                                            selectedWarehouse
+                                                .toString()
+                                                .split("-")[1]
+                                                .toString()
+                                      });
+                                    }
+                                  } else {
+                                    arrayFiltersAnd = [];
+                                  }
+
+                                  paginateData();
+                                },
+                                decoration: InputDecoration(
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(5.0),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(child: Container()),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
                       Row(children: [
                         Expanded(
                           child: _modelTextField(
-                              text: "Busqueda", controller: _search.text),
+                              text: "Busqueda", controller: _search),
                         ),
                         Expanded(
                           child: Row(
@@ -350,25 +443,23 @@ class _ProductsViewState extends State<ProductsView> {
                                 // sortFunc3("producto_p", changevalue);
                               },
                             ),
-                            // DataColumn2(
-                            //   label: const Text('Aprobado'),
-                            //   size: ColumnSize.M,
-                            //   onSort: (columnIndex, ascending) {
-                            //     // sortFunc3("producto_extra", changevalue);
-                            //   },
-                            // ),
+                            DataColumn2(
+                              label: const Text('Aprobado'),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {
+                                // sortFunc3("producto_extra", changevalue);
+                              },
+                            ),
                             const DataColumn2(
                               label: Text(''), //btns para crud
                               size: ColumnSize.S,
                             ),
                           ],
                           rows: List<DataRow>.generate(
-                            // data.length,
                             data.length,
                             (index) => DataRow(
                               cells: [
                                 DataCell(Checkbox(
-                                    //  verificarIndice
                                     value: false,
                                     onChanged: (value) {
                                       setState(() {});
@@ -425,8 +516,6 @@ class _ProductsViewState extends State<ProductsView> {
                                   },
                                 ),
                                 DataCell(
-                                  // Text(data[index]['created_at']
-                                  //     .toString()),
                                   Text(formatDate(
                                       data[index]['created_at'].toString())),
                                   onTap: () {
@@ -440,12 +529,13 @@ class _ProductsViewState extends State<ProductsView> {
                                     // info(context, index);
                                   },
                                 ),
-                                // DataCell(
-                                //   Text('aprobado'),
-                                //   onTap: () {
-                                //     // info(context, index);
-                                //   },
-                                // ),
+                                DataCell(
+                                  data[index]['approved'] == 1
+                                      ? const Icon(Icons.check,
+                                          color: Colors.green)
+                                      : const Icon(Icons.close,
+                                          color: Colors.red),
+                                ),
                                 DataCell(Row(
                                   children: [
                                     const SizedBox(width: 10),
@@ -516,21 +606,47 @@ class _ProductsViewState extends State<ProductsView> {
     );
   }
 
-  String getTypeValue(features) {
-    // Busca la característica con el nombre 'type'
-    List<dynamic> dataFeatures = json.decode(features);
-    // print("data: $dataFeatures");
+  // String getTypeValue(features) {
+  //   try {
+  //     List<dynamic> dataFeatures = json.decode(features);
+  //     print("data: $dataFeatures");
 
+  //     var typeFeature = dataFeatures.firstWhere(
+  //       (dataFeatures) => dataFeatures['feature_name'] == 'type',
+  //       orElse: () => null,
+  //     );
+
+  //     return typeFeature != null
+  //         ? typeFeature['value'].toString()
+  //         : 'Tipo no encontrado';
+  //   } catch (e) {
+  //     return "";
+  //   }
+  // }
+
+  String getTypeValue(features) {
     try {
+      List<dynamic> dataFeatures = json.decode(features);
+      // print("data: $dataFeatures");
+
       var typeFeature = dataFeatures.firstWhere(
-        (dataFeatures) => dataFeatures['feature_name'] == 'type',
-        orElse: () => null,
+        (feature) => feature.containsKey('type'),
+        orElse: () => {'type': 'Tipo no encontrado'}, // Provide a default value
       );
 
-      // Si se encuentra la característica 'type', devuelve su valor, de lo contrario, devuelve un valor predeterminado o un mensaje de error.
-      return typeFeature != null
-          ? typeFeature['value'].toString()
-          : 'Tipo no encontrado';
+      if (typeFeature['type'] is List<Map<String, dynamic>>) {
+        var typeValue = typeFeature['type'] as List<Map<String, dynamic>>;
+
+        var typeObject = typeValue.firstWhere(
+          (typeObj) => typeObj.containsKey('type'),
+          orElse: () =>
+              {'type': 'Tipo no encontrado'}, // Provide a default value
+        );
+
+        return typeObject['type'].toString();
+      }
+
+      return typeFeature['type'].toString();
     } catch (e) {
       return "";
     }
@@ -572,11 +688,49 @@ class _ProductsViewState extends State<ProductsView> {
   _modelTextField({text, controller}) {
     return Container(
       width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.0),
-        color: Color.fromARGB(255, 245, 244, 244),
+      child: TextField(
+        controller: controller,
+        onSubmitted: (value) {
+          // getOldValue(true);
+          setState(() {
+            _search.text = value;
+          });
+          loadData();
+          getLoadingModal(context, false);
+
+          // paginatorController.navigateToPage(0);
+          Future.delayed(Duration(milliseconds: 500), () {
+            Navigator.pop(context);
+          });
+        },
+        decoration: InputDecoration(
+          labelText: 'Buscar producto',
+          prefixIcon: const Icon(Icons.search),
+          suffixIcon: _search.text.isNotEmpty
+              ? GestureDetector(
+                  onTap: () {
+                    getLoadingModal(context, false);
+                    setState(() {
+                      _search.clear();
+                      arrayFiltersAnd = [];
+                    });
+
+                    // resetFilters();
+                    setState(() {
+                      loadData();
+                    });
+                    Navigator.pop(context);
+                  },
+                  child: const Icon(Icons.close))
+              : null,
+          hintText: text,
+          border: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.grey),
+          ),
+          focusColor: Colors.black,
+          iconColor: Colors.black,
+        ),
       ),
-      child: TextField(),
     );
   }
 
@@ -591,20 +745,21 @@ class _ProductsViewState extends State<ProductsView> {
   NumberPaginator numberPaginator() {
     return NumberPaginator(
       config: NumberPaginatorUIConfig(
+        // buttonUnselectedForegroundColor: Color.fromARGB(255, 67, 67, 67),
+        // buttonSelectedBackgroundColor: Color.fromARGB(255, 67, 67, 67),
         buttonShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(5), // Customize the button shape
         ),
       ),
       controller: paginatorController,
       numberPages: pageCount > 0 ? pageCount : 1,
-      // initialPage: 0,
       onPageChange: (index) async {
-        //  print("indice="+index.toString());
         setState(() {
           currentPage = index + 1;
         });
+        print(currentPage);
         if (!isLoading) {
-          //await paginateData();
+          await paginateData();
         }
       },
     );
