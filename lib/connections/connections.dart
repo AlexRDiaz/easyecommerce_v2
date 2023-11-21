@@ -6257,7 +6257,6 @@ class Connections {
     }
   }
 
-
   // ! warehouses
   getWarehouses() async {
     try {
@@ -6275,7 +6274,8 @@ class Connections {
       return 2;
     }
   }
-getWarehousesProvider(int providerId) async {
+
+  getWarehousesProvider(int providerId) async {
     try {
       var response = await http.get(
         Uri.parse("$serverLaravel/api/warehouses/provider/$providerId"),
@@ -6291,6 +6291,7 @@ getWarehousesProvider(int providerId) async {
       return 2;
     }
   }
+
   updateProvider(ProviderModel provider) async {
     try {
       var name = provider.user!.id;
@@ -6317,29 +6318,32 @@ getWarehousesProvider(int providerId) async {
     }
   }
 
-      createWarehouse(WarehouseModel warehouse) async {
+  createWarehouse(WarehouseModel warehouse) async {
     try {
-      var response =
-          await http.post(Uri.parse("$serverLaravel/api/warehouses"),
-              headers: {'Content-Type': 'application/json'},
-              body: json.encode({
-                "branch_name": warehouse.branchName,
-                "address": warehouse.address,
-                "reference": warehouse.reference,
-                "description": warehouse.description,
-                "provider_id": sharedPrefs!.getString("idProvider")
-              }));
+      var response = await http.post(Uri.parse("$serverLaravel/api/warehouses"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "branch_name": warehouse.branchName,
+            "address": warehouse.address,
+            "reference": warehouse.reference,
+            "description": warehouse.description,
+            'url_image': warehouse.url_image,
+            'city': warehouse.city,
+            'collection': json.encode(warehouse.collection),
+            // 'collection': "prueba",
+            "provider_id": sharedPrefs!.getString("idProvider")
+          }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
-        // print(decodeData);
-        return decodeData['providers'];
+        print("se registro> $decodeData");
+        // return decodeData['providers'];
       } else {
         return 1;
       }
     } catch (error) {
       return 2;
     }
-  }      
+  }
 
   createSubProvider(UserModel user) async {
     try {
@@ -6367,11 +6371,8 @@ getWarehousesProvider(int providerId) async {
     }
   }
 
-        
-        
-        
-        
-    updateWarehouse(int id,String nameSucursal,String address,String reference,String description) async {
+  updateWarehouse(int id, String nameSucursal, String address, String reference,
+      String description,String url_image,String city,var collection) async {
     try {
       var response =
           await http.put(Uri.parse("$serverLaravel/api/warehouses/$id"),
@@ -6381,6 +6382,9 @@ getWarehousesProvider(int providerId) async {
                 "address": address,
                 "reference": reference,
                 "description": description,
+                'url_image': url_image,
+                "city": city,
+                "collection" :  json.encode(collection),
               }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -6418,11 +6422,11 @@ getWarehousesProvider(int providerId) async {
     }
   }
 
-deleteWarehouse(int ?warehouseId) async {
+  deleteWarehouse(int? warehouseId) async {
     try {
-      var response =
-          await http.delete(Uri.parse("$serverLaravel/api/warehouses/$warehouseId"),
-              headers: {'Content-Type': 'application/json'});
+      var response = await http.delete(
+          Uri.parse("$serverLaravel/api/warehouses/deactivate/$warehouseId"),
+          headers: {'Content-Type': 'application/json'});
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         // print(decodeData);
@@ -6434,6 +6438,41 @@ deleteWarehouse(int ?warehouseId) async {
       return 2;
     }
   }
+
+  activateWarehouse(int? warehouseId) async {
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/warehouses/activate/$warehouseId"),
+          headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData['message'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  getActiveRoutes() async {
+    try {
+      var response = await http.get(
+          Uri.parse("$serverLaravel/api/rutas/active"),
+          headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
   cleanTransactionsFailed(id) async {
     try {
       var response = await http.post(
@@ -6450,5 +6489,4 @@ deleteWarehouse(int ?warehouseId) async {
       return 2;
     }
   }
-
 }

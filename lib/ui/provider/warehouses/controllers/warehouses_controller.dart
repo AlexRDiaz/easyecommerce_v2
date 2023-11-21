@@ -11,21 +11,29 @@ class WrehouseController extends ControllerMVC {
   List<WarehouseModel> warehouses = [];
 
   addWarehouse(WarehouseModel warehouse) async {
+    print("controlador> $warehouse");
     await Connections().createWarehouse(warehouse);
     setState(() {});
   }
 
   updateWarehouse(int warehouseId, String nameSucursal, String address,
-      String reference, String description) async {
+      String reference, String description,String url_image,String city, var collection) async {
     await Connections().updateWarehouse(
-        warehouseId, nameSucursal, address, reference, description);
+        warehouseId, nameSucursal, address, reference,description,url_image,city,collection);
     setState(() {});
   }
 
   deleteWarehouse(int warehouseId) async {
     await Connections().deleteWarehouse(warehouseId);
     setState(() {
-      warehouses.removeWhere((warehouse) => warehouse.id == warehouseId);
+      // warehouses.removeWhere((warehouse) => warehouse.id == warehouseId);
+    });
+    await loadWarehouses();
+  }
+    activateWarehouse(int warehouseId) async {
+    await Connections().activateWarehouse(warehouseId);
+    setState(() {
+      // warehouses.removeWhere((warehouse) => warehouse.id == warehouseId);
     });
     await loadWarehouses();
   }

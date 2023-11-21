@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/config/colors.dart';
+import 'package:frontend/connections/connections.dart';
+import 'package:frontend/helpers/server.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/ui/logistic/add_provider/add_provider.dart';
@@ -8,6 +12,7 @@ import 'package:frontend/ui/logistic/add_provider/controllers/provider_controlle
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/provider/warehouses/addwarehouse.dart';
 import 'package:frontend/ui/provider/warehouses/controllers/warehouses_controller.dart';
+import 'package:frontend/ui/provider/warehouses/editwarehouse.dart';
 import 'package:frontend/ui/widgets/transport/data_table_model.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 
@@ -22,6 +27,12 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
   late TextEditingController _searchController;
   late Future<List<WarehouseModel>> _futureWarehouseData;
 
+  List<dynamic> activeRoutes = [];
+  List<dynamic> secondDropdownOptions = [];
+  List<String> formattedList = [];
+  final TextEditingController _cityController = TextEditingController();
+  final TextEditingController _trnasportController = TextEditingController();
+  @override
   void initState() {
     super.initState();
     _controller = WrehouseController();
@@ -33,6 +44,80 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
         _futureWarehouseData = _loadWarehouses(_searchController.text);
       });
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    loadData().then((_) {
+      setState(() {});
+    });
+  }
+
+  Future loadData() async {
+    if (activeRoutes.isEmpty) {
+      activeRoutes = await Connections().getActiveRoutes();
+    }
+  }
+
+  Future<List<WarehouseModel>> _loadWarehouses([String query = '']) async {
+    await _controller.loadWarehouses();
+    if (query.isEmpty) {
+      return _controller.warehouses;
+    } else {
+      return _controller.warehouses.where((warehouse) {
+        // Puedes ajustar los criterios de búsqueda según tus necesidades
+        return warehouse.branchName!
+            .toLowerCase()
+            .contains(query.toLowerCase());
+      }).toList();
+    }
+  }
+
+  Future<dynamic> openDialog(BuildContext context) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Container(
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: const AddWarehouse(),
+            ),
+          );
+        }).then((value) => setState(() {
+          _futureWarehouseData = _loadWarehouses(); // Actualiza el Future
+        }));
+  }
+  Future<dynamic> openDialogE(BuildContext context,WarehouseModel warehousen) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Container(
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: EditWarehouse(warehouse: warehousen,),
+            ),
+          );
+        }).then((value) => setState(() {
+          _futureWarehouseData = _loadWarehouses(); // Actualiza el Future
+        }));
+  }
+
+  String mapNumbersToDays(List<dynamic> numbers) {
+    Map<int, String> daysMap = {
+      1: 'Lunes',
+      2: 'Martes',
+      3: 'Miércoles',
+      4: 'Jueves',
+      5: 'Viernes',
+    };
+
+    List<String?> days = numbers.map((number) {
+      return (number >= 1 && number <= 5) ? daysMap[number] : null;
+    }).toList();
+
+    // Filtra los días válidos y los une con '-'
+    return days.where((day) => day != null).join('-');
   }
 
   @override
@@ -64,7 +149,7 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
                       ),
                     ),
                     style: const TextStyle(
-                      fontFamily: 'TuFuentePersonalizada',
+                      fontFamily: 'Arial',
                       color: Colors.black,
                     ),
                   ),
@@ -118,28 +203,73 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           elevation: 10,
-                          color: ColorsSystem()
-                              .colorBlack, // Usa un color claro como en la imagen
+                          color: ColorsSystem().colorBlack,
                           child: InkWell(
-                            onTap: () => _showEditModal(warehouses[index]),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment
-                                  .spaceAround, // Distribuye el espacio de manera uniforme
-                              children: <Widget>[
-                                Expanded(
-                                  child: Center(
-                                    child: Icon(Icons.store,
-                                        size: iconSize,
-                                        color: Colors
-                                            .white), // Icono de bodega centrado
+                            onTap: () => openDialogE(context,warehouse),
+                            child: Stack(
+                              children: [
+                                // Imagen o icono principal
+                                Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
                                   ),
-                                ), // Esto empujará todo lo demás hacia abajo
+                                  child: warehouses[index].url_image != null
+                                      ? ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(20.0),
+                                          child: Image.network(
+                                            "$generalServer${warehouses[index].url_image}",
+                                            fit: BoxFit.cover,
+                                            width: double.infinity,
+                                            height: double.infinity,
+                                            loadingBuilder:
+                                                (BuildContext context,
+                                                    Widget child,
+                                                    ImageChunkEvent?
+                                                        loadingProgress) {
+                                              if (loadingProgress == null) {
+                                                return child;
+                                              } else {
+                                                return Center(
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    value: loadingProgress
+                                                                .expectedTotalBytes !=
+                                                            null
+                                                        ? loadingProgress
+                                                                .cumulativeBytesLoaded /
+                                                            (loadingProgress
+                                                                    .expectedTotalBytes ??
+                                                                1)
+                                                        : null,
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                          ),
+                                        )
+                                      : Icon(Icons.store,
+                                          size: iconSize, color: Colors.white),
+                                ),
+                                // Icono de check verde en la esquina superior izquierda
+                                if (warehouses[index].active == 1)
+                                  Positioned(
+                                    top: 8,
+                                    left: 8,
+                                    child: Icon(
+                                      Icons.check,
+                                      color: const Color.fromARGB(
+                                          255, 45, 228, 51),
+                                      size: 20,
+                                    ),
+                                  ),
                                 Align(
-                                  alignment: Alignment
-                                      .bottomCenter, // Alinea el contenedor al final de la columna
+                                  alignment: Alignment.bottomCenter,
                                   child: Container(
                                     decoration: BoxDecoration(
-                                      color: Colors.grey,
+                                      color: warehouses[index].active == 1
+                                          ? ColorsSystem().colorSelectMenu
+                                          : Colors.grey,
                                       borderRadius: BorderRadius.only(
                                         bottomLeft: Radius.circular(20),
                                         bottomRight: Radius.circular(20.0),
@@ -171,186 +301,6 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
           ),
         ],
       ),
-    );
-  }
-
-  Future<List<WarehouseModel>> _loadWarehouses([String query = '']) async {
-    await _controller.loadWarehouses();
-    if (query.isEmpty) {
-      return _controller.warehouses;
-    } else {
-      return _controller.warehouses.where((warehouse) {
-        // Puedes ajustar los criterios de búsqueda según tus necesidades
-        return warehouse.branchName!
-            .toLowerCase()
-            .contains(query.toLowerCase());
-      }).toList();
-    }
-  }
-
-  Future<dynamic> openDialog(BuildContext context) {
-    return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            content: Container(
-              width: MediaQuery.of(context).size.width * 0.5,
-              child: const AddWarehouse(),
-            ),
-          );
-        }).then((value) => setState(() {
-          _futureWarehouseData = _loadWarehouses(); // Actualiza el Future
-        }));
-  }
-
-  void _showEditModal(WarehouseModel warehouse) {
-    TextEditingController _nameSucursalController =
-        TextEditingController(text: warehouse.branchName);
-    TextEditingController _addressController =
-        TextEditingController(text: warehouse.address);
-    TextEditingController _referenceController =
-        TextEditingController(text: warehouse.reference);
-    TextEditingController _descriptionController =
-        TextEditingController(text: warehouse.description);
-    // ... Agrega más controladores si tienes más campos
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        double dialogWidth = MediaQuery.of(context).size.width * 0.3;
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Container(
-              width: dialogWidth,
-              padding: EdgeInsets.all(
-                  20.0), // Ancho del 80% del ancho de la pantalla
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Row(
-                    children: [
-                      const Text(
-                        'Editar Bodega',
-                        style: TextStyle(fontSize: 24),
-                      ),
-                      SizedBox(
-                        width: 50,
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.delete, color: Colors.red),
-                        onPressed: () {
-                          _controller.deleteWarehouse(warehouse.id!).then((_) {
-                            Navigator.of(context).pop();
-                            setState(() {
-                              _futureWarehouseData = _loadWarehouses();
-                              SnackBarHelper.showOkSnackBar(
-                                  context, "BODEGA ELIMINADA.");
-                            });
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 30,
-                  ),
-                  // content:
-                  SingleChildScrollView(
-                    child: Column(
-                      children: <Widget>[
-                        TextFieldWithIcon(
-                          controller: _nameSucursalController,
-                          labelText: 'Nombre de bodega',
-                          icon: Icons.store_mall_directory,
-                        ),
-                        SizedBox(height: 10),
-                        TextFieldWithIcon(
-                          controller: _addressController,
-                          labelText: 'Dirección',
-                          icon: Icons.place,
-                        ),
-                        SizedBox(height: 10),
-                        TextFieldWithIcon(
-                          controller: _referenceController,
-                          labelText: 'Referencia',
-                          icon: Icons.bookmark_border,
-                        ),
-                        SizedBox(height: 10),
-                        TextFieldWithIcon(
-                          controller: _descriptionController,
-                          labelText: 'Descripción',
-                          icon: Icons.description,
-                        ),
-                        SizedBox(height: 30),
-
-                        // ... Agrega más TextFields para cada campo editable
-                      ],
-                    ),
-                  ),
-                  // actions: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              // Implementa la lógica de actualización aquí
-                              _controller
-                                  .updateWarehouse(
-                                      warehouse.id!,
-                                      _nameSucursalController.text,
-                                      _addressController.text,
-                                      _referenceController.text,
-                                      _descriptionController.text)
-                                  .then((_) {
-                                Navigator.of(context).pop();
-                                setState(() {
-                                  // Esto forzará la reconstrucción de la vista con los datos actualizados
-                                  _futureWarehouseData = _loadWarehouses();
-                                  SnackBarHelper.showOkSnackBar(
-                                      context, "DATOS ACTUALIZADOS.");
-                                });
-                              });
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: ColorsSystem()
-                                  .colorSelectMenu, // Color del botón 'Aceptar'
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            child: const Text('Aceptar'),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(); // Cierra el diálogo
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: ColorsSystem()
-                                  .colorBlack, // Color del botón 'Cancelar'
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            child: const Text('Cancelar'),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              )),
-        );
-      },
     );
   }
 }
@@ -387,3 +337,5 @@ class TextFieldWithIcon extends StatelessWidget {
     );
   }
 }
+
+
