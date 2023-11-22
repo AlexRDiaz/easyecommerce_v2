@@ -35,4 +35,31 @@ class UIUtils {
         }
     }
   }
+
+  // * Product
+  static List<String> categories() {
+    return ["Hogar", "Mascota", "Moda", "Tecnología", "Cocina", "Belleza"];
+  }
+
+  static List<String> typesProduct() {
+    return ["SIMPLE", "VARIABLE"];
+  }
+
+  static List<String> typesVariables() {
+    return ["Tallas", "Colores", "Tamaños"];
+  }
+
+  static List<Map<String, List<String>>> variablesToSelect() {
+    return [
+      {
+        "sizes": ["XS", "S", "M", "L", "XL"]
+      },
+      {
+        "colors": ["Blanco", "Negro", "Amarillo", "Azul", "Rojo"],
+      },
+      {
+        "dimensions": ["Grande", "Mediano", "Pequeño"]
+      }
+    ];
+  }
 }

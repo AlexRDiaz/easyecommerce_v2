@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:data_table_2/data_table_2.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animated_icons/icons8.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/server.dart';
@@ -10,6 +12,7 @@ import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/provider/products/add_product.dart';
 import 'package:frontend/ui/provider/products/product_details.dart';
+import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:intl/intl.dart';
@@ -25,7 +28,7 @@ class _ProductsViewState extends State<ProductsView> {
   TextEditingController _search = TextEditingController(text: "");
   NumberPaginatorController paginatorController = NumberPaginatorController();
   int currentPage = 1;
-  int pageSize = 10;
+  int pageSize = 3;
   int pageCount = 100;
   bool isLoading = false;
   bool isFirst = false;
@@ -36,20 +39,15 @@ class _ProductsViewState extends State<ProductsView> {
   List arrayFiltersOr = ["product_id", "product_name", "stock", "price"];
   var sortFieldDefaultValue = "product_id:DESC";
 
-  List<String> categories = [];
-  List<String> types = [];
-  String? selectedType;
-  String? selectedCat;
-
-  List selectedCategories = [];
-
   List data = [];
-  int counterChecks = 1;
+  int counterChecks = 0;
   int total = 0;
 
   List warehouseList = [];
-  List<String> warehouses = [];
+  List<String> warehousesToSelect = [];
   String? selectedWarehouse;
+  List selectedCheckBox = [];
+  String? selectedWarehouseToCopy;
 
   @override
   void initState() {
@@ -62,7 +60,7 @@ class _ProductsViewState extends State<ProductsView> {
   loadData() async {
     try {
       setState(() {
-        warehouses = [];
+        warehousesToSelect = [];
         isLoading = true;
       });
 
@@ -74,9 +72,10 @@ class _ProductsViewState extends State<ProductsView> {
           int.parse(sharedPrefs!.getString("idProvider").toString()));
       warehouseList = responseBodegas;
       if (warehouseList != null) {
+        warehousesToSelect.insert(0, 'TODO');
         warehouseList.forEach((warehouse) {
           setState(() {
-            warehouses.add(
+            warehousesToSelect.add(
                 '${warehouse["branch_name"]}-${warehouse["warehouse_id"]}');
           });
         });
@@ -92,6 +91,19 @@ class _ProductsViewState extends State<ProductsView> {
           sortFieldDefaultValue.toString(),
           _search.text);
       data = response["data"];
+      // print(data);
+
+      for (Map producto in data) {
+        var selectedItem = selectedCheckBox
+            .where(
+                (elemento) => elemento["product_id"] == producto["product_id"])
+            .toList();
+        if (selectedItem.isNotEmpty) {
+          producto['check'] = true;
+        } else {
+          producto['check'] = false;
+        }
+      }
       // print("prductos: $data");
       total = response['total'];
       pageCount = response['last_page'];
@@ -135,7 +147,6 @@ class _ProductsViewState extends State<ProductsView> {
         data = response['data'];
         pageCount = response['last_page'];
       });
-
       Future.delayed(Duration(milliseconds: 500), () {
         Navigator.pop(context);
       });
@@ -162,10 +173,9 @@ class _ProductsViewState extends State<ProductsView> {
               child: Center(
                 child: Container(
                   margin: const EdgeInsets.all(6.0),
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(10.0),
                   child: Column(
                     children: [
-                      const SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         crossAxisAlignment: CrossAxisAlignment.end,
@@ -205,7 +215,7 @@ class _ProductsViewState extends State<ProductsView> {
                           const SizedBox(width: 5),
                           ElevatedButton.icon(
                             onPressed: () async {
-                              // resetFilters();
+                              resetFilters();
                               await loadData();
                             },
                             icon: const Icon(
@@ -242,7 +252,7 @@ class _ProductsViewState extends State<ProductsView> {
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                items: warehouses
+                                items: warehousesToSelect
                                     .map((item) => DropdownMenuItem(
                                           value: item,
                                           child: Text(
@@ -259,12 +269,10 @@ class _ProductsViewState extends State<ProductsView> {
                                   setState(() {
                                     selectedWarehouse = value;
                                   });
-                                  // print(value);
-                                  // print(selectedWarehouse);
 
                                   if (value != 'TODO') {
                                     if (value is String) {
-                                      //"warehouse.warehouse_id": 1
+                                      arrayFiltersAnd = [];
                                       arrayFiltersAnd.add({
                                         "warehouse.warehouse_id":
                                             selectedWarehouse
@@ -277,7 +285,7 @@ class _ProductsViewState extends State<ProductsView> {
                                     arrayFiltersAnd = [];
                                   }
 
-                                  paginateData();
+                                  loadData();
                                 },
                                 decoration: InputDecoration(
                                   fillColor: Colors.white,
@@ -293,58 +301,117 @@ class _ProductsViewState extends State<ProductsView> {
                         ],
                       ),
                       const SizedBox(height: 10),
-                      Row(children: [
-                        Expanded(
-                          child: _modelTextField(
-                              text: "Busqueda", controller: _search),
-                        ),
-                        Expanded(
-                          child: Row(
-                            children: [
-                              Container(
-                                padding:
-                                    const EdgeInsets.only(left: 15, right: 5),
-                                child: Text(
-                                  "Registros: $total",
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black),
-                                ),
-                              ),
-                              Container(
-                                padding:
-                                    const EdgeInsets.only(left: 5, right: 5),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      counterChecks > 0
-                                          ? "Seleccionados: $counterChecks"
-                                          : "",
+                      Container(
+                        width: double.infinity,
+                        color: Colors.white,
+                        padding: const EdgeInsets.all(5),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: _modelTextField(
+                                  text: "Busqueda", controller: _search),
+                            ),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.only(
+                                        left: 15, right: 5),
+                                    child: Text(
+                                      "Registros: $total",
                                       style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                           color: Colors.black),
                                     ),
-                                    counterChecks > 0
-                                        ? Visibility(
-                                            visible: true,
-                                            child: IconButton(
-                                              iconSize: 20,
-                                              onPressed: () =>
-                                                  {counterChecks = 0},
-                                              icon: const Icon(
-                                                  Icons.close_rounded),
-                                            ),
-                                          )
-                                        : Container(),
-                                  ],
-                                ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.only(
+                                        left: 5, right: 5),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          counterChecks > 0
+                                              ? "Seleccionados: $counterChecks"
+                                              : "",
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black),
+                                        ),
+                                        counterChecks > 0
+                                            ? Visibility(
+                                                visible: true,
+                                                child: IconButton(
+                                                  iconSize: 20,
+                                                  onPressed: () {
+                                                    {
+                                                      setState(() {
+                                                        selectedCheckBox = [];
+                                                        counterChecks = 0;
+                                                      });
+                                                      loadData();
+                                                    }
+                                                  },
+                                                  icon:
+                                                      Icon(Icons.close_rounded),
+                                                ),
+                                              )
+                                            : Container(),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 20),
+                                  Container(
+                                      padding: const EdgeInsets.only(
+                                          left: 5, right: 5),
+                                      child: Row(children: [
+                                        counterChecks > 0
+                                            ? Visibility(
+                                                visible: true,
+                                                child: ElevatedButton(
+                                                  onPressed: () async {
+                                                    // print(selectedCheckBox);
+                                                    await showDialog(
+                                                      context: context,
+                                                      builder: (context) =>
+                                                          showCopyProductToWarehouse(),
+                                                    );
+                                                  },
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        Colors.blue[600],
+                                                  ),
+                                                  child: const Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      Text(
+                                                        "Copiar",
+                                                        style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                      SizedBox(width: 5),
+                                                      Icon(
+                                                        Icons.copy,
+                                                        size: 24,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              )
+                                            : Container(),
+                                      ])),
+                                  const SizedBox(width: 30),
+                                  Expanded(child: numberPaginator()),
+                                ],
                               ),
-                              const SizedBox(width: 30),
-                              Expanded(child: numberPaginator()),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ]),
+                      ),
                       const SizedBox(height: 10),
                       Expanded(
                         child: DataTable2(
@@ -459,11 +526,32 @@ class _ProductsViewState extends State<ProductsView> {
                             data.length,
                             (index) => DataRow(
                               cells: [
-                                DataCell(Checkbox(
-                                    value: false,
+                                DataCell(
+                                  Checkbox(
+                                    value: data[index]['check'] ?? false,
                                     onChanged: (value) {
-                                      setState(() {});
-                                    })),
+                                      setState(() {
+                                        data[index]['check'] = value;
+                                      });
+                                      if (value!) {
+                                        selectedCheckBox.add({
+                                          "product_id": data[index]
+                                                  ['product_id']
+                                              .toString()
+                                        });
+                                      } else {
+                                        selectedCheckBox.removeWhere(
+                                            (element) =>
+                                                element['product_id'] ==
+                                                data[index]['id'].toString());
+                                      }
+
+                                      setState(() {
+                                        counterChecks = selectedCheckBox.length;
+                                      });
+                                    },
+                                  ),
+                                ),
                                 DataCell(
                                   Align(
                                     alignment: Alignment.center,
@@ -533,8 +621,11 @@ class _ProductsViewState extends State<ProductsView> {
                                   data[index]['approved'] == 1
                                       ? const Icon(Icons.check,
                                           color: Colors.green)
-                                      : const Icon(Icons.close,
-                                          color: Colors.red),
+                                      : data[index]['approved'] == 2
+                                          ? const Icon(Icons.access_time,
+                                              color: Colors.blue)
+                                          : const Icon(Icons.close,
+                                              color: Colors.red),
                                 ),
                                 DataCell(Row(
                                   children: [
@@ -606,23 +697,13 @@ class _ProductsViewState extends State<ProductsView> {
     );
   }
 
-  // String getTypeValue(features) {
-  //   try {
-  //     List<dynamic> dataFeatures = json.decode(features);
-  //     print("data: $dataFeatures");
+  void resetFilters() {
+    // getOldValue(true);
 
-  //     var typeFeature = dataFeatures.firstWhere(
-  //       (dataFeatures) => dataFeatures['feature_name'] == 'type',
-  //       orElse: () => null,
-  //     );
-
-  //     return typeFeature != null
-  //         ? typeFeature['value'].toString()
-  //         : 'Tipo no encontrado';
-  //   } catch (e) {
-  //     return "";
-  //   }
-  // }
+    selectedWarehouse = "TODO";
+    arrayFiltersAnd = [];
+    _search.text = "";
+  }
 
   String getTypeValue(features) {
     try {
@@ -757,11 +838,142 @@ class _ProductsViewState extends State<ProductsView> {
         setState(() {
           currentPage = index + 1;
         });
-        print(currentPage);
         if (!isLoading) {
           await paginateData();
         }
       },
+    );
+  }
+
+  showCopyProductToWarehouse() {
+    // print(selectedWarehouseToCopy.toString());
+
+    return AlertDialog(
+      content: Container(
+        width: 400,
+        height: MediaQuery.of(context).size.height / 2,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Seleccione la Bodega destinataria',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            DropdownButtonFormField<String>(
+              isExpanded: true,
+              hint: Text(
+                'Seleccione Bodega',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(context).hintColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              items: warehousesToSelect
+                  .map((item) => DropdownMenuItem(
+                        value: item,
+                        child: Text(
+                          item.split('-')[0],
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ))
+                  .toList(),
+              value: selectedWarehouseToCopy,
+              onChanged: (value) {
+                setState(() {
+                  selectedWarehouseToCopy = value as String;
+                });
+              },
+              decoration: InputDecoration(
+                fillColor: Colors.white,
+                filled: true,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 30,
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (selectedWarehouseToCopy == null) {
+                  showSuccessModal(context, "Por favor, Seleccione una Bodega.",
+                      Icons8.alert);
+                } else {
+                  getLoadingModal(context, false);
+
+                  // print(selectedCheckBox);
+                  for (var i = 0; i < selectedCheckBox.length; i++) {
+                    var idProductToSearch =
+                        selectedCheckBox[i]['product_id'].toString();
+                    var foundItem = data.firstWhere(
+                        (item) =>
+                            item['product_id'].toString() == idProductToSearch,
+                        orElse: () => null);
+
+                    if (foundItem != null) {
+                      var nameProduct = foundItem['product_name'].toString();
+                      var stock = 0;
+                      var price = foundItem['price'].toString();
+
+                      var img_url = foundItem['url_img'].toString();
+                      if (img_url == "null" || img_url == "") {
+                        img_url = "";
+                      }
+                      // var dataFeatures = foundItem['features'] ?? "";
+                      var dataFeatures;
+                      if (foundItem['features'] != null) {
+                        dataFeatures = json.decode(foundItem['features']);
+                      }
+                      // print(dataFeatures);
+                      //create a copy
+
+                      var response = await Connections().createProduct(
+                          nameProduct,
+                          stock,
+                          dataFeatures,
+                          price,
+                          img_url,
+                          selectedWarehouseToCopy
+                              .toString()
+                              .split("-")[1]
+                              .toString());
+                      // 13);
+                      print(response[0]);
+                      Navigator.pop(context);
+
+                      //
+                    } else {
+                      print(
+                          'Producto con product_id $idProductToSearch no encontrado.');
+                    }
+                    counterChecks = 0;
+                  }
+
+                  selectedCheckBox = [];
+                  counterChecks = 0;
+                  Navigator.pop(context);
+                  loadData();
+                }
+              },
+              child: const Text(
+                "ACEPTAR",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

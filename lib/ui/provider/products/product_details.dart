@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/server.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
+import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/html_editor.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:image_picker/image_picker.dart';
@@ -27,7 +29,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _stockController = TextEditingController();
   String createdAt = "";
-  String warehouse = "";
+  String warehouseValue = "";
   String img_url = "";
   var typeValue;
   var descripcion;
@@ -40,16 +42,21 @@ class _ProductDetailsState extends State<ProductDetails> {
   var data = {};
   List<dynamic> dataL = [];
   List<Map<String, dynamic>> listaProduct = [];
-  List<String> listCategories = [
-    "Hogar",
-    "Mascota",
-    "Moda",
-    "Tecnología",
-    "Cocina",
-    "Belleza"
-  ];
+  // List<String> listCategories = [
+  //   "Hogar",
+  //   "Mascota",
+  //   "Moda",
+  //   "Tecnología",
+  //   "Cocina",
+  //   "Belleza"
+  // ];
+  List<String> listCategories = UIUtils.categories();
 
-  List<String> types = ["SIMPLE", "VARIABLE"];
+  // List<String> types = ["SIMPLE", "VARIABLE"];
+  List<String> types = UIUtils.typesProduct();
+
+  List<String> warehousesToSelect = [];
+  List warehouseList = [];
 
   var selectedCat;
   List<dynamic> dataFeatures = [];
@@ -57,44 +64,20 @@ class _ProductDetailsState extends State<ProductDetails> {
   void initState() {
     super.initState();
     loadTextEdtingControllers(widget.data);
+    getWarehouses();
   }
 
-  loadData() async {
-    try {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        getLoadingModal(context, false);
-      });
-      // print("data incoming:");
-      // print(widget.data);
-      // var response =
-      //     await Connections().getProductByID(widget.data['id'], 'warehouse');
-
-      // print("res: $response");
-      // dataL = widget.dataL!;
-
-      // var productoEspecifico = dataL.firstWhere(
-      //   (producto) => producto['id'].toString() == widget.data['id'].toString(),
-      //   orElse: () => null,
-      // );
-
-      // listaProduct.add(productoEspecifico);
-
-      // if (mounted) {
-      //   setState(() {
-      //     data = response;
-      //     loadTextEdtingControllers(data);
-      //   });
-      // }
-      // print("data> $data");
-
-      // Future.delayed(const Duration(milliseconds: 500), () {
-      // Navigator.pop(context);
-      Navigator.pop(context);
-      Navigator.pop(context);
-      // });
-      setState(() {});
-    } catch (e) {
-      SnackBarHelper.showErrorSnackBar(context, "Error al guardar los datos");
+  getWarehouses() async {
+    var responseBodegas = await Connections().getWarehousesProvider(
+        int.parse(sharedPrefs!.getString("idProvider").toString()));
+    warehouseList = responseBodegas;
+    if (warehouseList != null) {
+      for (var warehouse in warehouseList) {
+        setState(() {
+          warehousesToSelect
+              .add('${warehouse["branch_name"]}-${warehouse["warehouse_id"]}');
+        });
+      }
     }
   }
 
@@ -105,7 +88,9 @@ class _ProductDetailsState extends State<ProductDetails> {
     createdAt = formatDate(data['created_at'].toString());
     _stockController.text = data['stock'].toString();
     _priceController.text = data['price'].toString();
-    warehouse = data['warehouse']['branch_name'].toString();
+    warehouseValue =
+        '${data['warehouse']['branch_name'].toString()}-${data['warehouse']["warehouse_id"]}';
+    print(warehouseValue);
 
     img_url = data['url_img'].toString();
     if (img_url == "null" || img_url == "") {
@@ -113,17 +98,17 @@ class _ProductDetailsState extends State<ProductDetails> {
     }
 
     // print("img incoming: ${img_url.toString()}");
+    if (data['features'] != null) {
+      dataFeatures = json.decode(data['features']);
+      // print(dataFeatures);
+      // type = findValue(dataFeatures, 'type')?.toString();
+      typeValue = findValue(dataFeatures, 'type');
+      _typeController.text = typeValue;
+      descripcion = findValue(dataFeatures, 'description') ?? "";
+      _descriptionController.text = "descripcion";
+      categories = findCategories(dataFeatures);
+    }
 
-    dataFeatures = json.decode(data['features']);
-    print(dataFeatures);
-    // type = findValue(dataFeatures, 'type')?.toString();
-    typeValue = findValue(dataFeatures, 'type');
-    _typeController.text = typeValue;
-    descripcion = findValue(dataFeatures, 'description');
-    _descriptionController.text = descripcion;
-    // Acceder a las categorías
-    // Acceder a las categorías
-    categories = findCategories(dataFeatures);
     setState(() {});
   }
 
@@ -253,7 +238,6 @@ class _ProductDetailsState extends State<ProductDetails> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 20),
                       const SizedBox(height: 20),
                       Row(
                         children: [
@@ -418,20 +402,42 @@ class _ProductDetailsState extends State<ProductDetails> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  "Bodega",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                    color: Colors.black,
+                                const Text('Bodega:'),
+                                const SizedBox(height: 3),
+                                DropdownButtonFormField<String>(
+                                  isExpanded: true,
+                                  hint: Text(
+                                    'Seleccione Bodega',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Theme.of(context).hintColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  warehouse,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey[800],
+                                  items: warehousesToSelect
+                                      .map((item) => DropdownMenuItem(
+                                            value: item,
+                                            child: Text(
+                                              item.split('-')[0],
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ))
+                                      .toList(),
+                                  value: warehouseValue,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      warehouseValue = value as String;
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(5.0),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -576,7 +582,11 @@ class _ProductDetailsState extends State<ProductDetails> {
                                       "features": featuresToSend,
                                       "price": double.parse(
                                           _priceController.text.toString()),
-                                      "url_img": img_url.toString()
+                                      "url_img": img_url.toString(),
+                                      "warehouse_id": warehouseValue
+                                          .toString()
+                                          .split("-")[1]
+                                          .toString()
                                     });
 
                                     Navigator.pop(context);

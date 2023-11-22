@@ -8,6 +8,7 @@ import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
+import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/html_editor.dart';
 import 'package:frontend/ui/widgets/loading.dart';
@@ -24,26 +25,20 @@ class _AddProductState extends State<AddProduct> {
   final formKey = GlobalKey<FormState>();
 
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _stockUntController = TextEditingController();
+  final TextEditingController _inventaryController = TextEditingController();
 
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _stockController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
+  final TextEditingController _priceUnitController = TextEditingController();
 
   List<String> warehouses = [];
   List warehouseList = [];
 
   String? selectedWarehouse;
-  List<String> categories = [
-    "Hogar",
-    "Mascota",
-    "Moda",
-    "Tecnología",
-    "Cocina",
-    "Belleza"
-  ];
+  List<String> categories = UIUtils.categories();
 
   String? selectedCategory;
   List<String> selectedCategories = [];
@@ -51,13 +46,11 @@ class _AddProductState extends State<AddProduct> {
   List<String> features = [];
   String? img_url;
 
-  List<String> types = ["SIMPLE", "VARIABLE"];
+  List<String> types = UIUtils.typesProduct();
   String? selectedType;
-  List<String> typesVariables = ["Tallas", "Colores", "Tamaños"];
+  List<String> typesVariables = UIUtils.typesVariables();
+
   String? selectedVariable;
-  List<String> sizesToSelect = ["XS", "S", "M", "L", "XL"];
-  List<String> colorsToSelect = ["Blanco", "Negro", "Amarillo", "Azul", "Rojo"];
-  List<String> dimensionToSelect = ["Grande", "Mediano", "Pequeño"];
   String? chosenColor;
   String? chosenSize;
   String? chosenDimension;
@@ -69,6 +62,14 @@ class _AddProductState extends State<AddProduct> {
   List variantsList = [];
   final TextEditingController _showVariantsController = TextEditingController();
   int showStockTotal = 0;
+
+  List<String> selectedVariablesList = [];
+
+  List<Map<String, List<String>>> optionsList = UIUtils.variablesToSelect();
+
+  List<String> sizesToSelect = [];
+  List<String> colorsToSelect = [];
+  List<String> dimensionToSelect = [];
 
   bool containsEmoji(String text) {
     final emojiPattern = RegExp(
@@ -96,6 +97,10 @@ class _AddProductState extends State<AddProduct> {
         });
       });
     }
+
+    sizesToSelect = optionsList[0]["sizes"]!;
+    colorsToSelect = optionsList[1]["colors"]!;
+    dimensionToSelect = optionsList[2]["dimensions"]!;
   }
 
   @override
@@ -194,10 +199,6 @@ class _AddProductState extends State<AddProduct> {
                     ),
                     const SizedBox(height: 10),
                     Row(
-                      children: [],
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
                       children: [
                         Expanded(
                           child: Column(
@@ -261,6 +262,7 @@ class _AddProductState extends State<AddProduct> {
                                   child: TextFormField(
                                     controller: _showVariantsController,
                                     maxLines: null,
+                                    readOnly: true,
                                     decoration: InputDecoration(
                                       fillColor: Colors.white,
                                       filled: true,
@@ -278,6 +280,367 @@ class _AddProductState extends State<AddProduct> {
                       ],
                     ),
                     const SizedBox(height: 10),
+                    //
+                    Visibility(
+                      visible: selectedType == 'VARIABLE',
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                DropdownButtonFormField<String>(
+                                  isExpanded: true,
+                                  hint: Text(
+                                    'Seleccione Variable',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Theme.of(context).hintColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  items: typesVariables
+                                      .map((item) => DropdownMenuItem(
+                                            value: item,
+                                            child: Text(
+                                              item,
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ))
+                                      .toList(),
+                                  value: selectedVariable,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      selectedVariable = value;
+                                      if (value != null) {
+                                        selectedVariable = value;
+                                        selectedVariablesList
+                                            .add(selectedVariable.toString());
+                                        print(selectedVariablesList);
+                                        _priceUnitController.text =
+                                            _priceController.text;
+                                      }
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(5.0),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                                Wrap(
+                                  spacing: 8.0,
+                                  runSpacing: 8.0,
+                                  children: selectedVariablesList
+                                      .map<Widget>((variable) {
+                                    return Chip(
+                                      label: Text(variable),
+                                      onDeleted: () {
+                                        setState(() {
+                                          selectedVariablesList
+                                              .remove(variable);
+                                          // print("catAct: $selectedCategories");
+                                        });
+                                      },
+                                    );
+                                  }).toList(),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Visibility(
+                                  visible:
+                                      selectedVariablesList.contains("Tallas"),
+                                  child: DropdownButtonFormField<String>(
+                                    isExpanded: true,
+                                    hint: Text(
+                                      'Seleccione Talla',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Theme.of(context).hintColor,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    items: sizesToSelect
+                                        .map((item) => DropdownMenuItem(
+                                              value: item,
+                                              child: Text(
+                                                item,
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ))
+                                        .toList(),
+                                    value: chosenSize,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        chosenSize = value;
+                                      });
+                                    },
+                                    decoration: InputDecoration(
+                                      fillColor: Colors.white,
+                                      filled: true,
+                                      border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(5.0),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Visibility(
+                                  visible:
+                                      selectedVariablesList.contains("Colores"),
+                                  child: DropdownButtonFormField<String>(
+                                    isExpanded: true,
+                                    hint: Text(
+                                      'Seleccione Color',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Theme.of(context).hintColor,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    items: colorsToSelect
+                                        .map((item) => DropdownMenuItem(
+                                              value: item,
+                                              child: Text(
+                                                item,
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ))
+                                        .toList(),
+                                    value: chosenColor,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        chosenColor = value;
+                                      });
+                                    },
+                                    decoration: InputDecoration(
+                                      fillColor: Colors.white,
+                                      filled: true,
+                                      border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(5.0),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                                Visibility(
+                                  visible:
+                                      selectedVariablesList.contains("Tamaños"),
+                                  child: DropdownButtonFormField<String>(
+                                    isExpanded: true,
+                                    hint: Text(
+                                      'Seleccione Tamaño',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Theme.of(context).hintColor,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    items: dimensionToSelect
+                                        .map((item) => DropdownMenuItem(
+                                              value: item,
+                                              child: Text(
+                                                item,
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ))
+                                        .toList(),
+                                    value: chosenDimension,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        chosenDimension = value;
+                                      });
+                                    },
+                                    decoration: InputDecoration(
+                                      fillColor: Colors.white,
+                                      filled: true,
+                                      border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(5.0),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          Expanded(
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    children: [
+                                      const Text('Cantidad'),
+                                      const SizedBox(height: 3),
+                                      TextField(
+                                        controller: _inventaryController,
+                                        keyboardType: TextInputType.number,
+                                        inputFormatters: <TextInputFormatter>[
+                                          FilteringTextInputFormatter.digitsOnly
+                                        ],
+                                        decoration: const InputDecoration(
+                                          border: OutlineInputBorder(),
+                                          hintText: 'Cantidad',
+                                        ),
+                                      ),
+                                      const SizedBox(height: 5),
+                                      const Text('Precio'),
+                                      const SizedBox(height: 3),
+                                      TextField(
+                                        controller: _priceUnitController,
+                                        keyboardType: TextInputType.number,
+                                        inputFormatters: <TextInputFormatter>[
+                                          FilteringTextInputFormatter.allow(
+                                              RegExp(r'^\d+\.?\d{0,2}$')),
+                                        ],
+                                        decoration: const InputDecoration(
+                                          border: OutlineInputBorder(),
+                                          hintText: 'Precio',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    if (int.parse(_inventaryController.text) <
+                                        1) {
+                                      showSuccessModal(
+                                          context,
+                                          "Por favor, ingrese una Cantidad válida.",
+                                          Icons8.alert);
+                                    } else {
+                                      // if (selectedVariable == "Colores") {
+                                      //   selectedColores.add(chosenColor!);
+                                      //   var variant = {
+                                      //     "color": "$chosenColor",
+                                      //     "inventory": _stockUntController.text
+                                      //   };
+                                      //   variantsList.add(variant);
+                                      //   print(variant);
+                                      //   //
+                                      // } else if (selectedVariable == "Tallas") {
+                                      //   selectedTallas.add(chosenSize!);
+                                      //   var variant = {
+                                      //     "talla": "$chosenSize",
+                                      //     "inventory": _stockUntController.text
+                                      //   };
+                                      //   variantsList.add(variant);
+                                      //   //
+                                      // } else if (selectedVariable ==
+                                      //     "Tamaños") {
+                                      //   selectedDimensions
+                                      //       .add(chosenDimension!);
+                                      //   var variant = {
+                                      //     "dimension": "$chosenDimension",
+                                      //     "inventory": _stockUntController.text
+                                      //   };
+                                      //   variantsList.add(variant);
+                                      //   //
+                                      // }
+                                      var variant;
+                                      if (selectedVariablesList
+                                              .contains("Tallas") &&
+                                          selectedVariablesList
+                                              .contains("Colores")) {
+                                        variant = {
+                                          "size": "$chosenSize",
+                                          "color": "$chosenColor",
+                                          "inventory":
+                                              _inventaryController.text,
+                                          "price": _priceUnitController.text
+                                        };
+                                        selectedTallas.add(chosenSize!);
+                                        selectedColores.add(chosenColor!);
+                                      } else if (selectedVariablesList
+                                          .contains("Tallas")) {
+                                        variant = {
+                                          "size": "$chosenSize",
+                                          "inventory":
+                                              _inventaryController.text,
+                                          "price": _priceUnitController.text
+                                        };
+                                        selectedTallas.add(chosenSize!);
+                                      } else if (selectedVariablesList
+                                          .contains("Colores")) {
+                                        variant = {
+                                          "color": "$chosenColor",
+                                          "inventory":
+                                              _inventaryController.text,
+                                          "price": _priceUnitController.text
+                                        };
+                                        selectedColores.add(chosenColor!);
+                                      } else if (selectedVariablesList
+                                          .contains("Tamaños")) {
+                                        variant = {
+                                          "dimension": "$chosenDimension",
+                                          "inventory":
+                                              _inventaryController.text,
+                                          "price": _priceUnitController.text
+                                        };
+                                        selectedDimensions
+                                            .add(chosenDimension!);
+                                      }
+
+                                      variantsList.add(variant);
+                                      // print(variantsList);
+                                      //
+
+                                      showVariants(variantsList);
+
+                                      calcuateStockTotal(
+                                          _inventaryController.text);
+
+                                      _priceUnitController.text =
+                                          _priceController.text;
+                                      // print(selectedColores);
+                                      // print(selectedTallas);
+                                      // print(selectedDimensions);
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green[400],
+                                  ),
+                                  child: const Text(
+                                    "Añadir",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    /*
                     Visibility(
                       visible: selectedType == 'VARIABLE',
                       child: Row(
@@ -597,7 +960,7 @@ class _AddProductState extends State<AddProduct> {
                                         selectedColores.add(chosenColor!);
                                         var variant = {
                                           "color": "$chosenColor",
-                                          "stock": _stockUntController.text
+                                          "inventory": _stockUntController.text
                                         };
                                         variantsList.add(variant);
                                         //
@@ -605,7 +968,7 @@ class _AddProductState extends State<AddProduct> {
                                         selectedTallas.add(chosenSize!);
                                         var variant = {
                                           "talla": "$chosenSize",
-                                          "stock": _stockUntController.text
+                                          "inventory": _stockUntController.text
                                         };
                                         variantsList.add(variant);
                                         //
@@ -615,7 +978,7 @@ class _AddProductState extends State<AddProduct> {
                                             .add(chosenDimension!);
                                         var variant = {
                                           "dimension": "$chosenDimension",
-                                          "stock": _stockUntController.text
+                                          "inventory": _stockUntController.text
                                         };
                                         variantsList.add(variant);
                                         //
@@ -643,7 +1006,7 @@ class _AddProductState extends State<AddProduct> {
                         ],
                       ),
                     ),
-
+*/
                     // Row(
                     //   children: [
                     //     Expanded(
@@ -1085,6 +1448,8 @@ class _AddProductState extends State<AddProduct> {
                                         {"variants": variantsList}
                                       ];
 
+                                      // print("featuresToSend: $featuresToSend");
+
                                       await Connections().createProduct(
                                           _nameController.text,
                                           _stockController.text,
@@ -1145,7 +1510,7 @@ class _AddProductState extends State<AddProduct> {
 
   showVariants(variantsList) {
     String variantText =
-        variantsList.map((variant) => variant.values.join(': ')).join('\n');
+        variantsList.map((variant) => variant.values.join(';  ')).join('\n');
     _showVariantsController.text = variantText;
   }
 

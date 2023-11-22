@@ -5719,7 +5719,15 @@ class Connections {
 
   getProductsByProvider(idProvider, populate, page_size, current_page, or, and,
       sort, search) async {
-    print("search $search");
+    // print(json.encode({
+    //   "populate": populate,
+    //   "page_size": page_size,
+    //   "page_number": current_page,
+    //   "or": or,
+    //   "and": and,
+    //   "sort": sort,
+    //   "search": search
+    // }));
     try {
       var response = await http.post(
           Uri.parse("$serverLaravel/api/products/by/$idProvider"),
@@ -5748,14 +5756,6 @@ class Connections {
 
   //  *
   createProduct(nameProduct, stock, features, price, url_img, warehouse) async {
-    // print(json.encode({
-    //   "product_name": nameProduct,
-    //   "stock": stock,
-    //   "features": features,
-    //   "price": price,
-    //   "url_img": url_img,
-    //   "warehouse_id": warehouse
-    // }));
     try {
       var response = await http.post(Uri.parse("$serverLaravel/api/products"),
           headers: {'Content-Type': 'application/json'},
@@ -5769,14 +5769,13 @@ class Connections {
           }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
-        return decodeData;
-      } else if (response.statusCode == 400) {
-        print("Error 400: Bad Request");
+        // return decodeData;
+        return [true, decodeData];
       } else {
-        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+        return 1;
       }
-    } catch (error) {
-      print("Ocurrió un error durante la solicitud: $error");
+    } catch (e) {
+      print(e);
     }
   }
 
