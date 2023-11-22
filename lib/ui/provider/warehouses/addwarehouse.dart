@@ -281,6 +281,7 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
                                     pickedImage = image;
                                   });
                                 },
+                                label: 'Ninguna Imagen Seleccionada',
                               )),
                         ],
                       ),
@@ -564,6 +565,7 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
                                     pickedImage = image;
                                   });
                                 },
+                                label: 'Ninguna Imagen Seleccionada'
                               )),
                         ],
                       ),
@@ -753,7 +755,7 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
                               child: Text(
                                 'Aceptar',
                                 style: TextStyle(
-                                  fontSize: 14, // Cambia el tamaño del texto
+                                  fontSize: 12, // Cambia el tamaño del texto
                                   fontWeight: FontWeight
                                       .normal, // Aplica negrita al texto
                                 ),
@@ -786,7 +788,7 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
                             child: Text(
                               'Cancelar',
                               style: TextStyle(
-                                fontSize: 14, // Cambia el tamaño del texto
+                                fontSize: 12, // Cambia el tamaño del texto
                                 fontWeight: FontWeight
                                     .normal, // Aplica negrita al texto
                               ),

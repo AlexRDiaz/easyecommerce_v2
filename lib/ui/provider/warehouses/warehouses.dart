@@ -88,14 +88,17 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
           _futureWarehouseData = _loadWarehouses(); // Actualiza el Future
         }));
   }
-  Future<dynamic> openDialogE(BuildContext context,WarehouseModel warehousen) {
+
+  Future<dynamic> openDialogE(BuildContext context, WarehouseModel warehousen) {
     return showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
             content: Container(
               width: MediaQuery.of(context).size.width * 0.5,
-              child: EditWarehouse(warehouse: warehousen,),
+              child: EditWarehouse(
+                warehouse: warehousen,
+              ),
             ),
           );
         }).then((value) => setState(() {
@@ -205,7 +208,7 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
                           elevation: 10,
                           color: ColorsSystem().colorBlack,
                           child: InkWell(
-                            onTap: () => openDialogE(context,warehouse),
+                            onTap: () => openDialogE(context, warehouse),
                             child: Stack(
                               children: [
                                 // Imagen o icono principal
@@ -252,17 +255,24 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
                                           size: iconSize, color: Colors.white),
                                 ),
                                 // Icono de check verde en la esquina superior izquierda
-                                if (warehouses[index].active == 1)
-                                  Positioned(
-                                    top: 8,
-                                    left: 8,
-                                    child: Icon(
-                                      Icons.check,
-                                      color: const Color.fromARGB(
-                                          255, 45, 228, 51),
-                                      size: 20,
-                                    ),
-                                  ),
+                                Positioned(
+                                  top: 8,
+                                  left: 8,
+                                  child: warehouses[index].active == 1
+                                      ? Icon(
+                                          Icons.check,
+                                          color: const Color.fromARGB(
+                                              255, 45, 228, 51),
+                                          size: 20,
+                                        )
+                                      : Icon(
+                                          Icons.lock,
+                                          color: Colors
+                                              .red,
+                                          size: 20,
+                                        ),
+                                ),
+
                                 Align(
                                   alignment: Alignment.bottomCenter,
                                   child: Container(
@@ -337,5 +347,3 @@ class TextFieldWithIcon extends StatelessWidget {
     );
   }
 }
-
-

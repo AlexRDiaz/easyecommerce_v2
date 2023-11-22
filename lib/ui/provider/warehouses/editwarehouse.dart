@@ -7,6 +7,7 @@ import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/provider/warehouses/controllers/warehouses_controller.dart';
+import 'package:frontend/ui/widgets/logistic/custom_imagepicker.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
@@ -39,7 +40,7 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
   TimeOfDay startTime = TimeOfDay.now();
   TimeOfDay endTime = TimeOfDay.now();
 
-  XFile? pickedImage = null;
+  XFile? pickedImage;
 
   _EditWarehouseState()
       : _cityController = TextEditingController(),
@@ -207,6 +208,8 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
         TextEditingController(text: widget.warehouse.collection);
     TextEditingController _cityControllerdb =
         TextEditingController(text: widget.warehouse.city);
+    TextEditingController _urlImageController =
+        TextEditingController(text: widget.warehouse.url_image);
     // TextEditingController _trnasportController = TextEditingController(text: widget.warehouse.collection);
     // TextEditingController _timeStartController = TextEditingController(text: widget.warehouse.collection);
     // TextEditingController _timeEndController   = TextEditingController(text: widget.warehouse.collection);
@@ -265,45 +268,48 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                           SizedBox(
                             width: 50,
                           ),
-                          Tooltip(
-                            message: "Desactivar Bodega",
-                            child: IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () {
-                                _controller
-                                    .deleteWarehouse(widget.warehouse.id!)
-                                    .then((_) {
-                                  Navigator.of(context).pop();
-                                  setState(() {
-                                    _futureWarehouseData = _loadWarehouses();
-                                    SnackBarHelper.showOkSnackBar(
-                                        context, "BODEGA INACTIVA.");
-                                  });
-                                });
-                              },
-                            ),
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Tooltip(
-                            message: "Activar Bodega",
-                            child: IconButton(
-                              icon: Icon(Icons.check, color: Colors.green),
-                              onPressed: () {
-                                _controller
-                                    .activateWarehouse(widget.warehouse.id!)
-                                    .then((_) {
-                                  Navigator.of(context).pop();
-                                  setState(() {
-                                    _futureWarehouseData = _loadWarehouses();
-                                    SnackBarHelper.showOkSnackBar(
-                                        context, "BODEGA ACTIVA.");
-                                  });
-                                });
-                              },
-                            ),
-                          )
+                          widget.warehouse.active == 1
+                              ? Tooltip(
+                                  message: "Desactivar Bodega",
+                                  child: IconButton(
+                                    icon: const Icon(Icons.lock,
+                                        color: Colors.red),
+                                    onPressed: () {
+                                      _controller
+                                          .deleteWarehouse(widget.warehouse.id!)
+                                          .then((_) {
+                                        Navigator.of(context).pop();
+                                        setState(() {
+                                          _futureWarehouseData =
+                                              _loadWarehouses();
+                                          SnackBarHelper.showOkSnackBar(
+                                              context, "BODEGA INACTIVA.");
+                                        });
+                                      });
+                                    },
+                                  ),
+                                )
+                              : Tooltip(
+                                  message: "Activar Bodega",
+                                  child: IconButton(
+                                    icon:
+                                        Icon(Icons.check, color: Colors.green),
+                                    onPressed: () {
+                                      _controller
+                                          .activateWarehouse(
+                                              widget.warehouse.id!)
+                                          .then((_) {
+                                        Navigator.of(context).pop();
+                                        setState(() {
+                                          _futureWarehouseData =
+                                              _loadWarehouses();
+                                          SnackBarHelper.showOkSnackBar(
+                                              context, "BODEGA ACTIVA.");
+                                        });
+                                      });
+                                    },
+                                  ),
+                                )
                         ],
                       ),
                       SizedBox(
@@ -337,7 +343,24 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                               labelText: 'Descripción',
                               icon: Icons.description,
                             ),
-                            SizedBox(height: 20),
+                            Row(children: [
+                              Column(
+                                children: [
+                                  Container(
+                                      padding: EdgeInsets.only(top: 15.0),
+                                      height: 140,
+                                      child: ImagePickerExample(
+                                        onImageSelected: (XFile? image) {
+                                          setState(() {
+                                            pickedImage = image;
+                                          });
+                                        },
+                                        label: 'Seleccione Nueva Imagen',
+                                      )),
+                                ],
+                              ),
+                            ]),
+                            SizedBox(height: 10.0),
                             Text("Seleccione si desea cambiar estas opciones: ",
                                 style: TextStyle(
                                     color: ColorsSystem().colorRedPassword)),
@@ -445,8 +468,10 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                                               "Inicio", startTime, (time) {
                                             setState(() {
                                               startTime = time;
+                                              _timeStartController.text =
+                                                  "${startTime.hour}:${startTime.minute}";
                                             });
-                                          }, _timeStartController),
+                                          }),
                                         ),
                                         SizedBox(width: 10),
                                         Container(
@@ -456,8 +481,10 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                                               "Fin", endTime, (time) {
                                             setState(() {
                                               endTime = time;
+                                              _timeEndController.text =
+                                                  "${endTime.hour}:${endTime.minute}";
                                             });
-                                          }, _timeEndController),
+                                          }),
                                         ),
                                       ],
                                     ),
@@ -565,56 +592,68 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                                     _timeEndControllerdb =
                                         TextEditingController(
                                             text: _timeEndController.text);
-                                    // "${_timeStartController.text} - ${_timeEndController.text}";
 
                                     collectionSchedule =
-                                        " ${_timeStartControllerdb.text}-${_timeEndControllerdb.text}";
+                                        " ${_timeStartControllerdb.text} - ${_timeEndControllerdb.text}";
                                   }
                                   if (_cityController.text == "") {
                                     _cityController = TextEditingController(
                                         text: _cityControllerdb.text);
                                   }
 
-                                  print(
-                                      "Nombre de bodega: ${_nameSucursalController.text}");
-                                  print(
-                                      "Dirección: ${_addressController.text}");
-                                  print(
-                                      "Referencia: ${_referenceController.text}");
-                                  print(
-                                      "Descripción: ${_descriptionController.text}");
-                                  print("Ciudad: ${_cityController.text}");
-                                  print("Días de Recolección: $selectedDays");
-                                  print(
-                                      "Horario de Recolección: ${_timeStartControllerdb.text}-${_timeEndControllerdb.text}");
-                                  print(
-                                      "Transporte de Recolección: ${_trnasportController.text}");
-                                  print("collec: $collectionSchedule ");
-                                  print("*******************");
-                                  // var responseChargeImage =
-                                  //     await Connections().postDoc(pickedImage!);
-                                  // _controller.updateWarehouse(
-                                  //     widget.warehouse.id!,
-                                  //     _nameSucursalController.text,
-                                  //     _addressController.text,
-                                  //     _referenceController.text,
-                                  //     _descriptionController.text,
-                                  //     responseChargeImage[1],
-                                  //     _cityController.text, {
-                                  //   "collectionDays": selectedDays,
-                                  //   "collectionSchedule":
-                                  //       "${_timeStartController.text} - ${_timeEndController.text}",
-                                  //   "collectionTransport":
-                                  //       _trnasportController.text
-                                  // }).then((_) {
-                                  //   Navigator.of(context).pop();
-                                  //   setState(() {
-                                  //     // Esto forzará la reconstrucción de la vista con los datos actualizados
-                                  //     _futureWarehouseData = _loadWarehouses();
-                                  //     SnackBarHelper.showOkSnackBar(
-                                  //         context, "DATOS ACTUALIZADOS.");
-                                  //   });
-                                  // });
+                                  // print(
+                                  //     "Nombre de bodega: ${_nameSucursalController.text}");
+                                  // print(
+                                  //     "Dirección: ${_addressController.text}");
+                                  // print(
+                                  //     "Referencia: ${_referenceController.text}");
+                                  // print(
+                                  //     "Descripción: ${_descriptionController.text}");
+                                  // print("Ciudad: ${_cityController.text}");
+                                  // print("Días de Recolección: $selectedDays");
+                                  // // print(
+                                  // // "Horario de Recolección: ${_timeStartControllerdb.text}-${_timeEndControllerdb.text}");
+                                  // print(
+                                  //     "Transporte de Recolección: ${_trnasportController.text}");
+                                  // print("collec: $collectionSchedule ");
+                                  // print("*******************");
+
+                                  var responseChargeImage;
+
+                                  if (pickedImage != null &&
+                                      pickedImage!.name.isNotEmpty) {
+                                    print(
+                                        "selecciono ${pickedImage!.name.toString()}");
+                                    responseChargeImage = await Connections()
+                                        .postDoc(pickedImage!);
+                                    if (responseChargeImage[1] != "") {
+                                      _urlImageController.text =
+                                          responseChargeImage[1];
+                                    }
+                                  }
+
+                                  _controller.updateWarehouse(
+                                      widget.warehouse.id!,
+                                      _nameSucursalController.text,
+                                      _addressController.text,
+                                      _referenceController.text,
+                                      _descriptionController.text,
+                                      _urlImageController.text,
+                                      _cityController.text, {
+                                    "collectionDays": selectedDays,
+                                    "collectionSchedule": collectionSchedule,
+                                    //       "${_timeStartController.text} - ${_timeEndController.text}",
+                                    "collectionTransport":
+                                        _trnasportController.text
+                                  }).then((_) {
+                                    Navigator.of(context).pop();
+                                    setState(() {
+                                      // Esto forzará la reconstrucción de la vista con los datos actualizados
+                                      _futureWarehouseData = _loadWarehouses();
+                                      SnackBarHelper.showOkSnackBar(
+                                          context, "DATOS ACTUALIZADOS.");
+                                    });
+                                  });
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: ColorsSystem()
@@ -671,50 +710,53 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                         children: [
                           const Text(
                             'Editar Bodega',
-                            style: TextStyle(fontSize: 24),
+                            style: TextStyle(fontSize: 20),
                           ),
                           SizedBox(
-                            width: 10,
+                            width: 5,
                           ),
-                          Tooltip(
-                            message: "Desactivar Bodega",
-                            child: IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () {
-                                _controller
-                                    .deleteWarehouse(widget.warehouse.id!)
-                                    .then((_) {
-                                  Navigator.of(context).pop();
-                                  setState(() {
-                                    _futureWarehouseData = _loadWarehouses();
-                                    SnackBarHelper.showOkSnackBar(
-                                        context, "BODEGA INACTIVA.");
-                                  });
-                                });
-                              },
-                            ),
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Tooltip(
-                            message: "Activar Bodega",
-                            child: IconButton(
-                              icon: Icon(Icons.check, color: Colors.green),
-                              onPressed: () {
-                                _controller
-                                    .activateWarehouse(widget.warehouse.id!)
-                                    .then((_) {
-                                  Navigator.of(context).pop();
-                                  setState(() {
-                                    _futureWarehouseData = _loadWarehouses();
-                                    SnackBarHelper.showOkSnackBar(
-                                        context, "BODEGA ACTIVA.");
-                                  });
-                                });
-                              },
-                            ),
-                          )
+                          widget.warehouse.active == 1
+                              ? Tooltip(
+                                  message: "Desactivar Bodega",
+                                  child: IconButton(
+                                    icon: const Icon(Icons.lock,
+                                        color: Colors.red),
+                                    onPressed: () {
+                                      _controller
+                                          .deleteWarehouse(widget.warehouse.id!)
+                                          .then((_) {
+                                        Navigator.of(context).pop();
+                                        setState(() {
+                                          _futureWarehouseData =
+                                              _loadWarehouses();
+                                          SnackBarHelper.showOkSnackBar(
+                                              context, "BODEGA INACTIVA.");
+                                        });
+                                      });
+                                    },
+                                  ),
+                                )
+                              : Tooltip(
+                                  message: "Activar Bodega",
+                                  child: IconButton(
+                                    icon:
+                                        Icon(Icons.check, color: Colors.green),
+                                    onPressed: () {
+                                      _controller
+                                          .activateWarehouse(
+                                              widget.warehouse.id!)
+                                          .then((_) {
+                                        Navigator.of(context).pop();
+                                        setState(() {
+                                          _futureWarehouseData =
+                                              _loadWarehouses();
+                                          SnackBarHelper.showOkSnackBar(
+                                              context, "BODEGA ACTIVA.");
+                                        });
+                                      });
+                                    },
+                                  ),
+                                )
                         ],
                       ),
                       SizedBox(
@@ -749,6 +791,25 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                               icon: Icons.description,
                             ),
                             SizedBox(height: 20),
+                            Row(children: [
+                              Column(
+                                children: [
+                                  Container(
+                                      padding: EdgeInsets.only(top: 15.0),
+                                      height: 100,
+                                      child: ImagePickerExample(
+                                        onImageSelected: (XFile? image) {
+                                          setState(() {
+                                            pickedImage = image;
+                                          });
+                                        },
+                                        label: 'Seleccione Nueva Imagen',
+                                        widgetWidth: 200,
+                                      )),
+                                ],
+                              ),
+                            ]),
+                            SizedBox(height: 10),
                             Text("Seleccione si desea cambiar estas opciones: ",
                                 style: TextStyle(
                                     color: ColorsSystem().colorRedPassword)),
@@ -770,7 +831,7 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                                                   .colorSelectMenu,
                                               fontSize: 14)),
                                       Text(
-                                        "${_cityController.text}",
+                                        "${_cityControllerdb.text}",
                                         style: TextStyle(fontSize: 14),
                                       ),
                                     ],
@@ -845,7 +906,7 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                             Row(
                               children: [
                                 Container(
-                                  width: 250,
+                                  width: 210,
                                   child: SelectFilter('Ciudad',
                                       returnStatesController, activeRoutes),
                                 ),
@@ -856,7 +917,7 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                               children: [
                                 Container(
                                   key: UniqueKey(),
-                                  width: 250,
+                                  width: 210,
                                   child: SelectFilterTrans(
                                       'Transporte de Recolección',
                                       formattedListController,
@@ -870,6 +931,8 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                             Text("Horario de Recolección",
                                 style: TextStyle(
                                     color: Color.fromARGB(255, 107, 105, 105))),
+                            SizedBox(height: 10),
+
                             Row(
                               children: [
                                 Expanded(
@@ -877,17 +940,26 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                                       (time) {
                                     setState(() {
                                       startTime = time;
+                                      _timeStartController.text =
+                                          "${startTime.hour}:${startTime.minute}";
                                     });
-                                  }, _timeStartController),
+                                  }),
                                 ),
                                 // SizedBox(width: 10),
+                              ],
+                            ),
+                            SizedBox(height: 10),
+                            Row(
+                              children: [
                                 Expanded(
                                   child:
                                       _buildTimePicker("Fin", endTime, (time) {
                                     setState(() {
                                       endTime = time;
+                                      _timeEndController.text =
+                                          "${endTime.hour}:${endTime.minute}";
                                     });
-                                  }, _timeEndController),
+                                  }),
                                 ),
                               ],
                             ),
@@ -1004,7 +1076,8 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
-                                child: const Text('Aceptar'),
+                                child: const Text('Aceptar',
+                                    style: TextStyle(fontSize: 12)),
                               ),
                             ),
                           ),
@@ -1023,7 +1096,10 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
-                                child: const Text('Cancelar'),
+                                child: const Text(
+                                  'Cancelar',
+                                  style: TextStyle(fontSize: 12),
+                                ),
                               ),
                             ),
                           ),
@@ -1074,7 +1150,7 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
     String label,
     TimeOfDay selectedTime,
     Function(TimeOfDay) onTimeChanged,
-    TextEditingController controller,
+    // TextEditingController controller,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1100,7 +1176,7 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                 if (pickedTime != null && pickedTime != selectedTime) {
                   onTimeChanged(pickedTime);
                 }
-                controller.text = "${selectedTime.hour}:${selectedTime.minute}";
+                // controller.text = "${selectedTime.hour}:${selectedTime.minute}";
               },
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.white,
