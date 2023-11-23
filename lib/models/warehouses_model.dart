@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:frontend/models/provider_model.dart';
+
 class WarehouseModel {
   int? id;
   String? branchName;
@@ -11,7 +15,7 @@ class WarehouseModel {
   int? providerId;
 
   // Considerar si necesitas un objeto relacionado como en ProviderModel
-  // ProviderModel? provider;
+  ProviderModel? provider;
 
   // Constructor
   WarehouseModel({
@@ -24,31 +28,47 @@ class WarehouseModel {
     this.city,
     this.collection,
     this.active,
-    this.providerId
-    // this.provider,
+    this.providerId,
+    this.provider,
   });
 
   // Método para crear un objeto WarehouseModel desde un mapa
-  factory WarehouseModel.fromJson(Map<String, dynamic> json) {
-  //    List<Map<String, dynamic>>? collectionData = [];
-  // if (json['collection'] != null) {
-  //   var collectionList = json['collection'] as List<dynamic>;
-  //   collectionData = collectionList.map((e) => e as Map<String, dynamic>).toList();
-  // }
-    return WarehouseModel(
-      id: json['warehouse_id'],
-      branchName: json['branch_name'],
-      address: json['address'],
-      reference: json['reference'],
-      description: json['description'],
-      url_image: json['url_image'],
-      city: json['city'],
-      collection: json['collection'],  
-      active : json['active'],
-      providerId: json['provider_id'],
-      // provider: ProviderModel.fromJson(json['provider']),
-    );
+ factory WarehouseModel.fromJson(Map<String, dynamic> json) {
+  dynamic providerData;
+
+  if (json['provider'] != null) {
+    var providerValue = json['provider'];
+
+    if (providerValue is String) {
+      try {
+        providerData = jsonDecode(providerValue);
+      } catch (e) {
+        print('Error decoding provider string: $e');
+      }
+    } else if (providerValue is Map<String, dynamic>) {
+      providerData = providerValue;
+    }
   }
+
+  ProviderModel? providerModel;
+  if (providerData != null) {
+    providerModel = ProviderModel.fromJson(providerData);
+  }
+
+  return WarehouseModel(
+    id: json['warehouse_id'],
+    branchName: json['branch_name'],
+    address: json['address'],
+    reference: json['reference'],
+    description: json['description'],
+    url_image: json['url_image'],
+    city: json['city'],
+    collection: json['collection'],
+    active: json['active'],
+    providerId: json['provider_id'],
+    provider: providerModel,
+  );
+}
 
   Map<String, dynamic> toJson() {
     return {
@@ -61,7 +81,7 @@ class WarehouseModel {
       'city': city,
       'collection' : collection,
       'active' : active,
-      'provider_id': providerId
+      'provider_id': providerId,
       // Si tienes un objeto relacionado
       // 'provider': provider?.toJson(),
     };

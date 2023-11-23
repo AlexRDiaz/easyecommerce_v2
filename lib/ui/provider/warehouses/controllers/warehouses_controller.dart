@@ -16,10 +16,17 @@ class WrehouseController extends ControllerMVC {
     setState(() {});
   }
 
-  updateWarehouse(int warehouseId, String nameSucursal, String address,
-      String reference, String description,String url_image,String city, var collection) async {
-    await Connections().updateWarehouse(
-        warehouseId, nameSucursal, address, reference,description,url_image,city,collection);
+  updateWarehouse(
+      int warehouseId,
+      String nameSucursal,
+      String address,
+      String reference,
+      String description,
+      String url_image,
+      String city,
+      var collection) async {
+    await Connections().updateWarehouse(warehouseId, nameSucursal, address,
+        reference, description, url_image, city, collection);
     setState(() {});
   }
 
@@ -30,7 +37,8 @@ class WrehouseController extends ControllerMVC {
     });
     await loadWarehouses();
   }
-    activateWarehouse(int warehouseId) async {
+
+  activateWarehouse(int warehouseId) async {
     await Connections().activateWarehouse(warehouseId);
     setState(() {
       // warehouses.removeWhere((warehouse) => warehouse.id == warehouseId);
