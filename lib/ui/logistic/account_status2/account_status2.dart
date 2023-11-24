@@ -37,10 +37,10 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
   bool showSearchSpace = false; // Por defecto, el TextField está oculto
   bool isMenuExpanded = false; // Para controlar la expansión de la lista
 
-  double totalValoresRecibidos = 0;
-  double costoDeEntregas = 0;
-  double devoluciones = 0;
-  double utilidad = 0;
+  double totalValoresRecibidos = 0.0;
+  double costoDeEntregas = 0.0;
+  double devoluciones = 0.0;
+  double utilidad = 0.0;
   double valueTotalReturns = 0.0;
   double valueNewWallet = 0.0;
 
@@ -97,7 +97,6 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
       utilidad = (valuesTransporter['totalValoresRecibidos']) -
           (valuesTransporter['totalShippingCost'] +
               valuesTransporter['totalCostoDevolucion']);
-      utilidad = double.parse(utilidad.toString());
     });
   }
 
@@ -548,15 +547,22 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
             .getValuesSellerLaravelc2(arrayfiltersDefaultAnd);
         retvalTotal = await Connections().getOrdenesRetiroCount(idSeller);
         resltNewWalletValueSeller = await Connections().getSaldoPorId(idSeller);
-        // print("quemado > $resltNewWalletValueSeller");
       }
+
       setState(() {
         // Ahora, actualiza el estado después de que hayas terminado la operación asíncrona
         valuesTransporter = responseValues['data'];
         valueTotalReturns =
             double.parse(retvalTotal['total_retiros'].toString());
-        valueNewWallet =
-            double.parse(resltNewWalletValueSeller['saldo'].toString());
+
+
+        if (resltNewWalletValueSeller['saldo'] == null) {
+          valueNewWallet = 0.0;
+        } else {
+          valueNewWallet =
+              double.parse(resltNewWalletValueSeller['saldo'].toString());
+        }
+
         calculateValues();
       });
     } catch (e) {
