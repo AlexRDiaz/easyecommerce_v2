@@ -221,8 +221,8 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
           children: [
             Container(
               padding: EdgeInsets.all(8.0),
-              height: 600,
-              // width: 400,
+              height: 630,
+              width: 900,
               child: SingleChildScrollView(
                   // scrollDirection: Axis.vertical,
                   child: Form(
@@ -270,137 +270,200 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
                     // Container(height: 80, child: ImagePickerExample()),
                     SizedBox(height: 25),
                     Row(children: [
-                      Column(
-                        children: [
-                          Container(
-                              padding: EdgeInsets.only(top:15.0),
-                              height: 100,
-                              child: ImagePickerExample(
-                                onImageSelected: (XFile? image) {
-                                  setState(() {
-                                    pickedImage = image;
-                                  });
-                                },
-                                label: 'Ninguna Imagen Seleccionada',
-                              )),
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Días de Recolección",
-                              style: TextStyle(
-                                  color: Color.fromARGB(255, 107, 105, 105))),
-                          Container(
-                            width: 300,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                  color:
-                                      const Color.fromARGB(255, 105, 104, 104)),
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            // padding: EdgeInsets.all(5.0),
-                            height: 50,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: 5,
-                              itemBuilder: (context, index) {
-                                int dayValue = index + 1;
-
-                                List<String> daysOfWeek = [
-                                  "Lunes",
-                                  "Martes",
-                                  "Miércoles",
-                                  "Jueves",
-                                  "Viernes"
-                                ];
-                                String dayName = daysOfWeek[index];
-
-                                return Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 4.0, right: 4.0),
-                                  child: FilterChip(
-                                    backgroundColor: ColorsSystem().colorBlack,
-                                    label: Text(
-                                      dayName,
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    selected: selectedDays.contains(dayValue),
-                                    onSelected: (isSelected) {
-                                      setState(() {
-                                        if (isSelected) {
-                                          selectedDays.add(dayValue);
-                                        } else {
-                                          selectedDays.remove(dayValue);
-                                        }
-                                      });
-                                    },
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ],
+                      Container(
+                          width: 250,
+                          padding: EdgeInsets.only(top: 10.0),
+                          height: 100,
+                          child: ImagePickerExample(
+                            onImageSelected: (XFile? image) {
+                              setState(() {
+                                pickedImage = image;
+                              });
+                            },
+                            label: 'Ninguna Imagen Seleccionada',
+                          )),
+                      Container(
+                        width: 200,
+                        child: SelectFilter(
+                            'Ciudad', returnStatesController, activeRoutes),
                       ),
                       SizedBox(width: 30),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Horario de Recolección:",
-                              style: TextStyle(
-                                  color: Color.fromARGB(255, 107, 105, 105))),
-                          
-                          Container(
-                            width: 300,
-                            decoration: BoxDecoration(
+                      Container(
+                        width: 200,
+                        child: SelectFilterTrans('Transporte de Recolección',
+                            formattedListController, formattedList),
+                      ),
+                    ]),
+                    SizedBox(height: 10),
+
+                    Row(
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Días de Recolección",
+                                style: TextStyle(
+                                    color: Color.fromARGB(255, 107, 105, 105))),
+                            Container(
+                              width: MediaQuery.of(context).size.width * 0.38,
+
+                              decoration: BoxDecoration(
                                 border: Border.all(
                                     color: const Color.fromARGB(
                                         255, 105, 104, 104)),
-                                borderRadius: BorderRadius.circular(10.0)),
-                            padding: EdgeInsets.all(10.0),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: _buildTimePicker("Inicio", startTime,
-                                      (time) {
-                                    setState(() {
-                                      startTime = time;
-                                    });
-                                  }, _timeStartController),
-                                ),
-                                // SizedBox(width: 10),
-                                Expanded(
-                                  child:
-                                      _buildTimePicker("Fin", endTime, (time) {
-                                    setState(() {
-                                      endTime = time;
-                                    });
-                                  }, _timeEndController),
-                                ),
-                              ],
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              // padding: EdgeInsets.all(5.0),
+                              height: 50,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: 5,
+                                itemBuilder: (context, index) {
+                                  int dayValue = index + 1;
+
+                                  List<String> daysOfWeek = [
+                                    "Lunes",
+                                    "Martes",
+                                    "Miércoles",
+                                    "Jueves",
+                                    "Viernes"
+                                  ];
+                                  String dayName = daysOfWeek[index];
+
+                                  return Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 4.0, right: 4.0),
+                                    child: FilterChip(
+                                      backgroundColor:
+                                          ColorsSystem().colorBlack,
+                                      label: Text(
+                                        dayName,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      selected: selectedDays.contains(dayValue),
+                                      onSelected: (isSelected) {
+                                        setState(() {
+                                          if (isSelected) {
+                                            selectedDays.add(dayValue);
+                                          } else {
+                                            selectedDays.remove(dayValue);
+                                          }
+                                        });
+                                      },
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
-                          ),
-                        ],
-                      )
-                    ]),
-                    SizedBox(height: 10),
+                          ],
+                        ),
+                        // SizedBox(width: 20.0,),
+                      ],
+                    ),
+                    SizedBox(height: 20),
                     Row(
                       children: [
-                        Container(
-                          width: 200,
-                          child: SelectFilter(
-                              'Ciudad', returnStatesController, activeRoutes),
-                        ),
-                        SizedBox(width: 30),
-                        Container(
-                          width: 200,
-                          child: SelectFilterTrans('Transporte de Recolección',
-                              formattedListController, formattedList),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Horario de Recolección:",
+                                style: TextStyle(
+                                    color: Color.fromARGB(255, 107, 105, 105))),
+                            Container(
+                              width: MediaQuery.of(context).size.width * 0.38,
+                              decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: const Color.fromARGB(
+                                          255, 105, 104, 104)),
+                                  borderRadius: BorderRadius.circular(10.0)),
+                              padding: EdgeInsets.all(10.0),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildTimePicker("Desde", startTime,
+                                        (time) {
+                                      setState(() {
+                                        startTime = time;
+                                      });
+                                    }, _timeStartController),
+                                  ),
+                                  SizedBox(width: 50),
+                                  Expanded(
+                                    child: _buildTimePicker("Hasta", endTime,
+                                        (time) {
+                                      setState(() {
+                                        endTime = time;
+                                      });
+                                    }, _timeEndController),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
+                    // Row(
+                    //   children: [
+                    //     Column(
+                    //       crossAxisAlignment: CrossAxisAlignment.start,
+                    //       children: [
+                    //         Text("Horario de Recolección:",
+                    //             style: TextStyle(
+                    //                 color: Color.fromARGB(255, 107, 105, 105))),
+
+                    //         Container(
+                    //           width: 300,
+                    //           decoration: BoxDecoration(
+                    //               border: Border.all(
+                    //                   color: const Color.fromARGB(
+                    //                       255, 105, 104, 104)),
+                    //               borderRadius: BorderRadius.circular(10.0)),
+                    //           padding: EdgeInsets.all(10.0),
+                    //           child: Row(
+                    //             children: [
+                    //               Expanded(
+                    //                 child: _buildTimePicker("Inicio", startTime,
+                    //                     (time) {
+                    //                   setState(() {
+                    //                     startTime = time;
+                    //                   });
+                    //                 }, _timeStartController),
+                    //               ),
+                    //               // SizedBox(width: 10),
+                    //               Expanded(
+                    //                 child:
+                    //                     _buildTimePicker("Fin", endTime, (time) {
+                    //                   setState(() {
+                    //                     endTime = time;
+                    //                   });
+                    //                 }, _timeEndController),
+                    //               ),
+                    //             ],
+                    //           ),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ],
+                    // ),
+
+                    // Row(
+                    //   children: [
+                    //     Container(
+                    //       width: 200,
+                    //       child: SelectFilter(
+                    //           'Ciudad', returnStatesController, activeRoutes),
+                    //     ),
+                    //     SizedBox(width: 30),
+                    //     Container(
+                    //       width: 200,
+                    //       child: SelectFilterTrans('Transporte de Recolección',
+                    //           formattedListController, formattedList),
+                    //     ),
+                    //   ],
+                    // ),
                     SizedBox(height: 30),
 
                     Row(
@@ -503,7 +566,7 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
           children: [
             Container(
               padding: EdgeInsets.all(8.0),
-              height: 600,
+              height: 630,
               // width: 400,
               child: SingleChildScrollView(
                   // scrollDirection: Axis.vertical,
@@ -556,20 +619,40 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
                       Column(
                         children: [
                           Container(
-                              width: 250,
+                              width: 210,
                               padding: EdgeInsets.only(top: 5.0),
                               height: 100,
                               child: ImagePickerExample(
-                                onImageSelected: (XFile? image) {
-                                  setState(() {
-                                    pickedImage = image;
-                                  });
-                                },
-                                label: 'Ninguna Imagen Seleccionada'
-                              )),
+                                  onImageSelected: (XFile? image) {
+                                    setState(() {
+                                      pickedImage = image;
+                                    });
+                                  },
+                                  label: 'Ninguna Imagen Seleccionada')),
                         ],
                       ),
                     ]),
+                    SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Container(
+                          width: 220,
+                          child: SelectFilter(
+                              'Ciudad', returnStatesController, activeRoutes),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Container(
+                          width: 220,
+                          child: SelectFilterTrans('Transporte de Recolección',
+                              formattedListController, formattedList),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
                     Row(
                       children: [
                         Text("Días de Recolección",
@@ -647,7 +730,7 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
                         children: [
                           Row(
                             children: [
-                              _buildTimePicker("Inicio", startTime, (time) {
+                              _buildTimePicker("Desde", startTime, (time) {
                                 setState(() {
                                   startTime = time;
                                 });
@@ -659,7 +742,7 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
                           ),
                           Row(
                             children: [
-                              _buildTimePicker("Fin", endTime, (time) {
+                              _buildTimePicker("Hasta", endTime, (time) {
                                 setState(() {
                                   endTime = time;
                                 });
@@ -685,30 +768,11 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Container(
-                          width: 250,
-                          child: SelectFilter(
-                              'Ciudad', returnStatesController, activeRoutes),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Container(
-                          width: 250,
-                          child: SelectFilterTrans('Transporte de Recolección',
-                              formattedListController, formattedList),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 30),
+
+                    SizedBox(height: 40),
 
                     Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
                             child: ElevatedButton(
@@ -853,6 +917,7 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
     );
   }
 }
+
 class TextFieldWithIcon extends StatelessWidget {
   final TextEditingController controller;
   final String labelText;

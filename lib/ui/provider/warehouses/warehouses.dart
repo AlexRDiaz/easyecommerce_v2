@@ -132,7 +132,8 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
         screenWidth > 600 ? 70 : 25; // Ejemplo de ajuste basado en el ancho
 
     return Scaffold(
-      body: Column(
+      body: 
+      Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -278,8 +279,9 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
                                   child: Container(
                                     decoration: BoxDecoration(
                                       color: warehouses[index].active == 1
-                                          ? ColorsSystem().colorSelectMenu
-                                          : Colors.grey,
+                                          ? Color.fromARGB(
+                                              255, 45, 228, 51)
+                                          : Colors.red,
                                       borderRadius: BorderRadius.only(
                                         bottomLeft: Radius.circular(20),
                                         bottomRight: Radius.circular(20.0),
