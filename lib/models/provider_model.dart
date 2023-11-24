@@ -26,7 +26,7 @@ class ProviderModel {
       name: json['name'],
       phone: json['phone'],
       description: json['description'],
-      user: UserModel.fromJson(json['user']),
+      user: json['user'] != null ? UserModel.fromJson(json['user']) : null,
     );
   }
 

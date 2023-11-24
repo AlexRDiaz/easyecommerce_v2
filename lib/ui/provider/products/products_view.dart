@@ -9,9 +9,13 @@ import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
+import 'package:frontend/models/product_model.dart';
+import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/provider/products/add_product.dart';
+import 'package:frontend/ui/provider/products/controllers/product_controller.dart';
 import 'package:frontend/ui/provider/products/product_details.dart';
+import 'package:frontend/ui/provider/warehouses/controllers/warehouses_controller.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:number_paginator/number_paginator.dart';
@@ -43,11 +47,16 @@ class _ProductsViewState extends State<ProductsView> {
   int counterChecks = 0;
   int total = 0;
 
-  List warehouseList = [];
+  List warehouseList0 = [];
   List<String> warehousesToSelect = [];
   String? selectedWarehouse;
   List selectedCheckBox = [];
   String? selectedWarehouseToCopy;
+  //new with mvc
+  late ProductController _productController;
+  List<ProductModel> products = [];
+  late WrehouseController _warehouseController;
+  List<WarehouseModel> warehousesList = [];
 
   @override
   void initState() {
@@ -55,73 +64,107 @@ class _ProductsViewState extends State<ProductsView> {
 
     loadData();
     super.initState();
+    //mvc
+    _productController = ProductController();
+    // _warehouseController = WrehouseController();
+  }
+
+  Future<List<ProductModel>> _getProductModelData() async {
+    await _productController.loadProductsByProvider(
+        sharedPrefs!.getString("idProvider"),
+        populate,
+        pageSize,
+        currentPage,
+        arrayFiltersOr,
+        arrayFiltersAnd,
+        sortFieldDefaultValue.toString(),
+        _search.text);
+    return _productController.products;
+  }
+
+  Future<List<WarehouseModel>> _getWarehouseModelData() async {
+    await _warehouseController.loadWarehouses();
+    return _warehouseController.warehouses;
   }
 
   loadData() async {
-    try {
-      setState(() {
-        warehousesToSelect = [];
-        isLoading = true;
-      });
+    // try {
+    setState(() {
+      warehousesToSelect = [];
+      isLoading = true;
+    });
 
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        getLoadingModal(context, false);
-      });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      getLoadingModal(context, false);
+    });
 
-      var responseBodegas = await Connections().getWarehousesProvider(
-          int.parse(sharedPrefs!.getString("idProvider").toString()));
-      warehouseList = responseBodegas;
-      if (warehouseList != null) {
-        warehousesToSelect.insert(0, 'TODO');
-        warehouseList.forEach((warehouse) {
-          setState(() {
-            warehousesToSelect.add(
-                '${warehouse["branch_name"]}-${warehouse["warehouse_id"]}');
-          });
+    // warehousesList = await _getWarehouseModelData();
+    // for (WarehouseModel product in warehousesList) {
+    //   print('Product ID: ${product.id}');
+    //   print('Product Name: ${product.branchName}');
+    // }
+
+    var responseBodegas = await Connections().getWarehousesProvider(
+        int.parse(sharedPrefs!.getString("idProvider").toString()));
+    warehouseList0 = responseBodegas;
+    if (warehouseList0 != null) {
+      warehousesToSelect.insert(0, 'TODO');
+      warehouseList0.forEach((warehouse) {
+        setState(() {
+          warehousesToSelect
+              .add('${warehouse["branch_name"]}-${warehouse["warehouse_id"]}');
         });
-      }
-
-      var response = await Connections().getProductsByProvider(
-          sharedPrefs!.getString("idProvider"),
-          populate,
-          pageSize,
-          currentPage,
-          arrayFiltersOr,
-          arrayFiltersAnd,
-          sortFieldDefaultValue.toString(),
-          _search.text);
-      data = response["data"];
-      // print(data);
-
-      for (Map producto in data) {
-        var selectedItem = selectedCheckBox
-            .where(
-                (elemento) => elemento["product_id"] == producto["product_id"])
-            .toList();
-        if (selectedItem.isNotEmpty) {
-          producto['check'] = true;
-        } else {
-          producto['check'] = false;
-        }
-      }
-      // print("prductos: $data");
-      total = response['total'];
-      pageCount = response['last_page'];
-
-      paginatorController.navigateToPage(0);
-      Future.delayed(Duration(milliseconds: 500), () {
-        Navigator.pop(context);
       });
-      print("datos cargados correctamente");
-      setState(() {
-        isFirst = false;
-        isLoading = false;
-      });
-      //
-    } catch (e) {
-      SnackBarHelper.showErrorSnackBar(
-          context, "Ha ocurrido un error de conexión");
     }
+
+    var response = await Connections().getProductsByProvider(
+        sharedPrefs!.getString("idProvider"),
+        populate,
+        pageSize,
+        currentPage,
+        arrayFiltersOr,
+        arrayFiltersAnd,
+        sortFieldDefaultValue.toString(),
+        _search.text);
+    data = response["data"];
+    // print(data);
+
+    products = await _getProductModelData();
+    // for (ProductModel product in products) {
+    //   print('Product ID: ${product.productId}');
+    //   print('Product Name: ${product.productName}');
+    //   print('Stock: ${product.stock}');
+    //   print('features: ${product.features}');
+    //   print('---'); // Separador entre productos
+    // }
+    for (Map producto in data) {
+      var selectedItem = selectedCheckBox
+          .where((elemento) => elemento["product_id"] == producto["product_id"])
+          .toList();
+      if (selectedItem.isNotEmpty) {
+        producto['check'] = true;
+      } else {
+        producto['check'] = false;
+      }
+    }
+    // print("prductos: $data");
+    total = response['total'];
+    pageCount = response['last_page'];
+
+    paginatorController.navigateToPage(0);
+    Future.delayed(Duration(milliseconds: 500), () {
+      Navigator.pop(context);
+    });
+    print("datos cargados correctamente");
+    setState(() {
+      isFirst = false;
+      isLoading = false;
+    });
+    //
+    // } catch (e) {
+    //   SnackBarHelper.showErrorSnackBar(
+    //       context, "Ha ocurrido un error de conexión");
+    // }
   }
 
   paginateData() async {
@@ -522,165 +565,154 @@ class _ProductsViewState extends State<ProductsView> {
                               size: ColumnSize.S,
                             ),
                           ],
-                          rows: List<DataRow>.generate(
-                            data.length,
-                            (index) => DataRow(
-                              cells: [
-                                DataCell(
-                                  Checkbox(
-                                    value: data[index]['check'] ?? false,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        data[index]['check'] = value;
-                                      });
-                                      if (value!) {
-                                        selectedCheckBox.add({
-                                          "product_id": data[index]
-                                                  ['product_id']
-                                              .toString()
-                                        });
-                                      } else {
-                                        selectedCheckBox.removeWhere(
-                                            (element) =>
-                                                element['product_id'] ==
-                                                data[index]['id'].toString());
-                                      }
-
-                                      setState(() {
-                                        counterChecks = selectedCheckBox.length;
-                                      });
+                          rows: products.map<DataRow>(
+                            (product) {
+                              return DataRow(
+                                cells: [
+                                  DataCell(
+                                    Checkbox(
+                                      value: product.approved == 2,
+                                      onChanged: (value) {},
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Text(""),
+                                    onTap: () {
+                                      // info(context, index);
+                                    },
+                                    // Align(
+                                    //   alignment: Alignment.center,
+                                    //   child: FractionallySizedBox(
+                                    //     widthFactor: 0.6,
+                                    //     heightFactor: 0.9,
+                                    //     child:
+                                    //         product.urlImg.toString().isEmpty ||
+                                    //                 product.urlImg.toString() ==
+                                    //                     "null"
+                                    //             ? Container()
+                                    //             : Image.network(
+                                    //                 "$generalServer${product.urlImg.toString()}",
+                                    //                 fit: BoxFit.fill,
+                                    //               ),
+                                    //   ),
+                                    // ),
+                                  ),
+                                  DataCell(
+                                    Text(product.productId.toString()),
+                                    onTap: () {
+                                      // info(context, index);
                                     },
                                   ),
-                                ),
-                                DataCell(
-                                  Align(
-                                    alignment: Alignment.center,
-                                    child: FractionallySizedBox(
-                                      widthFactor: 0.6,
-                                      heightFactor: 0.9,
-                                      child: data[index]['url_img']
-                                                  .toString()
-                                                  .isEmpty ||
-                                              data[index]['url_img']
-                                                      .toString() ==
-                                                  "null"
-                                          ? Container()
-                                          : Image.network(
-                                              "$generalServer${data[index]['url_img'].toString()}",
-                                              fit: BoxFit.fill,
-                                            ),
+                                  DataCell(
+                                    Text(product.productName.toString()),
+                                    onTap: () {
+                                      // info(context, index);
+                                    },
+                                  ),
+                                  DataCell(
+                                    // Text(getTypeValue(product.features)),
+                                    Text(product.isvariable == 1
+                                        ? "VARIABLE"
+                                        : "SIMPLE"),
+                                    // Text(product.features),
+                                    onTap: () {
+                                      // info(context, index);
+                                    },
+                                  ),
+                                  DataCell(
+                                    Text(product.stock.toString()),
+                                    onTap: () {
+                                      // info(context, index);
+                                    },
+                                  ),
+                                  DataCell(
+                                    Text('\$${product.price.toString()}'),
+                                    onTap: () {
+                                      // info(context, index);
+                                    },
+                                  ),
+                                  DataCell(
+                                    Text(formatDate(
+                                        product.createdAt.toString())),
+                                    onTap: () {
+                                      // info(context, index);
+                                    },
+                                  ),
+                                  DataCell(
+                                    Text(product.warehouse!.branchName
+                                        .toString()),
+                                    onTap: () {
+                                      // info(context, index);
+                                    },
+                                  ),
+                                  DataCell(
+                                    product.approved == 1
+                                        ? const Icon(Icons.check,
+                                            color: Colors.green)
+                                        : product.approved == 2
+                                            ? const Icon(Icons.access_time,
+                                                color: Colors.blue)
+                                            : const Icon(Icons.close,
+                                                color: Colors.red),
+                                  ),
+                                  DataCell(
+                                    Row(
+                                      children: [
+                                        const SizedBox(width: 10),
+                                        GestureDetector(
+                                          onTap: () async {
+                                            showDialogInfoData(product);
+                                          },
+                                          child: const Icon(
+                                            Icons.edit_square,
+                                            size: 20,
+                                            color: Colors.blue,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 20),
+                                        GestureDetector(
+                                          onTap: () async {
+                                            AwesomeDialog(
+                                              width: 500,
+                                              context: context,
+                                              dialogType: DialogType.info,
+                                              animType: AnimType.rightSlide,
+                                              title:
+                                                  '¿Estás seguro de eliminar el Producto?',
+                                              desc:
+                                                  '${product.productId}-${product.productName}',
+                                              btnOkText: "Confirmar",
+                                              btnCancelText: "Cancelar",
+                                              btnOkColor: Colors.blueAccent,
+                                              btnCancelOnPress: () {},
+                                              btnOkOnPress: () async {
+                                                getLoadingModal(context, false);
+
+                                                await Connections()
+                                                    .deleteProduct(
+                                                        product.productId);
+
+                                                Navigator.pop(context);
+                                                await loadData();
+                                              },
+                                            ).show();
+                                          },
+                                          child: const Icon(
+                                            Icons.delete,
+                                            size: 20,
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          width: 10,
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ),
-                                DataCell(
-                                  Text(data[index]['product_id'].toString()),
-                                  onTap: () {
-                                    // info(context, index);
-                                  },
-                                ),
-                                DataCell(
-                                  Text(data[index]['product_name']),
-                                  onTap: () {
-                                    // info(context, index);
-                                  },
-                                ),
-                                DataCell(
-                                  Text(getTypeValue(data[index]['features'])),
-                                  // Text(data[index]['features']),
-                                  onTap: () {
-                                    // info(context, index);
-                                  },
-                                ),
-                                DataCell(
-                                  Text(data[index]['stock'].toString()),
-                                  onTap: () {
-                                    // info(context, index);
-                                  },
-                                ),
-                                DataCell(
-                                  Text('\$${data[index]['price'].toString()}'),
-                                  onTap: () {
-                                    // info(context, index);
-                                  },
-                                ),
-                                DataCell(
-                                  Text(formatDate(
-                                      data[index]['created_at'].toString())),
-                                  onTap: () {
-                                    // info(context, index);
-                                  },
-                                ),
-                                DataCell(
-                                  Text(data[index]['warehouse']['branch_name']
-                                      .toString()),
-                                  onTap: () {
-                                    // info(context, index);
-                                  },
-                                ),
-                                DataCell(
-                                  data[index]['approved'] == 1
-                                      ? const Icon(Icons.check,
-                                          color: Colors.green)
-                                      : data[index]['approved'] == 2
-                                          ? const Icon(Icons.access_time,
-                                              color: Colors.blue)
-                                          : const Icon(Icons.close,
-                                              color: Colors.red),
-                                ),
-                                DataCell(Row(
-                                  children: [
-                                    const SizedBox(width: 10),
-                                    GestureDetector(
-                                      onTap: () async {
-                                        showDialogInfoData(data[index]);
-                                      },
-                                      child: const Icon(
-                                        Icons.edit_square,
-                                        size: 20,
-                                        color: Colors.blue,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 20),
-                                    GestureDetector(
-                                      onTap: () async {
-                                        AwesomeDialog(
-                                          width: 500,
-                                          context: context,
-                                          dialogType: DialogType.info,
-                                          animType: AnimType.rightSlide,
-                                          title:
-                                              '¿Estás seguro de eliminar el Producto?',
-                                          desc:
-                                              '${data[index]['product_id']}-${data[index]['product_name']}',
-                                          btnOkText: "Confirmar",
-                                          btnCancelText: "Cancelar",
-                                          btnOkColor: Colors.blueAccent,
-                                          btnCancelOnPress: () {},
-                                          btnOkOnPress: () async {
-                                            getLoadingModal(context, false);
-
-                                            await Connections().deleteProduct(
-                                                data[index]['product_id']);
-
-                                            Navigator.pop(context);
-                                            await loadData();
-                                          },
-                                        ).show();
-                                      },
-                                      child: const Icon(
-                                        Icons.delete,
-                                        size: 20,
-                                        color: Colors.red,
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      width: 10,
-                                    ),
-                                  ],
-                                )),
-                              ],
-                            ),
-                          ),
+                                ],
+                              );
+                            },
+                          ).toList(),
                         ),
                       ),
                       //
@@ -936,14 +968,17 @@ class _ProductsViewState extends State<ProductsView> {
                         dataFeatures = json.decode(foundItem['features']);
                       }
                       // print(dataFeatures);
+                      var isVariable = foundItem['isvariable'].toString();
+
                       //create a copy
 
-                      var response = await Connections().createProduct(
+                      var response = await Connections().createProduct0(
                           nameProduct,
                           stock,
                           dataFeatures,
                           price,
                           img_url,
+                          isVariable,
                           selectedWarehouseToCopy
                               .toString()
                               .split("-")[1]

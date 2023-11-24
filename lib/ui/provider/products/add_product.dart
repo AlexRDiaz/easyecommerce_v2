@@ -7,7 +7,9 @@ import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
+import 'package:frontend/models/product_model.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
+import 'package:frontend/ui/provider/products/controllers/product_controller.dart';
 import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/html_editor.dart';
@@ -58,8 +60,8 @@ class _AddProductState extends State<AddProduct> {
   List<String> selectedTallas = [];
   List<String> selectedDimensions = [];
 
-  List variantTypes = [];
-  List variantsList = [];
+  List variablesTypes = [];
+  List variablesList = [];
   final TextEditingController _showVariantsController = TextEditingController();
   int showStockTotal = 0;
 
@@ -70,6 +72,10 @@ class _AddProductState extends State<AddProduct> {
   List<String> sizesToSelect = [];
   List<String> colorsToSelect = [];
   List<String> dimensionToSelect = [];
+  List<String> urlsImgsList = [];
+  int isVariable = 0;
+
+  late ProductController _productController;
 
   bool containsEmoji(String text) {
     final emojiPattern = RegExp(
@@ -82,11 +88,12 @@ class _AddProductState extends State<AddProduct> {
   @override
   void initState() {
     loadData();
+    _productController = ProductController();
     super.initState();
   }
 
   loadData() async {
-    var responseBodegas = await Connections().getWarehousesProvider(
+    var responseBodegas = await Connections().getWarehousesProvider0(
         int.parse(sharedPrefs!.getString("idProvider").toString()));
     warehouseList = responseBodegas;
     if (warehouseList != null) {
@@ -569,6 +576,8 @@ class _AddProductState extends State<AddProduct> {
                                           selectedVariablesList
                                               .contains("Colores")) {
                                         variant = {
+                                          "sku": "123Test",
+                                          "name_guide": "name for guide",
                                           "size": "$chosenSize",
                                           "color": "$chosenColor",
                                           "inventory":
@@ -580,6 +589,8 @@ class _AddProductState extends State<AddProduct> {
                                       } else if (selectedVariablesList
                                           .contains("Tallas")) {
                                         variant = {
+                                          "sku": "123Test",
+                                          "name_guide": "name for guide",
                                           "size": "$chosenSize",
                                           "inventory":
                                               _inventaryController.text,
@@ -589,6 +600,8 @@ class _AddProductState extends State<AddProduct> {
                                       } else if (selectedVariablesList
                                           .contains("Colores")) {
                                         variant = {
+                                          "sku": "123Test",
+                                          "name_guide": "name for guide",
                                           "color": "$chosenColor",
                                           "inventory":
                                               _inventaryController.text,
@@ -598,6 +611,8 @@ class _AddProductState extends State<AddProduct> {
                                       } else if (selectedVariablesList
                                           .contains("Tamaños")) {
                                         variant = {
+                                          "sku": "123Test",
+                                          "name_guide": "name for guide",
                                           "dimension": "$chosenDimension",
                                           "inventory":
                                               _inventaryController.text,
@@ -607,17 +622,18 @@ class _AddProductState extends State<AddProduct> {
                                             .add(chosenDimension!);
                                       }
 
-                                      variantsList.add(variant);
+                                      variablesList.add(variant);
                                       // print(variantsList);
                                       //
 
-                                      showVariants(variantsList);
+                                      showVariants(variablesList);
 
                                       calcuateStockTotal(
                                           _inventaryController.text);
 
                                       _priceUnitController.text =
                                           _priceController.text;
+                                      _inventaryController.clear();
                                       // print(selectedColores);
                                       // print(selectedTallas);
                                       // print(selectedDimensions);
@@ -640,399 +656,6 @@ class _AddProductState extends State<AddProduct> {
                       ),
                     ),
 
-                    /*
-                    Visibility(
-                      visible: selectedType == 'VARIABLE',
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                DropdownButtonFormField<String>(
-                                  isExpanded: true,
-                                  hint: Text(
-                                    'Seleccione Variable',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Theme.of(context).hintColor,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  items: typesVariables
-                                      .map((item) => DropdownMenuItem(
-                                            value: item,
-                                            child: Text(
-                                              item,
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ))
-                                      .toList(),
-                                  value: selectedVariable,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      selectedVariable = value;
-                                      if (value != null) {
-                                        selectedVariable = value;
-                                      }
-                                    });
-                                  },
-                                  decoration: InputDecoration(
-                                    fillColor: Colors.white,
-                                    filled: true,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(5.0),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 20),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Visibility(
-                                  visible: selectedVariable == "Tallas",
-                                  child: DropdownButtonFormField<String>(
-                                    isExpanded: true,
-                                    hint: Text(
-                                      'Seleccione Talla',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Theme.of(context).hintColor,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    items: sizesToSelect
-                                        .map((item) => DropdownMenuItem(
-                                              value: item,
-                                              child: Text(
-                                                item,
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ))
-                                        .toList(),
-                                    value: chosenSize,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        chosenSize = value;
-                                      });
-                                    },
-                                    decoration: InputDecoration(
-                                      fillColor: Colors.white,
-                                      filled: true,
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(5.0),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Visibility(
-                                  visible: selectedVariable == "Colores",
-                                  child: DropdownButtonFormField<String>(
-                                    isExpanded: true,
-                                    hint: Text(
-                                      'Seleccione Color',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Theme.of(context).hintColor,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    items: colorsToSelect
-                                        .map((item) => DropdownMenuItem(
-                                              value: item,
-                                              child: Text(
-                                                item,
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ))
-                                        .toList(),
-                                    value: chosenColor,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        chosenColor = value;
-                                      });
-                                    },
-                                    decoration: InputDecoration(
-                                      fillColor: Colors.white,
-                                      filled: true,
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(5.0),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Visibility(
-                                  visible: selectedVariable == "Tamaños",
-                                  child: DropdownButtonFormField<String>(
-                                    isExpanded: true,
-                                    hint: Text(
-                                      'Seleccione Tamaño',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Theme.of(context).hintColor,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    items: dimensionToSelect
-                                        .map((item) => DropdownMenuItem(
-                                              value: item,
-                                              child: Text(
-                                                item,
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ))
-                                        .toList(),
-                                    value: chosenDimension,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        chosenDimension = value;
-                                      });
-                                    },
-                                    decoration: InputDecoration(
-                                      fillColor: Colors.white,
-                                      filled: true,
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(5.0),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                /*
-                                DropdownButtonFormField<String>(
-                                  isExpanded: true,
-                                  hint: Text(
-                                    'Seleccione Talla',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Theme.of(context).hintColor,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  items: sizesToSelect
-                                      .map((item) => DropdownMenuItem(
-                                            value: item,
-                                            child: Text(
-                                              item,
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ))
-                                      .toList(),
-                                  value: chosenSize,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      chosenSize = value;
-                                    });
-                                  },
-                                  decoration: InputDecoration(
-                                    fillColor: Colors.white,
-                                    filled: true,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(5.0),
-                                    ),
-                                  ),
-                                ),
-                                DropdownButtonFormField<String>(
-                                  isExpanded: true,
-                                  hint: Text(
-                                    'Seleccione Color',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Theme.of(context).hintColor,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  items: colorsToSelect
-                                      .map((item) => DropdownMenuItem(
-                                            value: item,
-                                            child: Text(
-                                              item,
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ))
-                                      .toList(),
-                                  value: chosenColor,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      chosenColor = value;
-                                    });
-                                  },
-                                  decoration: InputDecoration(
-                                    fillColor: Colors.white,
-                                    filled: true,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(5.0),
-                                    ),
-                                  ),
-                                ),
-                                DropdownButtonFormField<String>(
-                                  isExpanded: true,
-                                  hint: Text(
-                                    'Seleccione Tamaño',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Theme.of(context).hintColor,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  items: dimensionToSelect
-                                      .map((item) => DropdownMenuItem(
-                                            value: item,
-                                            child: Text(
-                                              item,
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ))
-                                      .toList(),
-                                  value: chosenDimension,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      chosenDimension = value;
-                                    });
-                                  },
-                                  decoration: InputDecoration(
-                                    fillColor: Colors.white,
-                                    filled: true,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(5.0),
-                                    ),
-                                  ),
-                                )
-                                */
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 20),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: TextField(
-                                    controller: _stockUntController,
-                                    keyboardType: TextInputType.number,
-                                    inputFormatters: <TextInputFormatter>[
-                                      FilteringTextInputFormatter.digitsOnly
-                                    ],
-                                    decoration: const InputDecoration(
-                                      border: OutlineInputBorder(),
-                                      hintText: 'Cantidad',
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 5),
-                                ElevatedButton(
-                                  onPressed: () async {
-                                    if (int.parse(_stockUntController.text) <
-                                        1) {
-                                      showSuccessModal(
-                                          context,
-                                          "Por favor, ingrese una Cantidad válida.",
-                                          Icons8.alert);
-                                    } else {
-                                      if (selectedVariable == "Colores") {
-                                        selectedColores.add(chosenColor!);
-                                        var variant = {
-                                          "color": "$chosenColor",
-                                          "inventory": _stockUntController.text
-                                        };
-                                        variantsList.add(variant);
-                                        //
-                                      } else if (selectedVariable == "Tallas") {
-                                        selectedTallas.add(chosenSize!);
-                                        var variant = {
-                                          "talla": "$chosenSize",
-                                          "inventory": _stockUntController.text
-                                        };
-                                        variantsList.add(variant);
-                                        //
-                                      } else if (selectedVariable ==
-                                          "Tamaños") {
-                                        selectedDimensions
-                                            .add(chosenDimension!);
-                                        var variant = {
-                                          "dimension": "$chosenDimension",
-                                          "inventory": _stockUntController.text
-                                        };
-                                        variantsList.add(variant);
-                                        //
-                                      }
-
-                                      showVariants(variantsList);
-
-                                      calcuateStockTotal(
-                                          _stockUntController.text);
-                                    }
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green[400],
-                                  ),
-                                  child: const Text(
-                                    "Añadir",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-*/
-                    // Row(
-                    //   children: [
-                    //     Expanded(
-                    //       child: SingleChildScrollView(
-                    //         child: Column(
-                    //           crossAxisAlignment: CrossAxisAlignment.start,
-                    //           children: [
-                    //             const Text('Descripción'),
-                    //             const SizedBox(height: 3),
-                    //             TextFormField(
-                    //               controller: _descriptionController,
-                    //               maxLines: null,
-                    //               decoration: InputDecoration(
-                    //                 fillColor: Colors.white,
-                    //                 filled: true,
-                    //                 border: OutlineInputBorder(
-                    //                   borderRadius: BorderRadius.circular(5.0),
-                    //                 ),
-                    //               ),
-                    //             ),
-                    //           ],
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ),
                     const SizedBox(height: 20),
                     Row(
                       children: [
@@ -1237,7 +860,7 @@ class _AddProductState extends State<AddProduct> {
                                     setState(() {
                                       img_url = responseI[1];
                                     });
-
+                                    urlsImgsList.add(img_url!);
                                     // Navigator.pop(context);
                                     // Navigator.pop(context);
                                   } else {
@@ -1412,28 +1035,29 @@ class _AddProductState extends State<AddProduct> {
                                       }
 
                                       if (selectedType == "SIMPLE") {
-                                        variantTypes = [];
-                                        variantsList = [];
+                                        variablesTypes = [];
+                                        variablesList = [];
                                       } else {
+                                        isVariable = 1;
                                         if (selectedColores.isNotEmpty) {
                                           var colores = {
                                             "colors": selectedColores
                                           };
-                                          variantTypes.add(colores);
+                                          variablesTypes.add(colores);
                                         }
 
                                         if (selectedTallas.isNotEmpty) {
                                           var tallas = {
                                             "sizes": selectedTallas
                                           };
-                                          variantTypes.add(tallas);
+                                          variablesTypes.add(tallas);
                                         }
 
                                         if (selectedDimensions.isNotEmpty) {
                                           var dimensions = {
                                             "dimensions": selectedDimensions
                                           };
-                                          variantTypes.add(dimensions);
+                                          variablesTypes.add(dimensions);
                                         }
                                       }
 
@@ -1444,22 +1068,40 @@ class _AddProductState extends State<AddProduct> {
                                           "description":
                                               _descriptionController.text
                                         },
-                                        {"variant_types": variantTypes},
-                                        {"variants": variantsList}
+                                        {"variables_types": variablesTypes},
+                                        {"variables": variablesList}
                                       ];
 
-                                      // print("featuresToSend: $featuresToSend");
+                                      print("featuresToSend: $featuresToSend");
 
-                                      await Connections().createProduct(
-                                          _nameController.text,
-                                          _stockController.text,
-                                          featuresToSend,
-                                          _priceController.text,
-                                          img_url,
-                                          selectedWarehouse
-                                              .toString()
-                                              .split("-")[1]
-                                              .toString());
+                                      print(urlsImgsList);
+
+                                      // await Connections().createProduct0(
+                                      //     _nameController.text,
+                                      //     _stockController.text,
+                                      //     featuresToSend,
+                                      //     _priceController.text,
+                                      //     urlsImgsList,
+                                      //     isVariable,
+                                      //     selectedWarehouse
+                                      //         .toString()
+                                      //         .split("-")[1]
+                                      //         .toString());
+
+                                      _productController
+                                          .addProduct(ProductModel(
+                                        productName: _nameController.text,
+                                        stock: int.parse(_stockController.text),
+                                        price:
+                                            double.parse(_priceController.text),
+                                        urlImg: urlsImgsList,
+                                        isvariable: isVariable,
+                                        features: featuresToSend,
+                                        warehouseId: int.parse(selectedWarehouse
+                                            .toString()
+                                            .split("-")[1]
+                                            .toString()),
+                                      ));
 
                                       Navigator.pop(context);
                                       Navigator.pop(context);

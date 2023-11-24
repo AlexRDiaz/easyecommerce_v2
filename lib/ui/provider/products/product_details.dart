@@ -68,7 +68,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   }
 
   getWarehouses() async {
-    var responseBodegas = await Connections().getWarehousesProvider(
+    var responseBodegas = await Connections().getWarehousesProvider0(
         int.parse(sharedPrefs!.getString("idProvider").toString()));
     warehouseList = responseBodegas;
     if (warehouseList != null) {
@@ -574,7 +574,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                                     ];
 
                                     var responseUpt = await Connections()
-                                        .updateProduct(codigo, {
+                                        .updateProduct0(codigo, {
                                       "product_name":
                                           _nameController.text.toString(),
                                       "stock": int.parse(

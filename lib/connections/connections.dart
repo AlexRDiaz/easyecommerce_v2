@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'package:frontend/models/product_model.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:frontend/models/user_model.dart';
+import 'package:frontend/models/warehouses_model.dart';
 import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
@@ -5652,27 +5654,7 @@ class Connections {
     }
   }
 
-  getWarehouses() async {
-    try {
-      var response = await http.get(
-        Uri.parse("$serverLaravel/api/warehouses"),
-        headers: {'Content-Type': 'application/json'},
-      );
-      // var decodeData = json.decode(response);
-      if (response.statusCode == 200) {
-        var decodeData = json.decode(response.body);
-        return decodeData;
-      } else if (response.statusCode == 400) {
-        print("Error 400: Bad Request");
-      } else {
-        print("Error ${response.statusCode}: ${response.reasonPhrase}");
-      }
-    } catch (error) {
-      print("Ocurrió un error durante la solicitud: $error");
-    }
-  }
-
-  getWarehousesProvider(int providerId) async {
+  getWarehousesProvider0(int providerId) async {
     try {
       var response = await http.get(
         Uri.parse("$serverLaravel/api/warehouses/provider/$providerId"),
@@ -5744,10 +5726,8 @@ class Connections {
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         return decodeData;
-      } else if (response.statusCode == 400) {
-        print("Error 400: Bad Request");
       } else {
-        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+        return 1;
       }
     } catch (error) {
       return 2;
@@ -5755,7 +5735,8 @@ class Connections {
   }
 
   //  *
-  createProduct(nameProduct, stock, features, price, url_img, warehouse) async {
+  createProduct0(nameProduct, stock, features, price, url_img, isvariable,
+      warehouse) async {
     try {
       var response = await http.post(Uri.parse("$serverLaravel/api/products"),
           headers: {'Content-Type': 'application/json'},
@@ -5765,6 +5746,7 @@ class Connections {
             "features": features,
             "price": price,
             "url_img": url_img,
+            "isvariable": isvariable,
             "warehouse_id": warehouse
           }));
       if (response.statusCode == 200) {
@@ -5776,6 +5758,32 @@ class Connections {
       }
     } catch (e) {
       print(e);
+    }
+  }
+
+  //  *
+  createProduct(ProductModel product) async {
+    try {
+      var response = await http.post(Uri.parse("$serverLaravel/api/products"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "product_name": product.productName,
+            "stock": product.stock,
+            "price": product.price,
+            "url_img": json.encode(product.urlImg),
+            "isvariable": product.isvariable,
+            "features": json.encode(product.features),
+            "warehouse_id": product.warehouseId
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // return decodeData;
+        return [true, decodeData];
+      } else {
+        return 1;
+      }
+    } catch (e) {
+      return 2;
     }
   }
 
@@ -5801,7 +5809,38 @@ class Connections {
     }
   }
 
-  Future updateProduct(id, datajson) async {
+  // *
+  Future updateProduct(ProductModel product) async {
+    int res;
+    try {
+      var response = await http.put(
+          Uri.parse("$serverLaravel/api/products/${product.productId}"),
+          headers: {'Content-Type': 'application/json'},
+          // body: json.encode(datajson));
+          body: json.encode({
+            "product_name": product.productName,
+            "stock": product.stock,
+            "features": product.features,
+            "price": product.price,
+            "url_img": product.urlImg,
+            "warehouse_id": product.warehouseId
+          }));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (e) {
+      res = 3;
+      return res;
+    }
+  }
+
+  Future updateProduct0(id, datajson) async {
     int res;
     // print(json.encode(datajson));
     try {
@@ -6381,6 +6420,146 @@ class Connections {
         var decodeData = json.decode(response.body);
         // print(decodeData);
         return decodeData['providers'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  // ! warehouses
+  getWarehouses() async {
+    try {
+      var response = await http.get(
+        Uri.parse("$serverLaravel/api/warehouses"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData['warehouses'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  getWarehousesProvider(int providerId) async {
+    try {
+      var response = await http.get(
+        Uri.parse("$serverLaravel/api/warehouses/provider/$providerId"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData['warehouses'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  createWarehouse(WarehouseModel warehouse) async {
+    try {
+      var response = await http.post(Uri.parse("$serverLaravel/api/warehouses"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "branch_name": warehouse.branchName,
+            "address": warehouse.address,
+            "reference": warehouse.reference,
+            "description": warehouse.description,
+            'url_image': warehouse.url_image,
+            'city': warehouse.city,
+            'collection': json.encode(warehouse.collection),
+            // 'collection': "prueba",
+            "provider_id": sharedPrefs!.getString("idProvider")
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        print("se registro> $decodeData");
+        // return decodeData['providers'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  updateWarehouse(int id, String nameSucursal, String address, String reference,
+      String description, String url_image, String city, var collection) async {
+    try {
+      var response =
+          await http.put(Uri.parse("$serverLaravel/api/warehouses/$id"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "branch_name": nameSucursal,
+                "address": address,
+                "reference": reference,
+                "description": description,
+                'url_image': url_image,
+                "city": city,
+                "collection": json.encode(collection),
+              }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData['providers'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  deleteWarehouse(int? warehouseId) async {
+    try {
+      var response = await http.delete(
+          Uri.parse("$serverLaravel/api/warehouses/deactivate/$warehouseId"),
+          headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData['message'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  activateWarehouse(int? warehouseId) async {
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/warehouses/activate/$warehouseId"),
+          headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData['message'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  getActiveRoutes() async {
+    try {
+      var response = await http.get(
+          Uri.parse("$serverLaravel/api/rutas/active"),
+          headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
       } else {
         return 1;
       }
