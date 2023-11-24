@@ -6,6 +6,7 @@ import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/ui/sellers/my_seller_account/controllers/controllers.dart';
+import 'package:frontend/ui/sellers/my_seller_account/edit_autome.dart';
 import 'package:frontend/ui/widgets/forms/input_row.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:get/route_manager.dart';
@@ -217,8 +218,19 @@ class _MySellerAccountState extends State<MySellerAccount> {
                               },
                             )),
                         SizedBox(
-                          height: 20,
+                          height: 30,
                         ),
+                        ElevatedButton(
+                          onPressed: () => openConfigAutome(),
+                          child: Text(
+                            "Configurar autome",
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        )
                       ],
                     ),
                   ),
@@ -226,6 +238,25 @@ class _MySellerAccountState extends State<MySellerAccount> {
               ),
       ),
     );
+  }
+
+  openConfigAutome() {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Container(
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: EditAutome(user: data),
+            ),
+          );
+        }).then((value) {
+      // if (edited) {
+      //   setState(() {
+      //     //   //_futureProviderData = _loadProviders(); // Actualiza el Future
+      //   });
+      // }
+    });
   }
 
   Column _validate() {
