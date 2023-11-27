@@ -34,7 +34,6 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
   TextEditingController _timeEndController;
 
   List<int> selectedDays = [];
-  List<bool> isSelectedList;
 
   List<dynamic> activeRoutes = [];
   List<dynamic> secondDropdownOptions = [];
@@ -46,12 +45,12 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
   TimeOfDay endTime = TimeOfDay.now();
 
   var auxili;
+  List<int> listaDeEnterosX = [];
 
   _EditWarehouseState()
       : _cityController = TextEditingController(),
         _trnasportController = TextEditingController(),
         _timeStartController = TextEditingController(),
-        isSelectedList = List.generate(5, (index) => false),
         _timeEndController = TextEditingController();
 
   @override
@@ -73,6 +72,87 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
       activeRoutes = await Connections().getActiveRoutes();
     }
   }
+
+// ! selecfitlter with preselect value of controller
+  Column SelectFilterN<T>(
+    String title,
+    TextEditingController controller,
+    List<T> listOptions,
+  ) {
+    T? selectedValue;
+
+    // Buscar el valor en la lista de opciones
+    for (T option in listOptions) {
+      String onlyName = option.toString().split('-')[0];
+      if (onlyName == controller.text) {
+        selectedValue = option;
+        break;
+      }
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(color: Color.fromARGB(255, 107, 105, 105)),
+        ),
+        Container(
+          margin: EdgeInsets.only(bottom: 4.5, top: 4.5),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5.0),
+            border: Border.all(color: Color.fromRGBO(6, 6, 6, 1)),
+          ),
+          height: 50,
+          child: DropdownButtonFormField<T>(
+            isExpanded: true,
+            value: selectedValue,
+            onChanged: (T? newValue) {
+              setState(() {
+                controller.text = newValue?.toString().split('-')[0] ?? "";
+                _cityController.text = newValue?.toString().split('-')[0] ?? "";
+
+                Connections()
+                    .getTransportsByRouteLaravel(
+                        newValue.toString().split('-')[1])
+                    .then((transportofRoute) {
+                  // if (secondDropdownOptions.isEmpty) {
+                  setState(() {
+                    secondDropdownOptions = transportofRoute;
+                    formattedList = secondDropdownOptions
+                        .map((map) => '${map['nombre']}-${map['id']}')
+                        .toList();
+                  });
+                  // }
+                });
+              });
+            },
+            decoration: InputDecoration(
+              border: UnderlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            items: listOptions.map<DropdownMenuItem<T>>((T value) {
+              String onlyName = value.toString().split('-')[0];
+              String onlyId = value.toString().split('-')[1];
+              return DropdownMenuItem<T>(
+                value: value,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Text(
+                    onlyName.toString(),
+                    style: const TextStyle(fontSize: 15),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+// ! ************************************************
 
   Column SelectFilter<T>(
     String title,
@@ -101,19 +181,19 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                 controller.text = newValue?.toString() ?? "";
                 _cityController.text = newValue?.toString().split('-')[0] ?? "";
                 // if (newValue != null && newValue != 'TODO') {
-                Connections()
-                    .getTransportsByRouteLaravel(
-                        newValue.toString().split('-')[1])
-                    .then((transportofRoute) {
-                  // if (secondDropdownOptions.isEmpty) {
-                  setState(() {
-                    secondDropdownOptions = transportofRoute;
-                    formattedList = secondDropdownOptions
-                        .map((map) => '${map['nombre']}-${map['id']}')
-                        .toList();
-                  });
-                  // }
-                });
+                // Connections()
+                //     .getTransportsByRouteLaravel(
+                //         newValue.toString().split('-')[1])
+                //     .then((transportofRoute) {
+                //   // if (secondDropdownOptions.isEmpty) {
+                //   setState(() {
+                //     secondDropdownOptions = transportofRoute;
+                //     formattedList = secondDropdownOptions
+                //         .map((map) => '${map['nombre']}-${map['id']}')
+                //         .toList();
+                //   });
+                //   // }
+                // });
                 // }
 
                 loadData();
@@ -149,6 +229,14 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
     TextEditingController controller,
     List<T> listOptions,
   ) {
+    T? selectedValue;
+    for (T option in listOptions) {
+      String onlyName = option.toString().split('-')[0];
+      if (onlyName == controller.text) {
+        selectedValue = option;
+        break;
+      }
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -165,7 +253,7 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
           height: 50,
           child: DropdownButtonFormField<T>(
             isExpanded: true,
-            value: controller.text as T,
+            value: selectedValue,
             onChanged: (T? newValue) {
               setState(() {
                 controller.text = newValue?.toString() ?? "";
@@ -232,16 +320,16 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
         TextEditingController(text: collectionSchedule.split('-')[1]);
     TextEditingController _scheduleController =
         TextEditingController(text: collectionSchedule);
+    TextEditingController _trnsportController =
+        TextEditingController(text: collectionTransport);
 
     List<int> listaDeEnteros =
         collectionDays.map((item) => item as int).toList();
-    List<int> listaDeEnterosX = [];
 
     final TextEditingController returnStatesController = TextEditingController(
         text: activeRoutes.isNotEmpty ? activeRoutes.first : '');
     final TextEditingController formattedListController = TextEditingController(
         text: formattedList.isNotEmpty ? formattedList.first : '');
-
 
     return responsive(
         Column(
@@ -431,15 +519,15 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                               children: [
                                 Container(
                                   width: 250,
-                                  child: SelectFilter('Ciudad',
-                                      returnStatesController, activeRoutes),
+                                  child: SelectFilterN('Ciudad',
+                                      _cityControllerdb, activeRoutes),
                                 ),
                                 SizedBox(width: 50),
                                 Container(
                                   width: 250,
                                   child: SelectFilterTrans(
                                       'Transporte de Recolección',
-                                      formattedListController,
+                                      _trnsportController,
                                       formattedList),
                                 ),
                                 // SizedBox(width: 50),
@@ -570,69 +658,43 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                                         text: _cityControllerdb.text);
                                   }
 
-                                  // print(
-                                  //     "Nombre de bodega: ${_nameSucursalController.text}");
-                                  // print(
-                                  //     "Dirección: ${_addressController.text}");
-                                  // print(
-                                  //     "Referencia: ${_referenceController.text}");
-                                  // print(
-                                  //     "Descripción: ${_descriptionController.text}");
-                                  // print("Ciudad: ${_cityController.text}");
-                                  // print(
-                                  // "Días de Recolección: $listaDeEnterosX");
                                   if (listaDeEnterosX.isEmpty) {
-                                    AwesomeDialog(
-                                      width: 500,
-                                      context: context,
-                                      dialogType: DialogType.warning,
-                                      animType: AnimType.rightSlide,
-                                      title: 'Debe seleccionar un Día!',
-                                      desc: '',
-                                      btnOkText: "Aceptar",
-                                      btnOkColor: Colors.green,
-                                      btnOkOnPress: () async {
-                                        // Puedes agregar código adicional aquí si es necesario
-                                      },
-                                    ).show();
-                                  } else {
-                                    var responseChargeImage;
-
-                                    if (pickedImage != null &&
-                                        pickedImage!.name.isNotEmpty) {
-                                      // print(
-                                      //     "selecciono ${pickedImage!.name.toString()}");
-                                      responseChargeImage = await Connections()
-                                          .postDoc(pickedImage!);
-                                      if (responseChargeImage[1] != "") {
-                                        _urlImageController.text =
-                                            responseChargeImage[1];
-                                      }
-                                    }
-                                    _controller.updateWarehouse(
-                                        widget.warehouse.id!,
-                                        _nameSucursalController.text,
-                                        _addressController.text,
-                                        _referenceController.text,
-                                        _descriptionController.text,
-                                        _urlImageController.text,
-                                        _cityController.text, {
-                                      "collectionDays": listaDeEnterosX,
-                                      "collectionSchedule": collectionSchedule,
-                                      //       "${_timeStartController.text} - ${_timeEndController.text}",
-                                      "collectionTransport":
-                                          _trnasportController.text
-                                    }).then((_) {
-                                      Navigator.of(context).pop();
-                                      setState(() {
-                                        // Esto forzará la reconstrucción de la vista con los datos actualizados
-                                        _futureWarehouseData =
-                                            _loadWarehouses();
-                                        SnackBarHelper.showOkSnackBar(
-                                            context, "DATOS ACTUALIZADOS.");
-                                      });
-                                    });
+                                    listaDeEnterosX = listaDeEnteros;
                                   }
+                                  var responseChargeImage;
+
+                                  if (pickedImage != null &&
+                                      pickedImage!.name.isNotEmpty) {
+                                    responseChargeImage = await Connections()
+                                        .postDoc(pickedImage!);
+                                    if (responseChargeImage[1] != "") {
+                                      _urlImageController.text =
+                                          responseChargeImage[1];
+                                    }
+                                  }
+                                  _controller.updateWarehouse(
+                                      widget.warehouse.id!,
+                                      _nameSucursalController.text,
+                                      _addressController.text,
+                                      _referenceController.text,
+                                      _descriptionController.text,
+                                      _urlImageController.text,
+                                      _cityController.text, {
+                                    "collectionDays": listaDeEnterosX,
+                                    "collectionSchedule": collectionSchedule,
+                                    //       "${_timeStartController.text} - ${_timeEndController.text}",
+                                    "collectionTransport":
+                                        _trnasportController.text
+                                  }).then((_) {
+                                    Navigator.of(context).pop();
+                                    setState(() {
+                                      // Esto forzará la reconstrucción de la vista con los datos actualizados
+                                      _futureWarehouseData = _loadWarehouses();
+                                      SnackBarHelper.showOkSnackBar(
+                                          context, "DATOS ACTUALIZADOS.");
+                                    });
+                                  });
+                                  // }
 
                                   // // print(
                                   // // "Horario de Recolección: ${_timeStartControllerdb.text}-${_timeEndControllerdb.text}");
@@ -680,14 +742,6 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
             ),
           ],
         ),
-        
-        
-        
-        
-        
-        
-        
-        
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -901,8 +955,8 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                               children: [
                                 Container(
                                   width: 210,
-                                  child: SelectFilter('Ciudad',
-                                      returnStatesController, activeRoutes),
+                                  child: SelectFilterN('Ciudad',
+                                      _cityControllerdb, activeRoutes),
                                 ),
                               ],
                             ),
@@ -910,11 +964,10 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                             Row(
                               children: [
                                 Container(
-                                  key: UniqueKey(),
                                   width: 210,
                                   child: SelectFilterTrans(
                                       'Transporte de Recolección',
-                                      formattedListController,
+                                      _trnsportController,
                                       formattedList),
                                 ),
                               ],
@@ -1015,48 +1068,67 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                                 onPressed: () async {
                                   // Implementa la lógica de actualización aquí
 
-                                  if (listaDeEnterosX.isEmpty) {
-                                    AwesomeDialog(
-                                      width: 500,
-                                      context: context,
-                                      dialogType: DialogType.warning,
-                                      animType: AnimType.rightSlide,
-                                      title: 'Debe seleccionar un Día!',
-                                      desc: '',
-                                      btnOkText: "Aceptar",
-                                      btnOkColor: Colors.green,
-                                      btnOkOnPress: () async {
-                                        // Puedes agregar código adicional aquí si es necesario
-                                      },
-                                    ).show();
-                                  } else {
-                                    var responseChargeImage =
-                                        await Connections()
-                                            .postDoc(pickedImage!);
-                                    _controller.updateWarehouse(
-                                        widget.warehouse.id!,
-                                        _nameSucursalController.text,
-                                        _addressController.text,
-                                        _referenceController.text,
-                                        _descriptionController.text,
-                                        responseChargeImage[1],
-                                        _cityController.text, {
-                                      "collectionDays": listaDeEnterosX,
-                                      "collectionSchedule":
-                                          "${_timeStartController.text} - ${_timeEndController.text}",
-                                      "collectionTransport":
-                                          _trnasportController.text
-                                    }).then((_) {
-                                      Navigator.of(context).pop();
-                                      setState(() {
-                                        // Esto forzará la reconstrucción de la vista con los datos actualizados
-                                        _futureWarehouseData =
-                                            _loadWarehouses();
-                                        SnackBarHelper.showOkSnackBar(
-                                            context, "DATOS ACTUALIZADOS.");
-                                      });
-                                    });
+                                   if (_trnasportController.text == "") {
+                                    _trnasportController =
+                                        TextEditingController(
+                                            text: collectionTransport);
                                   }
+                                  if (selectedDays.isEmpty) {
+                                    selectedDays = listaDeEnteros;
+                                  }
+                                  // ! LAS FECHAS DA PROBLEMA CAMBIA EN EL FRONT PERO LAS VARIABLES NO CAMBIAN DE VALOR
+                                  if (_timeStartController.text != "" &&
+                                      _timeEndController.text != "") {
+                                    _timeStartControllerdb =
+                                        TextEditingController(
+                                            text: _timeStartController.text);
+                                    _timeEndControllerdb =
+                                        TextEditingController(
+                                            text: _timeEndController.text);
+
+                                    collectionSchedule =
+                                        " ${_timeStartControllerdb.text} - ${_timeEndControllerdb.text}";
+                                  }
+                                  if (_cityController.text == "") {
+                                    _cityController = TextEditingController(
+                                        text: _cityControllerdb.text);
+                                  }
+
+                                  if (listaDeEnterosX.isEmpty) {
+                                    listaDeEnterosX = listaDeEnteros;
+                                  }
+                                  var responseChargeImage;
+
+                                  if (pickedImage != null &&
+                                      pickedImage!.name.isNotEmpty) {
+                                    responseChargeImage = await Connections()
+                                        .postDoc(pickedImage!);
+                                    if (responseChargeImage[1] != "") {
+                                      _urlImageController.text =
+                                          responseChargeImage[1];
+                                    }
+                                  }
+                                  _controller.updateWarehouse(
+                                      widget.warehouse.id!,
+                                      _nameSucursalController.text,
+                                      _addressController.text,
+                                      _referenceController.text,
+                                      _descriptionController.text,
+                                      _urlImageController.text,
+                                      _cityController.text, {
+                                    "collectionDays": listaDeEnterosX,
+                                    "collectionSchedule":collectionSchedule,
+                                    "collectionTransport":
+                                        _trnasportController.text
+                                  }).then((_) {
+                                    Navigator.of(context).pop();
+                                    setState(() {
+                                      // Esto forzará la reconstrucción de la vista con los datos actualizados
+                                      _futureWarehouseData = _loadWarehouses();
+                                      SnackBarHelper.showOkSnackBar(
+                                          context, "DATOS ACTUALIZADOS.");
+                                    });
+                                  });
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: ColorsSystem()

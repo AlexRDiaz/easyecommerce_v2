@@ -12,7 +12,7 @@ class CreateReportAudit {
   var tittleStyle = CellStyle(bold: true, backgroundColorHex: "#D3D3D3");
   var headerStyle = CellStyle(
       bold: true, backgroundColorHex: "#D3D3D3", fontColorHex: "#1976D2");
-  Future<void> generateExcelFileWithData(dataOrders) async {
+  Future<void> generateExcelFileWithDataAudit(dataOrders) async {
     List<Future<String>> usernameFutures =
         dataOrders.map<Future<String>>((order) {
       return userNametotoConfirmOrder(order['confirmed_by'] ?? 0);
@@ -76,46 +76,55 @@ class CreateReportAudit {
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 0, rowIndex: excelRowIndex))
-            .value = data['users'][0]['vendedores'][0]['nombre_comercial'];
+            .value = data['users'][0]['vendedores'][0]['nombre_comercial'].toString()!=""?
+            data['users'][0]['vendedores'][0]['nombre_comercial'].toString(): "";
         sheet
                 .cell(CellIndex.indexByColumnRow(
                     columnIndex: 1, rowIndex: excelRowIndex))
                 .value =
-            extractDateFromBrackets(safeValue(data['marca_t_i'].toString()));
+            extractDateFromBrackets(safeValue(data['marca_t_i'].toString())) != "" ? 
+            extractDateFromBrackets(safeValue(data['marca_t_i'].toString())) :"";
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 2, rowIndex: excelRowIndex))
-            .value = data['fecha_confirmacion'];
+            .value = data['fecha_confirmacion'].toString()!="" ?
+                    data['fecha_confirmacion'].toString() :"";
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 3, rowIndex: excelRowIndex))
-            .value = data['fecha_entrega'];
+            .value = data['fecha_entrega'].toString()!=""?
+            data['fecha_entrega'].toString():"";
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 4, rowIndex: excelRowIndex))
-            .value = data['marca_tiempo_envio'];
+            .value = data['marca_tiempo_envio'].toString()!=""?
+            data['marca_tiempo_envio'].toString():"";
         sheet
                 .cell(CellIndex.indexByColumnRow(
                     columnIndex: 5, rowIndex: excelRowIndex))
                 .value =
-            "${data['users'] != null && data['users'].toString() != "[]" ? data['users'][0]['vendedores'][0]['nombre_comercial'] : data['tienda_temporal']}-${data['numero_orden']}";
+            "${data['users'] != null && data['users'].toString() != "[]" ? data['users'][0]['vendedores'][0]['nombre_comercial'].toString() : data['tienda_temporal']}-${data['numero_orden'].toString()}";
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 6, rowIndex: excelRowIndex))
-            .value = data["nombre_shipping"];
+            .value = data["nombre_shipping"].toString()!=""?
+            data["nombre_shipping"].toString():"";
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 7, rowIndex: excelRowIndex))
-            .value = data['ciudad_shipping'];
+            .value = data['ciudad_shipping'].toString()!=""?
+            data['ciudad_shipping'].toString() :"";
 
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 8, rowIndex: excelRowIndex))
-            .value = usernames[rowIndex];
+            .value = usernames[rowIndex]!="" ?usernames[rowIndex].toString() :
+            "";
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 9, rowIndex: excelRowIndex))
-            .value = data["status"];
+            .value = data["status"].toString()!= " "
+            ?data["status"].toString() : "";
 
         sheet
             .cell(CellIndex.indexByColumnRow(
@@ -148,23 +157,28 @@ class CreateReportAudit {
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 14, rowIndex: excelRowIndex))
-            .value = data["observacion"];
+            .value = data["observacion"].toString()!=""?
+            data["observacion"].toString():"";
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 15, rowIndex: excelRowIndex))
-            .value = data["comentario"];
+            .value = data["comentario"].toString()!=""?
+            data["comentario"].toString():"";
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 16, rowIndex: excelRowIndex))
-            .value = data["estado_interno"];
+            .value = data["estado_interno"].toString()!=""?
+            data["estado_interno"].toString():"";
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 17, rowIndex: excelRowIndex))
-            .value = data["estado_logistico"];
+            .value = data["estado_logistico"].toString()!=""?
+            data["estado_logistico"].toString():"";
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 18, rowIndex: excelRowIndex))
-            .value = data["estado_devolucion"];
+            .value = data["estado_devolucion"].toString()!=""?
+            data["estado_devolucion"].toString():"";
 
         //
       }

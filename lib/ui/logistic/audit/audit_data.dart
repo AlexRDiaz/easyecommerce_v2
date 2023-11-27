@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +47,7 @@ class _AuditState extends State<Audit> {
   int total = 0;
   bool enabledBusqueda = true;
   int totalRegistros = 0;
+  int generalValuetotal = 0;
 
   var getReport = CreateReportAudit();
 
@@ -106,11 +108,7 @@ class _AuditState extends State<Audit> {
     "fecha_confirmacion",
     'marca_tiempo_envio'
   ];
-  List not = [
-    // {"status": "ENTREGADO"},
-    // {"status": "EN RUTA"},
-    // {"status": "EN OFICINA"},
-  ];
+  List not = [];
 
   NumberPaginatorController paginatorController = NumberPaginatorController();
 
@@ -294,7 +292,6 @@ class _AuditState extends State<Audit> {
     );
   }
 
-  // final VendorInvoicesControllers _controllers = VendorInvoicesControllers();
   TextEditingController searchController = TextEditingController(text: "");
   @override
   Widget build(BuildContext context) {
@@ -1125,8 +1122,6 @@ class _AuditState extends State<Audit> {
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Icon(Icons.filter_alt),
-                    // SizedBox(width: 8),
                     Text(
                       'Quitar Filtros',
                       style: TextStyle(fontWeight: FontWeight.bold),
@@ -1144,39 +1139,45 @@ class _AuditState extends State<Audit> {
                   ),
                 ),
                 onPressed: () async {
-                  // Mostrar indicador de carga antes de iniciar la descarga
-                  getLoadingModal(context,
-                      true); // Asumiendo que esta función muestra un modal de carga.
+                  if (total > 10000) {
+                    AwesomeDialog(
+                      width: 500,
+                      context: context,
+                      dialogType: DialogType.info,
+                      animType: AnimType.rightSlide,
+                      title: 'El Número de Registros debe ser menor a 10.000',
+                      desc: '',
+                      btnOkText: "Aceptar",
+                      btnOkColor: Colors.green,
+                      btnOkOnPress: () async {},
+                    ).show();
+                  } else {
+                    getLoadingModal(context, true);
 
-                  try {
-                    // Suponiendo que tu función necesita parámetros como 'populate', 'defaultArrayFiltersAnd', etc.
-                    var response =
-                        await Connections().getOrdersForNoveltiesByDatesLaravel(
-                      populate,
-                      defaultArrayFiltersAnd,
-                      arrayFiltersAnd,
-                      arrayFiltersOr,
-                      not,
-                      1,
-                      100000,
-                      searchController.text.toString(),
-                      sortFieldDefaultValue,
-                      sharedPrefs!.getString("dateDesdeLogistica").toString(),
-                      sharedPrefs!.getString("dateHastaLogistica").toString(),
-                    );
+                    try {
+                      var response =
+                          await Connections().getByDateRangeOrdersforAudit(
+                        defaultArrayFiltersAnd,
+                        arrayFiltersAnd,
+                        arrayFiltersOr,
+                        not,
+                        1,
+                        searchController.text.toString(),
+                        sortFieldDefaultValue,
+                        sharedPrefs!.getString("dateDesdeLogistica").toString(),
+                        sharedPrefs!.getString("dateHastaLogistica").toString(),
+                      );
+                      await getReport
+                          .generateExcelFileWithDataAudit(response['data']);
+                      // }
 
-                    // Suponiendo que 'generateExcelFileWithData' toma la lista de datos como parámetro
-                    await getReport.generateExcelFileWithData(response['data']);
+                      Navigator.of(context).pop();
+                    } catch (e) {
+                      Navigator.of(context).pop();
 
-                    // Si llegamos aquí, la operación fue exitosa y cerramos el modal de carga
-                    Navigator.of(context).pop();
-                  } catch (e) {
-                    // Cerrar el modal de carga si hay un error
-                    Navigator.of(context).pop();
-
-                    // Mostrar un mensaje de error
-                    _showErrorSnackBar(context,
-                        "Ha ocurrido un error al generar el reporte: $e");
+                      _showErrorSnackBar(context,
+                          "Ha ocurrido un error al generar el reporte: $e");
+                    }
                   }
                 },
                 child: const Row(
@@ -1367,40 +1368,49 @@ class _AuditState extends State<Audit> {
                     ),
                   ),
                   onPressed: () async {
-                    // Mostrar indicador de carga antes de iniciar la descarga
-                    getLoadingModal(context,
-                        true); // Asumiendo que esta función muestra un modal de carga.
+                    if (total > 10000) {
+                      AwesomeDialog(
+                        width: 500,
+                        context: context,
+                        dialogType: DialogType.info,
+                        animType: AnimType.rightSlide,
+                        title: 'El Número de Registros debe ser menor a 10.000',
+                        desc: '',
+                        btnOkText: "Aceptar",
+                        btnOkColor: Colors.green,
+                        btnOkOnPress: () async {},
+                      ).show();
+                    } else {
+                      getLoadingModal(context, true);
 
-                    try {
-                      // Suponiendo que tu función necesita parámetros como 'populate', 'defaultArrayFiltersAnd', etc.
-                      var response = await Connections()
-                          .getOrdersForNoveltiesByDatesLaravel(
-                        populate,
-                        defaultArrayFiltersAnd,
-                        arrayFiltersAnd,
-                        arrayFiltersOr,
-                        not,
-                        1,
-                        100000,
-                        searchController.text.toString(),
-                        sortFieldDefaultValue,
-                        sharedPrefs!.getString("dateDesdeLogistica").toString(),
-                        sharedPrefs!.getString("dateHastaLogistica").toString(),
-                      );
+                      try {
+                        var response =
+                            await Connections().getByDateRangeOrdersforAudit(
+                          defaultArrayFiltersAnd,
+                          arrayFiltersAnd,
+                          arrayFiltersOr,
+                          not,
+                          1,
+                          searchController.text.toString(),
+                          sortFieldDefaultValue,
+                          sharedPrefs!
+                              .getString("dateDesdeLogistica")
+                              .toString(),
+                          sharedPrefs!
+                              .getString("dateHastaLogistica")
+                              .toString(),
+                        );
+                        await getReport
+                            .generateExcelFileWithDataAudit(response['data']);
+                        // }
 
-                      // Suponiendo que 'generateExcelFileWithData' toma la lista de datos como parámetro
-                      await getReport
-                          .generateExcelFileWithData(response['data']);
+                        Navigator.of(context).pop();
+                      } catch (e) {
+                        Navigator.of(context).pop();
 
-                      // Si llegamos aquí, la operación fue exitosa y cerramos el modal de carga
-                      Navigator.of(context).pop();
-                    } catch (e) {
-                      // Cerrar el modal de carga si hay un error
-                      Navigator.of(context).pop();
-
-                      // Mostrar un mensaje de error
-                      _showErrorSnackBar(context,
-                          "Ha ocurrido un error al generar el reporte: $e");
+                        _showErrorSnackBar(context,
+                            "Ha ocurrido un error al generar el reporte: $e");
+                      }
                     }
                   },
                   child: const Row(

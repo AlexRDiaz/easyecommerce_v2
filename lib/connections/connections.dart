@@ -218,8 +218,8 @@ class Connections {
     var decodeDataUser = json.decode(responseUser);
     return decodeDataUser['user'];
   }
-  getPersonalInfoAccountforConfirmOrder(idUser) async {
 
+  getPersonalInfoAccountforConfirmOrder(idUser) async {
     var getUserSpecificRequest =
         await http.get(Uri.parse("$serverLaravel/api/users/$idUser"));
     var responseUser = await getUserSpecificRequest.body;
@@ -1332,6 +1332,70 @@ class Connections {
     }
   }
 
+  // ! ****************** pdf's
+  getByDateRangeOrdersforAudit(List defaultAnd, List and, List or, List not,
+      currentPage, search, sortField, String dateStart, String dateEnd) async {
+    int res = 0;
+    print("Create-Report ||→ → → →");
+
+    try {
+      List filtersAndAll = [];
+      filtersAndAll.addAll(and);
+      filtersAndAll.addAll(defaultAnd);
+
+      var request =
+          await http.post(Uri.parse("$serverLaravel/api/logistic/orders-pdf"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "start": dateStart,
+                "end": dateEnd,
+                "or": or,
+                "and": filtersAndAll,
+                "not": not,
+                "sort": sortField,
+                "page_number": currentPage,
+                "search": search
+                // "start": "1/10/2023",
+                // "end": "1/10/2023",
+                // "or": [
+                //   "maraca_t_i",
+                //   "numero_orden",
+                //   "ciudad_shipping",
+                //   "nombre_shipping",
+                //   "observacion",
+                //   "comentario",
+                //   "status",
+                //   "estado_devolucion",
+                //   "estado_logistico",
+                //   "estado_interno",
+                //   "fecha_entrega",
+                //   "fecha_confirmacion",
+                //   "marca_tiempo_envio"
+                // ],
+                // "and": [
+                //   {"/estado_interno": "CONFIRMADO"},
+                //   {"/estado_logistico": "ENVIADO"}
+                // ],
+                // "not": [],
+                // "sort": "marca_t_i:DESC",
+                // "page_number": 1,
+                // "search": ""
+              }));
+      // print(and);
+      // var response = await request.body;
+      var decodeData = json.decode(request.body);
+      if (request.statusCode != 200) {
+        res = 1;
+      }
+      // print(decodeData);
+      return decodeData;
+    } catch (e) {
+      print('Error en la genereación del reporte: $e');
+      res = 2;
+    }
+    return res;
+  }
+
   // ! *******************
   getOrdersForNoveltiesByDatesLaravel(
       List populate,
@@ -1353,6 +1417,7 @@ class Connections {
       List filtersAndAll = [];
       filtersAndAll.addAll(and);
       filtersAndAll.addAll(defaultAnd);
+
       var request = await http.post(
           Uri.parse("$serverLaravel/api/logistic/filter/novelties"),
           headers: {'Content-Type': 'application/json'},
@@ -1367,11 +1432,37 @@ class Connections {
             "sort": sortField,
             "page_size": sizePage,
             "page_number": currentPage,
-            "search": search
+            "search": search,
+            // "start": "1/10/2023",
+            // "end": "1/10/2023",
+            // "or": [
+            //   "maraca_t_i",
+            //   "numero_orden",
+            //   "ciudad_shipping",
+            //   "nombre_shipping",
+            //   "observacion",
+            //   "comentario",
+            //   "status",
+            //   "estado_devolucion",
+            //   "estado_logistico",
+            //   "estado_interno",
+            //   "fecha_entrega",
+            //   "fecha_confirmacion",
+            //   "marca_tiempo_envio"
+            // ],
+            // "and": [
+            //   {"/estado_interno": "CONFIRMADO"},
+            //   {"/estado_logistico": "ENVIADO"}
+            // ],
+            // "not": [],
+            // "sort": "marca_t_i:DESC",
+            // "page_size": 100000,
+            // "page_number": 1,
+            // "search": ""
           }));
-      print(and);
-      var response = await request.body;
-      var decodeData = json.decode(response);
+      // print(and);
+      // var response = await request.body;
+      var decodeData = json.decode(request.body);
       if (request.statusCode != 200) {
         res = 1;
       }
@@ -6372,7 +6463,7 @@ class Connections {
   }
 
   updateWarehouse(int id, String nameSucursal, String address, String reference,
-      String description,String url_image,String city,var collection) async {
+      String description, String url_image, String city, var collection) async {
     try {
       var response =
           await http.put(Uri.parse("$serverLaravel/api/warehouses/$id"),
@@ -6384,7 +6475,7 @@ class Connections {
                 "description": description,
                 'url_image': url_image,
                 "city": city,
-                "collection" :  json.encode(collection),
+                "collection": json.encode(collection),
               }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
