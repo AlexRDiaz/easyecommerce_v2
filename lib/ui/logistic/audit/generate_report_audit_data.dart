@@ -13,13 +13,6 @@ class CreateReportAudit {
   var headerStyle = CellStyle(
       bold: true, backgroundColorHex: "#D3D3D3", fontColorHex: "#1976D2");
   Future<void> generateExcelFileWithDataAudit(dataOrders) async {
-    List<Future<String>> usernameFutures =
-        dataOrders.map<Future<String>>((order) {
-      return userNametotoConfirmOrder(order['confirmed_by'] ?? 0);
-    }).toList();
-
-    // Esperar a que todos los Future se completen
-    List<String> usernames = await Future.wait(usernameFutures);
 
     try {
       final excel = Excel.createExcel();
@@ -32,10 +25,10 @@ class CreateReportAudit {
       titleCell.value = 'EASY ECOMMERCE - REPORTE AUDITORIA';
       titleCell.cellStyle = tittleStyle;
       sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0),
-          CellIndex.indexByColumnRow(columnIndex: 18, rowIndex: 0),
+          CellIndex.indexByColumnRow(columnIndex: 17, rowIndex: 0),
           customValue: 'EASY ECOMMERCE - REPORTE AUDITORIA');
 
-      for (var col = 0; col <= 18; col++) {
+      for (var col = 0; col <= 17; col++) {
         var cell = sheet
             .cell(CellIndex.indexByColumnRow(columnIndex: col, rowIndex: 0));
         cell.cellStyle = headerStyle;
@@ -50,7 +43,7 @@ class CreateReportAudit {
         'Código',
         'Nombre Cliente',
         'Ciudad',
-        'Usuario de Confirmación',
+        // 'Usuario de Confirmación',
         'Status',
         'Transportadora',
         'Ruta',
@@ -115,68 +108,67 @@ class CreateReportAudit {
             .value = data['ciudad_shipping'].toString()!=""?
             data['ciudad_shipping'].toString() :"";
 
+        // sheet
+        //     .cell(CellIndex.indexByColumnRow(
+        //         columnIndex: 8, rowIndex: excelRowIndex))
+        //     .value =data['confirmed_by'] != null ? data['confirmed_by']['username'].toString() : 'Desconocido';
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 8, rowIndex: excelRowIndex))
-            .value = usernames[rowIndex]!="" ?usernames[rowIndex].toString() :
-            "";
-        sheet
-            .cell(CellIndex.indexByColumnRow(
-                columnIndex: 9, rowIndex: excelRowIndex))
             .value = data["status"].toString()!= " "
             ?data["status"].toString() : "";
 
         sheet
             .cell(CellIndex.indexByColumnRow(
-                columnIndex: 10, rowIndex: excelRowIndex))
+                columnIndex: 9, rowIndex: excelRowIndex))
             .value = data['transportadora'] != null &&
                 data['transportadora'].toString() != "[]"
             ? data['transportadora'][0]['nombre'].toString()
             : "";
         sheet
                 .cell(CellIndex.indexByColumnRow(
-                    columnIndex: 11, rowIndex: excelRowIndex))
+                    columnIndex: 10, rowIndex: excelRowIndex))
                 .value =
             data['ruta'] != null && data['ruta'].toString() != "[]"
                 ? data['ruta'][0]['titulo'].toString()
                 : "";
         sheet
                 .cell(CellIndex.indexByColumnRow(
-                    columnIndex: 12, rowIndex: excelRowIndex))
+                    columnIndex: 11, rowIndex: excelRowIndex))
                 .value =
             data['sub_ruta'] != null && data['sub_ruta'].toString() != "[]"
                 ? data['sub_ruta'][0]['titulo'].toString()
                 : "";
         sheet
                 .cell(CellIndex.indexByColumnRow(
-                    columnIndex: 13, rowIndex: excelRowIndex))
+                    columnIndex: 12, rowIndex: excelRowIndex))
                 .value =
             data['operadore'] != null && data['operadore'].toString() != "[]"
                 ? data['operadore'][0]['up_users'][0]['username'].toString()
                 : "";
         sheet
             .cell(CellIndex.indexByColumnRow(
-                columnIndex: 14, rowIndex: excelRowIndex))
+                columnIndex: 13, rowIndex: excelRowIndex))
             .value = data["observacion"].toString()!=""?
             data["observacion"].toString():"";
         sheet
             .cell(CellIndex.indexByColumnRow(
-                columnIndex: 15, rowIndex: excelRowIndex))
+                columnIndex: 14, rowIndex: excelRowIndex))
             .value = data["comentario"].toString()!=""?
             data["comentario"].toString():"";
         sheet
             .cell(CellIndex.indexByColumnRow(
-                columnIndex: 16, rowIndex: excelRowIndex))
+                columnIndex: 15, rowIndex: excelRowIndex))
             .value = data["estado_interno"].toString()!=""?
             data["estado_interno"].toString():"";
         sheet
             .cell(CellIndex.indexByColumnRow(
-                columnIndex: 17, rowIndex: excelRowIndex))
+                columnIndex: 16, rowIndex: excelRowIndex))
             .value = data["estado_logistico"].toString()!=""?
             data["estado_logistico"].toString():"";
         sheet
             .cell(CellIndex.indexByColumnRow(
-                columnIndex: 18, rowIndex: excelRowIndex))
+                columnIndex: 17, rowIndex: excelRowIndex))
             .value = data["estado_devolucion"].toString()!=""?
             data["estado_devolucion"].toString():"";
 
@@ -196,21 +188,7 @@ class CreateReportAudit {
     return arraylength.toString();
   }
 
-  Future<String> userNametotoConfirmOrder(userId) async {
-    if (userId == 0) {
-      return 'Desconocido';
-    } else {
-      var user =
-          await Connections().getPersonalInfoAccountforConfirmOrder(userId);
-      // Verifica si user es nulo
-      if (user != null && user.containsKey('username')) {
-        return user['username'].toString();
-      } else {
-        // Maneja el caso de usuario nulo o sin 'username'
-        return 'Desconocido';
-      }
-    }
-  }
+
 
   String safeValue(dynamic value, [String defaultValue = '']) {
     return (value ?? defaultValue).toString();

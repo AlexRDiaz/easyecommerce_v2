@@ -220,13 +220,29 @@ class Connections {
   }
 
   getPersonalInfoAccountforConfirmOrder(idUser) async {
-    var getUserSpecificRequest =
-        await http.get(Uri.parse("$serverLaravel/api/users/$idUser"));
-    var responseUser = await getUserSpecificRequest.body;
+    var getUserSpecificRequest = await http
+        .get(Uri.parse("$serverLaravel/api/users/${idUser.toString()}"));
+    var responseUser = getUserSpecificRequest.body;
     var decodeDataUser = json.decode(responseUser);
     return decodeDataUser['user'];
   }
 
+  getPersonalInfoAccountforConfirmOrderPDF(idUser) async {
+    var request = await http.get(
+      Uri.parse("$serverLaravel/api/users/pdf/${idUser.toString()}"),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (request.statusCode == 200) {
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      return decodeData['user'];
+    } else {
+      // Manejar el error aquí
+      print("Error en la solicitud: ${request.statusCode}");
+      return null; // Otra acción apropiada en caso de error
+    }
+  }
   // SELLERS
   // FILTER BY USERNAME AND NombreComercial
 
@@ -1355,8 +1371,8 @@ class Connections {
                 "sort": sortField,
                 "page_number": currentPage,
                 "search": search
-                // "start": "1/10/2023",
-                // "end": "1/10/2023",
+                // "start": "1/11/2023",
+                // "end": "15/11/2023",
                 // "or": [
                 //   "maraca_t_i",
                 //   "numero_orden",

@@ -137,7 +137,7 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Marca Tiempo Entrega: ${formatDate(safeValue(data['status_last_modified_at'].toString()))}",
+                          "  Marca Tiempo Entrega: ${data['status_last_modified_at'].toString()!="null" ? formatDate(safeValue(data['status_last_modified_at'].toString())) :""}",
                           style: TextStyle(
                               fontWeight: FontWeight.normal, fontSize: 18),
                         ),

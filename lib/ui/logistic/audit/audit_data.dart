@@ -872,20 +872,30 @@ class _AuditState extends State<Audit> {
         info(context, index);
       }),
       // ! aqui falta el usuario que confirma
+      // DataCell(
+      //   FutureBuilder<String>(
+      //     future: userNametotoConfirmOrder(data[index]['confirmed_by'] != null
+      //         ? data[index]['confirmed_by']
+      //         : 0),
+      //     builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+      //       return Text(snapshot.data ?? 'Desconocido');
+      //     },
+      //   ),
+      //   onTap: () {
+      //     info(context, index);
+      //   },
+      // ),
       DataCell(
-        FutureBuilder<String>(
-          future: userNametotoConfirmOrder(data[index]['confirmed_by'] != null
-              ? data[index]['confirmed_by']
-              : 0),
-          builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-            return Text(snapshot.data ?? 'Desconocido');
-          },
+        Text(
+          data[index]['confirmed_by'] != null ? data[index]['confirmed_by']['username'].toString() : 'Desconocido',
+          style: TextStyle(
+            color: rowColor,
+          ),
         ),
         onTap: () {
           info(context, index);
         },
       ),
-
       // ! **********************************
       DataCell(
           Text(
@@ -1139,7 +1149,7 @@ class _AuditState extends State<Audit> {
                   ),
                 ),
                 onPressed: () async {
-                  if (total > 10000) {
+                  if (total > 2300) {
                     AwesomeDialog(
                       width: 500,
                       context: context,
@@ -1204,7 +1214,7 @@ class _AuditState extends State<Audit> {
       return 'Desconocido';
     } else {
       var user =
-          await Connections().getPersonalInfoAccountforConfirmOrder(userId);
+          await Connections().getPersonalInfoAccountforConfirmOrderPDF(userId);
       // Verifica si user es nulo
       if (user != null && user.containsKey('username')) {
         return user['username'].toString();
@@ -1368,7 +1378,7 @@ class _AuditState extends State<Audit> {
                     ),
                   ),
                   onPressed: () async {
-                    if (total > 10000) {
+                    if (total > 2300) {
                       AwesomeDialog(
                         width: 500,
                         context: context,

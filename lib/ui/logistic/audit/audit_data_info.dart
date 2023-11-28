@@ -203,39 +203,30 @@ class _AuditDataInfo extends State<AuditDataInfo> {
                           height: 20,
                         ),
                         // ! **********
-                        FutureBuilder<String>(
-                          future: userNametotoConfirmOrder(
-                              data['confirmed_by'] != null
-                                  ? data['confirmed_by']
-                                  : 0),
-                          builder: (BuildContext context,
-                              AsyncSnapshot<String> snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.done) {
-                              // Cuando el Future se complete, muestra el resultado
-                              return Text(
-                                "  Usuario de Confirmación: ${snapshot.data}",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.normal,
-                                    fontSize: 18),
-                              );
-                            } else {
-                              // Mientras el Future se está resolviendo, muestra un indicador de carga
-                              return CircularProgressIndicator();
-                            }
-                          },
-                        ),
-                        // ! aqui va el ususario que confirma
-                        // Text("Usuario de Confirmación: ${FutureBuilder<String>(
+                        // FutureBuilder<String>(
                         //   future: userNametotoConfirmOrder(
                         //       data['confirmed_by'] != null
                         //           ? data['confirmed_by']
                         //           : 0),
                         //   builder: (BuildContext context,
                         //       AsyncSnapshot<String> snapshot) {
-                        //     return Text(snapshot.data ?? 'Desconocido');
+                        //     if (snapshot.connectionState ==
+                        //         ConnectionState.done) {
+                        //       // Cuando el Future se complete, muestra el resultado
+                        //       return Text(
+                        //         "  Usuario de Confirmación: ${snapshot.data}",
+                        //         style: TextStyle(
+                        //             fontWeight: FontWeight.normal,
+                        //             fontSize: 18),
+                        //       );
+                        //     } else {
+                        //       // Mientras el Future se está resolviendo, muestra un indicador de carga
+                        //       return CircularProgressIndicator();
+                        //     }
                         //   },
-                        // )}"),
+                        // ),
+                        // ! aqui va el ususario que confirma
+                        Text("Usuario de Confirmación:"),
                         SizedBox(
                           height: 20,
                         ),
@@ -527,19 +518,19 @@ class _AuditDataInfo extends State<AuditDataInfo> {
     return input; // Retorna la entrada original si no hay corchetes o el formato es incorrecto
   }
 
-  Future<String> userNametotoConfirmOrder(userId) async {
-    if (userId == 0) {
-      return 'Desconocido';
-    } else {
-      var user =
-          await Connections().getPersonalInfoAccountforConfirmOrder(userId);
-      if (user != null && user.containsKey('username')) {
-        return user['username'].toString();
-      } else {
-        return 'Desconocido';
-      }
-    }
-  }
+  // Future<String> userNametotoConfirmOrder(userId) async {
+  //   if (userId == 0) {
+  //     return 'Desconocido';
+  //   } else {
+  //     var user =
+  //         await Connections().getPersonalInfoAccountforConfirmOrderPDF(userId);
+  //     if (user != null && user.containsKey('username')) {
+  //       return user['username'].toString();
+  //     } else {
+  //       return 'Desconocido';
+  //     }
+  //   }
+  // }
 
   // void _showErrorSnackBar(BuildContext context, String errorMessage) {
   //   ScaffoldMessenger.of(context).showSnackBar(
