@@ -835,6 +835,6 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
               ),
             ),
           );
-        });
+        }).then((value) => loadData());
   }
 }

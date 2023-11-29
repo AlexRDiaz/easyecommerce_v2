@@ -6654,4 +6654,24 @@ class Connections {
       return 2;
     }
   }
+
+  paymentNovedad(id, comentario) async {
+    try {
+      String? generatedBy = sharedPrefs!.getString("id");
+
+      var response = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/transacciones/payment-order-with-novelty/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json
+              .encode({"generated_by": generatedBy, "comentario": comentario}));
+      if (response.statusCode != 200) {
+        return 1;
+      } else {
+        return json.decode(response.body);
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
 }
