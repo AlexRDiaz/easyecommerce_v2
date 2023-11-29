@@ -285,10 +285,12 @@ class _UpdateStatusOperatorHistorialState
                       }
                       setState(() {});
 
+                      var urlImg = await Connections().postDoc(imageSelect!);
+
                       var datacostos = await Connections()
                           .getOrderByIDHistoryLaravel(widget.id);
 
-                      await paymentEntregado(datacostos, tipo);
+                      await paymentEntregado(datacostos, tipo, urlImg);
 
                       //add transaccion_pedido
                       var today = DateTime.now().toString().split(' ')[0];
@@ -353,10 +355,7 @@ class _UpdateStatusOperatorHistorialState
                           var datacostos = await Connections()
                               .getOrderByIDHistoryLaravel(widget.id);
 
-                          // if (datacostos['costo_envio'] != null) {
-
-                          // }
-                          await paymentEntregado(datacostos, tipo);
+                          await paymentEntregado(datacostos, tipo, "");
 
                           //add transaccion_pedido
                           var data = await Connections()
@@ -512,14 +511,15 @@ class _UpdateStatusOperatorHistorialState
     }
   }
 
-  Future<void> paymentEntregado(datacostos, String tipo) async {
+  Future<void> paymentEntregado(datacostos, String tipo, urlImage) async {
     var resDelivered = await Connections().paymentOrderDelivered(
-      datacostos['users'][0]['vendedores'][0]['id_master'],
-      datacostos['precio_total'],
-      datacostos['users'][0]['vendedores'][0]['costo_envio'],
-      datacostos['id'],
-      "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-    );
+        datacostos['users'][0]['vendedores'][0]['id_master'],
+        datacostos['precio_total'],
+        datacostos['users'][0]['vendedores'][0]['costo_envio'],
+        datacostos['id'],
+        "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
+        _controllerModalText.text,
+        urlImage != "" ? urlImage[1] : "");
 
     dialogEntregado(resDelivered);
   }

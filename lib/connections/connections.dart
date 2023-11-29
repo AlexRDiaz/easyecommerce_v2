@@ -6597,7 +6597,8 @@ class Connections {
   //   }
   // }
 
-  paymentOrderDelivered(id, monto, montoDebit, idOrigen, codigo) async {
+  paymentOrderDelivered(
+      id, monto, montoDebit, idOrigen, codigo, comentario, archivo) async {
     try {
       String? generatedBy = sharedPrefs!.getString("id");
 
@@ -6611,7 +6612,9 @@ class Connections {
             "id_origen": idOrigen,
             "codigo": codigo,
             "state": "1",
-            "generated_by": generatedBy
+            "generated_by": generatedBy,
+            "comentario": comentario,
+            "archivo": archivo
           }));
       if (response.statusCode != 200) {
         return 1;
