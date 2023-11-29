@@ -520,7 +520,8 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                     Color rowColor = Colors.white;
                     if ((data[index]['sent_by'] != null &&
                         data[index]['sent_by'].isNotEmpty)) {
-                      if (data[index]['sent_by']['id'].toString() != idUser) {
+                      if (data[index]['sent_by']['roles_fronts'][0]['id'] !=
+                          1) {
                         rowColor = Colors.lightBlue.shade50;
                       }
                     }

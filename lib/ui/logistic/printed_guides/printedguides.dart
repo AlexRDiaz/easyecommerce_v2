@@ -389,8 +389,9 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                       Color rowColor = Colors.white;
                       if ((data[index]['printed_by'] != null &&
                           data[index]['printed_by'].isNotEmpty)) {
-                        if (data[index]['printed_by']['id'].toString() !=
-                            idUser) {
+                        if (data[index]['printed_by']['roles_fronts'][0]
+                                ['id'] !=
+                            1) {
                           rowColor = Colors.lightBlue.shade50;
                         }
                       }
