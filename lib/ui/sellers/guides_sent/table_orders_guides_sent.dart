@@ -91,7 +91,8 @@ class _TableOrdersGuidesSentStateSeller
     "users.vendedores",
     "pedidoFecha",
     "ruta",
-    "sentBy"
+    "sentBy",
+    "printedBy",
   ];
 
   @override
@@ -130,49 +131,49 @@ class _TableOrdersGuidesSentStateSeller
       if (selectedValueTransportator == null) {
         // print("case1-1");
 
-        responseL = await Connections()
-            .getOrdersForPrintGuidesInSendGuidesPrincipalLaravel(
-                date,
-                populate,
-                filtersAnd,
-                filtersDefaultAnd,
-                filtersOrCont,
-                currentPage,
-                pageSize,
-                _controllers.searchController.text,
-                sortFieldDefaultValue, []);
+        filtersAnd = [];
+        filtersAnd.add({"/marca_tiempo_envio": date});
+        responseL = await Connections().getOrdersForSentGuidesPrincipalLaravel(
+            populate,
+            filtersAnd,
+            filtersDefaultAnd,
+            filtersOrCont,
+            currentPage,
+            pageSize,
+            "",
+            sortFieldDefaultValue, []);
       } else {
         // print("case1-2");
 
+        filtersAnd = [];
+        filtersAnd.add({"/marca_tiempo_envio": date});
         filtersAnd.add({
           "equals/transportadora.transportadora_id":
               selectedValueTransportator.toString().split('-')[1]
         });
-        responseL = await Connections()
-            .getOrdersForPrintGuidesInSendGuidesPrincipalLaravel(
-                date,
-                populate,
-                filtersAnd,
-                filtersDefaultAnd,
-                filtersOrCont,
-                currentPage,
-                pageSize,
-                _controllers.searchController.text,
-                sortFieldDefaultValue, []);
+
+        responseL = await Connections().getOrdersForSentGuidesPrincipalLaravel(
+            populate,
+            filtersAnd,
+            filtersDefaultAnd,
+            filtersOrCont,
+            currentPage,
+            pageSize,
+            "",
+            sortFieldDefaultValue, []);
       }
     } else {
       // print("case2");
-      responseL = await Connections()
-          .getOrdersForPrintGuidesInSendGuidesPrincipalLaravel(
-              date,
-              populate,
-              filtersAnd,
-              filtersDefaultAnd,
-              filtersOrCont,
-              currentPage,
-              pageSize,
-              _controllers.searchController.text,
-              sortFieldDefaultValue, []);
+      filtersAnd = [];
+      responseL = await Connections().getOrdersForSentGuidesPrincipalLaravel(
+          populate,
+          filtersAnd,
+          filtersDefaultAnd,
+          filtersOrCont,
+          currentPage,
+          pageSize,
+          _controllers.searchController.text,
+          sortFieldDefaultValue, []);
     }
 
     data = responseL['data'];
@@ -437,6 +438,13 @@ class _TableOrdersGuidesSentStateSeller
                       },
                     ),
                     DataColumn2(
+                      label: const Text('Impreso por'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        sortFunc("printed_by", changevalue);
+                      },
+                    ),
+                    DataColumn2(
                       label: const Text('Marca Envio'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
@@ -447,14 +455,14 @@ class _TableOrdersGuidesSentStateSeller
                       label: const Text('Enviado por'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        // sortFunc("sent_by", changevalue);
+                        sortFunc("sent_by", changevalue);
                       },
                     ),
                     DataColumn2(
                       label: const Text('Fecha hora Envio'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
-                        // sortFunc("sent_at", changevalue);
+                        sortFunc("sent_at", changevalue);
                       },
                     ),
                   ],
@@ -543,9 +551,9 @@ class _TableOrdersGuidesSentStateSeller
                             }),
                             DataCell(
                                 Text(
-                                    style: TextStyle(
-                                        color:
-                                            GetColor(data[index]['revisado'])!),
+                                    style: TextStyle(color: GetColor(
+                                        // (data[index]['revisado']))!),
+                                        (data[index]['revisado_seller']))!),
                                     '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
                                 onTap: () {
                               getInfoModal(index);
@@ -615,6 +623,13 @@ class _TableOrdersGuidesSentStateSeller
                                     ? ""
                                     : data[index]['observacion'].toString()),
                                 onTap: () {
+                              getInfoModal(index);
+                            }),
+                            DataCell(
+                                Text(data[index]['printed_by'] != null &&
+                                        data[index]['printed_by'].isNotEmpty
+                                    ? "${data[index]['printed_by']['username'].toString()}-${data[index]['printed_by']['id'].toString()}"
+                                    : ''), onTap: () {
                               getInfoModal(index);
                             }),
                             DataCell(
@@ -851,6 +866,7 @@ class _TableOrdersGuidesSentStateSeller
                   .toList(),
               value: selectedValueTransportator,
               onChanged: (value) async {
+                filtersAnd = [];
                 setState(() {
                   selectedValueTransportator = value as String;
                 });
@@ -981,7 +997,8 @@ class _TableOrdersGuidesSentStateSeller
 
   Color? GetColor(state) {
     var color;
-    if (state == true) {
+    // if (state == true) {
+    if (state == 1) {
       color = 0xFF26BC5F;
     } else {
       color = 0xFF000000;

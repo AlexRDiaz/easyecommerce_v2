@@ -1806,7 +1806,7 @@ class _TransportDeliveryHistorialState
           Text(
             data[index]['costo_transportadora'] == null
                 ? ""
-                : data[index]['costo_transportadora'],
+                : data[index]['costo_transportadora'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
@@ -1839,7 +1839,7 @@ class _TransportDeliveryHistorialState
           onTap: () {}),
       DataCell(
           Text(data[index]['costo_envio'] != null
-              ? data[index]['costo_envio']
+              ? data[index]['costo_envio'].toString()
               : ""),
           onTap: () {}),
       DataCell(

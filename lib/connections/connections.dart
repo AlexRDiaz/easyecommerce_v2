@@ -5958,8 +5958,7 @@ class Connections {
     return decodeData;
   }
 
-  Future getOrdersForPrintGuidesInSendGuidesPrincipalLaravel(
-      start,
+  Future getOrdersForSentGuidesPrincipalLaravel(
       List populate,
       List and,
       List defaultAnd,
@@ -5973,12 +5972,10 @@ class Connections {
     filtersAndAll.addAll(and);
     filtersAndAll.addAll(defaultAnd);
     try {
-      // print("andAll: $filtersAndAll");
       var response =
           await http.post(Uri.parse("$serverLaravel/api/send-guides/printg"),
               headers: {'Content-Type': 'application/json'},
               body: json.encode({
-                "start": start,
                 "populate": populate,
                 "or": or,
                 "and": filtersAndAll,
@@ -5990,14 +5987,13 @@ class Connections {
               }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
+        // print(decodeData);
         return decodeData;
-      } else if (response.statusCode == 400) {
-        print("Error 400: Bad Request");
       } else {
-        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+        return 1;
       }
     } catch (error) {
-      print("Ocurrió un error durante la solicitud: $error");
+      return 2;
     }
   }
 
