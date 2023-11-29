@@ -327,7 +327,6 @@ class _MyOrdersPRVTransportState extends State<MyOrdersPRVTransport> {
                                     style: TextStyle(
                                         color: GetColor(data[index]
                                             ['attributes']['revisado'])!),
-                                    //['attributes']['received_carrier_at'])!),
                                     '${data[index]['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['attributes']['Nombre_Comercial']}-${data[index]['attributes']['NumeroOrden'].toString()}'),
                                 onTap: () {
                               info(context, index);

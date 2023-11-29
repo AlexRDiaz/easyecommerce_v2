@@ -34,7 +34,6 @@ class _ScannerOrdersPrvState extends State<ScannerOrdersPrv> {
               child: BarcodeKeyboardListener(
                 bufferDuration: Duration(milliseconds: 200),
                 onBarcodeScanned: (barcode) async {
-                  // barcode = "112919";
                   if (!visible) return;
                   getLoadingModal(context, false);
 
@@ -43,13 +42,6 @@ class _ScannerOrdersPrvState extends State<ScannerOrdersPrv> {
                   if (responseOrder['attributes']['sub_ruta']['data'] != null) {
                     var response = await Connections()
                         .updateReviewStatus(barcode.toString());
-
-                    // await Connections().updateOrderWithTime(
-                    //     barcode.toString(),
-                    //     'received_carrier_at:OK',
-                    //     sharedPrefs!.getString("id"),
-                    //     '',
-                    //     '');
 
                     setState(() {
                       _barcode =

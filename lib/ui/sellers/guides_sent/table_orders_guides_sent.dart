@@ -867,6 +867,7 @@ class _TableOrdersGuidesSentStateSeller
               value: selectedValueTransportator,
               onChanged: (value) async {
                 filtersAnd = [];
+                _controllers.searchController.clear();
                 setState(() {
                   selectedValueTransportator = value as String;
                 });

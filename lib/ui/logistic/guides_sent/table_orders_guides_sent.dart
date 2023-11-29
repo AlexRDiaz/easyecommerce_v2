@@ -927,6 +927,7 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
               value: selectedValueTransportator,
               onChanged: (value) async {
                 filtersAnd = [];
+                _controllers.searchController.clear();
                 setState(() {
                   selectedValueTransportator = value as String;
                 });
