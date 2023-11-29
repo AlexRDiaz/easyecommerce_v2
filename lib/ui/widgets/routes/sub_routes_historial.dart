@@ -61,7 +61,7 @@ class _SubRoutesModalHistorialState extends State<SubRoutesModalHistorial> {
     });
 
     operatorsList = await Connections()
-        .getOperatorBySubRoute(selectedValueRoute.toString().split("-")[0]);
+        .getOperatorBySubRoute(selectedValueRoute.toString().split("-")[1]);
     for (var i = 0; i < operatorsList.length; i++) {
       setState(() {
         if (operatorsList[i]['attributes']['user']['data'] != null) {
@@ -204,3 +204,4 @@ class _SubRoutesModalHistorialState extends State<SubRoutesModalHistorial> {
     );
   }
 }
+  
