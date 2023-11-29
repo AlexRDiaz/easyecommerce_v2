@@ -815,6 +815,7 @@ class _TableOrdersGuidesSentStateSeller
                     setState(() {
                       date = nuevaFecha;
                     });
+                    _controllers.searchController.clear();
                   }
                 });
                 await loadData();

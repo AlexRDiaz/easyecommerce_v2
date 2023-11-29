@@ -876,6 +876,7 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                     setState(() {
                       date = nuevaFecha;
                     });
+                    _controllers.searchController.clear();
                   }
                 });
                 await loadData();
