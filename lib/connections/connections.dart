@@ -6580,19 +6580,74 @@ class Connections {
     }
   }
 
-  cleanTransactionsFailed(id) async {
+  // cleanTransactionsFailed(id) async {
+  //   try {
+  //     var response = await http.post(
+  //       Uri.parse(
+  //           "$serverLaravel/api/transacciones/cleanTransactionsFailed/$id"),
+  //       headers: {'Content-Type': 'application/json'},
+  //     );
+  //     if (response.statusCode != 200) {
+  //       return 1;
+  //     } else {
+  //       0;
+  //     }
+  //   } catch (error) {
+  //     return 2;
+  //   }
+  // }
+
+  paymentOrderDelivered(id, monto, montoDebit, idOrigen, codigo) async {
     try {
+      String? generatedBy = sharedPrefs!.getString("id");
+
       var response = await http.post(
-        Uri.parse(
-            "$serverLaravel/api/transacciones/cleanTransactionsFailed/$id"),
-        headers: {'Content-Type': 'application/json'},
-      );
+          Uri.parse("$serverLaravel/api/transacciones/payment-order-delivered"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "id": id,
+            "monto": monto,
+            "monto_debit": montoDebit,
+            "id_origen": idOrigen,
+            "codigo": codigo,
+            "state": "1",
+            "generated_by": generatedBy
+          }));
       if (response.statusCode != 200) {
         return 1;
       } else {
-        0;
+        return 0;
       }
-    } catch (error) {
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  paymentOrderNotDelivered(
+      id, montoDebit, idOrigen, codigo, comentario, archivo) async {
+    try {
+      String? generatedBy = sharedPrefs!.getString("id");
+
+      var response = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/transacciones/payment-order-not-delivered"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "id": id,
+            "monto_debit": montoDebit,
+            "id_origen": idOrigen,
+            "codigo": codigo,
+            "state": "1",
+            "generated_by": generatedBy,
+            "comentario": comentario,
+            "archivo": archivo
+          }));
+      if (response.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
       return 2;
     }
   }
