@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
+import 'package:frontend/models/product_model.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
+import 'package:frontend/ui/provider/products/controllers/product_controller.dart';
 import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/html_editor.dart';
 import 'package:frontend/ui/widgets/loading.dart';
@@ -36,23 +38,14 @@ class _ProductDetailsState extends State<ProductDetails> {
   List<String> categories = [];
   final TextEditingController _typeController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _nameGuideController = TextEditingController();
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
   var data = {};
   List<dynamic> dataL = [];
   List<Map<String, dynamic>> listaProduct = [];
-  // List<String> listCategories = [
-  //   "Hogar",
-  //   "Mascota",
-  //   "Moda",
-  //   "Tecnología",
-  //   "Cocina",
-  //   "Belleza"
-  // ];
   List<String> listCategories = UIUtils.categories();
-
-  // List<String> types = ["SIMPLE", "VARIABLE"];
   List<String> types = UIUtils.typesProduct();
 
   List<String> warehousesToSelect = [];
@@ -60,10 +53,18 @@ class _ProductDetailsState extends State<ProductDetails> {
 
   var selectedCat;
   List<dynamic> dataFeatures = [];
+  late ProductController _productController;
+
+  List<String> urlsImgsList = [];
+  int isVariable = 0;
+  int approved = 0;
+
   @override
   void initState() {
     super.initState();
     loadTextEdtingControllers(widget.data);
+    _productController = ProductController();
+
     getWarehouses();
   }
 
@@ -74,8 +75,8 @@ class _ProductDetailsState extends State<ProductDetails> {
     if (warehouseList != null) {
       for (var warehouse in warehouseList) {
         setState(() {
-          warehousesToSelect
-              .add('${warehouse["branch_name"]}-${warehouse["warehouse_id"]}');
+          warehousesToSelect.add(
+              '${warehouse["warehouse_id"]}-${warehouse["branch_name"]}-${warehouse["city"]}');
         });
       }
     }
@@ -83,31 +84,33 @@ class _ProductDetailsState extends State<ProductDetails> {
 
   loadTextEdtingControllers(newData) {
     data = newData;
+    print(data);
     codigo = data['product_id'].toString();
     _nameController.text = data['product_name'];
     createdAt = formatDate(data['created_at'].toString());
+    approved = data['approved'];
     _stockController.text = data['stock'].toString();
     _priceController.text = data['price'].toString();
     warehouseValue =
-        '${data['warehouse']['branch_name'].toString()}-${data['warehouse']["warehouse_id"]}';
+        '${data['warehouse']["warehouse_id"]}-${data['warehouse']['branch_name'].toString()}-${data['warehouse']['city'].toString()}';
     print(warehouseValue);
 
-    img_url = data['url_img'].toString();
-    if (img_url == "null" || img_url == "") {
-      img_url = "";
-    }
+    // img_url = data['url_img'].toString();
+    // if (img_url == "null" || img_url == "") {
+    //   img_url = "";
+    // }
 
-    // print("img incoming: ${img_url.toString()}");
-    if (data['features'] != null) {
-      dataFeatures = json.decode(data['features']);
-      // print(dataFeatures);
-      // type = findValue(dataFeatures, 'type')?.toString();
-      typeValue = findValue(dataFeatures, 'type');
-      _typeController.text = typeValue;
-      descripcion = findValue(dataFeatures, 'description') ?? "";
-      _descriptionController.text = "descripcion";
-      categories = findCategories(dataFeatures);
-    }
+    // // print("img incoming: ${img_url.toString()}");
+    // if (data['features'] != null) {
+    //   dataFeatures = json.decode(data['features']);
+    //   // print(dataFeatures);
+    //   // type = findValue(dataFeatures, 'type')?.toString();
+    //   typeValue = findValue(dataFeatures, 'type');
+    //   _typeController.text = typeValue;
+    //   descripcion = findValue(dataFeatures, 'description') ?? "";
+    //   _descriptionController.text = "descripcion";
+    //   categories = findCategories(dataFeatures);
+    // }
 
     setState(() {});
   }
@@ -137,7 +140,7 @@ class _ProductDetailsState extends State<ProductDetails> {
     return AlertDialog(
       title: AppBar(
         title: const Text(
-          "Detalles del Producto",
+          "Editar Producto",
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 16,
@@ -149,8 +152,8 @@ class _ProductDetailsState extends State<ProductDetails> {
       ),
       content: Container(
         child: SizedBox(
-          // width: MediaQuery.of(context).size.width,
-          width: 700,
+          width: MediaQuery.of(context).size.width * 0.75,
+          // width: 700,
           height: MediaQuery.of(context).size.height,
           child: ListView(
             children: [
@@ -168,7 +171,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                                 Row(
                                   children: [
                                     const Text(
-                                      "Código:",
+                                      "ID:",
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 18,
@@ -215,61 +218,140 @@ class _ProductDetailsState extends State<ProductDetails> {
                               ],
                             ),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        "Producto",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: Colors.black,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      TextFormField(
-                        controller: _nameController,
-                        maxLines: null,
-                        decoration: InputDecoration(
-                          fillColor: Colors.white,
-                          filled: true,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5.0),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Text(
+                                      "Aprobado:",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    approved == 1
+                                        ? const Icon(Icons.check,
+                                            color: Colors.green)
+                                        : approved == 2
+                                            ? const Icon(Icons.access_time,
+                                                color: Colors.blue)
+                                            : const Icon(Icons.close,
+                                                color: Colors.red)
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
+                        ],
                       ),
                       const SizedBox(height: 20),
                       Row(
                         children: [
-                          const Text(
-                            "Tipo",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              color: Colors.black,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Producto'),
+                                const SizedBox(height: 3),
+                                TextFormField(
+                                  controller: _nameController,
+                                  decoration: InputDecoration(
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(5.0),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                           const SizedBox(width: 20),
-                          DropdownButton<String>(
-                            hint: const Text("Seleccione un tipo"),
-                            value: typeValue,
-                            onChanged: (value) {
-                              setState(() {
-                                typeValue = value ?? "";
-                              });
-                            },
-                            items: types.map((String category) {
-                              return DropdownMenuItem<String>(
-                                value: category,
-                                child: Text(
-                                  category,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                    'Nombre para mostrar en la guia de envio:'),
+                                const SizedBox(height: 3),
+                                TextFormField(
+                                  controller: _priceController,
+                                  decoration: InputDecoration(
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(5.0),
+                                    ),
                                   ),
                                 ),
-                              );
-                            }).toList(),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  "Tipo",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                const SizedBox(width: 20),
+                                DropdownButton<String>(
+                                  hint: const Text("Seleccione un tipo"),
+                                  value: typeValue,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      typeValue = value ?? "";
+                                    });
+                                  },
+                                  items: types.map((String category) {
+                                    return DropdownMenuItem<String>(
+                                      value: category,
+                                      child: Text(
+                                        category,
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Variables'),
+                                const SizedBox(height: 3),
+                                TextFormField(
+                                  controller: _priceController,
+                                  decoration: InputDecoration(
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(5.0),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -283,7 +365,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                                 Row(
                                   children: [
                                     const Text(
-                                      "Stock",
+                                      "Existencia",
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 18,
@@ -310,6 +392,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                               ],
                             ),
                           ),
+                          const SizedBox(width: 20),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -398,6 +481,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                               ],
                             ),
                           ),
+                          const SizedBox(width: 20),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -414,18 +498,21 @@ class _ProductDetailsState extends State<ProductDetails> {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  items: warehousesToSelect
-                                      .map((item) => DropdownMenuItem(
-                                            value: item,
-                                            child: Text(
-                                              item.split('-')[0],
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ))
-                                      .toList(),
+                                  items: warehousesToSelect.map((item) {
+                                    var parts = item.split('-');
+                                    var branchName = parts[1];
+                                    var city = parts[2];
+                                    return DropdownMenuItem(
+                                      value: item,
+                                      child: Text(
+                                        '$branchName - $city',
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
                                   value: warehouseValue,
                                   onChanged: (value) {
                                     setState(() {
@@ -494,25 +581,25 @@ class _ProductDetailsState extends State<ProductDetails> {
                               children: [
                                 ElevatedButton(
                                   onPressed: () async {
-                                    final ImagePicker picker = ImagePicker();
-                                    final XFile? image = await picker.pickImage(
-                                        source: ImageSource.gallery);
+                                    // final ImagePicker picker = ImagePicker();
+                                    // final XFile? image = await picker.pickImage(
+                                    //     source: ImageSource.gallery);
 
-                                    if (image != null &&
-                                        image.path.isNotEmpty) {
-                                      var responseI =
-                                          await Connections().postDoc(image);
-                                      // print("ImgSaveStrapi: $responseI");
+                                    // if (image != null &&
+                                    //     image.path.isNotEmpty) {
+                                    //   var responseI =
+                                    //       await Connections().postDoc(image);
+                                    //   // print("ImgSaveStrapi: $responseI");
 
-                                      setState(() {
-                                        img_url = responseI[1];
-                                      });
+                                    //   setState(() {
+                                    //     img_url = responseI[1];
+                                    //   });
 
-                                      // Navigator.pop(context);
-                                      // Navigator.pop(context);
-                                    } else {
-                                      print("No img");
-                                    }
+                                    //   // Navigator.pop(context);
+                                    //   // Navigator.pop(context);
+                                    // } else {
+                                    //   print("No img");
+                                    // }
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.blue[300],
@@ -559,6 +646,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                                     // print(img_url);
 
                                     var featuresToSend = [
+                                      {"guide_name": _nameGuideController.text},
                                       {
                                         "feature_name": "type",
                                         "value": typeValue
@@ -573,21 +661,35 @@ class _ProductDetailsState extends State<ProductDetails> {
                                       },
                                     ];
 
-                                    var responseUpt = await Connections()
-                                        .updateProduct0(codigo, {
-                                      "product_name":
-                                          _nameController.text.toString(),
-                                      "stock": int.parse(
-                                          _stockController.text.toString()),
-                                      "features": featuresToSend,
-                                      "price": double.parse(
-                                          _priceController.text.toString()),
-                                      "url_img": img_url.toString(),
-                                      "warehouse_id": warehouseValue
+                                    // var responseUpt = await Connections()
+                                    //     .updateProduct0(codigo, {
+                                    //   "product_name":
+                                    //       _nameController.text.toString(),
+                                    //   "stock": int.parse(
+                                    //       _stockController.text.toString()),
+                                    //   "features": featuresToSend,
+                                    //   "price": double.parse(
+                                    //       _priceController.text.toString()),
+                                    //   "url_img": img_url.toString(),
+                                    //   "warehouse_id": warehouseValue
+                                    //       .toString()
+                                    //       .split("-")[1]
+                                    //       .toString()
+                                    // });
+
+                                    _productController.editProduct(ProductModel(
+                                      productName: _nameController.text,
+                                      stock: int.parse(_stockController.text),
+                                      price:
+                                          double.parse(_priceController.text),
+                                      urlImg: urlsImgsList,
+                                      isvariable: isVariable,
+                                      features: featuresToSend,
+                                      warehouseId: int.parse(warehouseValue
                                           .toString()
-                                          .split("-")[1]
-                                          .toString()
-                                    });
+                                          .split("-")[0]
+                                          .toString()),
+                                    ));
 
                                     Navigator.pop(context);
                                     Navigator.pop(context);

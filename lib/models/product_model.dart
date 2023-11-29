@@ -49,7 +49,7 @@ class ProductModel {
   //     warehouseId: json['warehouse_id'],
   //   );
   // }
-  // Método para crear un objeto WarehouseModel desde un mapa
+  // Método para crear un objeto ProductModel desde un mapa
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     dynamic warehouseData;
 
@@ -99,7 +99,9 @@ class ProductModel {
       'features': features,
       'approved': approved,
       'active': active,
+      'created_at': createdAt,
       'warehouse_id': warehouseId,
+      'warehouse': warehouse?.toJson(),
     };
   }
 }

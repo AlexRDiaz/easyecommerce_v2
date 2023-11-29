@@ -5734,6 +5734,7 @@ class Connections {
     }
   }
 
+//  ****** PRODUCT ******
   //  *
   createProduct0(nameProduct, stock, features, price, url_img, isvariable,
       warehouse) async {
@@ -5820,9 +5821,10 @@ class Connections {
           body: json.encode({
             "product_name": product.productName,
             "stock": product.stock,
-            "features": product.features,
             "price": product.price,
-            "url_img": product.urlImg,
+            "url_img": json.encode(product.urlImg),
+            "isvariable": product.isvariable,
+            "features": json.encode(product.features),
             "warehouse_id": product.warehouseId
           }));
 

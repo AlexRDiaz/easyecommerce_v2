@@ -52,7 +52,7 @@ class UIUtils {
   static List<Map<String, List<String>>> variablesToSelect() {
     return [
       {
-        "sizes": ["XS", "S", "M", "L", "XL"]
+        "sizes": ["S", "M", "L", "XL", "2XL", "3XL"]
       },
       {
         "colors": ["Blanco", "Negro", "Amarillo", "Azul", "Rojo"],
