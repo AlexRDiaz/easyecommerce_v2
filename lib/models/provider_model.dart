@@ -20,6 +20,7 @@ class ProviderModel {
 
 
   // Método para crear un objeto ProviderModel desde un mapa
+
  factory ProviderModel.fromJson(Map<String, dynamic> json) {
   return ProviderModel(
     id: json['id'],

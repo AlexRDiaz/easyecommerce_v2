@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'package:frontend/models/product_model.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/models/user_model.dart';
+import 'package:frontend/models/warehouses_model.dart';
 import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
@@ -5795,16 +5797,45 @@ class Connections {
     }
   }
 
+  getProductsByProvider(idProvider, populate, page_size, current_page, or, and,
+      sort, search) async {
+    // print(json.encode({
+    //   "populate": populate,
+    //   "page_size": page_size,
+    //   "page_number": current_page,
+    //   "or": or,
+    //   "and": and,
+    //   "sort": sort,
+    //   "search": search
+    // }));
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/products/by/$idProvider"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "populate": populate,
+            "page_size": page_size,
+            "page_number": current_page,
+            "or": or,
+            "and": and,
+            "sort": sort,
+            "search": search
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+//  ****** PRODUCT ******
   //  *
-  createProduct(nameProduct, stock, features, price, url_img, warehouse) async {
-    print(json.encode({
-      "product_name": nameProduct,
-      "stock": stock,
-      "features": features,
-      "price": price,
-      "url_img": url_img,
-      "warehouse_id": warehouse
-    }));
+  createProduct0(nameProduct, stock, features, price, url_img, isvariable,
+      warehouse) async {
     try {
       var response = await http.post(Uri.parse("$serverLaravel/api/products"),
           headers: {'Content-Type': 'application/json'},
@@ -5814,18 +5845,44 @@ class Connections {
             "features": features,
             "price": price,
             "url_img": url_img,
+            "isvariable": isvariable,
             "warehouse_id": warehouse
           }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
-        return decodeData;
-      } else if (response.statusCode == 400) {
-        print("Error 400: Bad Request");
+        // return decodeData;
+        return [true, decodeData];
       } else {
-        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+        return 1;
       }
-    } catch (error) {
-      print("Ocurrió un error durante la solicitud: $error");
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  //  *
+  createProduct(ProductModel product) async {
+    try {
+      var response = await http.post(Uri.parse("$serverLaravel/api/products"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "product_name": product.productName,
+            "stock": product.stock,
+            "price": product.price,
+            "url_img": json.encode(product.urlImg),
+            "isvariable": product.isvariable,
+            "features": json.encode(product.features),
+            "warehouse_id": product.warehouseId
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // return decodeData;
+        return [true, decodeData];
+      } else {
+        return 1;
+      }
+    } catch (e) {
+      return 2;
     }
   }
 
@@ -5851,7 +5908,39 @@ class Connections {
     }
   }
 
-  Future updateProduct(id, datajson) async {
+  // *
+  Future updateProduct(ProductModel product) async {
+    int res;
+    try {
+      var response = await http.put(
+          Uri.parse("$serverLaravel/api/products/${product.productId}"),
+          headers: {'Content-Type': 'application/json'},
+          // body: json.encode(datajson));
+          body: json.encode({
+            "product_name": product.productName,
+            "stock": product.stock,
+            "price": product.price,
+            "url_img": json.encode(product.urlImg),
+            "isvariable": product.isvariable,
+            "features": json.encode(product.features),
+            "warehouse_id": product.warehouseId
+          }));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (e) {
+      res = 3;
+      return res;
+    }
+  }
+
+  Future updateProduct0(id, datajson) async {
     int res;
     // print(json.encode(datajson));
     try {
@@ -6525,6 +6614,7 @@ class Connections {
     }
   }
 
+
   deleteWarehouse(int? warehouseId) async {
     try {
       var response = await http.delete(
@@ -6541,6 +6631,7 @@ class Connections {
       return 2;
     }
   }
+
 
   activateWarehouse(int? warehouseId) async {
     try {
@@ -6559,6 +6650,7 @@ class Connections {
     }
   }
 
+
   getActiveRoutes() async {
     try {
       var response = await http.get(
@@ -6575,6 +6667,7 @@ class Connections {
       return 2;
     }
   }
+
 
   // cleanTransactionsFailed(id) async {
   //   try {
@@ -6622,6 +6715,7 @@ class Connections {
     }
   }
 
+
   paymentOrderNotDelivered(
       id, montoDebit, idOrigen, codigo, comentario, archivo) async {
     try {
@@ -6650,6 +6744,7 @@ class Connections {
       return 2;
     }
   }
+
 
   paymentNovedad(id, comentarioNovedad, comentarioTransaccion) async {
     try {

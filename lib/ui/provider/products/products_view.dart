@@ -2,13 +2,21 @@ import 'dart:convert';
 
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:data_table_2/data_table_2.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animated_icons/icons8.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/server.dart';
+import 'package:frontend/main.dart';
+import 'package:frontend/models/product_model.dart';
+import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/provider/products/add_product.dart';
+import 'package:frontend/ui/provider/products/controllers/product_controller.dart';
 import 'package:frontend/ui/provider/products/product_details.dart';
+import 'package:frontend/ui/provider/warehouses/controllers/warehouses_controller.dart';
+import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:intl/intl.dart';
@@ -21,107 +29,205 @@ class ProductsView extends StatefulWidget {
 }
 
 class _ProductsViewState extends State<ProductsView> {
-  final TextEditingController _search = TextEditingController();
+  TextEditingController _search = TextEditingController(text: "");
   NumberPaginatorController paginatorController = NumberPaginatorController();
   int currentPage = 1;
   int pageSize = 70;
   int pageCount = 100;
   bool isLoading = false;
-  List populate = ["warehouse"];
-  List arrayFiltersAnd = [];
-  List arrayFiltersOr = [
-    "product_id",
-    "product_name",
-    "stock",
-    //"features",
-    "price"
+  bool isFirst = false;
+  List populate = ["warehouse.provider"];
+  List arrayFiltersAnd = [
+    // {"warehouse.warehouse_id": 1}
   ];
+  List arrayFiltersOr = ["product_id", "product_name", "stock", "price"];
   var sortFieldDefaultValue = "product_id:DESC";
 
-  List<String> warehouse = [];
-  var warehouseList = [];
-  String? selectedWarehouse;
-  List<String> categories = [];
-  List<String> types = [];
-  String? selectedType;
-  String? selectedCat;
-
-  List selectedCategories = [];
-
   List data = [];
-  int counterChecks = 1;
+  int counterChecks = 0;
   int total = 0;
+
+  List warehouseList0 = [];
+  List<String> warehousesToSelect = [];
+  String? selectedWarehouse;
+  List selectedCheckBox = [];
+  String? selectedWarehouseToCopy;
+  //new with mvc
+  late ProductController _productController;
+  List<ProductModel> products = [];
+  late WrehouseController _warehouseController;
+  List<WarehouseModel> warehousesList2 = [];
+  List data2 = [];
 
   @override
   void initState() {
     data = [];
+    _productController = ProductController();
+    _warehouseController = WrehouseController();
 
     loadData();
     super.initState();
+    //mvc
+
+// Fix the typo here
   }
 
-  loadData() async {
-    try {
-      setState(() {
-        data.clear();
-      });
-
-      isLoading = true;
-      currentPage = 1;
-
-      var response = await Connections().getProducts(
+  Future<List<ProductModel>> _getProductModelData() async {
+    await _productController.loadProductsByProvider(
+        sharedPrefs!.getString("idProvider"),
         populate,
         pageSize,
         currentPage,
         arrayFiltersOr,
         arrayFiltersAnd,
-        sortFieldDefaultValue,
-        _search.text,
-      );
-      data = response["data"];
-      // print("prductos: $data");
+        sortFieldDefaultValue.toString(),
+        _search.text);
+    return _productController.products;
+  }
 
-      setState(() {
-        data = [];
-        data = response['data'];
+  Future<List<WarehouseModel>> _getWarehouseModelData() async {
+    await _warehouseController.loadWarehouses();
+    return _warehouseController.warehouses;
+  }
 
-        paginatorController.navigateToPage(0);
-      });
-      //
-    } catch (e) {
-      //     Navigator.pop(context);
-      SnackBarHelper.showErrorSnackBar(
-          context, "Ha ocurrido un error de conexión");
+  loadData() async {
+    // try {
+    setState(() {
+      warehousesToSelect = [];
+      isLoading = true;
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      getLoadingModal(context, false);
+    });
+
+    var responseW = await _getWarehouseModelData();
+    data2 = responseW;
+    // print(data2);
+    //
+    warehousesList2 = responseW;
+    // Filter warehouses based on conditions
+    warehousesList2 = warehousesList2
+        .where((warehouse) => warehouse.active == 1 && warehouse.approved == 1)
+        .toList();
+    if (warehousesList2 != null) {
+      warehousesToSelect.insert(0, 'TODO');
+      for (var warehouse in warehousesList2) {
+        setState(() {
+          warehousesToSelect
+              .add('${warehouse.id}-${warehouse.branchName}-${warehouse.city}');
+        });
+      }
     }
+
+    // var responseBodegas = await Connections().getWarehousesProvider(
+    //     int.parse(sharedPrefs!.getString("idProvider").toString()));
+    // warehouseList0 = responseBodegas;
+    // if (warehouseList0 != null) {
+    //   warehousesToSelect.insert(0, 'TODO');
+    //   warehouseList0.forEach((warehouse) {
+    //     setState(() {
+    //       warehousesToSelect
+    //           .add('${warehouse["branch_name"]}-${warehouse["warehouse_id"]}');
+    //     });
+    //   });
+    // }
+
+    // var response = await Connections().getProductsByProvider(
+    //     sharedPrefs!.getString("idProvider"),
+    //     populate,
+    //     pageSize,
+    //     currentPage,
+    //     arrayFiltersOr,
+    //     arrayFiltersAnd,
+    //     sortFieldDefaultValue.toString(),
+    //     _search.text);
+    // data = response["data"];
+    // print(data);
+
+    products = await _getProductModelData();
+
+    var response = await _productController.loadProductsByProvider(
+        sharedPrefs!.getString("idProvider"),
+        populate,
+        pageSize,
+        currentPage,
+        arrayFiltersOr,
+        arrayFiltersAnd,
+        sortFieldDefaultValue.toString(),
+        _search.text);
+
+    data = response['data'];
+    // total = response['total'];
+    // pageCount = response['last_page'];
+
+    for (Map producto in data) {
+      var selectedItem = selectedCheckBox
+          .where((elemento) => elemento["product_id"] == producto["product_id"])
+          .toList();
+      if (selectedItem.isNotEmpty) {
+        producto['check'] = true;
+      } else {
+        producto['check'] = false;
+      }
+
+    }
+    // print("prductos: $data");
+    // print("data2: $data");
+
+    total = response['total'];
+    pageCount = response['last_page'];
+
+    paginatorController.navigateToPage(0);
+    Future.delayed(Duration(milliseconds: 500), () {
+      Navigator.pop(context);
+    });
+    // print("datos cargados correctamente");
+    setState(() {
+      isFirst = false;
+      isLoading = false;
+    });
+    //
+    // } catch (e) {
+    //   SnackBarHelper.showErrorSnackBar(
+    //       context, "Ha ocurrido un error de conexión");
+    // }
   }
 
   paginateData() async {
+    setState(() {
+      isLoading = true;
+    });
     try {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         getLoadingModal(context, false);
       });
 
-      var response = await Connections().getProducts(
-        populate,
-        pageSize,
-        currentPage,
-        arrayFiltersOr,
-        arrayFiltersAnd,
-        sortFieldDefaultValue,
-        _search.text,
-      );
+      // var response = await Connections().getProductsByProvider(
+      //     sharedPrefs!.getString("idProvider"),
+      //     populate,
+      //     pageSize,
+      //     currentPage,
+      //     arrayFiltersOr,
+      //     arrayFiltersAnd,
+      //     sortFieldDefaultValue.toString(),
+      //     _search.text);
 
-      setState(() {
-        data = [];
-        data = response['data'];
-        // _scrollController.jumpTo(0);
-      });
-
-      // Future.delayed(const Duration(milliseconds: 500), () {
-      Navigator.pop(context);
+      // setState(() {
+      //   data = response['data'];
+      //   pageCount = response['last_page'];
       // });
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
+      setState(() {
+        isFirst = false;
+        isLoading = false;
+      });
+      // print("datos paginados");
     } catch (e) {
-      Navigator.pop(context);
+      SnackBarHelper.showErrorSnackBar(
+          context, "Ha ocurrido un error de conexión");
     }
   }
 
@@ -137,11 +243,11 @@ class _ProductsViewState extends State<ProductsView> {
               child: Center(
                 child: Container(
                   margin: const EdgeInsets.all(6.0),
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(10.0),
                   child: Column(
                     children: [
-                      const SizedBox(height: 10),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           ElevatedButton(
@@ -152,6 +258,7 @@ class _ProductsViewState extends State<ProductsView> {
                                   return const AddProduct();
                                 },
                               );
+                              arrayFiltersAnd.clear();
                               await loadData();
                             },
                             style: ElevatedButton.styleFrom(
@@ -178,7 +285,7 @@ class _ProductsViewState extends State<ProductsView> {
                           const SizedBox(width: 5),
                           ElevatedButton.icon(
                             onPressed: () async {
-                              // resetFilters();
+                              resetFilters();
                               await loadData();
                             },
                             icon: const Icon(
@@ -186,7 +293,6 @@ class _ProductsViewState extends State<ProductsView> {
                               color: Colors.white,
                             ),
                             label: const Text(
-                              // "Recargar Información",
                               "",
                               style: TextStyle(
                                 decoration: TextDecoration.underline,
@@ -200,58 +306,197 @@ class _ProductsViewState extends State<ProductsView> {
                         ],
                       ),
                       const SizedBox(height: 10),
-                      Row(children: [
-                        Expanded(
-                          child: _modelTextField(
-                              text: "Busqueda", controller: _search.text),
-                        ),
-                        Expanded(
-                          child: Row(
-                            children: [
-                              Container(
-                                padding:
-                                    const EdgeInsets.only(left: 15, right: 5),
-                                child: Text(
-                                  "Registros: $total",
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black),
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.2,
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: DropdownButtonFormField<String>(
+                                isExpanded: true,
+                                hint: Text(
+                                  'TODO',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Theme.of(context).hintColor,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                // items: warehousesToSelect.map((item) {
+                                //   var parts = item.split('-');
+                                //   var branchName = parts[1];
+                                //   var city = parts[2];
+                                //   return DropdownMenuItem(
+                                //     value: item,
+                                //     child: Text(
+                                //       '$branchName - $city',
+                                //       style: const TextStyle(
+                                //         fontSize: 14,
+                                //         fontWeight: FontWeight.bold,
+                                //       ),
+                                //     ),
+                                //   );
+                                // }).toList(),
+                                items: warehousesToSelect
+                                    .map((item) => DropdownMenuItem(
+                                          value: item,
+                                          child: Text(
+                                            item,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ))
+                                    .toList(),
+                                value: selectedWarehouse,
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedWarehouse = value;
+                                  });
+
+                                  if (value != 'TODO') {
+                                    if (value is String) {
+                                      arrayFiltersAnd = [];
+                                      arrayFiltersAnd.add({
+                                        "warehouse.warehouse_id":
+                                            selectedWarehouse
+                                                .toString()
+                                                .split("-")[0]
+                                                .toString()
+                                      });
+                                    }
+                                  } else {
+                                    arrayFiltersAnd = [];
+                                  }
+
+                                  loadData();
+                                },
+                                decoration: InputDecoration(
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(5.0),
+                                  ),
                                 ),
                               ),
-                              Container(
-                                padding:
-                                    const EdgeInsets.only(left: 5, right: 5),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      counterChecks > 0
-                                          ? "Seleccionados: $counterChecks"
-                                          : "",
+                            ),
+                          ),
+                          Expanded(child: Container()),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Container(
+                        width: double.infinity,
+                        color: Colors.white,
+                        padding: const EdgeInsets.all(5),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: _modelTextField(
+                                  text: "Busqueda", controller: _search),
+                            ),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.only(
+                                        left: 15, right: 5),
+                                    child: Text(
+                                      "Registros: $total",
                                       style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                           color: Colors.black),
                                     ),
-                                    counterChecks > 0
-                                        ? Visibility(
-                                            visible: true,
-                                            child: IconButton(
-                                              iconSize: 20,
-                                              onPressed: () =>
-                                                  {counterChecks = 0},
-                                              icon: const Icon(
-                                                  Icons.close_rounded),
-                                            ),
-                                          )
-                                        : Container(),
-                                  ],
-                                ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.only(
+                                        left: 5, right: 5),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          counterChecks > 0
+                                              ? "Seleccionados: $counterChecks"
+                                              : "",
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black),
+                                        ),
+                                        counterChecks > 0
+                                            ? Visibility(
+                                                visible: true,
+                                                child: IconButton(
+                                                  iconSize: 20,
+                                                  onPressed: () {
+                                                    {
+                                                      setState(() {
+                                                        selectedCheckBox = [];
+                                                        counterChecks = 0;
+                                                      });
+                                                      loadData();
+                                                    }
+                                                  },
+                                                  icon:
+                                                      Icon(Icons.close_rounded),
+                                                ),
+                                              )
+                                            : Container(),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 20),
+                                  Container(
+                                      padding: const EdgeInsets.only(
+                                          left: 5, right: 5),
+                                      child: Row(children: [
+                                        counterChecks > 0
+                                            ? Visibility(
+                                                visible: true,
+                                                child: ElevatedButton(
+                                                  onPressed: () async {
+                                                    // print(selectedCheckBox);
+                                                    await showDialog(
+                                                      context: context,
+                                                      builder: (context) =>
+                                                          showCopyProductToWarehouse(),
+                                                    );
+                                                  },
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        Colors.blue[600],
+                                                  ),
+                                                  child: const Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      Text(
+                                                        "Copiar",
+                                                        style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                      SizedBox(width: 5),
+                                                      Icon(
+                                                        Icons.copy,
+                                                        size: 24,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              )
+                                            : Container(),
+                                      ])),
+                                  const SizedBox(width: 30),
+                                  Expanded(child: numberPaginator()),
+                                ],
                               ),
-                              const SizedBox(width: 30),
-                              Expanded(child: numberPaginator()),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ]),
+                      ),
                       const SizedBox(height: 10),
                       Expanded(
                         child: DataTable2(
@@ -350,108 +595,120 @@ class _ProductsViewState extends State<ProductsView> {
                                 // sortFunc3("producto_p", changevalue);
                               },
                             ),
-                            // DataColumn2(
-                            //   label: const Text('Aprobado'),
-                            //   size: ColumnSize.M,
-                            //   onSort: (columnIndex, ascending) {
-                            //     // sortFunc3("producto_extra", changevalue);
-                            //   },
-                            // ),
+                            DataColumn2(
+                              label: const Text('Aprobado'),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {
+                                // sortFunc3("producto_extra", changevalue);
+                              },
+                            ),
                             const DataColumn2(
                               label: Text(''), //btns para crud
                               size: ColumnSize.S,
                             ),
                           ],
                           rows: List<DataRow>.generate(
-                            // data.length,
                             data.length,
                             (index) => DataRow(
                               cells: [
-                                DataCell(Checkbox(
-                                    //  verificarIndice
-                                    value: false,
+                                DataCell(
+                                  Checkbox(
+                                    value: data[index]['check'] ?? false,
                                     onChanged: (value) {
-                                      setState(() {});
-                                    })),
+                                      setState(() {
+                                        data[index]['check'] = value;
+                                      });
+                                      if (value!) {
+                                        selectedCheckBox.add({
+                                          "product_id": data[index]
+                                                  ['product_id']
+                                              .toString()
+                                        });
+                                      } else {
+                                        selectedCheckBox.removeWhere(
+                                            (element) =>
+                                                element['product_id'] ==
+                                                data[index]['id'].toString());
+                                      }
+
+                                      setState(() {
+                                        counterChecks = selectedCheckBox.length;
+                                      });
+                                    },
+                                  ),
+                                ),
                                 DataCell(
                                   Align(
                                     alignment: Alignment.center,
                                     child: FractionallySizedBox(
                                       widthFactor: 0.6,
                                       heightFactor: 0.9,
-                                      child: data[index]['url_img']
-                                                  .toString()
-                                                  .isEmpty ||
-                                              data[index]['url_img']
-                                                      .toString() ==
-                                                  "null"
-                                          ? Container()
-                                          : Image.network(
-                                              "$generalServer${data[index]['url_img'].toString()}",
+                                      child: data[index]['url_img'] != null &&
+                                              data[index]['url_img'].isNotEmpty
+                                          ? Image.network(
+                                              "$generalServer${getFirstUrl(data[index]['url_img'])}",
                                               fit: BoxFit.fill,
-                                            ),
+                                            )
+                                          : Container(),
                                     ),
                                   ),
+                                  onTap: () {
+                                    _showProductInfo(data[index]);
+                                  },
                                 ),
                                 DataCell(
                                   Text(data[index]['product_id'].toString()),
-                                  onTap: () {
-                                    // info(context, index);
-                                  },
                                 ),
                                 DataCell(
                                   Text(data[index]['product_name']),
-                                  onTap: () {
-                                    // info(context, index);
-                                  },
                                 ),
-                                DataCell(
-                                  Text(getTypeValue(data[index]['features'])),
-                                  // Text(data[index]['features']),
-                                  onTap: () {
-                                    // info(context, index);
-                                  },
-                                ),
+                                DataCell(Text(data[index]['isvariable'] == 1
+                                    ? "VARIABLE"
+                                    : "SIMPLE")),
                                 DataCell(
                                   Text(data[index]['stock'].toString()),
-                                  onTap: () {
-                                    // info(context, index);
-                                  },
                                 ),
                                 DataCell(
                                   Text('\$${data[index]['price'].toString()}'),
-                                  onTap: () {
-                                    // info(context, index);
-                                  },
                                 ),
-                                DataCell(
-                                  // Text(data[index]['created_at']
-                                  //     .toString()),
-                                  Text(formatDate(
-                                      data[index]['created_at'].toString())),
-                                  onTap: () {
-                                    // info(context, index);
-                                  },
-                                ),
+                                DataCell(Text(//
+                                    formatDate(
+                                        data[index]['created_at'].toString()))),
                                 DataCell(
                                   Text(data[index]['warehouse']['branch_name']
                                       .toString()),
-                                  onTap: () {
-                                    // info(context, index);
-                                  },
                                 ),
-                                // DataCell(
-                                //   Text('aprobado'),
-                                //   onTap: () {
-                                //     // info(context, index);
-                                //   },
-                                // ),
+                                DataCell(
+                                  data[index]['approved'] == 1
+                                      ? const Icon(Icons.check,
+                                          color: Colors.green)
+                                      : data[index]['approved'] == 2
+                                          ? const Icon(Icons.access_time,
+                                              color: Colors.blue)
+                                          : const Icon(Icons.close,
+                                              color: Colors.red),
+                                ),
                                 DataCell(Row(
                                   children: [
                                     const SizedBox(width: 10),
                                     GestureDetector(
                                       onTap: () async {
-                                        showDialogInfoData(data[index]);
+                                        //edit
+                                        // showDialogInfoData(data[index]);
+
+                                        await showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return ProductDetails(
+                                              data: data[index],
+                                              function: paginateData,
+                                              // function: loadData(),
+                                            );
+                                          },
+                                        );
+
+                                        // arrayFiltersAnd.clear();
+                                        // await loadData();
                                       },
                                       child: const Icon(
                                         Icons.edit_square,
@@ -478,7 +735,10 @@ class _ProductsViewState extends State<ProductsView> {
                                           btnOkOnPress: () async {
                                             getLoadingModal(context, false);
 
-                                            await Connections().deleteProduct(
+                                            // await Connections().deleteProduct(
+                                            //     data[index]['product_id']);
+
+                                            _productController.disableProduct(
                                                 data[index]['product_id']);
 
                                             Navigator.pop(context);
@@ -500,11 +760,143 @@ class _ProductsViewState extends State<ProductsView> {
                               ],
                             ),
                           ),
+                          // ProductModel version
+                          /*
+                          rows: products.map<DataRow>(
+                            (product) {
+                              return DataRow(
+                                cells: [
+                                  DataCell(
+                                    Checkbox(
+                                      value: false,
+                                      onChanged: (value) {},
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Text(""),
+                                    // Align(
+                                    //   alignment: Alignment.center,
+                                    //   child: FractionallySizedBox(
+                                    //     widthFactor: 0.6,
+                                    //     heightFactor: 0.9,
+                                    //     child: product.urlImg != null &&
+                                    //             product.urlImg.isNotEmpty &&
+                                    //             product.urlImg[0] != null &&
+                                    //             product.urlImg[0].isNotEmpty
+                                    //         ? Image.network(
+                                    //             "$generalServer${product.urlImg[0]}",
+                                    //             fit: BoxFit.fill,
+                                    //           )
+                                    //         : Container(),
+                                    //   ),
+                                    // ),
+                                    onTap: () {},
+                                  ),
+                                  DataCell(
+                                    Text(product.productId.toString()),
+                                    onTap: () {
+                                      _showProductInfo(product);
+                                    },
+                                  ),
+                                  DataCell(
+                                    Text(product.productName.toString()),
+                                  ),
+                                  DataCell(
+                                    // Text(getTypeValue(product.features)),
+                                    Text(product.isvariable == 1
+                                        ? "VARIABLE"
+                                        : "SIMPLE"),
+                                  ),
+                                  DataCell(
+                                    Text(product.stock.toString()),
+                                  ),
+                                  DataCell(
+                                    Text('\$${product.price.toString()}'),
+                                  ),
+                                  DataCell(
+                                    Text(formatDate(
+                                        product.createdAt.toString())),
+                                  ),
+                                  DataCell(
+                                    Text(product.warehouse!.branchName
+                                        .toString()),
+                                  ),
+                                  DataCell(
+                                    product.approved == 1
+                                        ? const Icon(Icons.check,
+                                            color: Colors.green)
+                                        : product.approved == 2
+                                            ? const Icon(Icons.access_time,
+                                                color: Colors.blue)
+                                            : const Icon(Icons.close,
+                                                color: Colors.red),
+                                  ),
+                                  DataCell(
+                                    Row(
+                                      children: [
+                                        const SizedBox(width: 10),
+                                        GestureDetector(
+                                          onTap: () async {
+                                            showDialogInfoData(product);
+                                          },
+                                          child: const Icon(
+                                            Icons.edit_square,
+                                            size: 20,
+                                            color: Colors.blue,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 20),
+                                        GestureDetector(
+                                          onTap: () async {
+                                            AwesomeDialog(
+                                              width: 500,
+                                              context: context,
+                                              dialogType: DialogType.info,
+                                              animType: AnimType.rightSlide,
+                                              title:
+                                                  '¿Estás seguro de eliminar el Producto?',
+                                              desc:
+                                                  '${product.productId}-${product.productName}',
+                                              btnOkText: "Confirmar",
+                                              btnCancelText: "Cancelar",
+                                              btnOkColor: Colors.blueAccent,
+                                              btnCancelOnPress: () {},
+                                              btnOkOnPress: () async {
+                                                getLoadingModal(context, false);
+
+                                                // await Connections()
+                                                //     .deleteProduct(
+                                                //         product.productId);
+
+                                                _productController
+                                                    .deleteProduct(
+                                                        product.productId!);
+
+                                                Navigator.pop(context);
+                                                await loadData();
+                                              },
+                                            ).show();
+                                          },
+                                          child: const Icon(
+                                            Icons.delete,
+                                            size: 20,
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          width: 10,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ).toList(),
+                          //
+                          */
                         ),
                       ),
-                      //
-
-                      //
                     ],
                   ),
                 ),
@@ -516,24 +908,18 @@ class _ProductsViewState extends State<ProductsView> {
     );
   }
 
-  String getTypeValue(features) {
-    // Busca la característica con el nombre 'type'
-    List<dynamic> dataFeatures = json.decode(features);
-    // print("data: $dataFeatures");
+  void resetFilters() {
+    // getOldValue(true);
 
-    try {
-      var typeFeature = dataFeatures.firstWhere(
-        (dataFeatures) => dataFeatures['feature_name'] == 'type',
-        orElse: () => null,
-      );
+    selectedWarehouse = "TODO";
+    arrayFiltersAnd = [];
+    _search.text = "";
+  }
 
-      // Si se encuentra la característica 'type', devuelve su valor, de lo contrario, devuelve un valor predeterminado o un mensaje de error.
-      return typeFeature != null
-          ? typeFeature['value'].toString()
-          : 'Tipo no encontrado';
-    } catch (e) {
-      return "";
-    }
+  String getFirstUrl(dynamic urlImgData) {
+    List<String> urlsImgsList = (jsonDecode(urlImgData) as List).cast<String>();
+    String url = urlsImgsList[0];
+    return url;
   }
 
   Future<dynamic> showDialogInfoData(data) {
@@ -569,14 +955,594 @@ class _ProductsViewState extends State<ProductsView> {
         }).then((value) => loadData());
   }
 
+  void _showProductInfo(data) {
+    ProductModel product = ProductModel.fromJson(data);
+    var features = jsonDecode(product.features);
+
+    List<Map<String, dynamic>> featuresList =
+        features.cast<Map<String, dynamic>>();
+
+    List<String> categories = featuresList
+        .where((feature) => feature.containsKey("categories"))
+        .expand((feature) =>
+            (feature["categories"] as List<dynamic>).cast<String>())
+        .toList();
+    String categoriesText = categories.join(', ');
+
+    String guideName = featuresList
+        .where((feature) => feature.containsKey("guide_name"))
+        .map((feature) => feature["guide_name"] as String)
+        .firstWhere((element) => element.isNotEmpty, orElse: () => '');
+
+    String description = featuresList
+        .where((feature) => feature.containsKey("description"))
+        .map((feature) => feature["description"] as String)
+        .firstWhere((element) => element.isNotEmpty, orElse: () => '');
+
+    List<Map<String, dynamic>> variables = featuresList
+        .where((feature) => feature.containsKey("variables"))
+        .expand((feature) => (feature["variables"] as List<dynamic>)
+            .cast<Map<String, dynamic>>())
+        .toList();
+
+    // Buscar el primer SKU
+    // var firstSku = "";
+    // for (var variable in variables) {
+    //   if (variable.containsKey('sku')) {
+    //     firstSku = variable['sku'];
+    //     break; // Detener la búsqueda después de encontrar el primer SKU
+    //   }
+    // }
+
+// Construir una cadena de texto con detalles de variables
+    String variablesText = variables.map((variable) {
+      List<String> variableDetails = [];
+
+      if (variable.containsKey('sku')) {
+        variableDetails.add("SKU: ${variable['sku']}");
+      }
+      if (variable.containsKey('color')) {
+        variableDetails.add("Color: ${variable['color']}");
+      }
+      if (variable.containsKey('size')) {
+        variableDetails.add("Talla: ${variable['size']}");
+      }
+      if (variable.containsKey('dimension')) {
+        variableDetails.add("Tamaño: ${variable['dimension']}");
+      }
+      if (variable.containsKey('inventory')) {
+        variableDetails.add("Cantidad: ${variable['inventory']}");
+      }
+      if (variable.containsKey('price')) {
+        variableDetails.add("Precio: ${variable['price']}");
+      }
+
+      return variableDetails.join('\n');
+    }).join('\n\n');
+
+    // print(features);
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: AppBar(
+            title: const Text(
+              "Detalles del Producto",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            backgroundColor: Colors.blue[900],
+            leading: Container(),
+            centerTitle: true,
+          ),
+          content: Container(
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              child: ListView(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          children: [
+                            // Text(product.urlImg != null &&
+                            //         product.urlImg.isNotEmpty
+                            //     ? "$generalServer${getFirstUrl(product.urlImg)}"
+                            //     : "no img"),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.3,
+                              height: MediaQuery.of(context).size.height * 0.6,
+                              child: product.urlImg != null &&
+                                      product.urlImg.isNotEmpty
+                                  ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      child: Image.network(
+                                        "$generalServer${getFirstUrl(product.urlImg)}",
+                                        fit: BoxFit.fill,
+                                      ),
+                                    )
+                                  : Container(),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            "ID:",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            "${product.productId}",
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[800],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            "Creado:",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            "${formatDate(product.createdAt.toString())}",
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[800],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            "Aprobado:",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          product.approved == 1
+                                              ? const Icon(Icons.check,
+                                                  color: Colors.green)
+                                              : product.approved == 2
+                                                  ? const Icon(
+                                                      Icons.access_time,
+                                                      color: Colors.blue)
+                                                  : const Icon(Icons.close,
+                                                      color: Colors.red)
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            "Producto:",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            "${product.productName}",
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[800],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            "Nombre para mostrar en la guia de envio:",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            guideName,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[800],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            const Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            "Descripción:",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            description,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[800],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            "Existencia:",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            "${product.stock}",
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[800],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            "Precio:",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            "${product.price}",
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[800],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            "Categorias:",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            categoriesText,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[800],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            "Bodega:",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            product.warehouse!.branchName
+                                                .toString(),
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[800],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            "Tipo:",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            product.isvariable == 1
+                                                ? "VARIABLE"
+                                                : "SIMPLE",
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[800],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Visibility(
+                              visible: product.isvariable == 1,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const Row(
+                                          children: [
+                                            Text(
+                                              "Variables:",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                          variablesText,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.grey[800],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 30),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   _modelTextField({text, controller}) {
     return Container(
       width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.0),
-        color: Color.fromARGB(255, 245, 244, 244),
+      child: TextField(
+        controller: controller,
+        onSubmitted: (value) {
+          // getOldValue(true);
+          setState(() {
+            _search.text = value;
+          });
+          loadData();
+          getLoadingModal(context, false);
+
+          // paginatorController.navigateToPage(0);
+          Future.delayed(Duration(milliseconds: 500), () {
+            Navigator.pop(context);
+          });
+        },
+        decoration: InputDecoration(
+          labelText: 'Buscar producto',
+          prefixIcon: const Icon(Icons.search),
+          suffixIcon: _search.text.isNotEmpty
+              ? GestureDetector(
+                  onTap: () {
+                    getLoadingModal(context, false);
+                    setState(() {
+                      _search.clear();
+                      arrayFiltersAnd = [];
+                    });
+
+                    // resetFilters();
+                    setState(() {
+                      loadData();
+                    });
+                    Navigator.pop(context);
+                  },
+                  child: const Icon(Icons.close))
+              : null,
+          hintText: text,
+          border: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.grey),
+          ),
+          focusColor: Colors.black,
+          iconColor: Colors.black,
+        ),
       ),
-      child: TextField(),
     );
   }
 
@@ -591,22 +1557,157 @@ class _ProductsViewState extends State<ProductsView> {
   NumberPaginator numberPaginator() {
     return NumberPaginator(
       config: NumberPaginatorUIConfig(
+        // buttonUnselectedForegroundColor: Color.fromARGB(255, 67, 67, 67),
+        // buttonSelectedBackgroundColor: Color.fromARGB(255, 67, 67, 67),
         buttonShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(5), // Customize the button shape
         ),
       ),
       controller: paginatorController,
       numberPages: pageCount > 0 ? pageCount : 1,
-      // initialPage: 0,
       onPageChange: (index) async {
-        //  print("indice="+index.toString());
         setState(() {
           currentPage = index + 1;
         });
         if (!isLoading) {
-          //await paginateData();
+          await paginateData();
         }
       },
+    );
+  }
+
+  showCopyProductToWarehouse() {
+    // print(selectedWarehouseToCopy.toString());
+
+    return AlertDialog(
+      content: Container(
+        width: 400,
+        height: MediaQuery.of(context).size.height / 2,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Seleccione la Bodega destinataria',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            DropdownButtonFormField<String>(
+              isExpanded: true,
+              hint: Text(
+                'Seleccione Bodega',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(context).hintColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              items: warehousesToSelect
+                  .map((item) => DropdownMenuItem(
+                        value: item,
+                        child: Text(
+                          item.split('-')[0],
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ))
+                  .toList(),
+              value: selectedWarehouseToCopy,
+              onChanged: (value) {
+                setState(() {
+                  selectedWarehouseToCopy = value as String;
+                });
+              },
+              decoration: InputDecoration(
+                fillColor: Colors.white,
+                filled: true,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 30,
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (selectedWarehouseToCopy == null) {
+                  showSuccessModal(context, "Por favor, Seleccione una Bodega.",
+                      Icons8.alert);
+                } else {
+                  getLoadingModal(context, false);
+
+                  // print(selectedCheckBox);
+                  for (var i = 0; i < selectedCheckBox.length; i++) {
+                    var idProductToSearch =
+                        selectedCheckBox[i]['product_id'].toString();
+                    var foundItem = data.firstWhere(
+                        (item) =>
+                            item['product_id'].toString() == idProductToSearch,
+                        orElse: () => null);
+
+                    if (foundItem != null) {
+                      var nameProduct = foundItem['product_name'].toString();
+                      var stock = 0;
+                      var price = foundItem['price'].toString();
+
+                      var img_url = foundItem['url_img'].toString();
+                      if (img_url == "null" || img_url == "") {
+                        img_url = "";
+                      }
+                      // var dataFeatures = foundItem['features'] ?? "";
+                      var dataFeatures;
+                      if (foundItem['features'] != null) {
+                        dataFeatures = json.decode(foundItem['features']);
+                      }
+                      // print(dataFeatures);
+                      var isVariable = foundItem['isvariable'].toString();
+
+                      //create a copy
+
+                      var response = await Connections().createProduct0(
+                          nameProduct,
+                          stock,
+                          dataFeatures,
+                          price,
+                          img_url,
+                          isVariable,
+                          selectedWarehouseToCopy
+                              .toString()
+                              .split("-")[1]
+                              .toString());
+                      // 13);
+                      // print(response[0]);
+                      Navigator.pop(context);
+
+                      //
+                    } else {
+                      print(
+                          'Producto con product_id $idProductToSearch no encontrado.');
+                    }
+                    counterChecks = 0;
+                  }
+
+                  selectedCheckBox = [];
+                  counterChecks = 0;
+                  Navigator.pop(context);
+                  loadData();
+                }
+              },
+              child: const Text(
+                "ACEPTAR",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

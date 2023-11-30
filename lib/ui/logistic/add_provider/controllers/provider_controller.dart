@@ -41,6 +41,7 @@ class ProviderController extends ControllerMVC {
         List<dynamic> jsonData = data;
         providers =
             jsonData.map((data) => ProviderModel.fromJson(data)).toList();
+        print(providers);
         setState(() {});
       }
     } catch (e) {

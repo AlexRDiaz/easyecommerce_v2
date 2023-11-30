@@ -8,6 +8,7 @@ class ImagePickerExample extends StatefulWidget {
   final String? label;
   final double? widgetWidth;
 
+
   const ImagePickerExample({Key? key, this.onImageSelected,this.label,this.widgetWidth}) : super(key: key);
 
   @override

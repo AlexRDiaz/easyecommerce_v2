@@ -12,6 +12,7 @@ class WarehouseModel {
   String? city;
   dynamic collection;
   int? active;
+  int? approved;
   int? providerId;
 
   // Considerar si necesitas un objeto relacionado como en ProviderModel
@@ -28,6 +29,7 @@ class WarehouseModel {
     this.city,
     this.collection,
     this.active,
+    this.approved,
     this.providerId,
     this.provider,
   });

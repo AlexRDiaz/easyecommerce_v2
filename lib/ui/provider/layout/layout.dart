@@ -67,6 +67,10 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
       //   const ProductsView(),
       // ),
       getOption(
+        "Bodegas",
+        const WarehousesView(),
+      ),
+      getOption(
         "Proveedores",
         SubProviderView(),
       ),
