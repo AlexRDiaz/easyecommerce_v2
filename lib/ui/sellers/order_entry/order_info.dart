@@ -58,7 +58,7 @@ class _OrderInfoState extends State<OrderInfo> {
     });
 
     var response = await Connections()
-        .getOrdersByIdLaravel2(int.parse(widget.id), widget.data);
+        .getOrdersByIdLaravel(int.parse(widget.id));
     data = response;
     //print(data);
     _controllers.editControllers(response);

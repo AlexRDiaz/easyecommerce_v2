@@ -68,6 +68,14 @@ class _AuditState extends State<Audit> {
     'EN RUTA'
   ];
 
+  List<String> returnStates = [
+    'TODO',
+    'PENDIENTE',
+    'EN BODEGA',
+    'DEVOLUCION EN RUTA',
+    'ENTREGADO EN OFICINA'
+  ];
+
   List populate = [
     'pedido_fecha',
     'transportadora',
@@ -77,14 +85,6 @@ class _AuditState extends State<Audit> {
     "operadore.user",
     "users",
     "users.vendedores"
-  ];
-
-  List<String> returnStates = [
-    'TODO',
-    'PENDIENTE',
-    'EN BODEGA',
-    'DEVOLUCION EN RUTA',
-    'ENTREGADO EN OFICINA'
   ];
 
   List defaultArrayFiltersAnd = [
@@ -494,7 +494,7 @@ class _AuditState extends State<Audit> {
                               onSort: (columnIndex, ascending) {},
                             ),
                             DataColumn2(
-                              label: SelectFilter(
+                              label: SelectFilterNoId(
                                   'Estado Devolución',
                                   'equals/estado_devolucion',
                                   returnStatesController,
@@ -711,7 +711,7 @@ class _AuditState extends State<Audit> {
                               onSort: (columnIndex, ascending) {},
                             ),
                             DataColumn2(
-                              label: SelectFilter(
+                              label: SelectFilterNoId(
                                   'Estado Devolución',
                                   'equals/estado_devolucion',
                                   returnStatesController,
@@ -887,7 +887,9 @@ class _AuditState extends State<Audit> {
       // ),
       DataCell(
         Text(
-          data[index]['confirmed_by'] != null ? data[index]['confirmed_by']['username'].toString() : 'Desconocido',
+          data[index]['confirmed_by'] != null
+              ? data[index]['confirmed_by']['username'].toString()
+              : 'Desconocido',
           style: TextStyle(
             color: rowColor,
           ),
@@ -1735,3 +1737,6 @@ class _AuditState extends State<Audit> {
     return Color(color);
   }
 }
+
+
+

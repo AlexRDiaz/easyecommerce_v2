@@ -42,7 +42,7 @@ class _DeliveryStatusSellerInfo extends State<DeliveryStatusSellerInfo> {
     });
     // var response = await Connections().getOrdersByIDHistorial(widget.id);
     var response = await Connections()
-        .getOrdersByIdLaravel2(int.parse(widget.id), widget.data);
+        .getOrdersByIdLaravel(int.parse(widget.id));
     // var response = await Connections().getOrdersByIdLaravel(widget.id);
 
     // ! ↓esta es la usada
