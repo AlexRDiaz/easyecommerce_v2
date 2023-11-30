@@ -3494,24 +3494,24 @@ class Connections {
     }
     return null;
   }
-  // getOrdersByIdLaravel(id)async{
-  //   try {
-  //     var response = await http.get(Uri.parse("$serverLaravel/api/pedidos-shopifies/$id"),
-  //                   headers: {'Content-Type': 'application/json'});
+  getOrdersByIdLaravel(id)async{
+    try {
+      var response = await http.get(Uri.parse("$serverLaravel/api/pedidos-shopifies/$id"),
+                    headers: {'Content-Type': 'application/json'});
 
-  //   if (response.statusCode == 200) {
-  //       var decodeData = json.decode(response.body);
-  //       // print(decodeData);
-  //       return decodeData;
-  //     } else if (response.statusCode == 400) {
-  //       print("Error 400: Bad Request");
-  //     } else {
-  //       print("Error ${response.statusCode}: ${response.reasonPhrase}");
-  //     }
-  //   } catch (error) {
-  //     print("Ocurrió un error durante la solicitud del pedido: $error");
-  //   }
-  // }
+    if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud del pedido: $error");
+    }
+  }
 
   last30rows() async {
     try {
