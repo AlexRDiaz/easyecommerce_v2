@@ -81,7 +81,8 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
     "users.vendedores",
     "pedidoFecha",
     "ruta",
-    "sentBy"
+    "sentBy",
+    "printedBy",
   ];
   var idUser = sharedPrefs!.getString("id");
 
@@ -107,124 +108,136 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
-    var response = [];
-    var responseL;
+    try {
+      var response = [];
+      var responseL;
 
-    List transportatorList = [];
+      List transportatorList = [];
 
-    setState(() {
-      transportator = [];
-    });
-
-    if (_controllers.searchController.text.isEmpty) {
-      if (selectedValueTransportator == null) {
-        // response = await Connections().getOrdersForPrintGuidesInSendGuides(
-        //     _controllers.searchController.text, date);
-        //  *
-        responseL = await Connections()
-            .getOrdersForPrintGuidesInSendGuidesPrincipalLaravel(
-                date,
-                populate,
-                filtersAnd,
-                filtersDefaultAnd,
-                filtersOrCont,
-                currentPage,
-                pageSize,
-                _controllers.searchController.text,
-                sortFieldDefaultValue, []);
-        //  *
-      } else {
-        // response = await Connections()
-        //     .getOrdersForPrintGuidesInSendGuidesAndTransporter(
-        //         _controllers.searchController.text,
-        //         date,
-        //         selectedValueTransportator.toString().split('-')[1]);
-        //  *
-        filtersAnd.add({
-          "equals/transportadora.transportadora_id":
-              selectedValueTransportator.toString().split('-')[1]
-        });
-        responseL = await Connections()
-            .getOrdersForPrintGuidesInSendGuidesPrincipalLaravel(
-                date,
-                populate,
-                filtersAnd,
-                filtersDefaultAnd,
-                filtersOrCont,
-                currentPage,
-                pageSize,
-                _controllers.searchController.text,
-                sortFieldDefaultValue, []);
-        //  *
-      }
-    } else {
-      // response = await Connections()
-      //     .getOrdersForPrintGuidesInSendGuidesOnlyCode(
-      //         _controllers.searchController.text);
-      //  *
-      responseL = await Connections()
-          .getOrdersForPrintGuidesInSendGuidesPrincipalLaravel(
-              date,
-              populate,
-              filtersAnd,
-              filtersDefaultAnd,
-              filtersOrCont,
-              currentPage,
-              pageSize,
-              _controllers.searchController.text,
-              sortFieldDefaultValue, []);
-      //  *
-    }
-
-    // data = response;
-    data = responseL['data'];
-
-    setState(() {
-      optionsCheckBox = [];
-      counterChecks = 0;
-    });
-    for (Map pedido in data) {
-      var selectedItem = optionsCheckBox
-          .where((elemento) => elemento["id"] == pedido["id"])
-          .toList();
-      if (selectedItem.isNotEmpty) {
-        pedido['check'] = true;
-      } else {
-        pedido['check'] = false;
-      }
-    }
-    // for (var i = 0; i < data.length; i++) {
-    //   selectedCheckBox.add({
-    //     "check": false,
-    //     "id": "",
-    //     "numPedido": "",
-    //     "date": "",
-    //     "city": "",
-    //     "product": "",
-    //     "extraProduct": "",
-    //     "quantity": "",
-    //     "phone": "",
-    //     "price": "",
-    //     "name": "",
-    //     "transport": "",
-    //     "address": "",
-    //     "obervation": "",
-    //     "qrLink": "",
-    //   });
-    // }
-    transportatorList = await Connections().getAllTransportators();
-    for (var i = 0; i < transportatorList.length; i++) {
       setState(() {
-        if (transportatorList != null) {
-          transportator.add(
-              '${transportatorList[i]['attributes']['Nombre']}-${transportatorList[i]['id']}');
-        }
+        transportator = [];
       });
+
+      if (_controllers.searchController.text.isEmpty) {
+        if (selectedValueTransportator == null) {
+          // print("case1");
+          // response = await Connections().getOrdersForPrintGuidesInSendGuides(
+          //     _controllers.searchController.text, date);
+          //  *
+          filtersAnd = [];
+          filtersAnd.add({"/marca_tiempo_envio": date});
+          responseL = await Connections()
+              .getOrdersForSentGuidesPrincipalLaravel(
+                  populate,
+                  filtersAnd,
+                  filtersDefaultAnd,
+                  filtersOrCont,
+                  currentPage,
+                  pageSize,
+                  "",
+                  sortFieldDefaultValue, []);
+
+          //  *
+        } else {
+          // print("case1 else");
+
+          // response = await Connections()
+          //     .getOrdersForPrintGuidesInSendGuidesAndTransporter(
+          //         _controllers.searchController.text,
+          //         date,
+          //         selectedValueTransportator.toString().split('-')[1]);
+          //  *
+          filtersAnd = [];
+          filtersAnd.add({"/marca_tiempo_envio": date});
+          filtersAnd.add({
+            "equals/transportadora.transportadora_id":
+                selectedValueTransportator.toString().split('-')[1]
+          });
+
+          responseL = await Connections()
+              .getOrdersForSentGuidesPrincipalLaravel(
+                  populate,
+                  filtersAnd,
+                  filtersDefaultAnd,
+                  filtersOrCont,
+                  currentPage,
+                  pageSize,
+                  "",
+                  sortFieldDefaultValue, []);
+          //  *
+        }
+      } else {
+        // print("case2");
+
+        // response = await Connections()
+        //     .getOrdersForPrintGuidesInSendGuidesOnlyCode(
+        //         _controllers.searchController.text);
+        //  *
+        filtersAnd = [];
+        responseL = await Connections().getOrdersForSentGuidesPrincipalLaravel(
+            populate,
+            filtersAnd,
+            filtersDefaultAnd,
+            filtersOrCont,
+            currentPage,
+            pageSize,
+            _controllers.searchController.text,
+            sortFieldDefaultValue, []);
+        //  *
+      }
+
+      // data = response;
+      data = responseL['data'];
+
+      setState(() {
+        optionsCheckBox = [];
+        counterChecks = 0;
+      });
+      for (Map pedido in data) {
+        var selectedItem = optionsCheckBox
+            .where((elemento) => elemento["id"] == pedido["id"])
+            .toList();
+        if (selectedItem.isNotEmpty) {
+          pedido['check'] = true;
+        } else {
+          pedido['check'] = false;
+        }
+      }
+      // for (var i = 0; i < data.length; i++) {
+      //   selectedCheckBox.add({
+      //     "check": false,
+      //     "id": "",
+      //     "numPedido": "",
+      //     "date": "",
+      //     "city": "",
+      //     "product": "",
+      //     "extraProduct": "",
+      //     "quantity": "",
+      //     "phone": "",
+      //     "price": "",
+      //     "name": "",
+      //     "transport": "",
+      //     "address": "",
+      //     "obervation": "",
+      //     "qrLink": "",
+      //   });
+      // }
+      transportatorList = await Connections().getAllTransportators();
+      for (var i = 0; i < transportatorList.length; i++) {
+        setState(() {
+          if (transportatorList != null) {
+            transportator.add(
+                '${transportatorList[i]['attributes']['Nombre']}-${transportatorList[i]['id']}');
+          }
+        });
+      }
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
+      setState(() {});
+    } catch (e) {
+      print("error!: $e");
     }
-    Future.delayed(Duration(milliseconds: 500), () {
-      Navigator.pop(context);
-    });
-    setState(() {});
   }
 
   getOldValue(Arrayrestoration) {
@@ -240,6 +253,19 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
     filtersAnd = [];
     selectedValueTransportator = null;
     _controllers.searchController.text = "";
+  }
+
+  void _showErrorSnackBar(BuildContext context, String errorMessage) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          errorMessage,
+          style: TextStyle(color: Color.fromRGBO(7, 0, 0, 1)),
+        ),
+        backgroundColor: Color.fromARGB(255, 253, 101, 90),
+        duration: Duration(seconds: 4),
+      ),
+    );
   }
 
   @override
@@ -459,6 +485,13 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                     },
                   ),
                   DataColumn2(
+                    label: const Text('Impreso por'),
+                    size: ColumnSize.M,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc("printed_by", changevalue);
+                    },
+                  ),
+                  DataColumn2(
                     label: const Text('Marca Envio'),
                     size: ColumnSize.M,
                     onSort: (columnIndex, ascending) {
@@ -470,14 +503,14 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                     label: const Text('Enviado por'),
                     size: ColumnSize.M,
                     onSort: (columnIndex, ascending) {
-                      // sortFunc("sent_by", changevalue);
+                      sortFunc("sent_by", changevalue);
                     },
                   ),
                   DataColumn2(
                     label: const Text('Fecha hora Envio'),
-                    size: ColumnSize.M,
+                    size: ColumnSize.L,
                     onSort: (columnIndex, ascending) {
-                      // sortFunc("sent_at", changevalue);
+                      sortFunc("sent_at", changevalue);
                     },
                   ),
                 ],
@@ -487,7 +520,8 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                     Color rowColor = Colors.white;
                     if ((data[index]['sent_by'] != null &&
                         data[index]['sent_by'].isNotEmpty)) {
-                      if (data[index]['sent_by']['id'].toString() != idUser) {
+                      if (data[index]['sent_by']['roles_fronts'][0]['id'] !=
+                          1) {
                         rowColor = Colors.lightBlue.shade50;
                       }
                     }
@@ -644,6 +678,13 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                                   ? ""
                                   : data[index]['observacion'].toString()),
                               onTap: () {
+                            getInfoModal(index);
+                          }),
+                          DataCell(
+                              Text(data[index]['printed_by'] != null &&
+                                      data[index]['printed_by'].isNotEmpty
+                                  ? "${data[index]['printed_by']['username'].toString()}-${data[index]['printed_by']['id'].toString()}"
+                                  : ''), onTap: () {
                             getInfoModal(index);
                           }),
                           DataCell(
@@ -835,6 +876,7 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                     setState(() {
                       date = nuevaFecha;
                     });
+                    _controllers.searchController.clear();
                   }
                 });
                 await loadData();
@@ -886,6 +928,8 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                   .toList(),
               value: selectedValueTransportator,
               onChanged: (value) async {
+                filtersAnd = [];
+                _controllers.searchController.clear();
                 setState(() {
                   selectedValueTransportator = value as String;
                 });

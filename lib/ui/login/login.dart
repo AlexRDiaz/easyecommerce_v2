@@ -180,7 +180,7 @@ class _LoginPageState extends State<LoginPage> {
                     var user_id = sharedPrefs!.getString('id') ?? "";
                     var acceptedTC = await _controllers2.verifyUserTC(user_id);
 
-                    print(acceptedTC);
+                    // print(acceptedTC);
                     if (acceptedTC == 'false') {
                       await showTermsAndConditionsDialog(context, user_id);
                     } else {
