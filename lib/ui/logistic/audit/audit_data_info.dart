@@ -1,36 +1,40 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/config/colors.dart';
 
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/helpers/navigators.dart';
 import 'package:frontend/helpers/server.dart';
+import 'package:frontend/main.dart';
+import 'package:frontend/ui/operator/orders_operator/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/loading.dart';
-import 'package:frontend/ui/widgets/update_status_operator/update_status_operator_historial.dart';
+import 'package:frontend/ui/widgets/update_status_operator/update_status_operator.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class ResolvedNoveltiesInfo extends StatefulWidget {
+class AuditDataInfo extends StatefulWidget {
   final String id;
   final List data;
   final Function function;
 
-  const ResolvedNoveltiesInfo(
+  const AuditDataInfo(
       {super.key,
       required this.id,
       required this.data,
       required this.function});
 
   @override
-  State<ResolvedNoveltiesInfo> createState() => _ResolvedNoveltiesInfo();
+  State<AuditDataInfo> createState() => _AuditDataInfo();
 }
 
-class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
+class _AuditDataInfo extends State<AuditDataInfo> {
   var data = {};
   bool loading = true;
   // OrderInfoOperatorControllers _controllers = OrderInfoOperatorControllers();
-  final TextEditingController _statusController =
-      TextEditingController(text: "NOVEDAD RESUELTA");
-  final TextEditingController _comentarioController = TextEditingController();
-
-  String _selectedValue = "";
+  // final TextEditingController _statusController =
+  // TextEditingController(text: "NOVEDAD RESUELTA");
+  // final TextEditingController _comentarioController = TextEditingController();
+  var idUser = sharedPrefs!.getString("id");
 
   @override
   void didChangeDependencies() {
@@ -49,8 +53,8 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
 
     if (order != null) {
       data = order;
-      _comentarioController.text = safeValue(data['comentario']);
-      _selectedValue = data['status'];
+      //   // print("data> $data");
+      //   // _comentarioController.text = safeValue(data['comentario']);
     } else {
       print("Error: No se encontró el pedido con el ID proporcionado.");
     }
@@ -68,6 +72,14 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
     return (value ?? defaultValue).toString();
   }
 
+  String formatDate(dateStringFromDatabase) {
+    DateTime dateTime = DateTime.parse(dateStringFromDatabase);
+    Duration offset = const Duration(hours: -5);
+    dateTime = dateTime.toUtc().add(offset);
+    String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
+    return formattedDate;
+  }
+
   @override
   Widget build(BuildContext context) {
     String transportadoraNombre =
@@ -81,59 +93,6 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
         ? data['operadore'][0]['up_users'][0]['username']
         : 'No disponible';
 
-    final Map<String, Widget> segmentedControlChildren = {
-      if (_selectedValue == 'NOVEDAD RESUELTA')
-        'NOVEDAD RESUELTA': const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
-          child: Text(
-            'NOVEDAD RESUELTA',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-      'ENTREGADO': const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.0),
-        child: Text(
-          'ENTREGADO',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
-      'NO ENTREGADO': const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.0),
-        child: Text(
-          'NO ENTREGADO',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
-      'EN RUTA': const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.0),
-        child: Text(
-          'EN RUTA',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
-      'EN OFICINA': const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.0),
-        child: Text(
-          'EN OFICINA',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
-      'REAGENDADO': const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.0),
-        child: Text(
-          'REAGENDADO',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
-      'PEDIDO PROGRAMADO': const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.0),
-        child: Text(
-          'PEDIDO PROGRAMADO',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
-    };
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -146,16 +105,6 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
               fontWeight: FontWeight.bold, color: Colors.black, fontSize: 20),
         ),
       ),
-      // floatingActionButton: Row(
-      //   mainAxisAlignment: MainAxisAlignment.center,
-      //   crossAxisAlignment: CrossAxisAlignment.center,
-      //   children: [
-      //     Padding(
-      //       padding: const EdgeInsets.all(8.0),
-      //       child:
-      //     ),
-      //   ],
-      // ),
       body: SafeArea(
         child: Container(
           width: double.infinity,
@@ -168,55 +117,6 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            SizedBox(
-                              width: 20,
-                            ),
-                            data['status'].toString() != "ENTREGADO"
-                                ? ElevatedButton(
-                                    onPressed: () async {
-                                      var response = await Connections()
-                                          .getSellersByIdMasterOnly(
-                                              "${data['id_comercial'].toString()}");
-
-                                      await showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            return UpdateStatusOperatorHistorial(
-                                              numberTienda:
-                                                  response['vendedores'][0]
-                                                          ['Telefono2']
-                                                      .toString(),
-                                              codigo:
-                                                  "${data['users'] != null && data['users'].toString() != "[]" ? data['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data['numero_orden']}",
-                                              numberCliente:
-                                                  "${data['telefono_shipping']}",
-                                              id: widget.id,
-                                              novedades: data['novedades'],
-                                              currentStatus: '',
-                                              // comment: widget.comment!,
-                                              function: widget.function!,
-                                              // dataL: widget.data!,
-                                              // rolidinvoke: 4,
-                                            );
-                                          });
-                                      // print("cmt> ${ data['attributes']
-                                      //             ['Comentario']
-                                      //         .toString()}");
-                                      // await loadData();
-
-                                      Navigator.pop(context);
-                                    },
-                                    child: Text(
-                                      "Estado Entrega",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ))
-                                : Container(),
-                          ],
-                        ),
                         SizedBox(
                           height: 20,
                         ),
@@ -229,13 +129,38 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Fecha Envio: ${safeValue(data['marca_tiempo_envio'].toString())}",
+                          "  Fecha Ingreso Pedido: ${extractDateFromBrackets(safeValue(data['marca_t_i'].toString()))}",
                           style: TextStyle(
                               fontWeight: FontWeight.normal, fontSize: 18),
                         ),
                         SizedBox(
                           height: 20,
                         ),
+                        Text(
+                          "  Fecha de Confirmación: ${safeValue(data['fecha_confirmacion'].toString())}",
+                          style: TextStyle(
+                              fontWeight: FontWeight.normal, fontSize: 18),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          "  Marca Tiempo Envio: ${safeValue(data['marca_tiempo_envio'].toString())}",
+                          style: TextStyle(
+                              fontWeight: FontWeight.normal, fontSize: 18),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          "  Fecha Entrega: ${safeValue(data['fecha_entrega'].toString())}",
+                          style: TextStyle(
+                              fontWeight: FontWeight.normal, fontSize: 18),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        // ! ***********
                         Divider(
                           height: 1.0,
                           color: Colors.grey[200],
@@ -277,19 +202,31 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                         SizedBox(
                           height: 20,
                         ),
-                        Text(
-                          "  Dirección: ${safeValue(data['direccion_shipping'])}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Teléfono Cliente: ${safeValue(data['telefono_shipping'])}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
-                        ),
+                        // ! **********
+                        // FutureBuilder<String>(
+                        //   future: userNametotoConfirmOrder(
+                        //       data['confirmed_by'] != null
+                        //           ? data['confirmed_by']
+                        //           : 0),
+                        //   builder: (BuildContext context,
+                        //       AsyncSnapshot<String> snapshot) {
+                        //     if (snapshot.connectionState ==
+                        //         ConnectionState.done) {
+                        //       // Cuando el Future se complete, muestra el resultado
+                        //       return Text(
+                        //         "  Usuario de Confirmación: ${snapshot.data}",
+                        //         style: TextStyle(
+                        //             fontWeight: FontWeight.normal,
+                        //             fontSize: 18),
+                        //       );
+                        //     } else {
+                        //       // Mientras el Future se está resolviendo, muestra un indicador de carga
+                        //       return CircularProgressIndicator();
+                        //     }
+                        //   },
+                        // ),
+                        // ! aqui va el ususario que confirma
+                        Text("Usuario de Confirmación:"),
                         SizedBox(
                           height: 20,
                         ),
@@ -319,7 +256,7 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Cantidad: ${safeValue(data['cantidad_total'])}",
+                          "  Status: ${safeValue(data['status'].toString())}",
                           style: TextStyle(
                               fontWeight: FontWeight.normal, fontSize: 18),
                         ),
@@ -327,7 +264,7 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Producto: ${safeValue(data['producto_p'])}",
+                          "  Transportadora: ${safeValue(transportadoraNombre)}",
                           style: TextStyle(
                               fontWeight: FontWeight.normal, fontSize: 18),
                         ),
@@ -335,7 +272,10 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Producto Extra: ${safeValue(data['producto_extra'])}",
+                          data['ruta'] != null &&
+                                  data['ruta'].toString() != "[]"
+                              ? "  Ruta: ${data['ruta'][0]['titulo'].toString()}"
+                              : "",
                           style: TextStyle(
                               fontWeight: FontWeight.normal, fontSize: 18),
                         ),
@@ -343,7 +283,18 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Precio Total: ${safeValue(data['precio_total'])}",
+                          data['sub_ruta'] != null &&
+                                  data['sub_ruta'].toString() != "[]"
+                              ? "  Sub-Ruta: ${data['sub_ruta'][0]['titulo'].toString()}"
+                              : "  Sub-Ruta: No Disponible",
+                          style: TextStyle(
+                              fontWeight: FontWeight.normal, fontSize: 18),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          "  Operador: ${safeValue(operadorUsername)}",
                           style: TextStyle(
                               fontWeight: FontWeight.normal, fontSize: 18),
                         ),
@@ -366,14 +317,7 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                         SizedBox(
                           height: 20,
                         ),
-                        Text(
-                          "  Status: ${safeValue(data['status'].toString())}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
+
                         Divider(
                           height: 1.0,
                           color: Colors.grey[200],
@@ -400,7 +344,7 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Vendedor: ${safeValue(data['tienda_temporal'].toString())}",
+                          "  Estado Interno: ${safeValue(data['estado_interno'].toString())}",
                           style: TextStyle(
                               fontWeight: FontWeight.normal, fontSize: 18),
                         ),
@@ -408,21 +352,14 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Transportadora: ${safeValue(transportadoraNombre)}",
+                          "  Estado Logístico: ${safeValue(data['estado_logistico'].toString())}",
                           style: TextStyle(
                               fontWeight: FontWeight.normal, fontSize: 18),
                         ),
                         SizedBox(
                           height: 20,
                         ),
-                        Text(
-                          "  Operador: ${safeValue(operadorUsername)}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
+
                         Text(
                           "  Estado Devolución: ${safeValue(data['estado_devolucion'].toString())}",
                           style: TextStyle(
@@ -431,11 +368,44 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                         const SizedBox(
                           height: 20,
                         ),
-                        Text(
-                          "  Fecha Entrega: ${safeValue(data['fecha_entrega'].toString())}",
-                          style: const TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
+                        Divider(
+                          height: 1.0,
+                          color: Colors.grey[200],
                         ),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.folder,
+                              color: ColorsSystem().colorSelectMenu,
+                            ),
+                            Text(
+                              "  Archivo ",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: ColorsSystem().colorSelectMenu),
+                            ),
+                          ],
+                        ),
+                        Container(
+                          height: 500,
+                          width: 500,
+                          child: Column(
+                            children: [
+                              data['archivo'].toString().isEmpty ||
+                                      data['archivo'].toString() == "null"
+                                  ? Container()
+                                  : Container(
+                                      margin: EdgeInsets.only(top: 20.0),
+                                      child: Image.network(
+                                        "$generalServer${data['archivo'].toString()}",
+                                        fit: BoxFit.fill,
+                                      )),
+                            ],
+                          ),
+                        ),
+                        // Otros widgets adicionales para cada elemento
+
                         SizedBox(
                           height: 20,
                         ),
@@ -446,14 +416,15 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                         const SizedBox(
                           height: 20,
                         ),
+
                         Row(
                           children: [
                             Icon(
-                              Icons.folder,
+                              Icons.warning,
                               color: ColorsSystem().colorSelectMenu,
                             ),
                             Text(
-                              "  Archivo ",
+                              "  Novedades ",
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 18,
@@ -526,159 +497,51 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
           ),
         ),
       ),
+      // floatingActionButton: data['status'] != "NOVEDAD RESUELTA"
+      //     ? FloatingActionButton.extended(
+      //         onPressed: _showResolveModal,
+      //         label: const Text('Resolver Novedad'),
+      //         icon: const Icon(Icons.check_circle),
+      //       )
+      //     : null,
     );
   }
 
-  void _changeStatus(String status) {
-    // Implementa la lógica para manejar el cambio de estado aquí
-    print("Estado seleccionado: $status");
-  }
+  String extractDateFromBrackets(String input) {
+    int startIndex = input.indexOf('[');
+    int endIndex = input.indexOf(']');
 
-  void _showResolveModal() {
-    showModalBottomSheet(
-        context: context,
-        builder: (BuildContext context) {
-          return Container(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    const Expanded(
-                      child: Text('Status:',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      flex: 3,
-                      child: TextFormField(
-                        controller: _statusController,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                        ),
-                        enabled: false,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20),
-                Row(
-                  children: [
-                    const Expanded(
-                      child: Text('Comentario:',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      flex: 3,
-                      child: TextFormField(
-                        controller: _comentarioController,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(Icons.cancel),
-                      label: const Text('Cancelar'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent,
-                      ),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () async {
-                        await sendWhatsAppMessage(
-                            context, data, _comentarioController.text);
-                        await Connections().editStatusandComment(data['id'],
-                            _statusController.text, _comentarioController.text);
-
-                        // await widget.functionpass;
-
-                        Navigator.pop(context);
-                        Navigator.pop(context);
-
-                        await widget.function();
-                      },
-                      icon: const Icon(Icons.check),
-                      label: const Text('Guardar'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          );
-        });
-  }
-
-  Future<void> sendWhatsAppMessage(BuildContext context,
-      Map<dynamic, dynamic> orderData, String newComment) async {
-    String? phoneNumber = orderData['operadore']?.isNotEmpty == true
-        ? orderData['operadore'][0]['telefono']
-        : null;
-
-    if (phoneNumber != null && phoneNumber.isNotEmpty) {
-      var message =
-          "Buen Día, la guía con el código >> ${orderData['numero_orden']} << de la tienda >> ${orderData['tienda_temporal']} << indica: ' $newComment ' .";
-      var whatsappUrl =
-          "https://api.whatsapp.com/send?phone=$phoneNumber&text=${Uri.encodeFull(message)}";
-
-      if (!await launchUrl(Uri.parse(whatsappUrl))) {
-        throw Exception('Could not launch $whatsappUrl');
-      }
-    } else {
-      _showErrorSnackBar(context, "El pedido no tiene un operador asignado.");
-      // showDialog(
-      //   context: context,
-      //   builder: (BuildContext context) {
-      //     return AlertDialog(
-      //       contentPadding: const EdgeInsets.all(20),
-      //       shape: RoundedRectangleBorder(
-      //         borderRadius: BorderRadius.circular(15),
-      //       ),
-      //       backgroundColor: const Color.fromARGB(255, 20, 38, 53),
-      //       content: const Center(
-      //         child: Text(
-      //           'Operador No Asignado',
-      //           style: TextStyle(color: Colors.white, fontSize: 18),
-      //         ),
-      //       ),
-      //       actions: <Widget>[
-      //         TextButton(
-      //           onPressed: () {
-      //             Navigator.of(context).pop();
-      //           },
-      //           child: const Text('Ok', style: TextStyle(color: Colors.white)),
-      //         ),
-      //       ],
-      //     );
-      //   },
-      // );
+    if (startIndex != -1 && endIndex != -1 && startIndex < endIndex) {
+      return input.substring(startIndex + 1, endIndex);
     }
+
+    return input; // Retorna la entrada original si no hay corchetes o el formato es incorrecto
   }
 
-  void _showErrorSnackBar(BuildContext context, String errorMessage) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          errorMessage,
-          style: TextStyle(color: Color.fromRGBO(7, 0, 0, 1)),
-        ),
-        backgroundColor: Color.fromARGB(255, 253, 101, 90),
-        duration: Duration(seconds: 4),
-      ),
-    );
-  }
+  // Future<String> userNametotoConfirmOrder(userId) async {
+  //   if (userId == 0) {
+  //     return 'Desconocido';
+  //   } else {
+  //     var user =
+  //         await Connections().getPersonalInfoAccountforConfirmOrderPDF(userId);
+  //     if (user != null && user.containsKey('username')) {
+  //       return user['username'].toString();
+  //     } else {
+  //       return 'Desconocido';
+  //     }
+  //   }
+  // }
+
+  // void _showErrorSnackBar(BuildContext context, String errorMessage) {
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     SnackBar(
+  //       content: Text(
+  //         errorMessage,
+  //         style: TextStyle(color: Color.fromRGBO(7, 0, 0, 1)),
+  //       ),
+  //       backgroundColor: Color.fromARGB(255, 253, 101, 90),
+  //       duration: Duration(seconds: 4),
+  //     ),
+  //   );
+  // }
 }

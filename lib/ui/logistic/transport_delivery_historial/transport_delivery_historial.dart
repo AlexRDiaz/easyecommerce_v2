@@ -1778,7 +1778,9 @@ class _TransportDeliveryHistorialState
       DataCell(
           Text(
             // data[index]['tienda_temporal'].toString(),
-            data[index]['users'][0]['vendedores'][0]['nombre_comercial'],
+            data[index]['users'] != null && data[index]['users'].isNotEmpty
+                ? data[index]['users'][0]['vendedores'][0]['nombre_comercial']
+                : "NaN",
             style: TextStyle(
               color: rowColor,
             ),
@@ -1804,7 +1806,7 @@ class _TransportDeliveryHistorialState
           Text(
             data[index]['costo_transportadora'] == null
                 ? ""
-                : data[index]['costo_transportadora'],
+                : data[index]['costo_transportadora'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
@@ -1837,7 +1839,7 @@ class _TransportDeliveryHistorialState
           onTap: () {}),
       DataCell(
           Text(data[index]['costo_envio'] != null
-              ? data[index]['costo_envio']
+              ? data[index]['costo_envio'].toString()
               : ""),
           onTap: () {}),
       DataCell(
@@ -1849,7 +1851,7 @@ class _TransportDeliveryHistorialState
           onTap: () {}),
       DataCell(
           Text(data[index]['costo_devolucion'] != null
-              ? data[index]['costo_devolucion']
+              ? data[index]['costo_devolucion'].toString()
               : ""), onTap: () {
         showDialogInfoData(data[index]);
       }),

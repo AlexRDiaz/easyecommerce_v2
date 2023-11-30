@@ -48,6 +48,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   int reagendados = 0;
   int enRuta = 0;
   int programado = 0;
+  int enOficina = 0;
   double costoDeEntregas = 0;
   double devoluciones = 0;
   double utilidad = 0;
@@ -404,6 +405,13 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           filtro: 'PEDIDO PROGRAMADO',
           valor: programado,
           color: const Color(0xFF7E84F2)),
+      Opcion(
+          icono: Icon(Icons.warehouse),
+          // titulo: 'Pedido Programado',
+          titulo: 'En oficina',
+          filtro: 'EN OFICINA',
+          valor: enOficina,
+          color: const Color(0xFF4B4C4B)),
     ];
 
     return Scaffold(
@@ -804,7 +812,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                     style: TextStyle(
                                         color: GetColor(
                                             data[index]['status'].toString())!),
-                                    '${data[index]['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data[index]['numero_orden'].toString()}'),
+                                    '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
                                 onTap: () {
                               openDialog(context, index);
                             }),
@@ -1792,6 +1800,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     reagendados = 0;
     enRuta = 0;
     programado = 0;
+    enOficina = 0;
 
     setState(() {
       entregados = int.parse(dataCounters['ENTREGADO'].toString()) ?? 0;
@@ -1802,6 +1811,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       reagendados = int.parse(dataCounters['REAGENDADO'].toString()) ?? 0;
       enRuta = int.parse(dataCounters['EN RUTA'].toString()) ?? 0;
       programado = int.parse(dataCounters['PEDIDO PROGRAMADO'].toString()) ?? 0;
+      enOficina = int.parse(dataCounters['EN OFICINA'].toString()) ?? 0;
     });
   }
 

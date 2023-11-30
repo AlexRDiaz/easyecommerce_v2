@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/models/user_model.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
-import 'package:frontend/models/user_model.dart';
 
 class SubProviderController extends ControllerMVC {
   List<UserModel> users = [];
+  TextEditingController searchController = TextEditingController();
 
   // Método para agregar un nuevo proveedor
   addSubProvider(UserModel user) async {
@@ -28,7 +29,7 @@ class SubProviderController extends ControllerMVC {
 
   Future<void> loadSubProviders() async {
     try {
-      var data = await Connections().getSubProviders();
+      var data = await Connections().getSubProviders(searchController.text);
       if (data == 1) {
         // Maneja el caso de error 1
         print('Error: Status Code 1');

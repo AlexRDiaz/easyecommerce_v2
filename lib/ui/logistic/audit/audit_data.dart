@@ -1,11 +1,14 @@
 import 'dart:convert';
 
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
+import 'package:frontend/ui/logistic/audit/audit_data_info.dart';
+import 'package:frontend/ui/logistic/audit/generate_report_audit_data.dart';
 import 'package:frontend/ui/logistic/novelties/generate_report_novelties.dart';
 import 'package:frontend/ui/logistic/novelties/novelties_info.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_details.dart';
@@ -17,14 +20,14 @@ import '../../../helpers/navigators.dart';
 import '../../widgets/loading.dart';
 import 'package:screenshot/screenshot.dart';
 
-class NoveltiesL extends StatefulWidget {
-  const NoveltiesL({super.key});
+class Audit extends StatefulWidget {
+  const Audit({super.key});
 
   @override
-  State<NoveltiesL> createState() => _NoveltiesLState();
+  State<Audit> createState() => _AuditState();
 }
 
-class _NoveltiesLState extends State<NoveltiesL> {
+class _AuditState extends State<Audit> {
   TextEditingController _search = TextEditingController();
   List allData = [];
   List data = [];
@@ -38,14 +41,15 @@ class _NoveltiesLState extends State<NoveltiesL> {
   int counterChecks = 0;
   List optionsCheckBox = [];
   int currentPage = 1;
-  int pageSize = 75;
+  int pageSize = 80;
   int pageCount = 0;
   bool isLoading = false;
   int total = 0;
   bool enabledBusqueda = true;
   int totalRegistros = 0;
+  int generalValuetotal = 0;
 
-  var getReport = CreateReportNovelties();
+  var getReport = CreateReportAudit();
 
   var sortFieldDefaultValue = "marca_t_i:DESC";
 
@@ -58,20 +62,33 @@ class _NoveltiesLState extends State<NoveltiesL> {
     'NOVEDAD',
     'NOVEDAD RESUELTA',
     'NO ENTREGADO',
+    'ENTREGADO',
     'REAGENDADO',
+    'EN OFICINA',
+    'EN RUTA'
   ];
 
   List populate = [
     'pedido_fecha',
     'transportadora',
     'ruta',
+    'subRuta',
     'operadore',
     "operadore.user",
     "users",
     "users.vendedores"
   ];
+
+  List<String> returnStates = [
+    'TODO',
+    'PENDIENTE',
+    'EN BODEGA',
+    'DEVOLUCION EN RUTA',
+    'ENTREGADO EN OFICINA'
+  ];
+
   List defaultArrayFiltersAnd = [
-    {"equals/estado_devolucion": "PENDIENTE"},
+    // {"equals/estado_devolucion": "PENDIENTE"},
     {"/estado_interno": "CONFIRMADO"},
     {"/estado_logistico": "ENVIADO"}
   ];
@@ -81,23 +98,17 @@ class _NoveltiesLState extends State<NoveltiesL> {
     "numero_orden",
     "ciudad_shipping",
     "nombre_shipping",
-    "telefono_shipping",
-    "direccion_shipping",
-    "cantidad_total",
-    "producto_p",
-    "producto_extra",
-    "precio_total",
     "observacion",
     "comentario",
     "status",
     "estado_devolucion",
-    "fecha_entrega"
+    "estado_logistico",
+    "estado_interno",
+    "fecha_entrega",
+    "fecha_confirmacion",
+    'marca_tiempo_envio'
   ];
-  List not = [
-    {"status": "ENTREGADO"},
-    {"status": "EN RUTA"},
-    {"status": "EN OFICINA"},
-  ];
+  List not = [];
 
   NumberPaginatorController paginatorController = NumberPaginatorController();
 
@@ -131,6 +142,8 @@ class _NoveltiesLState extends State<NoveltiesL> {
   TextEditingController fechaEntregaController =
       TextEditingController(text: "");
   TextEditingController vendedorController =
+      TextEditingController(text: "TODO");
+  TextEditingController returnStatesController =
       TextEditingController(text: "TODO");
   TextEditingController estadoConfirmacionController =
       TextEditingController(text: "TODO");
@@ -179,7 +192,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
           not,
           currentPage,
           pageSize,
-          _controllers.searchController.text,
+          searchController.text.toString(),
           sortFieldDefaultValue.toString(),
           sharedPrefs!.getString("dateDesdeLogistica").toString(),
           sharedPrefs!.getString("dateHastaLogistica").toString());
@@ -246,7 +259,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
           not,
           currentPage,
           pageSize,
-          _controllers.searchController.text,
+          searchController.text.toString(),
           sortFieldDefaultValue.toString(),
           sharedPrefs!.getString("dateDesdeLogistica").toString(),
           sharedPrefs!.getString("dateHastaLogistica").toString());
@@ -279,7 +292,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
     );
   }
 
-  final VendorInvoicesControllers _controllers = VendorInvoicesControllers();
+  TextEditingController searchController = TextEditingController(text: "");
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -305,8 +318,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
                                 Expanded(
                                   child: _modelTextField(
                                       text: "Buscar",
-                                      controller:
-                                          _controllers.searchController),
+                                      controller: searchController),
                                 ),
                                 Expanded(
                                   child: Row(
@@ -332,8 +344,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
                                 Container(
                                   child: _modelTextField(
                                       text: "Buscar",
-                                      controller:
-                                          _controllers.searchController),
+                                      controller: searchController),
                                 ),
                                 Row(
                                   children: [
@@ -378,18 +389,39 @@ class _NoveltiesLState extends State<NoveltiesL> {
                           minWidth: 2500,
                           columns: [
                             DataColumn2(
+                              label: SelectFilter(
+                                  'Tienda',
+                                  'equals/id_comercial',
+                                  vendedorController,
+                                  listvendedores),
+                              size: ColumnSize.S,
+                              // numeric: true,
+                              onSort: (columnIndex, ascending) {
+                                // sortFunc("Name_Comercial");
+                              },
+                            ),
+                            DataColumn2(
+                              label: Text("Fecha Ingreso Pedido"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Fecha de Confirmación"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Marca Tiempo Envio"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
                               label: Text("Fecha Entrega"),
                               size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {},
                             ),
-
                             DataColumn2(
                               label: const Text('Código'),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text("Ciudad"),
                               size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {},
                             ),
@@ -399,32 +431,45 @@ class _NoveltiesLState extends State<NoveltiesL> {
                               onSort: (columnIndex, ascending) {},
                             ),
                             DataColumn2(
-                              label: Text("Teléfono Cliente"),
+                              label: Text("Ciudad"),
                               size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {},
                             ),
                             DataColumn2(
-                              label: Text("Dirección"),
+                              label: Text("Usuario de Confirmación"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+
+                            DataColumn2(
+                              label: SelectFilterNoId('Status', 'equals/status',
+                                  statusController, listStatus),
                               size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {},
                             ),
                             DataColumn2(
-                              label: Text("Cantidad"),
+                              label: SelectFilter(
+                                  'Transportadora',
+                                  'equals/transportadora.transportadora_id',
+                                  transportadorasController,
+                                  listtransportadores),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {
+                                // sortFunc("Estado_Interno");
+                              },
+                            ),
+                            DataColumn2(
+                              label: Text("Ruta"),
                               size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {},
                             ),
                             DataColumn2(
-                              label: Text("Producto"),
+                              label: Text("SubRuta"),
                               size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {},
                             ),
                             DataColumn2(
-                              label: Text("Producto Extra"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text("Precio Total"),
+                              label: Text("Operador"),
                               size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {},
                             ),
@@ -439,64 +484,32 @@ class _NoveltiesLState extends State<NoveltiesL> {
                               onSort: (columnIndex, ascending) {},
                             ),
                             DataColumn2(
-                              label: SelectFilterNoId('Status', 'equals/status',
-                                  statusController, listStatus),
+                              label: Text("Estado Interno"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Estado Logístico"),
                               size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {},
                             ),
                             DataColumn2(
                               label: SelectFilter(
-                                  'Vendedor',
-                                  'equals/id_comercial',
-                                  vendedorController,
-                                  listvendedores),
+                                  'Estado Devolución',
+                                  'equals/estado_devolucion',
+                                  returnStatesController,
+                                  returnStates),
                               size: ColumnSize.S,
                               // numeric: true,
                               onSort: (columnIndex, ascending) {
                                 // sortFunc("Name_Comercial");
                               },
                             ),
-                            DataColumn2(
-                              label: SelectFilter(
-                                  'Transportadora',
-                                  'equals/transportadora.transportadora_id',
-                                  transportadorasController,
-                                  listtransportadores),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {
-                                // sortFunc("Estado_Interno");
-                              },
-                            ),
-                            DataColumn2(
-                              label: Text("Operador"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text("Estado Devolución"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: const Text('Fecha Marcar TI'),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {
-                                // sortFunc("Fecha");
-                              },
-                            ),
-                            DataColumn2(
-                              label: const Text('Numero Intentos'),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {
-                                // sortFunc("Fecha");
-                              },
-                            ),
+
                             // data['novedades'][index]['try']
                           ],
                           rows: List<DataRow>.generate(data.length, (index) {
-                            final color = index % 2 == 0
-                                ? Colors.grey[400]
-                                : Colors.white;
+                            final color = Colors.blue[50];
 
                             return DataRow(
                                 color: MaterialStateColor.resolveWith(
@@ -522,8 +535,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
                                 Expanded(
                                   child: _modelTextField(
                                       text: "Buscar",
-                                      controller:
-                                          _controllers.searchController),
+                                      controller: searchController),
                                 ),
                                 Expanded(
                                   child: Row(
@@ -549,8 +561,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
                                 Container(
                                   child: _modelTextField(
                                       text: "Buscar",
-                                      controller:
-                                          _controllers.searchController),
+                                      controller: searchController),
                                 ),
                                 Row(
                                   children: [
@@ -595,18 +606,39 @@ class _NoveltiesLState extends State<NoveltiesL> {
                           minWidth: 2500,
                           columns: [
                             DataColumn2(
+                              label: SelectFilter(
+                                  'Tienda',
+                                  'equals/id_comercial',
+                                  vendedorController,
+                                  listvendedores),
+                              size: ColumnSize.S,
+                              // numeric: true,
+                              onSort: (columnIndex, ascending) {
+                                // sortFunc("Name_Comercial");
+                              },
+                            ),
+                            DataColumn2(
+                              label: Text("Fecha Ingreso Pedido"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Fecha de Confirmación"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Marca Tiempo Envio"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
                               label: Text("Fecha Entrega"),
                               size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {},
                             ),
-
                             DataColumn2(
                               label: const Text('Código'),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text("Ciudad"),
                               size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {},
                             ),
@@ -616,32 +648,45 @@ class _NoveltiesLState extends State<NoveltiesL> {
                               onSort: (columnIndex, ascending) {},
                             ),
                             DataColumn2(
-                              label: Text("Teléfono Cliente"),
+                              label: Text("Ciudad"),
                               size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {},
                             ),
                             DataColumn2(
-                              label: Text("Dirección"),
+                              label: Text("Usuario de Confirmación"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+
+                            DataColumn2(
+                              label: SelectFilterNoId('Status', 'equals/status',
+                                  statusController, listStatus),
                               size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {},
                             ),
                             DataColumn2(
-                              label: Text("Cantidad"),
+                              label: SelectFilter(
+                                  'Transportadora',
+                                  'equals/transportadora.transportadora_id',
+                                  transportadorasController,
+                                  listtransportadores),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {
+                                // sortFunc("Estado_Interno");
+                              },
+                            ),
+                            DataColumn2(
+                              label: Text("Ruta"),
                               size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {},
                             ),
                             DataColumn2(
-                              label: Text("Producto"),
+                              label: Text("SubRuta"),
                               size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {},
                             ),
                             DataColumn2(
-                              label: Text("Producto Extra"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text("Precio Total"),
+                              label: Text("Operador"),
                               size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {},
                             ),
@@ -656,56 +701,25 @@ class _NoveltiesLState extends State<NoveltiesL> {
                               onSort: (columnIndex, ascending) {},
                             ),
                             DataColumn2(
-                              label: SelectFilterNoId('Status', 'equals/status',
-                                  statusController, listStatus),
+                              label: Text("Estado Interno"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text("Estado Logístico"),
                               size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {},
                             ),
                             DataColumn2(
                               label: SelectFilter(
-                                  'Vendedor',
-                                  'equals/id_comercial',
-                                  vendedorController,
-                                  listvendedores),
+                                  'Estado Devolución',
+                                  'equals/estado_devolucion',
+                                  returnStatesController,
+                                  returnStates),
                               size: ColumnSize.S,
                               // numeric: true,
                               onSort: (columnIndex, ascending) {
                                 // sortFunc("Name_Comercial");
-                              },
-                            ),
-                            DataColumn2(
-                              label: SelectFilter(
-                                  'Transportadora',
-                                  'equals/transportadora.transportadora_id',
-                                  transportadorasController,
-                                  listtransportadores),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {
-                                // sortFunc("Estado_Interno");
-                              },
-                            ),
-                            DataColumn2(
-                              label: Text("Operador"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text("Estado Devolución"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: const Text('Fecha Marcar TI'),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {
-                                // sortFunc("Fecha");
-                              },
-                            ),
-                            DataColumn2(
-                              label: const Text('Numero Intentos'),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {
-                                // sortFunc("Fecha");
                               },
                             ),
                             // data['novedades'][index]['try']
@@ -722,219 +736,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
                           }))),
                 ],
               ),
-              context)
-
-          // Column(
-          //   children: [
-          //     _dates(context),
-          //     SizedBox(
-          //       height: 10,
-          //     ),
-          //     Container(
-          //         width: double.infinity,
-          //         color: Colors.white,
-          //         padding: EdgeInsets.only(top: 5, bottom: 5),
-          //         child: SizedBox(
-          //           child: responsive(
-          //               Row(
-          //                 children: [
-          //                   Expanded(
-          //                     child: _modelTextField(
-          //                         text: "Buscar",
-          //                         controller: _controllers.searchController),
-          //                   ),
-          //                   Expanded(
-          //                     child: Row(
-          //                       children: [
-          //                         Container(
-          //                           padding:
-          //                               const EdgeInsets.only(left: 15, right: 5),
-          //                           child: Text(
-          //                             "Registros: ${total}",
-          //                             style: const TextStyle(
-          //                                 fontWeight: FontWeight.bold,
-          //                                 color: Colors.black),
-          //                           ),
-          //                         ),
-          //                       ],
-          //                     ),
-          //                   ),
-          //                   Expanded(child: numberPaginator()),
-          //                 ],
-          //               ),
-          //               Column(
-          //                 children: [
-          //                   Container(
-          //                     child: _modelTextField(
-          //                         text: "Buscar",
-          //                         controller: _controllers.searchController),
-          //                   ),
-          //                   Row(
-          //                     children: [
-          //                       Container(
-          //                         padding:
-          //                             const EdgeInsets.only(left: 15, right: 5),
-          //                         child: Text(
-          //                           "Registros: ${total}",
-          //                           style: const TextStyle(
-          //                               fontWeight: FontWeight.bold,
-          //                               color: Colors.black),
-          //                         ),
-          //                       ),
-          //                     ],
-          //                   ),
-          //                   numberPaginator(),
-          //                 ],
-          //               ),
-          //               context),
-          //         )),
-          //     SizedBox(
-          //       height: 10,
-          //     ),
-          //     Expanded(
-          //         child: DataTable2(
-          //             scrollController: _scrollController,
-          //             decoration: BoxDecoration(
-          //               color: Colors.white,
-          //               borderRadius: const BorderRadius.all(Radius.circular(4)),
-          //               border: Border.all(color: Colors.blueGrey),
-          //             ),
-          //             headingRowHeight: 63,
-          //             headingTextStyle: const TextStyle(
-          //                 fontWeight: FontWeight.bold, color: Colors.black),
-          //             dataTextStyle: const TextStyle(
-          //                 fontSize: 12,
-          //                 fontWeight: FontWeight.bold,
-          //                 color: Colors.black),
-          //             columnSpacing: 5,
-          //             horizontalMargin: 5,
-          //             minWidth: 2500,
-          //             columns: [
-          //               DataColumn2(
-          //                 label: Text("Fecha Entrega"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-
-          //               DataColumn2(
-          //                 label: const Text('Código'),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Ciudad"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Nombre Cliente"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Teléfono Cliente"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Dirección"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Cantidad"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Producto"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Producto Extra"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Precio Total"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Observación"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Comentario"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: SelectFilterNoId('Status', 'equals/status',
-          //                     statusController, listStatus),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: SelectFilter('Vendedor', 'equals/id_comercial',
-          //                     vendedorController, listvendedores),
-          //                 size: ColumnSize.S,
-          //                 // numeric: true,
-          //                 onSort: (columnIndex, ascending) {
-          //                   // sortFunc("Name_Comercial");
-          //                 },
-          //               ),
-          //               DataColumn2(
-          //                 label: SelectFilter(
-          //                     'Transportadora',
-          //                     'equals/transportadora.transportadora_id',
-          //                     transportadorasController,
-          //                     listtransportadores),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {
-          //                   // sortFunc("Estado_Interno");
-          //                 },
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Operador"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Estado Devolución"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: const Text('Fecha Marcar TI'),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {
-          //                   // sortFunc("Fecha");
-          //                 },
-          //               ),
-          //               DataColumn2(
-          //                 label: const Text('Numero Intentos'),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {
-          //                   // sortFunc("Fecha");
-          //                 },
-          //               ),
-          //               // data['novedades'][index]['try']
-          //             ],
-          //             rows: List<DataRow>.generate(data.length, (index) {
-          //               final color =
-          //                   index % 2 == 0 ? Colors.grey[400] : Colors.white;
-
-          //               return DataRow(
-          //                   color: MaterialStateColor.resolveWith(
-          //                       (states) => color!),
-          //                   cells: getRows(index));
-          //             }))),
-          //   ],
-          // ),
-          ),
+              context)),
     );
   }
 
@@ -998,6 +800,43 @@ class _NoveltiesLState extends State<NoveltiesL> {
     return [
       DataCell(
           Text(
+            data[index]['users'][0]['vendedores'][0]['nombre_comercial'],
+            style: TextStyle(
+              color: rowColor,
+            ),
+          ), onTap: () {
+        info(context, index);
+      }),
+
+      DataCell(
+          Text(
+            data[index]['marca_t_i'].toString().split(' ')[0].toString(),
+            style: TextStyle(
+              color: rowColor,
+            ),
+          ), onTap: () {
+        info(context, index);
+      }),
+      DataCell(
+          Text(
+            data[index]['fecha_confirmacion'].toString(),
+            style: TextStyle(
+              color: rowColor,
+            ),
+          ), onTap: () {
+        info(context, index);
+      }),
+      DataCell(
+          Text(
+            data[index]['marca_tiempo_envio'].toString(),
+            style: TextStyle(
+              color: rowColor,
+            ),
+          ), onTap: () {
+        info(context, index);
+      }),
+      DataCell(
+          Text(
             data[index]['fecha_entrega'].toString(),
             style: TextStyle(
               color: rowColor,
@@ -1016,15 +855,6 @@ class _NoveltiesLState extends State<NoveltiesL> {
       }),
       DataCell(
           Text(
-            '${data[index]['ciudad_shipping'].toString()}',
-            style: TextStyle(
-              color: rowColor,
-            ),
-          ), onTap: () {
-        info(context, index);
-      }),
-      DataCell(
-          Text(
             data[index]['nombre_shipping'].toString(),
             style: TextStyle(
               color: rowColor,
@@ -1034,7 +864,55 @@ class _NoveltiesLState extends State<NoveltiesL> {
       }),
       DataCell(
           Text(
-            data[index]['telefono_shipping'].toString(),
+            '${data[index]['ciudad_shipping'].toString()}',
+            style: TextStyle(
+              color: rowColor,
+            ),
+          ), onTap: () {
+        info(context, index);
+      }),
+      // ! aqui falta el usuario que confirma
+      // DataCell(
+      //   FutureBuilder<String>(
+      //     future: userNametotoConfirmOrder(data[index]['confirmed_by'] != null
+      //         ? data[index]['confirmed_by']
+      //         : 0),
+      //     builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+      //       return Text(snapshot.data ?? 'Desconocido');
+      //     },
+      //   ),
+      //   onTap: () {
+      //     info(context, index);
+      //   },
+      // ),
+      DataCell(
+        Text(
+          data[index]['confirmed_by'] != null ? data[index]['confirmed_by']['username'].toString() : 'Desconocido',
+          style: TextStyle(
+            color: rowColor,
+          ),
+        ),
+        onTap: () {
+          info(context, index);
+        },
+      ),
+      // ! **********************************
+      DataCell(
+          Text(
+            style: TextStyle(
+              color: GetColor(data[index]['status']),
+              // color: Colors.blue,
+            ),
+            data[index]['status'].toString(),
+          ), onTap: () {
+        info(context, index);
+      }),
+      DataCell(
+          Text(
+            data[index]['transportadora'] != null &&
+                    data[index]['transportadora'].toString() != "[]"
+                ? data[index]['transportadora'][0]['nombre'].toString()
+                : "",
             style: TextStyle(
               color: rowColor,
             ),
@@ -1043,7 +921,10 @@ class _NoveltiesLState extends State<NoveltiesL> {
       }),
       DataCell(
           Text(
-            '${data[index]['direccion_shipping'].toString()}',
+            data[index]['ruta'] != null &&
+                    data[index]['ruta'].toString() != "[]"
+                ? data[index]['ruta'][0]['titulo'].toString()
+                : "",
             style: TextStyle(
               color: rowColor,
             ),
@@ -1052,7 +933,10 @@ class _NoveltiesLState extends State<NoveltiesL> {
       }),
       DataCell(
           Text(
-            data[index]['cantidad_total'].toString(),
+            data[index]['sub_ruta'] != null &&
+                    data[index]['sub_ruta'].toString() != "[]"
+                ? data[index]['sub_ruta'][0]['titulo'].toString()
+                : "",
             style: TextStyle(
               color: rowColor,
             ),
@@ -1061,25 +945,11 @@ class _NoveltiesLState extends State<NoveltiesL> {
       }),
       DataCell(
           Text(
-            data[index]['producto_p'].toString(),
-            style: TextStyle(
-              color: rowColor,
-            ),
-          ), onTap: () {
-        info(context, index);
-      }),
-      DataCell(
-          Text(
-            data[index]['producto_extra'].toString(),
-            style: TextStyle(
-              color: rowColor,
-            ),
-          ), onTap: () {
-        info(context, index);
-      }),
-      DataCell(
-          Text(
-            data[index]['precio_total'].toString(),
+            data[index]['operadore'] != null &&
+                    data[index]['operadore'].toString() != "[]"
+                ? data[index]['operadore'][0]['up_users'][0]['username']
+                    .toString()
+                : "",
             style: TextStyle(
               color: rowColor,
             ),
@@ -1106,20 +976,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
       }),
       DataCell(
           Text(
-            style: TextStyle(
-              color: GetColor(data[index]['status']),
-              // color: Colors.blue,
-            ),
-            data[index]['status'].toString(),
-          ), onTap: () {
-        info(context, index);
-      }),
-      DataCell(
-          Text(
-            // data[index]['tienda_temporal'].toString(),
-            data[index]['users'] != null && data[index]['users'].isNotEmpty
-                ? data[index]['users'][0]['vendedores'][0]['nombre_comercial']
-                : "NaN",
+            data[index]['estado_interno'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
@@ -1128,23 +985,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
       }),
       DataCell(
           Text(
-            data[index]['transportadora'] != null &&
-                    data[index]['transportadora'].toString() != "[]"
-                ? data[index]['transportadora'][0]['nombre'].toString()
-                : "",
-            style: TextStyle(
-              color: rowColor,
-            ),
-          ), onTap: () {
-        info(context, index);
-      }),
-      DataCell(
-          Text(
-            data[index]['operadore'] != null &&
-                    data[index]['operadore'].toString() != "[]"
-                ? data[index]['operadore'][0]['up_users'][0]['username']
-                    .toString()
-                : "",
+            data[index]['estado_logistico'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
@@ -1160,34 +1001,6 @@ class _NoveltiesLState extends State<NoveltiesL> {
           ), onTap: () {
         info(context, index);
       }),
-      DataCell(
-          Text(
-            data[index]['marca_t_i'].toString().split(' ')[0].toString(),
-            style: TextStyle(
-              color: rowColor,
-            ),
-          ), onTap: () {
-        info(context, index);
-      }),
-      DataCell(getLengthArrayMap(data[index]['novedades']), onTap: () {
-        info(context, index);
-      }),
-      // DataCell(
-      //   Text(
-      //     data[index]['novedades'] != null &&
-      //             data[index]['novedades'].isNotEmpty
-      //         ? data[index]['novedades'][0]['try'].toString()
-      //         : '',
-      //     style: TextStyle(
-      //       color: GetColor(data[index]['status']!),
-      //     ),
-      //   ),
-      //   onTap: () {
-      //     info(context, index);
-      //   },
-      // ),
-
-      // data['novedades'][index]['try']
     ];
   }
 
@@ -1319,8 +1132,6 @@ class _NoveltiesLState extends State<NoveltiesL> {
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Icon(Icons.filter_alt),
-                    // SizedBox(width: 8),
                     Text(
                       'Quitar Filtros',
                       style: TextStyle(fontWeight: FontWeight.bold),
@@ -1338,39 +1149,45 @@ class _NoveltiesLState extends State<NoveltiesL> {
                   ),
                 ),
                 onPressed: () async {
-                  // Mostrar indicador de carga antes de iniciar la descarga
-                  getLoadingModal(context,
-                      true); // Asumiendo que esta función muestra un modal de carga.
+                  if (total > 2300) {
+                    AwesomeDialog(
+                      width: 500,
+                      context: context,
+                      dialogType: DialogType.info,
+                      animType: AnimType.rightSlide,
+                      title: 'El Número de Registros debe ser menor a 2.300',
+                      desc: '',
+                      btnOkText: "Aceptar",
+                      btnOkColor: Colors.green,
+                      btnOkOnPress: () async {},
+                    ).show();
+                  } else {
+                    getLoadingModal(context, true);
 
-                  try {
-                    // Suponiendo que tu función necesita parámetros como 'populate', 'defaultArrayFiltersAnd', etc.
-                    var response =
-                        await Connections().getOrdersForNoveltiesByDatesLaravel(
-                      populate,
-                      defaultArrayFiltersAnd,
-                      arrayFiltersAnd,
-                      arrayFiltersOr,
-                      not,
-                      1,
-                      100000,
-                      _controllers.searchController.text,
-                      sortFieldDefaultValue,
-                      sharedPrefs!.getString("dateDesdeLogistica").toString(),
-                      sharedPrefs!.getString("dateHastaLogistica").toString(),
-                    );
+                    try {
+                      var response =
+                          await Connections().getByDateRangeOrdersforAudit(
+                        defaultArrayFiltersAnd,
+                        arrayFiltersAnd,
+                        arrayFiltersOr,
+                        not,
+                        1,
+                        searchController.text.toString(),
+                        sortFieldDefaultValue,
+                        sharedPrefs!.getString("dateDesdeLogistica").toString(),
+                        sharedPrefs!.getString("dateHastaLogistica").toString(),
+                      );
+                      await getReport
+                          .generateExcelFileWithDataAudit(response['data']);
+                      // }
 
-                    // Suponiendo que 'generateExcelFileWithData' toma la lista de datos como parámetro
-                    await getReport.generateExcelFileWithData(response['data']);
+                      Navigator.of(context).pop();
+                    } catch (e) {
+                      Navigator.of(context).pop();
 
-                    // Si llegamos aquí, la operación fue exitosa y cerramos el modal de carga
-                    Navigator.of(context).pop();
-                  } catch (e) {
-                    // Cerrar el modal de carga si hay un error
-                    Navigator.of(context).pop();
-
-                    // Mostrar un mensaje de error
-                    _showErrorSnackBar(context,
-                        "Ha ocurrido un error al generar el reporte: $e");
+                      _showErrorSnackBar(context,
+                          "Ha ocurrido un error al generar el reporte: $e");
+                    }
                   }
                 },
                 child: const Row(
@@ -1390,6 +1207,22 @@ class _NoveltiesLState extends State<NoveltiesL> {
         ],
       ),
     );
+  }
+
+  Future<String> userNametotoConfirmOrder(userId) async {
+    if (userId == 0) {
+      return 'Desconocido';
+    } else {
+      var user =
+          await Connections().getPersonalInfoAccountforConfirmOrderPDF(userId);
+      // Verifica si user es nulo
+      if (user != null && user.containsKey('username')) {
+        return user['username'].toString();
+      } else {
+        // Maneja el caso de usuario nulo o sin 'username'
+        return 'Desconocido';
+      }
+    }
   }
 
   SizedBox _datesMovil(BuildContext context) {
@@ -1545,40 +1378,49 @@ class _NoveltiesLState extends State<NoveltiesL> {
                     ),
                   ),
                   onPressed: () async {
-                    // Mostrar indicador de carga antes de iniciar la descarga
-                    getLoadingModal(context,
-                        true); // Asumiendo que esta función muestra un modal de carga.
+                    if (total > 2300) {
+                      AwesomeDialog(
+                        width: 500,
+                        context: context,
+                        dialogType: DialogType.info,
+                        animType: AnimType.rightSlide,
+                        title: 'El Número de Registros debe ser menor a 2.300',
+                        desc: '',
+                        btnOkText: "Aceptar",
+                        btnOkColor: Colors.green,
+                        btnOkOnPress: () async {},
+                      ).show();
+                    } else {
+                      getLoadingModal(context, true);
 
-                    try {
-                      // Suponiendo que tu función necesita parámetros como 'populate', 'defaultArrayFiltersAnd', etc.
-                      var response = await Connections()
-                          .getOrdersForNoveltiesByDatesLaravel(
-                        populate,
-                        defaultArrayFiltersAnd,
-                        arrayFiltersAnd,
-                        arrayFiltersOr,
-                        not,
-                        1,
-                        100000,
-                        _controllers.searchController.text,
-                        sortFieldDefaultValue,
-                        sharedPrefs!.getString("dateDesdeLogistica").toString(),
-                        sharedPrefs!.getString("dateHastaLogistica").toString(),
-                      );
+                      try {
+                        var response =
+                            await Connections().getByDateRangeOrdersforAudit(
+                          defaultArrayFiltersAnd,
+                          arrayFiltersAnd,
+                          arrayFiltersOr,
+                          not,
+                          1,
+                          searchController.text.toString(),
+                          sortFieldDefaultValue,
+                          sharedPrefs!
+                              .getString("dateDesdeLogistica")
+                              .toString(),
+                          sharedPrefs!
+                              .getString("dateHastaLogistica")
+                              .toString(),
+                        );
+                        await getReport
+                            .generateExcelFileWithDataAudit(response['data']);
+                        // }
 
-                      // Suponiendo que 'generateExcelFileWithData' toma la lista de datos como parámetro
-                      await getReport
-                          .generateExcelFileWithData(response['data']);
+                        Navigator.of(context).pop();
+                      } catch (e) {
+                        Navigator.of(context).pop();
 
-                      // Si llegamos aquí, la operación fue exitosa y cerramos el modal de carga
-                      Navigator.of(context).pop();
-                    } catch (e) {
-                      // Cerrar el modal de carga si hay un error
-                      Navigator.of(context).pop();
-
-                      // Mostrar un mensaje de error
-                      _showErrorSnackBar(context,
-                          "Ha ocurrido un error al generar el reporte: $e");
+                        _showErrorSnackBar(context,
+                            "Ha ocurrido un error al generar el reporte: $e");
+                      }
                     }
                   },
                   child: const Row(
@@ -1623,12 +1465,12 @@ class _NoveltiesLState extends State<NoveltiesL> {
         decoration: InputDecoration(
           fillColor: const Color.fromARGB(255, 28, 51, 70),
           prefixIcon: Icon(Icons.search),
-          suffixIcon: _controllers.searchController.text.isNotEmpty
+          suffixIcon: searchController.text.toString().isNotEmpty
               ? GestureDetector(
                   onTap: () {
                     getLoadingModal(context, false);
                     setState(() {
-                      _controllers.searchController.clear();
+                      searchController.clear();
                     });
 
                     setState(() {
@@ -1789,7 +1631,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
   }
 
   void limpiar() {
-    _controllers.searchController.text = "";
+    searchController.text = "";
     arrayFiltersAnd.clear();
     // sortFieldDefaultValue = "marca_t_i:DESC";
     _search.clear();
@@ -1845,7 +1687,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
                     ),
                   ),
                   Expanded(
-                      child: NoveltiesInfo(
+                      child: AuditDataInfo(
                     id: data[index]['id'].toString(),
                     data: data,
                     function: paginateData,
@@ -1857,7 +1699,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
         });
   }
 
-    Color? GetColor(state) {
+  Color? GetColor(state) {
     int color = 0xFF000000;
 
     switch (state) {

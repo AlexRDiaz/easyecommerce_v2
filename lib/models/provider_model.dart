@@ -18,17 +18,20 @@ class ProviderModel {
     this.user,
   });
 
+
   // Método para crear un objeto ProviderModel desde un mapa
-  factory ProviderModel.fromJson(Map<String, dynamic> json) {
-    return ProviderModel(
-      id: json['id'],
-      userId: json['user_id'],
-      name: json['name'],
-      phone: json['phone'],
-      description: json['description'],
-      user: json['user'] != null ? UserModel.fromJson(json['user']) : null,
-    );
-  }
+
+ factory ProviderModel.fromJson(Map<String, dynamic> json) {
+  return ProviderModel(
+    id: json['id'],
+    userId: json['user_id'],
+    name: json['name'],
+    phone: json['phone'],
+    description: json['description'],
+    user: json['user'] != null ? UserModel.fromJson(json['user']) : null,
+  );
+}
+
 
   Map<String, dynamic> toJson() {
     return {

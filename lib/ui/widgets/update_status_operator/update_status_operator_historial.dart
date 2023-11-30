@@ -285,81 +285,12 @@ class _UpdateStatusOperatorHistorialState
                       }
                       setState(() {});
 
+                      var urlImg = await Connections().postDoc(imageSelect!);
+
                       var datacostos = await Connections()
                           .getOrderByIDHistoryLaravel(widget.id);
 
-                      String resTransaction = "";
-                      var resCredit = await Connections().postCredit(
-                          "${datacostos['users'][0]['vendedores'][0]['id_master']}",
-                          "${datacostos['precio_total']}",
-                          "${datacostos['id']}",
-                          "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                          "recaudo",
-                          "recaudo de precio total de pedido  ENTREGADO");
-                      if (resCredit == 0) {
-                        var resDebit = await Connections().postDebit(
-                            "${datacostos['users'][0]['vendedores'][0]['id_master']}",
-                            "${datacostos['users'][0]['vendedores'][0]['costo_envio']}",
-                            "${datacostos['id']}",
-                            "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                            "envio",
-                            "costo de envio de pedido entregado");
-
-                        if (resDebit == 0) {
-                          var response =
-                              await Connections().postDoc(imageSelect!);
-
-                          // await Connections()
-                          //     .updateOrderStatusOperatorEntregadoHistorial(
-                          //         "ENTREGADO",
-                          //         tipo,
-                          //         _controllerModalText.text,
-                          //         response[1],
-                          //         widget.id);
-
-                          //upt for the above and status_last_modified_by and by
-                          await Connections().updateOrderWithTime(
-                              widget.id.toString(),
-                              "status:ENTREGADO",
-                              idUser,
-                              "", {
-                            "tipo_pago": tipo,
-                            "comentario": _controllerModalText.text,
-                            "archivo": response[1]
-                          });
-
-                          if (datacostos['users'][0]['vendedores'][0]
-                                  ['referer'] !=
-                              null) {
-                            var refered = await getRefered(datacostos['users']
-                                [0]['vendedores'][0]['referer']);
-                            if (refered != null) {
-                              if (refered['referer_cost'] != null) {
-                                await Connections().postCredit(
-                                    "${datacostos['users'][0]['vendedores'][0]['referer']}",
-                                    "${refered['referer_cost']}",
-                                    "${datacostos['id']}",
-                                    "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                                    "referido",
-                                    "acreditacion por comision de vendedor referido");
-                              }
-                            }
-                          }
-
-                          Connections().updatenueva(widget.id, {
-                            "costo_envio": datacostos['users'][0]['vendedores']
-                                [0]['costo_envio'],
-                            "costo_transportadora": datacostos['users'][0]
-                                ['vendedores'][0]['costo_envio'],
-                          });
-                        } else {
-                          resTransaction =
-                              "Ha ocurrido un error al ejecutar la transacción";
-                        }
-                      } else {
-                        resTransaction =
-                            "Ha ocurrido un error al ejecutar la transacción";
-                      }
+                      await paymentEntregado(datacostos, tipo, urlImg);
 
                       //add transaccion_pedido
                       var today = DateTime.now().toString().split(' ')[0];
@@ -404,45 +335,6 @@ class _UpdateStatusOperatorHistorialState
                         transferencia = false;
                         imageSelect = null;
                       });
-
-                      if (resTransaction != "") {
-                        // ignore: use_build_context_synchronously
-                        AwesomeDialog(
-                          width: 500,
-                          context: context,
-                          dialogType: DialogType.error,
-                          animType: AnimType.rightSlide,
-                          title: resTransaction,
-                          //  desc: 'Vuelve a intentarlo',
-                          btnCancel: Container(),
-                          btnOkText: "Aceptar",
-                          btnOkColor: Colors.green,
-
-                          btnCancelOnPress: () {},
-                          btnOkOnPress: () {
-                            Navigator.pop(context);
-                          },
-                        ).show();
-                      } else {
-                        // ignore: use_build_context_synchronously
-                        AwesomeDialog(
-                          width: 500,
-                          context: context,
-                          dialogType: DialogType.success,
-                          animType: AnimType.rightSlide,
-                          title: 'Se ha modificado exitosamente',
-                          desc: 'Pedido entregado',
-                          btnCancel: Container(),
-                          btnOkText: "Aceptar",
-                          btnOkColor: Colors.green,
-                          descTextStyle: const TextStyle(color: Colors.green),
-                          btnCancelOnPress: () {},
-                          btnOkOnPress: () {
-                            Navigator.pop(context);
-                            Navigator.pop(context);
-                          },
-                        ).show();
-                      }
                     }
                   : deposito == true || efectivo == true
                       ? () async {
@@ -463,79 +355,7 @@ class _UpdateStatusOperatorHistorialState
                           var datacostos = await Connections()
                               .getOrderByIDHistoryLaravel(widget.id);
 
-                          // if (datacostos['costo_envio'] != null) {
-
-                          // }
-                          String resTransaction = "";
-
-                          var resCredit = await Connections().postCredit(
-                              "${datacostos['users'][0]['vendedores'][0]['id_master']}",
-                              "${datacostos['precio_total']}",
-                              "${datacostos['id']}",
-                              "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                              "recaudo",
-                              "recaudo de precio total de pedido  ENTREGADO");
-                          if (resCredit == 0) {
-                            var resDebit = await Connections().postDebit(
-                                "${datacostos['users'][0]['vendedores'][0]['id_master']}",
-                                "${datacostos['users'][0]['vendedores'][0]['costo_envio']}",
-                                "${datacostos['id']}",
-                                "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                                "envio",
-                                "costo de envio de pedido entregado");
-
-                            await Connections().updatenueva(widget.id, {
-                              "costo_envio": datacostos['users'][0]
-                                  ['vendedores'][0]['costo_envio'],
-                            });
-
-                            if (resDebit == 0) {
-                              // var respp = await Connections()
-                              //     .updateOrderStatusOperatorEntregadoHistorial(
-                              //         "ENTREGADO",
-                              //         tipo,
-                              //         _controllerModalText.text,
-                              //         "",
-                              //         widget.id);
-
-                              //upt for the above and status_last_modified_by and by
-                              await Connections().updateOrderWithTime(
-                                  widget.id.toString(),
-                                  "status:ENTREGADO",
-                                  idUser,
-                                  "", {
-                                "tipo_pago": tipo,
-                                "comentario": _controllerModalText.text,
-                                "archivo": ""
-                              });
-
-                              if (datacostos['users'][0]['vendedores'][0]
-                                      ['referer'] !=
-                                  null) {
-                                var refered = await getRefered(
-                                    datacostos['users'][0]['vendedores'][0]
-                                        ['referer']);
-
-                                if (refered != null) {
-                                  if (refered['referer_cost'] != null) {
-                                    await Connections().postCredit(
-                                        "${datacostos['users'][0]['vendedores'][0]['referer']}",
-                                        "${refered['referer_cost']}",
-                                        "${datacostos['id']}",
-                                        "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                                        "referido",
-                                        "acreditacion por comision de vendedor referido");
-                                  }
-                                }
-                              }
-                            } else {
-                              resTransaction =
-                                  "Ha ocurrido un error al ejecutar la transacción";
-                            }
-                          } else {
-                            resTransaction =
-                                "Ha ocurrido un error al ejecutar la transacción";
-                          }
+                          await paymentEntregado(datacostos, tipo, "");
 
                           //add transaccion_pedido
                           var data = await Connections()
@@ -586,44 +406,6 @@ class _UpdateStatusOperatorHistorialState
                             transferencia = false;
                             imageSelect = null;
                           });
-                          if (resTransaction != "") {
-                            // ignore: use_build_context_synchronously
-                            AwesomeDialog(
-                              width: 500,
-                              context: context,
-                              dialogType: DialogType.error,
-                              animType: AnimType.rightSlide,
-                              title: resTransaction,
-                              //  desc: 'Vuelve a intentarlo',
-                              btnCancel: Container(),
-                              btnOkText: "Aceptar",
-                              btnOkColor: Colors.green,
-                              btnCancelOnPress: () {},
-                              btnOkOnPress: () {
-                                Navigator.pop(context);
-                              },
-                            ).show();
-                          } else {
-                            // ignore: use_build_context_synchronously
-                            AwesomeDialog(
-                              width: 500,
-                              context: context,
-                              dialogType: DialogType.success,
-                              animType: AnimType.rightSlide,
-                              title: 'Se ha modificado exitosamente',
-                              desc: 'Pedido entregado',
-                              btnCancel: Container(),
-                              btnOkText: "Aceptar",
-                              descTextStyle:
-                                  const TextStyle(color: Colors.green),
-                              btnOkColor: Colors.green,
-                              btnCancelOnPress: () {},
-                              btnOkOnPress: () {
-                                Navigator.pop(context);
-                                Navigator.pop(context);
-                              },
-                            ).show();
-                          }
                         }
                       : null,
               child: Text(
@@ -646,6 +428,163 @@ class _UpdateStatusOperatorHistorialState
         ],
       ),
     );
+  }
+
+  Future<void> dialogNoEntregado(resDelivered) async {
+    if (resDelivered == 0) {
+      // ignore: use_build_context_synchronously
+      AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.success,
+        animType: AnimType.rightSlide,
+        title: 'Se ha modificado exitosamente',
+        desc: 'Pedido no entregado',
+        btnCancel: Container(),
+        btnOkText: "Aceptar",
+        descTextStyle: const TextStyle(color: Colors.green),
+        btnOkColor: Colors.green,
+        dialogBackgroundColor: Colors.red[200],
+        btnCancelOnPress: () {},
+        btnOkOnPress: () {
+          Navigator.pop(context);
+          Navigator.pop(context);
+        },
+      ).show();
+    } else {
+      // ignore: use_build_context_synchronously
+      AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.rightSlide,
+        title: "Error al realizar la transaccion",
+        //  desc: 'Vuelve a intentarlo',
+        btnCancel: Container(),
+        btnOkText: "Aceptar",
+        btnOkColor: Colors.green,
+        btnCancelOnPress: () {},
+        btnOkOnPress: () {
+          Navigator.pop(context);
+        },
+      ).show();
+    }
+  }
+
+  Future<void> dialogEntregado(resDelivered) async {
+    if (resDelivered == 0) {
+      // ignore: use_build_context_synchronously
+      AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.success,
+        animType: AnimType.rightSlide,
+        title: 'Se ha modificado exitosamente',
+        desc: 'Pedido entregado',
+        btnCancel: Container(),
+        btnOkText: "Aceptar",
+        descTextStyle: const TextStyle(color: Colors.green),
+        btnOkColor: Colors.green,
+        btnCancelOnPress: () {},
+        btnOkOnPress: () {
+          Navigator.pop(context);
+          Navigator.pop(context);
+        },
+      ).show();
+    } else {
+      // ignore: use_build_context_synchronously
+      AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.rightSlide,
+        title: "Error al realizar la transaccion",
+        //  desc: 'Vuelve a intentarlo',
+        btnCancel: Container(),
+        btnOkText: "Aceptar",
+        btnOkColor: Colors.green,
+        btnCancelOnPress: () {},
+        btnOkOnPress: () {
+          Navigator.pop(context);
+        },
+      ).show();
+    }
+  }
+
+  Future<void> paymentEntregado(datacostos, String tipo, urlImage) async {
+    var resDelivered = await Connections().paymentOrderDelivered(
+        datacostos['users'][0]['vendedores'][0]['id_master'],
+        datacostos['precio_total'],
+        datacostos['users'][0]['vendedores'][0]['costo_envio'],
+        datacostos['id'],
+        "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
+        _controllerModalText.text,
+        urlImage != "" ? urlImage[1] : "");
+
+    dialogEntregado(resDelivered);
+  }
+
+  Future<void> paymentNoEntregado(datane) async {
+    var response = await Connections().postDoc(imageSelect!);
+    var resDelivered = await Connections().paymentOrderNotDelivered(
+        datane['users'][0]['vendedores'][0]['id_master'],
+        datane['users'][0]['vendedores'][0]['costo_envio'],
+        datane['id'],
+        "${datane['name_comercial']}-${datane['numero_orden']}",
+        _controllerModalText.text,
+        response[1]);
+
+    dialogNoEntregado(resDelivered);
+  }
+
+  Future<void> dialogNovedad(resNovelty) async {
+    if (resNovelty != 1 || resNovelty != 2) {
+      // ignore: use_build_context_synchronously
+      AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.success,
+        animType: AnimType.rightSlide,
+        title: 'Se ha modificado exitosamente',
+        desc: resNovelty['res'],
+        descTextStyle:
+            const TextStyle(color: Color.fromARGB(255, 255, 235, 59)),
+        btnCancel: Container(),
+        btnOkText: "Aceptar",
+        btnOkColor: Colors.green,
+        btnCancelOnPress: () {},
+        btnOkOnPress: () {
+          Navigator.pop(context);
+          Navigator.pop(context);
+        },
+      ).show();
+    } else {
+      // ignore: use_build_context_synchronously
+      AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.rightSlide,
+        title: 'Error al modificar estado',
+        desc: 'No se pudo cambiar a novedad',
+        btnCancel: Container(),
+        btnOkText: "Aceptar",
+        btnOkColor: Colors.green,
+        descTextStyle: const TextStyle(color: Color.fromARGB(255, 255, 59, 59)),
+        btnCancelOnPress: () {},
+        btnOkOnPress: () {
+          Navigator.pop(context);
+          Navigator.pop(context);
+        },
+      ).show();
+    }
+  }
+
+  Future<void> paymentNovedad(id) async {
+    var resNovelty =
+        await Connections().paymentNovedad(id, _controllerModalText.text, "");
+
+    dialogNovedad(resNovelty);
   }
 
   Container _NoEntregado() {
@@ -705,87 +644,9 @@ class _UpdateStatusOperatorHistorialState
                       var datane = await Connections()
                           .getOrderByIDHistoryLaravel(widget.id);
 
-                      var resTransaction = "";
-                      var resDebit = await Connections().postDebit(
-                          "${datane['users'][0]['vendedores'][0]['id_master']}",
-                          "${datane['users'][0]['vendedores'][0]['costo_envio']}",
-                          "${datane['id']}",
-                          "${datane['name_comercial']}-${datane['numero_orden']}",
-                          "envio",
-                          "costo de envio por pedido no entregado");
-
-                      if (resDebit == 0) {
-                        var response =
-                            await Connections().postDoc(imageSelect!);
-
-                        // await Connections()
-                        //     .updateOrderStatusOperatorNoEntregadoHistorial(
-                        //         "NO ENTREGADO",
-                        //         _controllerModalText.text,
-                        //         response[1],
-                        //         widget.id);
-
-                        //upt for the above and status_last_modified_by and by
-                        await Connections().updateOrderWithTime(
-                            widget.id.toString(),
-                            "status:NO ENTREGADO",
-                            idUser,
-                            "", {
-                          "comentario": _controllerModalText.text,
-                          "archivo": response[1]
-                        });
-
-                        Connections().updatenueva(widget.id, {
-                          "costo_envio": datane['users'][0]['vendedores'][0]
-                              ['costo_envio'],
-                        });
-                      } else {
-                        resTransaction =
-                            "Ha ocurrido un error al ejecutar la transacción";
-                      }
-
-                      if (resTransaction != "") {
-                        // ignore: use_build_context_synchronously
-                        AwesomeDialog(
-                          width: 500,
-                          context: context,
-                          dialogType: DialogType.error,
-                          animType: AnimType.rightSlide,
-                          title: resTransaction,
-                          //  desc: 'Vuelve a intentarlo',
-                          btnCancel: Container(),
-                          btnOkText: "Aceptar",
-                          btnOkColor: Colors.green,
-                          dialogBackgroundColor: Colors.red[200],
-                          btnCancelOnPress: () {},
-                          btnOkOnPress: () {
-                            Navigator.pop(context);
-                          },
-                        ).show();
-                      } else {
-                        // ignore: use_build_context_synchronously
-                        AwesomeDialog(
-                          width: 500,
-                          context: context,
-                          dialogType: DialogType.success,
-                          animType: AnimType.rightSlide,
-                          title: 'Se ha modificado exitosamente',
-                          desc: 'Pedio no entregado',
-                          descTextStyle: const TextStyle(color: Colors.red),
-                          btnCancel: Container(),
-                          btnOkText: "Aceptar",
-                          btnOkColor: Colors.green,
-                          btnCancelOnPress: () {},
-                          btnOkOnPress: () {
-                            Navigator.pop(context);
-                            Navigator.pop(context);
-                          },
-                        ).show();
-                      }
+                      paymentNoEntregado(datane);
 
                       var today = DateTime.now().toString().split(' ')[0];
-                      // today = '2023-10-12';
-                      // print("today: $today");
                       var getTransaccion = await Connections()
                           .getTraccionPedidoTransportadora(widget.id,
                               datane['transportadora'][0]['id'], today);
@@ -916,13 +777,6 @@ class _UpdateStatusOperatorHistorialState
                       }
 
                       if (widget.novedades.isEmpty) {
-                        // await Connections()
-                        //     .updateOrderStatusOperatorGeneralHistorialAndDate(
-                        //         "NOVEDAD",
-                        //         _controllerModalText.text,
-                        //         widget.id);
-                        // print("with date");
-                        //upt for the above and status_last_modified_by and by
                         await Connections().updateOrderWithTime(
                             widget.id.toString(),
                             "status:NOVEDAD_date",
@@ -933,14 +787,6 @@ class _UpdateStatusOperatorHistorialState
                         });
                         //
                       } else {
-                        // await Connections()
-                        //     .updateOrderStatusOperatorGeneralHistorial(
-                        //         "NOVEDAD",
-                        //         _controllerModalText.text,
-                        //         widget.id);
-                        // print("without date");
-
-                        //upt for the above and status_last_modified_by and by
                         await Connections().updateOrderWithTime(
                             widget.id.toString(),
                             "status:NOVEDAD",
@@ -951,87 +797,14 @@ class _UpdateStatusOperatorHistorialState
                         });
                       }
                       var resTransaction = "";
+                      paymentNovedad(widget.id);
                       var datacostos = await Connections()
                           .getOrderByIDHistoryLaravel(widget.id);
-
-                      if (datacostos['estado_devolucion'] ==
-                              "ENTREGADO EN OFICINA" ||
-                          datacostos['estado_devolucion'] ==
-                              "DEVOLUCION EN RUTA" ||
-                          datacostos['estado_devolucion'] == "EN BODEGA") {
-                        var existTransaction = await Connections()
-                            .getExistTransaction(
-                                "debit",
-                                "${datacostos['id']}",
-                                "devolucion",
-                                datacostos['users'][0]['vendedores'][0]['id']);
-                        if (existTransaction == []) {
-                          var resDebit = await Connections().postDebit(
-                              "${datacostos['users'][0]['vendedores'][0]['id']}",
-                              "${datacostos['users'][0]['vendedores'][0]['costo_devolucion']}",
-                              "${datacostos['id']}",
-                              "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                              "devolucion",
-                              "costo de devolucion de pedido por novedad y ${datacostos['estado_devolucion']}");
-
-                          await Connections().updatenueva(widget.id, {
-                            "costo_devolucion": datacostos['users'][0]
-                                ['vendedores'][0]['costo_devolucion'],
-                          });
-                          if (resDebit != 1 && resDebit != 2) {
-                            resTransaction =
-                                "Pedido con novedad con costo devolucion";
-                          }
-                        }
-                      }
-
                       var _url = Uri.parse(
                           """https://api.whatsapp.com/send?phone=${widget.numberTienda}&text=
-                                        El pedido con código ${widget.codigo} cambio su estado a novedad, motivo: ${_controllerModalText.text}. Teléfono del cliente: ${widget.numberCliente}""");
+                                        El pedido con código ${widget.codigo} cambió su estado a novedad, motivo: ${_controllerModalText.text}. Teléfono del cliente: ${widget.numberCliente}""");
                       if (!await launchUrl(_url)) {
                         throw Exception('Could not launch $_url');
-                      }
-
-                      if (resTransaction != "") {
-                        // ignore: use_build_context_synchronously
-                        AwesomeDialog(
-                          width: 500,
-                          context: context,
-                          dialogType: DialogType.success,
-                          animType: AnimType.rightSlide,
-                          title: 'Se ha modificado exitosamente',
-                          desc: resTransaction,
-                          descTextStyle: const TextStyle(
-                              color: Color.fromARGB(255, 255, 235, 59)),
-                          btnCancel: Container(),
-                          btnOkText: "Aceptar",
-                          btnOkColor: Colors.green,
-                          btnCancelOnPress: () {},
-                          btnOkOnPress: () {
-                            Navigator.pop(context);
-                            Navigator.pop(context);
-                          },
-                        ).show();
-                      } else {
-                        // ignore: use_build_context_synchronously
-                        AwesomeDialog(
-                          width: 500,
-                          context: context,
-                          dialogType: DialogType.success,
-                          animType: AnimType.rightSlide,
-                          title: 'Se ha modificado exitosamente',
-                          desc: 'Pedido con novedad',
-                          btnCancel: Container(),
-                          btnOkText: "Aceptar",
-                          btnOkColor: Colors.green,
-                          descTextStyle: const TextStyle(
-                              color: Color.fromARGB(255, 255, 235, 59)),
-                          btnCancelOnPress: () {},
-                          btnOkOnPress: () {
-                            Navigator.pop(context);
-                            Navigator.pop(context);
-                          },
-                        ).show();
                       }
 
                       // * if it exists, delete transaccion_pedidos_transportadora

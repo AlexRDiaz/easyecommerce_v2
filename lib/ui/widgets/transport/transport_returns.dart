@@ -130,12 +130,6 @@ class _TransportReturnState extends State<TransportReturn> {
                           : () async {
                               getLoadingModal(context, false);
                               if (entregado) {
-                                // await Connections().updateOrderReturnTransport(
-                                //     widget.id,
-                                //     "ENTREGADO EN OFICINA",
-                                //     "Marca_T_D");
-
-                                //new with Laravel
                                 await Connections().updateOrderWithTime(
                                     widget.id.toString(),
                                     "estado_devolucion:ENTREGADO EN OFICINA",

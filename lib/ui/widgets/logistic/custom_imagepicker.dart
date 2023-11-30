@@ -8,9 +8,8 @@ class ImagePickerExample extends StatefulWidget {
   final String? label;
   final double? widgetWidth;
 
-  const ImagePickerExample(
-      {Key? key, this.onImageSelected, this.label, this.widgetWidth})
-      : super(key: key);
+
+  const ImagePickerExample({Key? key, this.onImageSelected,this.label,this.widgetWidth}) : super(key: key);
 
   @override
   _ImagePickerExampleState createState() => _ImagePickerExampleState();
@@ -52,8 +51,7 @@ class _ImagePickerExampleState extends State<ImagePickerExample> {
                   style: TextStyle(color: Color.fromARGB(255, 107, 105, 105)),
                 )
               : kIsWeb
-                  ? Image.network(_image!.path,
-                      height: 50, width: 50, fit: BoxFit.cover)
+                  ? Image.network(_image!.path, height: 50, width: 50, fit: BoxFit.cover)
                   : Row(
                       children: [
                         Image.file(

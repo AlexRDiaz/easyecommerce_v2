@@ -170,6 +170,7 @@ class _ProductsViewState extends State<ProductsView> {
       } else {
         producto['check'] = false;
       }
+
     }
     // print("prductos: $data");
     // print("data2: $data");

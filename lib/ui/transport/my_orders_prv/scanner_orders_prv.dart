@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_barcode_listener/flutter_barcode_listener.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -16,6 +17,7 @@ class _ScannerOrdersPrvState extends State<ScannerOrdersPrv> {
   String? _barcode;
   String? _operador;
   late bool visible;
+  String message = "PEDIDO A REVISAR";
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -47,12 +49,15 @@ class _ScannerOrdersPrvState extends State<ScannerOrdersPrv> {
                       _operador = responseOrder['attributes']['operadore']
                               ['data']['attributes']['user']['data']
                           ['attributes']['username'];
+
+                      message = "SE MARCÓ COMO REVISADO";
                     });
                   } else {
                     setState(() {
                       _barcode =
                           "${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']}";
-                      _operador = "RUTA NO ASIGNADA";
+                      _operador = "OPERADOR Y SUB-RUTA NO ASIGNADOS";
+                      message = "NO SE MARCÓ COMO REVISADO";
                     });
                   }
 
@@ -62,7 +67,7 @@ class _ScannerOrdersPrvState extends State<ScannerOrdersPrv> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    Text("SE MARCARÁ COMO REVISADO",
+                    Text(message,
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     SizedBox(
                       height: 30,
@@ -70,10 +75,12 @@ class _ScannerOrdersPrvState extends State<ScannerOrdersPrv> {
                     Text(
                         _barcode == null
                             ? 'SCANNER VACIO'
-                            : 'ORDEN PROCESADA: $_barcode\n OPERADOR:$_operador',
+                            : 'ORDEN PROCESADA: $_barcode\n OPERADOR: $_operador',
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: _barcode == null
+                            color: _barcode == null ||
+                                    _operador ==
+                                        "OPERADOR Y SUB-RUTA NO ASIGNADOS"
                                 ? Colors.redAccent
                                 : Colors.green)),
                   ],

@@ -21,25 +21,10 @@ getNavbarDrawerLogistic(context) {
           child: Column(
             children: [
               Container(
-                width: double.infinity,
-                height: 80,
-                child: Row(
-                  children: [
-                    Image.asset(
-                      images.logoEasyEcommercce,
-                      width: 30,
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      "EASY ECOMMER",
-                      style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
+                  margin: EdgeInsets.all(5),
+                  child: Image.asset(
+                    images.logoEasyEcommercce,
+                  )),
               Divider(),
               ...List.generate(
                   optionsLogistic.length,
@@ -127,25 +112,10 @@ getNavbarDrawerSellers(context) {
           child: Column(
             children: [
               Container(
-                width: double.infinity,
-                height: 80,
-                child: Row(
-                  children: [
-                    Image.asset(
-                      images.logoEasyEcommercce,
-                      width: 30,
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      "EASY ECOMMER",
-                      style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
+                  margin: EdgeInsets.all(5),
+                  child: Image.asset(
+                    images.logoEasyEcommercce,
+                  )),
               Divider(),
               ...List.generate(
                   optionsSellers.length,
@@ -211,25 +181,10 @@ getNavbarDrawerProviders(context) {
           child: Column(
             children: [
               Container(
-                width: double.infinity,
-                height: 80,
-                child: Row(
-                  children: [
-                    Image.asset(
-                      images.logoEasyEcommercce,
-                      width: 30,
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      "EASY ECOMMER",
-                      style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
+                  margin: EdgeInsets.all(5),
+                  child: Image.asset(
+                    images.logoEasyEcommercce,
+                  )),
               Divider(),
               ...List.generate(
                   optionsProvider.length,
@@ -313,25 +268,10 @@ getNavbarDrawerTransport(context) {
           child: Column(
             children: [
               Container(
-                width: double.infinity,
-                height: 80,
-                child: Row(
-                  children: [
-                    Image.asset(
-                      images.logoEasyEcommercce,
-                      width: 30,
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      "EASY ECOMMER",
-                      style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
+                  margin: EdgeInsets.all(5),
+                  child: Image.asset(
+                    images.logoEasyEcommercce,
+                  )),
               Divider(),
               ...List.generate(
                   optionsTransport.length,
@@ -420,25 +360,10 @@ getNavbarDrawerOperator(context) {
           child: Column(
             children: [
               Container(
-                width: double.infinity,
-                height: 80,
-                child: Row(
-                  children: [
-                    Image.asset(
-                      images.logoEasyEcommercce,
-                      width: 30,
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      "EASY ECOMMER",
-                      style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
+                  margin: EdgeInsets.all(5),
+                  child: Image.asset(
+                    images.logoEasyEcommercce,
+                  )),
               Divider(),
               ...List.generate(
                   optionsOperator.length,

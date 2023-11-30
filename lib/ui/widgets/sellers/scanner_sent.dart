@@ -17,6 +17,7 @@ class _ScannerStateSent extends State<ScannerSent> {
   String? _barcode;
   late bool visible;
   bool edited = false;
+  String message = "PEDIDO A REVISAR";
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -33,35 +34,23 @@ class _ScannerStateSent extends State<ScannerSent> {
               child: BarcodeKeyboardListener(
                 bufferDuration: Duration(milliseconds: 200),
                 onBarcodeScanned: (barcode) async {
-                  // barcode = "99203";
+                  // barcode = "112907";
                   if (!visible) return;
                   getLoadingModal(context, false);
 
                   var responseOrder =
                       await Connections().getOrderByIDHistoryLaravel(barcode);
 
-                  // if (responseOrder['estado_logistico'] == 'ENVIADO') {
-                  //   setState(() {
-                  //     _barcode =
-                  //         "El pedido con código ${responseOrder['name_comercial']}-${responseOrder['numero_orden']} ya se encuentra enviado"
-                  //         "";
-                  //   });
-                  //   edited = false;
-                  // } else {
-                  var response =
-                      await Connections().updatenueva(barcode.toString(), {
-                    // 'estado_logistico': "ENVIADO",
-                    // "marca_tiempo_envio":
-                    //     "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
-                    'revisado': 1
-                  });
-
+                  var response = await Connections()
+                      .updatenueva(barcode.toString(), {'revisado_seller': 1});
                   setState(() {
                     _barcode =
                         "${responseOrder['name_comercial']}-${responseOrder['numero_orden']}";
                   });
-                  edited = true;
-                  // }
+                  if (response == 0) {
+                    edited = true;
+                    message = "SE MARCÓ COMO REVISADO";
+                  }
 
                   Navigator.pop(context);
                 },
@@ -69,7 +58,7 @@ class _ScannerStateSent extends State<ScannerSent> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    const Text("MARCAR ORDENES COMO ENVIADAS",
+                    Text(message,
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(
                       height: 30,

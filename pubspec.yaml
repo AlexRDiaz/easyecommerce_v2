@@ -74,6 +74,7 @@ dependencies:
   syncfusion_flutter_datagrid: ^22.1.44
   quill_html_editor: ^2.0.1
   flutter_switch: ^0.3.2
+  animate_do: ^3.1.2
 
 dev_dependencies:
   flutter_test:
