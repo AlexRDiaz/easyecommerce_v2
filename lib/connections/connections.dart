@@ -6655,7 +6655,7 @@ class Connections {
     }
   }
 
-  paymentNovedad(id, comentario) async {
+  paymentNovedad(id, comentarioNovedad, comentarioTransaccion) async {
     try {
       String? generatedBy = sharedPrefs!.getString("id");
 
@@ -6663,8 +6663,8 @@ class Connections {
           Uri.parse(
               "$serverLaravel/api/transacciones/payment-order-with-novelty/$id"),
           headers: {'Content-Type': 'application/json'},
-          body: json
-              .encode({"generated_by": generatedBy, "comentario": comentario}));
+          body: json.encode(
+              {"generated_by": generatedBy, "comentario": comentarioNovedad}));
       if (response.statusCode != 200) {
         return 1;
       } else {

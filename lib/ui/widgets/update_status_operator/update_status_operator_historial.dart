@@ -582,7 +582,7 @@ class _UpdateStatusOperatorHistorialState
 
   Future<void> paymentNovedad(id) async {
     var resNovelty =
-        await Connections().paymentNovedad(id, _controllerModalText.text);
+        await Connections().paymentNovedad(id, _controllerModalText.text, "");
 
     dialogNovedad(resNovelty);
   }
@@ -800,38 +800,6 @@ class _UpdateStatusOperatorHistorialState
                       paymentNovedad(widget.id);
                       var datacostos = await Connections()
                           .getOrderByIDHistoryLaravel(widget.id);
-
-                      // if (datacostos['estado_devolucion'] ==
-                      //         "ENTREGADO EN OFICINA" ||
-                      //     datacostos['estado_devolucion'] ==
-                      //         "DEVOLUCION EN RUTA" ||
-                      //     datacostos['estado_devolucion'] == "EN BODEGA") {
-                      //   var existTransaction = await Connections()
-                      //       .getExistTransaction(
-                      //           "debit",
-                      //           "${datacostos['id']}",
-                      //           "devolucion",
-                      //           datacostos['users'][0]['vendedores'][0]['id']);
-                      //   if (existTransaction == []) {
-                      //     var resDebit = await Connections().postDebit(
-                      //         "${datacostos['users'][0]['vendedores'][0]['id']}",
-                      //         "${datacostos['users'][0]['vendedores'][0]['costo_devolucion']}",
-                      //         "${datacostos['id']}",
-                      //         "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                      //         "devolucion",
-                      //         "costo de devolucion de pedido por novedad y ${datacostos['estado_devolucion']}");
-
-                      //     await Connections().updatenueva(widget.id, {
-                      //       "costo_devolucion": datacostos['users'][0]
-                      //           ['vendedores'][0]['costo_devolucion'],
-                      //     });
-                      //     if (resDebit != 1 && resDebit != 2) {
-                      //       resTransaction =
-                      //           "Pedido con novedad con costo devolucion";
-                      //     }
-                      //   }
-                      // }
-
                       var _url = Uri.parse(
                           """https://api.whatsapp.com/send?phone=${widget.numberTienda}&text=
                                         El pedido con código ${widget.codigo} cambió su estado a novedad, motivo: ${_controllerModalText.text}. Teléfono del cliente: ${widget.numberCliente}""");
