@@ -69,7 +69,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   }
 
   getWarehouses() async {
-    var responseBodegas = await Connections().getWarehousesProvider0(
+    var responseBodegas = await Connections().getWarehousesProvider(
         int.parse(sharedPrefs!.getString("idProvider").toString()));
     warehouseList = responseBodegas;
     if (warehouseList != null) {
