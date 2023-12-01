@@ -6783,6 +6783,27 @@ class Connections {
     }
   }
 
+  paymentLogisticInWarehouse(
+      id, comentarioNovedad, comentarioTransaccion) async {
+    try {
+      String? generatedBy = sharedPrefs!.getString("id");
+
+      var response = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/transacciones/payment-logistic-in-warehouse/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(
+              {"generated_by": generatedBy, "comentario": comentarioNovedad}));
+      if (response.statusCode != 200) {
+        return 1;
+      } else {
+        return json.decode(response.body);
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
   paymentTransportByReturnStatus(
       id, comentarioNovedad, comentarioTransaccion, returnStatus) async {
     try {

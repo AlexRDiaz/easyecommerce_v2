@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_barcode_listener/flutter_barcode_listener.dart';
@@ -17,6 +18,7 @@ class ScannerPrintedTransport extends StatefulWidget {
 class _ScannerPrintedTransportState extends State<ScannerPrintedTransport> {
   String? _barcode;
   late bool visible;
+  String? _resTransaction;
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -33,6 +35,7 @@ class _ScannerPrintedTransportState extends State<ScannerPrintedTransport> {
               child: BarcodeKeyboardListener(
                 bufferDuration: Duration(milliseconds: 200),
                 onBarcodeScanned: (barcode) async {
+                  barcode = "126669";
                   if (!visible) return;
                   getLoadingModal(context, false);
 
@@ -50,52 +53,20 @@ class _ScannerPrintedTransportState extends State<ScannerPrintedTransport> {
                       Navigator.pop(context);
                     } else {
                       if (widget.status != "PENDIENTE") {
-                        String value = "";
-                        value = getKeyMDT(value);
-                        await Connections().updateOrderReturnTransport(
-                            barcode, widget.status, value);
+                        paymentTransportByReturnStatus(
+                            barcode, widget.status, responseOrder);
 
-                        //debit devolucion de pedidos
-                        var datacostos = await Connections()
-                            .getOrderByIDHistoryLaravel(barcode);
-                        if (datacostos['status'] == "NOVEDAD") {
-                          if (datacostos['estado_devolucion'] ==
-                                  "ENTREGADO EN OFICINA" ||
-                              datacostos['estado_devolucion'] ==
-                                  "DEVOLUCION EN RUTA" ||
-                              datacostos['estado_devolucion'] == "EN BODEGA") {
-                            List existTransaction = await Connections()
-                                .getExistTransaction(
-                                    "debit",
-                                    barcode,
-                                    "devolucion",
-                                    datacostos['users'][0]['vendedores'][0]
-                                        ['id_master']);
-                            if (existTransaction.isEmpty) {
-                              var resDebit = await Connections().postDebit(
-                                  "${datacostos['users'][0]['vendedores'][0]['id_master']}",
-                                  "${datacostos['users'][0]['vendedores'][0]['costo_devolucion']}",
-                                  "${datacostos['id']}",
-                                  "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                                  "devolucion",
-                                  "costo de devolucion de pedido por  ${responseOrder['attributes']['Status']} y  ${datacostos['estado_devolucion']}");
-                              await Connections().updatenueva(barcode, {
-                                "costo_devolucion": datacostos['users'][0]
-                                    ['vendedores'][0]['costo_devolucion'],
-                              });
-                            }
-                          }
-                        }
+                        Navigator.pop(context);
+
+                        //-------------------------------------------------------------
+                      } else {
+                        var resReiniciar = await Connections()
+                            .updateOrderReturnTransportRestart(barcode);
                         setState(() {
                           _barcode =
                               "${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']}";
                         });
                         Navigator.pop(context);
-
-                        //-------------------------------------------------------------
-                      } else {
-                        await Connections()
-                            .updateOrderReturnTransportRestart(barcode);
                       }
                     }
                   } else {
@@ -124,6 +95,12 @@ class _ScannerPrintedTransportState extends State<ScannerPrintedTransport> {
                             color: _barcode == null
                                 ? Colors.redAccent
                                 : Colors.green)),
+                    Text(
+                        _resTransaction == null
+                            ? ''
+                            : 'Transaccion: $_resTransaction',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.black)),
                   ],
                 ),
               ),
@@ -144,6 +121,31 @@ class _ScannerPrintedTransportState extends State<ScannerPrintedTransport> {
         ),
       ),
     );
+  }
+
+  Future<void> paymentTransportByReturnStatus(
+      id, returnStatus, responseOrder) async {
+    var resNovelty = await Connections()
+        .paymentTransportByReturnStatus(id, "", "", returnStatus);
+
+    dialogNovedad(resNovelty, returnStatus, responseOrder);
+  }
+
+  Future<void> dialogNovedad(resNovelty, returnStatus, responseOrder) async {
+    if (resNovelty == 1 || resNovelty == 2) {
+      // ignore: use_build_context_synchronously
+      setState(() {
+        _barcode = "Error al cambiar estado a $returnStatus";
+      });
+    } else {
+      // ignore: use_build_context_synchronously
+      setState(() {
+        _resTransaction = resNovelty["res"];
+
+        _barcode =
+            "${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']}";
+      });
+    }
   }
 
   String getKeyMDT(String value) {

@@ -586,61 +586,9 @@ class _ReturnsState extends State<Returns> {
                                     btnCancelOnPress: () {},
                                     btnOkOnPress: () async {
                                       getLoadingModal(context, false);
-                                      // await Connections()
-                                      //     .updateOrderReturnLogistic(
-                                      //         data[index]['id']);
 
-                                      //new
-                                      await Connections().updateOrderWithTime(
-                                          data[index]['id'].toString(),
-                                          "estado_devolucion:EN BODEGA",
-                                          idUser,
-                                          "",
-                                          "");
-
-                                      var resTransaction = "";
-                                      var datacostos = await Connections()
-                                          .getOrderByIDHistoryLaravel(
-                                              data[index]['id']);
-                                      if (datacostos['estado_devolucion'] ==
-                                              "ENTREGADO EN OFICINA" ||
-                                          datacostos['estado_devolucion'] ==
-                                              "DEVOLUCION EN RUTA" ||
-                                          datacostos['estado_devolucion'] ==
-                                              "EN BODEGA") {
-                                        List existTransaction =
-                                            await Connections()
-                                                .getExistTransaction(
-                                                    "debit",
-                                                    "${datacostos["id"]}",
-                                                    "devolucion",
-                                                    datacostos['users']
-                                                            [0]['vendedores'][0]
-                                                        ['id_master']);
-                                        if (existTransaction.isEmpty) {
-                                          var resDebit = await Connections().postDebit(
-                                              "${datacostos['users'][0]['vendedores'][0]['id_master']}",
-                                              "${datacostos['users'][0]['vendedores'][0]['costo_devolucion']}",
-                                              "${datacostos['id']}",
-                                              "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                                              "devolucion",
-                                              "costo de devolucion desde logistica por ${datacostos['estado_devolucion']}");
-                                          await Connections()
-                                              .updatenueva(data[index]['id'], {
-                                            "costo_devolucion":
-                                                datacostos['users'][0]
-                                                        ['vendedores'][0]
-                                                    ['costo_devolucion'],
-                                          });
-                                          if (resDebit != 1 && resDebit != 2) {
-                                            resTransaction =
-                                                "Pedido con novedad con costo devolucion";
-                                          }
-                                        }
-                                      }
-
-                                      await loadData();
-                                      Navigator.pop(context);
+                                      paymentLogisticInWarehouse(
+                                          data[index]['id'].toString());
                                     },
                                   ).show();
                                 },
@@ -816,6 +764,58 @@ class _ReturnsState extends State<Returns> {
         ),
       ),
     );
+  }
+
+  Future<void> paymentLogisticInWarehouse(
+    id,
+  ) async {
+    var resNovelty = await Connections().paymentLogisticInWarehouse(id, "", "");
+
+    dialogNovedad(resNovelty);
+  }
+
+  Future<void> dialogNovedad(resNovelty) async {
+    if (resNovelty == 1 || resNovelty == 2) {
+      // ignore: use_build_context_synchronously
+      AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.rightSlide,
+        title: 'Error al modificar estado',
+        desc: 'No se pudo cambiar a EN BODEGA',
+        btnCancel: Container(),
+        btnOkText: "Aceptar",
+        btnOkColor: Colors.green,
+        descTextStyle: const TextStyle(color: Color.fromARGB(255, 255, 59, 59)),
+        btnCancelOnPress: () {},
+        btnOkOnPress: () {
+          Navigator.pop(context);
+          // Navigator.pop(context);
+        },
+      ).show();
+    } else {
+      // ignore: use_build_context_synchronously
+      AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.success,
+        animType: AnimType.rightSlide,
+        title: 'Se ha modificado exitosamente',
+        desc: resNovelty['res'],
+        descTextStyle:
+            const TextStyle(color: Color.fromARGB(255, 255, 235, 59)),
+        btnCancel: Container(),
+        btnOkText: "Aceptar",
+        btnOkColor: Colors.green,
+        btnCancelOnPress: () {},
+        btnOkOnPress: () async {
+          Navigator.pop(context);
+
+          await loadData();
+        },
+      ).show();
+    }
   }
 
   getInfoModal(index) {
