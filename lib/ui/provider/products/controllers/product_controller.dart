@@ -83,4 +83,30 @@ class ProductController extends ControllerMVC {
       'last_page': 0,
     };
   }
+
+  Future<void> loadProductsCatalog(
+      populate, pageSize, currentPage, or, and, sort, search) async {
+    try {
+      var response = await Connections().getProductsCatalog(
+          populate, pageSize, currentPage, or, and, sort, search);
+      if (response == 1) {
+        print('Error: Status Code 1');
+      } else if (response == 2) {
+        print('Error: Status Code 2');
+      } else {
+        List<dynamic> jsonData = response['data'];
+
+        var total = response['total'];
+        var lastPage = response['last_page'];
+        // print('Total: $total');
+        // print('Last Page: $lastPage');
+
+        products = jsonData.map((data) => ProductModel.fromJson(data)).toList();
+        setState(() {});
+      }
+    } catch (e) {
+      // Maneja otros errores
+      print('Error al cargar productos: $e');
+    }
+  }
 }

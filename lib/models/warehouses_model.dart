@@ -35,42 +35,43 @@ class WarehouseModel {
   });
 
   // Método para crear un objeto WarehouseModel desde un mapa
- factory WarehouseModel.fromJson(Map<String, dynamic> json) {
-  dynamic providerData;
+  factory WarehouseModel.fromJson(Map<String, dynamic> json) {
+    dynamic providerData;
 
-  if (json['provider'] != null) {
-    var providerValue = json['provider'];
+    if (json['provider'] != null) {
+      var providerValue = json['provider'];
 
-    if (providerValue is String) {
-      try {
-        providerData = jsonDecode(providerValue);
-      } catch (e) {
-        print('Error decoding provider string: $e');
+      if (providerValue is String) {
+        try {
+          providerData = jsonDecode(providerValue);
+        } catch (e) {
+          print('Error decoding provider string: $e');
+        }
+      } else if (providerValue is Map<String, dynamic>) {
+        providerData = providerValue;
       }
-    } else if (providerValue is Map<String, dynamic>) {
-      providerData = providerValue;
     }
-  }
 
-  ProviderModel? providerModel;
-  if (providerData != null) {
-    providerModel = ProviderModel.fromJson(providerData);
-  }
+    ProviderModel? providerModel;
+    if (providerData != null) {
+      providerModel = ProviderModel.fromJson(providerData);
+    }
 
-  return WarehouseModel(
-    id: json['warehouse_id'],
-    branchName: json['branch_name'],
-    address: json['address'],
-    reference: json['reference'],
-    description: json['description'],
-    url_image: json['url_image'],
-    city: json['city'],
-    collection: json['collection'],
-    active: json['active'],
-    providerId: json['provider_id'],
-    provider: providerModel,
-  );
-}
+    return WarehouseModel(
+      id: json['warehouse_id'],
+      branchName: json['branch_name'],
+      address: json['address'],
+      reference: json['reference'],
+      description: json['description'],
+      url_image: json['url_image'],
+      city: json['city'],
+      collection: json['collection'],
+      active: json['active'],
+      approved: json['approved'],
+      providerId: json['provider_id'],
+      provider: providerModel,
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -81,8 +82,9 @@ class WarehouseModel {
       'description': description,
       'url_image': url_image,
       'city': city,
-      'collection' : collection,
-      'active' : active,
+      'collection': collection,
+      'active': active,
+      'approved': approved,
       'provider_id': providerId,
       // Si tienes un objeto relacionado
       // 'provider': provider?.toJson(),

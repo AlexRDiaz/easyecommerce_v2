@@ -49,4 +49,26 @@ class ProviderController extends ControllerMVC {
       print('Error al cargar proveedores: $e');
     }
   }
+
+  Future<void> loadProvidersAll() async {
+    try {
+      var data = await Connections().getProvidersAll();
+      if (data == 1) {
+        // Maneja el caso de error 1
+        print('Error: Status Code 1');
+      } else if (data == 2) {
+        // Maneja el caso de error 2
+        print('Error: Status Code 2');
+      } else {
+        List<dynamic> jsonData = data;
+        providers =
+            jsonData.map((data) => ProviderModel.fromJson(data)).toList();
+        print(providers);
+        setState(() {});
+      }
+    } catch (e) {
+      // Maneja otros errores
+      print('Error al cargar proveedores: $e');
+    }
+  }
 }
