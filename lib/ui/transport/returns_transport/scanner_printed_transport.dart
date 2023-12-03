@@ -35,7 +35,6 @@ class _ScannerPrintedTransportState extends State<ScannerPrintedTransport> {
               child: BarcodeKeyboardListener(
                 bufferDuration: Duration(milliseconds: 200),
                 onBarcodeScanned: (barcode) async {
-                  barcode = "126669";
                   if (!visible) return;
                   getLoadingModal(context, false);
 
