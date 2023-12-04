@@ -7,6 +7,7 @@ import 'package:frontend/providers/sellers/navigation_provider.dart';
 import 'package:frontend/ui/logistic/add_provider/providers_view.dart';
 import 'package:frontend/ui/sellers/add_seller_user/add_seller_user.dart';
 import 'package:frontend/ui/sellers/cash_withdrawals_sellers/cash_withdrawals_sellers.dart';
+import 'package:frontend/ui/sellers/catalog/catalog.dart';
 import 'package:frontend/ui/sellers/dashboard/dashboard.dart';
 import 'package:frontend/ui/sellers/delivery_status/delivery_status.dart';
 import 'package:frontend/ui/sellers/guides_sent/table_orders_guides_sent.dart';
@@ -113,7 +114,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
       getOption("Guías Enviadas", TableOrdersGuidesSentSeller()
           // GuidesSent(),
           ),
-      // getOption("Cambiar Contraseña", UpdatePasswordSellers()),
+      getOption("Catálogo de Productos", Catalog()),
     ];
     return Scaffold(
       key: _key,

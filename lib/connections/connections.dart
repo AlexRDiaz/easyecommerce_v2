@@ -5771,69 +5771,6 @@ class Connections {
     }
   }
 
-//  *
-  getProducts(populate, page_size, current_page, or, and, sort, search) async {
-    try {
-      var response =
-          await http.post(Uri.parse("$serverLaravel/api/products/all"),
-              headers: {'Content-Type': 'application/json'},
-              body: json.encode({
-                "populate": populate,
-                "page_size": page_size,
-                "page_number": current_page,
-                "or": or,
-                "and": and,
-                "sort": sort,
-                "search": search
-              }));
-      if (response.statusCode == 200) {
-        var decodeData = json.decode(response.body);
-        return decodeData;
-      } else if (response.statusCode == 400) {
-        print("Error 400: Bad Request");
-      } else {
-        print("Error ${response.statusCode}: ${response.reasonPhrase}");
-      }
-    } catch (error) {
-      print("Ocurrió un error durante la solicitud: $error");
-    }
-  }
-
-  getProductsByProvider(idProvider, populate, page_size, current_page, or, and,
-      sort, search) async {
-    // print(json.encode({
-    //   "populate": populate,
-    //   "page_size": page_size,
-    //   "page_number": current_page,
-    //   "or": or,
-    //   "and": and,
-    //   "sort": sort,
-    //   "search": search
-    // }));
-    try {
-      var response = await http.post(
-          Uri.parse("$serverLaravel/api/products/by/$idProvider"),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({
-            "populate": populate,
-            "page_size": page_size,
-            "page_number": current_page,
-            "or": or,
-            "and": and,
-            "sort": sort,
-            "search": search
-          }));
-      if (response.statusCode == 200) {
-        var decodeData = json.decode(response.body);
-        return decodeData;
-      } else {
-        return 1;
-      }
-    } catch (error) {
-      return 2;
-    }
-  }
-
 //  ****** PRODUCT ******
   //  *
   createProduct0(nameProduct, stock, features, price, url_img, isvariable,
@@ -5884,6 +5821,79 @@ class Connections {
         return 1;
       }
     } catch (e) {
+      return 2;
+    }
+  }
+
+//  *
+  getProductsCatalog(populate, page_size, current_page, or, and, outFilter,
+      sort, search) async {
+    print(json.encode({
+      "populate": populate,
+      "page_size": page_size,
+      "page_number": current_page,
+      "or": or,
+      "and": and,
+      "out_filters": outFilter,
+      "sort": sort,
+      "search": search
+    }));
+    try {
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/products/all"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "populate": populate,
+                "page_size": page_size,
+                "page_number": current_page,
+                "or": or,
+                "and": and,
+                "out_filters": outFilter,
+                "sort": sort,
+                "search": search
+              }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  getProductsByProvider(idProvider, populate, page_size, current_page, or, and,
+      sort, search) async {
+    // print(json.encode({
+    //   "populate": populate,
+    //   "page_size": page_size,
+    //   "page_number": current_page,
+    //   "or": or,
+    //   "and": and,
+    //   "sort": sort,
+    //   "search": search
+    // }));
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/products/by/$idProvider"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "populate": populate,
+            "page_size": page_size,
+            "page_number": current_page,
+            "or": or,
+            "and": and,
+            "sort": sort,
+            "search": search
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
       return 2;
     }
   }
@@ -6412,6 +6422,24 @@ class Connections {
         var decodeData = json.decode(response.body);
         // print(decodeData);
         return decodeData['users'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  getProvidersAll() async {
+    try {
+      var response = await http.get(
+        Uri.parse("$serverLaravel/api/providers/all"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData['providers'];
       } else {
         return 1;
       }
