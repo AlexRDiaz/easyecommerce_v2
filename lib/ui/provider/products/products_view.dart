@@ -1046,21 +1046,21 @@ class _ProductsViewState extends State<ProductsView> {
                       Expanded(
                         child: Column(
                           children: [
-                            // SizedBox(
-                            //   width: MediaQuery.of(context).size.width * 0.3,
-                            //   height: MediaQuery.of(context).size.height * 0.6,
-                            //   child: product.urlImg != null &&
-                            //           product.urlImg.isNotEmpty &&
-                            //           product.urlImg.toString() != "[]"
-                            //       ? ClipRRect(
-                            //           borderRadius: BorderRadius.circular(8.0),
-                            //           child: Image.network(
-                            //             "$generalServer${getFirstUrl(product.urlImg)}",
-                            //             fit: BoxFit.fill,
-                            //           ),
-                            //         )
-                            //       : Container(),
-                            // ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.3,
+                              height: MediaQuery.of(context).size.height * 0.6,
+                              child: product.urlImg != null &&
+                                      product.urlImg.isNotEmpty &&
+                                      product.urlImg.toString() != "[]"
+                                  ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      child: Image.network(
+                                        "$generalServer${getFirstUrl(product.urlImg)}",
+                                        fit: BoxFit.fill,
+                                      ),
+                                    )
+                                  : Container(),
+                            ),
                             //******** */
                             // Container(
                             //   width: 100,
