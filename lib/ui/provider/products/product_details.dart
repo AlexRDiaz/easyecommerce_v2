@@ -64,6 +64,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   String variablesText = "";
   //multi img show temp
   List<XFile> imgsTemporales = [];
+  String stock = "";
 
   @override
   void initState() {
@@ -99,6 +100,7 @@ class _ProductDetailsState extends State<ProductDetails> {
     createdAt = formatDate(product.createdAt.toString());
     approved = product.approved!;
     _stockController.text = product.stock.toString();
+    stock = product.stock.toString();
     isVariable = int.parse(product.isvariable.toString());
     typeValue = product.isvariable == 1 ? "VARIABLE" : "SIMPLE";
     _priceController.text = product.price.toString();
@@ -402,7 +404,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                                 Row(
                                   children: [
                                     const Text(
-                                      "Existencia",
+                                      "Existencia:",
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 18,
@@ -410,18 +412,26 @@ class _ProductDetailsState extends State<ProductDetails> {
                                       ),
                                     ),
                                     const SizedBox(width: 10),
-                                    SizedBox(
-                                      width: 150,
-                                      child: TextFormField(
-                                        controller: _stockController,
-                                        decoration: InputDecoration(
-                                          fillColor: Colors.white,
-                                          filled: true,
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5.0),
-                                          ),
-                                        ),
+                                    // SizedBox(
+                                    //   width: 150,
+                                    //   child: TextFormField(
+                                    //     controller: _stockController,
+                                    //     decoration: InputDecoration(
+                                    //       fillColor: Colors.white,
+                                    //       filled: true,
+                                    //       border: OutlineInputBorder(
+                                    //         borderRadius:
+                                    //             BorderRadius.circular(5.0),
+                                    //       ),
+                                    //     ),
+                                    //   ),
+                                    // ),
+                                    Text(
+                                      stock,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                        color: Colors.black,
                                       ),
                                     ),
                                   ],
@@ -437,7 +447,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                                 Row(
                                   children: [
                                     const Text(
-                                      "Precio Total",
+                                      "Precio Bodega",
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 18,
@@ -610,52 +620,52 @@ class _ProductDetailsState extends State<ProductDetails> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                TextButton(
-                                  onPressed: () async {
-                                    final ImagePicker picker = ImagePicker();
-                                    imgsTemporales = [];
-                                    List<XFile>? imagenes =
-                                        await picker.pickMultiImage();
+                            // Row(
+                            //   mainAxisAlignment: MainAxisAlignment.center,
+                            //   children: [
+                            //     TextButton(
+                            //       onPressed: () async {
+                            //         final ImagePicker picker = ImagePicker();
+                            //         imgsTemporales = [];
+                            //         List<XFile>? imagenes =
+                            //             await picker.pickMultiImage();
 
-                                    if (imagenes != null &&
-                                        imagenes.isNotEmpty) {
-                                      if (imagenes.length > 4) {
-                                        // ignore: use_build_context_synchronously
-                                        AwesomeDialog(
-                                          width: 500,
-                                          context: context,
-                                          dialogType: DialogType.error,
-                                          animType: AnimType.rightSlide,
-                                          title: 'Error de selección',
-                                          desc: 'Seleccione maximo 4 imagenes.',
-                                          btnCancel: Container(),
-                                          btnOkText: "Aceptar",
-                                          btnOkColor: colors.colorGreen,
-                                          btnCancelOnPress: () {},
-                                          btnOkOnPress: () {},
-                                        ).show();
-                                        // print(
-                                        //     "Error, Seleccione maximo 4 imagenes");
-                                      } else {
-                                        setState(() {
-                                          imgsTemporales.addAll(imagenes);
-                                        });
-                                      }
-                                    }
-                                  },
-                                  child: const Row(
-                                    children: [
-                                      Icon(Icons.image),
-                                      SizedBox(width: 10),
-                                      Text('Cambiar Imagen/es'),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
+                            //         if (imagenes != null &&
+                            //             imagenes.isNotEmpty) {
+                            //           if (imagenes.length > 4) {
+                            //             // ignore: use_build_context_synchronously
+                            //             AwesomeDialog(
+                            //               width: 500,
+                            //               context: context,
+                            //               dialogType: DialogType.error,
+                            //               animType: AnimType.rightSlide,
+                            //               title: 'Error de selección',
+                            //               desc: 'Seleccione maximo 4 imagenes.',
+                            //               btnCancel: Container(),
+                            //               btnOkText: "Aceptar",
+                            //               btnOkColor: colors.colorGreen,
+                            //               btnCancelOnPress: () {},
+                            //               btnOkOnPress: () {},
+                            //             ).show();
+                            //             // print(
+                            //             //     "Error, Seleccione maximo 4 imagenes");
+                            //           } else {
+                            //             setState(() {
+                            //               imgsTemporales.addAll(imagenes);
+                            //             });
+                            //           }
+                            //         }
+                            //       },
+                            //       child: const Row(
+                            //         children: [
+                            //           Icon(Icons.image),
+                            //           SizedBox(width: 10),
+                            //           Text('Cambiar Imagen/es'),
+                            //         ],
+                            //       ),
+                            //     ),
+                            //   ],
+                            // ),
                             const SizedBox(height: 15),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -680,24 +690,24 @@ class _ProductDetailsState extends State<ProductDetails> {
                                       ),
                               ],
                             ),
-                            SizedBox(
-                              height: 300,
-                              child: GridView.builder(
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 4,
-                                  crossAxisSpacing: 10,
-                                  mainAxisSpacing: 10,
-                                ),
-                                itemCount: imgsTemporales.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return Image.network(
-                                    (imgsTemporales[index].path),
-                                    fit: BoxFit.fill,
-                                  );
-                                },
-                              ),
-                            ),
+                            // SizedBox(
+                            //   height: 300,
+                            //   child: GridView.builder(
+                            //     gridDelegate:
+                            //         const SliverGridDelegateWithFixedCrossAxisCount(
+                            //       crossAxisCount: 4,
+                            //       crossAxisSpacing: 10,
+                            //       mainAxisSpacing: 10,
+                            //     ),
+                            //     itemCount: imgsTemporales.length,
+                            //     itemBuilder: (BuildContext context, int index) {
+                            //       return Image.network(
+                            //         (imgsTemporales[index].path),
+                            //         fit: BoxFit.fill,
+                            //       );
+                            //     },
+                            //   ),
+                            // ),
                           ],
                         ),
                       ),
@@ -733,12 +743,12 @@ class _ProductDetailsState extends State<ProductDetails> {
                                     //     .updateProduct0(codigo, {
                                     //   "product_name":
                                     //       _nameController.text.toString(),
-                                    //   "stock": int.parse(
-                                    //       _stockController.text.toString()),
+                                    //   // "stock": int.parse(
+                                    //   //     _stockController.text.toString()),
                                     //   "features": featuresToSend,
                                     //   "price": double.parse(
                                     //       _priceController.text.toString()),
-                                    //   "url_img": img_url.toString(),
+                                    //   // "url_img": img_url.toString(),
                                     //   "warehouse_id": warehouseValue
                                     //       .toString()
                                     //       .split("-")[1]

@@ -399,8 +399,8 @@ class _AddProductState extends State<AddProduct> {
                                         chipLabel +=
                                             " - Tamaño: ${variable['dimension']}";
                                       }
-                                      chipLabel +=
-                                          " - Precio: \$${variable['price']}";
+                                      // chipLabel +=
+                                      //     " - Precio: \$${variable['price']}";
                                       chipLabel +=
                                           " - Cantidad: ${variable['inventory']}";
 
