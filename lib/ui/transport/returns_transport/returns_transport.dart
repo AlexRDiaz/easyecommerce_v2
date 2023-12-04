@@ -44,7 +44,8 @@ class _ReturnsTransportState extends State<ReturnsTransport> {
     'PENDIENTE',
     'DEVOLUCION EN RUTA',
     'ENTREGADO EN OFICINA',
-    'EN BODEGA'
+    'EN BODEGA',
+    'EN BODEGA PROVEEDOR',
   ];
 //   List populate = [
 //     'transportadora.operadores.user',

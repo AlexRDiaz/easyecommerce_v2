@@ -719,7 +719,7 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
 
   formatDate(dateStringFromDatabase) {
     DateTime dateTime = DateTime.parse(dateStringFromDatabase);
-    Duration offset = const Duration(hours: -5);
+    Duration offset = const Duration(hours: -7);
     dateTime = dateTime.toUtc().add(offset);
     String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
     return formattedDate;
