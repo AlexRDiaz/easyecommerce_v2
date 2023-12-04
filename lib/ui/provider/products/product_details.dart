@@ -1,12 +1,18 @@
 import 'dart:convert';
 
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:frontend/config/colors.dart';
+import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/models/product_model.dart';
+import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/provider/products/controllers/product_controller.dart';
+import 'package:frontend/ui/provider/warehouses/controllers/warehouses_controller.dart';
 import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/html_editor.dart';
 import 'package:frontend/ui/widgets/loading.dart';
@@ -28,6 +34,7 @@ class ProductDetails extends StatefulWidget {
 class _ProductDetailsState extends State<ProductDetails> {
   String codigo = "";
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _nameGuideController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _stockController = TextEditingController();
   String createdAt = "";
@@ -36,81 +43,113 @@ class _ProductDetailsState extends State<ProductDetails> {
   var typeValue;
   var descripcion;
   List<String> categories = [];
-  final TextEditingController _typeController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _nameGuideController = TextEditingController();
-
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
   var data = {};
   List<dynamic> dataL = [];
   List<Map<String, dynamic>> listaProduct = [];
   List<String> listCategories = UIUtils.categories();
-  List<String> types = UIUtils.typesProduct();
-
-  List<String> warehousesToSelect = [];
-  List warehouseList = [];
 
   var selectedCat;
-  List<dynamic> dataFeatures = [];
+  var dataFeatures = [];
   late ProductController _productController;
 
   List<String> urlsImgsList = [];
   int isVariable = 0;
   int approved = 0;
+  late WrehouseController _warehouseController;
+  List<WarehouseModel> warehousesList = [];
+  List<String> warehousesToSelect = [];
+  String variablesText = "";
+  //multi img show temp
+  List<XFile> imgsTemporales = [];
 
   @override
   void initState() {
     super.initState();
-    loadTextEdtingControllers(widget.data);
     _productController = ProductController();
-
+    _warehouseController = WrehouseController();
+    loadTextEdtingControllers(widget.data);
     getWarehouses();
   }
 
+  Future<List<WarehouseModel>> _getWarehousesData() async {
+    await _warehouseController.loadWarehouses(); //byprovider loged
+    return _warehouseController.warehouses;
+  }
+
   getWarehouses() async {
-    var responseBodegas = await Connections().getWarehousesProvider(
-        int.parse(sharedPrefs!.getString("idProvider").toString()));
-    warehouseList = responseBodegas;
-    if (warehouseList != null) {
-      for (var warehouse in warehouseList) {
+    var responseBodegas = await _getWarehousesData();
+    warehousesList = responseBodegas;
+    for (var warehouse in warehousesList) {
+      if (warehouse.approved == 1 && warehouse.active == 1) {
         setState(() {
-          warehousesToSelect.add(
-              '${warehouse["warehouse_id"]}-${warehouse["branch_name"]}-${warehouse["city"]}');
+          warehousesToSelect
+              .add('${warehouse.id}-${warehouse.branchName}-${warehouse.city}');
         });
       }
     }
   }
 
   loadTextEdtingControllers(newData) {
-    data = newData;
-    print(data);
-    codigo = data['product_id'].toString();
-    _nameController.text = data['product_name'];
-    createdAt = formatDate(data['created_at'].toString());
-    approved = data['approved'];
-    _stockController.text = data['stock'].toString();
-    _priceController.text = data['price'].toString();
+    ProductModel product = ProductModel.fromJson(newData);
+    codigo = product.productId.toString();
+    _nameController.text = product.productName.toString();
+    createdAt = formatDate(product.createdAt.toString());
+    approved = product.approved!;
+    _stockController.text = product.stock.toString();
+    isVariable = int.parse(product.isvariable.toString());
+    typeValue = product.isvariable == 1 ? "VARIABLE" : "SIMPLE";
+    _priceController.text = product.price.toString();
     warehouseValue =
-        '${data['warehouse']["warehouse_id"]}-${data['warehouse']['branch_name'].toString()}-${data['warehouse']['city'].toString()}';
-    print(warehouseValue);
+        '${product.warehouse!.id.toString()}-${product.warehouse!.branchName.toString()}-${product.warehouse!.city.toString()}';
 
-    // img_url = data['url_img'].toString();
-    // if (img_url == "null" || img_url == "") {
-    //   img_url = "";
-    // }
+    urlsImgsList = product.urlImg != null &&
+            product.urlImg.isNotEmpty &&
+            product.urlImg.toString() != "[]"
+        ? (jsonDecode(product.urlImg) as List).cast<String>()
+        : [];
+    print(product.urlImg);
+    //
+    dataFeatures = jsonDecode(product.features);
+    _nameGuideController.text = findValue(dataFeatures, 'guide_name') ?? "";
+
+    categories = findCategories(dataFeatures);
 
     // // print("img incoming: ${img_url.toString()}");
-    // if (data['features'] != null) {
-    //   dataFeatures = json.decode(data['features']);
-    //   // print(dataFeatures);
-    //   // type = findValue(dataFeatures, 'type')?.toString();
-    //   typeValue = findValue(dataFeatures, 'type');
-    //   _typeController.text = typeValue;
-    //   descripcion = findValue(dataFeatures, 'description') ?? "";
-    //   _descriptionController.text = "descripcion";
-    //   categories = findCategories(dataFeatures);
-    // }
+    if (product.isvariable == 1) {
+      List<Map<String, dynamic>> variables = dataFeatures
+          .where((feature) => feature.containsKey("variables"))
+          .expand((feature) => (feature["variables"] as List<dynamic>)
+              .cast<Map<String, dynamic>>())
+          .toList();
+
+      variablesText = variables.map((variable) {
+        List<String> variableDetails = [];
+
+        if (variable.containsKey('sku')) {
+          variableDetails.add("SKU: ${variable['sku']}");
+        }
+        if (variable.containsKey('color')) {
+          variableDetails.add("Color: ${variable['color']}");
+        }
+        if (variable.containsKey('size')) {
+          variableDetails.add("Talla: ${variable['size']}");
+        }
+        if (variable.containsKey('dimension')) {
+          variableDetails.add("Tamaño: ${variable['dimension']}");
+        }
+        if (variable.containsKey('inventory')) {
+          variableDetails.add("Cantidad: ${variable['inventory']}");
+        }
+        if (variable.containsKey('price')) {
+          variableDetails.add("Precio: ${variable['price']}");
+        }
+
+        return variableDetails.join('; ');
+      }).join('\n');
+    }
 
     setState(() {});
   }
@@ -259,6 +298,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                                 const SizedBox(height: 3),
                                 TextFormField(
                                   controller: _nameController,
+                                  maxLines: null,
                                   decoration: InputDecoration(
                                     fillColor: Colors.white,
                                     filled: true,
@@ -279,7 +319,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                                     'Nombre para mostrar en la guia de envio:'),
                                 const SizedBox(height: 3),
                                 TextFormField(
-                                  controller: _priceController,
+                                  controller: _nameGuideController,
                                   decoration: InputDecoration(
                                     fillColor: Colors.white,
                                     filled: true,
@@ -294,67 +334,64 @@ class _ProductDetailsState extends State<ProductDetails> {
                         ],
                       ),
                       const SizedBox(height: 20),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  "Tipo",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                const SizedBox(width: 20),
-                                DropdownButton<String>(
-                                  hint: const Text("Seleccione un tipo"),
-                                  value: typeValue,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      typeValue = value ?? "";
-                                    });
-                                  },
-                                  items: types.map((String category) {
-                                    return DropdownMenuItem<String>(
-                                      value: category,
-                                      child: Text(
-                                        category,
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
+                      Row(children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  SizedBox(
+                                    width: 150,
+                                    child: Row(
+                                      children: [
+                                        const Text(
+                                          "Tipo: ",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                            color: Colors.black,
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  }).toList(),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 20),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('Variables'),
-                                const SizedBox(height: 3),
-                                TextFormField(
-                                  controller: _priceController,
-                                  decoration: InputDecoration(
-                                    fillColor: Colors.white,
-                                    filled: true,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(5.0),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          isVariable == 1
+                                              ? "VARIABLE"
+                                              : "SIMPLE",
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.grey[800],
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
+                                  const SizedBox(width: 10),
+                                  Visibility(
+                                    visible: isVariable == 1,
+                                    child: Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Text('Variables'),
+                                          const SizedBox(height: 3),
+                                          Text(
+                                            variablesText,
+                                            style: const TextStyle(
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ]),
                       const SizedBox(height: 20),
                       Row(
                         children: [
@@ -499,13 +536,10 @@ class _ProductDetailsState extends State<ProductDetails> {
                                     ),
                                   ),
                                   items: warehousesToSelect.map((item) {
-                                    var parts = item.split('-');
-                                    var branchName = parts[1];
-                                    var city = parts[2];
                                     return DropdownMenuItem(
                                       value: item,
                                       child: Text(
-                                        '$branchName - $city',
+                                        item,
                                         style: const TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.bold,
@@ -579,37 +613,45 @@ class _ProductDetailsState extends State<ProductDetails> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                ElevatedButton(
+                                TextButton(
                                   onPressed: () async {
-                                    // final ImagePicker picker = ImagePicker();
-                                    // final XFile? image = await picker.pickImage(
-                                    //     source: ImageSource.gallery);
+                                    final ImagePicker picker = ImagePicker();
+                                    imgsTemporales = [];
+                                    List<XFile>? imagenes =
+                                        await picker.pickMultiImage();
 
-                                    // if (image != null &&
-                                    //     image.path.isNotEmpty) {
-                                    //   var responseI =
-                                    //       await Connections().postDoc(image);
-                                    //   // print("ImgSaveStrapi: $responseI");
-
-                                    //   setState(() {
-                                    //     img_url = responseI[1];
-                                    //   });
-
-                                    //   // Navigator.pop(context);
-                                    //   // Navigator.pop(context);
-                                    // } else {
-                                    //   print("No img");
-                                    // }
+                                    if (imagenes != null &&
+                                        imagenes.isNotEmpty) {
+                                      if (imagenes.length > 4) {
+                                        // ignore: use_build_context_synchronously
+                                        AwesomeDialog(
+                                          width: 500,
+                                          context: context,
+                                          dialogType: DialogType.error,
+                                          animType: AnimType.rightSlide,
+                                          title: 'Error de selección',
+                                          desc: 'Seleccione maximo 4 imagenes.',
+                                          btnCancel: Container(),
+                                          btnOkText: "Aceptar",
+                                          btnOkColor: colors.colorGreen,
+                                          btnCancelOnPress: () {},
+                                          btnOkOnPress: () {},
+                                        ).show();
+                                        // print(
+                                        //     "Error, Seleccione maximo 4 imagenes");
+                                      } else {
+                                        setState(() {
+                                          imgsTemporales.addAll(imagenes);
+                                        });
+                                      }
+                                    }
                                   },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.blue[300],
-                                  ),
-                                  child: const Text(
-                                    "Agregar imagen",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12,
-                                    ),
+                                  child: const Row(
+                                    children: [
+                                      Icon(Icons.image),
+                                      SizedBox(width: 10),
+                                      Text('Cambiar Imagen/es'),
+                                    ],
                                   ),
                                 ),
                               ],
@@ -618,17 +660,43 @@ class _ProductDetailsState extends State<ProductDetails> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                img_url.isNotEmpty || img_url != ""
-                                    ? SizedBox(
-                                        width: 300,
-                                        height: 400,
-                                        child: Image.network(
-                                          "$generalServer$img_url",
-                                          fit: BoxFit.fill,
+                                if (imgsTemporales
+                                    .isEmpty) // Mostrar solo si imgsTemporales está vacío
+                                  for (String imageUrl in urlsImgsList)
+                                    if (imageUrl.isNotEmpty &&
+                                        imageUrl != "" &&
+                                        imageUrl.toString() != "[]")
+                                      Container(
+                                        margin:
+                                            const EdgeInsets.only(right: 10),
+                                        child: SizedBox(
+                                          width: 250,
+                                          height: 300,
+                                          child: Image.network(
+                                            "$generalServer${imageUrl.toString()}",
+                                            fit: BoxFit.fill,
+                                          ),
                                         ),
-                                      )
-                                    : Container(),
+                                      ),
                               ],
+                            ),
+                            SizedBox(
+                              height: 300,
+                              child: GridView.builder(
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 4,
+                                  crossAxisSpacing: 10,
+                                  mainAxisSpacing: 10,
+                                ),
+                                itemCount: imgsTemporales.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return Image.network(
+                                    (imgsTemporales[index].path),
+                                    fit: BoxFit.fill,
+                                  );
+                                },
+                              ),
                             ),
                           ],
                         ),
@@ -677,19 +745,19 @@ class _ProductDetailsState extends State<ProductDetails> {
                                     //       .toString()
                                     // });
 
-                                    _productController.editProduct(ProductModel(
-                                      productName: _nameController.text,
-                                      stock: int.parse(_stockController.text),
-                                      price:
-                                          double.parse(_priceController.text),
-                                      urlImg: urlsImgsList,
-                                      isvariable: isVariable,
-                                      features: featuresToSend,
-                                      warehouseId: int.parse(warehouseValue
-                                          .toString()
-                                          .split("-")[0]
-                                          .toString()),
-                                    ));
+                                    // _productController.editProduct(ProductModel(
+                                    //   productName: _nameController.text,
+                                    //   stock: int.parse(_stockController.text),
+                                    //   price:
+                                    //       double.parse(_priceController.text),
+                                    //   urlImg: urlsImgsList,
+                                    //   isvariable: isVariable,
+                                    //   features: featuresToSend,
+                                    //   warehouseId: int.parse(warehouseValue
+                                    //       .toString()
+                                    //       .split("-")[0]
+                                    //       .toString()),
+                                    // ));
 
                                     Navigator.pop(context);
                                     Navigator.pop(context);
@@ -844,5 +912,48 @@ class _ProductDetailsState extends State<ProductDetails> {
     dateTime = dateTime.toUtc().add(offset);
     String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
     return formattedDate;
+  }
+}
+
+//class
+
+class TextFieldWithIcon extends StatelessWidget {
+  final TextEditingController controller;
+  final String labelText;
+  final IconData icon;
+  final TextInputType inputType;
+  final List<TextInputFormatter>? inputFormatters;
+
+  const TextFieldWithIcon({
+    Key? key,
+    required this.controller,
+    required this.labelText,
+    required this.icon,
+    required this.inputType,
+    this.inputFormatters,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: inputType,
+        inputFormatters: inputFormatters,
+        decoration: InputDecoration(
+          prefixIcon: Icon(icon, color: ColorsSystem().colorSelectMenu),
+          labelText: labelText,
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+        ),
+        style: const TextStyle(
+          color: Colors.black,
+        ),
+      ),
+    );
   }
 }

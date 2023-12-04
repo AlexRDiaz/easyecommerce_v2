@@ -16,6 +16,7 @@ class ProductCard extends StatelessWidget {
     double screenWidth = MediaQuery.of(context).size.width;
     double textSize = screenWidth > 600 ? 16 : 12;
     double iconSize = screenWidth > 600 ? 70 : 25;
+
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
@@ -25,12 +26,15 @@ class ProductCard extends StatelessWidget {
       child: InkWell(
         onTap: () => onTapCallback(context),
         child: Stack(
+          fit: StackFit.expand,
           children: [
             Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(5),
               ),
-              child: product.urlImg != null
+              child: product.urlImg != null &&
+                      product.urlImg.isNotEmpty &&
+                      product.urlImg.toString() != "[]"
                   ? ClipRRect(
                       borderRadius: BorderRadius.circular(5),
                       child: Image.network(
@@ -57,17 +61,17 @@ class ProductCard extends StatelessWidget {
                         },
                       ),
                     )
-                  : Icon(Icons.store, size: iconSize, color: Colors.white),
+                  : Container(
+                      color: Colors.white,
+                      // child: Icon(Icons.shopping_bag,
+                      //     size: iconSize, color: Colors.deepPurple[800]),
+                    ),
             ),
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
                 decoration: const BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(20),
-                    bottomRight: Radius.circular(20.0),
-                  ),
                 ),
                 width: double.infinity,
                 child: Column(

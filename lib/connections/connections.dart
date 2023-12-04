@@ -5826,8 +5826,18 @@ class Connections {
   }
 
 //  *
-  getProductsCatalog(
-      populate, page_size, current_page, or, and, sort, search) async {
+  getProductsCatalog(populate, page_size, current_page, or, and, outFilter,
+      sort, search) async {
+    print(json.encode({
+      "populate": populate,
+      "page_size": page_size,
+      "page_number": current_page,
+      "or": or,
+      "and": and,
+      "out_filters": outFilter,
+      "sort": sort,
+      "search": search
+    }));
     try {
       var response =
           await http.post(Uri.parse("$serverLaravel/api/products/all"),
@@ -5838,6 +5848,7 @@ class Connections {
                 "page_number": current_page,
                 "or": or,
                 "and": and,
+                "out_filters": outFilter,
                 "sort": sort,
                 "search": search
               }));

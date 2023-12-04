@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:frontend/config/colors.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/models/product_model.dart';
@@ -12,6 +13,7 @@ import 'package:frontend/ui/provider/warehouses/controllers/warehouses_controlle
 import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/product/product_card.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_html/flutter_html.dart';
 
 class Catalog extends StatefulWidget {
   const Catalog({super.key});
@@ -36,6 +38,7 @@ class _CatalogState extends State<Catalog> {
   List populate = ["warehouse"];
   List arrayFiltersOr = ["product_name", "stock", "price"];
   List arrayFiltersAnd = [];
+  List outFilter = [];
   var sortFieldDefaultValue = "product_id:DESC";
   TextEditingController _search = TextEditingController(text: "");
 
@@ -49,6 +52,9 @@ class _CatalogState extends State<Catalog> {
 
   List<String> selectedCategoriesList = [];
   String? selectedCategory;
+  double _startValue = 0.0;
+  double _endValue = 0.0;
+  RangeValues _currentRangeValues = const RangeValues(1, 1000);
 
   @override
   void initState() {
@@ -67,6 +73,7 @@ class _CatalogState extends State<Catalog> {
         currentPage,
         arrayFiltersOr,
         arrayFiltersAnd,
+        outFilter,
         sortFieldDefaultValue,
         _search.text);
     return _productController.products;
@@ -121,7 +128,7 @@ class _CatalogState extends State<Catalog> {
               child: Center(
                 child: Container(
                   margin: const EdgeInsets.all(6.0),
-                  padding: const EdgeInsets.all(10.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 50.0),
                   child: Column(
                     children: [
                       const SizedBox(height: 10),
@@ -303,7 +310,7 @@ class _CatalogState extends State<Catalog> {
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                        items: categoriesToSelect
+                                        items: ['TODO', ...categoriesToSelect]
                                             .map((item) => DropdownMenuItem(
                                                   value: item,
                                                   child: Text(
@@ -316,17 +323,36 @@ class _CatalogState extends State<Catalog> {
                                                   ),
                                                 ))
                                             .toList(),
-                                        value: selectedCategory,
+                                        value: selectedCategory ?? 'TODO',
                                         onChanged: (value) {
-                                          selectedCategory = value;
+                                          setState(() {
+                                            selectedCategory = value;
+                                            if (value != 'TODO') {
+                                              if (!selectedCategoriesList
+                                                  .contains(selectedCategory)) {
+                                                setState(() {
+                                                  selectedCategoriesList
+                                                      .add(selectedCategory!);
+                                                });
+                                              }
 
-                                          if (!selectedCategoriesList
-                                              .contains(selectedCategory)) {
-                                            setState(() {
-                                              selectedCategoriesList
-                                                  .add(selectedCategory!);
-                                            });
-                                          }
+                                              bool priceRangeExists =
+                                                  outFilter.any((filter) =>
+                                                      filter.containsKey(
+                                                          "input_categories"));
+                                              if (!priceRangeExists) {
+                                                outFilter.add({
+                                                  "input_categories":
+                                                      selectedCategoriesList
+                                                });
+                                              }
+                                            } else {
+                                              outFilter.removeWhere((filter) =>
+                                                  filter.containsKey(
+                                                      "input_categories"));
+                                            }
+                                          });
+                                          //
                                         },
                                         decoration: InputDecoration(
                                           fillColor: Colors.white,
@@ -337,30 +363,123 @@ class _CatalogState extends State<Catalog> {
                                           ),
                                         ),
                                       ),
+                                      const SizedBox(height: 5),
+                                      Wrap(
+                                        spacing: 8.0,
+                                        runSpacing: 8.0,
+                                        children: selectedCategoriesList
+                                            .map<Widget>((category) {
+                                          return Chip(
+                                            label: Text(category),
+                                            backgroundColor: Colors.blue[50],
+                                            onDeleted: () {
+                                              setState(() {
+                                                selectedCategoriesList
+                                                    .remove(category);
+                                              });
+                                            },
+                                          );
+                                        }).toList(),
+                                      ),
                                     ])),
                           ),
-                          const SizedBox(width: 10),
-                          Expanded(
+                          const SizedBox(width: 20),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.2,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Wrap(
-                                  spacing: 8.0,
-                                  runSpacing: 8.0,
-                                  children: selectedCategoriesList
-                                      .map<Widget>((category) {
-                                    return Chip(
-                                      label: Text(category),
-                                      backgroundColor: Colors.blue[50],
-                                      onDeleted: () {
-                                        setState(() {
-                                          selectedCategoriesList
-                                              .remove(category);
-                                        });
-                                      },
-                                    );
-                                  }).toList(),
+                                Row(
+                                  children: [
+                                    const SizedBox(width: 30),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const SizedBox(width: 10),
+                                          const Text('Precio Min:'),
+                                          const SizedBox(height: 3),
+                                          Text(
+                                            '\$ ${_startValue.toString()}',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[800],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 30),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          const Text('Precio Max:'),
+                                          const SizedBox(height: 3),
+                                          Text(
+                                            '\$ ${_endValue.toString()}',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[800],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 30),
+                                  ],
                                 ),
+                                RangeSlider(
+                                  values: _currentRangeValues,
+                                  max: 1000,
+                                  divisions: 100,
+                                  labels: RangeLabels(
+                                    _currentRangeValues.start
+                                        .round()
+                                        .toString(),
+                                    _currentRangeValues.end.round().toString(),
+                                  ),
+                                  onChanged: (RangeValues values) {
+                                    setState(() {
+                                      _currentRangeValues = values;
+                                      _startValue = values.start;
+                                      _endValue = values.end;
+
+                                      bool priceRangeExists = outFilter.any(
+                                          (filter) => filter
+                                              .containsKey("price_range"));
+                                      if (!priceRangeExists) {
+                                        outFilter.add({
+                                          "price_range":
+                                              "${_startValue}-${_endValue}",
+                                        });
+                                      }
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          TextButton(
+                            onPressed: () async {
+                              setState(() {
+                                _startValue = 0.00;
+                                _endValue = 0.00;
+                                selectedProvider = 'TODO';
+                                selectedCategory = 'TODO';
+                                selectedCategoriesList = [];
+                                arrayFiltersAnd = [];
+                                outFilter = [];
+                              });
+                            },
+                            child: const Row(
+                              children: [
+                                Icon(Icons.clear),
+                                SizedBox(width: 5),
+                                Text('Limpiar Filtros'),
                               ],
                             ),
                           ),
@@ -405,7 +524,7 @@ class _CatalogState extends State<Catalog> {
                                     crossAxisCount: 4,
                                     crossAxisSpacing: 10,
                                     mainAxisSpacing: 10,
-                                    childAspectRatio: 1.8,
+                                    // childAspectRatio: 1.8,
                                   ),
                                   itemBuilder: (context, index) {
                                     ProductModel product = products[index];
@@ -457,43 +576,55 @@ class _CatalogState extends State<Catalog> {
         .map((feature) => feature["guide_name"] as String)
         .firstWhere((element) => element.isNotEmpty, orElse: () => '');
 
+    String sku = featuresList
+        .where((feature) => feature.containsKey("sku"))
+        .map((feature) => feature["sku"] as String)
+        .firstWhere((element) => element.isNotEmpty, orElse: () => '');
+
     String description = featuresList
         .where((feature) => feature.containsKey("description"))
         .map((feature) => feature["description"] as String)
         .firstWhere((element) => element.isNotEmpty, orElse: () => '');
+    String type = featuresList
+        .where((feature) => feature.containsKey("type"))
+        .map((feature) => feature["type"] as String)
+        .firstWhere((element) => element.isNotEmpty, orElse: () => '');
 
-    List<Map<String, dynamic>> variables = featuresList
-        .where((feature) => feature.containsKey("variables"))
-        .expand((feature) => (feature["variables"] as List<dynamic>)
-            .cast<Map<String, dynamic>>())
-        .toList();
+    String variablesText = "";
+
+    if (product.isvariable == 1) {
+      List<Map<String, dynamic>> variables = featuresList
+          .where((feature) => feature.containsKey("variables"))
+          .expand((feature) => (feature["variables"] as List<dynamic>)
+              .cast<Map<String, dynamic>>())
+          .toList();
 
 // Construir una cadena de texto con detalles de variables
-    String variablesText = variables.map((variable) {
-      List<String> variableDetails = [];
+      variablesText = variables.map((variable) {
+        List<String> variableDetails = [];
 
-      if (variable.containsKey('sku')) {
-        variableDetails.add("SKU: ${variable['sku']}");
-      }
-      if (variable.containsKey('color')) {
-        variableDetails.add("Color: ${variable['color']}");
-      }
-      if (variable.containsKey('size')) {
-        variableDetails.add("Talla: ${variable['size']}");
-      }
-      if (variable.containsKey('dimension')) {
-        variableDetails.add("Tamaño: ${variable['dimension']}");
-      }
-      if (variable.containsKey('inventory')) {
-        variableDetails.add("Cantidad: ${variable['inventory']}");
-      }
-      if (variable.containsKey('price')) {
-        variableDetails.add("Precio: ${variable['price']}");
-      }
+        if (variable.containsKey('sku')) {
+          variableDetails.add("SKU: ${variable['sku']}");
+        }
+        if (variable.containsKey('color')) {
+          variableDetails.add("Color: ${variable['color']}");
+        }
+        if (variable.containsKey('size')) {
+          variableDetails.add("Talla: ${variable['size']}");
+        }
+        if (variable.containsKey('dimension')) {
+          variableDetails.add("Tamaño: ${variable['dimension']}");
+        }
+        if (variable.containsKey('inventory')) {
+          variableDetails.add("Cantidad: ${variable['inventory']}");
+        }
+        // if (variable.containsKey('price')) {
+        //   variableDetails.add("Precio: ${variable['price']}");
+        // }
 
-      return variableDetails.join('\n');
-    }).join('\n\n');
-
+        return variableDetails.join('\n');
+      }).join('\n\n');
+    }
     showDialog(
       context: context,
       builder: (context) {
@@ -524,10 +655,14 @@ class _CatalogState extends State<Catalog> {
                             SizedBox(
                               width: MediaQuery.of(context).size.width * 0.3,
                               height: MediaQuery.of(context).size.height * 0.6,
-                              child: Image.network(
-                                "$generalServer${getFirstImgUrl(product.urlImg)}",
-                                fit: BoxFit.fill,
-                              ),
+                              child: product.urlImg != null &&
+                                      product.urlImg.isNotEmpty &&
+                                      product.urlImg.toString() != "[]"
+                                  ? Image.network(
+                                      "$generalServer${getFirstImgUrl(product.urlImg)}",
+                                      fit: BoxFit.fill,
+                                    )
+                                  : Container(), // Contenedor vacío si product.urlImg es nulo o vacío
                             ),
                           ],
                         ),
@@ -536,6 +671,21 @@ class _CatalogState extends State<Catalog> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            const SizedBox(height: 10),
+                            RichText(
+                              text: TextSpan(
+                                children: <TextSpan>[
+                                  TextSpan(
+                                    text: product.productName,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
+                                      color: Colors.black,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
                             const SizedBox(height: 10),
                             Row(
                               children: [
@@ -546,17 +696,72 @@ class _CatalogState extends State<Catalog> {
                                     children: [
                                       Row(
                                         children: [
-                                          Flexible(
-                                            child: Text(
-                                              "${product.productName}",
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 20,
-                                                color: Colors.grey[800],
-                                              ),
-                                              overflow: TextOverflow
-                                                  .ellipsis, // Puedes ajustar según tus necesidades
-                                              softWrap: true,
+                                          const Text(
+                                            "SKU:",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            sku,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[800],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            const Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            "Descripción:",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const SizedBox(width: 10),
+                                          Expanded(
+                                            child: Html(
+                                              data: description,
+                                              style: {
+                                                'p': Style(
+                                                    fontSize: FontSize(16),
+                                                    color: Colors.grey[800]),
+                                              },
                                             ),
                                           ),
                                         ],
@@ -719,9 +924,7 @@ class _CatalogState extends State<Catalog> {
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
-                                            product.isvariable == 1
-                                                ? "VARIABLE"
-                                                : "SIMPLE",
+                                            type,
                                             style: TextStyle(
                                               fontSize: 16,
                                               color: Colors.grey[800],
@@ -789,19 +992,18 @@ class _CatalogState extends State<Catalog> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              "Importar",
+                              "Adquirir",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                               ),
                             ),
-                            SizedBox(width: 5),
                           ],
                         ),
                       ),
-                      const SizedBox(width: 5),
                     ],
                   ),
+                  const SizedBox(height: 30),
                 ],
               ),
             ),

@@ -85,10 +85,10 @@ class ProductController extends ControllerMVC {
   }
 
   Future<void> loadProductsCatalog(
-      populate, pageSize, currentPage, or, and, sort, search) async {
+      populate, pageSize, currentPage, or, and, outFilter, sort, search) async {
     try {
       var response = await Connections().getProductsCatalog(
-          populate, pageSize, currentPage, or, and, sort, search);
+          populate, pageSize, currentPage, or, and, outFilter, sort, search);
       if (response == 1) {
         print('Error: Status Code 1');
       } else if (response == 2) {
