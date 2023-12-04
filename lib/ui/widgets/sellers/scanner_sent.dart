@@ -34,7 +34,6 @@ class _ScannerStateSent extends State<ScannerSent> {
               child: BarcodeKeyboardListener(
                 bufferDuration: Duration(milliseconds: 200),
                 onBarcodeScanned: (barcode) async {
-                  // barcode = "112907";
                   if (!visible) return;
                   getLoadingModal(context, false);
 
