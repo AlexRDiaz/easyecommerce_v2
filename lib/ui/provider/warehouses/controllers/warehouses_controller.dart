@@ -20,12 +20,13 @@ class WrehouseController extends ControllerMVC {
       int warehouseId,
       String nameSucursal,
       String address,
+      String customerphoneNumber,
       String reference,
       String description,
       String url_image,
       String city,
       var collection) async {
-    await Connections().updateWarehouse(warehouseId, nameSucursal, address,
+    await Connections().updateWarehouse(warehouseId, nameSucursal, address, customerphoneNumber,
         reference, description, url_image, city, collection);
     setState(() {});
   }

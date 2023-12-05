@@ -249,15 +249,15 @@ class _ResolvedNoveltiesState extends State<ResolvedNovelties> {
         }
       ];
 
-      dateStart = sharedPrefs!.getString("dateDesdeTransportadora").toString();
-      dateEnd = sharedPrefs!.getString("dateHastaTransportadora").toString();
+      dateStart = "1/1/2010";
+      dateEnd = "1/1/2200";
     } else if (widget.idRolInvokeClass == 4) {
       defaultArrayFiltersAnd = [
         {"equals/estado_devolucion": "PENDIENTE"},
         {"equals/operadore.operadore_id": sharedPrefs!.getString("idOperadore")}
       ];
-      dateStart = sharedPrefs!.getString("dateDesdeOperador").toString();
-      dateEnd = sharedPrefs!.getString("dateHastaOperador").toString();
+      dateStart = "1/1/2010";
+      dateEnd = "1/1/2200";
     }
   }
 
@@ -782,130 +782,130 @@ class _ResolvedNoveltiesState extends State<ResolvedNovelties> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              TextButton(
-                  onPressed: () async {
-                    var results = await showCalendarDatePicker2Dialog(
-                      context: context,
-                      config: CalendarDatePicker2WithActionButtonsConfig(
-                        dayTextStyle: TextStyle(fontWeight: FontWeight.bold),
-                        yearTextStyle: TextStyle(fontWeight: FontWeight.bold),
-                        selectedYearTextStyle:
-                            TextStyle(fontWeight: FontWeight.bold),
-                        weekdayLabelTextStyle:
-                            TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      dialogSize: const Size(325, 400),
-                      value: [],
-                      borderRadius: BorderRadius.circular(15),
-                    );
-                    setState(() {
-                      if (results != null) {
-                        String fechaOriginal = results![0]
-                            .toString()
-                            .split(" ")[0]
-                            .split('-')
-                            .reversed
-                            .join('-')
-                            .replaceAll("-", "/");
-                        List<String> componentes = fechaOriginal.split('/');
+              // TextButton(
+              //     onPressed: () async {
+              //       var results = await showCalendarDatePicker2Dialog(
+              //         context: context,
+              //         config: CalendarDatePicker2WithActionButtonsConfig(
+              //           dayTextStyle: TextStyle(fontWeight: FontWeight.bold),
+              //           yearTextStyle: TextStyle(fontWeight: FontWeight.bold),
+              //           selectedYearTextStyle:
+              //               TextStyle(fontWeight: FontWeight.bold),
+              //           weekdayLabelTextStyle:
+              //               TextStyle(fontWeight: FontWeight.bold),
+              //         ),
+              //         dialogSize: const Size(325, 400),
+              //         value: [],
+              //         borderRadius: BorderRadius.circular(15),
+              //       );
+              //       setState(() {
+              //         if (results != null) {
+              //           String fechaOriginal = results![0]
+              //               .toString()
+              //               .split(" ")[0]
+              //               .split('-')
+              //               .reversed
+              //               .join('-')
+              //               .replaceAll("-", "/");
+              //           List<String> componentes = fechaOriginal.split('/');
 
-                        String dia = int.parse(componentes[0]).toString();
-                        String mes = int.parse(componentes[1]).toString();
-                        String anio = componentes[2];
+              //           String dia = int.parse(componentes[0]).toString();
+              //           String mes = int.parse(componentes[1]).toString();
+              //           String anio = componentes[2];
 
-                        String nuevaFecha = "$dia/$mes/$anio";
+              //           String nuevaFecha = "$dia/$mes/$anio";
 
-                        if (widget.idRolInvokeClass! == 4) {
-                          sharedPrefs!
-                              .setString("dateDesdeOperador", nuevaFecha);
-                        } else if (widget.idRolInvokeClass! == 3) {
-                          sharedPrefs!
-                              .setString("dateDesdeTransportadora", nuevaFecha);
-                        }
-                      }
-                    });
-                  },
-                  child: widget.idRolInvokeClass == 4
-                      ? Text(
-                          "DESDE: ${sharedPrefs!.getString("dateDesdeOperador")}",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        )
-                      : Text(
-                          "DESDE: ${sharedPrefs!.getString("dateDesdeTransportadora")}",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        )),
-              SizedBox(
-                width: 10,
-              ),
-              TextButton(
-                  onPressed: () async {
-                    var results = await showCalendarDatePicker2Dialog(
-                      context: context,
-                      config: CalendarDatePicker2WithActionButtonsConfig(
-                        dayTextStyle: TextStyle(fontWeight: FontWeight.bold),
-                        yearTextStyle: TextStyle(fontWeight: FontWeight.bold),
-                        selectedYearTextStyle:
-                            TextStyle(fontWeight: FontWeight.bold),
-                        weekdayLabelTextStyle:
-                            TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      dialogSize: const Size(325, 400),
-                      value: [],
-                      borderRadius: BorderRadius.circular(15),
-                    );
-                    setState(() {
-                      if (results != null) {
-                        String fechaOriginal = results![0]
-                            .toString()
-                            .split(" ")[0]
-                            .split('-')
-                            .reversed
-                            .join('-')
-                            .replaceAll("-", "/");
-                        List<String> componentes = fechaOriginal.split('/');
+              //           if (widget.idRolInvokeClass! == 4) {
+              //             sharedPrefs!
+              //                 .setString("dateDesdeOperador", nuevaFecha);
+              //           } else if (widget.idRolInvokeClass! == 3) {
+              //             sharedPrefs!
+              //                 .setString("dateDesdeTransportadora", nuevaFecha);
+              //           }
+              //         }
+              //       });
+              //     },
+              //     child: widget.idRolInvokeClass == 4
+              //         ? Text(
+              //             "DESDE: ${sharedPrefs!.getString("dateDesdeOperador")}",
+              //             style: TextStyle(fontWeight: FontWeight.bold),
+              //           )
+              //         : Text(
+              //             "DESDE: ${sharedPrefs!.getString("dateDesdeTransportadora")}",
+              //             style: TextStyle(fontWeight: FontWeight.bold),
+              //           )),
+              // SizedBox(
+              //   width: 10,
+              // ),
+              // TextButton(
+              //     onPressed: () async {
+              //       var results = await showCalendarDatePicker2Dialog(
+              //         context: context,
+              //         config: CalendarDatePicker2WithActionButtonsConfig(
+              //           dayTextStyle: TextStyle(fontWeight: FontWeight.bold),
+              //           yearTextStyle: TextStyle(fontWeight: FontWeight.bold),
+              //           selectedYearTextStyle:
+              //               TextStyle(fontWeight: FontWeight.bold),
+              //           weekdayLabelTextStyle:
+              //               TextStyle(fontWeight: FontWeight.bold),
+              //         ),
+              //         dialogSize: const Size(325, 400),
+              //         value: [],
+              //         borderRadius: BorderRadius.circular(15),
+              //       );
+              //       setState(() {
+              //         if (results != null) {
+              //           String fechaOriginal = results![0]
+              //               .toString()
+              //               .split(" ")[0]
+              //               .split('-')
+              //               .reversed
+              //               .join('-')
+              //               .replaceAll("-", "/");
+              //           List<String> componentes = fechaOriginal.split('/');
 
-                        String dia = int.parse(componentes[0]).toString();
-                        String mes = int.parse(componentes[1]).toString();
-                        String anio = componentes[2];
+              //           String dia = int.parse(componentes[0]).toString();
+              //           String mes = int.parse(componentes[1]).toString();
+              //           String anio = componentes[2];
 
-                        String nuevaFecha = "$dia/$mes/$anio";
+              //           String nuevaFecha = "$dia/$mes/$anio";
 
-                        if (widget.idRolInvokeClass! == 4) {
-                          sharedPrefs!
-                              .setString("dateHastaOperador", nuevaFecha);
-                        } else if (widget.idRolInvokeClass! == 3) {
-                          sharedPrefs!
-                              .setString("dateHastaTransportadora", nuevaFecha);
-                        }
-                      }
-                    });
-                  },
-                  child: widget.idRolInvokeClass == 4
-                      ? Text(
-                          "HASTA: ${sharedPrefs!.getString("dateHastaOperador")}",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        )
-                      : Text(
-                          "HASTA: ${sharedPrefs!.getString("dateHastaTransportadora")}",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        )),
-              SizedBox(
-                width: 10,
-              ),
-              ElevatedButton(
-                  onPressed: () async {
-                    setState(() {
-                      _search.clear();
-                    });
-                    await loadData();
-                  },
-                  child: Text(
-                    "BUSCAR",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  )),
-              SizedBox(
-                width: 10,
-              ),
+              //           if (widget.idRolInvokeClass! == 4) {
+              //             sharedPrefs!
+              //                 .setString("dateHastaOperador", nuevaFecha);
+              //           } else if (widget.idRolInvokeClass! == 3) {
+              //             sharedPrefs!
+              //                 .setString("dateHastaTransportadora", nuevaFecha);
+              //           }
+              //         }
+              //       });
+              //     },
+              //     child: widget.idRolInvokeClass == 4
+              //         ? Text(
+              //             "HASTA: ${sharedPrefs!.getString("dateHastaOperador")}",
+              //             style: TextStyle(fontWeight: FontWeight.bold),
+              //           )
+              //         : Text(
+              //             "HASTA: ${sharedPrefs!.getString("dateHastaTransportadora")}",
+              //             style: TextStyle(fontWeight: FontWeight.bold),
+              //           )),
+              // SizedBox(
+              //   width: 10,
+              // ),
+              // ElevatedButton(
+              //     onPressed: () async {
+              //       setState(() {
+              //         _search.clear();
+              //       });
+              //       await loadData();
+              //     },
+              //     child: Text(
+              //       "BUSCAR",
+              //       style: TextStyle(fontWeight: FontWeight.bold),
+              //     )),
+              // SizedBox(
+              //   width: 10,
+              // ),
               ElevatedButton(
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all(

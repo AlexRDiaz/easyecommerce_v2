@@ -1,5 +1,6 @@
 // ignore_for_file: unnecessary_null_comparison, use_build_context_synchronously
 
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
@@ -8,6 +9,7 @@ import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
 // import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
 import 'package:frontend/ui/transport/delivery_status_transport/Opcion.dart';
+import 'package:frontend/ui/transport/delivery_status_transport/controllers/generate_report_delivery_status_transport.dart';
 import 'package:frontend/ui/widgets/OptionsWidget.dart';
 import 'package:frontend/ui/transport/delivery_status_transport/delivery_details.dart';
 import 'package:frontend/ui/transport/delivery_status_transport/scanner_delivery_status_transport.dart';
@@ -59,6 +61,8 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
   var arrayDateRanges = [];
   var sortFieldDefaultValue = "marca_tiempo_envio:DESC";
   bool changevalue = false;
+
+  var getReport = CreateReportDeliveryStatutsTransport();
 
   // {
   //   "filter": 'transportadora',
@@ -1236,6 +1240,65 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                     Icon(Icons.filter_alt), // Agregar el icono de filtro aquí
                     SizedBox(width: 8), // Espacio entre el icono y el texto
                     Text('Quitar Filtros'),
+                  ],
+                ),
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(
+                    Color.fromARGB(255, 7, 167, 7),
+                  ),
+                ),
+                onPressed: () async {
+                  if (total > 1999) {
+                    AwesomeDialog(
+                      width: 500,
+                      context: context,
+                      dialogType: DialogType.info,
+                      animType: AnimType.rightSlide,
+                      title: 'El Número Total de Registros debe ser menor a 2.000', 
+                      desc: '',
+                      btnOkText: "Aceptar",
+                      btnOkColor: Colors.green,
+                      btnOkOnPress: () async {},
+                    ).show();
+                  } else {
+                    getLoadingModal(context, true);
+                    try {
+                      var response = await Connections()
+                          .getOrdersForSellerStateSearchForDateTransporterLaravel(
+                              populate,
+                              arrayFiltersAnd,
+                              arrayFiltersDefaultAnd,
+                              arrayFiltersOr,
+                              currentPage,
+                              1999,
+                              _controllers.searchController.text,
+                              // sortField.toString());
+                              sortFieldDefaultValue.toString());
+
+                      await getReport
+                          .generateExcelFileWithData(response['data']);
+
+                      Navigator.of(context).pop();
+                    } catch (e) {
+                      Navigator.of(context).pop();
+                      _showErrorSnackBar(context,
+                          "Ha ocurrido un error al generar el reporte: $e");
+                    }
+                  }
+                },
+                child: const Row(
+                  // Usar un Row para combinar el icono y el texto
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons
+                        .insert_drive_file), // Agregar el icono de filtro aquí
+                    SizedBox(width: 8), // Espacio entre el icono y el texto
+                    Text('Reportes'),
                   ],
                 ),
               ),

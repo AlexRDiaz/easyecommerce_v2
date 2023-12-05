@@ -294,6 +294,8 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
         TextEditingController(text: widget.warehouse.branchName);
     TextEditingController _addressController =
         TextEditingController(text: widget.warehouse.address);
+    TextEditingController _customerServiceController =
+        TextEditingController(text: widget.warehouse.customerphoneNumber);
     TextEditingController _referenceController =
         TextEditingController(text: widget.warehouse.reference);
     TextEditingController _descriptionController =
@@ -423,6 +425,12 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                               controller: _referenceController,
                               labelText: 'Referencia',
                               icon: Icons.bookmark_border,
+                            ),
+                            SizedBox(height: 10),
+                            TextFieldWithIcon(
+                              labelText: 'Número Atención al Cliente',
+                              controller: _customerServiceController,
+                              icon: Icons.phone,
                             ),
                             SizedBox(height: 10),
                             TextFieldWithIcon(
@@ -676,6 +684,7 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                                       widget.warehouse.id!,
                                       _nameSucursalController.text,
                                       _addressController.text,
+                                      _customerServiceController.text,
                                       _referenceController.text,
                                       _descriptionController.text,
                                       _urlImageController.text,
@@ -831,6 +840,12 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                               controller: _referenceController,
                               labelText: 'Referencia',
                               icon: Icons.bookmark_border,
+                            ),
+                            SizedBox(height: 10),
+                            TextFieldWithIcon(
+                              labelText: 'Número Atención al Cliente',
+                              controller: _customerServiceController,
+                              icon: Icons.phone,
                             ),
                             SizedBox(height: 10),
                             TextFieldWithIcon(
@@ -1068,7 +1083,7 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                                 onPressed: () async {
                                   // Implementa la lógica de actualización aquí
 
-                                   if (_trnasportController.text == "") {
+                                  if (_trnasportController.text == "") {
                                     _trnasportController =
                                         TextEditingController(
                                             text: collectionTransport);
@@ -1112,12 +1127,13 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                                       widget.warehouse.id!,
                                       _nameSucursalController.text,
                                       _addressController.text,
+                                      _customerServiceController.text,
                                       _referenceController.text,
                                       _descriptionController.text,
                                       _urlImageController.text,
                                       _cityController.text, {
                                     "collectionDays": listaDeEnterosX,
-                                    "collectionSchedule":collectionSchedule,
+                                    "collectionSchedule": collectionSchedule,
                                     "collectionTransport":
                                         _trnasportController.text
                                   }).then((_) {
