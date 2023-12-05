@@ -76,6 +76,8 @@ dependencies:
   flutter_switch: ^0.3.2
   animate_do: ^3.1.2
   flutter_html: ^3.0.0-beta.2
+  gap: ^3.0.1
+  google_fonts: ^6.1.0
 
 dev_dependencies:
   flutter_test:
