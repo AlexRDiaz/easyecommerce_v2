@@ -174,7 +174,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     'PENDIENTE',
     'DEVOLUCION EN RUTA',
     'EN BODEGA',
-    'ENTREGADO EN OFICINA'
+    'ENTREGADO EN OFICINA',
+    'EN BODEGA PROVEEDOR',
   ];
 
   List arrayFiltersAnd = [];

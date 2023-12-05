@@ -85,7 +85,10 @@ class _TransportDeliveryHistorialState
   List<String> listEstadoDevolucion = [
     'TODO',
     'PENDIENTE',
+    'ENTREGADO EN OFICINA',
     'DEVOLUCION EN RUTA',
+    'EN BODEGA',
+    'EN BODEGA PROVEEDOR',
   ];
   List<String> listEstadoPago = [
     'TODO',
