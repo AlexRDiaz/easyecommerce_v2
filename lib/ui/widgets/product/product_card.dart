@@ -13,6 +13,16 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var features = jsonDecode(product.features);
+
+    List<Map<String, dynamic>> featuresList =
+        features.cast<Map<String, dynamic>>();
+
+    String priceSuggested = featuresList
+        .where((feature) => feature.containsKey("price_suggested"))
+        .map((feature) => feature["price_suggested"] as String)
+        .firstWhere((element) => element.isNotEmpty, orElse: () => '');
+
     double screenWidth = MediaQuery.of(context).size.width;
     double textSize = screenWidth > 600 ? 16 : 12;
     double iconSize = screenWidth > 600 ? 70 : 25;
@@ -68,7 +78,7 @@ class ProductCard extends StatelessWidget {
                     ),
             ),
             Align(
-              alignment: Alignment.bottomCenter,
+              alignment: Alignment.bottomLeft,
               child: Container(
                 decoration: const BoxDecoration(
                   color: Colors.white,
@@ -78,25 +88,132 @@ class ProductCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const SizedBox(height: 10),
-                    Text(
-                      '${product.productName}',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.normal,
-                        fontSize: textSize,
-                        fontFamily: 'Arial',
-                      ),
-                      textAlign: TextAlign.center,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Producto:',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: textSize,
+                            fontFamily: 'Arial',
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 3,
+                        ),
+                        Expanded(
+                          child: Text(
+                            '${product.productName}',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: textSize,
+                              fontFamily: 'Arial',
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
+                          ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      '\$${product.price}',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: textSize,
-                        fontFamily: 'Arial',
-                      ),
-                      textAlign: TextAlign.center,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Precio:',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: textSize,
+                            fontFamily: 'Arial',
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 3,
+                        ),
+                        Text(
+                          '\$${product.price}',
+                          style: TextStyle(
+                            color: Colors.indigo[900],
+                            fontSize: textSize,
+                            fontFamily: 'Arial',
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Precio Sugerido:',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: textSize,
+                            fontFamily: 'Arial',
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 3,
+                        ),
+                        Text(
+                          '\$$priceSuggested',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: textSize,
+                            fontFamily: 'Arial',
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Stock:',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: textSize,
+                            fontFamily: 'Arial',
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 3,
+                        ),
+                        Text(
+                          '${product.stock}',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: textSize,
+                            fontFamily: 'Arial',
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Bodega:',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: textSize,
+                            fontFamily: 'Arial',
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 3,
+                        ),
+                        Text(
+                          product.warehouse!.branchName.toString(),
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: textSize,
+                            fontFamily: 'Arial',
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 10)
                   ],

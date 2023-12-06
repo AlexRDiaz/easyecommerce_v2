@@ -55,6 +55,10 @@ class _CatalogState extends State<Catalog> {
   double _startValue = 0.0;
   double _endValue = 0.0;
   RangeValues _currentRangeValues = const RangeValues(1, 1000);
+  final TextEditingController _minPriceController = TextEditingController();
+  final TextEditingController _maxPriceController = TextEditingController();
+  bool isSelectedFavorites = false;
+  int total = 0;
 
   @override
   void initState() {
@@ -117,6 +121,8 @@ class _CatalogState extends State<Catalog> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
     double textSize = screenWidth > 600 ? 16 : 12;
     double iconSize = screenWidth > 600 ? 70 : 25;
     return Scaffold(
@@ -128,14 +134,15 @@ class _CatalogState extends State<Catalog> {
               child: Center(
                 child: Container(
                   margin: const EdgeInsets.all(6.0),
-                  padding: const EdgeInsets.symmetric(horizontal: 50.0),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: (screenWidth * 0.15)),
                   child: Column(
                     children: [
                       const SizedBox(height: 10),
                       Row(
                         children: [
                           SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.2,
+                            width: screenWidth * 0.15,
                             child: Align(
                               alignment: Alignment.centerLeft,
                               child: Column(
@@ -207,84 +214,9 @@ class _CatalogState extends State<Catalog> {
                               ),
                             ),
                           ),
-                          /*
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.2,
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Bodega',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 5),
-                                  DropdownButtonFormField<String>(
-                                    isExpanded: true,
-                                    hint: Text(
-                                      'Seleccione una opcion',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Theme.of(context).hintColor,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    items: warehousesToSelect
-                                        .map((item) => DropdownMenuItem(
-                                              value: item,
-                                              child: Text(
-                                                item == 'TODO'
-                                                    ? 'TODO'
-                                                    : '${item.split('-')[1]} - ${item.split('-')[2]}',
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ))
-                                        .toList(),
-                                    value: selectedWarehouse,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        selectedWarehouse = value;
-                                      });
-                                      if (value != 'TODO') {
-                                        if (value is String) {
-                                          arrayFiltersAnd = [];
-                                          arrayFiltersAnd.add({
-                                            "warehouse.warehouse_id":
-                                                selectedWarehouse
-                                                    .toString()
-                                                    .split("-")[0]
-                                                    .toString()
-                                          });
-                                        }
-                                      } else {
-                                        arrayFiltersAnd = [];
-                                      }
-                                    },
-                                    decoration: InputDecoration(
-                                      fillColor: Colors.white,
-                                      filled: true,
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(5.0),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          */
                           const SizedBox(width: 20),
                           SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.2,
+                            width: screenWidth * 0.1,
                             child: Align(
                                 alignment: Alignment.centerLeft,
                                 child: Column(
@@ -385,94 +317,194 @@ class _CatalogState extends State<Catalog> {
                           ),
                           const SizedBox(width: 20),
                           SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.2,
+                            width: MediaQuery.of(context).size.width * 0.18,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
                                   children: [
-                                    const SizedBox(width: 30),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          const SizedBox(width: 10),
                                           const Text('Precio Min:'),
                                           const SizedBox(height: 3),
-                                          Text(
-                                            '\$ ${_startValue.toString()}',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
+                                          SizedBox(
+                                            width: 100,
+                                            child: TextFormField(
+                                              controller: _minPriceController,
+                                              keyboardType:
+                                                  TextInputType.number,
+                                              inputFormatters: <TextInputFormatter>[
+                                                FilteringTextInputFormatter
+                                                    .allow(RegExp(
+                                                        r'^\d+\.?\d{0,2}$')),
+                                              ],
+                                              /*
+                                              inputFormatters: <TextInputFormatter>[
+                                                  FilteringTextInputFormatter.digitsOnly,
+                                                ],
+                                               */
+                                              decoration: InputDecoration(
+                                                fillColor: Colors.white,
+                                                filled: true,
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          5.0),
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ],
                                       ),
                                     ),
-                                    const SizedBox(width: 30),
+                                    const SizedBox(width: 10),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
-                                            CrossAxisAlignment.end,
+                                            CrossAxisAlignment.start,
                                         children: [
                                           const Text('Precio Max:'),
                                           const SizedBox(height: 3),
-                                          Text(
-                                            '\$ ${_endValue.toString()}',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
+                                          SizedBox(
+                                            width: 100,
+                                            child: TextFormField(
+                                              controller: _maxPriceController,
+                                              keyboardType:
+                                                  TextInputType.number,
+                                              inputFormatters: <TextInputFormatter>[
+                                                FilteringTextInputFormatter
+                                                    .allow(RegExp(
+                                                        r'^\d+\.?\d{0,2}$')),
+                                              ],
+                                              decoration: InputDecoration(
+                                                fillColor: Colors.white,
+                                                filled: true,
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          5.0),
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ],
                                       ),
                                     ),
-                                    const SizedBox(width: 30),
-                                  ],
-                                ),
-                                RangeSlider(
-                                  values: _currentRangeValues,
-                                  max: 1000,
-                                  divisions: 100,
-                                  labels: RangeLabels(
-                                    _currentRangeValues.start
-                                        .round()
-                                        .toString(),
-                                    _currentRangeValues.end.round().toString(),
-                                  ),
-                                  onChanged: (RangeValues values) {
-                                    setState(() {
-                                      _currentRangeValues = values;
-                                      _startValue = values.start;
-                                      _endValue = values.end;
+                                    const SizedBox(width: 10),
+                                    SizedBox(
+                                      child: ElevatedButton(
+                                        onPressed: () async {
+                                          if (_maxPriceController
+                                              .text.isNotEmpty) {
+                                            print("No esta vacio");
 
-                                      bool priceRangeExists = outFilter.any(
-                                          (filter) => filter
-                                              .containsKey("price_range"));
-                                      if (!priceRangeExists) {
-                                        outFilter.add({
-                                          "price_range":
-                                              "${_startValue}-${_endValue}",
-                                        });
-                                      }
-                                    });
-                                  },
+                                            if (double.parse(
+                                                    _maxPriceController.text) >
+                                                double.parse(
+                                                    _minPriceController.text)) {
+                                              print("Añadir al filtro");
+
+                                              // Agregar a filtro
+                                              setState(() {
+                                                bool priceRangeExists =
+                                                    outFilter.any((filter) =>
+                                                        filter.containsKey(
+                                                            "price_range"));
+                                                if (!priceRangeExists) {
+                                                  outFilter.add({
+                                                    "price_range":
+                                                        "${_minPriceController.text}-${_maxPriceController.text}",
+                                                  });
+                                                }
+                                              });
+                                            } else {
+                                              print("Max < Min");
+                                            }
+                                          } else {
+                                            print("Add en filter solo el min ");
+                                          }
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.indigo[800],
+                                        ),
+                                        child: const Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              "Filtrar",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
                           ),
                           const SizedBox(width: 20),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  ChoiceChip(
+                                    label: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: const BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.white,
+                                          ),
+                                          child: Icon(
+                                            isSelectedFavorites
+                                                ? Icons.star
+                                                : Icons.star_border,
+                                            color: Colors.indigo[900],
+                                          ),
+                                        ),
+                                        const SizedBox(width: 5),
+                                        const Text('Seleccionar Favoritos'),
+                                      ],
+                                    ),
+                                    selected: isSelectedFavorites,
+                                    onSelected: (selected) {
+                                      setState(() {
+                                        isSelectedFavorites = selected;
+                                      });
+                                    },
+                                    selectedColor: Colors.indigo[50],
+                                    backgroundColor: Colors.white,
+                                    shape: const StadiumBorder(
+                                      side: BorderSide(
+                                          width: 1, color: Colors.indigo),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(width: 20),
                           TextButton(
                             onPressed: () async {
                               setState(() {
-                                _startValue = 0.00;
-                                _endValue = 0.00;
                                 selectedProvider = 'TODO';
                                 selectedCategory = 'TODO';
                                 selectedCategoriesList = [];
                                 arrayFiltersAnd = [];
                                 outFilter = [];
+                                _minPriceController.clear();
+                                _maxPriceController.clear();
+                                isSelectedFavorites = false;
                               });
                             },
                             child: const Row(
@@ -487,19 +519,34 @@ class _CatalogState extends State<Catalog> {
                         ],
                       ),
                       const SizedBox(height: 10),
-                      Container(
-                        width: double.infinity,
-                        color: Colors.white,
-                        padding: const EdgeInsets.all(0),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: _modelTextField(
-                                  text: "Buscar", controller: _search),
+                      Row(
+                        children: [
+                          Container(
+                            width: screenWidth * 0.4,
+                            color: Colors.white,
+                            padding: const EdgeInsets.all(0),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: _modelTextField(
+                                      text: "Buscar", controller: _search),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                          // Container(
+                          //   width: screenWidth * 0.15,
+                          //   padding: const EdgeInsets.only(left: 15, right: 5),
+                          //   child: Text(
+                          //     "Registros encontrados: ${total}",
+                          //     style: TextStyle(
+                          //         fontWeight: FontWeight.bold,
+                          //         color: Colors.grey[500]),
+                          //   ),
+                          // ),
+                        ],
                       ),
+
                       const SizedBox(height: 10),
                       //
                       Expanded(
@@ -576,6 +623,11 @@ class _CatalogState extends State<Catalog> {
         .map((feature) => feature["guide_name"] as String)
         .firstWhere((element) => element.isNotEmpty, orElse: () => '');
 
+    String priceSuggested = featuresList
+        .where((feature) => feature.containsKey("price_suggested"))
+        .map((feature) => feature["price_suggested"] as String)
+        .firstWhere((element) => element.isNotEmpty, orElse: () => '');
+
     String sku = featuresList
         .where((feature) => feature.containsKey("sku"))
         .map((feature) => feature["sku"] as String)
@@ -590,6 +642,7 @@ class _CatalogState extends State<Catalog> {
         .map((feature) => feature["type"] as String)
         .firstWhere((element) => element.isNotEmpty, orElse: () => '');
 
+    String variablesSKU = "";
     String variablesText = "";
 
     if (product.isvariable == 1) {
@@ -603,8 +656,11 @@ class _CatalogState extends State<Catalog> {
       variablesText = variables.map((variable) {
         List<String> variableDetails = [];
 
+        // if (variable.containsKey('sku')) {
+        //   variableDetails.add("SKU: ${variable['sku']}");
+        // }
         if (variable.containsKey('sku')) {
-          variableDetails.add("SKU: ${variable['sku']}");
+          variablesSKU += "${variable['sku']}\n"; // Acumula las SKU
         }
         if (variable.containsKey('color')) {
           variableDetails.add("Color: ${variable['color']}");
@@ -671,20 +727,91 @@ class _CatalogState extends State<Catalog> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const SizedBox(height: 10),
+                            const Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            "Producto:",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 5),
                             RichText(
                               text: TextSpan(
                                 children: <TextSpan>[
                                   TextSpan(
                                     text: product.productName,
                                     style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20,
+                                      fontSize: 18,
                                       color: Colors.black,
                                     ),
                                   )
                                 ],
                               ),
+                            ),
+                            const SizedBox(height: 10),
+                            const Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            "Nombre a mostrar en la guia de envio:",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            guideName,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[800],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                             const SizedBox(height: 10),
                             Row(
@@ -697,7 +824,7 @@ class _CatalogState extends State<Catalog> {
                                       Row(
                                         children: [
                                           const Text(
-                                            "SKU:",
+                                            "ID:",
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 18,
@@ -706,7 +833,7 @@ class _CatalogState extends State<Catalog> {
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
-                                            sku,
+                                            product.productId.toString(),
                                             style: TextStyle(
                                               fontSize: 16,
                                               color: Colors.grey[800],
@@ -753,7 +880,6 @@ class _CatalogState extends State<Catalog> {
                                     children: [
                                       Row(
                                         children: [
-                                          const SizedBox(width: 10),
                                           Expanded(
                                             child: Html(
                                               data: description,
@@ -782,7 +908,76 @@ class _CatalogState extends State<Catalog> {
                                       Row(
                                         children: [
                                           const Text(
-                                            "Precio:",
+                                            "SKU:",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            sku,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[800],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Visibility(
+                              visible: product.isvariable == 1,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const Row(
+                                          children: [
+                                            Text(
+                                              "SKU Variables:",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                          variablesSKU,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.grey[800],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                ],
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            "Precio Bodega:",
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 18,
@@ -815,7 +1010,7 @@ class _CatalogState extends State<Catalog> {
                                       Row(
                                         children: [
                                           const Text(
-                                            "Existencia:",
+                                            "Precio Sugerido:",
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 18,
@@ -824,74 +1019,10 @@ class _CatalogState extends State<Catalog> {
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
-                                            "${product.stock}",
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          const Text(
-                                            "Categorias:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            categoriesText,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          const Text(
-                                            "Bodega:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            product.warehouse!.branchName
-                                                .toString(),
+                                            priceSuggested.isNotEmpty ||
+                                                    priceSuggested != ""
+                                                ? '\$$priceSuggested'
+                                                : '',
                                             style: TextStyle(
                                               fontSize: 16,
                                               color: Colors.grey[800],
@@ -938,6 +1069,39 @@ class _CatalogState extends State<Catalog> {
                               ],
                             ),
                             const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            "Stock general:",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            "${product.stock}",
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[800],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
                             Visibility(
                               visible: product.isvariable == 1,
                               child: Row(
@@ -967,11 +1131,125 @@ class _CatalogState extends State<Catalog> {
                                             color: Colors.grey[800],
                                           ),
                                         ),
+                                        const SizedBox(height: 10),
                                       ],
                                     ),
                                   ),
                                 ],
                               ),
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            "Categorias:",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            categoriesText,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[800],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            const Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            "Bodega:",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            product.warehouse!.branchName
+                                                .toString(),
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[800],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            "Numero de telefono atención al cliente:",
+                                            style: TextStyle(
+                                              // fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            product.warehouse!.city.toString(),
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[800],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                             const SizedBox(height: 30),
                           ],
@@ -983,6 +1261,25 @@ class _CatalogState extends State<Catalog> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
+                      ElevatedButton(
+                        onPressed: () async {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.indigo[600],
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              "Agregar a favoritos",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 10),
                       ElevatedButton(
                         onPressed: () async {},
                         style: ElevatedButton.styleFrom(
