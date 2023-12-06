@@ -65,6 +65,11 @@ class _ProductDetailsState extends State<ProductDetails> {
   //multi img show temp
   List<XFile> imgsTemporales = [];
   String stock = "";
+  final TextEditingController _priceSuggestedController =
+      TextEditingController();
+  var sku = "";
+  List variablesTypesSend = [];
+  List variablesListSend = [];
 
   @override
   void initState() {
@@ -116,11 +121,17 @@ class _ProductDetailsState extends State<ProductDetails> {
     //
     dataFeatures = jsonDecode(product.features);
     _nameGuideController.text = findValue(dataFeatures, 'guide_name') ?? "";
-
+    _priceSuggestedController.text =
+        findValue(dataFeatures, 'price_suggested') ?? "";
+    _priceSuggestedController.text = findValue(dataFeatures, 'sku') ?? "";
     categories = findCategories(dataFeatures);
 
-    // // print("img incoming: ${img_url.toString()}");
+    //no cambia si no cambia variables
     if (product.isvariable == 1) {
+      variablesTypesSend = findValue(dataFeatures, 'variables_types') ?? "";
+      variablesListSend = findValue(dataFeatures, 'variables') ?? "";
+
+      // // print("img incoming: ${img_url.toString()}");
       List<Map<String, dynamic>> variables = dataFeatures
           .where((feature) => feature.containsKey("variables"))
           .expand((feature) => (feature["variables"] as List<dynamic>)
@@ -193,7 +204,7 @@ class _ProductDetailsState extends State<ProductDetails> {
       ),
       content: Container(
         child: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.75,
+          width: MediaQuery.of(context).size.width * 0.70,
           // width: 700,
           height: MediaQuery.of(context).size.height,
           child: ListView(
@@ -275,12 +286,13 @@ class _ProductDetailsState extends State<ProductDetails> {
                                     ),
                                     const SizedBox(width: 10),
                                     approved == 1
-                                        ? const Icon(Icons.check,
+                                        ? const Icon(Icons.check_circle_rounded,
                                             color: Colors.green)
                                         : approved == 2
-                                            ? const Icon(Icons.access_time,
-                                                color: Colors.blue)
-                                            : const Icon(Icons.close,
+                                            ? const Icon(
+                                                Icons.hourglass_bottom_sharp,
+                                                color: Colors.indigo)
+                                            : const Icon(Icons.cancel_rounded,
                                                 color: Colors.red)
                                   ],
                                 ),
@@ -329,6 +341,80 @@ class _ProductDetailsState extends State<ProductDetails> {
                                       borderRadius: BorderRadius.circular(5.0),
                                     ),
                                   ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Text(
+                                      "Precio Bodega",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    SizedBox(
+                                      width: 120,
+                                      child: TextFormField(
+                                        controller: _priceController,
+                                        decoration: InputDecoration(
+                                          fillColor: Colors.white,
+                                          filled: true,
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(5.0),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Text(
+                                      "Precio Sugerido",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    SizedBox(
+                                      width: 120,
+                                      child: TextFormField(
+                                        controller: _priceSuggestedController,
+                                        decoration: InputDecoration(
+                                          fillColor: Colors.white,
+                                          filled: true,
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(5.0),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
@@ -404,7 +490,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                                 Row(
                                   children: [
                                     const Text(
-                                      "Existencia:",
+                                      "Stock General:",
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 18,
@@ -440,40 +526,6 @@ class _ProductDetailsState extends State<ProductDetails> {
                             ),
                           ),
                           const SizedBox(width: 20),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    const Text(
-                                      "Precio Bodega",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    SizedBox(
-                                      width: 150,
-                                      child: TextFormField(
-                                        controller: _priceController,
-                                        decoration: InputDecoration(
-                                          fillColor: Colors.white,
-                                          filled: true,
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5.0),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
                         ],
                       ),
                       const SizedBox(height: 20),

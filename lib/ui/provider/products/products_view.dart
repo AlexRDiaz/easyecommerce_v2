@@ -257,7 +257,7 @@ class _ProductsViewState extends State<ProductsView> {
                               await loadData();
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue[600],
+                              backgroundColor: const Color(0xFF274965),
                             ),
                             child: const Row(
                               mainAxisSize: MainAxisSize.min,
@@ -548,14 +548,21 @@ class _ProductsViewState extends State<ProductsView> {
                               },
                             ),
                             DataColumn2(
-                              label: const Text('Existencia'),
-                              size: ColumnSize.M,
+                              label: const Text('Stock'),
+                              size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {
                                 // sortFunc3("direccion_shipping", changevalue);
                               },
                             ),
                             DataColumn2(
                               label: const Text('Precio'),
+                              size: ColumnSize.M,
+                              onSort: (columnIndex, ascending) {
+                                // sortFunc3("telefonoS_shipping", changevalue);
+                              },
+                            ),
+                            DataColumn2(
+                              label: const Text('Precio Sugerido'),
                               size: ColumnSize.M,
                               onSort: (columnIndex, ascending) {
                                 // sortFunc3("telefonoS_shipping", changevalue);
@@ -653,6 +660,9 @@ class _ProductsViewState extends State<ProductsView> {
                                   Text(data[index]['stock'].toString()),
                                 ),
                                 DataCell(
+                                  Text(''),
+                                ),
+                                DataCell(
                                   Text('\$${data[index]['price'].toString()}'),
                                 ),
                                 DataCell(Text(//
@@ -664,12 +674,13 @@ class _ProductsViewState extends State<ProductsView> {
                                 ),
                                 DataCell(
                                   data[index]['approved'] == 1
-                                      ? const Icon(Icons.check,
+                                      ? const Icon(Icons.check_circle_rounded,
                                           color: Colors.green)
                                       : data[index]['approved'] == 2
-                                          ? const Icon(Icons.access_time,
-                                              color: Colors.blue)
-                                          : const Icon(Icons.close,
+                                          ? const Icon(
+                                              Icons.hourglass_bottom_sharp,
+                                              color: Colors.indigo)
+                                          : const Icon(Icons.cancel_rounded,
                                               color: Colors.red),
                                 ),
                                 DataCell(Row(
@@ -967,6 +978,11 @@ class _ProductsViewState extends State<ProductsView> {
         .map((feature) => feature["guide_name"] as String)
         .firstWhere((element) => element.isNotEmpty, orElse: () => '');
 
+    String priceSuggested = featuresList
+        .where((feature) => feature.containsKey("price_suggested"))
+        .map((feature) => feature["price_suggested"] as String)
+        .firstWhere((element) => element.isNotEmpty, orElse: () => '');
+
     String sku = featuresList
         .where((feature) => feature.containsKey("sku"))
         .map((feature) => feature["sku"] as String)
@@ -982,6 +998,7 @@ class _ProductsViewState extends State<ProductsView> {
         .map((feature) => feature["type"] as String)
         .firstWhere((element) => element.isNotEmpty, orElse: () => '');
 
+    String variablesSKU = "";
     String variablesText = "";
 
     if (product.isvariable == 1) {
@@ -996,7 +1013,7 @@ class _ProductsViewState extends State<ProductsView> {
         List<String> variableDetails = [];
 
         if (variable.containsKey('sku')) {
-          variableDetails.add("SKU: ${variable['sku']}");
+          variablesSKU += "${variable['sku']}\n"; // Acumula las SKU
         }
         if (variable.containsKey('color')) {
           variableDetails.add("Color: ${variable['color']}");
@@ -1044,57 +1061,27 @@ class _ProductsViewState extends State<ProductsView> {
                   Row(
                     children: [
                       Expanded(
-                        child: Column(
+                        child: Row(
                           children: [
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.3,
-                              height: MediaQuery.of(context).size.height * 0.6,
-                              child: product.urlImg != null &&
-                                      product.urlImg.isNotEmpty &&
-                                      product.urlImg.toString() != "[]"
-                                  ? ClipRRect(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                      child: Image.network(
-                                        "$generalServer${getFirstUrl(product.urlImg)}",
-                                        fit: BoxFit.fill,
-                                      ),
-                                    )
-                                  : Container(),
+                            Column(
+                              children: [
+                                for (String imageUrl in urlsImgsList)
+                                  Container(
+                                    width: 100,
+                                    height: 100,
+                                    margin: EdgeInsets.all(5),
+                                    child: Image.network(
+                                      "$generalServer$imageUrl",
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                              ],
                             ),
-                            //******** */
-                            // Container(
-                            //   width: 100,
-                            //   child: Column(
-                            //     children:
-                            //         imageUrls.asMap().entries.map((entry) {
-                            //       final index = entry.key;
-                            //       final imageUrl = entry.value;
-
-                            //       return GestureDetector(
-                            //         onTap: () {
-                            //           setState(() {
-                            //             selectedImageIndex = index;
-                            //           });
-                            //         },
-                            //         child: Padding(
-                            //           padding: const EdgeInsets.all(8.0),
-                            //           child: Image.network(
-                            //             imageUrl,
-                            //             width: 100,
-                            //             height: 100,
-                            //             fit: BoxFit.cover,
-                            //           ),
-                            //         ),
-                            //       );
-                            //     }).toList(),
-                            //   ),
-                            // ),
-                            // // Lado derecho con la imagen seleccionada en grande
-                            // Expanded(
-                            //   child: Image.network(
-                            //     imageUrls[selectedImageIndex],
-                            //     fit: BoxFit.cover,
-                            //   ),
+                            const SizedBox(width: 20),
+                            // Column(
+                            //   children: [
+                            //     const Text("one img "),
+                            //   ],
                             // ),
                           ],
                         ),
@@ -1175,13 +1162,16 @@ class _ProductsViewState extends State<ProductsView> {
                                           ),
                                           const SizedBox(width: 10),
                                           product.approved == 1
-                                              ? const Icon(Icons.check,
+                                              ? const Icon(
+                                                  Icons.check_circle_rounded,
                                                   color: Colors.green)
                                               : product.approved == 2
                                                   ? const Icon(
-                                                      Icons.access_time,
-                                                      color: Colors.blue)
-                                                  : const Icon(Icons.close,
+                                                      Icons
+                                                          .hourglass_bottom_sharp,
+                                                      color: Colors.indigo)
+                                                  : const Icon(
+                                                      Icons.cancel_rounded,
                                                       color: Colors.red)
                                         ],
                                       ),
@@ -1191,14 +1181,37 @@ class _ProductsViewState extends State<ProductsView> {
                               ],
                             ),
                             const SizedBox(height: 10),
+                            const Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            "Producto:",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                             RichText(
                               text: TextSpan(
                                 children: <TextSpan>[
                                   TextSpan(
                                     text: product.productName,
                                     style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20,
+                                      fontSize: 18,
                                       color: Colors.black,
                                     ),
                                   )
@@ -1254,40 +1267,6 @@ class _ProductsViewState extends State<ProductsView> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          const Text(
-                                            "SKU:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            sku,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
                             const Row(
                               children: [
                                 Expanded(
@@ -1312,6 +1291,7 @@ class _ProductsViewState extends State<ProductsView> {
                                 ),
                               ],
                             ),
+                            const SizedBox(height: 10),
                             Row(
                               children: [
                                 Expanded(
@@ -1350,7 +1330,7 @@ class _ProductsViewState extends State<ProductsView> {
                                       Row(
                                         children: [
                                           const Text(
-                                            "Existencia:",
+                                            "SKU:",
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 18,
@@ -1359,7 +1339,7 @@ class _ProductsViewState extends State<ProductsView> {
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
-                                            "${product.stock}",
+                                            sku,
                                             style: TextStyle(
                                               fontSize: 16,
                                               color: Colors.grey[800],
@@ -1373,6 +1353,42 @@ class _ProductsViewState extends State<ProductsView> {
                               ],
                             ),
                             const SizedBox(height: 10),
+                            Visibility(
+                              visible: product.isvariable == 1,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const Row(
+                                          children: [
+                                            Text(
+                                              "SKU Variables:",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                          variablesSKU,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.grey[800],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                ],
+                              ),
+                            ),
                             Row(
                               children: [
                                 Expanded(
@@ -1383,7 +1399,7 @@ class _ProductsViewState extends State<ProductsView> {
                                       Row(
                                         children: [
                                           const Text(
-                                            "Precio:",
+                                            "Precio Bodega:",
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 18,
@@ -1416,7 +1432,7 @@ class _ProductsViewState extends State<ProductsView> {
                                       Row(
                                         children: [
                                           const Text(
-                                            "Categorias:",
+                                            "Precio Sugerido:",
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 18,
@@ -1425,41 +1441,10 @@ class _ProductsViewState extends State<ProductsView> {
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
-                                            categoriesText,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          const Text(
-                                            "Bodega:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            product.warehouse!.branchName
-                                                .toString(),
+                                            priceSuggested.isNotEmpty ||
+                                                    priceSuggested != ""
+                                                ? '\$$priceSuggested'
+                                                : '',
                                             style: TextStyle(
                                               fontSize: 16,
                                               color: Colors.grey[800],
@@ -1506,6 +1491,39 @@ class _ProductsViewState extends State<ProductsView> {
                               ],
                             ),
                             const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            "Stock general:",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            "${product.stock}",
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[800],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
                             Visibility(
                               visible: product.isvariable == 1,
                               child: Row(
@@ -1535,11 +1553,94 @@ class _ProductsViewState extends State<ProductsView> {
                                             color: Colors.grey[800],
                                           ),
                                         ),
+                                        const SizedBox(height: 10),
                                       ],
                                     ),
                                   ),
                                 ],
                               ),
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            "Categorias:",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            categoriesText,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[800],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            const Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            "Bodega:",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          SizedBox(width: 10),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            product.warehouse!.branchName
+                                                .toString(),
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[800],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                             const SizedBox(height: 30),
                           ],
@@ -1616,8 +1717,7 @@ class _ProductsViewState extends State<ProductsView> {
   NumberPaginator numberPaginator() {
     return NumberPaginator(
       config: NumberPaginatorUIConfig(
-        // buttonUnselectedForegroundColor: Color.fromARGB(255, 67, 67, 67),
-        // buttonSelectedBackgroundColor: Color.fromARGB(255, 67, 67, 67),
+        buttonSelectedBackgroundColor: const Color(0xFF253e55),
         buttonShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(5), // Customize the button shape
         ),

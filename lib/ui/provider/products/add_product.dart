@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -43,6 +44,8 @@ class _AddProductState extends State<AddProduct> {
   final TextEditingController _priceUnitController = TextEditingController();
   final TextEditingController _skuController = TextEditingController();
   final TextEditingController _nameGuideController = TextEditingController();
+  final TextEditingController _priceSuggestedController =
+      TextEditingController();
 
   List<String> warehouses = [];
   List warehouseList = [];
@@ -152,7 +155,7 @@ class _AddProductState extends State<AddProduct> {
         // ),
         // padding: const EdgeInsets.all(20.0),
         child: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.85,
+          width: MediaQuery.of(context).size.width * 0.60,
           height: MediaQuery.of(context).size.height,
           child: Form(
             key: formKey,
@@ -222,26 +225,30 @@ class _AddProductState extends State<AddProduct> {
                             children: [
                               const Text('SKU'),
                               const SizedBox(height: 3),
-                              TextFormField(
-                                controller: _skuController,
-                                keyboardType: TextInputType.number,
-                                inputFormatters: <TextInputFormatter>[
-                                  FilteringTextInputFormatter.allow(
-                                      RegExp(r'[a-zA-Z0-9]')),
-                                ],
-                                decoration: InputDecoration(
-                                  fillColor: Colors.white,
-                                  filled: true,
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(5.0),
+                              SizedBox(
+                                width: 200,
+                                child: TextFormField(
+                                  controller: _skuController,
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.allow(
+                                      RegExp(r'[A-Z0-9]'),
+                                    ),
+                                  ],
+                                  decoration: InputDecoration(
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(5.0),
+                                    ),
                                   ),
+                                  validator: (value) {
+                                    if (value!.isEmpty) {
+                                      return 'Por favor, ingrese el SKU del producto';
+                                    }
+                                    return null;
+                                  },
                                 ),
-                                validator: (value) {
-                                  if (value!.isEmpty) {
-                                    return 'Por favor, ingrese el SKU del producto';
-                                  }
-                                  return null;
-                                },
                               ),
                             ],
                           ),
@@ -251,12 +258,46 @@ class _AddProductState extends State<AddProduct> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Precio'),
+                              const Text('Precio Bodega'),
                               const SizedBox(height: 3),
                               SizedBox(
-                                width: 200,
+                                width: 120,
                                 child: TextFormField(
                                   controller: _priceController,
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp(r'^\d+\.?\d{0,2}$')),
+                                  ],
+                                  decoration: InputDecoration(
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(5.0),
+                                    ),
+                                  ),
+                                  validator: (value) {
+                                    if (value!.isEmpty) {
+                                      return 'Por favor, ingrese el precio del producto';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 20),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Precio Sugerido'),
+                              const SizedBox(height: 3),
+                              SizedBox(
+                                width: 120,
+                                child: TextFormField(
+                                  controller: _priceSuggestedController,
                                   keyboardType: TextInputType.number,
                                   inputFormatters: <TextInputFormatter>[
                                     FilteringTextInputFormatter.allow(
@@ -291,56 +332,58 @@ class _AddProductState extends State<AddProduct> {
                             children: [
                               const Text('Tipo'),
                               const SizedBox(height: 3),
-                              DropdownButtonFormField<String>(
-                                isExpanded: true,
-                                hint: Text(
-                                  'Seleccione',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Theme.of(context).hintColor,
-                                    fontWeight: FontWeight.bold,
+                              SizedBox(
+                                width: 200,
+                                child: DropdownButtonFormField<String>(
+                                  isExpanded: true,
+                                  hint: Text(
+                                    'Seleccione',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Theme.of(context).hintColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                items: types
-                                    .map((item) => DropdownMenuItem(
-                                          value: item,
-                                          child: Text(
-                                            item,
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
+                                  items: types
+                                      .map((item) => DropdownMenuItem(
+                                            value: item,
+                                            child: Text(
+                                              item,
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
-                                          ),
-                                        ))
-                                    .toList(),
-                                value: selectedType,
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectedColores = [];
-                                    selectedSizes = [];
-                                    selectedDimensions = [];
-                                    variablesTypes = [];
-                                    variablesList = [];
-                                    _stockController.clear();
-                                    _showVariantsController.clear();
-                                    selectedVariablesList.clear();
-                                    if (value != null) {
-                                      selectedType = value;
-                                    }
-                                  });
-                                },
-                                decoration: InputDecoration(
-                                  fillColor: Colors.white,
-                                  filled: true,
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(5.0),
+                                          ))
+                                      .toList(),
+                                  value: selectedType,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      selectedColores = [];
+                                      selectedSizes = [];
+                                      selectedDimensions = [];
+                                      variablesTypes = [];
+                                      variablesList = [];
+                                      _stockController.clear();
+                                      _showVariantsController.clear();
+                                      selectedVariablesList.clear();
+                                      if (value != null) {
+                                        selectedType = value;
+                                      }
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(5.0),
+                                    ),
                                   ),
                                 ),
                               ),
                             ],
                           ),
                         ),
-
                         const SizedBox(width: 20),
                         // Visibility(
                         //   visible: selectedType == 'VARIABLE',
@@ -402,7 +445,7 @@ class _AddProductState extends State<AddProduct> {
                                       // chipLabel +=
                                       //     " - Precio: \$${variable['price']}";
                                       chipLabel +=
-                                          " - Cantidad: ${variable['inventory']}";
+                                          " - Cantidad: ${variable['inventory_quantity']}";
 
                                       return Chip(
                                         label: Text(chipLabel),
@@ -692,16 +735,6 @@ class _AddProductState extends State<AddProduct> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        // TextFieldWithIcon(
-                                        //   controller: _skuController,
-                                        //   labelText: 'SKU',
-                                        //   icon: Icons.beenhere_sharp,
-                                        //   inputType: TextInputType.number,
-                                        //   inputFormatters: <TextInputFormatter>[
-                                        //     FilteringTextInputFormatter.allow(
-                                        //         RegExp(r'[a-zA-Z0-9]')),
-                                        //   ],
-                                        // ),
                                         Row(
                                           children: [
                                             Expanded(
@@ -724,26 +757,6 @@ class _AddProductState extends State<AddProduct> {
                                                 ],
                                               ),
                                             ),
-                                            // const SizedBox(width: 5),
-                                            // Expanded(
-                                            //   child: Column(
-                                            //     children: [
-                                            //       TextFieldWithIcon(
-                                            //         controller:
-                                            //             _priceUnitController,
-                                            //         labelText: 'Precio',
-                                            //         icon: Icons.monetization_on,
-                                            //         inputType:
-                                            //             TextInputType.number,
-                                            //         inputFormatters: <TextInputFormatter>[
-                                            //           FilteringTextInputFormatter
-                                            //               .allow(RegExp(
-                                            //                   r'^\d+\.?\d{0,2}$')),
-                                            //         ],
-                                            //       ),
-                                            //     ],
-                                            //   ),
-                                            // ),
                                           ],
                                         ),
                                       ],
@@ -772,17 +785,22 @@ class _AddProductState extends State<AddProduct> {
                                             "Por favor, ingrese una Cantidad y SKU válida.",
                                             Icons8.alert);
                                       } else {
+                                        //
                                         var variant;
+                                        int idRandom =
+                                            Random().nextInt(9000000) + 1000000;
+
                                         if (selectedVariablesList
                                                 .contains("Tallas") &&
                                             selectedVariablesList
                                                 .contains("Colores")) {
                                           variant = {
+                                            "id": idRandom,
                                             "sku":
                                                 "${_skuController.text}${chosenSize}${chosenColor?.toUpperCase()}",
                                             "size": "$chosenSize",
                                             "color": "$chosenColor",
-                                            "inventory":
+                                            "inventory_quantity":
                                                 _inventaryController.text,
                                           };
                                           //
@@ -808,11 +826,12 @@ class _AddProductState extends State<AddProduct> {
                                             selectedVariablesList
                                                 .contains("Colores")) {
                                           variant = {
+                                            "id": idRandom,
                                             "sku":
                                                 "${_skuController.text}${chosenDimension?.isNotEmpty == true ? chosenDimension![0].toUpperCase() : ""}${chosenColor?.toUpperCase()}",
                                             "dimension": "$chosenDimension",
                                             "color": "$chosenColor",
-                                            "inventory":
+                                            "inventory_quantity":
                                                 _inventaryController.text,
                                           };
                                           //
@@ -837,10 +856,11 @@ class _AddProductState extends State<AddProduct> {
                                         } else if (selectedVariablesList
                                             .contains("Tallas")) {
                                           variant = {
+                                            "id": idRandom,
                                             "sku":
                                                 "${_skuController.text}${chosenSize}",
                                             "size": "$chosenSize",
-                                            "inventory":
+                                            "inventory_quantity":
                                                 _inventaryController.text,
                                           };
                                           //
@@ -860,10 +880,11 @@ class _AddProductState extends State<AddProduct> {
                                         } else if (selectedVariablesList
                                             .contains("Colores")) {
                                           variant = {
+                                            "id": idRandom,
                                             "sku":
                                                 "${_skuController.text}${chosenColor?.toUpperCase()}",
                                             "color": "$chosenColor",
-                                            "inventory":
+                                            "inventory_quantity":
                                                 _inventaryController.text,
                                           };
                                           //
@@ -883,10 +904,11 @@ class _AddProductState extends State<AddProduct> {
                                         } else if (selectedVariablesList
                                             .contains("Tamaños")) {
                                           variant = {
+                                            "id": idRandom,
                                             "sku":
                                                 "${_skuController.text}${chosenDimension?.isNotEmpty == true ? chosenDimension![0].toUpperCase() : ""}",
                                             "dimension": "$chosenDimension",
-                                            "inventory":
+                                            "inventory_quantity":
                                                 _inventaryController.text,
                                           };
                                           //
@@ -1356,7 +1378,8 @@ class _AddProductState extends State<AddProduct> {
                                           Set<String> uniqueColores =
                                               Set.from(selectedColores);
                                           var colores = {
-                                            "colors": uniqueColores.toList()
+                                            "name": "color",
+                                            "values": uniqueColores.toList()
                                           };
                                           variablesTypes.add(colores);
                                         }
@@ -1365,7 +1388,8 @@ class _AddProductState extends State<AddProduct> {
                                           Set<String> uniqueSizes =
                                               Set.from(selectedSizes);
                                           var tallas = {
-                                            "sizes": uniqueSizes.toList()
+                                            "name": "size",
+                                            "values": uniqueSizes.toList()
                                           };
                                           variablesTypes.add(tallas);
                                         }
@@ -1374,8 +1398,8 @@ class _AddProductState extends State<AddProduct> {
                                           Set<String> uniqueDimensions =
                                               Set.from(selectedDimensions);
                                           var dimensions = {
-                                            "dimensions":
-                                                uniqueDimensions.toList()
+                                            "name": "dimension",
+                                            "values": uniqueDimensions.toList()
                                           };
                                           variablesTypes.add(dimensions);
                                         }
@@ -1384,35 +1408,20 @@ class _AddProductState extends State<AddProduct> {
                                       var urlsImgsListToSend =
                                           await saveImages(imgsTemporales);
 
-                                      var featuresToSend = [
-                                        {
-                                          "guide_name":
-                                              _nameGuideController.text
-                                        },
-                                        {"sku": _skuController.text},
-                                        {"type": selectedType},
-                                        {"categories": selectedCategories},
-                                        {
-                                          "description":
-                                              _descriptionController.text
-                                        },
-                                        {"variables_types": variablesTypes},
-                                        {"variables": variablesList}
-                                      ];
+                                      var featuresToSend = {
+                                        "guide_name": _nameGuideController.text,
+                                        "price_suggested":
+                                            _priceSuggestedController.text,
+                                        "sku": _skuController.text,
+                                        "categories": selectedCategories,
+                                        "description":
+                                            _descriptionController.text,
+                                        "type": selectedType,
+                                        "variants": variablesList,
+                                        "options": variablesTypes
+                                      };
 
                                       // print("featuresToSend: $featuresToSend");
-
-                                      // await Connections().createProduct0(
-                                      //     _nameController.text,
-                                      //     _stockController.text,
-                                      //     featuresToSend,
-                                      //     _priceController.text,
-                                      //     urlsImgsListToSend,
-                                      //     isVariable,
-                                      //     selectedWarehouse
-                                      //         .toString()
-                                      //         .split("-")[1]
-                                      //         .toString());
 
                                       var response = _productController
                                           .addProduct(ProductModel(
@@ -1429,7 +1438,7 @@ class _AddProductState extends State<AddProduct> {
                                             .toString()),
                                       ));
 
-                                      print(response);
+                                      // print(response);
 
                                       Navigator.pop(context);
                                       Navigator.pop(context);
