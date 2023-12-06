@@ -519,7 +519,8 @@ class _UpdateStatusOperatorHistorialState
         datacostos['id'],
         "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
         _controllerModalText.text,
-        urlImage != "" ? urlImage[1] : "");
+        urlImage != "" ? urlImage[1] : "",
+        tipo);
 
     dialogEntregado(resDelivered);
   }

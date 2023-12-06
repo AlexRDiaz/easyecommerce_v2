@@ -6594,8 +6594,16 @@ class Connections {
     }
   }
 
-  updateWarehouse(int id, String nameSucursal, String address, String customerphoneNumber, String reference,
-      String description, String url_image, String city, var collection) async {
+  updateWarehouse(
+      int id,
+      String nameSucursal,
+      String address,
+      String customerphoneNumber,
+      String reference,
+      String description,
+      String url_image,
+      String city,
+      var collection) async {
     try {
       var response =
           await http.put(Uri.parse("$serverLaravel/api/warehouses/$id"),
@@ -6714,8 +6722,8 @@ class Connections {
   //   }
   // }
 
-  paymentOrderDelivered(
-      id, monto, montoDebit, idOrigen, codigo, comentario, archivo) async {
+  paymentOrderDelivered(id, monto, montoDebit, idOrigen, codigo, comentario,
+      archivo, tipo) async {
     try {
       String? generatedBy = sharedPrefs!.getString("id");
 
@@ -6731,7 +6739,8 @@ class Connections {
             "state": "1",
             "generated_by": generatedBy,
             "comentario": comentario,
-            "archivo": archivo
+            "archivo": archivo,
+            "tipo": tipo
           }));
       if (response.statusCode != 200) {
         return 1;
