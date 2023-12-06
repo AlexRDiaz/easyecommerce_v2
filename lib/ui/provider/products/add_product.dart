@@ -11,8 +11,10 @@ import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/models/product_model.dart';
+import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/provider/products/controllers/product_controller.dart';
+import 'package:frontend/ui/provider/warehouses/controllers/warehouses_controller.dart';
 import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/html_editor.dart';
@@ -52,8 +54,6 @@ class _AddProductState extends State<AddProduct> {
   List<String> selectedCategories = [];
 
   List<String> features = [];
-  String? img_url;
-
   List<String> types = UIUtils.typesProduct();
   String? selectedType;
   List<String> typesVariables = UIUtils.typesVariables();
@@ -83,9 +83,11 @@ class _AddProductState extends State<AddProduct> {
 
   //multi img show temp
   List<XFile> imgsTemporales = [];
-  List<Widget> thumbnails = [];
 
   late ProductController _productController;
+  late WrehouseController _warehouseController;
+  List<WarehouseModel> warehousesList = [];
+  List<String> warehousesToSelect = [];
 
   bool containsEmoji(String text) {
     final emojiPattern = RegExp(
@@ -97,24 +99,33 @@ class _AddProductState extends State<AddProduct> {
 
   @override
   void initState() {
-    loadData();
-    _productController = ProductController();
     super.initState();
+    _productController = ProductController();
+    _warehouseController = WrehouseController();
+    getWarehouses();
+    loadData();
+  }
+
+  Future<List<WarehouseModel>> _getWarehousesData() async {
+    await _warehouseController.loadWarehouses(); //byprovider loged
+    return _warehouseController.warehouses;
+  }
+
+  getWarehouses() async {
+    var responseBodegas = await _getWarehousesData();
+    warehousesList = responseBodegas;
+    print(warehousesList.length);
+    for (var warehouse in warehousesList) {
+      if (warehouse.approved == 1 && warehouse.active == 1) {
+        setState(() {
+          warehousesToSelect
+              .add('${warehouse.id}-${warehouse.branchName}-${warehouse.city}');
+        });
+      }
+    }
   }
 
   loadData() async {
-    var responseBodegas = await Connections().getWarehousesProvider(
-        int.parse(sharedPrefs!.getString("idProvider").toString()));
-    warehouseList = responseBodegas;
-    if (warehouseList != null) {
-      warehouseList.forEach((warehouse) {
-        setState(() {
-          warehouses.add(
-              '${warehouse["warehouse_id"]}-${warehouse["branch_name"]}-${warehouse["city"]}');
-        });
-      });
-    }
-
     sizesToSelect = optionsList[0]["sizes"]!;
     colorsToSelect = optionsList[1]["colors"]!;
     dimensionToSelect = optionsList[2]["dimensions"]!;
@@ -329,6 +340,7 @@ class _AddProductState extends State<AddProduct> {
                             ],
                           ),
                         ),
+
                         const SizedBox(width: 20),
                         // Visibility(
                         //   visible: selectedType == 'VARIABLE',
@@ -368,9 +380,7 @@ class _AddProductState extends State<AddProduct> {
                                 const SizedBox(height: 3),
                                 Visibility(
                                   visible: selectedType == 'VARIABLE',
-                                  child:
-                                      // Text("")
-                                      Wrap(
+                                  child: Wrap(
                                     spacing: 8.0,
                                     runSpacing: 8.0,
                                     children:
@@ -389,8 +399,8 @@ class _AddProductState extends State<AddProduct> {
                                         chipLabel +=
                                             " - Tamaño: ${variable['dimension']}";
                                       }
-                                      chipLabel +=
-                                          " - Precio: \$${variable['price']}";
+                                      // chipLabel +=
+                                      //     " - Precio: \$${variable['price']}";
                                       chipLabel +=
                                           " - Cantidad: ${variable['inventory']}";
 
@@ -419,18 +429,18 @@ class _AddProductState extends State<AddProduct> {
 
                                             variablesList.remove(variable);
                                           });
-                                          print("variablesList act:");
-                                          print(variablesList);
+                                          // print("variablesList act:");
+                                          // print(variablesList);
 
-                                          print("selectedColores act:");
-                                          print(selectedColores);
-                                          print("selectedSizes act:");
-                                          print(selectedSizes);
-                                          print("selectedDimensions act:");
-                                          print(selectedDimensions);
+                                          // print("selectedColores act:");
+                                          // print(selectedColores);
+                                          // print("selectedSizes act:");
+                                          // print(selectedSizes);
+                                          // print("selectedDimensions act:");
+                                          // print(selectedDimensions);
 
-                                          print("variablesTypes act:");
-                                          print(variablesTypes);
+                                          // print("variablesTypes act:");
+                                          // print(variablesTypes);
                                         },
                                       );
                                     }).toList(),
@@ -714,26 +724,26 @@ class _AddProductState extends State<AddProduct> {
                                                 ],
                                               ),
                                             ),
-                                            const SizedBox(width: 5),
-                                            Expanded(
-                                              child: Column(
-                                                children: [
-                                                  TextFieldWithIcon(
-                                                    controller:
-                                                        _priceUnitController,
-                                                    labelText: 'Precio',
-                                                    icon: Icons.monetization_on,
-                                                    inputType:
-                                                        TextInputType.number,
-                                                    inputFormatters: <TextInputFormatter>[
-                                                      FilteringTextInputFormatter
-                                                          .allow(RegExp(
-                                                              r'^\d+\.?\d{0,2}$')),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
+                                            // const SizedBox(width: 5),
+                                            // Expanded(
+                                            //   child: Column(
+                                            //     children: [
+                                            //       TextFieldWithIcon(
+                                            //         controller:
+                                            //             _priceUnitController,
+                                            //         labelText: 'Precio',
+                                            //         icon: Icons.monetization_on,
+                                            //         inputType:
+                                            //             TextInputType.number,
+                                            //         inputFormatters: <TextInputFormatter>[
+                                            //           FilteringTextInputFormatter
+                                            //               .allow(RegExp(
+                                            //                   r'^\d+\.?\d{0,2}$')),
+                                            //         ],
+                                            //       ),
+                                            //     ],
+                                            //   ),
+                                            // ),
                                           ],
                                         ),
                                       ],
@@ -742,11 +752,11 @@ class _AddProductState extends State<AddProduct> {
                                   const SizedBox(width: 10),
                                   ElevatedButton(
                                     onPressed: () async {
-                                      print(
-                                          _inventaryController.text.toString());
-                                      print(
-                                          _priceUnitController.text.toString());
-                                      print(_skuController.text.toString());
+                                      // print(
+                                      //     _inventaryController.text.toString());
+                                      // print(
+                                      //     _priceUnitController.text.toString());
+                                      // print(_skuController.text.toString());
 
                                       if (((int.parse(_inventaryController
                                                       .text) <
@@ -755,18 +765,11 @@ class _AddProductState extends State<AddProduct> {
                                                   .text.isEmpty) ||
                                               (_inventaryController.text ==
                                                   "")) &&
-                                          ((double.parse(_priceUnitController
-                                                      .text)) <=
-                                                  0 ||
-                                              (_priceUnitController
-                                                  .text.isEmpty) ||
-                                              (_priceUnitController.text ==
-                                                  "")) &&
                                           (_skuController.text != "" ||
                                               _skuController.text.isEmpty)) {
                                         showSuccessModal(
                                             context,
-                                            "Por favor, ingrese una Cantidad, Precio y SKU válida.",
+                                            "Por favor, ingrese una Cantidad y SKU válida.",
                                             Icons8.alert);
                                       } else {
                                         var variant;
@@ -781,7 +784,6 @@ class _AddProductState extends State<AddProduct> {
                                             "color": "$chosenColor",
                                             "inventory":
                                                 _inventaryController.text,
-                                            "price": _priceUnitController.text
                                           };
                                           //
                                           List<String> claves = [
@@ -812,7 +814,6 @@ class _AddProductState extends State<AddProduct> {
                                             "color": "$chosenColor",
                                             "inventory":
                                                 _inventaryController.text,
-                                            "price": _priceUnitController.text
                                           };
                                           //
                                           List<String> claves = [
@@ -841,7 +842,6 @@ class _AddProductState extends State<AddProduct> {
                                             "size": "$chosenSize",
                                             "inventory":
                                                 _inventaryController.text,
-                                            "price": _priceUnitController.text
                                           };
                                           //
                                           List<String> claves = ["size"];
@@ -865,7 +865,6 @@ class _AddProductState extends State<AddProduct> {
                                             "color": "$chosenColor",
                                             "inventory":
                                                 _inventaryController.text,
-                                            "price": _priceUnitController.text
                                           };
                                           //
                                           List<String> claves = ["color"];
@@ -889,7 +888,6 @@ class _AddProductState extends State<AddProduct> {
                                             "dimension": "$chosenDimension",
                                             "inventory":
                                                 _inventaryController.text,
-                                            "price": _priceUnitController.text
                                           };
                                           //
                                           List<String> claves = ["dimension"];
@@ -912,13 +910,13 @@ class _AddProductState extends State<AddProduct> {
                                         // print(variantsList);
                                         //
 
-                                        print(variablesList);
-                                        print("selectedColores act:");
-                                        print(selectedColores);
-                                        print("selectedSizes act:");
-                                        print(selectedSizes);
-                                        print("selectedDimensions act:");
-                                        print(selectedDimensions);
+                                        // print(variablesList);
+                                        // print("selectedColores act:");
+                                        // print(selectedColores);
+                                        // print("selectedSizes act:");
+                                        // print(selectedSizes);
+                                        // print("selectedDimensions act:");
+                                        // print(selectedDimensions);
 
                                         _priceUnitController.text =
                                             _priceController.text;
@@ -998,7 +996,7 @@ class _AddProductState extends State<AddProduct> {
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                items: warehouses.map((item) {
+                                items: warehousesToSelect.map((item) {
                                   var parts = item.split('-');
                                   var branchName = parts[1];
                                   var city = parts[2];
@@ -1111,7 +1109,7 @@ class _AddProductState extends State<AddProduct> {
                               margin:
                                   const EdgeInsets.symmetric(vertical: 10.0),
                               padding: const EdgeInsets.all(8.0),
-                              height: 150,
+                              height: 200,
                               //  width: 600,
                               decoration: BoxDecoration(
                                   color: Colors.white,
@@ -1126,77 +1124,6 @@ class _AddProductState extends State<AddProduct> {
                     ]),
                     const SizedBox(height: 10),
 
-                    Container(
-                      margin: const EdgeInsets.symmetric(vertical: 10),
-                      padding: const EdgeInsets.all(15),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: Colors.green,
-                          width: 1.0,
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              TextButton(
-                                onPressed: () async {
-                                  final ImagePicker picker = ImagePicker();
-                                  final XFile? image = await picker.pickImage(
-                                      source: ImageSource.gallery);
-
-                                  if (image != null && image.path.isNotEmpty) {
-                                    var responseI =
-                                        await Connections().postDoc(image);
-                                    // print("ImgSaveStrapi: $responseI");
-
-                                    setState(() {
-                                      img_url = responseI[1];
-                                    });
-                                    urlsImgsList.add(img_url!);
-                                    // urlsImgsList.add(img_url!);
-
-                                    // Navigator.pop(context);
-                                    // Navigator.pop(context);
-                                  } else {
-                                    print("No img");
-                                  }
-                                },
-                                child: const Row(
-                                  children: [
-                                    Icon(Icons.image),
-                                    SizedBox(width: 10),
-                                    Text('Seleccionar Imagen'),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 15),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              img_url != null
-                                  ? SizedBox(
-                                      width: 300,
-                                      height: 400,
-                                      child: Image.network(
-                                        "$generalServer$img_url",
-                                        fit: BoxFit.fill,
-                                      ),
-                                    )
-                                  : Container(),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    /*
                     //
                     Container(
                       margin: const EdgeInsets.symmetric(vertical: 10),
@@ -1218,9 +1145,6 @@ class _AddProductState extends State<AddProduct> {
                               TextButton(
                                 onPressed: () async {
                                   final ImagePicker picker = ImagePicker();
-                                  // final XFile? image = await picker.pickImage(
-                                  //   source: ImageSource.gallery,
-                                  // );
                                   imgsTemporales = [];
                                   List<XFile>? imagenes =
                                       await picker.pickMultiImage();
@@ -1245,7 +1169,7 @@ class _AddProductState extends State<AddProduct> {
                                       //     "Error, Seleccione maximo 4 imagenes");
                                     } else {
                                       setState(() {
-                                        imgsTemporales?.addAll(imagenes);
+                                        imgsTemporales.addAll(imagenes);
                                       });
                                     }
                                   }
@@ -1268,11 +1192,13 @@ class _AddProductState extends State<AddProduct> {
                               gridDelegate:
                                   const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 4,
+                                crossAxisSpacing: 10,
+                                mainAxisSpacing: 10,
                               ),
-                              itemCount: imgsTemporales?.length,
+                              itemCount: imgsTemporales.length,
                               itemBuilder: (BuildContext context, int index) {
                                 return Image.network(
-                                  (imgsTemporales![index].path),
+                                  (imgsTemporales[index].path),
                                   fit: BoxFit.fill,
                                 );
                               },
@@ -1282,7 +1208,7 @@ class _AddProductState extends State<AddProduct> {
                       ),
                     ),
 //
-*/
+
                     const SizedBox(height: 20),
                     const Row(
                       children: [
@@ -1455,11 +1381,15 @@ class _AddProductState extends State<AddProduct> {
                                         }
                                       }
 
+                                      var urlsImgsListToSend =
+                                          await saveImages(imgsTemporales);
+
                                       var featuresToSend = [
                                         {
                                           "guide_name":
                                               _nameGuideController.text
                                         },
+                                        {"sku": _skuController.text},
                                         {"type": selectedType},
                                         {"categories": selectedCategories},
                                         {
@@ -1471,28 +1401,26 @@ class _AddProductState extends State<AddProduct> {
                                       ];
 
                                       // print("featuresToSend: $featuresToSend");
-                                      // saveImages(imgsTemporales);
-                                      // print(urlsImgsList);
 
                                       // await Connections().createProduct0(
                                       //     _nameController.text,
                                       //     _stockController.text,
                                       //     featuresToSend,
                                       //     _priceController.text,
-                                      //     urlsImgsList,
+                                      //     urlsImgsListToSend,
                                       //     isVariable,
                                       //     selectedWarehouse
                                       //         .toString()
                                       //         .split("-")[1]
                                       //         .toString());
 
-                                      _productController
+                                      var response = _productController
                                           .addProduct(ProductModel(
                                         productName: _nameController.text,
                                         stock: int.parse(_stockController.text),
                                         price:
                                             double.parse(_priceController.text),
-                                        urlImg: urlsImgsList,
+                                        urlImg: urlsImgsListToSend,
                                         isvariable: isVariable,
                                         features: featuresToSend,
                                         warehouseId: int.parse(selectedWarehouse
@@ -1500,6 +1428,8 @@ class _AddProductState extends State<AddProduct> {
                                             .split("-")[0]
                                             .toString()),
                                       ));
+
+                                      print(response);
 
                                       Navigator.pop(context);
                                       Navigator.pop(context);
@@ -1543,15 +1473,28 @@ class _AddProductState extends State<AddProduct> {
     );
   }
 
-  Future<void> saveImages(List<XFile> imgsTemporales) async {
+  Future<List<String>> saveImages(List<XFile> imgsTemporales) async {
+    var c = 0;
+    for (var imagen in imgsTemporales) {
+      await _saveImage(imagen);
+    }
+    print("final urlsImgs: $urlsImgsList");
+    return urlsImgsList;
+  }
+
+  Future<void> _saveImage(XFile imagen) async {
     try {
-      for (var imagen in imgsTemporales) {
-        var response = await Connections().postDoc(imagen);
-        img_url = response[1];
-        urlsImgsList.add(img_url!);
+      if (imagen != null && imagen.path.isNotEmpty) {
+        var responseI = await Connections().postDoc(imagen);
+        // print("ImgSaveStrapi: $responseI");
+
+        var imgUrl = responseI[1];
+        urlsImgsList.add(imgUrl!);
+      } else {
+        print("No img");
       }
-    } catch (e) {
-      print("Error al guardar la/s imagen/es");
+    } catch (error) {
+      print("Error al guardar la imagen: $error");
     }
   }
 

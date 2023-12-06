@@ -34,7 +34,7 @@ class _InfoNovedadesState extends State<InfoNovedades> {
       getLoadingModal(context, false);
     });
     var response = await Connections()
-        .getOrdersByIdLaravel2(int.parse(widget.id), widget.data);
+        .getOrdersByIdLaravel(int.parse(widget.id));
     data = response;
 
     //

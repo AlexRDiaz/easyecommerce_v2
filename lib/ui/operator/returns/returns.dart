@@ -416,67 +416,64 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
                       onSelectChanged: (bool? selected) {},
                       cells: [
                         DataCell(ElevatedButton(
-                            onPressed: data[index]['estado_devolucion']
-                                        .toString() !=
-                                    "PENDIENTE"
-                                ? null
-                                : () {
-                                    AwesomeDialog(
-                                      width: 500,
-                                      context: context,
-                                      dialogType: DialogType.info,
-                                      animType: AnimType.rightSlide,
-                                      title:
-                                          '¿Estás seguro de marcar el pedido en Oficina?',
-                                      desc: '',
-                                      btnOkText: "Confirmar",
-                                      btnCancelText: "Cancelar",
-                                      btnOkColor: Colors.blueAccent,
-                                      btnCancelOnPress: () {},
-                                      btnOkOnPress: () async {
-                                        getLoadingModal(context, false);
-                                        // await Connections()
-                                        //     .updateOrderReturnOperator(
-                                        //         data[index]['id']);
+                            onPressed:
+                                data[index]['estado_devolucion'].toString() !=
+                                        "PENDIENTE"
+                                    ? null
+                                    : () {
+                                        AwesomeDialog(
+                                          width: 500,
+                                          context: context,
+                                          dialogType: DialogType.info,
+                                          animType: AnimType.rightSlide,
+                                          title:
+                                              '¿Estás seguro de marcar el pedido en Oficina?',
+                                          desc: '',
+                                          btnOkText: "Confirmar",
+                                          btnCancelText: "Cancelar",
+                                          btnOkColor: Colors.blueAccent,
+                                          btnCancelOnPress: () {},
+                                          btnOkOnPress: () async {
+                                            getLoadingModal(context, false);
+                                            paymentOrderOperatorInOffice(
+                                                data[index]['id'].toString());
+                                            // await Connections().updateOrderWithTime(
+                                            //     data[index]['id'].toString(),
+                                            //     "estado_devolucion:ENTREGADO EN OFICINA",
+                                            //     idUser,
+                                            //     "operator",
+                                            //     "");
 
-                                        //new
-                                        await Connections().updateOrderWithTime(
-                                            data[index]['id'].toString(),
-                                            "estado_devolucion:ENTREGADO EN OFICINA",
-                                            idUser,
-                                            "operator",
-                                            "");
+                                            // var datane = await Connections()
+                                            //     .getOrderByIDHistoryLaravel(
+                                            //         data[index]['id']);
 
-                                        var datane = await Connections()
-                                            .getOrderByIDHistoryLaravel(
-                                                data[index]['id']);
+                                            // print("costos-> $datane");
 
-                                        print("costos-> $datane");
+                                            // if (datane['estado_devolucion'] ==
+                                            //     "ENTREGADO EN OFICINA") {
+                                            //   if ((datane['status'] == "NOVEDAD")) {
+                                            //     await Connections().postDebit(
+                                            //         "${datane['users'][0]['vendedores'][0]['id_master']}",
+                                            //         "${datane['users'][0]['vendedores'][0]['costo_devolucion']}",
+                                            //         "${datane['id']}",
+                                            //         "${datane['name_comercial']}-${datane['numero_orden']}",
+                                            //         "devolucion",
+                                            //         "costo de devolucion desde operador por ${datane['estado_devolucion']}");
 
-                                        if (datane['estado_devolucion'] ==
-                                            "ENTREGADO EN OFICINA") {
-                                          if ((datane['status'] == "NOVEDAD")) {
-                                            await Connections().postDebit(
-                                                "${datane['users'][0]['vendedores'][0]['id_master']}",
-                                                "${datane['users'][0]['vendedores'][0]['costo_devolucion']}",
-                                                "${datane['id']}",
-                                                "${datane['name_comercial']}-${datane['numero_orden']}",
-                                                "devolucion",
-                                                "costo de devolucion desde operador por ${datane['estado_devolucion']}");
-
-                                            Connections().updatenueva(
-                                                data[index]['id'], {
-                                              "costo_envio": datane['users'][0]
-                                                      ['vendedores'][0]
-                                                  ['costo_devolucion'],
-                                            });
-                                          }
-                                        }
-                                        await loadData(context);
-                                        Navigator.pop(context);
+                                            //     Connections().updatenueva(
+                                            //         data[index]['id'], {
+                                            //       "costo_envio": datane['users'][0]
+                                            //               ['vendedores'][0]
+                                            //           ['costo_devolucion'],
+                                            //     });
+                                            //   }
+                                            // }
+                                            //await loadData(context);
+                                            // Navigator.pop(context);
+                                          },
+                                        ).show();
                                       },
-                                    ).show();
-                                  },
                             child: const Text(
                               "Devolver",
                               style: TextStyle(
@@ -618,6 +615,57 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
         ),
       ),
     );
+  }
+
+  Future<void> paymentOrderOperatorInOffice(id) async {
+    var resNovelty =
+        await Connections().paymentOrderOperatorInOffice(id, "", "");
+
+    dialogNovedad(resNovelty);
+  }
+
+  Future<void> dialogNovedad(resNovelty) async {
+    if (resNovelty == 1 || resNovelty == 2) {
+      // ignore: use_build_context_synchronously
+      AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.rightSlide,
+        title: 'Error al modificar estado',
+        desc: 'No se pudo cambiar a novedad',
+        btnCancel: Container(),
+        btnOkText: "Aceptar",
+        btnOkColor: Colors.green,
+        descTextStyle: const TextStyle(color: Color.fromARGB(255, 255, 59, 59)),
+        btnCancelOnPress: () {},
+        btnOkOnPress: () {
+          Navigator.pop(context);
+          // Navigator.pop(context);
+        },
+      ).show();
+    } else {
+      // ignore: use_build_context_synchronously
+      AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.success,
+        animType: AnimType.rightSlide,
+        title: 'Se ha modificado exitosamente',
+        desc: resNovelty['res'],
+        descTextStyle:
+            const TextStyle(color: Color.fromARGB(255, 255, 235, 59)),
+        btnCancel: Container(),
+        btnOkText: "Aceptar",
+        btnOkColor: Colors.green,
+        btnCancelOnPress: () {},
+        btnOkOnPress: () async {
+          Navigator.pop(context);
+          await loadData(context);
+          // Navigator.pop(context);
+        },
+      ).show();
+    }
   }
 
 // ! ***********************

@@ -8,6 +8,7 @@ import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/returns/controllers/controllers.dart';
 import 'package:frontend/ui/sellers/returns_seller/return_details_data.dart';
+import 'package:frontend/ui/sellers/returns_seller/scanner_return.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:intl/intl.dart';
 import 'package:number_paginator/number_paginator.dart';
@@ -166,6 +167,7 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
     'ENTREGADO EN OFICINA',
     'DEVOLUCION EN RUTA',
     'EN BODEGA',
+    'EN BODEGA PROVEEDOR'
   ];
 
   TextEditingController estadoDevolucionController =
@@ -395,6 +397,22 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                           ],
                         ),
                       ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: ElevatedButton(
+                            onPressed: () async {
+                              await showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return ScannerReturn();
+                                  });
+                              await loadData();
+                            },
+                            child: const Text(
+                              "SCANNER",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            )),
+                      ),
                       const SizedBox(
                         width: 5,
                       ),
@@ -423,6 +441,22 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                           ],
                         ),
                       ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: ElevatedButton(
+                            onPressed: () async {
+                              await showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return ScannerReturn();
+                                  });
+                              await loadData();
+                            },
+                            child: const Text(
+                              "SCANNER",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            )),
+                      ),
                       Expanded(child: numberPaginator()),
                     ],
                   ),
@@ -443,6 +477,10 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                     color: Colors.black),
+                dataRowColor: MaterialStateColor.resolveWith((states) {
+                  return Colors.white;
+                }),
+                dividerThickness: 1,
                 columnSpacing: 12,
                 horizontalMargin: 6,
                 minWidth: 2000,
@@ -534,7 +572,7 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                         'estado_devolucion',
                         estadoDevolucionController,
                         listEstadoDevolucion),
-                    size: ColumnSize.M,
+                    size: ColumnSize.L,
                     numeric: true,
                     onSort: (columnIndex, ascending) {
                       sortFunc2("estado_devolucion", changevalue);
@@ -550,14 +588,21 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                   ),
                   DataColumn2(
                     label: Text('Marca Fecha Confirmación'),
-                    size: ColumnSize.M,
+                    size: ColumnSize.L,
                     onSort: (columnIndex, ascending) {
                       sortFunc2("fecha_confirmacion", changevalue);
                     },
                   ),
-                  DataColumn2(
+                  const DataColumn2(
                     label: Text('Transportadora'),
                     size: ColumnSize.M,
+                  ),
+                  DataColumn2(
+                    label: const Text('Recibido por'),
+                    size: ColumnSize.M,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("received_by", changevalue);
+                    },
                   ),
                 ],
                 rows: List<DataRow>.generate(
@@ -615,7 +660,7 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                         }),
                         DataCell(
                             Text(
-                              '${data[index]['ciudad_shipping'].toString()}',
+                              data[index]['ciudad_shipping'].toString(),
                               style: TextStyle(
                                 color: rowColor,
                               ),
@@ -669,7 +714,10 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                         }),
                         DataCell(
                             Text(
-                              data[index]['producto_extra'].toString(),
+                              data[index]['producto_extra'] == null ||
+                                      data[index]['producto_extra'] == "null"
+                                  ? ""
+                                  : data[index]['producto_extra'].toString(),
                               style: TextStyle(
                                 color: rowColor,
                               ),
@@ -705,7 +753,10 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                         }),
                         DataCell(
                             Text(
-                              data[index]['comentario'].toString(),
+                              data[index]['comentario'] == null ||
+                                      data[index]['comentario'] == "null"
+                                  ? ""
+                                  : data[index]['comentario'].toString(),
                               style: TextStyle(
                                 color: rowColor,
                               ),
@@ -726,6 +777,13 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                                     data[index]['transportadora'].isNotEmpty
                                 ? data[index]['transportadora'][0]['nombre']
                                     .toString()
+                                : ''), onTap: () {
+                          showDialogInfoData(data[index]);
+                        }),
+                        DataCell(
+                            Text(data[index]['received_by'] != null &&
+                                    data[index]['received_by'].isNotEmpty
+                                ? "${data[index]['received_by']['username'].toString()}-${data[index]['received_by']['id'].toString()}"
                                 : ''), onTap: () {
                           showDialogInfoData(data[index]);
                         }),
@@ -875,13 +933,16 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
         color = 0xFFFF0000;
         break;
       case "ENTREGADO EN OFICINA":
-        color = 0xB100E1FF;
+        color = 0xD300BBFF;
         break;
       case "DEVOLUCION EN RUTA":
         color = 0xFF0000FF;
         break;
       case "EN BODEGA":
         color = 0xFFD6DC27;
+        break;
+      case "EN BODEGA PROVEEDOR":
+        color = 0xFFE662DF;
         break;
       default:
         color = 0xFF000000;

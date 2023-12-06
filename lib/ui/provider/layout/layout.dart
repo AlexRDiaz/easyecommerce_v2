@@ -57,15 +57,14 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
   @override
   Widget build(BuildContext context) {
     List pages = [
-      
       getOption(
         "Home",
         const WelcomeScreen(),
       ),
-      // getOption(
-      //   "Productos",
-      //   const ProductsView(),
-      // ),
+      getOption(
+        "Productos",
+        const ProductsView(),
+      ),
       getOption(
         "Bodegas",
         const WarehousesView(),
@@ -74,10 +73,6 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
         "Proveedores",
         SubProviderView(),
       ),
-      getOption(
-        "Bodegas",
-        const WarehousesView(),
-      )
     ];
     return Scaffold(
       key: _key,

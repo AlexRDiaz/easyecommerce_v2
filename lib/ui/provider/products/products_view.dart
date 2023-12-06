@@ -20,6 +20,7 @@ import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_html/flutter_html.dart';
 
 class ProductsView extends StatefulWidget {
   const ProductsView({super.key});
@@ -48,7 +49,6 @@ class _ProductsViewState extends State<ProductsView> {
   int total = 0;
 
   List warehouseList0 = [];
-  List<String> warehousesToSelect = [];
   String? selectedWarehouse;
   List selectedCheckBox = [];
   String? selectedWarehouseToCopy;
@@ -56,8 +56,8 @@ class _ProductsViewState extends State<ProductsView> {
   late ProductController _productController;
   List<ProductModel> products = [];
   late WrehouseController _warehouseController;
-  List<WarehouseModel> warehousesList2 = [];
-  List data2 = [];
+  List<WarehouseModel> warehousesList = [];
+  List<String> warehousesToSelect = [];
 
   @override
   void initState() {
@@ -85,7 +85,7 @@ class _ProductsViewState extends State<ProductsView> {
     return _productController.products;
   }
 
-  Future<List<WarehouseModel>> _getWarehouseModelData() async {
+  Future<List<WarehouseModel>> _getWarehousesData() async {
     await _warehouseController.loadWarehouses();
     return _warehouseController.warehouses;
   }
@@ -101,18 +101,14 @@ class _ProductsViewState extends State<ProductsView> {
       getLoadingModal(context, false);
     });
 
-    var responseW = await _getWarehouseModelData();
-    data2 = responseW;
     // print(data2);
     //
-    warehousesList2 = responseW;
-    // Filter warehouses based on conditions
-    warehousesList2 = warehousesList2
-        .where((warehouse) => warehouse.active == 1 && warehouse.approved == 1)
-        .toList();
-    if (warehousesList2 != null) {
-      warehousesToSelect.insert(0, 'TODO');
-      for (var warehouse in warehousesList2) {
+    var responseBodegas = await _getWarehousesData();
+    warehousesList = responseBodegas;
+    warehousesToSelect.insert(0, 'TODO');
+
+    for (var warehouse in warehousesList) {
+      if (warehouse.approved == 1 && warehouse.active == 1) {
         setState(() {
           warehousesToSelect
               .add('${warehouse.id}-${warehouse.branchName}-${warehouse.city}');
@@ -170,7 +166,6 @@ class _ProductsViewState extends State<ProductsView> {
       } else {
         producto['check'] = false;
       }
-
     }
     // print("prductos: $data");
     // print("data2: $data");
@@ -322,21 +317,6 @@ class _ProductsViewState extends State<ProductsView> {
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                // items: warehousesToSelect.map((item) {
-                                //   var parts = item.split('-');
-                                //   var branchName = parts[1];
-                                //   var city = parts[2];
-                                //   return DropdownMenuItem(
-                                //     value: item,
-                                //     child: Text(
-                                //       '$branchName - $city',
-                                //       style: const TextStyle(
-                                //         fontSize: 14,
-                                //         fontWeight: FontWeight.bold,
-                                //       ),
-                                //     ),
-                                //   );
-                                // }).toList(),
                                 items: warehousesToSelect
                                     .map((item) => DropdownMenuItem(
                                           value: item,
@@ -644,7 +624,11 @@ class _ProductsViewState extends State<ProductsView> {
                                       widthFactor: 0.6,
                                       heightFactor: 0.9,
                                       child: data[index]['url_img'] != null &&
-                                              data[index]['url_img'].isNotEmpty
+                                              data[index]['url_img']
+                                                  .isNotEmpty &&
+                                              data[index]['url_img']
+                                                      .toString() !=
+                                                  "[]"
                                           ? Image.network(
                                               "$generalServer${getFirstUrl(data[index]['url_img'])}",
                                               fit: BoxFit.fill,
@@ -957,6 +941,15 @@ class _ProductsViewState extends State<ProductsView> {
 
   void _showProductInfo(data) {
     ProductModel product = ProductModel.fromJson(data);
+
+    List<String> urlsImgsList = product.urlImg != null &&
+            product.urlImg.isNotEmpty &&
+            product.urlImg.toString() != "[]"
+        ? (jsonDecode(product.urlImg) as List).cast<String>()
+        : [];
+
+    int selectedImageIndex = 0;
+
     var features = jsonDecode(product.features);
 
     List<Map<String, dynamic>> featuresList =
@@ -974,51 +967,56 @@ class _ProductsViewState extends State<ProductsView> {
         .map((feature) => feature["guide_name"] as String)
         .firstWhere((element) => element.isNotEmpty, orElse: () => '');
 
+    String sku = featuresList
+        .where((feature) => feature.containsKey("sku"))
+        .map((feature) => feature["sku"] as String)
+        .firstWhere((element) => element.isNotEmpty, orElse: () => '');
+
     String description = featuresList
         .where((feature) => feature.containsKey("description"))
         .map((feature) => feature["description"] as String)
         .firstWhere((element) => element.isNotEmpty, orElse: () => '');
 
-    List<Map<String, dynamic>> variables = featuresList
-        .where((feature) => feature.containsKey("variables"))
-        .expand((feature) => (feature["variables"] as List<dynamic>)
-            .cast<Map<String, dynamic>>())
-        .toList();
+    String type = featuresList
+        .where((feature) => feature.containsKey("type"))
+        .map((feature) => feature["type"] as String)
+        .firstWhere((element) => element.isNotEmpty, orElse: () => '');
 
-    // Buscar el primer SKU
-    // var firstSku = "";
-    // for (var variable in variables) {
-    //   if (variable.containsKey('sku')) {
-    //     firstSku = variable['sku'];
-    //     break; // Detener la búsqueda después de encontrar el primer SKU
-    //   }
-    // }
+    String variablesText = "";
+
+    if (product.isvariable == 1) {
+      List<Map<String, dynamic>> variables = featuresList
+          .where((feature) => feature.containsKey("variables"))
+          .expand((feature) => (feature["variables"] as List<dynamic>)
+              .cast<Map<String, dynamic>>())
+          .toList();
 
 // Construir una cadena de texto con detalles de variables
-    String variablesText = variables.map((variable) {
-      List<String> variableDetails = [];
+      variablesText = variables.map((variable) {
+        List<String> variableDetails = [];
 
-      if (variable.containsKey('sku')) {
-        variableDetails.add("SKU: ${variable['sku']}");
-      }
-      if (variable.containsKey('color')) {
-        variableDetails.add("Color: ${variable['color']}");
-      }
-      if (variable.containsKey('size')) {
-        variableDetails.add("Talla: ${variable['size']}");
-      }
-      if (variable.containsKey('dimension')) {
-        variableDetails.add("Tamaño: ${variable['dimension']}");
-      }
-      if (variable.containsKey('inventory')) {
-        variableDetails.add("Cantidad: ${variable['inventory']}");
-      }
-      if (variable.containsKey('price')) {
-        variableDetails.add("Precio: ${variable['price']}");
-      }
+        if (variable.containsKey('sku')) {
+          variableDetails.add("SKU: ${variable['sku']}");
+        }
+        if (variable.containsKey('color')) {
+          variableDetails.add("Color: ${variable['color']}");
+        }
+        if (variable.containsKey('size')) {
+          variableDetails.add("Talla: ${variable['size']}");
+        }
+        if (variable.containsKey('dimension')) {
+          variableDetails.add("Tamaño: ${variable['dimension']}");
+        }
+        if (variable.containsKey('inventory')) {
+          variableDetails.add("Cantidad: ${variable['inventory']}");
+        }
+        // if (variable.containsKey('price')) {
+        //   variableDetails.add("Precio: ${variable['price']}");
+        // }
 
-      return variableDetails.join('\n');
-    }).join('\n\n');
+        return variableDetails.join('\n');
+      }).join('\n\n');
+    }
 
     // print(features);
     showDialog(
@@ -1048,15 +1046,12 @@ class _ProductsViewState extends State<ProductsView> {
                       Expanded(
                         child: Column(
                           children: [
-                            // Text(product.urlImg != null &&
-                            //         product.urlImg.isNotEmpty
-                            //     ? "$generalServer${getFirstUrl(product.urlImg)}"
-                            //     : "no img"),
                             SizedBox(
                               width: MediaQuery.of(context).size.width * 0.3,
                               height: MediaQuery.of(context).size.height * 0.6,
                               child: product.urlImg != null &&
-                                      product.urlImg.isNotEmpty
+                                      product.urlImg.isNotEmpty &&
+                                      product.urlImg.toString() != "[]"
                                   ? ClipRRect(
                                       borderRadius: BorderRadius.circular(8.0),
                                       child: Image.network(
@@ -1066,6 +1061,41 @@ class _ProductsViewState extends State<ProductsView> {
                                     )
                                   : Container(),
                             ),
+                            //******** */
+                            // Container(
+                            //   width: 100,
+                            //   child: Column(
+                            //     children:
+                            //         imageUrls.asMap().entries.map((entry) {
+                            //       final index = entry.key;
+                            //       final imageUrl = entry.value;
+
+                            //       return GestureDetector(
+                            //         onTap: () {
+                            //           setState(() {
+                            //             selectedImageIndex = index;
+                            //           });
+                            //         },
+                            //         child: Padding(
+                            //           padding: const EdgeInsets.all(8.0),
+                            //           child: Image.network(
+                            //             imageUrl,
+                            //             width: 100,
+                            //             height: 100,
+                            //             fit: BoxFit.cover,
+                            //           ),
+                            //         ),
+                            //       );
+                            //     }).toList(),
+                            //   ),
+                            // ),
+                            // // Lado derecho con la imagen seleccionada en grande
+                            // Expanded(
+                            //   child: Image.network(
+                            //     imageUrls[selectedImageIndex],
+                            //     fit: BoxFit.cover,
+                            //   ),
+                            // ),
                           ],
                         ),
                       ),
@@ -1075,34 +1105,30 @@ class _ProductsViewState extends State<ProductsView> {
                           children: [
                             Row(
                               children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                SizedBox(
+                                  width: 150,
+                                  child: Row(
                                     children: [
-                                      Row(
-                                        children: [
-                                          const Text(
-                                            "ID:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            "${product.productId}",
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
-                                            ),
-                                          ),
-                                        ],
+                                      const Text(
+                                        "ID:",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        "${product.productId}",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.grey[800],
+                                        ),
                                       ),
                                     ],
                                   ),
                                 ),
+                                const SizedBox(width: 10),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
@@ -1131,6 +1157,7 @@ class _ProductsViewState extends State<ProductsView> {
                                     ],
                                   ),
                                 ),
+                                const SizedBox(width: 10),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
@@ -1164,6 +1191,46 @@ class _ProductsViewState extends State<ProductsView> {
                               ],
                             ),
                             const SizedBox(height: 10),
+                            RichText(
+                              text: TextSpan(
+                                children: <TextSpan>[
+                                  TextSpan(
+                                    text: product.productName,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
+                                      color: Colors.black,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            const Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            "Nombre para mostrar en la guia de envio:",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 5),
                             Row(
                               children: [
                                 Expanded(
@@ -1173,17 +1240,8 @@ class _ProductsViewState extends State<ProductsView> {
                                     children: [
                                       Row(
                                         children: [
-                                          const Text(
-                                            "Producto:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 10),
                                           Text(
-                                            "${product.productName}",
+                                            guideName,
                                             style: TextStyle(
                                               fontSize: 16,
                                               color: Colors.grey[800],
@@ -1207,7 +1265,7 @@ class _ProductsViewState extends State<ProductsView> {
                                       Row(
                                         children: [
                                           const Text(
-                                            "Nombre para mostrar en la guia de envio:",
+                                            "SKU:",
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 18,
@@ -1216,7 +1274,7 @@ class _ProductsViewState extends State<ProductsView> {
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
-                                            guideName,
+                                            sku,
                                             style: TextStyle(
                                               fontSize: 16,
                                               color: Colors.grey[800],
@@ -1264,11 +1322,14 @@ class _ProductsViewState extends State<ProductsView> {
                                       Row(
                                         children: [
                                           const SizedBox(width: 10),
-                                          Text(
-                                            description,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
+                                          Expanded(
+                                            child: Html(
+                                              data: description,
+                                              style: {
+                                                'p': Style(
+                                                    fontSize: FontSize(16),
+                                                    color: Colors.grey[800]),
+                                              },
                                             ),
                                           ),
                                         ],
@@ -1431,9 +1492,7 @@ class _ProductsViewState extends State<ProductsView> {
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
-                                            product.isvariable == 1
-                                                ? "VARIABLE"
-                                                : "SIMPLE",
+                                            type,
                                             style: TextStyle(
                                               fontSize: 16,
                                               color: Colors.grey[800],

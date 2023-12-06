@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
@@ -130,115 +131,13 @@ class _TransportReturnState extends State<TransportReturn> {
                           : () async {
                               getLoadingModal(context, false);
                               if (entregado) {
-                                await Connections().updateOrderWithTime(
+                                paymentTransportByReturnStatus(
                                     widget.id.toString(),
-                                    "estado_devolucion:ENTREGADO EN OFICINA",
-                                    idUser,
-                                    "carrier",
-                                    "");
-
-                                //debit by return here
-                                var resTransaction = "";
-                                var datacostos = await Connections()
-                                    .getOrderByIDHistoryLaravel(widget.id);
-
-                                if (datacostos['status'] == "NOVEDAD") {
-                                  if (datacostos['estado_devolucion'] ==
-                                          "ENTREGADO EN OFICINA" ||
-                                      datacostos['estado_devolucion'] ==
-                                          "DEVOLUCION EN RUTA" ||
-                                      datacostos['estado_devolucion'] ==
-                                          "EN BODEGA") {
-                                    List existTransaction = await Connections()
-                                        .getExistTransaction(
-                                            "debit",
-                                            "${datacostos["id"]}",
-                                            "devolucion",
-                                            datacostos['users'][0]['vendedores']
-                                                [0]['id_master']);
-                                    if (existTransaction.isEmpty) {
-                                      var resDebit = await Connections().postDebit(
-                                          "${datacostos['users'][0]['vendedores'][0]['id_master']}",
-                                          "${datacostos['users'][0]['vendedores'][0]['costo_devolucion']}",
-                                          "${datacostos['id']}",
-                                          "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                                          "devolucion",
-                                          "costo de devolucion de pedido desde transportadora por ${datacostos['estado_devolucion']}");
-                                      await Connections()
-                                          .updatenueva(widget.id, {
-                                        "costo_devolucion": datacostos['users']
-                                                [0]['vendedores'][0]
-                                            ['costo_devolucion'],
-                                      });
-                                      if (resDebit != 1 && resDebit != 2) {
-                                        resTransaction =
-                                            "Pedido con novedad con costo devolucion";
-                                      }
-                                    }
-                                  }
-                                }
-
-                                Navigator.pop(context);
-                                Navigator.pop(context);
+                                    "ENTREGADO EN OFICINA");
                               }
                               if (ruta) {
-                                // await Connections().updateOrderReturnTransport(
-                                //     widget.id,
-                                //     "DEVOLUCION EN RUTA",
-                                //     "Marca_T_D_T");
-
-                                // new with Laravel
-                                await Connections().updateOrderWithTime(
-                                    widget.id.toString(),
-                                    "estado_devolucion:DEVOLUCION EN RUTA",
-                                    idUser,
-                                    "carrier",
-                                    "");
-
-                                //debit by return here
-                                var resTransaction = "";
-                                var datacostos = await Connections()
-                                    .getOrderByIDHistoryLaravel(widget.id);
-
-                                if (datacostos['status'] == "NOVEDAD") {
-                                  if (datacostos['estado_devolucion'] ==
-                                          "ENTREGADO EN OFICINA" ||
-                                      datacostos['estado_devolucion'] ==
-                                          "DEVOLUCION EN RUTA" ||
-                                      datacostos['estado_devolucion'] ==
-                                          "EN BODEGA") {
-                                    List existTransaction = await Connections()
-                                        .getExistTransaction(
-                                            "debit",
-                                            "${datacostos["id"]}",
-                                            "devolucion",
-                                            datacostos['users'][0]['vendedores']
-                                                [0]['id_master']);
-                                    if (existTransaction.isEmpty) {
-                                      var resDebit = await Connections().postDebit(
-                                          "${datacostos['users'][0]['vendedores'][0]['id_master']}",
-                                          "${datacostos['users'][0]['vendedores'][0]['costo_devolucion']}",
-                                          "${datacostos['id']}",
-                                          "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
-                                          "devolucion",
-                                          "costo de devolucion de pedido desde transportadora por ${datacostos['estado_devolucion']}");
-                                      await Connections()
-                                          .updatenueva(widget.id, {
-                                        "costo_devolucion": datacostos['users']
-                                                [0]['vendedores'][0]
-                                            ['costo_devolucion'],
-                                      });
-                                      if (resDebit != 1 && resDebit != 2) {
-                                        resTransaction =
-                                            "Pedido con novedad con costo devolucion";
-                                      }
-                                    }
-                                  }
-                                }
-
-                                //
-                                Navigator.pop(context);
-                                Navigator.pop(context);
+                                paymentTransportByReturnStatus(
+                                    widget.id.toString(), "DEVOLUCION EN RUTA");
                               }
                               if (reiniciar) {
                                 // await Connections()
@@ -269,5 +168,56 @@ class _TransportReturnState extends State<TransportReturn> {
         ),
       ),
     );
+  }
+
+  Future<void> paymentTransportByReturnStatus(id, returnStatus) async {
+    var resNovelty = await Connections()
+        .paymentTransportByReturnStatus(id, "", "", returnStatus);
+
+    dialogNovedad(resNovelty, returnStatus);
+  }
+
+  Future<void> dialogNovedad(resNovelty, returnStatus) async {
+    if (resNovelty == 1 || resNovelty == 2) {
+      // ignore: use_build_context_synchronously
+      AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.rightSlide,
+        title: 'Error al modificar estado',
+        desc: 'No se pudo cambiar a $returnStatus',
+        btnCancel: Container(),
+        btnOkText: "Aceptar",
+        btnOkColor: Colors.green,
+        descTextStyle: const TextStyle(color: Color.fromARGB(255, 255, 59, 59)),
+        btnCancelOnPress: () {},
+        btnOkOnPress: () {
+          Navigator.pop(context);
+          // Navigator.pop(context);
+        },
+      ).show();
+    } else {
+      // ignore: use_build_context_synchronously
+      AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.success,
+        animType: AnimType.rightSlide,
+        title: 'Se ha modificado exitosamente',
+        desc: resNovelty['res'],
+        descTextStyle:
+            const TextStyle(color: Color.fromARGB(255, 255, 235, 59)),
+        btnCancel: Container(),
+        btnOkText: "Aceptar",
+        btnOkColor: Colors.green,
+        btnCancelOnPress: () {},
+        btnOkOnPress: () async {
+          Navigator.pop(context);
+
+          Navigator.pop(context);
+        },
+      ).show();
+    }
   }
 }

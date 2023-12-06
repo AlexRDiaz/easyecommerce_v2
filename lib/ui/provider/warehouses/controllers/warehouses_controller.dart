@@ -68,4 +68,22 @@ class WrehouseController extends ControllerMVC {
       print('Error al cargar bodegass: $e');
     }
   }
+
+  Future<void> loadWarehousesAll() async {
+    try {
+      var data = await Connections().getWarehouses();
+      if (data == 1) {
+        print('Error: Status Code 1');
+      } else if (data == 2) {
+        print('Error: Status Code 2');
+      } else {
+        List<dynamic> jsonData = data;
+        warehouses =
+            jsonData.map((data) => WarehouseModel.fromJson(data)).toList();
+        setState(() {});
+      }
+    } catch (e) {
+      print('Error al cargar bodegass: $e');
+    }
+  }
 }
