@@ -117,7 +117,6 @@ class _AddProductState extends State<AddProduct> {
   getWarehouses() async {
     var responseBodegas = await _getWarehousesData();
     warehousesList = responseBodegas;
-    print(warehousesList.length);
     for (var warehouse in warehousesList) {
       if (warehouse.approved == 1 && warehouse.active == 1) {
         setState(() {

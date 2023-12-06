@@ -59,22 +59,22 @@ class WarehouseModel {
       providerModel = ProviderModel.fromJson(providerData);
     }
 
-  return WarehouseModel(
-    id: json['warehouse_id'],
-    branchName: json['branch_name'],
-    address: json['address'],
-    customerphoneNumber: json['customer_service_phone'],
-    reference: json['reference'],
-    description: json['description'],
-    url_image: json['url_image'],
-    city: json['city'],
-    collection: json['collection'],
-    active: json['active'],
-    providerId: json['provider_id'],
-    provider: providerModel,
-  );
-}
-
+    return WarehouseModel(
+      id: json['warehouse_id'],
+      branchName: json['branch_name'],
+      address: json['address'],
+      customerphoneNumber: json['customer_service_phone'],
+      reference: json['reference'],
+      description: json['description'],
+      url_image: json['url_image'],
+      city: json['city'],
+      collection: json['collection'],
+      active: json['active'],
+      approved: json['approved'],
+      providerId: json['provider_id'],
+      provider: providerModel,
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {
