@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animated_icons/icons8.dart';
 import 'package:frontend/config/colors.dart';
@@ -40,6 +41,8 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
   final TextEditingController _nameSucursalController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _referenceController = TextEditingController();
+  final TextEditingController _customerServiceController =
+      TextEditingController();
   final TextEditingController _decriptionController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
   // !***************
@@ -263,6 +266,12 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
                     ),
                     SizedBox(height: 10),
                     TextFieldWithIcon(
+                      labelText: 'Número Atención al Cliente',
+                      controller: _customerServiceController,
+                      icon: Icons.phone,
+                    ),
+                    SizedBox(height: 10),
+                    TextFieldWithIcon(
                       controller: _decriptionController,
                       labelText: 'Descripción',
                       icon: Icons.description,
@@ -478,6 +487,8 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
                                 _controller.addWarehouse(WarehouseModel(
                                     branchName: _nameSucursalController.text,
                                     address: _addressController.text,
+                                    customerphoneNumber:
+                                        _customerServiceController.text,
                                     reference: _referenceController.text,
                                     description: _decriptionController.text,
                                     url_image: responseChargeImage[1],
@@ -605,6 +616,12 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
                       controller: _referenceController,
                       labelText: 'Referencia',
                       icon: Icons.bookmark_border,
+                    ),
+                    SizedBox(height: 10),
+                    TextFieldWithIcon(
+                      labelText: 'Número Atención al Cliente',
+                      controller: _customerServiceController,
+                      icon: Icons.phone,
                     ),
                     SizedBox(height: 10),
                     TextFieldWithIcon(
@@ -782,6 +799,8 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
                                 _controller.addWarehouse(WarehouseModel(
                                     branchName: _nameSucursalController.text,
                                     address: _addressController.text,
+                                    customerphoneNumber:
+                                        _customerServiceController.text,
                                     reference: _referenceController.text,
                                     description: _decriptionController.text,
                                     url_image: responseChargeImage[1],
@@ -955,4 +974,3 @@ class TextFieldWithIcon extends StatelessWidget {
     );
   }
 }
-

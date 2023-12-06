@@ -6547,6 +6547,7 @@ class Connections {
           body: json.encode({
             "branch_name": warehouse.branchName,
             "address": warehouse.address,
+            "customer_service_phone": warehouse.customerphoneNumber,
             "reference": warehouse.reference,
             "description": warehouse.description,
             'url_image': warehouse.url_image,
@@ -6593,7 +6594,7 @@ class Connections {
     }
   }
 
-  updateWarehouse(int id, String nameSucursal, String address, String reference,
+  updateWarehouse(int id, String nameSucursal, String address, String customerphoneNumber, String reference,
       String description, String url_image, String city, var collection) async {
     try {
       var response =
@@ -6602,6 +6603,7 @@ class Connections {
               body: json.encode({
                 "branch_name": nameSucursal,
                 "address": address,
+                "customer_service_phone": customerphoneNumber,
                 "reference": reference,
                 "description": description,
                 'url_image': url_image,

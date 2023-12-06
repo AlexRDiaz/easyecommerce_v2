@@ -6,6 +6,7 @@ class WarehouseModel {
   int? id;
   String? branchName;
   String? address;
+  String? customerphoneNumber;
   String? reference;
   String? description;
   String? url_image;
@@ -23,6 +24,7 @@ class WarehouseModel {
     this.id,
     this.branchName,
     this.address,
+    this.customerphoneNumber,
     this.reference,
     this.description,
     this.url_image,
@@ -57,27 +59,29 @@ class WarehouseModel {
       providerModel = ProviderModel.fromJson(providerData);
     }
 
-    return WarehouseModel(
-      id: json['warehouse_id'],
-      branchName: json['branch_name'],
-      address: json['address'],
-      reference: json['reference'],
-      description: json['description'],
-      url_image: json['url_image'],
-      city: json['city'],
-      collection: json['collection'],
-      active: json['active'],
-      approved: json['approved'],
-      providerId: json['provider_id'],
-      provider: providerModel,
-    );
-  }
+  return WarehouseModel(
+    id: json['warehouse_id'],
+    branchName: json['branch_name'],
+    address: json['address'],
+    customerphoneNumber: json['customer_service_phone'],
+    reference: json['reference'],
+    description: json['description'],
+    url_image: json['url_image'],
+    city: json['city'],
+    collection: json['collection'],
+    active: json['active'],
+    providerId: json['provider_id'],
+    provider: providerModel,
+  );
+}
+
 
   Map<String, dynamic> toJson() {
     return {
       'warehouse_id': id,
       'branch_name': branchName,
       'address': address,
+      'customerphoneNumber': customerphoneNumber,
       'reference': reference,
       'description': description,
       'url_image': url_image,
