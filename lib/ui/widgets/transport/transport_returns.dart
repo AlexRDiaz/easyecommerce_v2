@@ -37,7 +37,9 @@ class _TransportReturnState extends State<TransportReturn> {
               SizedBox(
                 height: 10,
               ),
-              widget.status == "DEVOLUCION EN RUTA"
+              widget.status == "DEVOLUCION EN RUTA" ||
+                      widget.status == "EN BODEGA" ||
+                      widget.status == "ENTREGADO EN OFICINA"
                   ? Container()
                   : Row(
                       children: [
@@ -62,26 +64,29 @@ class _TransportReturnState extends State<TransportReturn> {
               SizedBox(
                 height: 10,
               ),
-              Row(
-                children: [
-                  Checkbox(
-                      value: ruta,
-                      onChanged: (value) {
-                        setState(() {
-                          entregado = false;
-                          ruta = true;
-                          reiniciar = false;
-                        });
-                      }),
-                  Flexible(
-                    child: Text(
-                      "DEVOLUCION EN RUTA",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+              widget.status == "DEVOLUCION EN RUTA" ||
+                      widget.status == "EN BODEGA"
+                  ? Container()
+                  : Row(
+                      children: [
+                        Checkbox(
+                            value: ruta,
+                            onChanged: (value) {
+                              setState(() {
+                                entregado = false;
+                                ruta = true;
+                                reiniciar = false;
+                              });
+                            }),
+                        Flexible(
+                          child: Text(
+                            "DEVOLUCION EN RUTA",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 13),
+                          ),
+                        )
+                      ],
                     ),
-                  )
-                ],
-              ),
               SizedBox(
                 height: 10,
               ),
