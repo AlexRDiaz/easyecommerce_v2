@@ -128,6 +128,7 @@ class _ReturnsOperatorState extends State<ReturnsOperator> {
     'ENTREGADO EN OFICINA',
     'DEVOLUCION EN RUTA',
     'EN BODEGA',
+    'EN BODEGA PROVEEDOR',
   ];
 
   var idUser = sharedPrefs!.getString("id");

@@ -65,6 +65,7 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
     'ENTREGADO EN OFICINA',
     'DEVOLUCION EN RUTA',
     'EN BODEGA',
+    'EN BODEGA PROVEEDOR',
   ];
   NumberPaginatorController paginatorController = NumberPaginatorController();
   List populate = ['users', 'pedido_fecha'];

@@ -41,8 +41,8 @@ class _DeliveryStatusSellerInfo extends State<DeliveryStatusSellerInfo> {
       getLoadingModal(context, false);
     });
     // var response = await Connections().getOrdersByIDHistorial(widget.id);
-    var response = await Connections()
-        .getOrdersByIdLaravel(int.parse(widget.id));
+    var response =
+        await Connections().getOrdersByIdLaravel(int.parse(widget.id));
     // var response = await Connections().getOrdersByIdLaravel(widget.id);
 
     // ! ↓esta es la usada
@@ -329,7 +329,7 @@ class _DeliveryStatusSellerInfo extends State<DeliveryStatusSellerInfo> {
 
   formatDate(dateStringFromDatabase) {
     DateTime dateTime = DateTime.parse(dateStringFromDatabase);
-    Duration offset = const Duration(hours: -5);
+    Duration offset = const Duration(hours: -7);
     dateTime = dateTime.toUtc().add(offset);
     String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
     return formattedDate;

@@ -73,7 +73,8 @@ class _AuditState extends State<Audit> {
     'PENDIENTE',
     'EN BODEGA',
     'DEVOLUCION EN RUTA',
-    'ENTREGADO EN OFICINA'
+    'ENTREGADO EN OFICINA',
+    'EN BODEGA PROVEEDOR',
   ];
 
   List populate = [
@@ -1737,6 +1738,3 @@ class _AuditState extends State<Audit> {
     return Color(color);
   }
 }
-
-
-
