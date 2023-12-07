@@ -555,7 +555,7 @@ class _ProductsViewState extends State<ProductsView> {
                               },
                             ),
                             DataColumn2(
-                              label: const Text('Precio'),
+                              label: const Text('Precio Bodega'),
                               size: ColumnSize.M,
                               onSort: (columnIndex, ascending) {
                                 // sortFunc3("telefonoS_shipping", changevalue);
@@ -660,10 +660,11 @@ class _ProductsViewState extends State<ProductsView> {
                                   Text(data[index]['stock'].toString()),
                                 ),
                                 DataCell(
-                                  Text(''),
+                                  Text('\$${data[index]['price'].toString()}'),
                                 ),
                                 DataCell(
-                                  Text('\$${data[index]['price'].toString()}'),
+                                  Text(
+                                      '\$${getValue(jsonDecode(data[index]['features']), "price_suggested")}'),
                                 ),
                                 DataCell(Text(//
                                     formatDate(
@@ -950,6 +951,19 @@ class _ProductsViewState extends State<ProductsView> {
         }).then((value) => loadData());
   }
 
+  dynamic getValue(Map<String, dynamic> features, String key) {
+    try {
+      // Obtener el valor asociado con la clave proporcionada
+      dynamic value = features[key];
+
+      return value;
+    } catch (e) {
+      // Manejar cualquier error que pueda ocurrir durante el proceso de decodificación o acceso a la clave
+      print("Error al obtener '$key': $e");
+      return null;
+    }
+  }
+
   void _showProductInfo(data) {
     ProductModel product = ProductModel.fromJson(data);
 
@@ -961,78 +975,94 @@ class _ProductsViewState extends State<ProductsView> {
 
     int selectedImageIndex = 0;
 
-    var features = jsonDecode(product.features);
+    // var features = jsonEncode(product.features);
 
-    List<Map<String, dynamic>> featuresList =
-        features.cast<Map<String, dynamic>>();
+    // Decodificar el JSON
+    Map<String, dynamic> features = jsonDecode(product.features);
 
-    List<String> categories = featuresList
-        .where((feature) => feature.containsKey("categories"))
-        .expand((feature) =>
-            (feature["categories"] as List<dynamic>).cast<String>())
-        .toList();
-    String categoriesText = categories.join(', ');
+    print(features.runtimeType);
 
-    String guideName = featuresList
-        .where((feature) => feature.containsKey("guide_name"))
-        .map((feature) => feature["guide_name"] as String)
-        .firstWhere((element) => element.isNotEmpty, orElse: () => '');
+    print(features);
 
-    String priceSuggested = featuresList
-        .where((feature) => feature.containsKey("price_suggested"))
-        .map((feature) => feature["price_suggested"] as String)
-        .firstWhere((element) => element.isNotEmpty, orElse: () => '');
-
-    String sku = featuresList
-        .where((feature) => feature.containsKey("sku"))
-        .map((feature) => feature["sku"] as String)
-        .firstWhere((element) => element.isNotEmpty, orElse: () => '');
-
-    String description = featuresList
-        .where((feature) => feature.containsKey("description"))
-        .map((feature) => feature["description"] as String)
-        .firstWhere((element) => element.isNotEmpty, orElse: () => '');
-
-    String type = featuresList
-        .where((feature) => feature.containsKey("type"))
-        .map((feature) => feature["type"] as String)
-        .firstWhere((element) => element.isNotEmpty, orElse: () => '');
-
+    String guideName = "";
+    String priceSuggested = "";
+    String sku = "";
+    String description = "";
+    String type = "";
     String variablesSKU = "";
     String variablesText = "";
+    List<String> categories = [];
+    String categoriesText = "";
+
+    guideName = features["guide_name"];
+    priceSuggested = features["price_suggested"].toString();
+    sku = features["sku"];
+    description = features["description"];
+    type = features["type"];
+
+    // featuresList
+    //     .where((feature) => feature.containsKey("categories"))
+    //     .expand((feature) =>
+    //         (feature["categories"] as List<dynamic>).cast<String>())
+    //     .toList();
+    // String categoriesText = categories.join(', ');
+
+    // featuresList
+    //     .where((feature) => feature.containsKey("guide_name"))
+    //     .map((feature) => feature["guide_name"] as String)
+    //     .firstWhere((element) => element.isNotEmpty, orElse: () => '');
+
+    // featuresList
+    //     .where((feature) => feature.containsKey("price_suggested"))
+    //     .map((feature) => feature["price_suggested"] as String)
+    //     .firstWhere((element) => element.isNotEmpty, orElse: () => '');
+
+    // featuresList
+    //     .where((feature) => feature.containsKey("sku"))
+    //     .map((feature) => feature["sku"] as String)
+    //     .firstWhere((element) => element.isNotEmpty, orElse: () => '');
+
+    // featuresList
+    //     .where((feature) => feature.containsKey("description"))
+    //     .map((feature) => feature["description"] as String)
+    //     .firstWhere((element) => element.isNotEmpty, orElse: () => '');
+
+    // featuresList
+    //     .where((feature) => feature.containsKey("type"))
+    //     .map((feature) => feature["type"] as String)
+    //     .firstWhere((element) => element.isNotEmpty, orElse: () => '');
 
     if (product.isvariable == 1) {
-      List<Map<String, dynamic>> variables = featuresList
-          .where((feature) => feature.containsKey("variables"))
-          .expand((feature) => (feature["variables"] as List<dynamic>)
-              .cast<Map<String, dynamic>>())
-          .toList();
+      // List<Map<String, dynamic>> variables = featuresList
+      //     .where((feature) => feature.containsKey("variables"))
+      //     .expand((feature) => (feature["variables"] as List<dynamic>)
+      //         .cast<Map<String, dynamic>>())
+      //     .toList();
 
-// Construir una cadena de texto con detalles de variables
-      variablesText = variables.map((variable) {
-        List<String> variableDetails = [];
+      // variablesText = variables.map((variable) {
+      //   List<String> variableDetails = [];
 
-        if (variable.containsKey('sku')) {
-          variablesSKU += "${variable['sku']}\n"; // Acumula las SKU
-        }
-        if (variable.containsKey('color')) {
-          variableDetails.add("Color: ${variable['color']}");
-        }
-        if (variable.containsKey('size')) {
-          variableDetails.add("Talla: ${variable['size']}");
-        }
-        if (variable.containsKey('dimension')) {
-          variableDetails.add("Tamaño: ${variable['dimension']}");
-        }
-        if (variable.containsKey('inventory')) {
-          variableDetails.add("Cantidad: ${variable['inventory']}");
-        }
-        // if (variable.containsKey('price')) {
-        //   variableDetails.add("Precio: ${variable['price']}");
-        // }
+      //   if (variable.containsKey('sku')) {
+      //     variablesSKU += "${variable['sku']}\n"; // Acumula las SKU
+      //   }
+      //   if (variable.containsKey('color')) {
+      //     variableDetails.add("Color: ${variable['color']}");
+      //   }
+      //   if (variable.containsKey('size')) {
+      //     variableDetails.add("Talla: ${variable['size']}");
+      //   }
+      //   if (variable.containsKey('dimension')) {
+      //     variableDetails.add("Tamaño: ${variable['dimension']}");
+      //   }
+      //   if (variable.containsKey('inventory')) {
+      //     variableDetails.add("Cantidad: ${variable['inventory']}");
+      //   }
+      //   // if (variable.containsKey('price')) {
+      //   //   variableDetails.add("Precio: ${variable['price']}");
+      //   // }
 
-        return variableDetails.join('\n');
-      }).join('\n\n');
+      // return variableDetails.join('\n');
+      // }).join('\n\n');
     }
 
     // print(features);
@@ -1244,29 +1274,20 @@ class _ProductsViewState extends State<ProductsView> {
                               ],
                             ),
                             const SizedBox(height: 5),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            guideName,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                            RichText(
+                              text: TextSpan(
+                                children: <TextSpan>[
+                                  TextSpan(
+                                    text: guideName,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.black,
+                                    ),
+                                  )
+                                ],
+                              ),
                             ),
+                            const SizedBox(height: 10),
                             const Row(
                               children: [
                                 Expanded(
@@ -1291,28 +1312,29 @@ class _ProductsViewState extends State<ProductsView> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 10),
                             Row(
                               children: [
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Row(
-                                        children: [
-                                          const SizedBox(width: 10),
-                                          Expanded(
-                                            child: Html(
-                                              data: description,
-                                              style: {
-                                                'p': Style(
-                                                    fontSize: FontSize(16),
-                                                    color: Colors.grey[800]),
-                                              },
-                                            ),
+                                      Html(
+                                        data: description,
+                                        style: {
+                                          'p': Style(
+                                            fontSize: FontSize(16),
+                                            color: Colors.grey[800],
+                                            margin: Margins.only(bottom: 0),
                                           ),
-                                        ],
+                                          'li': Style(
+                                            margin: Margins.only(bottom: 0),
+                                          ),
+                                          'ol': Style(
+                                            margin: Margins.only(bottom: 0),
+                                          ),
+                                        },
                                       ),
                                     ],
                                   ),
@@ -1408,7 +1430,7 @@ class _ProductsViewState extends State<ProductsView> {
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
-                                            "${product.price}",
+                                            "\$${product.price}",
                                             style: TextStyle(
                                               fontSize: 16,
                                               color: Colors.grey[800],
