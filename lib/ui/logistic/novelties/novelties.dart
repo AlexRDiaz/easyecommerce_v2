@@ -13,6 +13,7 @@ import 'package:frontend/ui/logistic/transport_delivery_historial/transport_deli
 import 'package:frontend/ui/logistic/vendor_invoices/controllers/controllers.dart';
 import 'package:lottie/lottie.dart';
 import 'package:number_paginator/number_paginator.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../helpers/navigators.dart';
 import '../../widgets/loading.dart';
 import 'package:screenshot/screenshot.dart';
@@ -389,6 +390,10 @@ class _NoveltiesLState extends State<NoveltiesL> {
                               onSort: (columnIndex, ascending) {},
                             ),
                             DataColumn2(
+                              label: Text(''),
+                              size: ColumnSize.S,
+                            ),
+                            DataColumn2(
                               label: Text("Ciudad"),
                               size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {},
@@ -604,6 +609,10 @@ class _NoveltiesLState extends State<NoveltiesL> {
                               label: const Text('Código'),
                               size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
+                              label: Text(''),
+                              size: ColumnSize.S,
                             ),
                             DataColumn2(
                               label: Text("Ciudad"),
@@ -1014,6 +1023,81 @@ class _NoveltiesLState extends State<NoveltiesL> {
           ), onTap: () {
         info(context, index);
       }),
+      DataCell(Row(
+        children: [
+          GestureDetector(
+            onTap: () async {
+              var emojiSaludo = "\u{1F44B}"; // 👋
+              var emojiCheck = "\u{2705}"; // ✅
+              var emojiCruz = "\u{274C}"; // ❌
+              var shoppingBagsEmoji = "\u{1F6CD}";
+              var personComputerEmoji = "\u{1F4BB}";
+
+              var cliente = data[index]['nombre_shipping'].toString();
+              var codigo = data[index]['users'] != null &&
+                      data[index]['users'].toString() != "[]"
+                  ? "${data[index]['users'][0]['vendedores'][0]['nombre_comercial']}-${data[index]['numero_orden']}"
+                  : "${data[index]['tienda_temporal']}-${data[index]['numero_orden']}";
+
+              var producto = data[index]['producto_p'].toString();
+              var productoExtra = data[index]['producto_extra'] != null &&
+                      data[index]['producto_extra'].toString() != 'null' &&
+                      data[index]['producto_extra'].toString() != ''
+                  ? ' ${data[index]['producto_extra'].toString()}'
+                  : '';
+              var tienda = data[index]['users'] != null &&
+                      data[index]['users'].isNotEmpty
+                  ? data[index]['users'][0]['vendedores'][0]['nombre_comercial']
+                  : "NaN";
+              var telefono = data[index]['telefono_shipping'].toString();
+
+              var mensaje = """
+$emojiSaludo Un gusto Saludarle Estimad@ "$cliente"
+Lo Estamos saludando de la Tienda Virtual "$tienda" $shoppingBagsEmoji $personComputerEmoji
+Me confirma si recibió su pedido.
+
+*Con los siguientes datos:* 
+*N° Guía:* $codigo
+*Producto:* $producto
+*Producto Extra:* $productoExtra
+
+Responda SI para registrar su recepción $emojiCheck.
+Responda NO para coordinar su entrega $emojiCruz.
+
+Quedamos atentos a su respuesta Muchas gracias.
+              
+*Saludos*
+*Tienda Virtual "$tienda"*
+""";
+              var encodedMessage = Uri.encodeFull(mensaje);
+              var whatsappUrl =
+                  "https://api.whatsapp.com/send?phone=$telefono&text=$encodedMessage";
+
+              if (!await launchUrl(Uri.parse(whatsappUrl))) {
+                throw 'Could not launch $whatsappUrl';
+              }
+            },
+            child: Icon(
+              Icons.send,
+              color: Colors.green,
+            ),
+          ),
+          SizedBox(
+            width: 10,
+          ),
+          GestureDetector(
+              onTap: () async {
+                var _url = Uri(
+                    scheme: 'tel',
+                    path: '${data[index]['telefono_shipping'].toString()}');
+
+                if (!await launchUrl(_url)) {
+                  throw Exception('Could not launch $_url');
+                }
+              },
+              child: Icon(Icons.phone))
+        ],
+      )),
       DataCell(
           Text(
             '${data[index]['ciudad_shipping'].toString()}',
@@ -1857,7 +1941,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
         });
   }
 
-    Color? GetColor(state) {
+  Color? GetColor(state) {
     int color = 0xFF000000;
 
     switch (state) {
