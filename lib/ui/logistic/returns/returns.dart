@@ -168,7 +168,7 @@ class _ReturnsState extends State<Returns> {
         populate,
         filtersOrCont,
         filtersAnd,
-        [],
+        filtersDefaultOr,
         filtersDefaultAnd,
         []);
     data = response[0]['data'];

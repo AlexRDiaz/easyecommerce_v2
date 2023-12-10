@@ -60,9 +60,9 @@ class _ScannerPrintedDevolucionesState
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    Text("MARCAR ORDENES COMO ENVIADAS",
+                    const Text("MARCAR El PEDIDO EN BODEGA",
                         style: TextStyle(fontWeight: FontWeight.bold)),
-                    SizedBox(
+                    const SizedBox(
                       height: 30,
                     ),
                     Text(
