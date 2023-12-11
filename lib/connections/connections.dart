@@ -6866,4 +6866,24 @@ class Connections {
       return 2;
     }
   }
+
+  paymentLogisticByReturnStatus(id, returnStatus) async {
+    try {
+      String? generatedBy = sharedPrefs!.getString("id");
+
+      var response = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/transacciones/payment-logistic-by-return-status/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(
+              {"generated_by": generatedBy, "return_status": returnStatus}));
+      if (response.statusCode != 200) {
+        return 1;
+      } else {
+        return json.decode(response.body);
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
 }

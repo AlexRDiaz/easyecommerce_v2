@@ -145,11 +145,6 @@ class _TransportReturnState extends State<TransportReturn> {
                                     widget.id.toString(), "DEVOLUCION EN RUTA");
                               }
                               if (reiniciar) {
-                                // await Connections()
-                                //     .updateOrderReturnTransportRestart(
-                                //         widget.id);
-
-                                // new with Laravel
                                 await Connections().updateOrderWithTime(
                                     widget.id.toString(),
                                     "estado_devolucion:PENDIENTE",

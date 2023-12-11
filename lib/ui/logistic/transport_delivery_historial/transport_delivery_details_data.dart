@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter_animated_icons/icons8.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
@@ -305,18 +306,21 @@ class _TransportDeliveryHistoryDetailsDataState
                                       ),
                                       ElevatedButton(
                                         onPressed: () async {
-                                          getLoadingModal(context, false);
-                                          var response = await Connections()
-                                              .updateOrderReturnOperator(
-                                                  widget.data['id']);
-                                          Navigator.pop(context);
+                                          //  getLoadingModal(context, false);
+                                          paymentLogisticByReturnStatus(
+                                              widget.data['id'],
+                                              "ENTREGADO EN OFICINA");
+                                          // var response = await Connections()
+                                          //     .updateOrderReturnOperator(
+                                          //         widget.data['id']);
+                                          // Navigator.pop(context);
 
-                                          showCustomModal(response, context);
-                                          await Future.delayed(
-                                              const Duration(seconds: 3), () {
-                                            Navigator.pop(context);
-                                          });
-                                          await loadData();
+                                          // showCustomModal(response, context);
+                                          // await Future.delayed(
+                                          //     const Duration(seconds: 3), () {
+                                          //   Navigator.pop(context);
+                                          // });
+                                          //    await loadData();
                                         },
                                         child: SizedBox(
                                           width: double.infinity,
@@ -335,18 +339,20 @@ class _TransportDeliveryHistoryDetailsDataState
                                       ),
                                       ElevatedButton(
                                         onPressed: () async {
-                                          getLoadingModal(context, false);
-                                          var response = await Connections()
-                                              .updateOrderReturnLogistic(
-                                                  widget.data['id']);
+                                          //     getLoadingModal(context, false);
+                                          paymentLogisticByReturnStatus(
+                                              widget.data['id'],
+                                              "ENTREGADO EN OFICINA");
+                                          // var response = await Connections()
+                                          //     .updateOrderReturnLogistic(
+                                          //         widget.data['id']);
 
-                                          Navigator.pop(context);
-                                          showCustomModal(response, context);
-                                          await Future.delayed(
-                                              const Duration(seconds: 3), () {
-                                            Navigator.pop(context);
-                                          });
-                                          // await loadData();
+                                          // Navigator.pop(context);
+                                          // showCustomModal(response, context);
+                                          // await Future.delayed(
+                                          //     const Duration(seconds: 3), () {
+                                          //   Navigator.pop(context);
+                                          // });
                                         },
                                         child: SizedBox(
                                           width: double.infinity,
@@ -1319,5 +1325,57 @@ class _TransportDeliveryHistoryDetailsDataState
         ],
       ),
     );
+  }
+
+  Future<void> paymentLogisticByReturnStatus(id, returnStatus) async {
+    var resNovelty =
+        await Connections().paymentLogisticByReturnStatus(id, returnStatus);
+
+    dialogNovedad(resNovelty, returnStatus);
+  }
+
+  Future<void> dialogNovedad(resNovelty, returnStatus) async {
+    if (resNovelty == 1 || resNovelty == 2) {
+      // ignore: use_build_context_synchronously
+      AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.rightSlide,
+        title: 'Error al modificar estado',
+        desc: 'No se pudo cambiar a $returnStatus',
+        btnCancel: Container(),
+        btnOkText: "Aceptar",
+        btnOkColor: Colors.green,
+        descTextStyle: const TextStyle(color: Color.fromARGB(255, 255, 59, 59)),
+        btnCancelOnPress: () {},
+        btnOkOnPress: () {
+          Navigator.pop(context);
+          // Navigator.pop(context);
+        },
+      ).show();
+    } else {
+      // ignore: use_build_context_synchronously
+      AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.success,
+        animType: AnimType.rightSlide,
+        title: 'Se ha modificado exitosamente',
+        desc: resNovelty['res'],
+        descTextStyle:
+            const TextStyle(color: Color.fromARGB(255, 255, 235, 59)),
+        btnCancel: Container(),
+        btnOkText: "Aceptar",
+        btnOkColor: Colors.green,
+        btnCancelOnPress: () {},
+        btnOkOnPress: () async {
+          Navigator.pop(context);
+
+          //Navigator.pop(context);
+          await loadData();
+        },
+      ).show();
+    }
   }
 }

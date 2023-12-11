@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
 import 'package:frontend/ui/utils/utils.dart';
@@ -582,9 +583,13 @@ class _TransportDeliveryHistoryDetailsState
                                         ElevatedButton(
                                             onPressed: () async {
                                               getLoadingModal(context, false);
-                                              await Connections()
-                                                  .updateOrderReturnOperator(
-                                                      widget.id);
+
+                                              paymentLogisticByReturnStatus(
+                                                  widget.id,
+                                                  "ENTREGADO EN OFICINA");
+                                              // await Connections()
+                                              //     .updateOrderReturnOperator(
+                                              //         widget.id);
                                               await loadData();
                                               Navigator.pop(context);
                                             },
@@ -599,13 +604,16 @@ class _TransportDeliveryHistoryDetailsState
                                         ElevatedButton(
                                             onPressed: () async {
                                               getLoadingModal(context, false);
-                                              await Connections()
-                                                  .updateOrderReturnLogistic(
-                                                      widget.id);
+
+                                              paymentLogisticByReturnStatus(
+                                                  widget.id, "EN BODEGA");
+                                              // await Connections()
+                                              //     .updateOrderReturnLogistic(
+                                              //         widget.id);
                                               await loadData();
                                               Navigator.pop(context);
                                             },
-                                            child: Text(
+                                            child: const Text(
                                               "En Bodega",
                                               style: TextStyle(
                                                   fontWeight: FontWeight.bold),
@@ -1032,5 +1040,56 @@ class _TransportDeliveryHistoryDetailsState
         ],
       ),
     );
+  }
+
+  Future<void> paymentLogisticByReturnStatus(id, returnStatus) async {
+    var resNovelty =
+        await Connections().paymentLogisticByReturnStatus(id, returnStatus);
+
+    dialogNovedad(resNovelty, returnStatus);
+  }
+
+  Future<void> dialogNovedad(resNovelty, returnStatus) async {
+    if (resNovelty == 1 || resNovelty == 2) {
+      // ignore: use_build_context_synchronously
+      AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.rightSlide,
+        title: 'Error al modificar estado',
+        desc: 'No se pudo cambiar a $returnStatus',
+        btnCancel: Container(),
+        btnOkText: "Aceptar",
+        btnOkColor: Colors.green,
+        descTextStyle: const TextStyle(color: Color.fromARGB(255, 255, 59, 59)),
+        btnCancelOnPress: () {},
+        btnOkOnPress: () {
+          Navigator.pop(context);
+          // Navigator.pop(context);
+        },
+      ).show();
+    } else {
+      // ignore: use_build_context_synchronously
+      AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.success,
+        animType: AnimType.rightSlide,
+        title: 'Se ha modificado exitosamente',
+        desc: resNovelty['res'],
+        descTextStyle:
+            const TextStyle(color: Color.fromARGB(255, 255, 235, 59)),
+        btnCancel: Container(),
+        btnOkText: "Aceptar",
+        btnOkColor: Colors.green,
+        btnCancelOnPress: () {},
+        btnOkOnPress: () async {
+          Navigator.pop(context);
+
+          Navigator.pop(context);
+        },
+      ).show();
+    }
   }
 }

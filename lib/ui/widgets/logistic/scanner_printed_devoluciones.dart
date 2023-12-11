@@ -19,6 +19,8 @@ class _ScannerPrintedDevolucionesState
     extends State<ScannerPrintedDevoluciones> {
   String? _barcode;
   late bool visible;
+  String? _resTransaction;
+
   var idUser = sharedPrefs!.getString("id");
 
   @override
@@ -37,18 +39,17 @@ class _ScannerPrintedDevolucionesState
               child: BarcodeKeyboardListener(
                 bufferDuration: Duration(milliseconds: 200),
                 onBarcodeScanned: (barcode) async {
+                  barcode = "130878";
                   if (!visible) return;
                   getLoadingModal(context, false);
-                  //print(barcode);
 
-                  // await Connections()
-                  //     .updateOrderReturnLogistic(barcode.toString());
-                  // new
-                  await Connections().updateOrderWithTime(barcode.toString(),
-                      "estado_devolucion:EN BODEGA", idUser, "", "");
+                  // await Connections().updateOrderWithTime(barcode.toString(),
+                  //     "estado_devolucion:EN BODEGA", idUser, "", "");
 
                   var responseOrder =
                       await Connections().getOrderByID(barcode.toString());
+
+                  paymentLogisticInWarehouse(barcode.toString(), responseOrder);
 
                   setState(() {
                     _barcode =
@@ -74,6 +75,12 @@ class _ScannerPrintedDevolucionesState
                             color: _barcode == null
                                 ? Colors.redAccent
                                 : Colors.green)),
+                    Text(
+                        _resTransaction == null
+                            ? ''
+                            : 'Transaccion: $_resTransaction',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.black)),
                   ],
                 ),
               ),
@@ -94,5 +101,28 @@ class _ScannerPrintedDevolucionesState
         ),
       ),
     );
+  }
+
+  Future<void> paymentLogisticInWarehouse(id, responseOrder) async {
+    var resNovelty = await Connections().paymentLogisticInWarehouse(id, "", "");
+
+    dialogNovedad(resNovelty, responseOrder);
+  }
+
+  Future<void> dialogNovedad(resNovelty, responseOrder) async {
+    if (resNovelty == 1 || resNovelty == 2) {
+      // ignore: use_build_context_synchronously
+      setState(() {
+        _barcode = "Error al cambiar estado a EN BODEGA";
+      });
+    } else {
+      // ignore: use_build_context_synchronously
+      setState(() {
+        _resTransaction = resNovelty["res"];
+
+        _barcode =
+            "${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']}";
+      });
+    }
   }
 }
