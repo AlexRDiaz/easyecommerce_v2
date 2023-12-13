@@ -39,29 +39,39 @@ class _ScannerPrintedDevolucionesState
               child: BarcodeKeyboardListener(
                 bufferDuration: Duration(milliseconds: 200),
                 onBarcodeScanned: (barcode) async {
-                  // barcode = "130878";
+                  // barcode = "112907";
+                  var responseOrder =
+                      await Connections().getOrderByID(barcode.toString());
+                  var status = responseOrder['attributes']['Status'];
+
                   if (!visible) return;
                   getLoadingModal(context, false);
 
-                  // await Connections().updateOrderWithTime(barcode.toString(),
-                  //     "estado_devolucion:EN BODEGA", idUser, "", "");
+                  if (status == "NOVEDAD" || status == "NO ENTREGADO") {
+                    // await Connections().updateOrderWithTime(barcode.toString(),
+                    //     "estado_devolucion:EN BODEGA", idUser, "", "");
 
-                  var responseOrder =
-                      await Connections().getOrderByID(barcode.toString());
+                    paymentLogisticInWarehouse(
+                        barcode.toString(), responseOrder);
 
-                  paymentLogisticInWarehouse(barcode.toString(), responseOrder);
+                    setState(() {
+                      _barcode =
+                          "${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']}";
+                    });
+                  } else {
+                    setState(() {
+                      _barcode =
+                          "Error al cambiar pedido: ${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']} a estado a EN BODEGA, el status debe encontrarse en NOVEDAD o NO ENTREGADO";
+                    });
+                  }
 
-                  setState(() {
-                    _barcode =
-                        "${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']}";
-                  });
                   Navigator.pop(context);
                 },
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    const Text("MARCAR El PEDIDO EN BODEGA",
+                    const Text("MARCAR EL PEDIDO EN BODEGA",
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(
                       height: 30,
