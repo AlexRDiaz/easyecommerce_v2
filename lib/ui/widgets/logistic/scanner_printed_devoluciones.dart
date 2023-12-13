@@ -39,7 +39,7 @@ class _ScannerPrintedDevolucionesState
               child: BarcodeKeyboardListener(
                 bufferDuration: Duration(milliseconds: 200),
                 onBarcodeScanned: (barcode) async {
-                  barcode = "130878";
+                  // barcode = "130878";
                   if (!visible) return;
                   getLoadingModal(context, false);
 
