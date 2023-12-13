@@ -22,6 +22,7 @@ class _ScannerPrintedDevolucionesState
   String? _resTransaction;
 
   var idUser = sharedPrefs!.getString("id");
+  bool resStatus = true;
 
   @override
   Widget build(BuildContext context) {
@@ -60,8 +61,9 @@ class _ScannerPrintedDevolucionesState
                     });
                   } else {
                     setState(() {
+                      resStatus = false;
                       _barcode =
-                          "Error al cambiar pedido: ${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']} a estado a EN BODEGA, el status debe encontrarse en NOVEDAD o NO ENTREGADO";
+                          "Error al cambiar pedido: ${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']} a estado EN BODEGA, el status debe encontrarse en NOVEDAD o NO ENTREGADO";
                     });
                   }
 
@@ -82,7 +84,7 @@ class _ScannerPrintedDevolucionesState
                             : 'ORDEN PROCESADA: $_barcode',
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: _barcode == null
+                            color: _barcode == null || !resStatus
                                 ? Colors.redAccent
                                 : Colors.green)),
                     Text(
@@ -124,6 +126,7 @@ class _ScannerPrintedDevolucionesState
       // ignore: use_build_context_synchronously
       setState(() {
         _barcode = "Error al cambiar estado a EN BODEGA";
+        resStatus = false;
       });
     } else {
       // ignore: use_build_context_synchronously
