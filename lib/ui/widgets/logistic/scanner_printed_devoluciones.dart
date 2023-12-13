@@ -61,7 +61,7 @@ class _ScannerPrintedDevolucionesState
                   } else {
                     setState(() {
                       _barcode =
-                          "Error al cambiar pedido: ${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']} a estado a EN BODEGA, el status debe encontrarse en NOVEDAD o NO ENTREGADO";
+                          "Error al cambiar pedido: ${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']} a estado EN BODEGA, el status debe encontrarse en NOVEDAD o NO ENTREGADO";
                     });
                   }
 
