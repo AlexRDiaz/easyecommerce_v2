@@ -965,6 +965,8 @@ class _ProductsViewState extends State<ProductsView> {
   }
 
   void _showProductInfo(data) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
     ProductModel product = ProductModel.fromJson(data);
 
     List<String> urlsImgsList = product.urlImg != null &&
@@ -973,16 +975,10 @@ class _ProductsViewState extends State<ProductsView> {
         ? (jsonDecode(product.urlImg) as List).cast<String>()
         : [];
 
-    int selectedImageIndex = 0;
-
-    // var features = jsonEncode(product.features);
+    String selectedImage = urlsImgsList[0];
 
     // Decodificar el JSON
     Map<String, dynamic> features = jsonDecode(product.features);
-
-    print(features.runtimeType);
-
-    print(features);
 
     String guideName = "";
     String priceSuggested = "";
@@ -1000,72 +996,43 @@ class _ProductsViewState extends State<ProductsView> {
     description = features["description"];
     type = features["type"];
 
-    // featuresList
-    //     .where((feature) => feature.containsKey("categories"))
-    //     .expand((feature) =>
-    //         (feature["categories"] as List<dynamic>).cast<String>())
-    //     .toList();
-    // String categoriesText = categories.join(', ');
-
-    // featuresList
-    //     .where((feature) => feature.containsKey("guide_name"))
-    //     .map((feature) => feature["guide_name"] as String)
-    //     .firstWhere((element) => element.isNotEmpty, orElse: () => '');
-
-    // featuresList
-    //     .where((feature) => feature.containsKey("price_suggested"))
-    //     .map((feature) => feature["price_suggested"] as String)
-    //     .firstWhere((element) => element.isNotEmpty, orElse: () => '');
-
-    // featuresList
-    //     .where((feature) => feature.containsKey("sku"))
-    //     .map((feature) => feature["sku"] as String)
-    //     .firstWhere((element) => element.isNotEmpty, orElse: () => '');
-
-    // featuresList
-    //     .where((feature) => feature.containsKey("description"))
-    //     .map((feature) => feature["description"] as String)
-    //     .firstWhere((element) => element.isNotEmpty, orElse: () => '');
-
-    // featuresList
-    //     .where((feature) => feature.containsKey("type"))
-    //     .map((feature) => feature["type"] as String)
-    //     .firstWhere((element) => element.isNotEmpty, orElse: () => '');
+    categories =
+        (features["categories"] as List<dynamic>).cast<String>().toList();
+    categoriesText = categories.join(', ');
 
     if (product.isvariable == 1) {
-      // List<Map<String, dynamic>> variables = featuresList
-      //     .where((feature) => feature.containsKey("variables"))
-      //     .expand((feature) => (feature["variables"] as List<dynamic>)
-      //         .cast<Map<String, dynamic>>())
-      //     .toList();
+      List<Map<String, dynamic>>? variants =
+          (features["variants"] as List<dynamic>).cast<Map<String, dynamic>>();
 
-      // variablesText = variables.map((variable) {
-      //   List<String> variableDetails = [];
+      variablesText = variants!.map((variable) {
+        List<String> variableDetails = [];
 
-      //   if (variable.containsKey('sku')) {
-      //     variablesSKU += "${variable['sku']}\n"; // Acumula las SKU
-      //   }
-      //   if (variable.containsKey('color')) {
-      //     variableDetails.add("Color: ${variable['color']}");
-      //   }
-      //   if (variable.containsKey('size')) {
-      //     variableDetails.add("Talla: ${variable['size']}");
-      //   }
-      //   if (variable.containsKey('dimension')) {
-      //     variableDetails.add("Tamaño: ${variable['dimension']}");
-      //   }
-      //   if (variable.containsKey('inventory')) {
-      //     variableDetails.add("Cantidad: ${variable['inventory']}");
-      //   }
-      //   // if (variable.containsKey('price')) {
-      //   //   variableDetails.add("Precio: ${variable['price']}");
-      //   // }
+        // if (variable.containsKey('sku')) {
+        //   variableDetails.add("SKU: ${variable['sku']}");
+        // }
+        if (variable.containsKey('sku')) {
+          variablesSKU += "${variable['sku']}\n";
+        }
+        if (variable.containsKey('color')) {
+          variableDetails.add("Color: ${variable['color']}");
+        }
+        if (variable.containsKey('size')) {
+          variableDetails.add("Talla: ${variable['size']}");
+        }
+        if (variable.containsKey('dimension')) {
+          variableDetails.add("Tamaño: ${variable['dimension']}");
+        }
+        if (variable.containsKey('inventory_quantity')) {
+          variableDetails.add("Cantidad: ${variable['inventory_quantity']}");
+        }
+        // if (variable.containsKey('price')) {
+        //   variableDetails.add("Precio: ${variable['price']}");
+        // }
 
-      // return variableDetails.join('\n');
-      // }).join('\n\n');
+        return variableDetails.join('\n');
+      }).join('\n\n');
     }
 
-    // print(features);
     showDialog(
       context: context,
       builder: (context) {
@@ -1091,15 +1058,16 @@ class _ProductsViewState extends State<ProductsView> {
                   Row(
                     children: [
                       Expanded(
+                        flex: 6,
                         child: Row(
                           children: [
                             Column(
                               children: [
                                 for (String imageUrl in urlsImgsList)
                                   Container(
-                                    width: 100,
-                                    height: 100,
-                                    margin: EdgeInsets.all(5),
+                                    width: screenWidth * 0.08,
+                                    height: screenHeight * 0.15,
+                                    margin: const EdgeInsets.all(5),
                                     child: Image.network(
                                       "$generalServer$imageUrl",
                                       fit: BoxFit.cover,
@@ -1108,15 +1076,23 @@ class _ProductsViewState extends State<ProductsView> {
                               ],
                             ),
                             const SizedBox(width: 20),
-                            // Column(
-                            //   children: [
-                            //     const Text("one img "),
-                            //   ],
-                            // ),
+                            SizedBox(
+                              width: screenWidth * 0.4,
+                              height: screenHeight * 0.8,
+                              child: product.urlImg != null &&
+                                      product.urlImg.isNotEmpty &&
+                                      product.urlImg.toString() != "[]"
+                                  ? Image.network(
+                                      "$generalServer${selectedImage}",
+                                      fit: BoxFit.fill,
+                                    )
+                                  : Container(), // Contenedor vacío si product.urlImg es nulo o vacío
+                            ),
                           ],
                         ),
                       ),
                       Expanded(
+                        flex: 4,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [

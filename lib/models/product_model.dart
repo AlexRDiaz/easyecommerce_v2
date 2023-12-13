@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:frontend/models/product_seller.dart';
 import 'package:frontend/models/warehouses_model.dart';
 
 class ProductModel {
@@ -17,6 +18,7 @@ class ProductModel {
   String? updatedAt;
   // Considerar si necesitas un objeto relacionado como en ProviderModel
   WarehouseModel? warehouse;
+  List<ProductSellerModel>? productseller;
 
   ProductModel({
     this.productId,
@@ -32,23 +34,9 @@ class ProductModel {
     this.createdAt,
     this.updatedAt,
     this.warehouse,
+    this.productseller,
   });
 
-  // Método para crear un objeto ProviderModel desde un mapa
-  // factory ProductModel.fromJson(Map<String, dynamic> json) {
-  //   return ProductModel(
-  //     productId: json['product_id'],
-  //     productName: json['product_name'],
-  //     stock: json['stock'],
-  //     features: json['features'],
-  //     price: json['price'],
-  //     urlImg: json['url_img'],
-  //     createdAt: json['created_at'],
-  //     approved: json['approved'],
-  //     active: json['active'],
-  //     warehouseId: json['warehouse_id'],
-  //   );
-  // }
   // Método para crear un objeto ProductModel desde un mapa
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     dynamic warehouseData;
@@ -72,6 +60,28 @@ class ProductModel {
       warehouseModel = WarehouseModel.fromJson(warehouseData);
     }
 
+    dynamic productsellerData;
+
+    if (json['productseller'] != null) {
+      var productsellerValue = json['productseller'];
+
+      if (productsellerValue is List<dynamic>) {
+        try {
+          // Aquí tratamos productsellerValue como una lista de objetos JSON
+          productsellerData = productsellerValue;
+        } catch (e) {
+          print('Error decoding productseller list: $e');
+        }
+      }
+    }
+
+    List<ProductSellerModel>? productsellerModels;
+    if (productsellerData != null) {
+      // Aquí tratamos productsellerData como una lista de objetos JSON
+      productsellerModels = List<ProductSellerModel>.from(
+          productsellerData.map((item) => ProductSellerModel.fromJson(item)));
+    }
+
     return ProductModel(
       productId: json['product_id'],
       productName: json['product_name'],
@@ -85,6 +95,7 @@ class ProductModel {
       createdAt: json['created_at'],
       warehouseId: json['warehouse_id'],
       warehouse: warehouseModel,
+      productseller: productsellerModels,
     );
   }
 
@@ -102,6 +113,7 @@ class ProductModel {
       'created_at': createdAt,
       'warehouse_id': warehouseId,
       'warehouse': warehouse?.toJson(),
+      'productseller': productseller?.map((item) => item.toJson()).toList(),
     };
   }
 }

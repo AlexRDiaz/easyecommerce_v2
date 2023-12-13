@@ -119,50 +119,50 @@ class _ProductDetailsState extends State<ProductDetails> {
         : [];
     print(product.urlImg);
     //
-    dataFeatures = jsonDecode(product.features);
-    _nameGuideController.text = findValue(dataFeatures, 'guide_name') ?? "";
-    _priceSuggestedController.text =
-        findValue(dataFeatures, 'price_suggested') ?? "";
-    _priceSuggestedController.text = findValue(dataFeatures, 'sku') ?? "";
-    categories = findCategories(dataFeatures);
+    // dataFeatures = jsonDecode(product.features);
+    // _nameGuideController.text = findValue(dataFeatures, 'guide_name') ?? "";
+    // _priceSuggestedController.text =
+    //     findValue(dataFeatures, 'price_suggested') ?? "";
+    // _priceSuggestedController.text = findValue(dataFeatures, 'sku') ?? "";
+    // categories = findCategories(dataFeatures);
 
-    //no cambia si no cambia variables
-    if (product.isvariable == 1) {
-      variablesTypesSend = findValue(dataFeatures, 'variables_types') ?? "";
-      variablesListSend = findValue(dataFeatures, 'variables') ?? "";
+    // //no cambia si no cambia variables
+    // if (product.isvariable == 1) {
+    //   variablesTypesSend = findValue(dataFeatures, 'variables_types') ?? "";
+    //   variablesListSend = findValue(dataFeatures, 'variables') ?? "";
 
-      // // print("img incoming: ${img_url.toString()}");
-      List<Map<String, dynamic>> variables = dataFeatures
-          .where((feature) => feature.containsKey("variables"))
-          .expand((feature) => (feature["variables"] as List<dynamic>)
-              .cast<Map<String, dynamic>>())
-          .toList();
+    //   // // print("img incoming: ${img_url.toString()}");
+    //   List<Map<String, dynamic>> variables = dataFeatures
+    //       .where((feature) => feature.containsKey("variables"))
+    //       .expand((feature) => (feature["variables"] as List<dynamic>)
+    //           .cast<Map<String, dynamic>>())
+    //       .toList();
 
-      variablesText = variables.map((variable) {
-        List<String> variableDetails = [];
+    //   variablesText = variables.map((variable) {
+    //     List<String> variableDetails = [];
 
-        if (variable.containsKey('sku')) {
-          variableDetails.add("SKU: ${variable['sku']}");
-        }
-        if (variable.containsKey('color')) {
-          variableDetails.add("Color: ${variable['color']}");
-        }
-        if (variable.containsKey('size')) {
-          variableDetails.add("Talla: ${variable['size']}");
-        }
-        if (variable.containsKey('dimension')) {
-          variableDetails.add("Tamaño: ${variable['dimension']}");
-        }
-        if (variable.containsKey('inventory')) {
-          variableDetails.add("Cantidad: ${variable['inventory']}");
-        }
-        if (variable.containsKey('price')) {
-          variableDetails.add("Precio: ${variable['price']}");
-        }
+    //     if (variable.containsKey('sku')) {
+    //       variableDetails.add("SKU: ${variable['sku']}");
+    //     }
+    //     if (variable.containsKey('color')) {
+    //       variableDetails.add("Color: ${variable['color']}");
+    //     }
+    //     if (variable.containsKey('size')) {
+    //       variableDetails.add("Talla: ${variable['size']}");
+    //     }
+    //     if (variable.containsKey('dimension')) {
+    //       variableDetails.add("Tamaño: ${variable['dimension']}");
+    //     }
+    //     if (variable.containsKey('inventory')) {
+    //       variableDetails.add("Cantidad: ${variable['inventory']}");
+    //     }
+    //     if (variable.containsKey('price')) {
+    //       variableDetails.add("Precio: ${variable['price']}");
+    //     }
 
-        return variableDetails.join('; ');
-      }).join('\n');
-    }
+    //     return variableDetails.join('; ');
+    //   }).join('\n');
+    // }
 
     setState(() {});
   }

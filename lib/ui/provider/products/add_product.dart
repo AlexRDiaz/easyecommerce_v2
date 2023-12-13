@@ -801,6 +801,8 @@ class _AddProductState extends State<AddProduct> {
                                             "color": "$chosenColor",
                                             "inventory_quantity":
                                                 _inventaryController.text,
+                                            "price":
+                                                _priceSuggestedController.text,
                                           };
                                           //
                                           List<String> claves = [
@@ -832,6 +834,8 @@ class _AddProductState extends State<AddProduct> {
                                             "color": "$chosenColor",
                                             "inventory_quantity":
                                                 _inventaryController.text,
+                                            "price":
+                                                _priceSuggestedController.text,
                                           };
                                           //
                                           List<String> claves = [
@@ -861,6 +865,8 @@ class _AddProductState extends State<AddProduct> {
                                             "size": "$chosenSize",
                                             "inventory_quantity":
                                                 _inventaryController.text,
+                                            "price":
+                                                _priceSuggestedController.text,
                                           };
                                           //
                                           List<String> claves = ["size"];
@@ -885,6 +891,8 @@ class _AddProductState extends State<AddProduct> {
                                             "color": "$chosenColor",
                                             "inventory_quantity":
                                                 _inventaryController.text,
+                                            "price":
+                                                _priceSuggestedController.text,
                                           };
                                           //
                                           List<String> claves = ["color"];
@@ -909,6 +917,8 @@ class _AddProductState extends State<AddProduct> {
                                             "dimension": "$chosenDimension",
                                             "inventory_quantity":
                                                 _inventaryController.text,
+                                            "price":
+                                                _priceSuggestedController.text,
                                           };
                                           //
                                           List<String> claves = ["dimension"];
@@ -1194,6 +1204,10 @@ class _AddProductState extends State<AddProduct> {
                                       });
                                     }
                                   }
+                                  setState(() {
+                                    imgsTemporales =
+                                        imgsTemporales.reversed.toList();
+                                  });
                                 },
                                 child: const Row(
                                   children: [

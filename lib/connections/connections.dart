@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:frontend/models/product_model.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:frontend/models/warehouses_model.dart';
@@ -5827,17 +5828,15 @@ class Connections {
 
 //  *
   getProductsCatalog(populate, page_size, current_page, or, and, outFilter,
-      sort, search) async {
-    print(json.encode({
-      "populate": populate,
-      "page_size": page_size,
-      "page_number": current_page,
-      "or": or,
-      "and": and,
-      "out_filters": outFilter,
-      "sort": sort,
-      "search": search
-    }));
+      filterps, sort, search) async {
+    // print(json.encode({
+    //   "populate": populate,
+    //   "or": or,
+    //   "and": and,
+    //   "out_filters": outFilter,
+    //   "filterps": filterps,
+    //   "search": search
+    // }));
     try {
       var response =
           await http.post(Uri.parse("$serverLaravel/api/products/all"),
@@ -5849,6 +5848,7 @@ class Connections {
                 "or": or,
                 "and": and,
                 "out_filters": outFilter,
+                "filterps": filterps,
                 "sort": sort,
                 "search": search
               }));
@@ -5994,6 +5994,71 @@ class Connections {
     } catch (e) {
       res = 3;
       return res;
+    }
+  }
+
+  //  *
+  Future createProductSeller(int idProduct, int idMaster, String key) async {
+    int res;
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/productseller"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(
+              {"product_id": idProduct, "id_master": idMaster, "key": key}));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+        // return [true, decodeData];
+      } else {
+        return 1;
+      }
+    } catch (e) {
+      print(e);
+      return 2;
+    }
+  }
+
+  //  *
+  Future getProductSeller(int idProduct, int idMaster) async {
+    print(json.encode({"product_id": idProduct, "id_master": idMaster}));
+    int res;
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/productseller/get"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"product_id": idProduct, "id_master": idMaster}));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+        // return [true, decodeData];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+//*
+  Future updateProductSeller(id, datajson) async {
+    int res;
+    try {
+      var response = await http.put(
+          Uri.parse("$serverLaravel/api/productseller/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(datajson));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return 0;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
     }
   }
 
