@@ -78,7 +78,7 @@ class _AddProviderState extends StateMVC<AddProvider> {
           const Text(
             'Nuevo   Proveedor',
             style: TextStyle(
-              fontSize: 30.0, // Tamaño de fuente grande
+              fontSize: 20.0, // Tamaño de fuente grande
               fontWeight: FontWeight.bold, // Texto en negrita
               color: Color.fromARGB(255, 3, 3, 3), // Color de texto
               fontFamily:
@@ -101,7 +101,7 @@ class _AddProviderState extends StateMVC<AddProvider> {
                       fillColor:
                           Colors.white, // Color del fondo del TextFormField
                       filled: true,
-                      labelText: 'Nombre de bodega',
+                      labelText: 'Nombre de Proveedor',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10.0),
                       ),
@@ -111,7 +111,7 @@ class _AddProviderState extends StateMVC<AddProvider> {
                             'AtractivaFont'), // Estilo de fuente personalizado
                     validator: (value) {
                       if (value!.isEmpty) {
-                        return 'Ingresa el nombre de la bodega';
+                        return 'Ingresa el nombre del proveedor';
                       }
                       return null;
                     },
@@ -124,14 +124,14 @@ class _AddProviderState extends StateMVC<AddProvider> {
                       fillColor:
                           Colors.white, // Color del fondo del TextFormField
                       filled: true,
-                      labelText: 'Telefono',
+                      labelText: 'Teléfono',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10.0),
                       ),
                     ),
                     validator: (value) {
                       if (value!.isEmpty) {
-                        return 'Por favor, ingresa tu número de telefono';
+                        return 'Por favor, ingresa tu número de teléfono';
                       }
                       return null;
                     },
@@ -179,30 +179,32 @@ class _AddProviderState extends StateMVC<AddProvider> {
                   SizedBox(height: 10),
                   TextFormField(
                     controller: _descriptionController,
+                    // maxLines: null,
+                    maxLines: 4,
                     decoration: InputDecoration(
-                      fillColor:
-                          Colors.white, // Color del fondo del TextFormField
+                      fillColor: Colors.white,
                       filled: true,
-                      labelText: 'Descripcion',
+                      labelText: 'Descripción',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10.0),
                       ),
                     ),
                   ),
-                  Container(
-                    margin: EdgeInsets.symmetric(vertical: 10.0),
-                    padding: EdgeInsets.all(8.0),
-                    height: 300,
-                    //  width: 600,
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(color: Colors.black)),
-                    child: HtmlEditor(
-                      description: "",
-                      getValue: getValue,
-                    ),
-                  ),
+                  // Container(
+                  //   margin: EdgeInsets.symmetric(vertical: 10.0),
+                  //   padding: EdgeInsets.all(8.0),
+                  //   height: 300,
+                  //   //  width: 600,
+                  //   decoration: BoxDecoration(
+                  //       color: Colors.white,
+                  //       borderRadius: BorderRadius.circular(10.0),
+                  //       border: Border.all(color: Colors.black)),
+                  //   child: HtmlEditor(
+                  //     description: "",
+                  //     getValue: getValue,
+                  //   ),
+                  // ),
+                  /*
                   TextButton(
                     onPressed: () {
                       // Aquí puedes implementar la lógica para seleccionar una imagen
@@ -227,6 +229,7 @@ class _AddProviderState extends StateMVC<AddProvider> {
                       width: 300, // Ancho de la imagen
                       height: 300, // Alto de la imagen
                     ),
+                  */
                 ],
               ),
             )),
@@ -247,8 +250,9 @@ class _AddProviderState extends StateMVC<AddProvider> {
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(
-              primary: Colors.blue, // Cambia el color de fondo del botón
-              onPrimary: Colors.white, // Cambia el color del texto del botón
+              foregroundColor: Colors.white,
+              backgroundColor:
+                  Colors.blue, // Cambia el color del texto del botón
               padding: EdgeInsets.symmetric(
                   vertical: 15,
                   horizontal: 40), // Ajusta el espaciado interno del botón

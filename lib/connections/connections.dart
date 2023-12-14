@@ -5927,7 +5927,6 @@ class Connections {
       var response = await http.put(
           Uri.parse("$serverLaravel/api/products/${product.productId}"),
           headers: {'Content-Type': 'application/json'},
-          // body: json.encode(datajson));
           body: json.encode({
             "product_name": product.productName,
             "stock": product.stock,

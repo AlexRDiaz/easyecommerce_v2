@@ -1095,7 +1095,13 @@ class _AddProductState extends State<AddProduct> {
                                   setState(() {
                                     selectedCategory = value;
                                     if (value != null) {
-                                      selectedCategories.add(value);
+                                      if (!selectedCategories
+                                          .contains(selectedCategory)) {
+                                        setState(() {
+                                          selectedCategories
+                                              .add(selectedCategory!);
+                                        });
+                                      }
                                     }
                                   });
                                 },
@@ -1107,6 +1113,44 @@ class _AddProductState extends State<AddProduct> {
                                   ),
                                 ),
                               ),
+                              // const SizedBox(height: 5),
+                              // Wrap(
+                              //   spacing: 8.0,
+                              //   runSpacing: 8.0,
+                              //   children:
+                              //       selectedCategories.map<Widget>((category) {
+                              //     return Chip(
+                              //       label: Text(category),
+                              //       onDeleted: () {
+                              //         setState(() {
+                              //           selectedCategories.remove(category);
+                              //           // print("catAct: $selectedCategories");
+                              //         });
+                              //       },
+                              //     );
+                              //   }).toList(),
+                              // ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Expanded(
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [])),
+                        const SizedBox(width: 20),
+                        const Expanded(
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [])),
+                        const SizedBox(width: 20),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                               Wrap(
                                 spacing: 8.0,
                                 runSpacing: 8.0,

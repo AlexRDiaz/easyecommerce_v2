@@ -14,7 +14,7 @@ import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/provider/products/add_product.dart';
 import 'package:frontend/ui/provider/products/controllers/product_controller.dart';
-import 'package:frontend/ui/provider/products/product_details.dart';
+import 'package:frontend/ui/provider/products/product_edit.dart';
 import 'package:frontend/ui/provider/warehouses/controllers/warehouses_controller.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
@@ -58,6 +58,7 @@ class _ProductsViewState extends State<ProductsView> {
   late WrehouseController _warehouseController;
   List<WarehouseModel> warehousesList = [];
   List<String> warehousesToSelect = [];
+  bool edited = false;
 
   @override
   void initState() {
@@ -88,6 +89,13 @@ class _ProductsViewState extends State<ProductsView> {
   Future<List<WarehouseModel>> _getWarehousesData() async {
     await _warehouseController.loadWarehouses();
     return _warehouseController.warehouses;
+  }
+
+  hasEdited(value) {
+    setState(() {
+      edited = value;
+    });
+    loadData();
   }
 
   loadData() async {
@@ -695,10 +703,10 @@ class _ProductsViewState extends State<ProductsView> {
                                         await showDialog(
                                           context: context,
                                           builder: (context) {
-                                            return ProductDetails(
+                                            return ProductEdit(
                                               data: data[index],
-                                              function: paginateData,
-                                              // function: loadData(),
+                                              // function: paginateData,
+                                              hasEdited: hasEdited,
                                             );
                                           },
                                         );
@@ -939,9 +947,9 @@ class _ProductsViewState extends State<ProductsView> {
                     ),
                   ),
                   Expanded(
-                      child: ProductDetails(
+                      child: ProductEdit(
                     data: data,
-                    function: paginateData,
+                    hasEdited: hasEdited,
                     // function: loadData(),
                   ))
                 ],
@@ -1037,18 +1045,18 @@ class _ProductsViewState extends State<ProductsView> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: AppBar(
-            title: const Text(
-              "Detalles del Producto",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            backgroundColor: Colors.blue[900],
-            leading: Container(),
-            centerTitle: true,
-          ),
+          // title: AppBar(
+          //   title: const Text(
+          //     "Detalles del Producto",
+          //     style: TextStyle(
+          //       fontWeight: FontWeight.bold,
+          //       fontSize: 16,
+          //     ),
+          //   ),
+          //   backgroundColor: Colors.blue[900],
+          //   leading: Container(),
+          //   centerTitle: true,
+          // ),
           content: Container(
             child: SizedBox(
               width: MediaQuery.of(context).size.width,

@@ -5,6 +5,8 @@ class UserModel {
   String? provider;
   bool? confirmed;
   bool? blocked;
+  String? permisos;
+
   // Añade más propiedades según sea necesario
 
   // Constructor
@@ -15,6 +17,7 @@ class UserModel {
     this.provider,
     this.confirmed,
     this.blocked,
+    this.permisos,
   });
   UserModel.empty()
       : id = 0,
@@ -22,7 +25,8 @@ class UserModel {
         email = '',
         provider = '',
         confirmed = false,
-        blocked = false;
+        blocked = false,
+        permisos = '';
 
   // Método para crear un objeto UserModel desde un mapa
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -33,6 +37,7 @@ class UserModel {
       provider: json['provider'],
       confirmed: json['confirmed'],
       blocked: json['blocked'],
+      permisos: json['permisos'],
     );
   }
 
@@ -44,6 +49,7 @@ class UserModel {
       'provider': provider,
       'confirmed': confirmed,
       'blocked': blocked,
+      'permisos': permisos,
     };
   }
 }

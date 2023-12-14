@@ -158,10 +158,14 @@ class ProductCard extends StatelessWidget {
               ),
               // Text information
               Padding(
-                padding: const EdgeInsets.all(5),
+                // padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 15,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const SizedBox(height: 5),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

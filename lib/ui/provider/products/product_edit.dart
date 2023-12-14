@@ -19,19 +19,20 @@ import 'package:frontend/ui/widgets/loading.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
-class ProductDetails extends StatefulWidget {
+class ProductEdit extends StatefulWidget {
   final Map data;
-  final Function function;
+  // final Function function;
+  final Function(dynamic) hasEdited;
   // final List? data;
 
-  const ProductDetails({super.key, required this.function, required this.data});
+  const ProductEdit({super.key, required this.hasEdited, required this.data});
   // const ProductDetails({super.key});
 
   @override
-  State<ProductDetails> createState() => _ProductDetailsState();
+  State<ProductEdit> createState() => _ProductEditState();
 }
 
-class _ProductDetailsState extends State<ProductDetails> {
+class _ProductEditState extends State<ProductEdit> {
   String codigo = "";
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _nameGuideController = TextEditingController();
@@ -42,7 +43,6 @@ class _ProductDetailsState extends State<ProductDetails> {
   String img_url = "";
   var typeValue;
   var descripcion;
-  List<String> categories = [];
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
@@ -52,7 +52,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   List<String> listCategories = UIUtils.categories();
 
   var selectedCat;
-  var dataFeatures = [];
+  late Map<String, dynamic> dataFeatures;
   late ProductController _productController;
 
   List<String> urlsImgsList = [];
@@ -67,9 +67,13 @@ class _ProductDetailsState extends State<ProductDetails> {
   String stock = "";
   final TextEditingController _priceSuggestedController =
       TextEditingController();
-  var sku = "";
-  List variablesTypesSend = [];
-  List variablesListSend = [];
+  String sku = "";
+  List<String> selectedCategories = [];
+
+  List optionsTypesSend = [];
+  List variantsListSend = [];
+  List optionsTypesOriginal = [];
+  List variantsListOriginal = [];
 
   @override
   void initState() {
@@ -119,72 +123,51 @@ class _ProductDetailsState extends State<ProductDetails> {
         : [];
     print(product.urlImg);
     //
-    // dataFeatures = jsonDecode(product.features);
-    // _nameGuideController.text = findValue(dataFeatures, 'guide_name') ?? "";
-    // _priceSuggestedController.text =
-    //     findValue(dataFeatures, 'price_suggested') ?? "";
-    // _priceSuggestedController.text = findValue(dataFeatures, 'sku') ?? "";
-    // categories = findCategories(dataFeatures);
+    dataFeatures = jsonDecode(product.features);
+    _nameGuideController.text = dataFeatures["guide_name"];
+    _priceSuggestedController.text = dataFeatures["price_suggested"].toString();
+    sku = dataFeatures["sku"];
+    _descriptionController.text = dataFeatures["description"];
 
-    // //no cambia si no cambia variables
-    // if (product.isvariable == 1) {
-    //   variablesTypesSend = findValue(dataFeatures, 'variables_types') ?? "";
-    //   variablesListSend = findValue(dataFeatures, 'variables') ?? "";
+    selectedCategories =
+        (dataFeatures["categories"] as List<dynamic>).cast<String>().toList();
 
-    //   // // print("img incoming: ${img_url.toString()}");
-    //   List<Map<String, dynamic>> variables = dataFeatures
-    //       .where((feature) => feature.containsKey("variables"))
-    //       .expand((feature) => (feature["variables"] as List<dynamic>)
-    //           .cast<Map<String, dynamic>>())
-    //       .toList();
+    //no cambia si no cambia variables
+    if (product.isvariable == 1) {
+      optionsTypesOriginal = dataFeatures["options"];
+      variantsListOriginal = dataFeatures["variants"];
 
-    //   variablesText = variables.map((variable) {
-    //     List<String> variableDetails = [];
+      List<Map<String, dynamic>>? variants =
+          (dataFeatures["variants"] as List<dynamic>)
+              .cast<Map<String, dynamic>>();
 
-    //     if (variable.containsKey('sku')) {
-    //       variableDetails.add("SKU: ${variable['sku']}");
-    //     }
-    //     if (variable.containsKey('color')) {
-    //       variableDetails.add("Color: ${variable['color']}");
-    //     }
-    //     if (variable.containsKey('size')) {
-    //       variableDetails.add("Talla: ${variable['size']}");
-    //     }
-    //     if (variable.containsKey('dimension')) {
-    //       variableDetails.add("Tamaño: ${variable['dimension']}");
-    //     }
-    //     if (variable.containsKey('inventory')) {
-    //       variableDetails.add("Cantidad: ${variable['inventory']}");
-    //     }
-    //     if (variable.containsKey('price')) {
-    //       variableDetails.add("Precio: ${variable['price']}");
-    //     }
+      variablesText = variants.map((variable) {
+        List<String> variableDetails = [];
 
-    //     return variableDetails.join('; ');
-    //   }).join('\n');
-    // }
+        if (variable.containsKey('sku')) {
+          variableDetails.add("SKU: ${variable['sku']}");
+        }
+        if (variable.containsKey('color')) {
+          variableDetails.add("Color: ${variable['color']}");
+        }
+        if (variable.containsKey('size')) {
+          variableDetails.add("Talla: ${variable['size']}");
+        }
+        if (variable.containsKey('dimension')) {
+          variableDetails.add("Tamaño: ${variable['dimension']}");
+        }
+        if (variable.containsKey('inventory_quantity')) {
+          variableDetails.add("Cantidad: ${variable['inventory_quantity']}");
+        }
+        // if (variable.containsKey('price')) {
+        //   variableDetails.add("Precio: ${variable['price']}");
+        // }
+
+        return variableDetails.join(';  ');
+      }).join('\n');
+    }
 
     setState(() {});
-  }
-
-  dynamic findValue(List<dynamic> dataFeatures, String featureName) {
-    for (var feature in dataFeatures) {
-      if (feature.containsKey(featureName)) {
-        return feature[featureName];
-      }
-    }
-    return null; // Valor predeterminado si no se encuentra la característica
-  }
-
-  List<String> findCategories(List<dynamic> dataFeatures) {
-    var categoriesFeature = dataFeatures.firstWhere(
-      (feature) => feature.containsKey('categories'),
-      orElse: () => null,
-    );
-
-    return categoriesFeature != null
-        ? List<String>.from(categoriesFeature['categories'] ?? [])
-        : [];
   }
 
   @override
@@ -334,6 +317,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                                 const SizedBox(height: 3),
                                 TextFormField(
                                   controller: _nameGuideController,
+                                  maxLines: null,
                                   decoration: InputDecoration(
                                     fillColor: Colors.white,
                                     filled: true,
@@ -515,7 +499,6 @@ class _ProductDetailsState extends State<ProductDetails> {
                                     Text(
                                       stock,
                                       style: TextStyle(
-                                        fontWeight: FontWeight.bold,
                                         fontSize: 18,
                                         color: Colors.black,
                                       ),
@@ -544,29 +527,20 @@ class _ProductDetailsState extends State<ProductDetails> {
                                   ),
                                 ),
                                 const SizedBox(height: 5),
-                                Wrap(
-                                  spacing: 8.0,
-                                  runSpacing: 8.0,
-                                  children: categories.map<Widget>((category) {
-                                    return Chip(
-                                      label: Text(category),
-                                      onDeleted: () {
-                                        setState(() {
-                                          categories.remove(category);
-                                          // print("catAct: $categories");
-                                        });
-                                      },
-                                    );
-                                  }).toList(),
-                                ),
-                                DropdownButton<String>(
+                                DropdownButtonFormField<String>(
                                   hint: const Text("Seleccione una categoría"),
                                   value: selectedCat,
                                   onChanged: (value) {
                                     setState(() {
                                       selectedCat = value;
                                       if (value != null) {
-                                        categories.add(value);
+                                        if (!selectedCategories
+                                            .contains(selectedCat)) {
+                                          setState(() {
+                                            selectedCategories
+                                                .add(selectedCat!);
+                                          });
+                                        }
                                       }
                                     });
                                   },
@@ -576,7 +550,31 @@ class _ProductDetailsState extends State<ProductDetails> {
                                       child: Text(category),
                                     );
                                   }).toList(),
+                                  decoration: InputDecoration(
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(5.0),
+                                    ),
+                                  ),
                                 ),
+                                // const SizedBox(height: 5),
+                                // Wrap(
+                                //   spacing: 8.0,
+                                //   runSpacing: 8.0,
+                                //   children: selectedCategories
+                                //       .map<Widget>((category) {
+                                //     return Chip(
+                                //       label: Text(category),
+                                //       onDeleted: () {
+                                //         setState(() {
+                                //           selectedCategories.remove(category);
+                                //           // print("catAct: $categories");
+                                //         });
+                                //       },
+                                //     );
+                                //   }).toList(),
+                                // ),
                               ],
                             ),
                           ),
@@ -628,6 +626,33 @@ class _ProductDetailsState extends State<ProductDetails> {
                           ),
                         ],
                       ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Wrap(
+                                  spacing: 8.0,
+                                  runSpacing: 8.0,
+                                  children: selectedCategories
+                                      .map<Widget>((category) {
+                                    return Chip(
+                                      label: Text(category),
+                                      onDeleted: () {
+                                        setState(() {
+                                          selectedCategories.remove(category);
+                                          // print("catAct: $categories");
+                                        });
+                                      },
+                                    );
+                                  }).toList(),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 20),
                       Row(
                         children: [
@@ -648,9 +673,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                                       borderRadius: BorderRadius.circular(10.0),
                                       border: Border.all(color: Colors.black)),
                                   child: HtmlEditor(
-                                    description: findValue(
-                                            dataFeatures, 'description') ??
-                                        "",
+                                    description: _descriptionController.text,
                                     getValue: getValue,
                                   ),
                                 ),
@@ -672,52 +695,52 @@ class _ProductDetailsState extends State<ProductDetails> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Row(
-                            //   mainAxisAlignment: MainAxisAlignment.center,
-                            //   children: [
-                            //     TextButton(
-                            //       onPressed: () async {
-                            //         final ImagePicker picker = ImagePicker();
-                            //         imgsTemporales = [];
-                            //         List<XFile>? imagenes =
-                            //             await picker.pickMultiImage();
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                TextButton(
+                                  onPressed: () async {
+                                    final ImagePicker picker = ImagePicker();
+                                    imgsTemporales = [];
+                                    List<XFile>? imagenes =
+                                        await picker.pickMultiImage();
 
-                            //         if (imagenes != null &&
-                            //             imagenes.isNotEmpty) {
-                            //           if (imagenes.length > 4) {
-                            //             // ignore: use_build_context_synchronously
-                            //             AwesomeDialog(
-                            //               width: 500,
-                            //               context: context,
-                            //               dialogType: DialogType.error,
-                            //               animType: AnimType.rightSlide,
-                            //               title: 'Error de selección',
-                            //               desc: 'Seleccione maximo 4 imagenes.',
-                            //               btnCancel: Container(),
-                            //               btnOkText: "Aceptar",
-                            //               btnOkColor: colors.colorGreen,
-                            //               btnCancelOnPress: () {},
-                            //               btnOkOnPress: () {},
-                            //             ).show();
-                            //             // print(
-                            //             //     "Error, Seleccione maximo 4 imagenes");
-                            //           } else {
-                            //             setState(() {
-                            //               imgsTemporales.addAll(imagenes);
-                            //             });
-                            //           }
-                            //         }
-                            //       },
-                            //       child: const Row(
-                            //         children: [
-                            //           Icon(Icons.image),
-                            //           SizedBox(width: 10),
-                            //           Text('Cambiar Imagen/es'),
-                            //         ],
-                            //       ),
-                            //     ),
-                            //   ],
-                            // ),
+                                    if (imagenes != null &&
+                                        imagenes.isNotEmpty) {
+                                      if (imagenes.length > 4) {
+                                        // ignore: use_build_context_synchronously
+                                        AwesomeDialog(
+                                          width: 500,
+                                          context: context,
+                                          dialogType: DialogType.error,
+                                          animType: AnimType.rightSlide,
+                                          title: 'Error de selección',
+                                          desc: 'Seleccione maximo 4 imagenes.',
+                                          btnCancel: Container(),
+                                          btnOkText: "Aceptar",
+                                          btnOkColor: colors.colorGreen,
+                                          btnCancelOnPress: () {},
+                                          btnOkOnPress: () {},
+                                        ).show();
+                                        // print(
+                                        //     "Error, Seleccione maximo 4 imagenes");
+                                      } else {
+                                        setState(() {
+                                          imgsTemporales.addAll(imagenes);
+                                        });
+                                      }
+                                    }
+                                  },
+                                  child: const Row(
+                                    children: [
+                                      Icon(Icons.image),
+                                      SizedBox(width: 10),
+                                      Text('Cambiar Imagen/es'),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                             const SizedBox(height: 15),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -742,24 +765,24 @@ class _ProductDetailsState extends State<ProductDetails> {
                                       ),
                               ],
                             ),
-                            // SizedBox(
-                            //   height: 300,
-                            //   child: GridView.builder(
-                            //     gridDelegate:
-                            //         const SliverGridDelegateWithFixedCrossAxisCount(
-                            //       crossAxisCount: 4,
-                            //       crossAxisSpacing: 10,
-                            //       mainAxisSpacing: 10,
-                            //     ),
-                            //     itemCount: imgsTemporales.length,
-                            //     itemBuilder: (BuildContext context, int index) {
-                            //       return Image.network(
-                            //         (imgsTemporales[index].path),
-                            //         fit: BoxFit.fill,
-                            //       );
-                            //     },
-                            //   ),
-                            // ),
+                            SizedBox(
+                              height: 300,
+                              child: GridView.builder(
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 4,
+                                  crossAxisSpacing: 10,
+                                  mainAxisSpacing: 10,
+                                ),
+                                itemCount: imgsTemporales.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return Image.network(
+                                    (imgsTemporales[index].path),
+                                    fit: BoxFit.fill,
+                                  );
+                                },
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -774,22 +797,28 @@ class _ProductDetailsState extends State<ProductDetails> {
                                   onPressed: () async {
                                     getLoadingModal(context, false);
                                     // print(img_url);
+                                    if (typeValue == "SIMPLE") {
+                                      // optionsTypes = [];
+                                      // variantsList = [];
+                                    }
+                                    var urlsImgsListToSend;
+                                    if (imgsTemporales.isNotEmpty) {
+                                      urlsImgsListToSend =
+                                          await saveImages(imgsTemporales);
+                                    }
 
-                                    var featuresToSend = [
-                                      {"guide_name": _nameGuideController.text},
-                                      {
-                                        "feature_name": "type",
-                                        "value": typeValue
-                                      },
-                                      {
-                                        "feature_name": "categories",
-                                        "value": categories
-                                      },
-                                      {
-                                        "feature_name": "description",
-                                        "value": _descriptionController.text
-                                      },
-                                    ];
+                                    var featuresToSend = {
+                                      "guide_name": _nameGuideController.text,
+                                      "price_suggested":
+                                          _priceSuggestedController.text,
+                                      "sku": sku.toUpperCase(),
+                                      "categories": selectedCategories,
+                                      "description":
+                                          _descriptionController.text,
+                                      "type": typeValue,
+                                      "variants": variantsListOriginal,
+                                      "options": optionsTypesOriginal
+                                    };
 
                                     // var responseUpt = await Connections()
                                     //     .updateProduct0(codigo, {
@@ -807,25 +836,26 @@ class _ProductDetailsState extends State<ProductDetails> {
                                     //       .toString()
                                     // });
 
-                                    // _productController.editProduct(ProductModel(
-                                    //   productName: _nameController.text,
-                                    //   stock: int.parse(_stockController.text),
-                                    //   price:
-                                    //       double.parse(_priceController.text),
-                                    //   urlImg: urlsImgsList,
-                                    //   isvariable: isVariable,
-                                    //   features: featuresToSend,
-                                    //   warehouseId: int.parse(warehouseValue
-                                    //       .toString()
-                                    //       .split("-")[0]
-                                    //       .toString()),
-                                    // ));
+                                    _productController.editProduct(ProductModel(
+                                      productId: widget.data['product_id'],
+                                      productName: _nameController.text,
+                                      stock: int.parse(_stockController.text),
+                                      price:
+                                          double.parse(_priceController.text),
+                                      urlImg: imgsTemporales.isNotEmpty
+                                          ? urlsImgsListToSend
+                                          : urlsImgsList,
+                                      isvariable: isVariable,
+                                      features: featuresToSend,
+                                      warehouseId: int.parse(warehouseValue
+                                          .toString()
+                                          .split("-")[0]
+                                          .toString()),
+                                    ));
 
+                                    widget.hasEdited(true);
                                     Navigator.pop(context);
                                     Navigator.pop(context);
-
-                                    //  await loadData();
-                                    await widget.function();
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.green[400],
@@ -865,6 +895,29 @@ class _ProductDetailsState extends State<ProductDetails> {
   getValue(value) {
     _descriptionController.text = value;
     return value;
+  }
+
+  Future<List<String>> saveImages(List<XFile> imgsTemporales) async {
+    var c = 0;
+    for (var imagen in imgsTemporales) {
+      await _saveImage(imagen);
+    }
+    print("final urlsImgs: $urlsImgsList");
+    return urlsImgsList;
+  }
+
+  Future<void> _saveImage(XFile imagen) async {
+    try {
+      if (imagen != null && imagen.path.isNotEmpty) {
+        var responseI = await Connections().postDoc(imagen);
+        var imgUrl = responseI[1];
+        urlsImgsList.add(imgUrl!);
+      } else {
+        print("No img");
+      }
+    } catch (error) {
+      print("Error al guardar la imagen: $error");
+    }
   }
 
   Container _modelText(String text, String data) {
