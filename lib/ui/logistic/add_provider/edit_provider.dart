@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animated_icons/icons8.dart';
 import 'package:frontend/config/exports.dart';
@@ -5,6 +7,7 @@ import 'package:frontend/connections/connections.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:frontend/models/user_model.dart';
 import 'package:frontend/ui/logistic/add_provider/controllers/provider_controller.dart';
+import 'package:frontend/ui/logistic/add_sellers/custom_filterchip_for_user.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/html_editor.dart';
@@ -41,6 +44,11 @@ class _EditProviderState extends StateMVC<EditProvider> {
   String?
       _selectedImageURL; // Esta variable almacenará la URL de la imagen seleccionada
 
+  List<dynamic> accessTemp = [];
+  Map<String, dynamic> accessGeneralofRol = {};
+  String idUser = "";
+  var data = {};
+
   @override
   void initState() {
     _controller = ProviderController();
@@ -51,6 +59,16 @@ class _EditProviderState extends StateMVC<EditProvider> {
     _descriptionController.text = widget.provider.description!;
 
     super.initState();
+    getAccess();
+  }
+
+  getAccess() async {
+    idUser = widget.provider.user!.id.toString();
+    var resultAccessGeneralofRol = await Connections().getAccessofRolById(5);
+    setState(() {
+      accessTemp = jsonDecode(widget.provider.user!.permisos!);
+      accessGeneralofRol = resultAccessGeneralofRol;
+    });
   }
 
   @override
@@ -88,7 +106,7 @@ class _EditProviderState extends StateMVC<EditProvider> {
           const Text(
             'Editar  Proveedor',
             style: TextStyle(
-              fontSize: 30.0, // Tamaño de fuente grande
+              fontSize: 20.0, // Tamaño de fuente grande
               fontWeight: FontWeight.bold, // Texto en negrita
               color: Color.fromARGB(255, 3, 3, 3), // Color de texto
               fontFamily:
@@ -98,20 +116,20 @@ class _EditProviderState extends StateMVC<EditProvider> {
               decorationThickness: 2.0, // Grosor del subrayado
             ),
           ),
-          SizedBox(height: 20),
           Expanded(
             child: SingleChildScrollView(
                 child: Form(
               key: _formKey,
               child: Column(
                 children: <Widget>[
+                  SizedBox(height: 20),
                   TextFormField(
                     controller: _nameController,
                     decoration: InputDecoration(
                       fillColor:
                           Colors.white, // Color del fondo del TextFormField
                       filled: true,
-                      labelText: 'Nombre de bodega',
+                      labelText: 'Nombre de proveedor',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10.0),
                       ),
@@ -126,7 +144,7 @@ class _EditProviderState extends StateMVC<EditProvider> {
                       return null;
                     },
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   TextFormField(
                     keyboardType: TextInputType.phone,
                     controller: _phone1Controller,
@@ -146,7 +164,7 @@ class _EditProviderState extends StateMVC<EditProvider> {
                       return null;
                     },
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   TextFormField(
                     controller: _usernameController,
                     decoration: InputDecoration(
@@ -165,7 +183,7 @@ class _EditProviderState extends StateMVC<EditProvider> {
                       return null;
                     },
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   TextFormField(
                     keyboardType: TextInputType.emailAddress,
                     controller: _emailController,
@@ -186,56 +204,82 @@ class _EditProviderState extends StateMVC<EditProvider> {
                       return null;
                     },
                   ),
-                  SizedBox(height: 10),
-                  // TextFormField(
-                  //   controller: _descriptionController,
-                  //   decoration: InputDecoration(
-                  //     fillColor:
-                  //         Colors.white, // Color del fondo del TextFormField
-                  //     filled: true,
-                  //     labelText: 'Descripcion',
-                  //     border: OutlineInputBorder(
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _descriptionController,
+                    maxLines: null,
+                    decoration: InputDecoration(
+                      fillColor:
+                          Colors.white, // Color del fondo del TextFormField
+                      filled: true,
+                      labelText: 'Descripcion',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                    ),
+                  ),
+                  // Container(
+                  //   margin: EdgeInsets.symmetric(vertical: 10.0),
+                  //   padding: EdgeInsets.all(8.0),
+                  //   height: 200,
+                  //   //  width: 600,
+                  //   decoration: BoxDecoration(
+                  //       color: Colors.white,
                   //       borderRadius: BorderRadius.circular(10.0),
-                  //     ),
+                  //       border: Border.all(color: Colors.black)),
+                  //   child: HtmlEditor(
+                  //       description: _descriptionController.text,
+                  //       getValue: getValue),
+                  // ),
+                  // TextButton(
+                  //   onPressed: () {
+                  //     // Aquí puedes implementar la lógica para seleccionar una imagen
+                  //     // Al seleccionar una imagen, actualiza la variable _selectedImageURL con la URL de la imagen
+                  //     // _selectedImageURL = 'URL de la imagen seleccionada';
+                  //     _selectImage();
+                  //     setState(
+                  //         () {}); // Para actualizar la interfaz de usuario con la imagen seleccionada
+                  //   },
+                  //   child: const Row(
+                  //     children: [
+                  //       Icon(Icons.image), // Icono para seleccionar imagen
+                  //       SizedBox(width: 10),
+                  //       Text(
+                  //           'Seleccionar Imagen'), // Texto del botón para seleccionar imagen
+                  //     ],
                   //   ),
                   // ),
+                  // if (_selectedImageURL != null)
+                  //   Image.network(
+                  //     _selectedImageURL!, // URL de la imagen seleccionada
+                  //     width: 300, // Ancho de la imagen
+                  //     height: 300, // Alto de la imagen
+                  //   ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    "Accesos",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
                   Container(
-                    margin: EdgeInsets.symmetric(vertical: 10.0),
-                    padding: EdgeInsets.all(8.0),
-                    height: 300,
-                    //  width: 600,
+                    margin: EdgeInsets.all(20.0),
+                    height: 500,
+                    width: 500,
                     decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(color: Colors.black)),
-                    child: HtmlEditor(
-                        description: _descriptionController.text,
-                        getValue: getValue),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      // Aquí puedes implementar la lógica para seleccionar una imagen
-                      // Al seleccionar una imagen, actualiza la variable _selectedImageURL con la URL de la imagen
-                      // _selectedImageURL = 'URL de la imagen seleccionada';
-                      _selectImage();
-                      setState(
-                          () {}); // Para actualizar la interfaz de usuario con la imagen seleccionada
-                    },
-                    child: const Row(
-                      children: [
-                        Icon(Icons.image), // Icono para seleccionar imagen
-                        SizedBox(width: 10),
-                        Text(
-                            'Seleccionar Imagen'), // Texto del botón para seleccionar imagen
-                      ],
+                        border: Border.all(
+                            width: 1.0,
+                            color: Color.fromARGB(255, 224, 222, 222)),
+                        borderRadius: BorderRadius.circular(10.0)),
+                    child: Builder(
+                      builder: (context) {
+                        return CustomFilterChips(
+                          accessTemp: accessTemp,
+                          accessGeneralofRol: accessGeneralofRol,
+                          loadData: getAccess,
+                          idUser: idUser.toString(),
+                        );
+                      },
                     ),
                   ),
-                  if (_selectedImageURL != null)
-                    Image.network(
-                      _selectedImageURL!, // URL de la imagen seleccionada
-                      width: 300, // Ancho de la imagen
-                      height: 300, // Alto de la imagen
-                    ),
                 ],
               ),
             )),
@@ -258,19 +302,21 @@ class _EditProviderState extends StateMVC<EditProvider> {
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(
-              primary: Colors.blue, // Cambia el color de fondo del botón
-              onPrimary: Colors.white, // Cambia el color del texto del botón
-              padding: EdgeInsets.symmetric(
+              foregroundColor: Colors.white,
+              backgroundColor:
+                  Colors.blue, // Cambia el color del texto del botón
+              padding: const EdgeInsets.symmetric(
                   vertical: 15,
                   horizontal: 40), // Ajusta el espaciado interno del botón
-              textStyle: TextStyle(fontSize: 18), // Cambia el tamaño del texto
+              textStyle:
+                  const TextStyle(fontSize: 18), // Cambia el tamaño del texto
               shape: RoundedRectangleBorder(
                 borderRadius:
                     BorderRadius.circular(10), // Agrega bordes redondeados
               ),
               elevation: 3, // Agrega una sombra al botón
             ),
-            child: Text(
+            child: const Text(
               'Guardar',
               style: TextStyle(
                 fontSize: 18, // Cambia el tamaño del texto

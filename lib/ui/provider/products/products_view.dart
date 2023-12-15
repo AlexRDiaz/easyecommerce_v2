@@ -14,10 +14,11 @@ import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/provider/products/add_product.dart';
 import 'package:frontend/ui/provider/products/controllers/product_controller.dart';
-import 'package:frontend/ui/provider/products/product_details.dart';
+import 'package:frontend/ui/provider/products/product_edit.dart';
 import 'package:frontend/ui/provider/warehouses/controllers/warehouses_controller.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
+import 'package:frontend/ui/widgets/product/show_img.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -58,6 +59,7 @@ class _ProductsViewState extends State<ProductsView> {
   late WrehouseController _warehouseController;
   List<WarehouseModel> warehousesList = [];
   List<String> warehousesToSelect = [];
+  bool edited = false;
 
   @override
   void initState() {
@@ -88,6 +90,13 @@ class _ProductsViewState extends State<ProductsView> {
   Future<List<WarehouseModel>> _getWarehousesData() async {
     await _warehouseController.loadWarehouses();
     return _warehouseController.warehouses;
+  }
+
+  hasEdited(value) {
+    setState(() {
+      edited = value;
+    });
+    loadData();
   }
 
   loadData() async {
@@ -555,7 +564,7 @@ class _ProductsViewState extends State<ProductsView> {
                               },
                             ),
                             DataColumn2(
-                              label: const Text('Precio'),
+                              label: const Text('Precio Bodega'),
                               size: ColumnSize.M,
                               onSort: (columnIndex, ascending) {
                                 // sortFunc3("telefonoS_shipping", changevalue);
@@ -660,10 +669,11 @@ class _ProductsViewState extends State<ProductsView> {
                                   Text(data[index]['stock'].toString()),
                                 ),
                                 DataCell(
-                                  Text(''),
+                                  Text('\$${data[index]['price'].toString()}'),
                                 ),
                                 DataCell(
-                                  Text('\$${data[index]['price'].toString()}'),
+                                  Text(
+                                      '\$${getValue(jsonDecode(data[index]['features']), "price_suggested")}'),
                                 ),
                                 DataCell(Text(//
                                     formatDate(
@@ -694,10 +704,10 @@ class _ProductsViewState extends State<ProductsView> {
                                         await showDialog(
                                           context: context,
                                           builder: (context) {
-                                            return ProductDetails(
+                                            return ProductEdit(
                                               data: data[index],
-                                              function: paginateData,
-                                              // function: loadData(),
+                                              // function: paginateData,
+                                              hasEdited: hasEdited,
                                             );
                                           },
                                         );
@@ -938,9 +948,9 @@ class _ProductsViewState extends State<ProductsView> {
                     ),
                   ),
                   Expanded(
-                      child: ProductDetails(
+                      child: ProductEdit(
                     data: data,
-                    function: paginateData,
+                    hasEdited: hasEdited,
                     // function: loadData(),
                   ))
                 ],
@@ -950,7 +960,22 @@ class _ProductsViewState extends State<ProductsView> {
         }).then((value) => loadData());
   }
 
+  dynamic getValue(Map<String, dynamic> features, String key) {
+    try {
+      // Obtener el valor asociado con la clave proporcionada
+      dynamic value = features[key];
+
+      return value;
+    } catch (e) {
+      // Manejar cualquier error que pueda ocurrir durante el proceso de decodificación o acceso a la clave
+      print("Error al obtener '$key': $e");
+      return null;
+    }
+  }
+
   void _showProductInfo(data) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
     ProductModel product = ProductModel.fromJson(data);
 
     List<String> urlsImgsList = product.urlImg != null &&
@@ -959,61 +984,43 @@ class _ProductsViewState extends State<ProductsView> {
         ? (jsonDecode(product.urlImg) as List).cast<String>()
         : [];
 
-    int selectedImageIndex = 0;
+    String selectedImage = urlsImgsList[0];
 
-    var features = jsonDecode(product.features);
+    // Decodificar el JSON
+    Map<String, dynamic> features = jsonDecode(product.features);
 
-    List<Map<String, dynamic>> featuresList =
-        features.cast<Map<String, dynamic>>();
-
-    List<String> categories = featuresList
-        .where((feature) => feature.containsKey("categories"))
-        .expand((feature) =>
-            (feature["categories"] as List<dynamic>).cast<String>())
-        .toList();
-    String categoriesText = categories.join(', ');
-
-    String guideName = featuresList
-        .where((feature) => feature.containsKey("guide_name"))
-        .map((feature) => feature["guide_name"] as String)
-        .firstWhere((element) => element.isNotEmpty, orElse: () => '');
-
-    String priceSuggested = featuresList
-        .where((feature) => feature.containsKey("price_suggested"))
-        .map((feature) => feature["price_suggested"] as String)
-        .firstWhere((element) => element.isNotEmpty, orElse: () => '');
-
-    String sku = featuresList
-        .where((feature) => feature.containsKey("sku"))
-        .map((feature) => feature["sku"] as String)
-        .firstWhere((element) => element.isNotEmpty, orElse: () => '');
-
-    String description = featuresList
-        .where((feature) => feature.containsKey("description"))
-        .map((feature) => feature["description"] as String)
-        .firstWhere((element) => element.isNotEmpty, orElse: () => '');
-
-    String type = featuresList
-        .where((feature) => feature.containsKey("type"))
-        .map((feature) => feature["type"] as String)
-        .firstWhere((element) => element.isNotEmpty, orElse: () => '');
-
+    String guideName = "";
+    String priceSuggested = "";
+    String sku = "";
+    String description = "";
+    String type = "";
     String variablesSKU = "";
     String variablesText = "";
+    List<String> categories = [];
+    String categoriesText = "";
+
+    guideName = features["guide_name"];
+    priceSuggested = features["price_suggested"].toString();
+    sku = features["sku"];
+    description = features["description"];
+    type = features["type"];
+
+    categories =
+        (features["categories"] as List<dynamic>).cast<String>().toList();
+    categoriesText = categories.join(', ');
 
     if (product.isvariable == 1) {
-      List<Map<String, dynamic>> variables = featuresList
-          .where((feature) => feature.containsKey("variables"))
-          .expand((feature) => (feature["variables"] as List<dynamic>)
-              .cast<Map<String, dynamic>>())
-          .toList();
+      List<Map<String, dynamic>>? variants =
+          (features["variants"] as List<dynamic>).cast<Map<String, dynamic>>();
 
-// Construir una cadena de texto con detalles de variables
-      variablesText = variables.map((variable) {
+      variablesText = variants!.map((variable) {
         List<String> variableDetails = [];
 
+        // if (variable.containsKey('sku')) {
+        //   variableDetails.add("SKU: ${variable['sku']}");
+        // }
         if (variable.containsKey('sku')) {
-          variablesSKU += "${variable['sku']}\n"; // Acumula las SKU
+          variablesSKU += "${variable['sku']}\n";
         }
         if (variable.containsKey('color')) {
           variableDetails.add("Color: ${variable['color']}");
@@ -1024,8 +1031,8 @@ class _ProductsViewState extends State<ProductsView> {
         if (variable.containsKey('dimension')) {
           variableDetails.add("Tamaño: ${variable['dimension']}");
         }
-        if (variable.containsKey('inventory')) {
-          variableDetails.add("Cantidad: ${variable['inventory']}");
+        if (variable.containsKey('inventory_quantity')) {
+          variableDetails.add("Cantidad: ${variable['inventory_quantity']}");
         }
         // if (variable.containsKey('price')) {
         //   variableDetails.add("Precio: ${variable['price']}");
@@ -1035,23 +1042,22 @@ class _ProductsViewState extends State<ProductsView> {
       }).join('\n\n');
     }
 
-    // print(features);
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: AppBar(
-            title: const Text(
-              "Detalles del Producto",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            backgroundColor: Colors.blue[900],
-            leading: Container(),
-            centerTitle: true,
-          ),
+          // title: AppBar(
+          //   title: const Text(
+          //     "Detalles del Producto",
+          //     style: TextStyle(
+          //       fontWeight: FontWeight.bold,
+          //       fontSize: 16,
+          //     ),
+          //   ),
+          //   backgroundColor: Colors.blue[900],
+          //   leading: Container(),
+          //   centerTitle: true,
+          // ),
           content: Container(
             child: SizedBox(
               width: MediaQuery.of(context).size.width,
@@ -1061,15 +1067,19 @@ class _ProductsViewState extends State<ProductsView> {
                   Row(
                     children: [
                       Expanded(
+                        flex: 6,
+                        child: ShowImages(urlsImgsList: urlsImgsList),
+
+                        /*
                         child: Row(
                           children: [
                             Column(
                               children: [
                                 for (String imageUrl in urlsImgsList)
                                   Container(
-                                    width: 100,
-                                    height: 100,
-                                    margin: EdgeInsets.all(5),
+                                    width: screenWidth * 0.08,
+                                    height: screenHeight * 0.15,
+                                    margin: const EdgeInsets.all(5),
                                     child: Image.network(
                                       "$generalServer$imageUrl",
                                       fit: BoxFit.cover,
@@ -1078,22 +1088,31 @@ class _ProductsViewState extends State<ProductsView> {
                               ],
                             ),
                             const SizedBox(width: 20),
-                            // Column(
-                            //   children: [
-                            //     const Text("one img "),
-                            //   ],
-                            // ),
+                            SizedBox(
+                              width: screenWidth * 0.4,
+                              height: screenHeight * 0.8,
+                              child: product.urlImg != null &&
+                                      product.urlImg.isNotEmpty &&
+                                      product.urlImg.toString() != "[]"
+                                  ? Image.network(
+                                      "$generalServer${selectedImage}",
+                                      fit: BoxFit.fill,
+                                    )
+                                  : Container(), // Contenedor vacío si product.urlImg es nulo o vacío
+                            ),
                           ],
                         ),
+                        */
                       ),
                       Expanded(
+                        flex: 4,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
                               children: [
                                 SizedBox(
-                                  width: 150,
+                                  width: 100,
                                   child: Row(
                                     children: [
                                       const Text(
@@ -1244,29 +1263,20 @@ class _ProductsViewState extends State<ProductsView> {
                               ],
                             ),
                             const SizedBox(height: 5),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            guideName,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                            RichText(
+                              text: TextSpan(
+                                children: <TextSpan>[
+                                  TextSpan(
+                                    text: guideName,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.black,
+                                    ),
+                                  )
+                                ],
+                              ),
                             ),
+                            const SizedBox(height: 10),
                             const Row(
                               children: [
                                 Expanded(
@@ -1291,28 +1301,29 @@ class _ProductsViewState extends State<ProductsView> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 10),
                             Row(
                               children: [
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Row(
-                                        children: [
-                                          const SizedBox(width: 10),
-                                          Expanded(
-                                            child: Html(
-                                              data: description,
-                                              style: {
-                                                'p': Style(
-                                                    fontSize: FontSize(16),
-                                                    color: Colors.grey[800]),
-                                              },
-                                            ),
+                                      Html(
+                                        data: description,
+                                        style: {
+                                          'p': Style(
+                                            fontSize: FontSize(16),
+                                            color: Colors.grey[800],
+                                            margin: Margins.only(bottom: 0),
                                           ),
-                                        ],
+                                          'li': Style(
+                                            margin: Margins.only(bottom: 0),
+                                          ),
+                                          'ol': Style(
+                                            margin: Margins.only(bottom: 0),
+                                          ),
+                                        },
                                       ),
                                     ],
                                   ),
@@ -1408,7 +1419,7 @@ class _ProductsViewState extends State<ProductsView> {
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
-                                            "${product.price}",
+                                            "\$${product.price}",
                                             style: TextStyle(
                                               fontSize: 16,
                                               color: Colors.grey[800],

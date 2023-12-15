@@ -69,9 +69,8 @@ class _AddProductState extends State<AddProduct> {
   List<String> selectedSizes = [];
   List<String> selectedDimensions = [];
 
-  List variablesTypes = [];
-  List variablesList = [];
-  final TextEditingController _showVariantsController = TextEditingController();
+  List optionsTypes = [];
+  List variantsList = [];
   int showStockTotal = 0;
 
   List<String> selectedVariablesList = [];
@@ -229,9 +228,9 @@ class _AddProductState extends State<AddProduct> {
                                 child: TextFormField(
                                   controller: _skuController,
                                   keyboardType: TextInputType.number,
-                                  inputFormatters: <TextInputFormatter>[
+                                  inputFormatters: [
                                     FilteringTextInputFormatter.allow(
-                                      RegExp(r'[A-Z0-9]'),
+                                      RegExp(r'[a-zA-Z0-9]'),
                                     ),
                                   ],
                                   decoration: InputDecoration(
@@ -361,10 +360,9 @@ class _AddProductState extends State<AddProduct> {
                                       selectedColores = [];
                                       selectedSizes = [];
                                       selectedDimensions = [];
-                                      variablesTypes = [];
-                                      variablesList = [];
+                                      optionsTypes = [];
+                                      variantsList = [];
                                       _stockController.clear();
-                                      _showVariantsController.clear();
                                       selectedVariablesList.clear();
                                       if (value != null) {
                                         selectedType = value;
@@ -384,34 +382,6 @@ class _AddProductState extends State<AddProduct> {
                           ),
                         ),
                         const SizedBox(width: 20),
-                        // Visibility(
-                        //   visible: selectedType == 'VARIABLE',
-                        //   child: Expanded(
-                        //     child: Column(
-                        //       crossAxisAlignment: CrossAxisAlignment.start,
-                        //       children: [
-                        //         const Text('Variables'),
-                        //         const SizedBox(height: 3),
-                        //         Visibility(
-                        //           visible: selectedType == 'VARIABLE',
-                        //           child: TextFormField(
-                        //             controller: _showVariantsController,
-                        //             maxLines: null,
-                        //             readOnly: true,
-                        //             decoration: InputDecoration(
-                        //               fillColor: Colors.white,
-                        //               filled: true,
-                        //               border: OutlineInputBorder(
-                        //                 borderRadius:
-                        //                     BorderRadius.circular(5.0),
-                        //               ),
-                        //             ),
-                        //           ),
-                        //         ),
-                        //       ],
-                        //     ),
-                        //   ),
-                        // ),
                         Visibility(
                           visible: selectedType == 'VARIABLE',
                           child: Expanded(
@@ -426,7 +396,7 @@ class _AddProductState extends State<AddProduct> {
                                     spacing: 8.0,
                                     runSpacing: 8.0,
                                     children:
-                                        variablesList.map<Widget>((variable) {
+                                        variantsList.map<Widget>((variable) {
                                       String chipLabel =
                                           "SKU: ${variable['sku']}";
                                       if (variable.containsKey('size')) {
@@ -469,7 +439,7 @@ class _AddProductState extends State<AddProduct> {
                                                   .remove(dimension);
                                             }
 
-                                            variablesList.remove(variable);
+                                            variantsList.remove(variable);
                                           });
                                           // print("variablesList act:");
                                           // print(variablesList);
@@ -541,14 +511,14 @@ class _AddProductState extends State<AddProduct> {
                                                       .contains("Tamaños")) &&
                                                   selectedVariable ==
                                                       "Tallas")) {
-                                            print(
-                                                "No se puede realizar esta combinacion");
+                                            // print(
+                                            //     "No se puede realizar esta combinacion");
                                           } else {
                                             selectedVariable = value;
 
                                             selectedVariablesList.add(
                                                 selectedVariable.toString());
-                                            print(selectedVariablesList);
+                                            // print(selectedVariablesList);
                                           }
 
                                           _priceUnitController.text =
@@ -796,11 +766,13 @@ class _AddProductState extends State<AddProduct> {
                                           variant = {
                                             "id": idRandom,
                                             "sku":
-                                                "${_skuController.text}${chosenSize}${chosenColor?.toUpperCase()}",
+                                                "${_skuController.text.toUpperCase()}${chosenSize}${chosenColor?.toUpperCase()}",
                                             "size": "$chosenSize",
                                             "color": "$chosenColor",
                                             "inventory_quantity":
                                                 _inventaryController.text,
+                                            "price":
+                                                _priceSuggestedController.text,
                                           };
                                           //
                                           List<String> claves = [
@@ -808,11 +780,11 @@ class _AddProductState extends State<AddProduct> {
                                             "color"
                                           ];
                                           if (varianteExistente(
-                                              variablesList, variant, claves)) {
-                                            print(
-                                                "Ya existe una variante con talla: $chosenSize y color: $chosenColor");
+                                              variantsList, variant, claves)) {
+                                            // print(
+                                            //     "Ya existe una variante con talla: $chosenSize y color: $chosenColor");
                                           } else {
-                                            variablesList.add(variant);
+                                            variantsList.add(variant);
                                             selectedSizes.add(chosenSize!);
                                             selectedColores.add(chosenColor!);
 
@@ -827,11 +799,13 @@ class _AddProductState extends State<AddProduct> {
                                           variant = {
                                             "id": idRandom,
                                             "sku":
-                                                "${_skuController.text}${chosenDimension?.isNotEmpty == true ? chosenDimension![0].toUpperCase() : ""}${chosenColor?.toUpperCase()}",
+                                                "${_skuController.text.toUpperCase()}${chosenDimension?.isNotEmpty == true ? chosenDimension![0].toUpperCase() : ""}${chosenColor?.toUpperCase()}",
                                             "dimension": "$chosenDimension",
                                             "color": "$chosenColor",
                                             "inventory_quantity":
                                                 _inventaryController.text,
+                                            "price":
+                                                _priceSuggestedController.text,
                                           };
                                           //
                                           List<String> claves = [
@@ -839,11 +813,11 @@ class _AddProductState extends State<AddProduct> {
                                             "color"
                                           ];
                                           if (varianteExistente(
-                                              variablesList, variant, claves)) {
-                                            print(
-                                                "Ya existe una variante con tamaño: $chosenDimension y color: $chosenColor");
+                                              variantsList, variant, claves)) {
+                                            // print(
+                                            //     "Ya existe una variante con tamaño: $chosenDimension y color: $chosenColor");
                                           } else {
-                                            variablesList.add(variant);
+                                            variantsList.add(variant);
                                             selectedDimensions
                                                 .add(chosenDimension!);
                                             selectedColores.add(chosenColor!);
@@ -857,19 +831,21 @@ class _AddProductState extends State<AddProduct> {
                                           variant = {
                                             "id": idRandom,
                                             "sku":
-                                                "${_skuController.text}${chosenSize}",
+                                                "${_skuController.text.toUpperCase()}${chosenSize}",
                                             "size": "$chosenSize",
                                             "inventory_quantity":
                                                 _inventaryController.text,
+                                            "price":
+                                                _priceSuggestedController.text,
                                           };
                                           //
                                           List<String> claves = ["size"];
                                           if (varianteExistente(
-                                              variablesList, variant, claves)) {
-                                            print(
-                                                "Ya existe una variante con talla: $chosenSize");
+                                              variantsList, variant, claves)) {
+                                            // print(
+                                            //     "Ya existe una variante con talla: $chosenSize");
                                           } else {
-                                            variablesList.add(variant);
+                                            variantsList.add(variant);
                                             selectedSizes.add(chosenSize!);
 
                                             calcuateStockTotal(
@@ -881,19 +857,21 @@ class _AddProductState extends State<AddProduct> {
                                           variant = {
                                             "id": idRandom,
                                             "sku":
-                                                "${_skuController.text}${chosenColor?.toUpperCase()}",
+                                                "${_skuController.text.toUpperCase()}${chosenColor?.toUpperCase()}",
                                             "color": "$chosenColor",
                                             "inventory_quantity":
                                                 _inventaryController.text,
+                                            "price":
+                                                _priceSuggestedController.text,
                                           };
                                           //
                                           List<String> claves = ["color"];
                                           if (varianteExistente(
-                                              variablesList, variant, claves)) {
-                                            print(
-                                                "Ya existe una variante con color: $chosenColor");
+                                              variantsList, variant, claves)) {
+                                            // print(
+                                            //     "Ya existe una variante con color: $chosenColor");
                                           } else {
-                                            variablesList.add(variant);
+                                            variantsList.add(variant);
                                             selectedColores.add(chosenColor!);
 
                                             calcuateStockTotal(
@@ -905,19 +883,21 @@ class _AddProductState extends State<AddProduct> {
                                           variant = {
                                             "id": idRandom,
                                             "sku":
-                                                "${_skuController.text}${chosenDimension?.isNotEmpty == true ? chosenDimension![0].toUpperCase() : ""}",
+                                                "${_skuController.text.toUpperCase()}${chosenDimension?.isNotEmpty == true ? chosenDimension![0].toUpperCase() : ""}",
                                             "dimension": "$chosenDimension",
                                             "inventory_quantity":
                                                 _inventaryController.text,
+                                            "price":
+                                                _priceSuggestedController.text,
                                           };
                                           //
                                           List<String> claves = ["dimension"];
                                           if (varianteExistente(
-                                              variablesList, variant, claves)) {
-                                            print(
-                                                "Ya existe una variante con tamaño: $chosenDimension");
+                                              variantsList, variant, claves)) {
+                                            // print(
+                                            //     "Ya existe una variante con tamaño: $chosenDimension");
                                           } else {
-                                            variablesList.add(variant);
+                                            variantsList.add(variant);
                                             selectedDimensions
                                                 .add(chosenDimension!);
 
@@ -1085,7 +1065,13 @@ class _AddProductState extends State<AddProduct> {
                                   setState(() {
                                     selectedCategory = value;
                                     if (value != null) {
-                                      selectedCategories.add(value);
+                                      if (!selectedCategories
+                                          .contains(selectedCategory)) {
+                                        setState(() {
+                                          selectedCategories
+                                              .add(selectedCategory!);
+                                        });
+                                      }
                                     }
                                   });
                                 },
@@ -1097,6 +1083,44 @@ class _AddProductState extends State<AddProduct> {
                                   ),
                                 ),
                               ),
+                              // const SizedBox(height: 5),
+                              // Wrap(
+                              //   spacing: 8.0,
+                              //   runSpacing: 8.0,
+                              //   children:
+                              //       selectedCategories.map<Widget>((category) {
+                              //     return Chip(
+                              //       label: Text(category),
+                              //       onDeleted: () {
+                              //         setState(() {
+                              //           selectedCategories.remove(category);
+                              //           // print("catAct: $selectedCategories");
+                              //         });
+                              //       },
+                              //     );
+                              //   }).toList(),
+                              // ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Expanded(
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [])),
+                        const SizedBox(width: 20),
+                        const Expanded(
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [])),
+                        const SizedBox(width: 20),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                               Wrap(
                                 spacing: 8.0,
                                 runSpacing: 8.0,
@@ -1194,6 +1218,10 @@ class _AddProductState extends State<AddProduct> {
                                       });
                                     }
                                   }
+                                  setState(() {
+                                    imgsTemporales =
+                                        imgsTemporales.reversed.toList();
+                                  });
                                 },
                                 child: const Row(
                                   children: [
@@ -1369,8 +1397,8 @@ class _AddProductState extends State<AddProduct> {
                                       }
 
                                       if (selectedType == "SIMPLE") {
-                                        variablesTypes = [];
-                                        variablesList = [];
+                                        optionsTypes = [];
+                                        variantsList = [];
                                       } else {
                                         isVariable = 1;
                                         if (selectedColores.isNotEmpty) {
@@ -1380,7 +1408,7 @@ class _AddProductState extends State<AddProduct> {
                                             "name": "color",
                                             "values": uniqueColores.toList()
                                           };
-                                          variablesTypes.add(colores);
+                                          optionsTypes.add(colores);
                                         }
 
                                         if (selectedSizes.isNotEmpty) {
@@ -1390,7 +1418,7 @@ class _AddProductState extends State<AddProduct> {
                                             "name": "size",
                                             "values": uniqueSizes.toList()
                                           };
-                                          variablesTypes.add(tallas);
+                                          optionsTypes.add(tallas);
                                         }
 
                                         if (selectedDimensions.isNotEmpty) {
@@ -1400,7 +1428,7 @@ class _AddProductState extends State<AddProduct> {
                                             "name": "dimension",
                                             "values": uniqueDimensions.toList()
                                           };
-                                          variablesTypes.add(dimensions);
+                                          optionsTypes.add(dimensions);
                                         }
                                       }
 
@@ -1411,13 +1439,14 @@ class _AddProductState extends State<AddProduct> {
                                         "guide_name": _nameGuideController.text,
                                         "price_suggested":
                                             _priceSuggestedController.text,
-                                        "sku": _skuController.text,
+                                        "sku":
+                                            _skuController.text.toUpperCase(),
                                         "categories": selectedCategories,
                                         "description":
                                             _descriptionController.text,
                                         "type": selectedType,
-                                        "variants": variablesList,
-                                        "options": variablesTypes
+                                        "variants": variantsList,
+                                        "options": optionsTypes
                                       };
 
                                       // print("featuresToSend: $featuresToSend");
@@ -1486,7 +1515,7 @@ class _AddProductState extends State<AddProduct> {
     for (var imagen in imgsTemporales) {
       await _saveImage(imagen);
     }
-    print("final urlsImgs: $urlsImgsList");
+    // print("final urlsImgs: $urlsImgsList");
     return urlsImgsList;
   }
 
@@ -1494,8 +1523,6 @@ class _AddProductState extends State<AddProduct> {
     try {
       if (imagen != null && imagen.path.isNotEmpty) {
         var responseI = await Connections().postDoc(imagen);
-        // print("ImgSaveStrapi: $responseI");
-
         var imgUrl = responseI[1];
         urlsImgsList.add(imgUrl!);
       } else {
@@ -1509,12 +1536,6 @@ class _AddProductState extends State<AddProduct> {
   getValue(value) {
     _descriptionController.text = value;
     return value;
-  }
-
-  showVariants(variantsList) {
-    String variantText =
-        variantsList.map((variant) => variant.values.join(';  ')).join('\n');
-    _showVariantsController.text = variantText;
   }
 
   calcuateStockTotal(String valor) {
