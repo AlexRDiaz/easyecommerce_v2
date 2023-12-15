@@ -6833,4 +6833,23 @@ class Connections {
       return 2;
     }
   }
+
+  updateProductVariantStock(skuProduct, quantity) async {
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/products/updatestock"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"sku_product": skuProduct, "quantity": quantity}));
+
+      if (response.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+
 }
