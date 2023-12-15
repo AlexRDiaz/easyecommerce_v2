@@ -1682,16 +1682,18 @@ class _TransportDeliveryHistorialState
             style: TextStyle(
               color: rowColor,
             ),
-          ),
-          onTap: () {}),
+          ), onTap: () {
+        showDialogInfoData(data[index]);
+      }),
       DataCell(
           Text(
             data[index]['precio_total'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
-          ),
-          onTap: () {}),
+          ), onTap: () {
+        showDialogInfoData(data[index]);
+      }),
       DataCell(
           Text(
             data[index]['observacion'].toString(),
@@ -1707,24 +1709,27 @@ class _TransportDeliveryHistorialState
             style: TextStyle(
               color: rowColor,
             ),
-          ),
-          onTap: () {}),
+          ), onTap: () {
+        showDialogInfoData(data[index]);
+      }),
       DataCell(
           Text(
             data[index]['status'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
-          ),
-          onTap: () {}),
+          ), onTap: () {
+        showDialogInfoData(data[index]);
+      }),
       DataCell(
           Text(
             data[index]['tipo_pago'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
-          ),
-          onTap: () {}),
+          ), onTap: () {
+        showDialogInfoData(data[index]);
+      }),
       DataCell(
           Text(
             data[index]['ruta'] != null &&
@@ -1734,8 +1739,9 @@ class _TransportDeliveryHistorialState
             style: TextStyle(
               color: rowColor,
             ),
-          ),
-          onTap: () {}),
+          ), onTap: () {
+        showDialogInfoData(data[index]);
+      }),
       DataCell(
           Text(
             data[index]['transportadora'] != null &&
@@ -1745,8 +1751,9 @@ class _TransportDeliveryHistorialState
             style: TextStyle(
               color: rowColor,
             ),
-          ),
-          onTap: () {}),
+          ), onTap: () {
+        showDialogInfoData(data[index]);
+      }),
       DataCell(
           Text(
             data[index]['sub_ruta'] != null &&
@@ -1756,8 +1763,9 @@ class _TransportDeliveryHistorialState
             style: TextStyle(
               color: rowColor,
             ),
-          ),
-          onTap: () {}),
+          ), onTap: () {
+        showDialogInfoData(data[index]);
+      }),
       DataCell(
           Text(
             data[index]['operadore'] != null &&
@@ -1776,8 +1784,9 @@ class _TransportDeliveryHistorialState
             style: TextStyle(
               color: rowColor,
             ),
-          ),
-          onTap: () {}),
+          ), onTap: () {
+        showDialogInfoData(data[index]);
+      }),
       DataCell(
           Text(
             // data[index]['tienda_temporal'].toString(),
@@ -1787,24 +1796,27 @@ class _TransportDeliveryHistorialState
             style: TextStyle(
               color: rowColor,
             ),
-          ),
-          onTap: () {}),
+          ), onTap: () {
+        showDialogInfoData(data[index]);
+      }),
       DataCell(
           Text(
             data[index]['estado_interno'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
-          ),
-          onTap: () {}),
+          ), onTap: () {
+        showDialogInfoData(data[index]);
+      }),
       DataCell(
           Text(
             data[index]['estado_logistico'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
-          ),
-          onTap: () {}),
+          ), onTap: () {
+        showDialogInfoData(data[index]);
+      }),
       DataCell(
           Text(
             data[index]['costo_transportadora'] == null
@@ -1838,20 +1850,23 @@ class _TransportDeliveryHistorialState
             style: TextStyle(
               color: rowColor,
             ),
-          ),
-          onTap: () {}),
+          ), onTap: () {
+        showDialogInfoData(data[index]);
+      }),
       DataCell(
           Text(data[index]['costo_envio'] != null
               ? data[index]['costo_envio'].toString()
-              : ""),
-          onTap: () {}),
+              : ""), onTap: () {
+        showDialogInfoData(data[index]);
+      }),
       DataCell(
           Text(data[index]['users'] != null &&
                   data[index]['users'].toString() != "[]"
               ? data[index]['users'][0]['vendedores'][0]['costo_envio']
                   .toString()
-              : ""),
-          onTap: () {}),
+              : ""), onTap: () {
+        showDialogInfoData(data[index]);
+      }),
       DataCell(
           Text(data[index]['costo_devolucion'] != null
               ? data[index]['costo_devolucion'].toString()
@@ -1881,8 +1896,9 @@ class _TransportDeliveryHistorialState
             style: TextStyle(
               color: rowColor,
             ),
-          ),
-          onTap: () {}),
+          ), onTap: () {
+        showDialogInfoData(data[index]);
+      }),
       DataCell(
           Text(
             data[index]['estado_pago_logistica'].toString(),
