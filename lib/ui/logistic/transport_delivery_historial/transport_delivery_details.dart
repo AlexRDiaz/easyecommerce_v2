@@ -9,7 +9,6 @@ import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/routes.dart';
 import 'package:frontend/ui/widgets/routes/sub_routes.dart';
 import 'package:frontend/ui/widgets/routes/sub_routes_historial.dart';
-import 'package:frontend/ui/widgets/update_status_operator/update_status_operator.dart';
 import 'package:frontend/ui/widgets/update_status_operator/update_status_operator_historial.dart';
 import 'package:get/route_manager.dart';
 import 'package:frontend/helpers/server.dart';

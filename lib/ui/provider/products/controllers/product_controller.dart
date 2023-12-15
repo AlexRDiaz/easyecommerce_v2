@@ -84,17 +84,18 @@ class ProductController extends ControllerMVC {
     };
   }
 
-  Future<void> loadProductsCatalog(
-      populate, pageSize, currentPage, or, and, outFilter, sort, search) async {
+  Future<void> loadProductsCatalog(populate, pageSize, currentPage, or, and,
+      outFilter, sort, search, filterps) async {
     try {
-      var response = await Connections().getProductsCatalog(
-          populate, pageSize, currentPage, or, and, outFilter, sort, search);
+      var response = await Connections().getProductsCatalog(populate, pageSize,
+          currentPage, or, and, outFilter, sort, search, filterps);
       if (response == 1) {
         print('Error: Status Code 1');
       } else if (response == 2) {
         print('Error: Status Code 2');
       } else {
         List<dynamic> jsonData = response['data'];
+        // print(jsonData);
 
         var total = response['total'];
         var lastPage = response['last_page'];

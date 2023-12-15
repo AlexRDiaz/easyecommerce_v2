@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:frontend/models/product_model.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:frontend/models/warehouses_model.dart';
@@ -1373,31 +1374,6 @@ class Connections {
                 "sort": sortField,
                 "page_number": currentPage,
                 "search": search
-                // "start": "1/11/2023",
-                // "end": "15/11/2023",
-                // "or": [
-                //   "maraca_t_i",
-                //   "numero_orden",
-                //   "ciudad_shipping",
-                //   "nombre_shipping",
-                //   "observacion",
-                //   "comentario",
-                //   "status",
-                //   "estado_devolucion",
-                //   "estado_logistico",
-                //   "estado_interno",
-                //   "fecha_entrega",
-                //   "fecha_confirmacion",
-                //   "marca_tiempo_envio"
-                // ],
-                // "and": [
-                //   {"/estado_interno": "CONFIRMADO"},
-                //   {"/estado_logistico": "ENVIADO"}
-                // ],
-                // "not": [],
-                // "sort": "marca_t_i:DESC",
-                // "page_number": 1,
-                // "search": ""
               }));
       // print(and);
       // var response = await request.body;
@@ -1451,40 +1427,12 @@ class Connections {
             "page_size": sizePage,
             "page_number": currentPage,
             "search": search,
-            // "start": "1/10/2023",
-            // "end": "1/10/2023",
-            // "or": [
-            //   "maraca_t_i",
-            //   "numero_orden",
-            //   "ciudad_shipping",
-            //   "nombre_shipping",
-            //   "observacion",
-            //   "comentario",
-            //   "status",
-            //   "estado_devolucion",
-            //   "estado_logistico",
-            //   "estado_interno",
-            //   "fecha_entrega",
-            //   "fecha_confirmacion",
-            //   "marca_tiempo_envio"
-            // ],
-            // "and": [
-            //   {"/estado_interno": "CONFIRMADO"},
-            //   {"/estado_logistico": "ENVIADO"}
-            // ],
-            // "not": [],
-            // "sort": "marca_t_i:DESC",
-            // "page_size": 100000,
-            // "page_number": 1,
-            // "search": ""
           }));
-      // print(and);
-      // var response = await request.body;
+
       var decodeData = json.decode(request.body);
       if (request.statusCode != 200) {
         res = 1;
       }
-      // print(decodeData);
       return decodeData;
     } catch (e) {
       print('Error en la solicitud: $e');
@@ -2315,206 +2263,206 @@ class Connections {
     }
   }
 
-  Future updateOrderStatusOperatorEntregado(
-      status, tipoDePago, comentario, archivo) async {
-    String id = Get.parameters['id'].toString();
-    var request = await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          "data": {
-            "Status": status,
-            "Comentario": comentario,
-            "TipoPago": tipoDePago,
-            "Archivo": archivo,
-            "Fecha_Entrega":
-                "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
-          }
-        }));
-    var response = await request.body;
-    var decodeData = json.decode(response);
-    if (request.statusCode != 200) {
-      return false;
-    } else {
-      return true;
-    }
-  }
+  // Future updateOrderStatusOperatorEntregado(
+  //     status, tipoDePago, comentario, archivo) async {
+  //   String id = Get.parameters['id'].toString();
+  //   var request = await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: json.encode({
+  //         "data": {
+  //           "Status": status,
+  //           "Comentario": comentario,
+  //           "TipoPago": tipoDePago,
+  //           "Archivo": archivo,
+  //           "Fecha_Entrega":
+  //               "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
+  //         }
+  //       }));
+  //   var response = await request.body;
+  //   var decodeData = json.decode(response);
+  //   if (request.statusCode != 200) {
+  //     return false;
+  //   } else {
+  //     return true;
+  //   }
+  // }
 
-  Future updateOrderStatusOperatorEntregadoHistorial(
-      status, tipoDePago, comentario, archivo, id) async {
-    var request = await http.put(
-        Uri.parse(
-            "$server/api/pedidos-shopifies/$id?populate=users.vendedores&populate=transportadora"),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          "data": {
-            "Status": status,
-            "Comentario": comentario,
-            "TipoPago": tipoDePago,
-            "Archivo": archivo,
-            "Fecha_Entrega":
-                "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
-          }
-        }));
-    var response = await request.body;
-    var decodeData = json.decode(response);
-    if (request.statusCode != 200) {
-      return false;
-    } else {
-      return decodeData;
-    }
-  }
+  // Future updateOrderStatusOperatorEntregadoHistorial(
+  //     status, tipoDePago, comentario, archivo, id) async {
+  //   var request = await http.put(
+  //       Uri.parse(
+  //           "$server/api/pedidos-shopifies/$id?populate=users.vendedores&populate=transportadora"),
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: json.encode({
+  //         "data": {
+  //           "Status": status,
+  //           "Comentario": comentario,
+  //           "TipoPago": tipoDePago,
+  //           "Archivo": archivo,
+  //           "Fecha_Entrega":
+  //               "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
+  //         }
+  //       }));
+  //   var response = await request.body;
+  //   var decodeData = json.decode(response);
+  //   if (request.statusCode != 200) {
+  //     return false;
+  //   } else {
+  //     return decodeData;
+  //   }
+  // }
 
-  Future updateDateDeliveryAndState(id, fecha_entrega, status) async {
-    var request = await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          "data": {"Fecha_Entrega": fecha_entrega, "Status": status}
-        }));
-    var response = await request.body;
-    var decodeData = json.decode(response);
-    if (request.statusCode != 200) {
-      return false;
-    } else {
-      return true;
-    }
-  }
+  // Future updateDateDeliveryAndState(id, fecha_entrega, status) async {
+  //   var request = await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: json.encode({
+  //         "data": {"Fecha_Entrega": fecha_entrega, "Status": status}
+  //       }));
+  //   var response = await request.body;
+  //   var decodeData = json.decode(response);
+  //   if (request.statusCode != 200) {
+  //     return false;
+  //   } else {
+  //     return true;
+  //   }
+  // }
 
-  Future updateOrderStatusOperatorNoEntregado(
-      status, comentario, archivo) async {
-    String id = Get.parameters['id'].toString();
-    var request = await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          "data": {
-            "Status": status,
-            "Comentario": comentario,
-            "Archivo": archivo,
-            "Fecha_Entrega":
-                "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
-          }
-        }));
-    var response = await request.body;
-    var decodeData = json.decode(response);
-    if (request.statusCode != 200) {
-      return false;
-    } else {
-      return true;
-    }
-  }
+  // Future updateOrderStatusOperatorNoEntregado(
+  //     status, comentario, archivo) async {
+  //   String id = Get.parameters['id'].toString();
+  //   var request = await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: json.encode({
+  //         "data": {
+  //           "Status": status,
+  //           "Comentario": comentario,
+  //           "Archivo": archivo,
+  //           "Fecha_Entrega":
+  //               "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
+  //         }
+  //       }));
+  //   var response = await request.body;
+  //   var decodeData = json.decode(response);
+  //   if (request.statusCode != 200) {
+  //     return false;
+  //   } else {
+  //     return true;
+  //   }
+  // }
 
-  Future updateOrderStatusOperatorNoEntregadoHistorial(
-      // ?populate=users.vendedores&populate=transportadora
-      status,
-      comentario,
-      archivo,
-      id) async {
-    var request = await http.put(
-        Uri.parse(
-            "$server/api/pedidos-shopifies/$id?populate=users.vendedores&populate=transportadora"),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          "data": {
-            "Status": status,
-            "Comentario": comentario,
-            "Archivo": archivo,
-            "Fecha_Entrega":
-                "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
-          }
-        }));
-    var response = await request.body;
-    print("noentregado -> $response");
-    var decodeData = json.decode(response);
-    if (request.statusCode != 200) {
-      return false;
-    } else {
-      return true;
-    }
-  }
+  // Future updateOrderStatusOperatorNoEntregadoHistorial(
+  //     // ?populate=users.vendedores&populate=transportadora
+  //     status,
+  //     comentario,
+  //     archivo,
+  //     id) async {
+  //   var request = await http.put(
+  //       Uri.parse(
+  //           "$server/api/pedidos-shopifies/$id?populate=users.vendedores&populate=transportadora"),
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: json.encode({
+  //         "data": {
+  //           "Status": status,
+  //           "Comentario": comentario,
+  //           "Archivo": archivo,
+  //           "Fecha_Entrega":
+  //               "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
+  //         }
+  //       }));
+  //   var response = await request.body;
+  //   print("noentregado -> $response");
+  //   var decodeData = json.decode(response);
+  //   if (request.statusCode != 200) {
+  //     return false;
+  //   } else {
+  //     return true;
+  //   }
+  // }
 
-  Future updateOrderStatusOperatorGeneral(status, comentario) async {
-    String id = Get.parameters['id'].toString();
-    var request = await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          "data": {
-            "Status": status,
-            "Comentario": comentario,
-            "Archivo": "",
-            "Fecha_Entrega":
-                "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
-          }
-        }));
-    var response = await request.body;
-    var decodeData = json.decode(response);
-    if (request.statusCode != 200) {
-      return false;
-    } else {
-      return true;
-    }
-  }
+  // Future updateOrderStatusOperatorGeneral(status, comentario) async {
+  //   String id = Get.parameters['id'].toString();
+  //   var request = await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: json.encode({
+  //         "data": {
+  //           "Status": status,
+  //           "Comentario": comentario,
+  //           "Archivo": "",
+  //           "Fecha_Entrega":
+  //               "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
+  //         }
+  //       }));
+  //   var response = await request.body;
+  //   var decodeData = json.decode(response);
+  //   if (request.statusCode != 200) {
+  //     return false;
+  //   } else {
+  //     return true;
+  //   }
+  // }
 
-  Future updateOrderStatusOperatorGeneralHistorial(
-      // ?populate=users.vendedores&populate=transportadora
-      status,
-      comentario,
-      id) async {
-    var request = await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          "data": {"Status": status, "Comentario": comentario, "Archivo": ""}
-        }));
-    var response = await request.body;
-    var decodeData = json.decode(response);
-    if (request.statusCode != 200) {
-      return false;
-    } else {
-      return true;
-    }
-  }
+  // Future updateOrderStatusOperatorGeneralHistorial(
+  //     // ?populate=users.vendedores&populate=transportadora
+  //     status,
+  //     comentario,
+  //     id) async {
+  //   var request = await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: json.encode({
+  //         "data": {"Status": status, "Comentario": comentario, "Archivo": ""}
+  //       }));
+  //   var response = await request.body;
+  //   var decodeData = json.decode(response);
+  //   if (request.statusCode != 200) {
+  //     return false;
+  //   } else {
+  //     return true;
+  //   }
+  // }
 
-  Future updateOrderStatusOperatorGeneralHistorialAndDate(
-      status, comentario, id) async {
-    var request = await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          "data": {
-            "Status": status,
-            "Comentario": comentario,
-            "Archivo": "",
-            "Fecha_Entrega":
-                "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
-          }
-        }));
-    var response = await request.body;
-    var decodeData = json.decode(response);
-    if (request.statusCode != 200) {
-      return false;
-    } else {
-      return true;
-    }
-  }
+  // Future updateOrderStatusOperatorGeneralHistorialAndDate(
+  //     status, comentario, id) async {
+  //   var request = await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: json.encode({
+  //         "data": {
+  //           "Status": status,
+  //           "Comentario": comentario,
+  //           "Archivo": "",
+  //           "Fecha_Entrega":
+  //               "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
+  //         }
+  //       }));
+  //   var response = await request.body;
+  //   var decodeData = json.decode(response);
+  //   if (request.statusCode != 200) {
+  //     return false;
+  //   } else {
+  //     return true;
+  //   }
+  // }
 
-  Future updateOrderStatusOperatorPedidoProgramado(
-      status, comentario, date) async {
-    String id = Get.parameters['id'].toString();
-    var request = await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          "data": {
-            "Status": status,
-            "Comentario": comentario,
-            "Archivo": "",
-            "Fecha_Entrega": date
-          }
-        }));
-    var response = await request.body;
-    var decodeData = json.decode(response);
-    if (request.statusCode != 200) {
-      return false;
-    } else {
-      return true;
-    }
-  }
+  // Future updateOrderStatusOperatorPedidoProgramado(
+  //     status, comentario, date) async {
+  //   String id = Get.parameters['id'].toString();
+  //   var request = await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: json.encode({
+  //         "data": {
+  //           "Status": status,
+  //           "Comentario": comentario,
+  //           "Archivo": "",
+  //           "Fecha_Entrega": date
+  //         }
+  //       }));
+  //   var response = await request.body;
+  //   var decodeData = json.decode(response);
+  //   if (request.statusCode != 200) {
+  //     return false;
+  //   } else {
+  //     return true;
+  //   }
+  // }
 
   Future updateOrderFechaEntrega(id, date) async {
     //  String id = Get.parameters['id'].toString();
@@ -2533,26 +2481,26 @@ class Connections {
     }
   }
 
-  Future updateOrderStatusOperatorPedidoProgramadoHistorial(
-      status, comentario, date, id) async {
-    var request = await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          "data": {
-            "Status": status,
-            "Comentario": comentario,
-            "Archivo": "",
-            "Fecha_Entrega": date
-          }
-        }));
-    var response = await request.body;
-    var decodeData = json.decode(response);
-    if (request.statusCode != 200) {
-      return false;
-    } else {
-      return true;
-    }
-  }
+  // Future updateOrderStatusOperatorPedidoProgramadoHistorial(
+  //     status, comentario, date, id) async {
+  //   var request = await http.put(Uri.parse("$server/api/pedidos-shopifies/$id"),
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: json.encode({
+  //         "data": {
+  //           "Status": status,
+  //           "Comentario": comentario,
+  //           "Archivo": "",
+  //           "Fecha_Entrega": date
+  //         }
+  //       }));
+  //   var response = await request.body;
+  //   var decodeData = json.decode(response);
+  //   if (request.statusCode != 200) {
+  //     return false;
+  //   } else {
+  //     return true;
+  //   }
+  // }
 
   Future updateOrderRouteAndTransport(route, transport, id) async {
     try {
@@ -5825,19 +5773,17 @@ class Connections {
     }
   }
 
-//  *
+  //  *
   getProductsCatalog(populate, page_size, current_page, or, and, outFilter,
-      sort, search) async {
-    print(json.encode({
-      "populate": populate,
-      "page_size": page_size,
-      "page_number": current_page,
-      "or": or,
-      "and": and,
-      "out_filters": outFilter,
-      "sort": sort,
-      "search": search
-    }));
+      filterps, sort, search) async {
+    // print(json.encode({
+    //   "populate": populate,
+    //   "or": or,
+    //   "and": and,
+    //   "out_filters": outFilter,
+    //   "filterps": filterps,
+    //   "search": search
+    // }));
     try {
       var response =
           await http.post(Uri.parse("$serverLaravel/api/products/all"),
@@ -5849,6 +5795,7 @@ class Connections {
                 "or": or,
                 "and": and,
                 "out_filters": outFilter,
+                "filterps": filterps,
                 "sort": sort,
                 "search": search
               }));
@@ -5863,6 +5810,7 @@ class Connections {
     }
   }
 
+  //  *
   getProductsByProvider(idProvider, populate, page_size, current_page, or, and,
       sort, search) async {
     // print(json.encode({
@@ -5927,7 +5875,6 @@ class Connections {
       var response = await http.put(
           Uri.parse("$serverLaravel/api/products/${product.productId}"),
           headers: {'Content-Type': 'application/json'},
-          // body: json.encode(datajson));
           body: json.encode({
             "product_name": product.productName,
             "stock": product.stock,
@@ -5937,29 +5884,6 @@ class Connections {
             "features": json.encode(product.features),
             "warehouse_id": product.warehouseId
           }));
-
-      if (response.statusCode == 200) {
-        var decodeData = json.decode(response.body);
-        return decodeData;
-      } else if (response.statusCode == 400) {
-        print("Error 400: Bad Request");
-      } else {
-        print("Error ${response.statusCode}: ${response.reasonPhrase}");
-      }
-    } catch (e) {
-      res = 3;
-      return res;
-    }
-  }
-
-  Future updateProduct0(id, datajson) async {
-    int res;
-    // print(json.encode(datajson));
-    try {
-      var response = await http.put(
-          Uri.parse("$serverLaravel/api/products/$id"),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode(datajson));
 
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -5994,6 +5918,71 @@ class Connections {
     } catch (e) {
       res = 3;
       return res;
+    }
+  }
+
+  //  *
+  Future createProductSeller(int idProduct, int idMaster, String key) async {
+    int res;
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/productseller"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(
+              {"product_id": idProduct, "id_master": idMaster, "key": key}));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+        // return [true, decodeData];
+      } else {
+        return 1;
+      }
+    } catch (e) {
+      print(e);
+      return 2;
+    }
+  }
+
+  //  *
+  Future getProductSeller(int idProduct, int idMaster) async {
+    print(json.encode({"product_id": idProduct, "id_master": idMaster}));
+    int res;
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/productseller/get"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"product_id": idProduct, "id_master": idMaster}));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+        // return [true, decodeData];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+//*
+  Future updateProductSeller(id, datajson) async {
+    int res;
+    try {
+      var response = await http.put(
+          Uri.parse("$serverLaravel/api/productseller/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(datajson));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return 0;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
     }
   }
 
@@ -6459,7 +6448,8 @@ class Connections {
                 "provider_name": provider.name,
                 "provider_phone": provider.phone,
                 "password": '123456789',
-                "description": provider.description
+                "description": provider.description,
+                "permisos": provider.user!.permisos,
                 //"username": "Alex Diaz",
                 // "email": "radiaza2weww02eec3@hotmail.com",
                 // "provider_name": "Nombre proveedor test",
@@ -6886,4 +6876,23 @@ class Connections {
       return 2;
     }
   }
+
+  updateProductVariantStock(skuProduct, quantity) async {
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/products/updatestock"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"sku_product": skuProduct, "quantity": quantity}));
+
+      if (response.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+
 }

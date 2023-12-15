@@ -14,6 +14,8 @@ class RoutesModalv2 extends StatefulWidget {
   final String phoneClient;
   final String codigo;
   final String origin;
+  final String? skuProduct;
+  final String? quantity;
 
   const RoutesModalv2(
       {super.key,
@@ -21,7 +23,9 @@ class RoutesModalv2 extends StatefulWidget {
       required this.someOrders,
       required this.phoneClient,
       required this.codigo,
-      required this.origin});
+      required this.origin,
+      this.skuProduct,
+      this.quantity});
 
   @override
   State<RoutesModalv2> createState() => _RoutesModalStatev2();
@@ -279,6 +283,19 @@ class _RoutesModalStatev2 extends State<RoutesModalv2> {
                       if (widget.phoneClient != "") {
                         sendMessage(widget.phoneClient, widget.codigo);
                       }
+
+                      if (widget.origin == "order_entry") {
+                        var responsereduceStock = await Connections()
+                            .updateProductVariantStock(
+                                widget.skuProduct, widget.quantity);
+
+                        if (responsereduceStock == 0) {
+                          print(true);
+                        } else {
+                          print(false);
+                        }
+                      }
+
                       setState(() {});
                       Navigator.pop(context);
                     },

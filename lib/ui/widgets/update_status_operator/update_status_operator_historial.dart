@@ -929,18 +929,6 @@ class _UpdateStatusOperatorHistorialState
                   ? () async {
                       getLoadingModal(context, false);
                       List date = dateSelect.split('-');
-                      // await Connections()
-                      //     .updateOrderStatusOperatorPedidoProgramadoHistorial(
-                      //         "REAGENDADO",
-                      //         _controllerModalText.text,
-                      //         int.parse(date[2]).toString() +
-                      //             "/" +
-                      //             int.parse(date[1]).toString() +
-                      //             "/" +
-                      //             date[0].toString(),
-                      //         widget.id);
-
-                      //upt for the above and status_last_modified_by and by
                       await Connections().updateOrderWithTime(
                           widget.id.toString(),
                           "status:REAGENDADO",

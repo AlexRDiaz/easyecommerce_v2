@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/config/colors.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:frontend/ui/logistic/add_provider/add_provider.dart';
 import 'package:frontend/ui/logistic/add_provider/controllers/provider_controller.dart';
@@ -52,6 +53,9 @@ class _ProviderViewState extends State<ProviderView> {
           //   //_futureProviderData = _loadProviders(); // Actualiza el Future
         });
       }
+      setState(() {
+        _getProviderModelData();
+      });
     });
   }
 
@@ -80,11 +84,14 @@ class _ProviderViewState extends State<ProviderView> {
                 },
               ),
             ),
+            const SizedBox(height: 10),
             TextButton(
-                onPressed: () {
-                  openDialog(context);
-                },
-                child: Text("Nuevo")),
+              onPressed: () {
+                openDialog(context);
+              },
+              child: const Text("Nuevo"),
+            ),
+            const SizedBox(height: 10),
             FutureBuilder<List<ProviderModel>>(
               future: _getProviderModelData(),
               builder: (context, snapshot) {
@@ -113,7 +120,7 @@ class _ProviderViewState extends State<ProviderView> {
                             autoFitPadding: EdgeInsets.all(30.0),
                             columnName: 'nombre',
                             label: FilterIcon(
-                              name: "nombre",
+                              name: "Nombre",
                               onFilterPressed: () {
                                 // Lógica para aplicar el filtro
                               },
@@ -122,7 +129,7 @@ class _ProviderViewState extends State<ProviderView> {
                             autoFitPadding: EdgeInsets.all(30.0),
                             columnName: 'username',
                             label: FilterIcon(
-                              name: "PROPIETARIO",
+                              name: "Propietario",
                               onFilterPressed: () {
                                 // Lógica para aplicar el filtro
                               },
@@ -131,7 +138,7 @@ class _ProviderViewState extends State<ProviderView> {
                             autoFitPadding: EdgeInsets.all(30.0),
                             columnName: 'email',
                             label: FilterIcon(
-                              name: "EMAIL",
+                              name: "Email",
                               onFilterPressed: () {
                                 // Lógica para aplicar el filtro
                               },
@@ -140,7 +147,7 @@ class _ProviderViewState extends State<ProviderView> {
                             autoFitPadding: EdgeInsets.all(30.0),
                             columnName: 'description',
                             label: FilterIcon(
-                              name: "descripción",
+                              name: "Descripción",
                               onFilterPressed: () {
                                 // Lógica para aplicar el filtro
                               },
@@ -175,20 +182,124 @@ class _ProviderViewState extends State<ProviderView> {
   }
 
   void _showDialog(selectedRow) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+    double iconSize = screenWidth > 600 ? 20 : 15;
+
+    double textSize = screenWidth > 600 ? 16 : 12;
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Información de la fila seleccionada'),
-          content: Column(
-            children: [
-              Container(child: Text(selectedRow.name.toString())),
-              Container(child: Text(selectedRow.phone.toString())),
-              Container(child: Text(selectedRow.description.toString())),
-              Container(child: Text(selectedRow.user!.username.toString())),
-              Container(child: Text(selectedRow.user!.email.toString())),
-              Container(child: Text(selectedRow.user!.username.toString())),
-            ],
+          title: Text('Información del proveedor'),
+          content: Container(
+            width: screenWidth * 0.30,
+            height: screenHeight * 0.50,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.account_circle,
+                      color: ColorsSystem().colorSelectMenu,
+                      size: iconSize,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      'Nombre Proveedor:',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: textSize,
+                        fontFamily: 'Arial',
+                      ),
+                    ),
+                  ],
+                ),
+                Container(child: Text(selectedRow.name.toString())),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.phone,
+                      color: ColorsSystem().colorSelectMenu,
+                      size: iconSize,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      'Teléfono:',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: textSize,
+                        fontFamily: 'Arial',
+                      ),
+                    ),
+                  ],
+                ),
+                Container(child: Text(selectedRow.phone.toString())),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.account_circle,
+                      color: ColorsSystem().colorSelectMenu,
+                      size: iconSize,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      'Nombre de usuario:',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: textSize,
+                        fontFamily: 'Arial',
+                      ),
+                    ),
+                  ],
+                ),
+                Container(child: Text(selectedRow.user!.username.toString())),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.email,
+                      color: ColorsSystem().colorSelectMenu,
+                      size: iconSize,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      'Email:',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: textSize,
+                        fontFamily: 'Arial',
+                      ),
+                    ),
+                  ],
+                ),
+                Container(child: Text(selectedRow.user!.email.toString())),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.notes,
+                      color: ColorsSystem().colorSelectMenu,
+                      size: iconSize,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      'Descripcion:',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: textSize,
+                        fontFamily: 'Arial',
+                      ),
+                    ),
+                  ],
+                ),
+                Container(child: Text(selectedRow.description.toString())),
+                // Container(child: Text(selectedRow.user!.username.toString())),
+              ],
+            ),
           ),
         );
       },
