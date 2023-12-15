@@ -6,7 +6,6 @@ import 'package:frontend/helpers/navigators.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/ui/operator/orders_operator/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/loading.dart';
-import 'package:frontend/ui/widgets/update_status_operator/update_status_operator.dart';
 import 'package:provider/provider.dart';
 
 class InfoTransportationBilling extends StatefulWidget {
@@ -148,35 +147,35 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
                         SizedBox(
-                              height: 20,
-                            ),
-                            Container(
-                              padding: EdgeInsets.all(10),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.shopping_bag_rounded, // Icono de usuario
-                                    color: ColorsSystem()
-                                        .colorSelectMenu, // Color del ícono
-                                    size: 24, // Tamaño del ícono
-                                  ),
-                                  SizedBox(
-                                      width:
-                                          10), // Espacio entre el icono y el texto
-                                  Text(
-                                    "DETALLES DEL PEDIDO",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                      color: ColorsSystem().colorSelectMenu,
-                                    ),
-                                  ),
-                                ],
+                          height: 20,
+                        ),
+                        Container(
+                          padding: EdgeInsets.all(10),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.shopping_bag_rounded, // Icono de usuario
+                                color: ColorsSystem()
+                                    .colorSelectMenu, // Color del ícono
+                                size: 24, // Tamaño del ícono
                               ),
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
+                              SizedBox(
+                                  width:
+                                      10), // Espacio entre el icono y el texto
+                              Text(
+                                "DETALLES DEL PEDIDO",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: ColorsSystem().colorSelectMenu,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
                         Text(
                           "  Cantidad: ${_controllers.cantidadEditController.text}",
                           style: TextStyle(
@@ -284,33 +283,33 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                           height: 20,
                         ),
                         SizedBox(
-                              height: 20,
-                            ),
-                            Container(
-                              padding: EdgeInsets.all(10),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.circle_notifications, // Icono de usuario
-                                    color: ColorsSystem()
-                                        .colorSelectMenu, // Color del ícono
-                                    size: 24, // Tamaño del ícono
-                                  ),
-                                  SizedBox(
-                                      width:
-                                          10), // Espacio entre el icono y el texto
-                                  Text(
-                                    "NOVEDADES: ",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                      color: ColorsSystem().colorSelectMenu,
-                                    ),
-                                  ),
-                                ],
+                          height: 20,
+                        ),
+                        Container(
+                          padding: EdgeInsets.all(10),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.circle_notifications, // Icono de usuario
+                                color: ColorsSystem()
+                                    .colorSelectMenu, // Color del ícono
+                                size: 24, // Tamaño del ícono
                               ),
-                            ),
-                            
+                              SizedBox(
+                                  width:
+                                      10), // Espacio entre el icono y el texto
+                              Text(
+                                "NOVEDADES: ",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: ColorsSystem().colorSelectMenu,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
                         Container(
                             height: 500,
                             width: 500,

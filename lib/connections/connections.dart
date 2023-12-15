@@ -1373,31 +1373,6 @@ class Connections {
                 "sort": sortField,
                 "page_number": currentPage,
                 "search": search
-                // "start": "1/11/2023",
-                // "end": "15/11/2023",
-                // "or": [
-                //   "maraca_t_i",
-                //   "numero_orden",
-                //   "ciudad_shipping",
-                //   "nombre_shipping",
-                //   "observacion",
-                //   "comentario",
-                //   "status",
-                //   "estado_devolucion",
-                //   "estado_logistico",
-                //   "estado_interno",
-                //   "fecha_entrega",
-                //   "fecha_confirmacion",
-                //   "marca_tiempo_envio"
-                // ],
-                // "and": [
-                //   {"/estado_interno": "CONFIRMADO"},
-                //   {"/estado_logistico": "ENVIADO"}
-                // ],
-                // "not": [],
-                // "sort": "marca_t_i:DESC",
-                // "page_number": 1,
-                // "search": ""
               }));
       // print(and);
       // var response = await request.body;
@@ -1451,40 +1426,12 @@ class Connections {
             "page_size": sizePage,
             "page_number": currentPage,
             "search": search,
-            // "start": "1/10/2023",
-            // "end": "1/10/2023",
-            // "or": [
-            //   "maraca_t_i",
-            //   "numero_orden",
-            //   "ciudad_shipping",
-            //   "nombre_shipping",
-            //   "observacion",
-            //   "comentario",
-            //   "status",
-            //   "estado_devolucion",
-            //   "estado_logistico",
-            //   "estado_interno",
-            //   "fecha_entrega",
-            //   "fecha_confirmacion",
-            //   "marca_tiempo_envio"
-            // ],
-            // "and": [
-            //   {"/estado_interno": "CONFIRMADO"},
-            //   {"/estado_logistico": "ENVIADO"}
-            // ],
-            // "not": [],
-            // "sort": "marca_t_i:DESC",
-            // "page_size": 100000,
-            // "page_number": 1,
-            // "search": ""
           }));
-      // print(and);
-      // var response = await request.body;
+
       var decodeData = json.decode(request.body);
       if (request.statusCode != 200) {
         res = 1;
       }
-      // print(decodeData);
       return decodeData;
     } catch (e) {
       print('Error en la solicitud: $e');
