@@ -19,6 +19,7 @@ import 'package:frontend/ui/provider/warehouses/controllers/warehouses_controlle
 import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/product/product_card.dart';
+import 'package:frontend/ui/widgets/product/show_img.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -1520,8 +1521,8 @@ class _CatalogState extends State<Catalog> {
       labelIsOnSale = "Dejar de vender";
     }
 
-    print("isFavorite: $isFavorite");
-    print("isOnSale: $isOnSale");
+    // print("isFavorite: $isFavorite");
+    // print("isOnSale: $isOnSale");
 
     showDialog(
       context: context,
@@ -1549,6 +1550,8 @@ class _CatalogState extends State<Catalog> {
                     children: [
                       Expanded(
                         flex: 6,
+                        child: ShowImages(urlsImgsList: urlsImgsList),
+                        /*
                         child: Row(
                           children: [
                             Column(
@@ -1573,7 +1576,7 @@ class _CatalogState extends State<Catalog> {
                                       ),
                                     ),
                                   ),
-                              ],
+                              ],     
                             ),
                             const SizedBox(width: 20),
                             SizedBox(
@@ -1590,6 +1593,7 @@ class _CatalogState extends State<Catalog> {
                             ),
                           ],
                         ),
+                        */
                       ),
                       // Expanded(
                       //   flex: 6,
@@ -1755,20 +1759,23 @@ class _CatalogState extends State<Catalog> {
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: Html(
-                                              data: description,
-                                              style: {
-                                                'p': Style(
-                                                    fontSize: FontSize(16),
-                                                    color: Colors.grey[800]),
-                                              },
-                                            ),
+                                      Html(
+                                        data: description,
+                                        style: {
+                                          'p': Style(
+                                            fontSize: FontSize(16),
+                                            color: Colors.grey[800],
+                                            margin: Margins.only(bottom: 0),
                                           ),
-                                        ],
+                                          'li': Style(
+                                            margin: Margins.only(bottom: 0),
+                                          ),
+                                          'ol': Style(
+                                            margin: Margins.only(bottom: 0),
+                                          ),
+                                        },
                                       ),
                                     ],
                                   ),

@@ -18,6 +18,7 @@ import 'package:frontend/ui/provider/products/product_edit.dart';
 import 'package:frontend/ui/provider/warehouses/controllers/warehouses_controller.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
+import 'package:frontend/ui/widgets/product/show_img.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -1067,6 +1068,9 @@ class _ProductsViewState extends State<ProductsView> {
                     children: [
                       Expanded(
                         flex: 6,
+                        child: ShowImages(urlsImgsList: urlsImgsList),
+
+                        /*
                         child: Row(
                           children: [
                             Column(
@@ -1098,6 +1102,7 @@ class _ProductsViewState extends State<ProductsView> {
                             ),
                           ],
                         ),
+                        */
                       ),
                       Expanded(
                         flex: 4,
@@ -1107,7 +1112,7 @@ class _ProductsViewState extends State<ProductsView> {
                             Row(
                               children: [
                                 SizedBox(
-                                  width: 150,
+                                  width: 100,
                                   child: Row(
                                     children: [
                                       const Text(

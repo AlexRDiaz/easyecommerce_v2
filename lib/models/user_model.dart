@@ -5,7 +5,7 @@ class UserModel {
   String? provider;
   bool? confirmed;
   bool? blocked;
-  String? permisos;
+  dynamic permisos;
 
   // Añade más propiedades según sea necesario
 
@@ -25,8 +25,7 @@ class UserModel {
         email = '',
         provider = '',
         confirmed = false,
-        blocked = false,
-        permisos = '';
+        blocked = false;
 
   // Método para crear un objeto UserModel desde un mapa
   factory UserModel.fromJson(Map<String, dynamic> json) {

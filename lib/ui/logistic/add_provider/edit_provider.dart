@@ -59,31 +59,16 @@ class _EditProviderState extends StateMVC<EditProvider> {
     _descriptionController.text = widget.provider.description!;
 
     super.initState();
-    loadData();
+    getAccess();
   }
 
-  loadData() async {
-    // data = response;
-    // accessTemp = response['PERMISOS'];
-    accessTemp = jsonDecode(widget.provider.user!.permisos!);
-    print("accessTemp: $accessTemp");
-
-    // idUser = response['id'].toString();
+  getAccess() async {
+    idUser = widget.provider.user!.id.toString();
     var resultAccessGeneralofRol = await Connections().getAccessofRolById(5);
-    print("resultAccessGeneralofRol");
-    print(resultAccessGeneralofRol);
-    print("************");
-
-    var accessGeneralofRol1 = await Connections().getAccessofRolById(5);
-    print(accessGeneralofRol1);
-    var getAccesofEspecificRol =
-        await Connections().getAccessofSpecificRol("PROVEEDOR");
-    print("getAccesofEspecificRol:");
-    print(getAccesofEspecificRol);
-
-    // data = response;
-    // print("data: $data");
-    // _controllers.updateControllersEdit(response);
+    setState(() {
+      accessTemp = jsonDecode(widget.provider.user!.permisos!);
+      accessGeneralofRol = resultAccessGeneralofRol;
+    });
   }
 
   @override
@@ -289,7 +274,7 @@ class _EditProviderState extends StateMVC<EditProvider> {
                         return CustomFilterChips(
                           accessTemp: accessTemp,
                           accessGeneralofRol: accessGeneralofRol,
-                          loadData: loadData,
+                          loadData: getAccess,
                           idUser: idUser.toString(),
                         );
                       },

@@ -47,12 +47,7 @@ class _EditSellersState extends State<EditSellers> {
   loadData() async {
     try {
       var response = await Connections().getSellerGeneralByID();
-      print(response);
       accessGeneralofRol = await Connections().getAccessofRolById(2);
-      print("************");
-
-      print(accessGeneralofRol);
-
       data = response;
       _controllers.updateControllersEdit(response);
 

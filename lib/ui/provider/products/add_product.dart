@@ -71,7 +71,6 @@ class _AddProductState extends State<AddProduct> {
 
   List optionsTypes = [];
   List variantsList = [];
-  final TextEditingController _showVariantsController = TextEditingController();
   int showStockTotal = 0;
 
   List<String> selectedVariablesList = [];
@@ -364,7 +363,6 @@ class _AddProductState extends State<AddProduct> {
                                       optionsTypes = [];
                                       variantsList = [];
                                       _stockController.clear();
-                                      _showVariantsController.clear();
                                       selectedVariablesList.clear();
                                       if (value != null) {
                                         selectedType = value;
@@ -384,34 +382,6 @@ class _AddProductState extends State<AddProduct> {
                           ),
                         ),
                         const SizedBox(width: 20),
-                        // Visibility(
-                        //   visible: selectedType == 'VARIABLE',
-                        //   child: Expanded(
-                        //     child: Column(
-                        //       crossAxisAlignment: CrossAxisAlignment.start,
-                        //       children: [
-                        //         const Text('Variables'),
-                        //         const SizedBox(height: 3),
-                        //         Visibility(
-                        //           visible: selectedType == 'VARIABLE',
-                        //           child: TextFormField(
-                        //             controller: _showVariantsController,
-                        //             maxLines: null,
-                        //             readOnly: true,
-                        //             decoration: InputDecoration(
-                        //               fillColor: Colors.white,
-                        //               filled: true,
-                        //               border: OutlineInputBorder(
-                        //                 borderRadius:
-                        //                     BorderRadius.circular(5.0),
-                        //               ),
-                        //             ),
-                        //           ),
-                        //         ),
-                        //       ],
-                        //     ),
-                        //   ),
-                        // ),
                         Visibility(
                           visible: selectedType == 'VARIABLE',
                           child: Expanded(
@@ -541,14 +511,14 @@ class _AddProductState extends State<AddProduct> {
                                                       .contains("Tamaños")) &&
                                                   selectedVariable ==
                                                       "Tallas")) {
-                                            print(
-                                                "No se puede realizar esta combinacion");
+                                            // print(
+                                            //     "No se puede realizar esta combinacion");
                                           } else {
                                             selectedVariable = value;
 
                                             selectedVariablesList.add(
                                                 selectedVariable.toString());
-                                            print(selectedVariablesList);
+                                            // print(selectedVariablesList);
                                           }
 
                                           _priceUnitController.text =
@@ -811,8 +781,8 @@ class _AddProductState extends State<AddProduct> {
                                           ];
                                           if (varianteExistente(
                                               variantsList, variant, claves)) {
-                                            print(
-                                                "Ya existe una variante con talla: $chosenSize y color: $chosenColor");
+                                            // print(
+                                            //     "Ya existe una variante con talla: $chosenSize y color: $chosenColor");
                                           } else {
                                             variantsList.add(variant);
                                             selectedSizes.add(chosenSize!);
@@ -844,8 +814,8 @@ class _AddProductState extends State<AddProduct> {
                                           ];
                                           if (varianteExistente(
                                               variantsList, variant, claves)) {
-                                            print(
-                                                "Ya existe una variante con tamaño: $chosenDimension y color: $chosenColor");
+                                            // print(
+                                            //     "Ya existe una variante con tamaño: $chosenDimension y color: $chosenColor");
                                           } else {
                                             variantsList.add(variant);
                                             selectedDimensions
@@ -872,8 +842,8 @@ class _AddProductState extends State<AddProduct> {
                                           List<String> claves = ["size"];
                                           if (varianteExistente(
                                               variantsList, variant, claves)) {
-                                            print(
-                                                "Ya existe una variante con talla: $chosenSize");
+                                            // print(
+                                            //     "Ya existe una variante con talla: $chosenSize");
                                           } else {
                                             variantsList.add(variant);
                                             selectedSizes.add(chosenSize!);
@@ -898,8 +868,8 @@ class _AddProductState extends State<AddProduct> {
                                           List<String> claves = ["color"];
                                           if (varianteExistente(
                                               variantsList, variant, claves)) {
-                                            print(
-                                                "Ya existe una variante con color: $chosenColor");
+                                            // print(
+                                            //     "Ya existe una variante con color: $chosenColor");
                                           } else {
                                             variantsList.add(variant);
                                             selectedColores.add(chosenColor!);
@@ -924,8 +894,8 @@ class _AddProductState extends State<AddProduct> {
                                           List<String> claves = ["dimension"];
                                           if (varianteExistente(
                                               variantsList, variant, claves)) {
-                                            print(
-                                                "Ya existe una variante con tamaño: $chosenDimension");
+                                            // print(
+                                            //     "Ya existe una variante con tamaño: $chosenDimension");
                                           } else {
                                             variantsList.add(variant);
                                             selectedDimensions
@@ -1545,7 +1515,7 @@ class _AddProductState extends State<AddProduct> {
     for (var imagen in imgsTemporales) {
       await _saveImage(imagen);
     }
-    print("final urlsImgs: $urlsImgsList");
+    // print("final urlsImgs: $urlsImgsList");
     return urlsImgsList;
   }
 
@@ -1553,8 +1523,6 @@ class _AddProductState extends State<AddProduct> {
     try {
       if (imagen != null && imagen.path.isNotEmpty) {
         var responseI = await Connections().postDoc(imagen);
-        // print("ImgSaveStrapi: $responseI");
-
         var imgUrl = responseI[1];
         urlsImgsList.add(imgUrl!);
       } else {
@@ -1568,12 +1536,6 @@ class _AddProductState extends State<AddProduct> {
   getValue(value) {
     _descriptionController.text = value;
     return value;
-  }
-
-  showVariants(variantsList) {
-    String variantText =
-        variantsList.map((variant) => variant.values.join(';  ')).join('\n');
-    _showVariantsController.text = variantText;
   }
 
   calcuateStockTotal(String valor) {

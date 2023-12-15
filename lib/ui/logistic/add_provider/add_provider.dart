@@ -238,6 +238,9 @@ class _AddProviderState extends StateMVC<AddProvider> {
 
           ElevatedButton(
             onPressed: () async {
+              var getAccesofEspecificRol =
+                  await Connections().getAccessofSpecificRol("PROVEEDOR");
+
               _controller.addProvider(ProviderModel(
                   name: _nameController.text,
                   phone: _phone1Controller.text,
@@ -245,6 +248,7 @@ class _AddProviderState extends StateMVC<AddProvider> {
                   user: UserModel(
                     username: _usernameController.text,
                     email: _emailController.text,
+                    permisos: getAccesofEspecificRol,
                   )));
 
               Navigator.pop(context);

@@ -5826,7 +5826,7 @@ class Connections {
     }
   }
 
-//  *
+  //  *
   getProductsCatalog(populate, page_size, current_page, or, and, outFilter,
       filterps, sort, search) async {
     // print(json.encode({
@@ -5863,6 +5863,7 @@ class Connections {
     }
   }
 
+  //  *
   getProductsByProvider(idProvider, populate, page_size, current_page, or, and,
       sort, search) async {
     // print(json.encode({
@@ -5936,29 +5937,6 @@ class Connections {
             "features": json.encode(product.features),
             "warehouse_id": product.warehouseId
           }));
-
-      if (response.statusCode == 200) {
-        var decodeData = json.decode(response.body);
-        return decodeData;
-      } else if (response.statusCode == 400) {
-        print("Error 400: Bad Request");
-      } else {
-        print("Error ${response.statusCode}: ${response.reasonPhrase}");
-      }
-    } catch (e) {
-      res = 3;
-      return res;
-    }
-  }
-
-  Future updateProduct0(id, datajson) async {
-    int res;
-    // print(json.encode(datajson));
-    try {
-      var response = await http.put(
-          Uri.parse("$serverLaravel/api/products/$id"),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode(datajson));
 
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -6523,7 +6501,8 @@ class Connections {
                 "provider_name": provider.name,
                 "provider_phone": provider.phone,
                 "password": '123456789',
-                "description": provider.description
+                "description": provider.description,
+                "permisos": provider.user!.permisos,
                 //"username": "Alex Diaz",
                 // "email": "radiaza2weww02eec3@hotmail.com",
                 // "provider_name": "Nombre proveedor test",

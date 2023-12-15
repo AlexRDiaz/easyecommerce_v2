@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animated_icons/icons8.dart';
 import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
@@ -14,6 +16,7 @@ import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_sna
 import 'package:frontend/ui/provider/products/controllers/product_controller.dart';
 import 'package:frontend/ui/provider/warehouses/controllers/warehouses_controller.dart';
 import 'package:frontend/ui/utils/utils.dart';
+import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/html_editor.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:image_picker/image_picker.dart';
@@ -45,7 +48,7 @@ class _ProductEditState extends State<ProductEdit> {
   var descripcion;
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _quantityController = TextEditingController();
+  final TextEditingController _inventaryController = TextEditingController();
   var data = {};
   List<dynamic> dataL = [];
   List<Map<String, dynamic>> listaProduct = [];
@@ -69,11 +72,30 @@ class _ProductEditState extends State<ProductEdit> {
       TextEditingController();
   String sku = "";
   List<String> selectedCategories = [];
-
-  List optionsTypesSend = [];
-  List variantsListSend = [];
   List optionsTypesOriginal = [];
   List variantsListOriginal = [];
+//
+  List<String> types = UIUtils.typesProduct();
+  List<String> typesVariables = UIUtils.typesVariables();
+  String? selectedType;
+  String? selectedVariable;
+  String? chosenColor;
+  String? chosenSize;
+  String? chosenDimension;
+  List<String> sizesToSelect = [];
+  List<String> colorsToSelect = [];
+  List<String> dimensionToSelect = [];
+  List<String> urlsImgsListSaved = [];
+  List<String> selectedColores = [];
+  List<String> selectedSizes = [];
+  List<String> selectedDimensions = [];
+  List optionsTypesSend = [];
+  List variantsListSend = [];
+  List<String> selectedVariablesList = [];
+  final TextEditingController _skuController = TextEditingController();
+  int showStockTotal = 0;
+  List<Map<String, List<String>>> optionsList = UIUtils.variablesToSelect();
+  bool showToResetType = false;
 
   @override
   void initState() {
@@ -121,12 +143,12 @@ class _ProductEditState extends State<ProductEdit> {
             product.urlImg.toString() != "[]"
         ? (jsonDecode(product.urlImg) as List).cast<String>()
         : [];
-    print(product.urlImg);
     //
     dataFeatures = jsonDecode(product.features);
     _nameGuideController.text = dataFeatures["guide_name"];
     _priceSuggestedController.text = dataFeatures["price_suggested"].toString();
     sku = dataFeatures["sku"];
+    _skuController.text = dataFeatures["sku"];
     _descriptionController.text = dataFeatures["description"];
 
     selectedCategories =
@@ -166,6 +188,10 @@ class _ProductEditState extends State<ProductEdit> {
         return variableDetails.join(';  ');
       }).join('\n');
     }
+
+    sizesToSelect = optionsList[0]["sizes"]!;
+    colorsToSelect = optionsList[1]["colors"]!;
+    dimensionToSelect = optionsList[2]["dimensions"]!;
 
     setState(() {});
   }
@@ -406,52 +432,828 @@ class _ProductEditState extends State<ProductEdit> {
                         ],
                       ),
                       const SizedBox(height: 20),
-                      Row(children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
+                      Visibility(
+                        visible: !showToResetType,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  SizedBox(
-                                    width: 150,
-                                    child: Row(
-                                      children: [
-                                        const Text(
-                                          "Tipo: ",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18,
-                                            color: Colors.black,
+                                  Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 150,
+                                        child: Row(
+                                          children: [
+                                            const Text(
+                                              "Tipo: ",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 5),
+                                            Text(
+                                              isVariable == 1
+                                                  ? "VARIABLE"
+                                                  : "SIMPLE",
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.grey[800],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Visibility(
+                                        visible: isVariable == 1,
+                                        child: Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              const Text('Variables'),
+                                              const SizedBox(height: 3),
+                                              Text(
+                                                variablesText,
+                                                style: const TextStyle(
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        const SizedBox(width: 5),
-                                        Text(
-                                          isVariable == 1
-                                              ? "VARIABLE"
-                                              : "SIMPLE",
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.grey[800],
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            setState(() {
+                              showToResetType = true;
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                "Resetear Tipo",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Visibility(
+                        visible: showToResetType,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const SizedBox(height: 10),
+                                      const Text('Tipo'),
+                                      const SizedBox(height: 3),
+                                      SizedBox(
+                                        width: 200,
+                                        child: DropdownButtonFormField<String>(
+                                          isExpanded: true,
+                                          hint: Text(
+                                            'Seleccione',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color:
+                                                  Theme.of(context).hintColor,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          items: types
+                                              .map((item) => DropdownMenuItem(
+                                                    value: item,
+                                                    child: Text(
+                                                      item,
+                                                      style: const TextStyle(
+                                                        fontSize: 14,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ))
+                                              .toList(),
+                                          value: selectedType,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              selectedColores = [];
+                                              selectedSizes = [];
+                                              selectedDimensions = [];
+                                              optionsTypesSend = [];
+                                              variantsListSend = [];
+                                              _stockController.clear();
+                                              selectedVariablesList.clear();
+                                              if (value != null) {
+                                                selectedType = value;
+                                              }
+                                            });
+                                          },
+                                          decoration: InputDecoration(
+                                            fillColor: Colors.white,
+                                            filled: true,
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(5.0),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 20),
+                                Visibility(
+                                  visible: selectedType == 'VARIABLE',
+                                  child: Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const Text('Variables'),
+                                        const SizedBox(height: 3),
+                                        Visibility(
+                                          visible: selectedType == 'VARIABLE',
+                                          child: Wrap(
+                                            spacing: 8.0,
+                                            runSpacing: 8.0,
+                                            children: variantsListSend
+                                                .map<Widget>((variable) {
+                                              String chipLabel =
+                                                  "SKU: ${variable['sku']}";
+                                              if (variable
+                                                  .containsKey('size')) {
+                                                chipLabel +=
+                                                    " - Talla: ${variable['size']}";
+                                              }
+                                              if (variable
+                                                  .containsKey('color')) {
+                                                chipLabel +=
+                                                    " - Color: ${variable['color']}";
+                                              }
+                                              if (variable
+                                                  .containsKey('dimension')) {
+                                                chipLabel +=
+                                                    " - Tamaño: ${variable['dimension']}";
+                                              }
+                                              // chipLabel +=
+                                              //     " - Precio: \$${variable['price']}";
+                                              chipLabel +=
+                                                  " - Cantidad: ${variable['inventory_quantity']}";
+
+                                              return Chip(
+                                                label: Text(chipLabel),
+                                                onDeleted: () {
+                                                  setState(() {
+                                                    // Verificar la propiedad y realizar la eliminación en selectedColores o selectedSizes
+                                                    if (variable
+                                                        .containsKey('color')) {
+                                                      String color =
+                                                          variable['color'];
+                                                      selectedColores
+                                                          .remove(color);
+                                                    }
+
+                                                    if (variable
+                                                        .containsKey('size')) {
+                                                      String size =
+                                                          variable['size'];
+                                                      selectedSizes
+                                                          .remove(size);
+                                                    }
+
+                                                    if (variable.containsKey(
+                                                        'dimension')) {
+                                                      String dimension =
+                                                          variable['dimension'];
+                                                      selectedDimensions
+                                                          .remove(dimension);
+                                                    }
+
+                                                    variantsListSend
+                                                        .remove(variable);
+                                                  });
+                                                  // print("variablesList act:");
+                                                  // print(variablesList);
+
+                                                  // print("selectedColores act:");
+                                                  // print(selectedColores);
+                                                  // print("selectedSizes act:");
+                                                  // print(selectedSizes);
+                                                  // print("selectedDimensions act:");
+                                                  // print(selectedDimensions);
+
+                                                  // print("variablesTypes act:");
+                                                  // print(variablesTypes);
+                                                },
+                                              );
+                                            }).toList(),
                                           ),
                                         ),
                                       ],
                                     ),
                                   ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Visibility(
+                              visible: selectedType == 'VARIABLE',
+                              child: Row(
+                                children: [
+                                  const Text('SKU'),
                                   const SizedBox(width: 10),
+                                  SizedBox(
+                                    width: 200,
+                                    child: TextFormField(
+                                      controller: _skuController,
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.allow(
+                                          RegExp(r'[a-zA-Z0-9]'),
+                                        ),
+                                      ],
+                                      decoration: InputDecoration(
+                                        fillColor: Colors.white,
+                                        filled: true,
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(5.0),
+                                        ),
+                                      ),
+                                      validator: (value) {
+                                        if (value!.isEmpty) {
+                                          return 'Por favor, ingrese el SKU del producto';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            //
+                            Visibility(
+                              visible: selectedType == 'VARIABLE',
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        DropdownButtonFormField<String>(
+                                          isExpanded: true,
+                                          hint: Text(
+                                            'Seleccione Variable',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color:
+                                                  Theme.of(context).hintColor,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          items: typesVariables
+                                              .map((item) => DropdownMenuItem(
+                                                    value: item,
+                                                    child: Text(
+                                                      item,
+                                                      style: const TextStyle(
+                                                        fontSize: 14,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ))
+                                              .toList(),
+                                          value: selectedVariable,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              selectedVariable = value;
+                                              if (!(selectedVariablesList
+                                                  .contains(
+                                                      selectedVariable))) {
+                                                if (value != null) {
+                                                  if (((selectedVariablesList
+                                                              .contains(
+                                                                  "Tallas")) &&
+                                                          selectedVariable ==
+                                                              "Tamaños") ||
+                                                      ((selectedVariablesList
+                                                              .contains(
+                                                                  "Tamaños")) &&
+                                                          selectedVariable ==
+                                                              "Tallas")) {
+                                                    // print(
+                                                    //     "No se puede realizar esta combinacion");
+                                                  } else {
+                                                    selectedVariable = value;
+
+                                                    selectedVariablesList.add(
+                                                        selectedVariable
+                                                            .toString());
+                                                    // print(
+                                                    //     selectedVariablesList);
+                                                  }
+                                                }
+                                              }
+                                            });
+                                          },
+                                          decoration: InputDecoration(
+                                            fillColor: Colors.white,
+                                            filled: true,
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(5.0),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 5),
+                                        Wrap(
+                                          spacing: 8.0,
+                                          runSpacing: 8.0,
+                                          children: selectedVariablesList
+                                              .map<Widget>((variable) {
+                                            return Chip(
+                                              label: Text(variable),
+                                              onDeleted: () {
+                                                setState(() {
+                                                  selectedVariablesList
+                                                      .remove(variable);
+                                                  // print("catAct: $selectedCategories");
+                                                });
+                                              },
+                                            );
+                                          }).toList(),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 20),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Visibility(
+                                          visible: selectedVariablesList
+                                              .contains("Tallas"),
+                                          child:
+                                              DropdownButtonFormField<String>(
+                                            isExpanded: true,
+                                            hint: Text(
+                                              'Seleccione Talla',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                color:
+                                                    Theme.of(context).hintColor,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            items: sizesToSelect
+                                                .map((item) => DropdownMenuItem(
+                                                      value: item,
+                                                      child: Text(
+                                                        item,
+                                                        style: const TextStyle(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ))
+                                                .toList(),
+                                            value: chosenSize,
+                                            onChanged: (value) {
+                                              setState(() {
+                                                chosenSize = value;
+                                              });
+                                            },
+                                            decoration: InputDecoration(
+                                              fillColor: Colors.white,
+                                              filled: true,
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(5.0),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Visibility(
+                                          visible: selectedVariablesList
+                                              .contains("Colores"),
+                                          child:
+                                              DropdownButtonFormField<String>(
+                                            isExpanded: true,
+                                            hint: Text(
+                                              'Seleccione Color',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                color:
+                                                    Theme.of(context).hintColor,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            items: colorsToSelect
+                                                .map((item) => DropdownMenuItem(
+                                                      value: item,
+                                                      child: Text(
+                                                        item,
+                                                        style: const TextStyle(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ))
+                                                .toList(),
+                                            value: chosenColor,
+                                            onChanged: (value) {
+                                              setState(() {
+                                                chosenColor = value;
+                                              });
+                                            },
+                                            decoration: InputDecoration(
+                                              fillColor: Colors.white,
+                                              filled: true,
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(5.0),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 5),
+                                        Visibility(
+                                          visible: selectedVariablesList
+                                              .contains("Tamaños"),
+                                          child:
+                                              DropdownButtonFormField<String>(
+                                            isExpanded: true,
+                                            hint: Text(
+                                              'Seleccione Tamaño',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                color:
+                                                    Theme.of(context).hintColor,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            items: dimensionToSelect
+                                                .map((item) => DropdownMenuItem(
+                                                      value: item,
+                                                      child: Text(
+                                                        item,
+                                                        style: const TextStyle(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ))
+                                                .toList(),
+                                            value: chosenDimension,
+                                            onChanged: (value) {
+                                              setState(() {
+                                                chosenDimension = value;
+                                              });
+                                            },
+                                            decoration: InputDecoration(
+                                              fillColor: Colors.white,
+                                              filled: true,
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(5.0),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 20),
+                                  // Visibility(
+                                  //   visible: selectedSizes.isNotEmpty ||
+                                  //       selectedColores.isNotEmpty ||
+                                  //       selectedDimensions.isNotEmpty,
                                   Visibility(
-                                    visible: isVariable == 1,
+                                    visible: selectedVariablesList.isNotEmpty,
                                     child: Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                      child: Row(
                                         children: [
-                                          const Text('Variables'),
-                                          const SizedBox(height: 3),
-                                          Text(
-                                            variablesText,
-                                            style: const TextStyle(
-                                              color: Colors.black,
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          TextFieldWithIcon(
+                                                            controller:
+                                                                _inventaryController,
+                                                            labelText:
+                                                                'Cantidad',
+                                                            icon: Icons.numbers,
+                                                            inputType:
+                                                                TextInputType
+                                                                    .number,
+                                                            inputFormatters: <TextInputFormatter>[
+                                                              FilteringTextInputFormatter
+                                                                  .digitsOnly
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          ElevatedButton(
+                                            onPressed: () async {
+                                              // print(
+                                              //     _inventaryController.text.toString());
+                                              // print(_skuController.text.toString());
+
+                                              if (((int.parse(_inventaryController
+                                                              .text) <
+                                                          1) ||
+                                                      (_inventaryController
+                                                          .text.isEmpty) ||
+                                                      (_inventaryController
+                                                              .text ==
+                                                          "")) &&
+                                                  (_skuController.text != "" ||
+                                                      _skuController
+                                                          .text.isEmpty)) {
+                                                showSuccessModal(
+                                                    context,
+                                                    "Por favor, ingrese una Cantidad y SKU válida.",
+                                                    Icons8.alert);
+                                              } else {
+                                                //
+                                                var variant;
+                                                int idRandom =
+                                                    Random().nextInt(9000000) +
+                                                        1000000;
+
+                                                if (selectedVariablesList
+                                                        .contains("Tallas") &&
+                                                    selectedVariablesList
+                                                        .contains("Colores")) {
+                                                  variant = {
+                                                    "id": idRandom,
+                                                    "sku":
+                                                        "${_skuController.text.toUpperCase()}${chosenSize}${chosenColor?.toUpperCase()}",
+                                                    "size": "$chosenSize",
+                                                    "color": "$chosenColor",
+                                                    "inventory_quantity":
+                                                        _inventaryController
+                                                            .text,
+                                                    "price":
+                                                        _priceSuggestedController
+                                                            .text,
+                                                  };
+                                                  //
+                                                  List<String> claves = [
+                                                    "size",
+                                                    "color"
+                                                  ];
+                                                  if (varianteExistente(
+                                                      variantsListSend,
+                                                      variant,
+                                                      claves)) {
+                                                    // print(
+                                                    //     "Ya existe una variante con talla: $chosenSize y color: $chosenColor");
+                                                  } else {
+                                                    variantsListSend
+                                                        .add(variant);
+                                                    selectedSizes
+                                                        .add(chosenSize!);
+                                                    selectedColores
+                                                        .add(chosenColor!);
+
+                                                    calcuateStockTotal(
+                                                        _inventaryController
+                                                            .text);
+                                                  }
+                                                  //
+                                                } else if (selectedVariablesList
+                                                        .contains("Tamaño") &&
+                                                    selectedVariablesList
+                                                        .contains("Colores")) {
+                                                  variant = {
+                                                    "id": idRandom,
+                                                    "sku":
+                                                        "${_skuController.text.toUpperCase()}${chosenDimension?.isNotEmpty == true ? chosenDimension![0].toUpperCase() : ""}${chosenColor?.toUpperCase()}",
+                                                    "dimension":
+                                                        "$chosenDimension",
+                                                    "color": "$chosenColor",
+                                                    "inventory_quantity":
+                                                        _inventaryController
+                                                            .text,
+                                                    "price":
+                                                        _priceSuggestedController
+                                                            .text,
+                                                  };
+                                                  //
+                                                  List<String> claves = [
+                                                    "dimension",
+                                                    "color"
+                                                  ];
+                                                  if (varianteExistente(
+                                                      variantsListSend,
+                                                      variant,
+                                                      claves)) {
+                                                    // print(
+                                                    //     "Ya existe una variante con tamaño: $chosenDimension y color: $chosenColor");
+                                                  } else {
+                                                    variantsListSend
+                                                        .add(variant);
+                                                    selectedDimensions
+                                                        .add(chosenDimension!);
+                                                    selectedColores
+                                                        .add(chosenColor!);
+
+                                                    calcuateStockTotal(
+                                                        _inventaryController
+                                                            .text);
+                                                  }
+                                                  //
+                                                } else if (selectedVariablesList
+                                                    .contains("Tallas")) {
+                                                  variant = {
+                                                    "id": idRandom,
+                                                    "sku":
+                                                        "${_skuController.text.toUpperCase()}${chosenSize}",
+                                                    "size": "$chosenSize",
+                                                    "inventory_quantity":
+                                                        _inventaryController
+                                                            .text,
+                                                    "price":
+                                                        _priceSuggestedController
+                                                            .text,
+                                                  };
+                                                  //
+                                                  List<String> claves = [
+                                                    "size"
+                                                  ];
+                                                  if (varianteExistente(
+                                                      variantsListSend,
+                                                      variant,
+                                                      claves)) {
+                                                    // print(
+                                                    //     "Ya existe una variante con talla: $chosenSize");
+                                                  } else {
+                                                    variantsListSend
+                                                        .add(variant);
+                                                    selectedSizes
+                                                        .add(chosenSize!);
+
+                                                    calcuateStockTotal(
+                                                        _inventaryController
+                                                            .text);
+                                                  }
+                                                  //
+                                                } else if (selectedVariablesList
+                                                    .contains("Colores")) {
+                                                  variant = {
+                                                    "id": idRandom,
+                                                    "sku":
+                                                        "${_skuController.text.toUpperCase()}${chosenColor?.toUpperCase()}",
+                                                    "color": "$chosenColor",
+                                                    "inventory_quantity":
+                                                        _inventaryController
+                                                            .text,
+                                                    "price":
+                                                        _priceSuggestedController
+                                                            .text,
+                                                  };
+                                                  //
+                                                  List<String> claves = [
+                                                    "color"
+                                                  ];
+                                                  if (varianteExistente(
+                                                      variantsListSend,
+                                                      variant,
+                                                      claves)) {
+                                                    // print(
+                                                    //     "Ya existe una variante con color: $chosenColor");
+                                                  } else {
+                                                    variantsListSend
+                                                        .add(variant);
+                                                    selectedColores
+                                                        .add(chosenColor!);
+
+                                                    calcuateStockTotal(
+                                                        _inventaryController
+                                                            .text);
+                                                  }
+                                                  //
+                                                } else if (selectedVariablesList
+                                                    .contains("Tamaños")) {
+                                                  variant = {
+                                                    "id": idRandom,
+                                                    "sku":
+                                                        "${_skuController.text.toUpperCase()}${chosenDimension?.isNotEmpty == true ? chosenDimension![0].toUpperCase() : ""}",
+                                                    "dimension":
+                                                        "$chosenDimension",
+                                                    "inventory_quantity":
+                                                        _inventaryController
+                                                            .text,
+                                                    "price":
+                                                        _priceSuggestedController
+                                                            .text,
+                                                  };
+                                                  //
+                                                  List<String> claves = [
+                                                    "dimension"
+                                                  ];
+                                                  if (varianteExistente(
+                                                      variantsListSend,
+                                                      variant,
+                                                      claves)) {
+                                                    // print(
+                                                    //     "Ya existe una variante con tamaño: $chosenDimension");
+                                                  } else {
+                                                    variantsListSend
+                                                        .add(variant);
+                                                    selectedDimensions
+                                                        .add(chosenDimension!);
+
+                                                    calcuateStockTotal(
+                                                        _inventaryController
+                                                            .text);
+                                                  }
+                                                  //
+                                                }
+
+                                                // variablesList.add(variant);
+                                                // print(variantsList);
+                                                //
+
+                                                // print(variablesList);
+                                                // print("selectedColores act:");
+                                                // print(selectedColores);
+                                                // print("selectedSizes act:");
+                                                // print(selectedSizes);
+                                                // print("selectedDimensions act:");
+                                                // print(selectedDimensions);
+
+                                                _inventaryController.clear();
+
+                                                setState(() {});
+
+                                                // print(selectedColores);
+                                                // print(selectedTallas);
+                                                // print(selectedDimensions);
+                                              }
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  Colors.green[400],
+                                            ),
+                                            child: const Text(
+                                              "Añadir",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
                                           ),
                                         ],
@@ -460,10 +1262,10 @@ class _ProductEditState extends State<ProductEdit> {
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ]),
+                      ),
                       const SizedBox(height: 20),
                       Row(
                         children: [
@@ -482,25 +1284,23 @@ class _ProductEditState extends State<ProductEdit> {
                                       ),
                                     ),
                                     const SizedBox(width: 10),
-                                    // SizedBox(
-                                    //   width: 150,
-                                    //   child: TextFormField(
-                                    //     controller: _stockController,
-                                    //     decoration: InputDecoration(
-                                    //       fillColor: Colors.white,
-                                    //       filled: true,
-                                    //       border: OutlineInputBorder(
-                                    //         borderRadius:
-                                    //             BorderRadius.circular(5.0),
-                                    //       ),
-                                    //     ),
-                                    //   ),
-                                    // ),
-                                    Text(
-                                      stock,
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        color: Colors.black,
+                                    SizedBox(
+                                      width: 150,
+                                      child: TextFormField(
+                                        controller: _stockController,
+                                        enabled: showToResetType,
+                                        keyboardType: TextInputType.number,
+                                        inputFormatters: <TextInputFormatter>[
+                                          FilteringTextInputFormatter.digitsOnly
+                                        ],
+                                        decoration: InputDecoration(
+                                          fillColor: Colors.white,
+                                          filled: true,
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(5.0),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -508,7 +1308,6 @@ class _ProductEditState extends State<ProductEdit> {
                               ],
                             ),
                           ),
-                          const SizedBox(width: 20),
                         ],
                       ),
                       const SizedBox(height: 20),
@@ -558,23 +1357,6 @@ class _ProductEditState extends State<ProductEdit> {
                                     ),
                                   ),
                                 ),
-                                // const SizedBox(height: 5),
-                                // Wrap(
-                                //   spacing: 8.0,
-                                //   runSpacing: 8.0,
-                                //   children: selectedCategories
-                                //       .map<Widget>((category) {
-                                //     return Chip(
-                                //       label: Text(category),
-                                //       onDeleted: () {
-                                //         setState(() {
-                                //           selectedCategories.remove(category);
-                                //           // print("catAct: $categories");
-                                //         });
-                                //       },
-                                //     );
-                                //   }).toList(),
-                                // ),
                               ],
                             ),
                           ),
@@ -765,22 +1547,26 @@ class _ProductEditState extends State<ProductEdit> {
                                       ),
                               ],
                             ),
-                            SizedBox(
-                              height: 300,
-                              child: GridView.builder(
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 4,
-                                  crossAxisSpacing: 10,
-                                  mainAxisSpacing: 10,
+                            Visibility(
+                              visible: imgsTemporales.isNotEmpty,
+                              child: SizedBox(
+                                height: 300,
+                                child: GridView.builder(
+                                  gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 4,
+                                    crossAxisSpacing: 10,
+                                    mainAxisSpacing: 10,
+                                  ),
+                                  itemCount: imgsTemporales.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    return Image.network(
+                                      (imgsTemporales[index].path),
+                                      fit: BoxFit.fill,
+                                    );
+                                  },
                                 ),
-                                itemCount: imgsTemporales.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return Image.network(
-                                    (imgsTemporales[index].path),
-                                    fit: BoxFit.fill,
-                                  );
-                                },
                               ),
                             ),
                           ],
@@ -796,10 +1582,46 @@ class _ProductEditState extends State<ProductEdit> {
                                 ElevatedButton(
                                   onPressed: () async {
                                     getLoadingModal(context, false);
-                                    // print(img_url);
+                                    if (showToResetType) {
+                                      typeValue = selectedType;
+                                    }
                                     if (typeValue == "SIMPLE") {
-                                      // optionsTypes = [];
-                                      // variantsList = [];
+                                      isVariable = 0;
+                                      optionsTypesOriginal = [];
+                                      variantsListOriginal = [];
+                                      optionsTypesSend = [];
+                                      variantsListSend = [];
+                                    } else {
+                                      isVariable = 1;
+                                      if (selectedColores.isNotEmpty) {
+                                        Set<String> uniqueColores =
+                                            Set.from(selectedColores);
+                                        var colores = {
+                                          "name": "color",
+                                          "values": uniqueColores.toList()
+                                        };
+                                        optionsTypesSend.add(colores);
+                                      }
+
+                                      if (selectedSizes.isNotEmpty) {
+                                        Set<String> uniqueSizes =
+                                            Set.from(selectedSizes);
+                                        var tallas = {
+                                          "name": "size",
+                                          "values": uniqueSizes.toList()
+                                        };
+                                        optionsTypesSend.add(tallas);
+                                      }
+
+                                      if (selectedDimensions.isNotEmpty) {
+                                        Set<String> uniqueDimensions =
+                                            Set.from(selectedDimensions);
+                                        var dimensions = {
+                                          "name": "dimension",
+                                          "values": uniqueDimensions.toList()
+                                        };
+                                        optionsTypesSend.add(dimensions);
+                                      }
                                     }
                                     var urlsImgsListToSend;
                                     if (imgsTemporales.isNotEmpty) {
@@ -811,30 +1633,20 @@ class _ProductEditState extends State<ProductEdit> {
                                       "guide_name": _nameGuideController.text,
                                       "price_suggested":
                                           _priceSuggestedController.text,
-                                      "sku": sku.toUpperCase(),
+                                      "sku": showToResetType
+                                          ? _skuController.text.toUpperCase()
+                                          : sku.toUpperCase(),
                                       "categories": selectedCategories,
                                       "description":
                                           _descriptionController.text,
                                       "type": typeValue,
-                                      "variants": variantsListOriginal,
-                                      "options": optionsTypesOriginal
+                                      "variants": variantsListSend.isNotEmpty
+                                          ? variantsListSend
+                                          : variantsListOriginal,
+                                      "options": optionsTypesSend.isNotEmpty
+                                          ? optionsTypesSend
+                                          : optionsTypesOriginal
                                     };
-
-                                    // var responseUpt = await Connections()
-                                    //     .updateProduct0(codigo, {
-                                    //   "product_name":
-                                    //       _nameController.text.toString(),
-                                    //   // "stock": int.parse(
-                                    //   //     _stockController.text.toString()),
-                                    //   "features": featuresToSend,
-                                    //   "price": double.parse(
-                                    //       _priceController.text.toString()),
-                                    //   // "url_img": img_url.toString(),
-                                    //   "warehouse_id": warehouseValue
-                                    //       .toString()
-                                    //       .split("-")[1]
-                                    //       .toString()
-                                    // });
 
                                     _productController.editProduct(ProductModel(
                                       productId: widget.data['product_id'],
@@ -902,7 +1714,7 @@ class _ProductEditState extends State<ProductEdit> {
     for (var imagen in imgsTemporales) {
       await _saveImage(imagen);
     }
-    print("final urlsImgs: $urlsImgsList");
+    // print("final urlsImgs: $urlsImgsList");
     return urlsImgsList;
   }
 
@@ -918,6 +1730,21 @@ class _ProductEditState extends State<ProductEdit> {
     } catch (error) {
       print("Error al guardar la imagen: $error");
     }
+  }
+
+  calcuateStockTotal(String valor) {
+    int val = int.parse(valor);
+    showStockTotal = showStockTotal + val;
+    _stockController.text = showStockTotal.toString();
+  }
+
+  bool varianteExistente(
+      List<dynamic> lista, Map<String, dynamic> variante, List<String> claves) {
+    return lista.any((existingVariant) {
+      return claves.every((clave) =>
+          existingVariant.containsKey(clave) &&
+          existingVariant[clave] == variante[clave]);
+    });
   }
 
   Container _modelText(String text, String data) {

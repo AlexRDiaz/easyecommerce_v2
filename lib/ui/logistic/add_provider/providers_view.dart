@@ -53,6 +53,9 @@ class _ProviderViewState extends State<ProviderView> {
           //   //_futureProviderData = _loadProviders(); // Actualiza el Future
         });
       }
+      setState(() {
+        _getProviderModelData();
+      });
     });
   }
 
