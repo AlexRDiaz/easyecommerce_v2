@@ -42,6 +42,33 @@ class boxValues extends StatelessWidget {
           const SizedBox(width: 1),
         ],
       ),
+      Container(
+        height: 45.0, // Ajusta la altura según tus necesidades
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          children: [
+            BuildInfoContainer(
+                title: 'Valores recibidos',
+                value: '\$${totalValoresRecibidos.toStringAsFixed(2)}'),
+            const SizedBox(width: 5),
+            BuildInfoContainer(
+                title: 'Costo de envío',
+                value: '\$${costoDeEntregas.toStringAsFixed(2)}'),
+            const SizedBox(width: 5),
+            BuildInfoContainer(
+              title: 'Devoluciones',
+              value: '\$${devoluciones.toStringAsFixed(2)}',
+            ),
+            const SizedBox(width: 5),
+            BuildInfoContainer(
+              title: 'Utilidad',
+              value: '\$${utilidad.toStringAsFixed(2)}',
+            ),
+          ],
+        ),
+      ),
+
+      /*
       Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -76,6 +103,7 @@ class boxValues extends StatelessWidget {
           ),
         ],
       ),
+      */
       context,
     );
   }

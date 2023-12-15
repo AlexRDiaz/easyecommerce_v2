@@ -41,7 +41,7 @@ class _OptionsWidgetState extends State<OptionsWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(10),
+      padding: EdgeInsets.all(5),
       child: Wrap(
         spacing: 5, // Espacio horizontal mínimo entre los contenedores
         runSpacing: 5, // Espacio vertical mínimo entre los contenedores
@@ -118,7 +118,7 @@ class _OptionsWidgetState extends State<OptionsWidget> {
                         ),
                       ),
                       Container(
-                        width: 85,
+                        width: 100,
                         height: 25,
                         decoration: BoxDecoration(
                           color: selectedList[index] || hoveredList[index]

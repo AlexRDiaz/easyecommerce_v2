@@ -299,6 +299,9 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                             text: "Busqueda",
                             controller: _controllers.searchController),
                       ),
+                      const SizedBox(
+                        height: 5,
+                      ),
                       Expanded(
                         child: Row(
                           children: [
@@ -461,6 +464,9 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                             text: "Busqueda",
                             controller: _controllers.searchController),
                       ),
+                      const SizedBox(
+                        height: 5,
+                      ),
                       Container(
                         child: Row(
                           children: [
@@ -555,19 +561,19 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                                   "No Desea",
                                   style: TextStyle(fontWeight: FontWeight.bold),
                                 )),
-                            ElevatedButton(
-                                onPressed: () async {
-                                  await showDialog(
-                                      context: (context),
-                                      builder: (context) {
-                                        return AddOrderSellers();
-                                      });
-                                  await loadData();
-                                },
-                                child: const Text(
-                                  "Nuevo",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                )),
+                            // ElevatedButton(
+                            //     onPressed: () async {
+                            //       await showDialog(
+                            //           context: (context),
+                            //           builder: (context) {
+                            //             return AddOrderSellers();
+                            //           });
+                            //       await loadData();
+                            //     },
+                            //     child: const Text(
+                            //       "Nuevo",
+                            //       style: TextStyle(fontWeight: FontWeight.bold),
+                            //     )),
                           ],
                         ),
                       ),

@@ -48,30 +48,33 @@ class _LoginPageState extends State<LoginPage> {
               padding: const EdgeInsets.all(20.0),
               child: Center(
                 child: SingleChildScrollView(
-                    child: responsive(
-                        Column(
-                          children: [
-                            _logo(),
-                            Container(
-                                width: MediaQuery.of(context).size.width * 0.25,
-                                padding:
-                                    EdgeInsets.all(20.0), // Espaciado interno
-                                decoration: BoxDecoration(
-                                  color: Color.fromRGBO(
-                                      194, 199, 204, 0.973), // Color de fondo
-                                  border: Border.all(
-                                    color: ColorsSystem()
-                                        .colorBlack
-                                        .withOpacity(0.3), // Color del borde
-                                    width: 1.5, // Ancho del borde
-                                  ),
-                                  borderRadius: BorderRadius.circular(
-                                      12.0), // Radio de borde
+                  child: responsive(
+                      Column(
+                        children: [
+                          _logo(),
+                          Container(
+                              width: MediaQuery.of(context).size.width * 0.25,
+                              padding:
+                                  EdgeInsets.all(20.0), // Espaciado interno
+                              decoration: BoxDecoration(
+                                color: Color.fromRGBO(
+                                    194, 199, 204, 0.973), // Color de fondo
+                                border: Border.all(
+                                  color: ColorsSystem()
+                                      .colorBlack
+                                      .withOpacity(0.3), // Color del borde
+                                  width: 1.5, // Ancho del borde
                                 ),
-                                child: _content()),
-                          ],
-                        ),
-                        Container(
+                                borderRadius: BorderRadius.circular(
+                                    12.0), // Radio de borde
+                              ),
+                              child: _content()),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          _logo(),
+                          Container(
                             width: MediaQuery.of(context).size.width * 0.82,
                             padding: EdgeInsets.all(20.0), // Espaciado interno
                             decoration: BoxDecoration(
@@ -85,8 +88,12 @@ class _LoginPageState extends State<LoginPage> {
                               borderRadius:
                                   BorderRadius.circular(12.0), // Radio de borde
                             ),
-                            child: _content()),
-                        context)),
+                            child: _content(),
+                          ),
+                        ],
+                      ),
+                      context),
+                ),
               ),
             ),
           ],
@@ -133,22 +140,25 @@ class _LoginPageState extends State<LoginPage> {
           "Bienvenido, ingresa con correo y contraseña",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        Column(
-          children: [
-            const SizedBox(
-              height: 20,
-            ),
-            _modelTextField(
+        const SizedBox(
+          height: 20,
+        ),
+        responsive(
+          //"web,
+          Column(
+            children: [
+              _modelTextField(
                 text: "@Email",
                 obscure: false,
                 email: true,
                 controller: _controllers.controllerMail,
                 focusNode: _focusNode1,
-                nextFocusNode: _focusNode2),
-            const SizedBox(
-              height: 20,
-            ),
-            _modelTextField(
+                nextFocusNode: _focusNode2,
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              _modelTextField(
                 text: "Contraseña",
                 obscure: obscureC,
                 email: false,
@@ -156,10 +166,43 @@ class _LoginPageState extends State<LoginPage> {
                 focusNode: _focusNode2,
                 onFieldSubmitted: () {
                   FocusScope.of(context).requestFocus(_focusNodeSubmitButton);
-                }),
-            const SizedBox(
-              height: 30,
-            ),
+                },
+              ),
+            ],
+          ),
+          //  mobile,
+          Column(
+            children: [
+              _modelTextFieldMob(
+                text: "@Email",
+                obscure: false,
+                email: true,
+                controller: _controllers.controllerMail,
+                focusNode: _focusNode1,
+                nextFocusNode: _focusNode2,
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              _modelTextFieldMob(
+                text: "Contraseña",
+                obscure: obscureC,
+                email: false,
+                controller: _controllers.controllerPassword,
+                focusNode: _focusNode2,
+                onFieldSubmitted: () {
+                  FocusScope.of(context).requestFocus(_focusNodeSubmitButton);
+                },
+              ),
+            ],
+          ),
+          context,
+        ),
+        const SizedBox(
+          height: 30,
+        ),
+        Column(
+          children: [
             ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.all(16.0),
@@ -213,11 +256,11 @@ class _LoginPageState extends State<LoginPage> {
               height: 30,
             ),
             const Text(
-              "EASYECOMMERCE - Copyright © 2023.  v.2.1.16",
+              "EASYECOMMERCE - Copyright © 2023.  v.2.1.13",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ],
-        )
+        ),
       ],
     );
   }
@@ -279,6 +322,75 @@ class _LoginPageState extends State<LoginPage> {
                   width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
               borderRadius: BorderRadius.circular(10.0),
             ),
+            focusColor: Colors.black,
+            iconColor: Colors.black,
+            suffixIcon: email == false
+                ? GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        obscureC = !obscureC;
+                      });
+                    },
+                    child: Icon(
+                      obscure ? Icons.remove_red_eye_outlined : Icons.password,
+                      color: Colors.black,
+                    ))
+                : null),
+        // onSubmitted: (value) {
+        //   // Cuando se presiona Enter en este campo
+        //   if (nextFocusNode != null) {
+        //     // Mueve el foco al siguiente campo si está definido
+        //     FocusScope.of(context).requestFocus(nextFocusNode);
+        //   }
+        // },
+      ),
+    );
+  }
+
+  _modelTextFieldMob({
+    text,
+    obscure,
+    email,
+    controller,
+    focusNode,
+    nextFocusNode,
+    VoidCallback? onFieldSubmitted,
+  }) {
+    return Container(
+      width: 450,
+      height: 50,
+      // decoration: BoxDecoration(
+      //   border: Border.all(width: 1, color: Colors.grey),
+      //   borderRadius: BorderRadius.circular(10.0),
+      //   color: const Color.fromARGB(255, 245, 244, 244),
+      // ),
+      child: TextField(
+        controller: controller,
+        focusNode: focusNode,
+        onSubmitted: (value) {
+          if (nextFocusNode != null) {
+            FocusScope.of(context).requestFocus(nextFocusNode);
+          }
+          onFieldSubmitted
+              ?.call(); // Llama a la función personalizada si está definida
+        },
+        obscureText: obscure,
+        keyboardType:
+            email ? TextInputType.emailAddress : TextInputType.visiblePassword,
+        style:
+            const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+        decoration: InputDecoration(
+            hintText: text,
+            // enabledBorder: OutlineInputBorder(
+            //   borderSide: const BorderSide(
+            //       width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
+            //   borderRadius: BorderRadius.circular(10.0),
+            // ),
+            // focusedBorder: OutlineInputBorder(
+            //   borderSide: const BorderSide(
+            //       width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
+            //   borderRadius: BorderRadius.circular(10.0),
+            // ),
             focusColor: Colors.black,
             iconColor: Colors.black,
             suffixIcon: email == false

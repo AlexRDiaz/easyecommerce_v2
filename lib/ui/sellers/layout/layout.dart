@@ -55,6 +55,8 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double textSizeTitle = screenWidth > 600 ? 22 : 14;
     List pages = [
       getOption("DashBoard", DashBoardSellers()),
       getOption(
