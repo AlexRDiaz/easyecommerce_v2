@@ -341,8 +341,7 @@ class _TransportDeliveryHistoryDetailsDataState
                                         onPressed: () async {
                                           //     getLoadingModal(context, false);
                                           paymentLogisticByReturnStatus(
-                                              widget.data['id'],
-                                              "ENTREGADO EN OFICINA");
+                                              widget.data['id'], "EN BODEGA");
                                           // var response = await Connections()
                                           //     .updateOrderReturnLogistic(
                                           //         widget.data['id']);
