@@ -141,11 +141,11 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              images.logoEasyEcommercce,
-              width: 30,
-            ),
-            SizedBox(width: 10),
+            // Image.asset(
+            //   images.logoEasyEcommercce,
+            //   width: 30,
+            // ),
+            // SizedBox(width: 10),
             Flexible(
               child: Text(
                 navigation.nameWindow,
@@ -157,22 +157,22 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
         actions: [
           const Icon(
             Icons.account_circle,
-            color: const Color.fromARGB(255, 255, 255, 255),
+            color: Colors.white,
           ),
           PopupMenuButton<String>(
             padding: EdgeInsets.zero, // Elimina el relleno alrededor del botón
             child: Row(
               children: [
                 Text(
-                  "${email}",
-                  style: TextStyle(
-                    color: const Color.fromARGB(255, 255, 255, 255),
+                  screenWidth > 600 ? email : username,
+                  style: const TextStyle(
+                    color: Colors.white,
                   ),
                 ),
                 const Icon(
                   Icons
                       .arrow_drop_down, // Icono de flecha hacia abajo para indicar que es un menú
-                  color: const Color.fromARGB(255, 255, 255, 255),
+                  color: Colors.white,
                 ),
               ],
             ),

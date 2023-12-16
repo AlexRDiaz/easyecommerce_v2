@@ -489,8 +489,8 @@ class _CatalogState extends State<Catalog> {
                                                                   _maxPriceController
                                                                       .text
                                                                       .isEmpty) {
-                                                                print(
-                                                                    "Ambos están vacíos.");
+                                                                // print(
+                                                                //     "Ambos están vacíos.");
                                                                 // Agrega un filtro vacío con la clave "price_range"
                                                                 outFilter.add({
                                                                   "price_range":
@@ -506,8 +506,8 @@ class _CatalogState extends State<Catalog> {
                                                                         _minPriceController
                                                                             .text) >
                                                                     0) {
-                                                                  print(
-                                                                      "Añadir al filtro solo el mínimo");
+                                                                  // print(
+                                                                  //     "Añadir al filtro solo el mínimo");
                                                                   if (priceRangeExists) {
                                                                     // Elimina el filtro existente con la clave "price_range"
                                                                     outFilter.removeWhere(
@@ -526,8 +526,8 @@ class _CatalogState extends State<Catalog> {
                                                                         (filter) =>
                                                                             filter.containsKey("price_range"));
                                                                   }
-                                                                  print(
-                                                                      "Error, es menor a 0");
+                                                                  // print(
+                                                                  //     "Error, es menor a 0");
                                                                 }
                                                                 //
                                                               } else if (_minPriceController
@@ -540,8 +540,8 @@ class _CatalogState extends State<Catalog> {
                                                                         _maxPriceController
                                                                             .text) >
                                                                     0) {
-                                                                  print(
-                                                                      "Añadir al filtro solo el máximo");
+                                                                  // print(
+                                                                  //     "Añadir al filtro solo el máximo");
                                                                   if (priceRangeExists) {
                                                                     outFilter.removeWhere(
                                                                         (filter) =>
@@ -560,8 +560,8 @@ class _CatalogState extends State<Catalog> {
                                                                         (filter) =>
                                                                             filter.containsKey("price_range"));
                                                                   }
-                                                                  print(
-                                                                      "Error, es menor a 0");
+                                                                  // print(
+                                                                  //     "Error, es menor a 0");
                                                                 }
                                                               } else if (_minPriceController
                                                                       .text
@@ -576,8 +576,8 @@ class _CatalogState extends State<Catalog> {
                                                                     double.parse(
                                                                         _minPriceController
                                                                             .text)) {
-                                                                  print(
-                                                                      "Añadir ambos");
+                                                                  // print(
+                                                                  //     "Añadir ambos");
                                                                   if (priceRangeExists) {
                                                                     outFilter.removeWhere(
                                                                         (filter) =>
@@ -596,8 +596,8 @@ class _CatalogState extends State<Catalog> {
                                                                         (filter) =>
                                                                             filter.containsKey("price_range"));
                                                                   }
-                                                                  print(
-                                                                      "Error, el max es < a min");
+                                                                  // print(
+                                                                  //     "Error, el max es < a min");
                                                                 }
                                                               }
                                                               //
@@ -674,7 +674,7 @@ class _CatalogState extends State<Catalog> {
                                               onSelected: (selected) {
                                                 setState(() {
                                                   filterps = [];
-                                                  print("clck Favoritos");
+                                                  // print("clck Favoritos");
                                                   isSelectedFavorites =
                                                       selected;
 
@@ -756,7 +756,7 @@ class _CatalogState extends State<Catalog> {
                                               onSelected: (selected) {
                                                 setState(() {
                                                   filterps = [];
-                                                  print("clck Favoritos");
+                                                  // print("clck Favoritos");
                                                   isSelectedOnSale = selected;
                                                   //
 
@@ -955,460 +955,6 @@ class _CatalogState extends State<Catalog> {
     );
   }
 
-  /*
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          SizedBox(
-                            width: screenWidth * 0.15,
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Proveedor',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 5),
-                                  DropdownButtonFormField<String>(
-                                    isExpanded: true,
-                                    hint: Text(
-                                      'Seleccione una opcion',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Theme.of(context).hintColor,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    items: providersToSelect
-                                        .map((item) => DropdownMenuItem(
-                                              value: item,
-                                              child: Text(
-                                                item == 'TODO'
-                                                    ? 'TODO'
-                                                    : '${item.split('-')[1]}',
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ))
-                                        .toList(),
-                                    value: selectedProvider,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        selectedProvider = value;
-                                      });
-                                      if (value != 'TODO') {
-                                        if (value is String) {
-                                          arrayFiltersAnd = [];
-                                          arrayFiltersAnd.add({
-                                            "warehouse.provider_id":
-                                                selectedProvider
-                                                    .toString()
-                                                    .split("-")[0]
-                                                    .toString()
-                                          });
-                                        }
-                                      } else {
-                                        arrayFiltersAnd = [];
-                                      }
-                                    },
-                                    decoration: InputDecoration(
-                                      fillColor: Colors.white,
-                                      filled: true,
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(5.0),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 20),
-                          SizedBox(
-                            width: screenWidth * 0.1,
-                            child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        'Categorias',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 5),
-                                      DropdownButtonFormField<String>(
-                                        isExpanded: true,
-                                        hint: Text(
-                                          'Seleccione la categoria',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Theme.of(context).hintColor,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        items: ['TODO', ...categoriesToSelect]
-                                            .map((item) => DropdownMenuItem(
-                                                  value: item,
-                                                  child: Text(
-                                                    item,
-                                                    style: const TextStyle(
-                                                      fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                ))
-                                            .toList(),
-                                        value: selectedCategory ?? 'TODO',
-                                        onChanged: (value) {
-                                          setState(() {
-                                            selectedCategory = value;
-                                            if (value != 'TODO') {
-                                              if (!selectedCategoriesList
-                                                  .contains(selectedCategory)) {
-                                                setState(() {
-                                                  selectedCategoriesList
-                                                      .add(selectedCategory!);
-                                                });
-                                              }
-
-                                              bool priceRangeExists =
-                                                  outFilter.any((filter) =>
-                                                      filter.containsKey(
-                                                          "input_categories"));
-                                              if (!priceRangeExists) {
-                                                outFilter.add({
-                                                  "input_categories":
-                                                      selectedCategoriesList
-                                                });
-                                              }
-                                            } else {
-                                              outFilter.removeWhere((filter) =>
-                                                  filter.containsKey(
-                                                      "input_categories"));
-                                            }
-                                          });
-                                          //
-                                        },
-                                        decoration: InputDecoration(
-                                          fillColor: Colors.white,
-                                          filled: true,
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5.0),
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 5),
-                                      Wrap(
-                                        spacing: 8.0,
-                                        runSpacing: 8.0,
-                                        children: selectedCategoriesList
-                                            .map<Widget>((category) {
-                                          return Chip(
-                                            label: Text(category),
-                                            backgroundColor: Colors.blue[50],
-                                            onDeleted: () {
-                                              setState(() {
-                                                selectedCategoriesList
-                                                    .remove(category);
-                                              });
-                                            },
-                                          );
-                                        }).toList(),
-                                      ),
-                                    ])),
-                          ),
-                          const SizedBox(width: 20),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.18,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          const Text('Precio Min:'),
-                                          const SizedBox(height: 3),
-                                          SizedBox(
-                                            width: 100,
-                                            child: TextFormField(
-                                              controller: _minPriceController,
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              inputFormatters: <TextInputFormatter>[
-                                                FilteringTextInputFormatter
-                                                    .allow(RegExp(
-                                                        r'^\d+\.?\d{0,2}$')),
-                                              ],
-                                              /*
-                                              inputFormatters: <TextInputFormatter>[
-                                                  FilteringTextInputFormatter.digitsOnly,
-                                                ],
-                                               */
-                                              decoration: InputDecoration(
-                                                fillColor: Colors.white,
-                                                filled: true,
-                                                border: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          5.0),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          const Text('Precio Max:'),
-                                          const SizedBox(height: 3),
-                                          SizedBox(
-                                            width: 100,
-                                            child: TextFormField(
-                                              controller: _maxPriceController,
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              inputFormatters: <TextInputFormatter>[
-                                                FilteringTextInputFormatter
-                                                    .allow(RegExp(
-                                                        r'^\d+\.?\d{0,2}$')),
-                                              ],
-                                              decoration: InputDecoration(
-                                                fillColor: Colors.white,
-                                                filled: true,
-                                                border: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          5.0),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    SizedBox(
-                                      child: ElevatedButton(
-                                        onPressed: () async {
-                                          if (_maxPriceController
-                                              .text.isNotEmpty) {
-                                            print("No esta vacio");
-
-                                            if (double.parse(
-                                                    _maxPriceController.text) >
-                                                double.parse(
-                                                    _minPriceController.text)) {
-                                              print("Añadir al filtro");
-
-                                              // Agregar a filtro
-                                              setState(() {
-                                                bool priceRangeExists =
-                                                    outFilter.any((filter) =>
-                                                        filter.containsKey(
-                                                            "price_range"));
-                                                if (!priceRangeExists) {
-                                                  outFilter.add({
-                                                    "price_range":
-                                                        "${_minPriceController.text}-${_maxPriceController.text}",
-                                                  });
-                                                }
-                                              });
-                                            } else {
-                                              print("Max < Min");
-                                            }
-                                          } else {
-                                            print("Add en filter solo el min ");
-                                          }
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.indigo[800],
-                                        ),
-                                        child: const Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Text(
-                                              "Filtrar",
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 20),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  ChoiceChip(
-                                    label: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.all(8),
-                                          decoration: const BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: Colors.white,
-                                          ),
-                                          child: Icon(
-                                            isSelectedFavorites
-                                                ? Icons.favorite
-                                                : Icons.favorite_border,
-                                            color: Colors.indigo[900],
-                                          ),
-                                        ),
-                                        const SizedBox(width: 5),
-                                        const Text('Seleccionar Favoritos'),
-                                      ],
-                                    ),
-                                    selected: isSelectedFavorites,
-                                    onSelected: (selected) {
-                                      setState(() {
-                                        isSelectedFavorites = selected;
-                                      });
-                                    },
-                                    selectedColor: Colors.indigo[50],
-                                    backgroundColor: Colors.white,
-                                    shape: const StadiumBorder(
-                                      side: BorderSide(
-                                          width: 1, color: Colors.indigo),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          const SizedBox(width: 20),
-                          TextButton(
-                            onPressed: () async {
-                              setState(() {
-                                selectedProvider = 'TODO';
-                                selectedCategory = 'TODO';
-                                selectedCategoriesList = [];
-                                arrayFiltersAnd = [];
-                                outFilter = [];
-                                _minPriceController.clear();
-                                _maxPriceController.clear();
-                                isSelectedFavorites = false;
-                              });
-                            },
-                            child: const Row(
-                              children: [
-                                Icon(Icons.clear),
-                                SizedBox(width: 5),
-                                Text('Limpiar Filtros'),
-                              ],
-                            ),
-                          ),
-                          Expanded(child: Container()),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      */
-  /*
-                      Row(
-                        children: [
-                          Container(
-                            width: screenWidth * 0.4,
-                            color: Colors.white,
-                            padding: const EdgeInsets.all(0),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: _modelTextField(
-                                      text: "Buscar", controller: _search),
-                                ),
-                              ],
-                            ),
-                          ),
-                          // Container(
-                          //   width: screenWidth * 0.15,
-                          //   padding: const EdgeInsets.only(left: 15, right: 5),
-                          //   child: Text(
-                          //     "Registros encontrados: ${total}",
-                          //     style: TextStyle(
-                          //         fontWeight: FontWeight.bold,
-                          //         color: Colors.grey[500]),
-                          //   ),
-                          // ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 10),
-                      //
-                      Expanded(
-                        child: FutureBuilder(
-                          future: _getProductModelCatalog(),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const Center(
-                                  child: CircularProgressIndicator());
-                            } else if (snapshot.hasError) {
-                              return const Center(
-                                  child: Text('Error al cargar los productos'));
-                            } else {
-                              List<ProductModel> products = snapshot.data ?? [];
-                              return Padding(
-                                padding: const EdgeInsets.all(0.0),
-                                child: GridView.builder(
-                                  itemCount: products.length,
-                                  gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 4,
-                                    crossAxisSpacing: 10,
-                                    mainAxisSpacing: 10,
-                                    // childAspectRatio: 1.8,
-                                  ),
-                                  itemBuilder: (context, index) {
-                                    ProductModel product = products[index];
-                                    return ProductCard(
-                                      product: product,
-                                      onTapCallback: (context) =>
-                                          _showProductInfo(context, product),
-                                    );
-                                  },
-                                ),
-                              );
-                            }
-                          },
-                        ),
-                      ),
-                      */
-
   String getFirstImgUrl(dynamic urlImgData) {
     List<String> urlsImgsList = (jsonDecode(urlImgData) as List).cast<String>();
     String url = urlsImgsList[0];
@@ -1551,69 +1097,7 @@ class _CatalogState extends State<Catalog> {
                       Expanded(
                         flex: 6,
                         child: ShowImages(urlsImgsList: urlsImgsList),
-                        /*
-                        child: Row(
-                          children: [
-                            Column(
-                              children: [
-                                for (String imageUrl in urlsImgsList)
-                                  GestureDetector(
-                                    onTap: () {
-                                      // Update the selectedImage when an image on the left is tapped
-                                      setState(() {
-                                        selectedImage = imageUrl;
-                                      });
-
-                                      print("selectedImage: $selectedImage");
-                                    },
-                                    child: Container(
-                                      width: screenWidth * 0.08,
-                                      height: screenHeight * 0.15,
-                                      margin: const EdgeInsets.all(5),
-                                      child: Image.network(
-                                        "$generalServer$imageUrl",
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  ),
-                              ],     
-                            ),
-                            const SizedBox(width: 20),
-                            SizedBox(
-                              width: screenWidth * 0.4,
-                              height: screenHeight * 0.8,
-                              child: product.urlImg != null &&
-                                      product.urlImg.isNotEmpty &&
-                                      product.urlImg.toString() != "[]"
-                                  ? Image.network(
-                                      "$generalServer$selectedImage",
-                                      fit: BoxFit.fill,
-                                    )
-                                  : Container(), // Contenedor vacío si product.urlImg es nulo o vacío
-                            ),
-                          ],
-                        ),
-                        */
                       ),
-                      // Expanded(
-                      //   flex: 6,
-                      //   child: Column(
-                      //     children: [
-                      //             SizedBox(
-                      //         width: MediaQuery.of(context).size.width * 0.3,
-                      //         height: MediaQuery.of(context).size.height * 0.6,
-                      //         child: product.urlImg != null &&
-                      //                 product.urlImg.isNotEmpty &&
-                      //                 product.urlImg.toString() != "[]"
-                      //             ? Image.network(
-                      //                       "$generalServer${selectedImage}",
-                      //                       fit: BoxFit.fill,
-                      //                     )
-                      //                   : Container(), // Contenedor vacío si product.urlImg es nulo o vacío
-                      //             ),
-                      //     ],
-                      //   ),
-                      // ),
                       Expanded(
                         flex: 4,
                         child: Column(
@@ -2166,7 +1650,7 @@ class _CatalogState extends State<Catalog> {
                                 int.parse(
                                     userIdComercialMasterSeller.toString()));
 
-                            print(response['id']);
+                            // print(response['id']);
 
                             var responseUpt = await Connections()
                                 .updateProductSeller(response['id'], {
@@ -2176,7 +1660,7 @@ class _CatalogState extends State<Catalog> {
                             // print(responseUpt);
 
                             if (responseUpt == 1 || responseUpt == 2) {
-                              print('Error update new');
+                              // print('Error update new');
                               // ignore: use_build_context_synchronously
                               showSuccessModal(
                                   context,
@@ -2212,9 +1696,9 @@ class _CatalogState extends State<Catalog> {
                                     int.parse(
                                         userIdComercialMasterSeller.toString()),
                                     "favorite");
-                            print("responseNew: $responseNew");
+                            // print("responseNew: $responseNew");
                             if (responseNew == 1 || responseNew == 2) {
-                              print('Error Created new');
+                              // print('Error Created new');
                               // ignore: use_build_context_synchronously
                               showSuccessModal(
                                   context,
@@ -2283,7 +1767,7 @@ class _CatalogState extends State<Catalog> {
                                 int.parse(
                                     userIdComercialMasterSeller.toString()));
 
-                            print(response['id']);
+                            // print(response['id']);
 
                             var responseUpt = await Connections()
                                 .updateProductSeller(response['id'], {
@@ -2293,7 +1777,7 @@ class _CatalogState extends State<Catalog> {
                             // print(responseUpt);
 
                             if (responseUpt == 1 || responseUpt == 2) {
-                              print('Error update new');
+                              // print('Error update new');
                               // ignore: use_build_context_synchronously
                               showSuccessModal(
                                   context,
@@ -2328,55 +1812,6 @@ class _CatalogState extends State<Catalog> {
                                   Navigator.pop(context);
                                 },
                               ).show();
-                              // Clipboard.setData(
-                              //     ClipboardData(text: "${product.productId}"));
-
-                              // Get.snackbar(
-                              //   'COPIADO',
-                              //   'Copiado al Clipboard',
-                              // );
-
-                              // // ignore: use_build_context_synchronously
-                              // return showDialog(
-                              //     context: context,
-                              //     builder: (context) {
-                              //       return AlertDialog(
-                              //         content: SizedBox(
-                              //           width: screenWidth * 0.25,
-                              //           height: screenHeight * 0.20,
-                              //           child: Expanded(
-                              //               child: Column(
-                              //             children: [
-                              //               const Text(
-                              //                 "Información",
-                              //                 style: TextStyle(
-                              //                   fontSize: 20,
-                              //                   color: Colors.black,
-                              //                   fontWeight: FontWeight.bold,
-                              //                 ),
-                              //               ),
-                              //               const SizedBox(height: 10),
-                              //               RichText(
-                              //                 text: TextSpan(
-                              //                   children: <TextSpan>[
-                              //                     TextSpan(
-                              //                       text:
-                              //                           'El ID: "${product.productId}" del producto "${product.productName}" ha sido copiado con éxito. Péguelo en EasyShop para importar los productos a su tienda en Shopify.',
-                              //                       style: const TextStyle(
-                              //                         fontSize: 18,
-                              //                         color: Colors.black,
-                              //                       ),
-                              //                     ),
-                              //                   ],
-                              //                 ),
-                              //               ),
-                              //             ],
-                              //           )),
-                              //         ),
-                              //       );
-                              //     }).then((value) => setState(() {
-                              //       _getProductModelCatalog(); // Actualiza el Future
-                              //     }));
                             }
                             //
                           } else {
@@ -2387,9 +1822,9 @@ class _CatalogState extends State<Catalog> {
                                     int.parse(
                                         userIdComercialMasterSeller.toString()),
                                     "onsale");
-                            print("responseNew: $responseNew");
+                            // print("responseNew: $responseNew");
                             if (responseNew == 1 || responseNew == 2) {
-                              print('Error Created new');
+                              // print('Error Created new');
                               // ignore: use_build_context_synchronously
                               showSuccessModal(
                                   context,
@@ -2423,166 +1858,8 @@ class _CatalogState extends State<Catalog> {
                                   Navigator.pop(context);
                                 },
                               ).show();
-
-                              // Clipboard.setData(
-                              //     ClipboardData(text: "${product.productId}"));
-
-                              // Get.snackbar(
-                              //   'COPIADO',
-                              //   'Copiado al Clipboard',
-                              // );
-
-                              // // ignore: use_build_context_synchronously
-                              // return showDialog(
-                              //     context: context,
-                              //     builder: (context) {
-                              //       return AlertDialog(
-                              //         content: SizedBox(
-                              //           width: screenWidth * 0.25,
-                              //           height: screenHeight * 0.20,
-                              //           child: Expanded(
-                              //               child: Column(
-                              //             children: [
-                              //               const Text(
-                              //                 "Información",
-                              //                 style: TextStyle(
-                              //                   fontSize: 20,
-                              //                   color: Colors.black,
-                              //                   fontWeight: FontWeight.bold,
-                              //                 ),
-                              //               ),
-                              //               const SizedBox(height: 10),
-                              //               RichText(
-                              //                 text: TextSpan(
-                              //                   children: <TextSpan>[
-                              //                     TextSpan(
-                              //                       text:
-                              //                           'El ID: "${product.productId}" del producto "${product.productName}" ha sido copiado con éxito. Péguelo en EasyShop para importar los productos a su tienda en Shopify.',
-                              //                       style: const TextStyle(
-                              //                         fontSize: 18,
-                              //                         color: Colors.black,
-                              //                       ),
-                              //                     ),
-                              //                   ],
-                              //                 ),
-                              //               ),
-                              //             ],
-                              //           )),
-                              //         ),
-                              //       );
-                              //     }).then((value) => setState(() {
-                              //       _getProductModelCatalog(); // Actualiza el Future
-                              //     }));
                             }
                           }
-                          //
-                          // var userIdComercialMasterSeller =
-                          //     sharedPrefs!.getString("idComercialMasterSeller");
-                          // print(userIdComercialMasterSeller);
-                          // print(product.productId);
-/*
-                          var response = await Connections().getProductSeller(
-                              int.parse(product.productId.toString()),
-                              int.parse(
-                                  userIdComercialMasterSeller.toString()));
-                          print("response: $response");
-
-                          if (response == 1 || response['onsale'] == null) {
-                            print('No existe');
-                            //create new
-                            var responseNew = await Connections()
-                                .createProductSeller(
-                                    int.parse(product.productId.toString()),
-                                    int.parse(
-                                        userIdComercialMasterSeller.toString()),
-                                    "onsale");
-                            print("responseNew: $responseNew");
-                            if (responseNew == 1 || responseNew == 2) {
-                              print('Error Created new');
-                              // ignore: use_build_context_synchronously
-                              showSuccessModal(
-                                  context,
-                                  "Ha ocurrido un error al agregar a favoritos.",
-                                  Icons8.alert);
-                            } else {
-                              Clipboard.setData(
-                                  ClipboardData(text: "${product.productId}"));
-
-                              Get.snackbar(
-                                'COPIADO',
-                                'Copiado al Clipboard',
-                              );
-
-                              // ignore: use_build_context_synchronously
-                              return showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      content: SizedBox(
-                                        width: screenWidth * 0.25,
-                                        height: screenHeight * 0.20,
-                                        child: Expanded(
-                                            child: Column(
-                                          children: [
-                                            const Text(
-                                              "Información",
-                                              style: TextStyle(
-                                                fontSize: 20,
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 10),
-                                            RichText(
-                                              text: TextSpan(
-                                                children: <TextSpan>[
-                                                  TextSpan(
-                                                    text:
-                                                        'El ID: "${product.productId}" del producto "${product.productName}" ha sido copiado con éxito. Péguelo en EasyShop para importar los productos a su tienda en Shopify.',
-                                                    style: const TextStyle(
-                                                      fontSize: 18,
-                                                      color: Colors.black,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        )),
-                                      ),
-                                    );
-                                  }).then((value) => setState(() {
-                                    _getProductModelCatalog(); // Actualiza el Future
-                                  }));
-                              print('Created new');
-                            }
-                          } else if (response == 2) {
-                            print('Error: Status Code 2');
-                            //maybe show succesful dialog
-                          } else {
-                            //update
-                            var responseUpt = await Connections()
-                                .updateProductSeller(response['id'], {
-                              "favorite": 1,
-                            });
-
-                            if (responseUpt == 1 || responseUpt == 2) {
-                              print('Error update new');
-                              // ignore: use_build_context_synchronously
-                              showSuccessModal(
-                                  context,
-                                  "Ha ocurrido un error al actualizar favoritos.",
-                                  Icons8.alert);
-                            } else {
-                              // ignore: use_build_context_synchronously
-                              showSuccessModal(
-                                  context,
-                                  "Se ha agregado actualizado correctamente",
-                                  Icons8.alert);
-                              print('Updated ');
-                            }
-                          }
-                          */
                           //
                         },
                         style: ElevatedButton.styleFrom(

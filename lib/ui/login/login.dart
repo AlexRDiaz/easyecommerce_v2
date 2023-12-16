@@ -77,17 +77,17 @@ class _LoginPageState extends State<LoginPage> {
                           Container(
                             width: MediaQuery.of(context).size.width * 0.82,
                             padding: EdgeInsets.all(20.0), // Espaciado interno
-                            decoration: BoxDecoration(
-                              color: Color.fromRGBO(
-                                  194, 199, 204, 0.973), // Color de fondo
-                              border: Border.all(
-                                color: ColorsSystem()
-                                    .colorBlack, // Color del borde
-                                width: 1.0, // Ancho del borde
-                              ),
-                              borderRadius:
-                                  BorderRadius.circular(12.0), // Radio de borde
-                            ),
+                            // decoration: BoxDecoration(
+                            //   color: Color.fromRGBO(
+                            //       194, 199, 204, 0.973), // Color de fondo
+                            //   border: Border.all(
+                            //     color: ColorsSystem()
+                            //         .colorBlack, // Color del borde
+                            //     width: 1.0, // Ancho del borde
+                            //   ),
+                            //   borderRadius:
+                            //       BorderRadius.circular(12.0), // Radio de borde
+                            // ),
                             child: _content(),
                           ),
                         ],

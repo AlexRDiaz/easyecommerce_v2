@@ -426,6 +426,9 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                             text: "Busqueda",
                             controller: _controllers.searchController),
                       ),
+                      const SizedBox(
+                        height: 10,
+                      ),
                       Container(
                         child: Row(
                           children: [
@@ -440,6 +443,9 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                             ),
                           ],
                         ),
+                      ),
+                      const SizedBox(
+                        height: 5,
                       ),
                       Align(
                         alignment: Alignment.centerRight,
@@ -457,7 +463,10 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                               style: TextStyle(fontWeight: FontWeight.bold),
                             )),
                       ),
-                      Expanded(child: numberPaginator()),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Container(child: numberPaginator()),
                     ],
                   ),
                   context),
@@ -477,10 +486,6 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                     color: Colors.black),
-                dataRowColor: MaterialStateColor.resolveWith((states) {
-                  return Colors.white;
-                }),
-                dividerThickness: 1,
                 columnSpacing: 12,
                 horizontalMargin: 6,
                 minWidth: 2000,

@@ -125,31 +125,6 @@ class _ProductsViewState extends State<ProductsView> {
       }
     }
 
-    // var responseBodegas = await Connections().getWarehousesProvider(
-    //     int.parse(sharedPrefs!.getString("idProvider").toString()));
-    // warehouseList0 = responseBodegas;
-    // if (warehouseList0 != null) {
-    //   warehousesToSelect.insert(0, 'TODO');
-    //   warehouseList0.forEach((warehouse) {
-    //     setState(() {
-    //       warehousesToSelect
-    //           .add('${warehouse["branch_name"]}-${warehouse["warehouse_id"]}');
-    //     });
-    //   });
-    // }
-
-    // var response = await Connections().getProductsByProvider(
-    //     sharedPrefs!.getString("idProvider"),
-    //     populate,
-    //     pageSize,
-    //     currentPage,
-    //     arrayFiltersOr,
-    //     arrayFiltersAnd,
-    //     sortFieldDefaultValue.toString(),
-    //     _search.text);
-    // data = response["data"];
-    // print(data);
-
     products = await _getProductModelData();
 
     var response = await _productController.loadProductsByProvider(
@@ -1069,40 +1044,6 @@ class _ProductsViewState extends State<ProductsView> {
                       Expanded(
                         flex: 6,
                         child: ShowImages(urlsImgsList: urlsImgsList),
-
-                        /*
-                        child: Row(
-                          children: [
-                            Column(
-                              children: [
-                                for (String imageUrl in urlsImgsList)
-                                  Container(
-                                    width: screenWidth * 0.08,
-                                    height: screenHeight * 0.15,
-                                    margin: const EdgeInsets.all(5),
-                                    child: Image.network(
-                                      "$generalServer$imageUrl",
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                            const SizedBox(width: 20),
-                            SizedBox(
-                              width: screenWidth * 0.4,
-                              height: screenHeight * 0.8,
-                              child: product.urlImg != null &&
-                                      product.urlImg.isNotEmpty &&
-                                      product.urlImg.toString() != "[]"
-                                  ? Image.network(
-                                      "$generalServer${selectedImage}",
-                                      fit: BoxFit.fill,
-                                    )
-                                  : Container(), // Contenedor vacío si product.urlImg es nulo o vacío
-                            ),
-                          ],
-                        ),
-                        */
                       ),
                       Expanded(
                         flex: 4,
