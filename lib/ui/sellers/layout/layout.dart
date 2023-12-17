@@ -12,6 +12,7 @@ import 'package:frontend/ui/sellers/dashboard/dashboard.dart';
 import 'package:frontend/ui/sellers/delivery_status/delivery_status.dart';
 import 'package:frontend/ui/sellers/guides_sent/table_orders_guides_sent.dart';
 import 'package:frontend/ui/sellers/my_cart_sellers/my_cart_sellers.dart';
+import 'package:frontend/ui/sellers/my_integrations/my_integrations.dart';
 import 'package:frontend/ui/sellers/my_seller_account/my_seller_account.dart';
 import 'package:frontend/ui/sellers/my_stock/my_stock.dart';
 import 'package:frontend/ui/sellers/my_wallet/my_wallet.dart';
@@ -61,15 +62,10 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
         "Reporte de Ventas",
         SalesReport(),
       ),
-      // getOption(
-      //   "Mi Cuenta Vendedor",
-      //   MySellerAccount(),
-      // ),
       getOption(
         "Agregar Usuarios Vendedores",
         AddSellerUser(),
       ),
-
       getOption(
         "Ingreso de Pedidos",
         OrderEntry(),
@@ -106,7 +102,6 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
         "Imprimir Guías",
         PrintGuidesSeller(),
       ),
-
       getOption(
         "Guías Impresas",
         PrintedGuidesSeller(),
@@ -115,6 +110,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
           // GuidesSent(),
           ),
       getOption("Catálogo de Productos", Catalog()),
+      getOption("Mis integraciones", MyIntegrations()),
     ];
     return Scaffold(
       key: _key,

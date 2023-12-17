@@ -9,6 +9,7 @@ import 'package:frontend/main.dart';
 import 'package:frontend/ui/login/controllers/controllers.dart';
 import 'package:frontend/ui/logistic/add_sellers/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/loading.dart';
+import 'package:frontend/ui/widgets/menu_categories.dart';
 import 'package:frontend/ui/widgets/terms_conditions.dart';
 
 class LoginPage extends StatefulWidget {

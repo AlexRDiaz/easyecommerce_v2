@@ -125,10 +125,6 @@ getNavbarDrawerSellers(context) {
                         children: [
                           ListTile(
                             onTap: () {
-                              // if (index == optionsSellers.length - 1) {
-                              //   Navigators()
-                              //       .pushNamedAndRemoveUntil(context, "/login");
-                              // } else {
                               Provider.of<NavigationProviderSellers>(context,
                                       listen: false)
                                   .changeIndex(
