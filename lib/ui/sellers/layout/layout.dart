@@ -139,7 +139,9 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
           ),
         ),
         title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: screenWidth > 600
+              ? MainAxisAlignment.center
+              : MainAxisAlignment.start,
           children: [
             // Image.asset(
             //   images.logoEasyEcommercce,
