@@ -10,10 +10,13 @@ class MenuCategories extends StatefulWidget {
   _MenuCategoriesState createState() => _MenuCategoriesState();
 }
 
+enum SampleItem { itemOne, itemTwo, itemThree }
+
 class _MenuCategoriesState extends State<MenuCategories> {
   TextEditingController _textEditingController = TextEditingController();
   Timer? _timer;
   OverlayEntry? _overlayEntry;
+  SampleItem? selectedMenu;
 
   @override
   void dispose() {
@@ -39,26 +42,83 @@ class _MenuCategoriesState extends State<MenuCategories> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: TextField(
-        controller: _textEditingController,
-        decoration: InputDecoration(
-          hintText: 'Escribe aquí...',
-          border: OutlineInputBorder(),
+      child: Center(
+        child: PopupMenuButton<SampleItem>(
+          initialValue: selectedMenu,
+          // Callback that sets the selected popup menu item.
+          onSelected: (SampleItem item) {
+            setState(() {
+              selectedMenu = item;
+            });
+          },
+          child: TextField(),
+          itemBuilder: (BuildContext context) => <PopupMenuEntry<SampleItem>>[
+            const PopupMenuItem<SampleItem>(
+              value: SampleItem.itemOne,
+              child: Text('Item 1'),
+            ),
+            const PopupMenuItem<SampleItem>(
+              value: SampleItem.itemTwo,
+              child: Text('Item 2'),
+            ),
+            const PopupMenuItem<SampleItem>(
+              value: SampleItem.itemThree,
+              child: Text('Item 3'),
+            ),
+          ],
         ),
-        onChanged: (value) {
-          _timer?.cancel();
-          _timer = Timer(Duration(seconds: 2), () {
-            _showPopupMenu(context);
-          });
-        },
       ),
     );
   }
 
   void _showPopupMenu(BuildContext context) {
-    _overlayEntry?.remove();
-    _overlayEntry = _createOverlayEntry();
+    if (_overlayEntry != null) return;
+
+    RenderBox renderBox = context.findRenderObject() as RenderBox;
+    var size = renderBox.size;
+    var offset = renderBox.localToGlobal(Offset.zero);
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+          left: offset.dx,
+          top: offset.dy + size.height,
+          child: Material(
+            elevation: 4.0,
+            child: Center(
+              child: PopupMenuButton<SampleItem>(
+                initialValue: selectedMenu,
+                // Callback that sets the selected popup menu item.
+                onSelected: (SampleItem item) {
+                  setState(() {
+                    selectedMenu = item;
+                  });
+                },
+                itemBuilder: (BuildContext context) =>
+                    <PopupMenuEntry<SampleItem>>[
+                  const PopupMenuItem<SampleItem>(
+                    value: SampleItem.itemOne,
+                    child: Text('Item 1'),
+                  ),
+                  const PopupMenuItem<SampleItem>(
+                    value: SampleItem.itemTwo,
+                    child: Text('Item 2'),
+                  ),
+                  const PopupMenuItem<SampleItem>(
+                    value: SampleItem.itemThree,
+                    child: Text('Item 3'),
+                  ),
+                ],
+              ),
+            ),
+          )),
+    );
+
     Overlay.of(context)?.insert(_overlayEntry!);
+  }
+
+  void _dismissPopupMenu() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
   }
 
   OverlayEntry _createOverlayEntry() {

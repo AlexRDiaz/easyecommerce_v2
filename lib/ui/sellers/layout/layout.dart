@@ -29,6 +29,7 @@ import 'package:frontend/ui/sellers/wallet_sellers/wallet_sellers.dart';
 import 'package:frontend/ui/welcome/welcome.dart';
 
 import 'package:frontend/ui/widgets/logistic/layout/navbar_drawer.dart';
+import 'package:frontend/ui/widgets/menu_categories.dart';
 import 'package:provider/provider.dart';
 
 import 'package:frontend/ui/sellers/transport_stats/transport_stats.dart';
@@ -57,7 +58,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
   @override
   Widget build(BuildContext context) {
     List pages = [
-      getOption("DashBoard", DashBoardSellers()),
+      getOption("DashBoard", MenuCategories()),
       getOption(
         "Reporte de Ventas",
         SalesReport(),
