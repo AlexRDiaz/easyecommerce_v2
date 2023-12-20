@@ -48,6 +48,12 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
   Color colorlabels = Colors.black;
   Color colorDrawer = Colors.white;
   @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  @override
   void didChangeDependencies() {
     // navigation = Provider.of<NavigationProviderSellers>(context);
     var currentIndex = sharedPrefs!.getString("index");

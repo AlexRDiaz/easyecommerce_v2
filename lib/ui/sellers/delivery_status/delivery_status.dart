@@ -110,6 +110,12 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     }
   ];
 
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
   List arrayFiltersNotEq = [
     //{'status': 'PEDIDO PROGRAMADO'}
   ];
