@@ -14,7 +14,7 @@ import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/provider/products/add_product.dart';
 import 'package:frontend/ui/provider/products/controllers/product_controller.dart';
-import 'package:frontend/ui/provider/products/product_edit.dart';
+import 'package:frontend/ui/provider/products/edit_product.dart';
 import 'package:frontend/ui/provider/warehouses/controllers/warehouses_controller.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
@@ -679,7 +679,7 @@ class _ProductsViewState extends State<ProductsView> {
                                         await showDialog(
                                           context: context,
                                           builder: (context) {
-                                            return ProductEdit(
+                                            return EditProduct(
                                               data: data[index],
                                               // function: paginateData,
                                               hasEdited: hasEdited,
@@ -923,7 +923,7 @@ class _ProductsViewState extends State<ProductsView> {
                     ),
                   ),
                   Expanded(
-                      child: ProductEdit(
+                      child: EditProduct(
                     data: data,
                     hasEdited: hasEdited,
                     // function: loadData(),

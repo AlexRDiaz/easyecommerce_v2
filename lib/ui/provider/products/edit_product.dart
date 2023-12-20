@@ -22,20 +22,20 @@ import 'package:frontend/ui/widgets/loading.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
-class ProductEdit extends StatefulWidget {
+class EditProduct extends StatefulWidget {
   final Map data;
   // final Function function;
   final Function(dynamic) hasEdited;
   // final List? data;
 
-  const ProductEdit({super.key, required this.hasEdited, required this.data});
+  const EditProduct({super.key, required this.hasEdited, required this.data});
   // const ProductDetails({super.key});
 
   @override
-  State<ProductEdit> createState() => _ProductEditState();
+  State<EditProduct> createState() => _EditProductState();
 }
 
-class _ProductEditState extends State<ProductEdit> {
+class _EditProductState extends State<EditProduct> {
   String codigo = "";
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _nameGuideController = TextEditingController();
@@ -96,6 +96,10 @@ class _ProductEditState extends State<ProductEdit> {
   int showStockTotal = 0;
   List<Map<String, List<String>>> optionsList = UIUtils.variablesToSelect();
   bool showToResetType = false;
+  List<String> variantsToSelect = [];
+  String? chosenVariant;
+  final TextEditingController _inventaryVariantController =
+      TextEditingController();
 
   @override
   void initState() {
@@ -159,6 +163,13 @@ class _ProductEditState extends State<ProductEdit> {
       optionsTypesOriginal = dataFeatures["options"];
       variantsListOriginal = dataFeatures["variants"];
 
+      for (var variant in variantsListOriginal) {
+        variantsToSelect
+            .add('${variant["id"]}-${variant["sku"]}-${variant["color"]}');
+      }
+
+      print("variantsListOriginal: $variantsListOriginal");
+
       List<Map<String, dynamic>>? variants =
           (dataFeatures["variants"] as List<dynamic>)
               .cast<Map<String, dynamic>>();
@@ -196,8 +207,21 @@ class _ProductEditState extends State<ProductEdit> {
     setState(() {});
   }
 
+  void updateInventory(String sku, int newStock) {
+    for (var variant in variantsListOriginal) {
+      if (variant["sku"] == sku) {
+        variant["inventory_quantity"] = newStock;
+        print('Stock actualizado para SKU $sku: $newStock unidades');
+        return; // Terminar la función después de encontrar y actualizar la variante
+      }
+    }
+    print('SKU $sku no encontrado en la lista de variantes');
+  }
+
   @override
   Widget build(BuildContext context) {
+    double screenWidthDialog = MediaQuery.of(context).size.width * 0.40;
+    double screenHeight = MediaQuery.of(context).size.height;
     return AlertDialog(
       title: AppBar(
         title: const Text(
@@ -494,6 +518,80 @@ class _ProductEditState extends State<ProductEdit> {
                             ),
                           ],
                         ),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Variantes'),
+                                const SizedBox(height: 3),
+                                SizedBox(
+                                  width: (screenWidthDialog / 2) - 10,
+                                  child: DropdownButtonFormField<String>(
+                                    isExpanded: true,
+                                    hint: Text(
+                                      'Seleccione Variante',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Theme.of(context).hintColor,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    items: variantsToSelect.map((item) {
+                                      return DropdownMenuItem(
+                                        value: item,
+                                        child: Text(
+                                          item,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                    value: chosenVariant,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        chosenVariant = value as String;
+                                      });
+                                    },
+                                    decoration: InputDecoration(
+                                      fillColor: Colors.white,
+                                      filled: true,
+                                      border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(5.0),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  width: (screenWidthDialog / 2) - 10,
+                                  child: TextFieldWithIcon(
+                                    controller: _inventaryVariantController,
+                                    labelText: 'Stock',
+                                    icon: Icons.numbers,
+                                    inputType: TextInputType.number,
+                                    inputFormatters: <TextInputFormatter>[
+                                      FilteringTextInputFormatter.digitsOnly
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 10),
                       SizedBox(
