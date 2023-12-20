@@ -1,8 +1,10 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/config/exports.dart';
+import 'package:frontend/helpers/commons.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
+import 'package:frontend/providers/logistic/navigation_provider.dart';
 import 'package:frontend/providers/sellers/navigation_provider.dart';
 import 'package:frontend/ui/logistic/delivery_status/delivery_status.dart';
 import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
@@ -32,20 +34,34 @@ class LayoutSellersPage extends StatefulWidget {
 }
 
 class _LayoutSellersPageState extends State<LayoutSellersPage> {
-  bool isSidebarOpen = false;
+  bool isSidebarOpen = true;
   List<String> permissions = sharedPrefs!.getStringList("PERMISOS")!;
 
   final GlobalKey<ScaffoldState> _key = GlobalKey();
   var email = sharedPrefs!.getString("email").toString();
   var username = sharedPrefs!.getString("username").toString();
-  Map currentView = {"page": "DashBoard", "view": DashBoardSellers()};
+  Map currentView = Map();
+  bool isSelected =
+      false; // Variable para controlar si el elemento está seleccionado
+
   final GlobalKey _menuKey = GlobalKey();
   late NavigationProviderSellers navigation;
   Color colorlabels = Colors.black;
   Color colorDrawer = Colors.white;
   @override
   void didChangeDependencies() {
-    navigation = Provider.of<NavigationProviderSellers>(context);
+    // navigation = Provider.of<NavigationProviderSellers>(context);
+    var m = sharedPrefs!.getString("index");
+    currentView = {
+      "page": sharedPrefs!.getString("index") != null
+          ? pagesSeller[int.parse(sharedPrefs!.getString("index").toString())]
+              ["page"]
+          : "Dashboard",
+      "view": sharedPrefs!.getString("index") != null
+          ? pagesSeller[int.parse(sharedPrefs!.getString("index").toString())]
+              ["view"]
+          : DashBoardSellers()
+    };
     super.didChangeDependencies();
   }
 
@@ -57,37 +73,54 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
     return LayoutBuilder(
       builder: (context, constraints) {
         return responsive(_buildWebLayout(), _buildPhoneLayout(), context);
-
-        // if (constraints.maxWidth < 600) {
-        //   // Si el ancho de la pantalla es menor a 600 (considerado como teléfono)
-        //   return _buildPhoneLayout(); // Mostrar diseño de teléfono con Drawer
-        // } else {
-        //   // Si el ancho de la pantalla es mayor o igual a 600 (considerado como web)
-        //   return _buildWebLayout(); // Mostrar diseño de web con Sidebar
-        // }
       },
     );
   }
 
-  List pages = [
-    {"page": "DashBoard", "view": DashBoardSellers()},
-    {"page": "Reporte de Ventas", "view": SalesReport()},
-    {"page": "Agregar Usuarios Vendedores", "view": AddSellerUser()},
+  List<Map<String, dynamic>> pages = [
+    {"page": "DashBoard", "view": DashBoardSellers(), "selected": false},
+    {"page": "Reporte de Ventas", "view": SalesReport(), "selected": false},
     {
-      "page": "Ingreso de Pedidos",
-      "view": OrderEntry(),
+      "page": "Agregar Usuarios Vendedores",
+      "view": AddSellerUser(),
+      "selected": false
     },
-    {"page": "Estado Entregas Pedidos", "view": DeliveryStatus()},
-    {"page": "Pedidos No Deseados", "view": UnwantedOrdersSellers()},
-    {"page": "Billetera", "view": WalletSellers()},
-    {"page": "Mi Billetera", "view": MyWallet()},
-    {"page": "Devoluciones", "view": ReturnsSeller()},
-    {"page": "Retiros en Efectivo", "view": CashWithdrawalsSellers()},
-    {"page": "Conoce a tu Transporte", "view": tansportStats()},
-    {"page": "Imprimir Guías", "view": PrintGuidesSeller()},
-    {"page": "Guías Impresas", "view": PrintedGuidesSeller()},
-    {"page": "Guías Enviadas", "view": TableOrdersGuidesSentSeller()},
-    {"page": "Mis integraciones", "view": MyIntegrations()},
+    {"page": "Ingreso de Pedidos", "view": OrderEntry(), "selected": false},
+    {
+      "page": "Estado Entregas Pedidos",
+      "view": DeliveryStatus(),
+      "selected": false
+    },
+    {
+      "page": "Pedidos No Deseados",
+      "view": UnwantedOrdersSellers(),
+      "selected": false
+    },
+    {"page": "Billetera", "view": WalletSellers(), "selected": false},
+    {"page": "Mi Billetera", "view": MyWallet(), "selected": false},
+    {"page": "Devoluciones", "view": ReturnsSeller(), "selected": false},
+    {
+      "page": "Retiros en Efectivo",
+      "view": CashWithdrawalsSellers(),
+      "selected": false
+    },
+    {
+      "page": "Conoce a tu Transporte",
+      "view": tansportStats(),
+      "selected": false
+    },
+    {"page": "Imprimir Guías", "view": PrintGuidesSeller(), "selected": false},
+    {
+      "page": "Guías Impresas",
+      "view": PrintedGuidesSeller(),
+      "selected": false
+    },
+    {
+      "page": "Guías Enviadas",
+      "view": TableOrdersGuidesSentSeller(),
+      "selected": false
+    },
+    {"page": "Mis integraciones", "view": MyIntegrations(), "selected": false},
   ];
 
   Widget _buildPhoneLayout() {
@@ -218,8 +251,6 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                 MaterialPageRoute(
                     builder: (context) => UpdatePasswordSellers()));
           } else if (value == "log_out") {
-            // Navigator.pushNamedAndRemoveUntil(
-            //     context, '/login', (Route<dynamic> route) => false);
             showLogoutConfirmationDialog2(context);
           }
         },
@@ -232,14 +263,34 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
     double heigth = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: heigth * 0.060,
+        leadingWidth: width * 0.6,
+        forceMaterialTransparency: true,
         actions: getActions,
-        leading: IconButton(
-          icon: Icon(Icons.menu),
-          onPressed: () {
-            setState(() {
-              isSidebarOpen = !isSidebarOpen;
-            });
-          },
+        leading: Row(
+          children: [
+            IconButton(
+              icon: Icon(Icons.menu),
+              onPressed: () {
+                setState(() {
+                  isSidebarOpen = !isSidebarOpen;
+                });
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.settings),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: Icon(Icons.notifications),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: Icon(Icons.store),
+              onPressed: () {},
+            ),
+            Text(sharedPrefs!.getString("NameComercialSeller").toString())
+          ],
         ),
       ),
       body: Stack(
@@ -248,17 +299,17 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
               duration: Duration(milliseconds: 300),
               top: 0,
               bottom: 0,
-              left: isSidebarOpen ? 240 : 0,
+              left: isSidebarOpen ? 260 : 0,
               right: 0,
               child: currentView["view"]),
           AnimatedPositioned(
             duration: Duration(milliseconds: 300),
             top: 0,
             bottom: 0,
-            left: isSidebarOpen ? 0 : -240,
+            left: isSidebarOpen ? 0 : -260,
             child: Container(
               color: colorDrawer,
-              width: 240,
+              width: 260,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -402,30 +453,46 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
   }
 
   Widget _buildMenuItem(String label, String title, Icon icon) {
+    pages = pages;
     final theme = Theme.of(context);
+    var betweenSelected =
+        pages.indexWhere((element) => element['selected'] == true);
+
+    var selectedView = pages.firstWhere((element) => element['page'] == title);
+    var selectedIndex = pages.indexWhere((element) => element['page'] == title);
     return permissions[0].contains(title)
-        ? Padding(
-            padding: const EdgeInsets.only(left: 20),
+        ? Container(
+            color: selectedView["selected"] ? Colors.blue : Colors.white,
+            padding: EdgeInsets.only(left: 20),
             child: ListTile(
               title: Row(
                 children: [
                   icon,
-                  Padding(
+                  Container(
                     padding: EdgeInsets.only(left: 10),
                     child: Text(
                       label,
-                      style: theme.textTheme.bodyMedium
-                          ?.copyWith(color: colorlabels),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: colorlabels,
+                        // Cambiar el color cuando está seleccionado
+                      ),
                     ),
                   ),
                 ],
               ),
               onTap: () {
-                var selectedView =
-                    pages.firstWhere((element) => element['page'] == title);
+                sharedPrefs!.setString("index", selectedIndex.toString());
+
                 setState(() {
                   currentView = selectedView;
+                  if (betweenSelected != -1) {
+                    pages = List.from(pages)
+                      ..[betweenSelected]['selected'] = false;
+                  }
+                  pages = List.from(pages)..[selectedIndex]['selected'] = true;
                 });
+                Provider.of<NavigationProviderLogistic>(context, listen: false)
+                    .changeIndex(selectedIndex, selectedView['page']);
               },
             ),
           )
