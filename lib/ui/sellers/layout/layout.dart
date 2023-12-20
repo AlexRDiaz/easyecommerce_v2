@@ -51,7 +51,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
   @override
   void didChangeDependencies() {
     // navigation = Provider.of<NavigationProviderSellers>(context);
-    var m = sharedPrefs!.getString("index");
+    var currentIndex = sharedPrefs!.getString("index");
     currentView = {
       "page": sharedPrefs!.getString("index") != null
           ? pagesSeller[int.parse(sharedPrefs!.getString("index").toString())]
@@ -62,6 +62,11 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
               ["view"]
           : DashBoardSellers()
     };
+    if (sharedPrefs!.getString("index") != null) {
+      pages = List.from(pages)
+        ..[int.parse(sharedPrefs!.getString("index").toString())]['selected'] =
+            true;
+    }
     super.didChangeDependencies();
   }
 
@@ -331,20 +336,20 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                         _buildMenu(
                             'Crear', Icon(Icons.person, color: colorlabels), [
                           _buildMenuItem(
-                              'Agregar vendador',
+                              'Agregar vendedor',
                               'Agregar Usuarios Vendedores',
-                              Icon(Icons.hdr_plus, color: colorlabels)),
+                              Icon(Icons.person_add, color: colorlabels)),
                         ]),
                         _buildMenu('Reportes',
                             Icon(Icons.report, color: colorlabels), [
                           _buildMenuItem(
                               'Ingreso de pedidos',
                               'Ingreso de Pedidos',
-                              Icon(Icons.input, color: colorlabels)),
+                              Icon(Icons.shopping_cart, color: colorlabels)),
                           _buildMenuItem(
                               'Estado de entregas',
                               'Estado Entregas Pedidos',
-                              Icon(Icons.all_inbox, color: colorlabels)),
+                              Icon(Icons.local_shipping, color: colorlabels)),
                           _buildMenuItem(
                               'PEdidos no deseados',
                               'Pedidos No Deseados',
@@ -462,7 +467,9 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
     var selectedIndex = pages.indexWhere((element) => element['page'] == title);
     return permissions[0].contains(title)
         ? Container(
-            color: selectedView["selected"] ? Colors.blue : Colors.white,
+            color: selectedView["selected"]
+                ? Colors.blue.withOpacity(0.2)
+                : Colors.white,
             padding: EdgeInsets.only(left: 20),
             child: ListTile(
               title: Row(
@@ -489,6 +496,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                     pages = List.from(pages)
                       ..[betweenSelected]['selected'] = false;
                   }
+
                   pages = List.from(pages)..[selectedIndex]['selected'] = true;
                 });
                 Provider.of<NavigationProviderLogistic>(context, listen: false)

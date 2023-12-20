@@ -1,7 +1,9 @@
+import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
@@ -60,7 +62,7 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
   // double utilidades = 0;
 
 // ! usando
-  List newdata =[];
+  List newdata = [];
   double totalValoresRecibidosLaravel = 0;
   double costoDeEntregasLaravel = 0;
   double devolucionesLaravel = 0;
@@ -242,10 +244,6 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
   loadData() async {
     isLoading = true;
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getLoadingModal(context, false);
-    });
-
     setState(() {
       subFilters = [];
       sections = [];
@@ -258,26 +256,24 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
       });
     }
 
-
-
     // counters
     var responseCounters = await Connections()
         .getOrdersCountersSeller(populate, arrayFiltersDefaultAnd, [], []);
-    
+
     pageSize = responseCounters['TOTAL'];
-    
+
     // data table
     var responseLaravel = await Connections()
-          .getOrdersForSellerStateSearchForDateSellerLaravel(
-              "",
-              [],
-              arrayFiltersDefaultAnd,
-              [],
-              currentPage,
-              pageSize,
-              "",
-              [],
-              "marca_tiempo_envio:DESC");
+        .getOrdersForSellerStateSearchForDateSellerLaravel(
+            "",
+            [],
+            arrayFiltersDefaultAnd,
+            [],
+            currentPage,
+            pageSize,
+            "",
+            [],
+            "marca_tiempo_envio:DESC");
 
     // caltulated values
     var responseValues =
@@ -402,75 +398,166 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: Center(
-            child: Column(
-      children: [
-        Container(
-          padding: EdgeInsets.only(left: 20, right: 15, top: 20, bottom: 20),
-          child: InputDecorator(
-            decoration: InputDecoration(
-              labelText: 'Configuraciones',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
+    return BlurryModalProgressHUD(
+      inAsyncCall: isLoading,
+      blurEffectIntensity: 4,
+      progressIndicator: SpinKitFadingCircle(
+        color: const Color.fromARGB(255, 4, 2, 5),
+        size: 90.0,
+      ),
+      dismissible: false,
+      opacity: 0.4,
+      color: Colors.black87,
+      child: Scaffold(
+          body: Center(
+              child: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.only(left: 20, right: 15, top: 20, bottom: 20),
+            child: InputDecorator(
+              decoration: InputDecoration(
+                labelText: 'Configuraciones',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
               ),
+              child: Column(children: [
+                _dates(context),
+                // _sellersTransport(context),
+                // _operators(context),
+              ]),
             ),
-            child: Column(children: [
-              _dates(context),
-              // _sellersTransport(context),
-              // _operators(context),
-            ]),
           ),
-        ),
-        responsive(
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Container(
-                    height: MediaQuery.of(context).size.height * 0.73,
-                    padding: EdgeInsets.only(left: 20),
-                    child: InputDecorator(
-                      decoration: InputDecoration(
-                        labelText: 'Estados de entrega',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
+          responsive(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: MediaQuery.of(context).size.height * 0.73,
+                      padding: EdgeInsets.only(left: 20),
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          labelText: 'Estados de entrega',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
                         ),
-                      ),
-                      child: Container(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                children: filters2
-                                    .map((elemento) => FilterInfoCard(
-                                          svgSrc: elemento.svgSrc!,
-                                          title: elemento.title!,
-                                          filter: elemento.filter!,
-                                          color: elemento.color!,
-                                          details: addTableRows2,
-                                          percentage: elemento.percentage!,
-                                          numOfFiles: elemento.numOfFiles!,
-                                          function: changeValue,
-                                        ))
-                                    .toList(),
+                        child: Container(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  children: filters2
+                                      .map((elemento) => FilterInfoCard(
+                                            svgSrc: elemento.svgSrc!,
+                                            title: elemento.title!,
+                                            filter: elemento.filter!,
+                                            color: elemento.color!,
+                                            details: addTableRows2,
+                                            percentage: elemento.percentage!,
+                                            numOfFiles: elemento.numOfFiles!,
+                                            function: changeValue,
+                                          ))
+                                      .toList(),
+                                ),
                               ),
-                            ),
-                            Chart(
-                              sections: sections,
-                              total: calculatetotal(),
-                            ),
-                          ],
+                              Chart(
+                                sections: sections,
+                                total: calculatetotal(),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                Expanded(
-                    child: Column(
-                  children: [
+                  Expanded(
+                      child: Column(
+                    children: [
+                      FilterDetails(
+                          total: totalValoresRecibidosLaravel,
+                          costoEntregas: costoDeEntregasLaravel,
+                          costoDevoluciones: devolucionesLaravel,
+                          utilidades: utilidadLaravel),
+                      dataTableDetails()
+                    ],
+                  )),
+                ],
+              ),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.all(8),
+                  children: <Widget>[
+                    Container(
+                      padding: EdgeInsets.only(left: 20, right: 14, bottom: 20),
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          labelText: 'Estados de entrega',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                        ),
+                        child: Container(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  children: filters2
+                                      .map((elemento) => FilterInfoCard(
+                                            svgSrc: elemento.svgSrc!,
+                                            title: elemento.title!,
+                                            filter: elemento.filter!,
+                                            color: elemento.color!,
+                                            details: addTableRows2,
+                                            percentage: elemento.percentage!,
+                                            numOfFiles: elemento.numOfFiles!,
+                                            function: changeValue,
+                                          ))
+                                      .toList(),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            height: MediaQuery.of(context).size.height * 0.53,
+                            padding: EdgeInsets.only(
+                                left: 18, right: 13, bottom: 20),
+                            child: InputDecorator(
+                              decoration: InputDecoration(
+                                labelText: 'Porcentajes por estado',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                              ),
+                              child: StreamBuilder<Object>(
+                                  stream: null,
+                                  builder: (context, snapshot) {
+                                    return Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Chart(
+                                          sections: sections,
+                                          total: calculatetotal(),
+                                        ),
+                                      ],
+                                    );
+                                  }),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                     FilterDetails(
                         total: totalValoresRecibidosLaravel,
                         costoEntregas: costoDeEntregasLaravel,
@@ -478,94 +565,12 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
                         utilidades: utilidadLaravel),
                     dataTableDetails()
                   ],
-                )),
-              ],
-            ),
-            
-
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(8),
-                children: <Widget>[
-                  Container(
-                    padding: EdgeInsets.only(left: 20, right: 14, bottom: 20),
-                    child: InputDecorator(
-                      decoration: InputDecoration(
-                        labelText: 'Estados de entrega',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                      ),
-                      child: Container(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                children: filters2
-                                    .map((elemento) => FilterInfoCard(
-                                          svgSrc: elemento.svgSrc!,
-                                          title: elemento.title!,
-                                          filter: elemento.filter!,
-                                          color: elemento.color!,
-                                          details: addTableRows2,
-                                          percentage: elemento.percentage!,
-                                          numOfFiles: elemento.numOfFiles!,
-                                          function: changeValue,
-                                        ))
-                                    .toList(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          height: MediaQuery.of(context).size.height * 0.53,
-                          padding:
-                              EdgeInsets.only(left: 18, right: 13, bottom: 20),
-                          child: InputDecorator(
-                            decoration: InputDecoration(
-                              labelText: 'Porcentajes por estado',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                            ),
-                            child: StreamBuilder<Object>(
-                                stream: null,
-                                builder: (context, snapshot) {
-                                  return Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Chart(
-                                        sections: sections,
-                                        total: calculatetotal(),
-                                      ),
-                                    ],
-                                  );
-                                }),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  FilterDetails(
-                      total: totalValoresRecibidosLaravel,
-                      costoEntregas: costoDeEntregasLaravel,
-                      costoDevoluciones: devolucionesLaravel,
-                      utilidades: utilidadLaravel),
-                  dataTableDetails()
-                ],
+                ),
               ),
-            ),
-            context)
-      ],
-    )));
+              context)
+        ],
+      ))),
+    );
   }
 
   Container dataTableDetails() {
