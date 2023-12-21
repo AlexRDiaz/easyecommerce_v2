@@ -1,3 +1,4 @@
+import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -7,6 +8,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/navigators.dart';
 import 'package:frontend/main.dart';
@@ -32,6 +34,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   List dataTemporal = [];
   String option = "";
   String url = "";
+  bool isLoading = false;
 
   List bools = [
     false,
@@ -82,9 +85,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   }
 
   loadData() async {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getLoadingModal(context, false);
-    });
+    isLoading = true;
     var response = [];
 
     if (_controllers.searchController.text.isEmpty) {
@@ -98,378 +99,398 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     data = response;
     dataTemporal = response;
 
-    Future.delayed(Duration(milliseconds: 500), () {
-      Navigator.pop(context);
+    setState(() {
+      isLoading = false;
     });
-    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        width: double.infinity,
-        child: Column(
-          children: [
-            _modelTextField(
-                text: "Buscar", controller: _controllers.searchController),
-            _filters(context),
-            Container(
-                width: double.infinity,
-                child: Row(
-                  children: [
-                    TextButton(
-                        onPressed: () async {
-                          setState(() {
-                            _controllers.searchController.clear();
-                          });
-                          var results = await showCalendarDatePicker2Dialog(
-                            context: context,
-                            config: CalendarDatePicker2WithActionButtonsConfig(
-                              dayTextStyle:
-                                  TextStyle(fontWeight: FontWeight.bold),
-                              yearTextStyle:
-                                  TextStyle(fontWeight: FontWeight.bold),
-                              selectedYearTextStyle:
-                                  TextStyle(fontWeight: FontWeight.bold),
-                              weekdayLabelTextStyle:
-                                  TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            dialogSize: const Size(325, 400),
-                            value: _dates,
-                            borderRadius: BorderRadius.circular(15),
-                          );
-                          setState(() {
-                            if (results != null) {
-                              String fechaOriginal = results![0]
-                                  .toString()
-                                  .split(" ")[0]
-                                  .split('-')
-                                  .reversed
-                                  .join('-')
-                                  .replaceAll("-", "/");
-                              List<String> componentes =
-                                  fechaOriginal.split('/');
-
-                              String dia = int.parse(componentes[0]).toString();
-                              String mes = int.parse(componentes[1]).toString();
-                              String anio = componentes[2];
-
-                              String nuevaFecha = "$dia/$mes/$anio";
-
-                              sharedPrefs!
-                                  .setString("dateOperatorState", nuevaFecha);
-                            }
-                          });
-                          loadData();
-                        },
-                        child: Text(
-                          "Seleccionar Fecha",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        )),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      "Fecha: ${sharedPrefs!.getString("dateOperatorState")}",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    )
-                  ],
-                )),
-            Expanded(
-              child: DataTable2(
-                  headingTextStyle: TextStyle(
-                      fontWeight: FontWeight.bold, color: Colors.black),
-                  dataTextStyle: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black),
-                  columnSpacing: 12,
-                  horizontalMargin: 12,
-                  minWidth: 2500,
-                  columns: [
-                    DataColumn2(
-                      label: Text('Fecha'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("Marca_Tiempo_Envio");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Código'),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("NumeroOrden");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Ciudad'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("CiudadShipping");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Nombre Cliente'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("NombreShipping");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Teléfono Cliente'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("TelefonoShipping");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Dirección'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("DireccionShipping");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Cantidad'),
-                      size: ColumnSize.M,
-                      numeric: true,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("Cantidad_Total");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Producto'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("ProductoP");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Producto Extra'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("ProductoExtra");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Precio Total'),
-                      size: ColumnSize.M,
-                      numeric: true,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("PrecioTotal");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Observación'),
-                      size: ColumnSize.M,
-                      numeric: true,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("Observacion");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Comentario'),
-                      size: ColumnSize.M,
-                      numeric: true,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("Comentario");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Status'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("Status");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Vendedor'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("Tienda_Temporal");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Transportadora'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFuncTransportadora();
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Operador'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFuncOperador();
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Estado Devolución'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("Estado_Devolucion");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Costo Devolución'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFuncCostoDevo();
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Fecha de Entrega'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("Fecha_Entrega");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Estado Pago'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("Estado_Pagado");
-                      },
-                    ),
-                  ],
-                  rows: List<DataRow>.generate(
-                      data.isNotEmpty ? data.length : [].length,
-                      (index) => DataRow(cells: [
-                            DataCell(
-                                Text(data[index]['attributes']
-                                        ['Marca_Tiempo_Envio']
+    return BlurryModalProgressHUD(
+      inAsyncCall: isLoading,
+      blurEffectIntensity: 0,
+      progressIndicator: SpinKitFadingCircle(
+        color: const Color.fromARGB(255, 4, 2, 5),
+        size: 90.0,
+      ),
+      dismissible: false,
+      opacity: 0.1,
+      color: Colors.black87,
+      child: Scaffold(
+        body: Container(
+          width: double.infinity,
+          child: Column(
+            children: [
+              _modelTextField(
+                  text: "Buscar", controller: _controllers.searchController),
+              _filters(context),
+              Container(
+                  width: double.infinity,
+                  child: Row(
+                    children: [
+                      TextButton(
+                          onPressed: () async {
+                            setState(() {
+                              _controllers.searchController.clear();
+                            });
+                            var results = await showCalendarDatePicker2Dialog(
+                              context: context,
+                              config:
+                                  CalendarDatePicker2WithActionButtonsConfig(
+                                dayTextStyle:
+                                    TextStyle(fontWeight: FontWeight.bold),
+                                yearTextStyle:
+                                    TextStyle(fontWeight: FontWeight.bold),
+                                selectedYearTextStyle:
+                                    TextStyle(fontWeight: FontWeight.bold),
+                                weekdayLabelTextStyle:
+                                    TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              dialogSize: const Size(325, 400),
+                              value: _dates,
+                              borderRadius: BorderRadius.circular(15),
+                            );
+                            setState(() {
+                              if (results != null) {
+                                String fechaOriginal = results![0]
                                     .toString()
-                                    .split(" ")[0]), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(
-                                    style: TextStyle(
-                                        color: GetColor(data[index]
-                                            ['attributes']['Status'])!),
-                                    '${data[index]['attributes']['Name_Comercial'].toString()}-${data[index]['attributes']['NumeroOrden'].toString()}'),
-                                onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['CiudadShipping']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['NombreShipping']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']
-                                        ['TelefonoShipping']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']
-                                        ['DireccionShipping']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['Cantidad_Total']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['ProductoP']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['ProductoExtra']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['PrecioTotal']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['Observacion']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['Comentario']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(
-                                    style: TextStyle(
-                                        color: GetColor(data[index]
-                                            ['attributes']['Status'])!),
-                                    data[index]['attributes']['Status']
-                                        .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']
-                                        ['Tienda_Temporal']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['transportadora']
-                                            ['data'] !=
-                                        null
-                                    ? data[index]['attributes']
-                                                ['transportadora']['data']
-                                            ['attributes']['Nombre']
-                                        .toString()
-                                    : ""), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['operadore']
-                                            ['data'] !=
-                                        null
-                                    ? data[index]['attributes']['operadore']
-                                                ['data']['attributes']['user']
-                                            ['data']['attributes']['username']
-                                        .toString()
-                                    : ""), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']
-                                        ['Estado_Devolucion']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['users'] != null
-                                    ? data[index]['attributes']['users']['data']
-                                                    [0]['attributes']
-                                                ['vendedores']['data'][0]
-                                            ['attributes']['CostoDevolucion']
-                                        .toString()
-                                    : ""), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['Fecha_Entrega']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['Estado_Pagado']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                          ]))),
-            ),
-          ],
+                                    .split(" ")[0]
+                                    .split('-')
+                                    .reversed
+                                    .join('-')
+                                    .replaceAll("-", "/");
+                                List<String> componentes =
+                                    fechaOriginal.split('/');
+
+                                String dia =
+                                    int.parse(componentes[0]).toString();
+                                String mes =
+                                    int.parse(componentes[1]).toString();
+                                String anio = componentes[2];
+
+                                String nuevaFecha = "$dia/$mes/$anio";
+
+                                sharedPrefs!
+                                    .setString("dateOperatorState", nuevaFecha);
+                              }
+                            });
+                            loadData();
+                          },
+                          child: Text(
+                            "Seleccionar Fecha",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          )),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Text(
+                        "Fecha: ${sharedPrefs!.getString("dateOperatorState")}",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      )
+                    ],
+                  )),
+              Expanded(
+                child: DataTable2(
+                    headingTextStyle: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.black),
+                    dataTextStyle: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black),
+                    columnSpacing: 12,
+                    horizontalMargin: 12,
+                    minWidth: 2500,
+                    columns: [
+                      DataColumn2(
+                        label: Text('Fecha'),
+                        size: ColumnSize.M,
+                        onSort: (columnIndex, ascending) {
+                          sortFunc("Marca_Tiempo_Envio");
+                        },
+                      ),
+                      DataColumn2(
+                        label: Text('Código'),
+                        size: ColumnSize.S,
+                        onSort: (columnIndex, ascending) {
+                          sortFunc("NumeroOrden");
+                        },
+                      ),
+                      DataColumn2(
+                        label: Text('Ciudad'),
+                        size: ColumnSize.M,
+                        onSort: (columnIndex, ascending) {
+                          sortFunc("CiudadShipping");
+                        },
+                      ),
+                      DataColumn2(
+                        label: Text('Nombre Cliente'),
+                        size: ColumnSize.M,
+                        onSort: (columnIndex, ascending) {
+                          sortFunc("NombreShipping");
+                        },
+                      ),
+                      DataColumn2(
+                        label: Text('Teléfono Cliente'),
+                        size: ColumnSize.M,
+                        onSort: (columnIndex, ascending) {
+                          sortFunc("TelefonoShipping");
+                        },
+                      ),
+                      DataColumn2(
+                        label: Text('Dirección'),
+                        size: ColumnSize.M,
+                        onSort: (columnIndex, ascending) {
+                          sortFunc("DireccionShipping");
+                        },
+                      ),
+                      DataColumn2(
+                        label: Text('Cantidad'),
+                        size: ColumnSize.M,
+                        numeric: true,
+                        onSort: (columnIndex, ascending) {
+                          sortFunc("Cantidad_Total");
+                        },
+                      ),
+                      DataColumn2(
+                        label: Text('Producto'),
+                        size: ColumnSize.M,
+                        onSort: (columnIndex, ascending) {
+                          sortFunc("ProductoP");
+                        },
+                      ),
+                      DataColumn2(
+                        label: Text('Producto Extra'),
+                        size: ColumnSize.M,
+                        onSort: (columnIndex, ascending) {
+                          sortFunc("ProductoExtra");
+                        },
+                      ),
+                      DataColumn2(
+                        label: Text('Precio Total'),
+                        size: ColumnSize.M,
+                        numeric: true,
+                        onSort: (columnIndex, ascending) {
+                          sortFunc("PrecioTotal");
+                        },
+                      ),
+                      DataColumn2(
+                        label: Text('Observación'),
+                        size: ColumnSize.M,
+                        numeric: true,
+                        onSort: (columnIndex, ascending) {
+                          sortFunc("Observacion");
+                        },
+                      ),
+                      DataColumn2(
+                        label: Text('Comentario'),
+                        size: ColumnSize.M,
+                        numeric: true,
+                        onSort: (columnIndex, ascending) {
+                          sortFunc("Comentario");
+                        },
+                      ),
+                      DataColumn2(
+                        label: Text('Status'),
+                        size: ColumnSize.M,
+                        onSort: (columnIndex, ascending) {
+                          sortFunc("Status");
+                        },
+                      ),
+                      DataColumn2(
+                        label: Text('Vendedor'),
+                        size: ColumnSize.M,
+                        onSort: (columnIndex, ascending) {
+                          sortFunc("Tienda_Temporal");
+                        },
+                      ),
+                      DataColumn2(
+                        label: Text('Transportadora'),
+                        size: ColumnSize.M,
+                        onSort: (columnIndex, ascending) {
+                          sortFuncTransportadora();
+                        },
+                      ),
+                      DataColumn2(
+                        label: Text('Operador'),
+                        size: ColumnSize.M,
+                        onSort: (columnIndex, ascending) {
+                          sortFuncOperador();
+                        },
+                      ),
+                      DataColumn2(
+                        label: Text('Estado Devolución'),
+                        size: ColumnSize.M,
+                        onSort: (columnIndex, ascending) {
+                          sortFunc("Estado_Devolucion");
+                        },
+                      ),
+                      DataColumn2(
+                        label: Text('Costo Devolución'),
+                        size: ColumnSize.M,
+                        onSort: (columnIndex, ascending) {
+                          sortFuncCostoDevo();
+                        },
+                      ),
+                      DataColumn2(
+                        label: Text('Fecha de Entrega'),
+                        size: ColumnSize.M,
+                        onSort: (columnIndex, ascending) {
+                          sortFunc("Fecha_Entrega");
+                        },
+                      ),
+                      DataColumn2(
+                        label: Text('Estado Pago'),
+                        size: ColumnSize.M,
+                        onSort: (columnIndex, ascending) {
+                          sortFunc("Estado_Pagado");
+                        },
+                      ),
+                    ],
+                    rows: List<DataRow>.generate(
+                        data.isNotEmpty ? data.length : [].length,
+                        (index) => DataRow(cells: [
+                              DataCell(
+                                  Text(data[index]['attributes']
+                                          ['Marca_Tiempo_Envio']
+                                      .toString()
+                                      .split(" ")[0]), onTap: () {
+                                info(context, index);
+                              }),
+                              DataCell(
+                                  Text(
+                                      style: TextStyle(
+                                          color: GetColor(data[index]
+                                              ['attributes']['Status'])!),
+                                      '${data[index]['attributes']['Name_Comercial'].toString()}-${data[index]['attributes']['NumeroOrden'].toString()}'),
+                                  onTap: () {
+                                info(context, index);
+                              }),
+                              DataCell(
+                                  Text(data[index]['attributes']
+                                          ['CiudadShipping']
+                                      .toString()), onTap: () {
+                                info(context, index);
+                              }),
+                              DataCell(
+                                  Text(data[index]['attributes']
+                                          ['NombreShipping']
+                                      .toString()), onTap: () {
+                                info(context, index);
+                              }),
+                              DataCell(
+                                  Text(data[index]['attributes']
+                                          ['TelefonoShipping']
+                                      .toString()), onTap: () {
+                                info(context, index);
+                              }),
+                              DataCell(
+                                  Text(data[index]['attributes']
+                                          ['DireccionShipping']
+                                      .toString()), onTap: () {
+                                info(context, index);
+                              }),
+                              DataCell(
+                                  Text(data[index]['attributes']
+                                          ['Cantidad_Total']
+                                      .toString()), onTap: () {
+                                info(context, index);
+                              }),
+                              DataCell(
+                                  Text(data[index]['attributes']['ProductoP']
+                                      .toString()), onTap: () {
+                                info(context, index);
+                              }),
+                              DataCell(
+                                  Text(data[index]['attributes']
+                                          ['ProductoExtra']
+                                      .toString()), onTap: () {
+                                info(context, index);
+                              }),
+                              DataCell(
+                                  Text(data[index]['attributes']['PrecioTotal']
+                                      .toString()), onTap: () {
+                                info(context, index);
+                              }),
+                              DataCell(
+                                  Text(data[index]['attributes']['Observacion']
+                                      .toString()), onTap: () {
+                                info(context, index);
+                              }),
+                              DataCell(
+                                  Text(data[index]['attributes']['Comentario']
+                                      .toString()), onTap: () {
+                                info(context, index);
+                              }),
+                              DataCell(
+                                  Text(
+                                      style: TextStyle(
+                                          color: GetColor(data[index]
+                                              ['attributes']['Status'])!),
+                                      data[index]['attributes']['Status']
+                                          .toString()), onTap: () {
+                                info(context, index);
+                              }),
+                              DataCell(
+                                  Text(data[index]['attributes']
+                                          ['Tienda_Temporal']
+                                      .toString()), onTap: () {
+                                info(context, index);
+                              }),
+                              DataCell(
+                                  Text(data[index]['attributes']
+                                              ['transportadora']['data'] !=
+                                          null
+                                      ? data[index]['attributes']
+                                                  ['transportadora']['data']
+                                              ['attributes']['Nombre']
+                                          .toString()
+                                      : ""), onTap: () {
+                                info(context, index);
+                              }),
+                              DataCell(
+                                  Text(data[index]['attributes']['operadore']
+                                              ['data'] !=
+                                          null
+                                      ? data[index]['attributes']['operadore']
+                                                  ['data']['attributes']['user']
+                                              ['data']['attributes']['username']
+                                          .toString()
+                                      : ""), onTap: () {
+                                info(context, index);
+                              }),
+                              DataCell(
+                                  Text(data[index]['attributes']
+                                          ['Estado_Devolucion']
+                                      .toString()), onTap: () {
+                                info(context, index);
+                              }),
+                              DataCell(
+                                  Text(data[index]['attributes']['users'] !=
+                                          null
+                                      ? data[index]['attributes']['users']
+                                                      ['data'][0]['attributes']
+                                                  ['vendedores']['data'][0]
+                                              ['attributes']['CostoDevolucion']
+                                          .toString()
+                                      : ""), onTap: () {
+                                info(context, index);
+                              }),
+                              DataCell(
+                                  Text(data[index]['attributes']
+                                          ['Fecha_Entrega']
+                                      .toString()), onTap: () {
+                                info(context, index);
+                              }),
+                              DataCell(
+                                  Text(data[index]['attributes']
+                                          ['Estado_Pagado']
+                                      .toString()), onTap: () {
+                                info(context, index);
+                              }),
+                            ]))),
+              ),
+            ],
+          ),
         ),
       ),
     );

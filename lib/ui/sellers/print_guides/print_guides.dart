@@ -39,7 +39,7 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
   bool selectAll = false;
   //Create an instance of ScreenshotController
   ScreenshotController screenshotController = ScreenshotController();
-
+  bool isLoading = false;
   int currentPage = 1;
   int pageSize = 1300;
   var idUser = sharedPrefs!.getString("id");
@@ -80,6 +80,9 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
 
   @override
   void didChangeDependencies() {
+    setState(() {
+      isLoading = true;
+    });
     if (Provider.of<FiltersOrdersProviders>(context).indexActive == 2) {
       setState(() {
         _controllers.searchController.text = "d/m/a,d/m/a";
@@ -93,6 +96,9 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
       });
     }
     loadData();
+    setState(() {
+      isLoading = false;
+    });
     super.didChangeDependencies();
   }
 

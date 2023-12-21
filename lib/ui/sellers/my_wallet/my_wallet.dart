@@ -1,5 +1,7 @@
+import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
@@ -29,6 +31,7 @@ class _MyWalletState extends State<MyWallet> {
   String start = "";
   String end = "";
   List arrayFiltersAnd = [];
+  bool isLoading = false;
   List<String> listOrigen = [
     'TODO',
     'RECAUDO',
@@ -84,98 +87,110 @@ class _MyWalletState extends State<MyWallet> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Saldo de Cuenta',
-              style: TextStyle(fontSize: 24),
-            ),
-            Text(
-              '\$${saldo}',
-              style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Transacciones Recientes',
-              style: TextStyle(fontSize: 24),
-            ),
-            Container(
-              width: double.infinity,
-              color: Colors.grey.withOpacity(0.3),
-              padding: EdgeInsets.all(10),
-              child: responsive(
-                  Row(
-                    children: [
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.3,
-                        child: _modelTextField(
-                            text: "Buscar", controller: searchController),
-                      ),
-
-                      SizedBox(width: 10),
-                      ElevatedButton(
-                        onPressed: () {
-                          _showDatePickerModal(context);
-                        },
-                        child: Text('Seleccionar fechas'),
-                      ),
-                      SizedBox(width: 10),
-                      Container(
-                        padding: const EdgeInsets.only(left: 15, right: 5),
-                        child: Text(
-                          "Registros: ${data.length}",
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, color: Colors.black),
-                        ),
-                      ),
-                      Spacer(),
-                      TextButton(
-                          onPressed: () => loadData(),
-                          child: Text("Actualizar")),
-
-                      //   Expanded(child: numberPaginator()),
-                    ],
-                  ),
-                  Container(),
-                  context),
-            ),
-
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: DataTableModelPrincipal(
-                    columnWidth: 1200,
-                    columns: getColumns(),
-                    rows: buildDataRows(data)),
+    return BlurryModalProgressHUD(
+      inAsyncCall: isLoading,
+      blurEffectIntensity: 0,
+      progressIndicator: SpinKitFadingCircle(
+        color: const Color.fromARGB(255, 4, 2, 5),
+        size: 90.0,
+      ),
+      dismissible: false,
+      opacity: 0.1,
+      color: Colors.black87,
+      child: Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                'Saldo de Cuenta',
+                style: TextStyle(fontSize: 24),
               ),
-            ),
-            // Expanded(
-            //   child: ListView.builder(
-            //     itemCount: transactions.length,
-            //     itemBuilder: (ctx, index) {
-            //       final transaction = transactions[index];
-            //       return Card(
-            //         elevation: 3,
-            //         margin: EdgeInsets.all(10),
-            //         child: ListTile(
-            //           title: Text(transaction.title),
-            //           trailing: Text(
-            //             '\$${transaction.amount.toStringAsFixed(2)}',
-            //             style: TextStyle(
-            //               color: transaction.amount < 0
-            //                   ? Colors.red
-            //                   : Colors.green,
-            //             ),
-            //           ),
-            //         ),
-            //       );
-            //     },
-            //   ),
-            // ),
-          ],
+              Text(
+                '\$${saldo}',
+                style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Transacciones Recientes',
+                style: TextStyle(fontSize: 24),
+              ),
+              Container(
+                width: double.infinity,
+                color: Colors.grey.withOpacity(0.3),
+                padding: EdgeInsets.all(10),
+                child: responsive(
+                    Row(
+                      children: [
+                        Container(
+                          width: MediaQuery.of(context).size.width * 0.3,
+                          child: _modelTextField(
+                              text: "Buscar", controller: searchController),
+                        ),
+
+                        SizedBox(width: 10),
+                        ElevatedButton(
+                          onPressed: () {
+                            _showDatePickerModal(context);
+                          },
+                          child: Text('Seleccionar fechas'),
+                        ),
+                        SizedBox(width: 10),
+                        Container(
+                          padding: const EdgeInsets.only(left: 15, right: 5),
+                          child: Text(
+                            "Registros: ${data.length}",
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black),
+                          ),
+                        ),
+                        Spacer(),
+                        TextButton(
+                            onPressed: () => loadData(),
+                            child: Text("Actualizar")),
+
+                        //   Expanded(child: numberPaginator()),
+                      ],
+                    ),
+                    Container(),
+                    context),
+              ),
+
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: DataTableModelPrincipal(
+                      columnWidth: 1200,
+                      columns: getColumns(),
+                      rows: buildDataRows(data)),
+                ),
+              ),
+              // Expanded(
+              //   child: ListView.builder(
+              //     itemCount: transactions.length,
+              //     itemBuilder: (ctx, index) {
+              //       final transaction = transactions[index];
+              //       return Card(
+              //         elevation: 3,
+              //         margin: EdgeInsets.all(10),
+              //         child: ListTile(
+              //           title: Text(transaction.title),
+              //           trailing: Text(
+              //             '\$${transaction.amount.toStringAsFixed(2)}',
+              //             style: TextStyle(
+              //               color: transaction.amount < 0
+              //                   ? Colors.red
+              //                   : Colors.green,
+              //             ),
+              //           ),
+              //         ),
+              //       );
+              //     },
+              //   ),
+              // ),
+            ],
+          ),
         ),
       ),
     );

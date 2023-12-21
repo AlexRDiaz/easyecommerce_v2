@@ -24,6 +24,7 @@ class _OrderHistorySellersState extends State<OrderHistorySellers> {
   int counterChecks = 0;
   List data = [];
   String id = "";
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -34,10 +35,11 @@ class _OrderHistorySellersState extends State<OrderHistorySellers> {
   }
 
   loadData() async {
-    var response = [];
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getLoadingModal(context, false);
+    setState(() {
+      bool isLoading = true;
     });
+
+    var response = [];
 
     /*response = await Connections().getOrdersForPrintGuidesInSendGuides(
         _controllers.searchController.text, Get.parameters['date'].toString());
@@ -51,7 +53,9 @@ class _OrderHistorySellersState extends State<OrderHistorySellers> {
     Future.delayed(const Duration(milliseconds: 500), () {
       Navigator.pop(context);
     });
-    setState(() {});
+    setState(() {
+      bool isLoading = false;
+    });
   }
 
   @override
@@ -74,9 +78,12 @@ class _OrderHistorySellersState extends State<OrderHistorySellers> {
             ),
             Expanded(
               child: DataTable2(
-                headingTextStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-                dataTextStyle:
-                    const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black),
+                headingTextStyle: const TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.black),
+                dataTextStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black),
                 columnSpacing: 12,
                 horizontalMargin: 6,
                 minWidth: 2000,
@@ -197,34 +204,55 @@ class _OrderHistorySellersState extends State<OrderHistorySellers> {
                             color: rowColor,
                           ),
                         )),
-                        DataCell(Text('3/8/2023 8:55',style: TextStyle(
-                          color: rowColor,
-                        ),)),
+                        DataCell(Text(
+                          '3/8/2023 8:55',
+                          style: TextStyle(
+                            color: rowColor,
+                          ),
+                        )),
                         DataCell(Text('3/8/2023 8:55')),
                         DataCell(Text('Quito')),
                         DataCell(Text('IMNOVO')),
-                        DataCell(Text('IMNOVO', style: TextStyle(
-                          color: rowColor,
-                        ),)),
+                        DataCell(Text(
+                          'IMNOVO',
+                          style: TextStyle(
+                            color: rowColor,
+                          ),
+                        )),
                         DataCell(Text('0992989693')),
                         DataCell(Text('0992989693')),
                         DataCell(Text('3')),
-                        DataCell(Text('IMNOVO', style: TextStyle(
-                          color: rowColor,
-                        ),)),
-                        DataCell(Text('IMNOVO',style: TextStyle(
-                          color: rowColor,
-                        ),)),
+                        DataCell(Text(
+                          'IMNOVO',
+                          style: TextStyle(
+                            color: rowColor,
+                          ),
+                        )),
+                        DataCell(Text(
+                          'IMNOVO',
+                          style: TextStyle(
+                            color: rowColor,
+                          ),
+                        )),
                         DataCell(Text('\$3.50')),
-                        DataCell(Text('IMNOVO', style: TextStyle(
-                          color: rowColor,
-                        ),)),
-                        DataCell(Text('IMNOVO', style: TextStyle(
-                          color: rowColor,
-                        ),)),
-                        DataCell(Text('\$3.50', style: TextStyle(
-                          color: rowColor,
-                        ),)),
+                        DataCell(Text(
+                          'IMNOVO',
+                          style: TextStyle(
+                            color: rowColor,
+                          ),
+                        )),
+                        DataCell(Text(
+                          'IMNOVO',
+                          style: TextStyle(
+                            color: rowColor,
+                          ),
+                        )),
+                        DataCell(Text(
+                          '\$3.50',
+                          style: TextStyle(
+                            color: rowColor,
+                          ),
+                        )),
                         DataCell(Text('IMNOVO')),
                         DataCell(Text('IMNOVO')),
                         DataCell(Text('IMNOVO')),
