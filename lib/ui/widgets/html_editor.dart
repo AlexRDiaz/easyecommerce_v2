@@ -33,7 +33,7 @@ class _HtmlEditorState extends State<HtmlEditor> {
   final _backgroundColor = Colors.white70;
   final _toolbarIconColor = Colors.black87;
   final _editorTextStyle = const TextStyle(
-      fontSize: 18,
+      fontSize: 14,
       color: Colors.black,
       fontWeight: FontWeight.normal,
       fontFamily: 'Roboto');

@@ -60,6 +60,7 @@ class _ProductsViewState extends State<ProductsView> {
   List<WarehouseModel> warehousesList = [];
   List<String> warehousesToSelect = [];
   bool edited = false;
+  bool warehouseActAprob = false;
 
   @override
   void initState() {
@@ -115,13 +116,12 @@ class _ProductsViewState extends State<ProductsView> {
     var responseBodegas = await _getWarehousesData();
     warehousesList = responseBodegas;
     warehousesToSelect.insert(0, 'TODO');
-
     for (var warehouse in warehousesList) {
+      warehousesToSelect
+          .add('${warehouse.id}-${warehouse.branchName}-${warehouse.city}');
+
       if (warehouse.approved == 1 && warehouse.active == 1) {
-        setState(() {
-          warehousesToSelect
-              .add('${warehouse.id}-${warehouse.branchName}-${warehouse.city}');
-        });
+        warehouseActAprob = true;
       }
     }
 
@@ -230,16 +230,18 @@ class _ProductsViewState extends State<ProductsView> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           ElevatedButton(
-                            onPressed: () async {
-                              await showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return const AddProduct();
-                                },
-                              );
-                              arrayFiltersAnd.clear();
-                              await loadData();
-                            },
+                            onPressed: warehouseActAprob
+                                ? () async {
+                                    await showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return const AddProduct();
+                                      },
+                                    );
+                                    arrayFiltersAnd.clear();
+                                    await loadData();
+                                  }
+                                : null, // Deshabilitar el botón si warehouseActAprob es false
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF274965),
                             ),
@@ -971,8 +973,9 @@ class _ProductsViewState extends State<ProductsView> {
     String type = "";
     String variablesSKU = "";
     String variablesText = "";
-    List<String> categories = [];
-    String categoriesText = "";
+    // List<String> categories = [];
+    // String categoriesText = "";
+    String category = "";
 
     guideName = features["guide_name"];
     priceSuggested = features["price_suggested"].toString();
@@ -980,9 +983,10 @@ class _ProductsViewState extends State<ProductsView> {
     description = features["description"];
     type = features["type"];
 
-    categories =
-        (features["categories"] as List<dynamic>).cast<String>().toList();
-    categoriesText = categories.join(', ');
+    // categories =
+    //     (features["categories"] as List<dynamic>).cast<String>().toList();
+    // categoriesText = categories.join(', ');
+    category = features["category"];
 
     if (product.isvariable == 1) {
       List<Map<String, dynamic>>? variants =
@@ -1210,7 +1214,7 @@ class _ProductsViewState extends State<ProductsView> {
                                   TextSpan(
                                     text: guideName,
                                     style: const TextStyle(
-                                      fontSize: 18,
+                                      fontSize: 16,
                                       color: Colors.black,
                                     ),
                                   )
@@ -1531,7 +1535,7 @@ class _ProductsViewState extends State<ProductsView> {
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
-                                            categoriesText,
+                                            category,
                                             style: TextStyle(
                                               fontSize: 16,
                                               color: Colors.grey[800],

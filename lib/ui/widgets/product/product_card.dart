@@ -205,9 +205,9 @@ class ProductCard extends StatelessWidget {
                           //   fontFamily: 'Arial',
                           // ),
                           style: GoogleFonts.dmSerifDisplay(
-                            fontWeight: FontWeight.bold,
+                            // fontWeight: FontWeight.bold,
                             fontSize: textSize,
-                            color: Colors.grey,
+                            color: Colors.grey[600],
                           ),
                         ),
                         const SizedBox(
@@ -242,9 +242,9 @@ class ProductCard extends StatelessWidget {
                           //   fontFamily: 'Arial',
                           // ),
                           style: GoogleFonts.dmSerifDisplay(
-                            fontWeight: FontWeight.bold,
+                            // fontWeight: FontWeight.bold,
                             fontSize: textSize,
-                            color: Colors.grey,
+                            color: Colors.grey[600],
                           ),
                         ),
                         const SizedBox(
@@ -277,9 +277,9 @@ class ProductCard extends StatelessWidget {
                           //   fontFamily: 'Arial',
                           // ),
                           style: GoogleFonts.dmSerifDisplay(
-                            fontWeight: FontWeight.bold,
+                            // fontWeight: FontWeight.bold,
                             fontSize: textSize,
-                            color: Colors.grey,
+                            color: Colors.grey[600],
                           ),
                         ),
                         const SizedBox(
@@ -311,9 +311,9 @@ class ProductCard extends StatelessWidget {
                           //   fontFamily: 'Arial',
                           // ),
                           style: GoogleFonts.dmSerifDisplay(
-                            fontWeight: FontWeight.bold,
+                            // fontWeight: FontWeight.bold,
                             fontSize: textSize,
-                            color: Colors.grey,
+                            color: Colors.grey[600],
                           ),
                         ),
                         const SizedBox(
@@ -345,9 +345,9 @@ class ProductCard extends StatelessWidget {
                           //   fontFamily: 'Arial',
                           // ),
                           style: GoogleFonts.dmSerifDisplay(
-                            fontWeight: FontWeight.bold,
+                            // fontWeight: FontWeight.bold,
                             fontSize: textSize,
-                            color: Colors.grey,
+                            color: Colors.grey[600],
                           ),
                         ),
                         const SizedBox(
@@ -387,9 +387,9 @@ class ProductCard extends StatelessWidget {
   Color getColorForStockStatus(int stock) {
     if (stock > 20) {
       return Colors.green;
-    } else if (stock >= 10 && stock <= 20) {
+    } else if (stock >= 11 && stock <= 20) {
       return Colors.orange;
-    } else if (stock >= 0 && stock <= 3) {
+    } else if (stock >= 0 && stock <= 10) {
       return Colors.red;
     } else {
       return Colors.purple;

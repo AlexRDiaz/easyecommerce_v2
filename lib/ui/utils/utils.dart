@@ -38,7 +38,16 @@ class UIUtils {
 
   // * Product
   static List<String> categories() {
-    return ["Hogar", "Mascota", "Moda", "Tecnología", "Cocina", "Belleza"];
+    return [
+      "Casa",
+      "Mascota",
+      "Ropa",
+      "Electrónica",
+      "Cocina",
+      "Belleza",
+      "Salud",
+      "Juguetes"
+    ];
   }
 
   static List<String> typesProduct() {

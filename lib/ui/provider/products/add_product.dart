@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
@@ -23,6 +24,7 @@ import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/product/search_menu.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:remove_diacritic/remove_diacritic.dart';
 
 class AddProduct extends StatefulWidget {
   const AddProduct({super.key});
@@ -52,7 +54,7 @@ class _AddProductState extends State<AddProduct> {
   List warehouseList = [];
 
   String? selectedWarehouse;
-  List<String> categories = UIUtils.categories();
+  List<String> categoriesToSelect = UIUtils.categories();
 
   String? selectedCategory;
   List<String> selectedCategories = [];
@@ -91,6 +93,11 @@ class _AddProductState extends State<AddProduct> {
   late WrehouseController _warehouseController;
   List<WarehouseModel> warehousesList = [];
   List<String> warehousesToSelect = [];
+  String? idCategoryFirstCat;
+  final TextEditingController _searchCategoryController =
+      TextEditingController();
+  List<String> _filteredCategoryes = [];
+  Timer? _timer;
 
   bool containsEmoji(String text) {
     final emojiPattern = RegExp(
@@ -197,7 +204,7 @@ class _AddProductState extends State<AddProduct> {
                               TextFieldWithIcon(
                                 controller: _nameController,
                                 labelText: 'Nombre del producto',
-                                icon: Icons.numbers,
+                                icon: Icons.local_mall_rounded,
                                 maxLines: null,
                               ),
                             ],
@@ -226,7 +233,7 @@ class _AddProductState extends State<AddProduct> {
                               TextFieldWithIcon(
                                 controller: _nameGuideController,
                                 labelText: 'Nombre para mostrar en la guía',
-                                icon: Icons.numbers,
+                                icon: Icons.local_offer_outlined,
                                 maxLines: null,
                               ),
                             ],
@@ -1557,7 +1564,7 @@ class _AddProductState extends State<AddProduct> {
                                 width: (screenWidthDialog / 3) - 10,
                                 child: TextFieldWithIcon(
                                   controller: _stockController,
-                                  labelText: 'Cantidad en Stock',
+                                  labelText: 'Cantidad Stock',
                                   icon: Icons.numbers,
                                   inputType: TextInputType.number,
                                   inputFormatters: <TextInputFormatter>[
@@ -1604,142 +1611,282 @@ class _AddProductState extends State<AddProduct> {
                             children: [
                               const Text('Bodega:'),
                               const SizedBox(height: 3),
-                              DropdownButtonFormField<String>(
-                                isExpanded: true,
-                                hint: Text(
-                                  'Seleccione Bodega',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Theme.of(context).hintColor,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                items: warehousesToSelect.map((item) {
-                                  var parts = item.split('-');
-                                  var branchName = parts[1];
-                                  var city = parts[2];
-                                  return DropdownMenuItem(
-                                    value: item,
-                                    child: Text(
-                                      '$branchName - $city',
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                              SizedBox(
+                                width: (screenWidthDialog / 3) - 10,
+                                child: DropdownButtonFormField<String>(
+                                  isExpanded: true,
+                                  hint: Text(
+                                    'Seleccione Bodega',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Theme.of(context).hintColor,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                  );
-                                }).toList(),
-                                value: selectedWarehouse,
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectedWarehouse = value as String;
-                                  });
-                                },
-                                decoration: InputDecoration(
-                                  fillColor: Colors.white,
-                                  filled: true,
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(5.0),
+                                  ),
+                                  items: warehousesToSelect.map((item) {
+                                    var parts = item.split('-');
+                                    var branchName = parts[1];
+                                    var city = parts[2];
+                                    return DropdownMenuItem(
+                                      value: item,
+                                      child: Text(
+                                        '$branchName - $city',
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                  value: selectedWarehouse,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      selectedWarehouse = value as String;
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(5.0),
+                                    ),
                                   ),
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(width: 20),
+                        // const SizedBox(width: 20),
+                        // Expanded(
+                        //   child: Column(
+                        //     crossAxisAlignment: CrossAxisAlignment.start,
+                        //     children: [
+                        //       const Text('Categoría'),
+                        //       const SizedBox(height: 3),
+                        //       DropdownButtonFormField<String>(
+                        //         isExpanded: true,
+                        //         hint: Text(
+                        //           'Seleccione',
+                        //           style: TextStyle(
+                        //             fontSize: 14,
+                        //             color: Theme.of(context).hintColor,
+                        //             fontWeight: FontWeight.bold,
+                        //           ),
+                        //         ),
+                        //         items: categories
+                        //             .map((item) => DropdownMenuItem(
+                        //                   value: item,
+                        //                   child: Text(
+                        //                     item,
+                        //                     style: const TextStyle(
+                        //                       fontSize: 14,
+                        //                       fontWeight: FontWeight.bold,
+                        //                     ),
+                        //                   ),
+                        //                 ))
+                        //             .toList(),
+                        //         value: selectedCategories.isNotEmpty
+                        //             ? selectedCategories.first
+                        //             : null,
+                        //         onChanged: (value) {
+                        //           setState(() {
+                        //             selectedCategory = value;
+                        //             if (value != null) {
+                        //               if (!selectedCategories
+                        //                   .contains(selectedCategory)) {
+                        //                 setState(() {
+                        //                   selectedCategories
+                        //                       .add(selectedCategory!);
+                        //                 });
+                        //               }
+                        //             }
+                        //           });
+                        //         },
+                        //         decoration: InputDecoration(
+                        //           fillColor: Colors.white,
+                        //           filled: true,
+                        //           border: OutlineInputBorder(
+                        //             borderRadius: BorderRadius.circular(5.0),
+                        //           ),
+                        //         ),
+                        //       ),
+                        //       // const SizedBox(height: 5),
+                        //       // Wrap(
+                        //       //   spacing: 8.0,
+                        //       //   runSpacing: 8.0,
+                        //       //   children:
+                        //       //       selectedCategories.map<Widget>((category) {
+                        //       //     return Chip(
+                        //       //       label: Text(category),
+                        //       //       onDeleted: () {
+                        //       //         setState(() {
+                        //       //           selectedCategories.remove(category);
+                        //       //           // print("catAct: $selectedCategories");
+                        //       //         });
+                        //       //       },
+                        //       //     );
+                        //       //   }).toList(),
+                        //       // ),
+                        //     ],
+                        //   ),
+                        // ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    const Row(
+                      children: [
+                        Expanded(child: Text('Categoría')),
+                      ],
+                    ),
+                    //version 3 cat
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: screenWidthDialog / 2,
+                          child: TextField(
+                            controller: _searchCategoryController,
+                            decoration: InputDecoration(
+                              hintText: 'Buscar Categoría...',
+                              border: OutlineInputBorder(),
+                              contentPadding: EdgeInsets.symmetric(
+                                  vertical: 10.0,
+                                  horizontal:
+                                      10.0), // Reduce la altura del TextField
+                              suffixIcon:
+                                  _searchCategoryController.text.isNotEmpty
+                                      ? IconButton(
+                                          icon: const Icon(Icons.clear),
+                                          onPressed: () {
+                                            setState(() {
+                                              _searchCategoryController.clear();
+                                              _filteredCategoryes.clear();
+                                              // _dropdownValue = null;
+                                            });
+                                          },
+                                        )
+                                      : null,
+                            ),
+                            // onChanged: (value) {
+                            //   print(value);
+                            //   _timer?.cancel();
+                            //   _timer = Timer(const Duration(seconds: 2), () {
+                            //     setState(() {
+                            //       _filteredCategoryes = filterCategory(value);
+                            //       print("_filteredCategoryes");
+                            //       for (var element in _filteredCategoryes) {
+                            //         print(element);
+                            //       }
+                            //     });
+                            //   });
+                            // },
+                            onSubmitted: (value) {
+                              _timer?.cancel();
+                              _timer = Timer(const Duration(seconds: 2), () {
+                                setState(() async {
+                                  _filteredCategoryes =
+                                      await filterCategory(value);
+                                  print("_filteredCategoryes");
+                                  for (var element in _filteredCategoryes) {
+                                    print(element);
+                                  }
+                                  print("after for filterCategory");
+                                });
+                              });
+                            },
+                          ),
+                        ),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Categoría'),
-                              const SizedBox(height: 3),
-                              DropdownButtonFormField<String>(
-                                isExpanded: true,
-                                hint: Text(
-                                  'Seleccione',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Theme.of(context).hintColor,
-                                    fontWeight: FontWeight.bold,
+                              SizedBox(
+                                width: (screenWidthDialog / 3) - 10,
+                                child: DropdownButtonFormField<String>(
+                                  isExpanded: true,
+                                  hint: Text(
+                                    'Seleccione',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Theme.of(context).hintColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                items: categories
-                                    .map((item) => DropdownMenuItem(
-                                          value: item,
-                                          child: Text(
-                                            item,
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
+                                  items: categoriesToSelect
+                                      .map((item) => DropdownMenuItem(
+                                            value: item,
+                                            child: Text(
+                                              item,
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
-                                          ),
-                                        ))
-                                    .toList(),
-                                value: selectedCategories.isNotEmpty
-                                    ? selectedCategories.first
-                                    : null,
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectedCategory = value;
-                                    if (value != null) {
-                                      if (!selectedCategories
-                                          .contains(selectedCategory)) {
-                                        setState(() {
-                                          selectedCategories
-                                              .add(selectedCategory!);
-                                        });
+                                          ))
+                                      .toList(),
+                                  value: selectedCategories.isNotEmpty
+                                      ? selectedCategories.first
+                                      : null,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      selectedCategory = value;
+                                      if (value != null) {
+                                        if (!selectedCategories
+                                            .contains(selectedCategory)) {
+                                          setState(() {
+                                            selectedCategories
+                                                .add(selectedCategory!);
+                                          });
+                                        }
                                       }
-                                    }
-                                  });
-                                },
-                                decoration: InputDecoration(
-                                  fillColor: Colors.white,
-                                  filled: true,
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(5.0),
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(5.0),
+                                    ),
                                   ),
                                 ),
                               ),
-                              // const SizedBox(height: 5),
-                              // Wrap(
-                              //   spacing: 8.0,
-                              //   runSpacing: 8.0,
-                              //   children:
-                              //       selectedCategories.map<Widget>((category) {
-                              //     return Chip(
-                              //       label: Text(category),
-                              //       onDeleted: () {
-                              //         setState(() {
-                              //           selectedCategories.remove(category);
-                              //           // print("catAct: $selectedCategories");
-                              //         });
-                              //       },
-                              //     );
-                              //   }).toList(),
-                              // ),
                             ],
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
-                    Row(children: [
-                      Expanded(
+
+                    //version 2 google taxonomy
+                    Row(
+                      children: [
+                        Expanded(
                           child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                            SizedBox(
-                              width: screenWidthDialog,
-                              child: MenuCategories(
-                                onItemSelected: (selectedValue) {
-                                  selectedCategory = selectedValue;
-                                  print(selectedValue.split('-')[1]);
-                                  print(selectedCategory);
-                                },
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: screenWidthDialog,
+                                child: MenuCategories(
+                                  onItemSelected: (selectedValue) {
+                                    selectedCategory = selectedValue;
+                                    if (!selectedCategories.contains(
+                                        selectedCategory?.split('-')[0])) {
+                                      setState(() {
+                                        selectedCategories.add(
+                                            selectedCategory!.split('-')[0]);
+                                      });
+                                    }
+                                    // print(selectedValue.split('-')[1]);
+                                    print("selectedCategory");
+                                    print(selectedCategory);
+                                    print("selectedCategories");
+                                    print(selectedCategories);
+                                  },
+                                ),
                               ),
-                            ),
-                          ]))
-                    ]),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
 
                     Row(
                       children: [
@@ -1854,10 +2001,10 @@ class _AddProductState extends State<AddProduct> {
                                       });
                                     }
                                   }
-                                  setState(() {
-                                    imgsTemporales =
-                                        imgsTemporales.reversed.toList();
-                                  });
+                                  // setState(() {
+                                  //   imgsTemporales =
+                                  //       imgsTemporales.reversed.toList();
+                                  // });
                                 },
                                 child: const Row(
                                   children: [
@@ -1893,7 +2040,7 @@ class _AddProductState extends State<AddProduct> {
                       ),
                     ),
 //
-
+                    /* dont delete
                     const SizedBox(height: 20),
                     const Row(
                       children: [
@@ -1973,6 +2120,7 @@ class _AddProductState extends State<AddProduct> {
                         ),
                       ],
                     ),
+                    */
                     //btn
                     const SizedBox(height: 20),
                     Row(
@@ -1988,6 +2136,7 @@ class _AddProductState extends State<AddProduct> {
 
                                     if (selectedType == null ||
                                         selectedCategories.isEmpty ||
+                                        // selectedCategory == null ||
                                         selectedWarehouse == null) {
                                       // ignore: use_build_context_synchronously
                                       AwesomeDialog(
@@ -2072,13 +2221,20 @@ class _AddProductState extends State<AddProduct> {
                                       var urlsImgsListToSend =
                                           await saveImages(imgsTemporales);
 
+                                      String id_category = await searchInJson(
+                                          selectedCategories.first
+                                              .toString()
+                                              .toLowerCase());
+
                                       var featuresToSend = {
                                         "guide_name": _nameGuideController.text,
                                         "price_suggested":
                                             _priceSuggestedController.text,
                                         "sku":
                                             _skuController.text.toUpperCase(),
-                                        "categories": selectedCategories,
+                                        "id_category":
+                                            id_category.split('-')[0].trim(),
+                                        "category": selectedCategories,
                                         "description":
                                             _descriptionController.text,
                                         "type": selectedType,
@@ -2145,6 +2301,44 @@ class _AddProductState extends State<AddProduct> {
         ),
       ),
     );
+  }
+
+  Future<List<String>> filterCategory(String searchValue) async {
+    print("filterCategory");
+    List<String> categoriesList = [];
+    for (var category in categoriesToSelect) {
+      if (removeDiacritics(category.toLowerCase())
+          .contains(removeDiacritics(searchValue.toLowerCase()))) {
+        print("dentro if");
+
+        categoriesToSelect.add(category);
+      }
+    }
+    print(categoriesList);
+
+    return categoriesList;
+  }
+
+  Future<String> searchInJson(String searchValue) async {
+    String items = "";
+    List<dynamic> data = [];
+    String jsonData = await rootBundle.loadString('assets/taxonomy2.json');
+
+    data = json.decode(jsonData);
+    for (var item in data) {
+      // var lastKey = item.keys.last;
+      var lastKey = item.keys.last;
+
+      if (lastKey == "c1") {
+        if ((removeDiacritics(item[lastKey].toString().toLowerCase()))
+            .contains(removeDiacritics(searchValue.toLowerCase()))) {
+          String menuItemLabel = "${item['id']}-${item[lastKey]}";
+          print(menuItemLabel);
+          items = menuItemLabel;
+        }
+      }
+    }
+    return items;
   }
 
   Future<List<String>> saveImages(List<XFile> imgsTemporales) async {
