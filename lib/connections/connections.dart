@@ -2986,6 +2986,23 @@ class Connections {
     return decodeData['data'];
   }
 
+  // laravel version ↑
+    getSubRoutesbyRoute(id) async {
+    try {
+      var response = await http.get(
+          Uri.parse(
+              "$serverLaravel/api/rutas/subroutesofroute/$id"),
+          headers: {'Content-Type': 'application/json'});
+      if (response.statusCode != 200) {
+        return 1;
+      } else {
+        return json.decode(response.body);
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
   Future getSubRoutes() async {
     var request = await http.get(
       Uri.parse(
@@ -5202,6 +5219,20 @@ class Connections {
       var response = await request.body;
       var decodeData = json.decode(response);
 
+      return decodeData;
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future getRouteLaravel(id) async {
+    try {
+      var request = await http.get(
+        Uri.parse("$serverLaravel/api/rutas/$id"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      var response = await request.body;
+      var decodeData = json.decode(response);
       return decodeData;
     } catch (e) {
       print(e);

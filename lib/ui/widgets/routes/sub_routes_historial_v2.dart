@@ -3,27 +3,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/create_sub_route.dart';
 
-class SubRoutesModalHistorial extends StatefulWidget {
+class SubRoutesModalHistorialV2 extends StatefulWidget {
   final idOrder;
   final bool someOrders;
+  final int? idRoute;
 
-  const SubRoutesModalHistorial(
-      {super.key, required this.idOrder, required this.someOrders});
+  const SubRoutesModalHistorialV2(
+      {super.key,
+      required this.idOrder,
+      required this.someOrders,
+      required this.idRoute});
 
   @override
-  State<SubRoutesModalHistorial> createState() =>
-      _SubRoutesModalHistorialState();
+  State<SubRoutesModalHistorialV2> createState() =>
+      _SubRoutesModalHistorialV2State();
 }
 
-class _SubRoutesModalHistorialState extends State<SubRoutesModalHistorial> {
+class _SubRoutesModalHistorialV2State extends State<SubRoutesModalHistorialV2> {
   TextEditingController textEditingController = TextEditingController();
   List<String> routes = [];
   List<String> operator = [];
   String? selectedValueRoute;
-  String? selectedValueTransport; 
+  String? selectedValueTransport;
 
   @override
   void didChangeDependencies() {
@@ -36,17 +41,16 @@ class _SubRoutesModalHistorialState extends State<SubRoutesModalHistorial> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
-
-    var routesList = await Connections().getSubRoutesSelectAll();
+    var routesList = await Connections().getSubRoutesbyRoute(widget.idRoute);
     for (var i = 0; i < routesList.length; i++) {
       setState(() {
-        if (!routes.contains(
-            "${routesList[i]['attributes']['sub_ruta']['data']['attributes']['Titulo']}-${routesList[i]['attributes']['sub_ruta']['data']['id']}")) {
-          routes.add(
-              "${routesList[i]['attributes']['sub_ruta']['data']['attributes']['Titulo']}-${routesList[i]['attributes']['sub_ruta']['data']['id']}");
+        if (!routes.contains("${routesList[i]}")) {
+          routes.add("${routesList[i]}");
         }
       });
     }
+    print('idpasado -> ${widget.idRoute}');
+    print('ak> ${routesList}');
 
     Future.delayed(Duration(milliseconds: 500), () {
       Navigator.pop(context);
@@ -61,7 +65,8 @@ class _SubRoutesModalHistorialState extends State<SubRoutesModalHistorial> {
     });
 
     operatorsList = await Connections()
-        .getOperatorBySubRoute(selectedValueRoute.toString().split("-")[1]);
+        // .getOperatorBySubRoute(selectedValueRoute.toString().split("-")[1]);
+        .getOperatorBySubRoute(1);
     for (var i = 0; i < operatorsList.length; i++) {
       setState(() {
         if (operatorsList[i]['attributes']['user']['data'] != null) {
@@ -109,7 +114,8 @@ class _SubRoutesModalHistorialState extends State<SubRoutesModalHistorial> {
                 value: selectedValueRoute,
                 onChanged: (value) async {
                   setState(() {
-                    selectedValueRoute = value as String;
+                    // selectedValueRoute = value as String;
+                    selectedValueRoute;
                     operator.clear();
                     selectedValueTransport = null;
                   });
@@ -204,4 +210,3 @@ class _SubRoutesModalHistorialState extends State<SubRoutesModalHistorial> {
     );
   }
 }
-  

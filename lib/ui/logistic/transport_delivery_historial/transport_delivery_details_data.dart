@@ -12,6 +12,7 @@ import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/routes.dart';
 import 'package:frontend/ui/widgets/routes/sub_routes.dart';
 import 'package:frontend/ui/widgets/routes/sub_routes_historial.dart';
+import 'package:frontend/ui/widgets/routes/sub_routes_historial_v2.dart';
 import 'package:frontend/ui/widgets/show_error_snackbar.dart';
 import 'package:frontend/ui/widgets/update_status_operator/update_status_operator_historial.dart';
 import 'package:get/route_manager.dart';
@@ -107,7 +108,7 @@ class _TransportDeliveryHistoryDetailsDataState
       var response =
           await Connections().getOrderByIDHistoryLaravel(widget.data['id']);
 
-      // print("res> $response");
+      print("res> $response");
       dataL = widget.dataL!;
 
       var pedidoEspecifico = dataL.firstWhere(
@@ -138,6 +139,10 @@ class _TransportDeliveryHistoryDetailsDataState
       // SnackBarHelper.showErrorSnackBar(context, "Error al guardar los datos");
     }
   }
+
+  // getIdRoute  (routeName) async {
+  //   var idRoute = await Connections().getRouteLaravel(route)
+  // }
 
   loadTextEdtingControllers(newData) {
     data = newData;
@@ -990,15 +995,22 @@ class _TransportDeliveryHistoryDetailsDataState
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
-                await showDialog(
-                  context: context,
-                  builder: (context) {
-                    return SubRoutesModalHistorial(
-                      idOrder: widget.data['id'],
-                      someOrders: false,
-                    );
-                  },
-                );
+                // // print('${widget.data['ruta']}');
+                // if (widget.data['ruta'] == [] || widget.data['ruta'].isEmpty) {
+                //   SnackBarHelper.showErrorSnackBar(
+                //       context, "Debe asignar una ruta previamente.");
+                // } else {
+                  await showDialog(
+                    context: context,
+                    builder: (context) {
+                      return SubRoutesModalHistorial(
+                          idOrder: widget.data['id'],
+                          someOrders: false,
+                          // idRoute: widget.data['ruta'][0]['id']
+                          );
+                    },
+                  );
+                // }
 
                 setState(() {});
                 await loadData();
