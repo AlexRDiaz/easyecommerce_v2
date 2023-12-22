@@ -99,6 +99,8 @@ class _AddProductState extends State<AddProduct> {
   List<String> _filteredCategoryes = [];
   Timer? _timer;
 
+  List<Map<String, String>> selectedCategoriesMap = [];
+
   bool containsEmoji(String text) {
     final emojiPattern = RegExp(
         r'[\u2000-\u3300]|[\uD83C][\uDF00-\uDFFF]|[\uD83D][\uDC00-\uDE4F]'
@@ -347,145 +349,11 @@ class _AddProductState extends State<AddProduct> {
                                       RegExp(r'^\d+\.?\d{0,2}$')),
                                 ],
                               ),
-                              // const Text('Precio Sugerido'),
-                              // const SizedBox(height: 3),
-                              // SizedBox(
-                              //   width: 120,
-                              //   child: TextFormField(
-                              //     controller: _priceSuggestedController,
-                              //     keyboardType: TextInputType.number,
-                              //     inputFormatters: <TextInputFormatter>[
-                              //       FilteringTextInputFormatter.allow(
-                              //           RegExp(r'^\d+\.?\d{0,2}$')),
-                              //     ],
-                              //     decoration: InputDecoration(
-                              //       fillColor: Colors.white,
-                              //       filled: true,
-                              //       border: OutlineInputBorder(
-                              //         borderRadius: BorderRadius.circular(5.0),
-                              //       ),
-                              //     ),
-                              //     validator: (value) {
-                              //       if (value!.isEmpty) {
-                              //         return 'Por favor, ingrese el precio del producto';
-                              //       }
-                              //       return null;
-                              //     },
-                              //   ),
-                              // ),
                             ],
                           ),
                         ),
                       ],
                     ),
-/*
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('SKU'),
-                              const SizedBox(height: 3),
-                              SizedBox(
-                                width: 200,
-                                child: TextFormField(
-                                  controller: _skuController,
-                                  keyboardType: TextInputType.number,
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(
-                                      RegExp(r'[a-zA-Z0-9]'),
-                                    ),
-                                  ],
-                                  decoration: InputDecoration(
-                                    fillColor: Colors.white,
-                                    filled: true,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(5.0),
-                                    ),
-                                  ),
-                                  validator: (value) {
-                                    if (value!.isEmpty) {
-                                      return 'Por favor, ingrese el SKU del producto';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 20),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('Precio Bodega'),
-                              const SizedBox(height: 3),
-                              SizedBox(
-                                width: 120,
-                                child: TextFormField(
-                                  controller: _priceController,
-                                  keyboardType: TextInputType.number,
-                                  inputFormatters: <TextInputFormatter>[
-                                    FilteringTextInputFormatter.allow(
-                                        RegExp(r'^\d+\.?\d{0,2}$')),
-                                  ],
-                                  decoration: InputDecoration(
-                                    fillColor: Colors.white,
-                                    filled: true,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(5.0),
-                                    ),
-                                  ),
-                                  validator: (value) {
-                                    if (value!.isEmpty) {
-                                      return 'Por favor, ingrese el precio del producto';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 20),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('Precio Sugerido'),
-                              const SizedBox(height: 3),
-                              SizedBox(
-                                width: 120,
-                                child: TextFormField(
-                                  controller: _priceSuggestedController,
-                                  keyboardType: TextInputType.number,
-                                  inputFormatters: <TextInputFormatter>[
-                                    FilteringTextInputFormatter.allow(
-                                        RegExp(r'^\d+\.?\d{0,2}$')),
-                                  ],
-                                  decoration: InputDecoration(
-                                    fillColor: Colors.white,
-                                    filled: true,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(5.0),
-                                    ),
-                                  ),
-                                  validator: (value) {
-                                    if (value!.isEmpty) {
-                                      return 'Por favor, ingrese el precio del producto';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    */
                     const SizedBox(height: 10),
                     Row(
                       children: [
@@ -496,7 +364,7 @@ class _AddProductState extends State<AddProduct> {
                               const Text('Tipo'),
                               const SizedBox(height: 3),
                               SizedBox(
-                                width: (screenWidthDialog / 3) - 10,
+                                width: 150,
                                 child: DropdownButtonFormField<String>(
                                   isExpanded: true,
                                   hint: Text(
@@ -546,7 +414,6 @@ class _AddProductState extends State<AddProduct> {
                             ],
                           ),
                         ),
-                        const SizedBox(width: 10),
                         Visibility(
                           visible: selectedType == 'VARIABLE',
                           child: Expanded(
@@ -1121,7 +988,6 @@ class _AddProductState extends State<AddProduct> {
                                         setState(() {
                                           selectedVariablesList
                                               .remove(variable);
-                                          // print("catAct: $selectedCategories");
                                         });
                                       },
                                     );
@@ -1329,9 +1195,9 @@ class _AddProductState extends State<AddProduct> {
                                       // print(
                                       //     _priceUnitController.text.toString());
                                       // print(_skuController.text.toString());
-                                      print(chosenSize);
-                                      print(chosenColor);
-                                      print(chosenDimension);
+                                      // print(chosenSize);
+                                      // print(chosenColor);
+                                      // print(chosenDimension);
                                       if (_skuController.text.isEmpty) {
                                         showSuccessModal(
                                             context,
@@ -1341,8 +1207,8 @@ class _AddProductState extends State<AddProduct> {
                                         if ((chosenSize == null ||
                                             chosenColor == null ||
                                             chosenDimension == null)) {
-                                          print(
-                                              "no selected size o color o dimension");
+                                          // print(
+                                          //     "no selected size o color o dimension");
                                         }
                                         if (((int.parse(
                                                     _inventaryController.text) <
@@ -1656,80 +1522,6 @@ class _AddProductState extends State<AddProduct> {
                             ],
                           ),
                         ),
-                        // const SizedBox(width: 20),
-                        // Expanded(
-                        //   child: Column(
-                        //     crossAxisAlignment: CrossAxisAlignment.start,
-                        //     children: [
-                        //       const Text('Categoría'),
-                        //       const SizedBox(height: 3),
-                        //       DropdownButtonFormField<String>(
-                        //         isExpanded: true,
-                        //         hint: Text(
-                        //           'Seleccione',
-                        //           style: TextStyle(
-                        //             fontSize: 14,
-                        //             color: Theme.of(context).hintColor,
-                        //             fontWeight: FontWeight.bold,
-                        //           ),
-                        //         ),
-                        //         items: categories
-                        //             .map((item) => DropdownMenuItem(
-                        //                   value: item,
-                        //                   child: Text(
-                        //                     item,
-                        //                     style: const TextStyle(
-                        //                       fontSize: 14,
-                        //                       fontWeight: FontWeight.bold,
-                        //                     ),
-                        //                   ),
-                        //                 ))
-                        //             .toList(),
-                        //         value: selectedCategories.isNotEmpty
-                        //             ? selectedCategories.first
-                        //             : null,
-                        //         onChanged: (value) {
-                        //           setState(() {
-                        //             selectedCategory = value;
-                        //             if (value != null) {
-                        //               if (!selectedCategories
-                        //                   .contains(selectedCategory)) {
-                        //                 setState(() {
-                        //                   selectedCategories
-                        //                       .add(selectedCategory!);
-                        //                 });
-                        //               }
-                        //             }
-                        //           });
-                        //         },
-                        //         decoration: InputDecoration(
-                        //           fillColor: Colors.white,
-                        //           filled: true,
-                        //           border: OutlineInputBorder(
-                        //             borderRadius: BorderRadius.circular(5.0),
-                        //           ),
-                        //         ),
-                        //       ),
-                        //       // const SizedBox(height: 5),
-                        //       // Wrap(
-                        //       //   spacing: 8.0,
-                        //       //   runSpacing: 8.0,
-                        //       //   children:
-                        //       //       selectedCategories.map<Widget>((category) {
-                        //       //     return Chip(
-                        //       //       label: Text(category),
-                        //       //       onDeleted: () {
-                        //       //         setState(() {
-                        //       //           selectedCategories.remove(category);
-                        //       //           // print("catAct: $selectedCategories");
-                        //       //         });
-                        //       //       },
-                        //       //     );
-                        //       //   }).toList(),
-                        //       // ),
-                        //     ],
-                        //   ),
-                        // ),
                       ],
                     ),
                     const SizedBox(height: 10),
@@ -1738,124 +1530,8 @@ class _AddProductState extends State<AddProduct> {
                         Expanded(child: Text('Categoría')),
                       ],
                     ),
-                    //version 3 cat
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: screenWidthDialog / 2,
-                          child: TextField(
-                            controller: _searchCategoryController,
-                            decoration: InputDecoration(
-                              hintText: 'Buscar Categoría...',
-                              border: OutlineInputBorder(),
-                              contentPadding: EdgeInsets.symmetric(
-                                  vertical: 10.0,
-                                  horizontal:
-                                      10.0), // Reduce la altura del TextField
-                              suffixIcon:
-                                  _searchCategoryController.text.isNotEmpty
-                                      ? IconButton(
-                                          icon: const Icon(Icons.clear),
-                                          onPressed: () {
-                                            setState(() {
-                                              _searchCategoryController.clear();
-                                              _filteredCategoryes.clear();
-                                              // _dropdownValue = null;
-                                            });
-                                          },
-                                        )
-                                      : null,
-                            ),
-                            // onChanged: (value) {
-                            //   print(value);
-                            //   _timer?.cancel();
-                            //   _timer = Timer(const Duration(seconds: 2), () {
-                            //     setState(() {
-                            //       _filteredCategoryes = filterCategory(value);
-                            //       print("_filteredCategoryes");
-                            //       for (var element in _filteredCategoryes) {
-                            //         print(element);
-                            //       }
-                            //     });
-                            //   });
-                            // },
-                            onSubmitted: (value) {
-                              _timer?.cancel();
-                              _timer = Timer(const Duration(seconds: 2), () {
-                                setState(() async {
-                                  _filteredCategoryes =
-                                      await filterCategory(value);
-                                  print("_filteredCategoryes");
-                                  for (var element in _filteredCategoryes) {
-                                    print(element);
-                                  }
-                                  print("after for filterCategory");
-                                });
-                              });
-                            },
-                          ),
-                        ),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                width: (screenWidthDialog / 3) - 10,
-                                child: DropdownButtonFormField<String>(
-                                  isExpanded: true,
-                                  hint: Text(
-                                    'Seleccione',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Theme.of(context).hintColor,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  items: categoriesToSelect
-                                      .map((item) => DropdownMenuItem(
-                                            value: item,
-                                            child: Text(
-                                              item,
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ))
-                                      .toList(),
-                                  value: selectedCategories.isNotEmpty
-                                      ? selectedCategories.first
-                                      : null,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      selectedCategory = value;
-                                      if (value != null) {
-                                        if (!selectedCategories
-                                            .contains(selectedCategory)) {
-                                          setState(() {
-                                            selectedCategories
-                                                .add(selectedCategory!);
-                                          });
-                                        }
-                                      }
-                                    });
-                                  },
-                                  decoration: InputDecoration(
-                                    fillColor: Colors.white,
-                                    filled: true,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(5.0),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
 
-                    //version 2 google taxonomy
+                    //version cat-easy con id taxonomy
                     Row(
                       children: [
                         Expanded(
@@ -1867,18 +1543,28 @@ class _AddProductState extends State<AddProduct> {
                                 child: MenuCategories(
                                   onItemSelected: (selectedValue) {
                                     selectedCategory = selectedValue;
-                                    if (!selectedCategories.contains(
-                                        selectedCategory?.split('-')[0])) {
+
+                                    // if (!selectedCategories
+                                    //     .contains(selectedCategory)) {
+                                    //   setState(() {
+                                    //     selectedCategories
+                                    //         .add(selectedCategory!);
+                                    //   });
+                                    // }
+                                    List<String> parts =
+                                        selectedCategory!.split('-');
+
+                                    if (!selectedCategoriesMap.any((category) =>
+                                        category["id"] == parts[1])) {
                                       setState(() {
-                                        selectedCategories.add(
-                                            selectedCategory!.split('-')[0]);
+                                        selectedCategoriesMap.add({
+                                          "id": parts[1],
+                                          "name": parts[0],
+                                        });
                                       });
                                     }
-                                    // print(selectedValue.split('-')[1]);
-                                    print("selectedCategory");
-                                    print(selectedCategory);
-                                    print("selectedCategories");
-                                    print(selectedCategories);
+                                    // print("selectedCategoriesMap");
+                                    // print(selectedCategoriesMap);
                                   },
                                 ),
                               ),
@@ -1895,11 +1581,6 @@ class _AddProductState extends State<AddProduct> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [])),
                         const SizedBox(width: 20),
-                        // const Expanded(
-                        //     child: Column(
-                        //         crossAxisAlignment: CrossAxisAlignment.start,
-                        //         children: [])),
-                        // const SizedBox(width: 20),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1907,49 +1588,56 @@ class _AddProductState extends State<AddProduct> {
                               Wrap(
                                 spacing: 8.0,
                                 runSpacing: 8.0,
-                                children:
-                                    selectedCategories.map<Widget>((category) {
+                                children: List.generate(
+                                    selectedCategoriesMap.length, (index) {
+                                  String categoryName =
+                                      selectedCategoriesMap[index]["name"] ??
+                                          "";
+
                                   return Chip(
-                                    label: Text(category),
+                                    label: Text(categoryName),
                                     onDeleted: () {
                                       setState(() {
-                                        selectedCategories.remove(category);
-                                        // print("catAct: $selectedCategories");
+                                        selectedCategoriesMap.removeAt(index);
+                                        // print("catAct: $selectedCategoriesMap");
                                       });
                                     },
                                   );
-                                }).toList(),
+                                }),
                               ),
                             ],
                           ),
                         ),
                       ],
                     ),
+
                     const SizedBox(height: 30),
-                    Row(children: [
-                      Expanded(
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                            const Text('Descripción'),
-                            const SizedBox(height: 5),
-                            Container(
-                              margin:
-                                  const EdgeInsets.symmetric(vertical: 10.0),
-                              padding: const EdgeInsets.all(8.0),
-                              height: 200,
-                              //  width: 600,
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  border: Border.all(color: Colors.black)),
-                              child: HtmlEditor(
-                                description: "",
-                                getValue: getValue,
+                    Row(
+                      children: [
+                        Expanded(
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                              const Text('Descripción'),
+                              const SizedBox(height: 5),
+                              Container(
+                                margin:
+                                    const EdgeInsets.symmetric(vertical: 10.0),
+                                padding: const EdgeInsets.all(8.0),
+                                height: 250,
+                                //  width: 600,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    border: Border.all(color: Colors.black)),
+                                child: HtmlEditor(
+                                  description: "",
+                                  getValue: getValue,
+                                ),
                               ),
-                            ),
-                          ]))
-                    ]),
+                            ]))
+                      ],
+                    ),
                     const SizedBox(height: 10),
 
                     //
@@ -2135,8 +1823,9 @@ class _AddProductState extends State<AddProduct> {
                                     getLoadingModal(context, false);
 
                                     if (selectedType == null ||
-                                        selectedCategories.isEmpty ||
+                                        // selectedCategories.isEmpty ||
                                         // selectedCategory == null ||
+                                        selectedCategoriesMap.isEmpty ||
                                         selectedWarehouse == null) {
                                       // ignore: use_build_context_synchronously
                                       AwesomeDialog(
@@ -2151,7 +1840,9 @@ class _AddProductState extends State<AddProduct> {
                                         btnOkText: "Aceptar",
                                         btnOkColor: colors.colorGreen,
                                         btnCancelOnPress: () {},
-                                        btnOkOnPress: () {},
+                                        btnOkOnPress: () {
+                                          Navigator.pop(context);
+                                        },
                                       ).show();
 
                                       // showSuccessModal(
@@ -2221,20 +1912,13 @@ class _AddProductState extends State<AddProduct> {
                                       var urlsImgsListToSend =
                                           await saveImages(imgsTemporales);
 
-                                      String id_category = await searchInJson(
-                                          selectedCategories.first
-                                              .toString()
-                                              .toLowerCase());
-
                                       var featuresToSend = {
                                         "guide_name": _nameGuideController.text,
                                         "price_suggested":
                                             _priceSuggestedController.text,
                                         "sku":
                                             _skuController.text.toUpperCase(),
-                                        "id_category":
-                                            id_category.split('-')[0].trim(),
-                                        "category": selectedCategories,
+                                        "categories": selectedCategoriesMap,
                                         "description":
                                             _descriptionController.text,
                                         "type": selectedType,
@@ -2301,44 +1985,6 @@ class _AddProductState extends State<AddProduct> {
         ),
       ),
     );
-  }
-
-  Future<List<String>> filterCategory(String searchValue) async {
-    print("filterCategory");
-    List<String> categoriesList = [];
-    for (var category in categoriesToSelect) {
-      if (removeDiacritics(category.toLowerCase())
-          .contains(removeDiacritics(searchValue.toLowerCase()))) {
-        print("dentro if");
-
-        categoriesToSelect.add(category);
-      }
-    }
-    print(categoriesList);
-
-    return categoriesList;
-  }
-
-  Future<String> searchInJson(String searchValue) async {
-    String items = "";
-    List<dynamic> data = [];
-    String jsonData = await rootBundle.loadString('assets/taxonomy2.json');
-
-    data = json.decode(jsonData);
-    for (var item in data) {
-      // var lastKey = item.keys.last;
-      var lastKey = item.keys.last;
-
-      if (lastKey == "c1") {
-        if ((removeDiacritics(item[lastKey].toString().toLowerCase()))
-            .contains(removeDiacritics(searchValue.toLowerCase()))) {
-          String menuItemLabel = "${item['id']}-${item[lastKey]}";
-          print(menuItemLabel);
-          items = menuItemLabel;
-        }
-      }
-    }
-    return items;
   }
 
   Future<List<String>> saveImages(List<XFile> imgsTemporales) async {

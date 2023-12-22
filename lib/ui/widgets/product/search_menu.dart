@@ -28,7 +28,7 @@ class _SearchMenuState extends State<SearchMenu> {
   }
 
   Future<void> loadJsonData() async {
-    String jsonData = await rootBundle.loadString('assets/taxonomy.json');
+    String jsonData = await rootBundle.loadString('assets/taxonomy3.json');
     data = json.decode(jsonData);
   }
 
@@ -112,7 +112,7 @@ class _SearchMenuState extends State<SearchMenu> {
           .toString()
           .toLowerCase()
           .contains(searchValue.toLowerCase())) {
-        String menuItemLabel = "${item[lastKey]} - ${item['412']}";
+        String menuItemLabel = "${item[lastKey]}-${item['id']}";
         items.add(menuItemLabel);
       }
     }

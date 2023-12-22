@@ -973,20 +973,18 @@ class _ProductsViewState extends State<ProductsView> {
     String type = "";
     String variablesSKU = "";
     String variablesText = "";
-    // List<String> categories = [];
-    // String categoriesText = "";
-    String category = "";
+    String categoriesText = "";
+    List<dynamic> categories;
 
     guideName = features["guide_name"];
     priceSuggested = features["price_suggested"].toString();
     sku = features["sku"];
     description = features["description"];
     type = features["type"];
-
-    // categories =
-    //     (features["categories"] as List<dynamic>).cast<String>().toList();
-    // categoriesText = categories.join(', ');
-    category = features["category"];
+    categories = features["categories"];
+    List<String> categoriesNames =
+        categories.map((item) => item["name"].toString()).toList();
+    categoriesText = categoriesNames.join(', ');
 
     if (product.isvariable == 1) {
       List<Map<String, dynamic>>? variants =
@@ -1535,7 +1533,7 @@ class _ProductsViewState extends State<ProductsView> {
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
-                                            category,
+                                            categoriesText,
                                             style: TextStyle(
                                               fontSize: 16,
                                               color: Colors.grey[800],

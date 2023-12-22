@@ -1030,19 +1030,18 @@ class _CatalogState extends State<Catalog> {
     String type = "";
     String variablesSKU = "";
     String variablesText = "";
-    // List<String> categories = [];
-    // String categoriesText = "";
-    String category = "";
+    String categoriesText = "";
+    List<dynamic> categories;
 
     guideName = features["guide_name"];
     priceSuggested = features["price_suggested"].toString();
     sku = features["sku"];
     description = features["description"];
     type = features["type"];
-    // categories =
-    //     (features["categories"] as List<dynamic>).cast<String>().toList();
-    // categoriesText = categories.join(', ');
-    category = features["category"] != null ? features["category"] : "";
+    categories = features["categories"];
+    List<String> categoriesNames =
+        categories.map((item) => item["name"].toString()).toList();
+    categoriesText = categoriesNames.join(', ');
 
     if (product.isvariable == 1) {
       List<Map<String, dynamic>>? variants =
@@ -1145,69 +1144,7 @@ class _CatalogState extends State<Catalog> {
                       Expanded(
                         flex: 6,
                         child: ShowImages(urlsImgsList: urlsImgsList),
-                        /*
-                        child: Row(
-                          children: [
-                            Column(
-                              children: [
-                                for (String imageUrl in urlsImgsList)
-                                  GestureDetector(
-                                    onTap: () {
-                                      // Update the selectedImage when an image on the left is tapped
-                                      setState(() {
-                                        selectedImage = imageUrl;
-                                      });
-
-                                      print("selectedImage: $selectedImage");
-                                    },
-                                    child: Container(
-                                      width: screenWidth * 0.08,
-                                      height: screenHeight * 0.15,
-                                      margin: const EdgeInsets.all(5),
-                                      child: Image.network(
-                                        "$generalServer$imageUrl",
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  ),
-                              ],     
-                            ),
-                            const SizedBox(width: 20),
-                            SizedBox(
-                              width: screenWidth * 0.4,
-                              height: screenHeight * 0.8,
-                              child: product.urlImg != null &&
-                                      product.urlImg.isNotEmpty &&
-                                      product.urlImg.toString() != "[]"
-                                  ? Image.network(
-                                      "$generalServer$selectedImage",
-                                      fit: BoxFit.fill,
-                                    )
-                                  : Container(), // Contenedor vacío si product.urlImg es nulo o vacío
-                            ),
-                          ],
-                        ),
-                        */
                       ),
-                      // Expanded(
-                      //   flex: 6,
-                      //   child: Column(
-                      //     children: [
-                      //             SizedBox(
-                      //         width: MediaQuery.of(context).size.width * 0.3,
-                      //         height: MediaQuery.of(context).size.height * 0.6,
-                      //         child: product.urlImg != null &&
-                      //                 product.urlImg.isNotEmpty &&
-                      //                 product.urlImg.toString() != "[]"
-                      //             ? Image.network(
-                      //                       "$generalServer${selectedImage}",
-                      //                       fit: BoxFit.fill,
-                      //                     )
-                      //                   : Container(), // Contenedor vacío si product.urlImg es nulo o vacío
-                      //             ),
-                      //     ],
-                      //   ),
-                      // ),
                       Expanded(
                         flex: 4,
                         child: Column(
@@ -1224,11 +1161,6 @@ class _CatalogState extends State<Catalog> {
                                         children: [
                                           Text(
                                             "Producto:",
-                                            // style: TextStyle(
-                                            //   fontWeight: FontWeight.bold,
-                                            //   fontSize: 18,
-                                            //   color: Colors.black,
-                                            // ),
                                             style: GoogleFonts.dmSerifDisplay(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 18,
@@ -1270,14 +1202,6 @@ class _CatalogState extends State<Catalog> {
                                     children: [
                                       Row(
                                         children: [
-                                          // Text(
-                                          //   "Nombre a mostrar en la guia de envio:",
-                                          //   style: TextStyle(
-                                          //     fontWeight: FontWeight.bold,
-                                          //     fontSize: 18,
-                                          //     color: Colors.black,
-                                          //   ),
-                                          // ),
                                           Text(
                                             'Nombre a mostrar en la guia de envio:',
                                             style: GoogleFonts.dmSerifDisplay(
@@ -1298,10 +1222,6 @@ class _CatalogState extends State<Catalog> {
                                 children: <TextSpan>[
                                   TextSpan(
                                     text: guideName,
-                                    // style: TextStyle(
-                                    //   fontSize: 18,
-                                    //   color: Colors.black,
-                                    // ),
                                     style: GoogleFonts.dmSans(
                                       fontSize: 17,
                                       color: Colors.black,
@@ -1322,11 +1242,6 @@ class _CatalogState extends State<Catalog> {
                                         children: [
                                           Text(
                                             "ID:",
-                                            // style: TextStyle(
-                                            //   fontWeight: FontWeight.bold,
-                                            //   fontSize: 18,
-                                            //   color: Colors.black,
-                                            // ),
                                             style: GoogleFonts.dmSerifDisplay(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 18,
@@ -1336,10 +1251,6 @@ class _CatalogState extends State<Catalog> {
                                           const SizedBox(width: 10),
                                           Text(
                                             product.productId.toString(),
-                                            // style: TextStyle(
-                                            //   fontSize: 16,
-                                            //   color: Colors.grey[800],
-                                            // ),
                                             style: GoogleFonts.dmSans(
                                               fontSize: 17,
                                               color: Colors.black,
@@ -1364,11 +1275,6 @@ class _CatalogState extends State<Catalog> {
                                         children: [
                                           Text(
                                             "Descripción:",
-                                            // style: TextStyle(
-                                            //   fontWeight: FontWeight.bold,
-                                            //   fontSize: 18,
-                                            //   color: Colors.black,
-                                            // ),
                                             style: GoogleFonts.dmSerifDisplay(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 18,
@@ -1671,7 +1577,7 @@ class _CatalogState extends State<Catalog> {
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
-                                            category,
+                                            categoriesText,
                                             style: TextStyle(
                                               fontSize: 16,
                                               color: Colors.grey[800],
