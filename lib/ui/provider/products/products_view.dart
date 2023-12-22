@@ -22,6 +22,7 @@ import 'package:frontend/ui/widgets/product/show_img.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ProductsView extends StatefulWidget {
   const ProductsView({super.key});
@@ -1019,6 +1020,17 @@ class _ProductsViewState extends State<ProductsView> {
       }).join('\n\n');
     }
 
+    TextStyle customTextStyleTitle = GoogleFonts.dmSerifDisplay(
+      fontWeight: FontWeight.bold,
+      fontSize: 18,
+      color: Colors.black,
+    );
+
+    TextStyle customTextStyleText = GoogleFonts.dmSans(
+      fontSize: 17,
+      color: Colors.black,
+    );
+
     showDialog(
       context: context,
       builder: (context) {
@@ -1058,21 +1070,14 @@ class _ProductsViewState extends State<ProductsView> {
                                   width: 100,
                                   child: Row(
                                     children: [
-                                      const Text(
+                                      Text(
                                         "ID:",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18,
-                                          color: Colors.black,
-                                        ),
+                                        style: customTextStyleTitle,
                                       ),
                                       const SizedBox(width: 10),
                                       Text(
                                         "${product.productId}",
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.grey[800],
-                                        ),
+                                        style: customTextStyleText,
                                       ),
                                     ],
                                   ),
@@ -1085,21 +1090,14 @@ class _ProductsViewState extends State<ProductsView> {
                                     children: [
                                       Row(
                                         children: [
-                                          const Text(
+                                          Text(
                                             "Creado:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
+                                            style: customTextStyleTitle,
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
                                             "${formatDate(product.createdAt.toString())}",
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
-                                            ),
+                                            style: customTextStyleText,
                                           ),
                                         ],
                                       ),
@@ -1114,13 +1112,9 @@ class _ProductsViewState extends State<ProductsView> {
                                     children: [
                                       Row(
                                         children: [
-                                          const Text(
+                                          Text(
                                             "Aprobado:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
+                                            style: customTextStyleTitle,
                                           ),
                                           const SizedBox(width: 10),
                                           product.approved == 1
@@ -1143,7 +1137,7 @@ class _ProductsViewState extends State<ProductsView> {
                               ],
                             ),
                             const SizedBox(height: 10),
-                            const Row(
+                            Row(
                               children: [
                                 Expanded(
                                   child: Column(
@@ -1152,14 +1146,8 @@ class _ProductsViewState extends State<ProductsView> {
                                     children: [
                                       Row(
                                         children: [
-                                          Text(
-                                            "Producto:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
-                                          ),
+                                          Text("Producto:",
+                                              style: customTextStyleTitle),
                                         ],
                                       ),
                                     ],
@@ -1172,7 +1160,7 @@ class _ProductsViewState extends State<ProductsView> {
                                 children: <TextSpan>[
                                   TextSpan(
                                     text: product.productName,
-                                    style: const TextStyle(
+                                    style: GoogleFonts.dmSans(
                                       fontSize: 18,
                                       color: Colors.black,
                                     ),
@@ -1181,7 +1169,7 @@ class _ProductsViewState extends State<ProductsView> {
                               ),
                             ),
                             const SizedBox(height: 10),
-                            const Row(
+                            Row(
                               children: [
                                 Expanded(
                                   child: Column(
@@ -1192,11 +1180,7 @@ class _ProductsViewState extends State<ProductsView> {
                                         children: [
                                           Text(
                                             "Nombre para mostrar en la guia de envio:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
+                                            style: customTextStyleTitle,
                                           ),
                                         ],
                                       ),
@@ -1211,16 +1195,13 @@ class _ProductsViewState extends State<ProductsView> {
                                 children: <TextSpan>[
                                   TextSpan(
                                     text: guideName,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.black,
-                                    ),
+                                    style: customTextStyleText,
                                   )
                                 ],
                               ),
                             ),
                             const SizedBox(height: 10),
-                            const Row(
+                            Row(
                               children: [
                                 Expanded(
                                   child: Column(
@@ -1231,11 +1212,7 @@ class _ProductsViewState extends State<ProductsView> {
                                         children: [
                                           Text(
                                             "Descripción:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
+                                            style: customTextStyleTitle,
                                           ),
                                         ],
                                       ),
@@ -1283,21 +1260,14 @@ class _ProductsViewState extends State<ProductsView> {
                                     children: [
                                       Row(
                                         children: [
-                                          const Text(
+                                          Text(
                                             "SKU:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
+                                            style: customTextStyleTitle,
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
                                             sku,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
-                                            ),
+                                            style: customTextStyleText,
                                           ),
                                         ],
                                       ),
@@ -1316,25 +1286,18 @@ class _ProductsViewState extends State<ProductsView> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        const Row(
+                                        Row(
                                           children: [
                                             Text(
                                               "SKU Variables:",
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16,
-                                                color: Colors.black,
-                                              ),
+                                              style: customTextStyleTitle,
                                             ),
                                           ],
                                         ),
                                         const SizedBox(height: 5),
                                         Text(
                                           variablesSKU,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.grey[800],
-                                          ),
+                                          style: customTextStyleText,
                                         ),
                                       ],
                                     ),
@@ -1352,21 +1315,14 @@ class _ProductsViewState extends State<ProductsView> {
                                     children: [
                                       Row(
                                         children: [
-                                          const Text(
+                                          Text(
                                             "Precio Bodega:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
+                                            style: customTextStyleTitle,
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
                                             "\$${product.price}",
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
-                                            ),
+                                            style: customTextStyleText,
                                           ),
                                         ],
                                       ),
@@ -1385,13 +1341,9 @@ class _ProductsViewState extends State<ProductsView> {
                                     children: [
                                       Row(
                                         children: [
-                                          const Text(
+                                          Text(
                                             "Precio Sugerido:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
+                                            style: customTextStyleTitle,
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
@@ -1399,10 +1351,7 @@ class _ProductsViewState extends State<ProductsView> {
                                                     priceSuggested != ""
                                                 ? '\$$priceSuggested'
                                                 : '',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
-                                            ),
+                                            style: customTextStyleText,
                                           ),
                                         ],
                                       ),
@@ -1421,21 +1370,14 @@ class _ProductsViewState extends State<ProductsView> {
                                     children: [
                                       Row(
                                         children: [
-                                          const Text(
+                                          Text(
                                             "Tipo:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
+                                            style: customTextStyleTitle,
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
                                             type,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
-                                            ),
+                                            style: customTextStyleText,
                                           ),
                                         ],
                                       ),
@@ -1454,21 +1396,14 @@ class _ProductsViewState extends State<ProductsView> {
                                     children: [
                                       Row(
                                         children: [
-                                          const Text(
+                                          Text(
                                             "Stock general:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
+                                            style: customTextStyleTitle,
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
                                             "${product.stock}",
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
-                                            ),
+                                            style: customTextStyleText,
                                           ),
                                         ],
                                       ),
@@ -1487,25 +1422,18 @@ class _ProductsViewState extends State<ProductsView> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        const Row(
+                                        Row(
                                           children: [
                                             Text(
                                               "Variables:",
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 18,
-                                                color: Colors.black,
-                                              ),
+                                              style: customTextStyleTitle,
                                             ),
                                           ],
                                         ),
                                         const SizedBox(height: 5),
                                         Text(
                                           variablesText,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.grey[800],
-                                          ),
+                                          style: customTextStyleText,
                                         ),
                                         const SizedBox(height: 10),
                                       ],
@@ -1523,21 +1451,14 @@ class _ProductsViewState extends State<ProductsView> {
                                     children: [
                                       Row(
                                         children: [
-                                          const Text(
+                                          Text(
                                             "Categorias:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
+                                            style: customTextStyleTitle,
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
                                             categoriesText,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
-                                            ),
+                                            style: customTextStyleText,
                                           ),
                                         ],
                                       ),
@@ -1547,7 +1468,7 @@ class _ProductsViewState extends State<ProductsView> {
                               ],
                             ),
                             const SizedBox(height: 10),
-                            const Row(
+                            Row(
                               children: [
                                 Expanded(
                                   child: Column(
@@ -1558,11 +1479,7 @@ class _ProductsViewState extends State<ProductsView> {
                                         children: [
                                           Text(
                                             "Bodega:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
+                                            style: customTextStyleTitle,
                                           ),
                                           SizedBox(width: 10),
                                         ],
@@ -1584,10 +1501,7 @@ class _ProductsViewState extends State<ProductsView> {
                                           Text(
                                             product.warehouse!.branchName
                                                 .toString(),
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
-                                            ),
+                                            style: customTextStyleText,
                                           ),
                                         ],
                                       ),

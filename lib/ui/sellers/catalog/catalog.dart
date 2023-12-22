@@ -1117,6 +1117,17 @@ class _CatalogState extends State<Catalog> {
     // print("isFavorite: $isFavorite");
     // print("isOnSale: $isOnSale");
 
+    TextStyle customTextStyleTitle = GoogleFonts.dmSerifDisplay(
+      fontWeight: FontWeight.bold,
+      fontSize: 18,
+      color: Colors.black,
+    );
+
+    TextStyle customTextStyleText = GoogleFonts.dmSans(
+      fontSize: 17,
+      color: Colors.black,
+    );
+
     showDialog(
       context: context,
       builder: (context) {
@@ -1161,11 +1172,7 @@ class _CatalogState extends State<Catalog> {
                                         children: [
                                           Text(
                                             "Producto:",
-                                            style: GoogleFonts.dmSerifDisplay(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
+                                            style: customTextStyleTitle,
                                           ),
                                         ],
                                       ),
@@ -1180,13 +1187,9 @@ class _CatalogState extends State<Catalog> {
                                 children: <TextSpan>[
                                   TextSpan(
                                     text: product.productName,
-                                    // style: const TextStyle(
-                                    //   fontSize: 18,
-                                    //   color: Colors.black,
-                                    // ),
-                                    style: GoogleFonts.dmSans(
+                                    style: TextStyle(
                                       fontSize: 18,
-                                      color: Colors.black,
+                                      color: Colors.grey[800],
                                     ),
                                   )
                                 ],
@@ -1204,11 +1207,7 @@ class _CatalogState extends State<Catalog> {
                                         children: [
                                           Text(
                                             'Nombre a mostrar en la guia de envio:',
-                                            style: GoogleFonts.dmSerifDisplay(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
+                                            style: customTextStyleTitle,
                                           ),
                                         ],
                                       ),
@@ -1222,10 +1221,7 @@ class _CatalogState extends State<Catalog> {
                                 children: <TextSpan>[
                                   TextSpan(
                                     text: guideName,
-                                    style: GoogleFonts.dmSans(
-                                      fontSize: 17,
-                                      color: Colors.black,
-                                    ),
+                                    style: customTextStyleText,
                                   )
                                 ],
                               ),
@@ -1242,19 +1238,12 @@ class _CatalogState extends State<Catalog> {
                                         children: [
                                           Text(
                                             "ID:",
-                                            style: GoogleFonts.dmSerifDisplay(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
+                                            style: customTextStyleTitle,
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
                                             product.productId.toString(),
-                                            style: GoogleFonts.dmSans(
-                                              fontSize: 17,
-                                              color: Colors.black,
-                                            ),
+                                            style: customTextStyleText,
                                           ),
                                         ],
                                       ),
@@ -1275,11 +1264,7 @@ class _CatalogState extends State<Catalog> {
                                         children: [
                                           Text(
                                             "Descripción:",
-                                            style: GoogleFonts.dmSerifDisplay(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
+                                            style: customTextStyleTitle,
                                           ),
                                         ],
                                       ),
@@ -1327,21 +1312,14 @@ class _CatalogState extends State<Catalog> {
                                     children: [
                                       Row(
                                         children: [
-                                          const Text(
+                                          Text(
                                             "SKU:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
+                                            style: customTextStyleTitle,
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
                                             sku,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
-                                            ),
+                                            style: customTextStyleText,
                                           ),
                                         ],
                                       ),
@@ -1360,25 +1338,18 @@ class _CatalogState extends State<Catalog> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        const Row(
+                                        Row(
                                           children: [
                                             Text(
                                               "SKU Variables:",
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16,
-                                                color: Colors.black,
-                                              ),
+                                              style: customTextStyleTitle,
                                             ),
                                           ],
                                         ),
                                         const SizedBox(height: 5),
                                         Text(
                                           variablesSKU,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.grey[800],
-                                          ),
+                                          style: customTextStyleText,
                                         ),
                                       ],
                                     ),
@@ -1396,21 +1367,14 @@ class _CatalogState extends State<Catalog> {
                                     children: [
                                       Row(
                                         children: [
-                                          const Text(
+                                          Text(
                                             "Precio Bodega:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
+                                            style: customTextStyleTitle,
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
                                             "\$${product.price}",
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
-                                            ),
+                                            style: customTextStyleText,
                                           ),
                                         ],
                                       ),
@@ -1429,13 +1393,9 @@ class _CatalogState extends State<Catalog> {
                                     children: [
                                       Row(
                                         children: [
-                                          const Text(
+                                          Text(
                                             "Precio Sugerido:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
+                                            style: customTextStyleTitle,
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
@@ -1443,10 +1403,7 @@ class _CatalogState extends State<Catalog> {
                                                     priceSuggested != ""
                                                 ? '\$$priceSuggested'
                                                 : '',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
-                                            ),
+                                            style: customTextStyleText,
                                           ),
                                         ],
                                       ),
@@ -1465,21 +1422,14 @@ class _CatalogState extends State<Catalog> {
                                     children: [
                                       Row(
                                         children: [
-                                          const Text(
+                                          Text(
                                             "Tipo:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
+                                            style: customTextStyleTitle,
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
                                             type,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
-                                            ),
+                                            style: customTextStyleText,
                                           ),
                                         ],
                                       ),
@@ -1498,21 +1448,14 @@ class _CatalogState extends State<Catalog> {
                                     children: [
                                       Row(
                                         children: [
-                                          const Text(
+                                          Text(
                                             "Stock general:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
+                                            style: customTextStyleTitle,
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
                                             "${product.stock}",
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
-                                            ),
+                                            style: customTextStyleText,
                                           ),
                                         ],
                                       ),
@@ -1531,25 +1474,18 @@ class _CatalogState extends State<Catalog> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        const Row(
+                                        Row(
                                           children: [
                                             Text(
                                               "Variables:",
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 18,
-                                                color: Colors.black,
-                                              ),
+                                              style: customTextStyleTitle,
                                             ),
                                           ],
                                         ),
                                         const SizedBox(height: 5),
                                         Text(
                                           variablesText,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.grey[800],
-                                          ),
+                                          style: customTextStyleText,
                                         ),
                                         const SizedBox(height: 10),
                                       ],
@@ -1567,21 +1503,14 @@ class _CatalogState extends State<Catalog> {
                                     children: [
                                       Row(
                                         children: [
-                                          const Text(
+                                          Text(
                                             "Categorias:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
+                                            style: customTextStyleTitle,
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
                                             categoriesText,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
-                                            ),
+                                            style: customTextStyleText,
                                           ),
                                         ],
                                       ),
@@ -1591,7 +1520,7 @@ class _CatalogState extends State<Catalog> {
                               ],
                             ),
                             const SizedBox(height: 10),
-                            const Row(
+                            Row(
                               children: [
                                 Expanded(
                                   child: Column(
@@ -1602,11 +1531,7 @@ class _CatalogState extends State<Catalog> {
                                         children: [
                                           Text(
                                             "Bodega:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
-                                            ),
+                                            style: customTextStyleTitle,
                                           ),
                                         ],
                                       ),
@@ -1627,10 +1552,7 @@ class _CatalogState extends State<Catalog> {
                                           Text(
                                             product.warehouse!.branchName
                                                 .toString(),
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
-                                            ),
+                                            style: customTextStyleText,
                                           ),
                                         ],
                                       ),
@@ -1648,12 +1570,9 @@ class _CatalogState extends State<Catalog> {
                                     children: [
                                       Row(
                                         children: [
-                                          const Text(
+                                          Text(
                                             "Numero de telefono atención al cliente:",
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.black,
-                                            ),
+                                            style: customTextStyleTitle,
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
@@ -1664,10 +1583,7 @@ class _CatalogState extends State<Catalog> {
                                                     .customerphoneNumber
                                                     .toString()
                                                 : "",
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
-                                            ),
+                                            style: customTextStyleText,
                                           ),
                                         ],
                                       ),

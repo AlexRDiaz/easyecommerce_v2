@@ -1876,6 +1876,16 @@ class _AddProductState extends State<AddProduct> {
                                       if (selectedType == "SIMPLE") {
                                         optionsTypes = [];
                                         variantsList = [];
+                                        int idRandom =
+                                            Random().nextInt(9000000) + 1000000;
+                                        var variant = {
+                                          "id": idRandom,
+                                          "sku":
+                                              _skuController.text.toUpperCase(),
+                                          "price":
+                                              _priceSuggestedController.text,
+                                        };
+                                        variantsList.add(variant);
                                       } else {
                                         isVariable = 1;
                                         if (selectedColores.isNotEmpty) {
