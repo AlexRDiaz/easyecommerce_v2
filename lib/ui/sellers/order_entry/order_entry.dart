@@ -459,6 +459,9 @@ class _OrderEntryState extends State<OrderEntry> {
                             text: "Busqueda",
                             controller: _controllers.searchController),
                       ),
+                      const SizedBox(
+                        height: 5,
+                      ),
                       Container(
                         child: Row(
                           children: [
@@ -553,6 +556,9 @@ class _OrderEntryState extends State<OrderEntry> {
                                   "No Desea",
                                   style: TextStyle(fontWeight: FontWeight.bold),
                                 )),
+                            const SizedBox(
+                              width: 10,
+                            ),
                             ElevatedButton(
                                 onPressed: () async {
                                   await showDialog(

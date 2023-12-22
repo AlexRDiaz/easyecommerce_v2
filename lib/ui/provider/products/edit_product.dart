@@ -22,20 +22,20 @@ import 'package:frontend/ui/widgets/loading.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
-class ProductEdit extends StatefulWidget {
+class EditProduct extends StatefulWidget {
   final Map data;
   // final Function function;
   final Function(dynamic) hasEdited;
   // final List? data;
 
-  const ProductEdit({super.key, required this.hasEdited, required this.data});
+  const EditProduct({super.key, required this.hasEdited, required this.data});
   // const ProductDetails({super.key});
 
   @override
-  State<ProductEdit> createState() => _ProductEditState();
+  State<EditProduct> createState() => _EditProductState();
 }
 
-class _ProductEditState extends State<ProductEdit> {
+class _EditProductState extends State<EditProduct> {
   String codigo = "";
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _nameGuideController = TextEditingController();
@@ -96,6 +96,12 @@ class _ProductEditState extends State<ProductEdit> {
   int showStockTotal = 0;
   List<Map<String, List<String>>> optionsList = UIUtils.variablesToSelect();
   bool showToResetType = false;
+  //edit variant stock
+  List<String> variantsToSelect = [];
+  String? chosenVariant;
+  final TextEditingController _inventoryVariantController =
+      TextEditingController();
+  final TextEditingController _commentController = TextEditingController();
 
   @override
   void initState() {
@@ -151,13 +157,37 @@ class _ProductEditState extends State<ProductEdit> {
     _skuController.text = dataFeatures["sku"];
     _descriptionController.text = dataFeatures["description"];
 
-    selectedCategories =
-        (dataFeatures["categories"] as List<dynamic>).cast<String>().toList();
+    // selectedCategories =
+    //     (dataFeatures["categories"] as List<dynamic>).cast<String>().toList();
 
     //no cambia si no cambia variables
     if (product.isvariable == 1) {
       optionsTypesOriginal = dataFeatures["options"];
       variantsListOriginal = dataFeatures["variants"];
+
+      for (var variant in variantsListOriginal) {
+        if (variant.containsKey('color')) {
+          variantsToSelect.add('${variant["sku"]}-${variant["color"]}');
+        }
+        if (variant.containsKey('size')) {
+          variantsToSelect.add('${variant["sku"]}-${variant["size"]}');
+        }
+        if (variant.containsKey('dimension')) {
+          variantsToSelect.add('${variant["sku"]}-${variant["dimension"]}');
+        }
+        if (variant.containsKey('color') && variant.containsKey('size')) {
+          variantsToSelect
+              .add('${variant["sku"]}-${variant["size"]}-${variant["color"]}');
+        }
+        if (variant.containsKey('color') && variant.containsKey('dimension')) {
+          variantsToSelect.add(
+              '${variant["sku"]}-${variant["dimension"]}-${variant["color"]}');
+        }
+        // .add(
+        //     '${variant["sku"]}-${variant["color"]}-${variant["inventory_quantity:"]}');
+      }
+
+      print("variantsListOriginal: $variantsListOriginal");
 
       List<Map<String, dynamic>>? variants =
           (dataFeatures["variants"] as List<dynamic>)
@@ -196,8 +226,37 @@ class _ProductEditState extends State<ProductEdit> {
     setState(() {});
   }
 
+  String getInventory(String sku) {
+    String currentStock;
+    for (var variant in variantsListOriginal) {
+      if (variant["sku"] == sku) {
+        currentStock = variant["inventory_quantity"];
+        print('Stock act para SKU $sku: $currentStock unidades');
+        return currentStock;
+      }
+    }
+    print('SKU $sku no encontrado en la lista de variantes');
+    return "0";
+  }
+
+  void updateInventory(String sku, String newStock) {
+    for (var variant in variantsListOriginal) {
+      if (variant["sku"] == sku) {
+        variant["inventory_quantity"] = newStock;
+        print('Stock upt para SKU $sku: $newStock unidades');
+        return; // Terminar la función después de encontrar y actualizar la variante
+      }
+    }
+    print('SKU $sku no encontrado en la lista de variantes');
+  }
+
   @override
   Widget build(BuildContext context) {
+    double screenWidthDialog = MediaQuery.of(context).size.width * 0.40;
+    double screenHeight = MediaQuery.of(context).size.height;
+    double fontSizeTitle = 16;
+    double fontSizeText = 14;
+
     return AlertDialog(
       title: AppBar(
         title: const Text(
@@ -213,7 +272,7 @@ class _ProductEditState extends State<ProductEdit> {
       ),
       content: Container(
         child: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.70,
+          width: screenWidthDialog,
           // width: 700,
           height: MediaQuery.of(context).size.height,
           child: ListView(
@@ -225,89 +284,59 @@ class _ProductEditState extends State<ProductEdit> {
                     children: [
                       Row(
                         children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    const Text(
-                                      "ID:",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Text(
-                                      codigo,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.grey[800],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                          Text(
+                            "ID:",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: fontSizeTitle,
+                              color: Colors.black,
                             ),
                           ),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    const Text(
-                                      "Creado:",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Text(
-                                      createdAt,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.grey[800],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                          const SizedBox(width: 10),
+                          SizedBox(
+                            width: 150,
+                            child: Text(
+                              codigo,
+                              style: TextStyle(
+                                  fontSize: fontSizeText,
+                                  color: Colors.grey[800]),
                             ),
                           ),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    const Text(
-                                      "Aprobado:",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    approved == 1
-                                        ? const Icon(Icons.check_circle_rounded,
-                                            color: Colors.green)
-                                        : approved == 2
-                                            ? const Icon(
-                                                Icons.hourglass_bottom_sharp,
-                                                color: Colors.indigo)
-                                            : const Icon(Icons.cancel_rounded,
-                                                color: Colors.red)
-                                  ],
-                                ),
-                              ],
+                          Text(
+                            "Creado:",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: fontSizeTitle,
+                              color: Colors.black,
                             ),
                           ),
+                          const SizedBox(width: 10),
+                          SizedBox(
+                            width: 200,
+                            child: Text(createdAt,
+                                style: TextStyle(
+                                    fontSize: fontSizeText,
+                                    color: Colors.grey[800])),
+                          ),
+                          Text(
+                            "Aprobado:",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: fontSizeTitle,
+                              color: Colors.black,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 50,
+                            child: approved == 1
+                                ? const Icon(Icons.check_circle_rounded,
+                                    color: Colors.green)
+                                : approved == 2
+                                    ? const Icon(Icons.hourglass_bottom_sharp,
+                                        color: Colors.indigo)
+                                    : const Icon(Icons.cancel_rounded,
+                                        color: Colors.red),
+                          )
                         ],
                       ),
                       const SizedBox(height: 20),
@@ -317,7 +346,14 @@ class _ProductEditState extends State<ProductEdit> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Producto'),
+                                Text(
+                                  'Producto',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: fontSizeTitle,
+                                    color: Colors.black,
+                                  ),
+                                ),
                                 const SizedBox(height: 3),
                                 TextFormField(
                                   controller: _nameController,
@@ -333,13 +369,23 @@ class _ProductEditState extends State<ProductEdit> {
                               ],
                             ),
                           ),
-                          const SizedBox(width: 20),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                    'Nombre para mostrar en la guia de envio:'),
+                                Text(
+                                  'Nombre para mostrar en la guia de envio:',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: fontSizeTitle,
+                                    color: Colors.black,
+                                  ),
+                                ),
                                 const SizedBox(height: 3),
                                 TextFormField(
                                   controller: _nameGuideController,
@@ -366,11 +412,11 @@ class _ProductEditState extends State<ProductEdit> {
                               children: [
                                 Row(
                                   children: [
-                                    const Text(
+                                    Text(
                                       "Precio Bodega",
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 18,
+                                        fontSize: fontSizeTitle,
                                         color: Colors.black,
                                       ),
                                     ),
@@ -401,11 +447,11 @@ class _ProductEditState extends State<ProductEdit> {
                               children: [
                                 Row(
                                   children: [
-                                    const Text(
+                                    Text(
                                       "Precio Sugerido",
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 18,
+                                        fontSize: fontSizeTitle,
                                         color: Colors.black,
                                       ),
                                     ),
@@ -446,11 +492,11 @@ class _ProductEditState extends State<ProductEdit> {
                                         width: 150,
                                         child: Row(
                                           children: [
-                                            const Text(
+                                            Text(
                                               "Tipo: ",
                                               style: TextStyle(
                                                 fontWeight: FontWeight.bold,
-                                                fontSize: 18,
+                                                fontSize: fontSizeTitle,
                                                 color: Colors.black,
                                               ),
                                             ),
@@ -495,6 +541,88 @@ class _ProductEditState extends State<ProductEdit> {
                           ],
                         ),
                       ),
+                      const SizedBox(height: 10),
+                      Visibility(
+                        visible: typeValue == "VARIABLE",
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Variantes'),
+                                  const SizedBox(height: 3),
+                                  SizedBox(
+                                    width: (screenWidthDialog / 3) - 10,
+                                    child: DropdownButtonFormField<String>(
+                                      isExpanded: true,
+                                      hint: Text(
+                                        'Seleccione Variante',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Theme.of(context).hintColor,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      items: variantsToSelect.map((item) {
+                                        return DropdownMenuItem(
+                                          value: item,
+                                          child: Text(
+                                            item,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                      value: chosenVariant,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          chosenVariant = value as String;
+                                          _inventoryVariantController
+                                              .text = getInventory(
+                                                  chosenVariant!.split('-')[0])
+                                              .toString();
+                                        });
+                                      },
+                                      decoration: InputDecoration(
+                                        fillColor: Colors.white,
+                                        filled: true,
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(5.0),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 20),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    width: (screenWidthDialog / 2) - 10,
+                                    child: TextFieldWithIcon(
+                                      controller: _inventoryVariantController,
+                                      labelText: 'Stock',
+                                      icon: Icons.numbers,
+                                      inputType: TextInputType.number,
+                                      inputFormatters: <TextInputFormatter>[
+                                        FilteringTextInputFormatter.digitsOnly
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      /*
                       const SizedBox(height: 10),
                       SizedBox(
                         child: ElevatedButton(
@@ -1266,6 +1394,7 @@ class _ProductEditState extends State<ProductEdit> {
                           ],
                         ),
                       ),
+                      */
                       const SizedBox(height: 20),
                       Row(
                         children: [
@@ -1275,11 +1404,11 @@ class _ProductEditState extends State<ProductEdit> {
                               children: [
                                 Row(
                                   children: [
-                                    const Text(
+                                    Text(
                                       "Stock General:",
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 18,
+                                        fontSize: fontSizeTitle,
                                         color: Colors.black,
                                       ),
                                     ),
@@ -1313,93 +1442,97 @@ class _ProductEditState extends State<ProductEdit> {
                       const SizedBox(height: 20),
                       Row(
                         children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  "Categorias",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                const SizedBox(height: 5),
-                                DropdownButtonFormField<String>(
-                                  hint: const Text("Seleccione una categoría"),
-                                  value: selectedCat,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      selectedCat = value;
-                                      if (value != null) {
-                                        if (!selectedCategories
-                                            .contains(selectedCat)) {
-                                          setState(() {
-                                            selectedCategories
-                                                .add(selectedCat!);
-                                          });
-                                        }
-                                      }
-                                    });
-                                  },
-                                  items: listCategories.map((String category) {
-                                    return DropdownMenuItem<String>(
-                                      value: category,
-                                      child: Text(category),
-                                    );
-                                  }).toList(),
-                                  decoration: InputDecoration(
-                                    fillColor: Colors.white,
-                                    filled: true,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(5.0),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 20),
+                          // Expanded(
+                          //   child: Column(
+                          //     crossAxisAlignment: CrossAxisAlignment.start,
+                          //     children: [
+                          //       Text(
+                          //         "Categorias",
+                          //         style: TextStyle(
+                          //           fontWeight: FontWeight.bold,
+                          //           fontSize: fontSizeTitle,
+                          //           color: Colors.black,
+                          //         ),
+                          //       ),
+                          //       const SizedBox(height: 5),
+                          //       DropdownButtonFormField<String>(
+                          //         hint: const Text("Seleccione una categoría"),
+                          //         value: selectedCat,
+                          //         onChanged: (value) {
+                          //           setState(() {
+                          //             selectedCat = value;
+                          //             if (value != null) {
+                          //               if (!selectedCategories
+                          //                   .contains(selectedCat)) {
+                          //                 setState(() {
+                          //                   selectedCategories
+                          //                       .add(selectedCat!);
+                          //                 });
+                          //               }
+                          //             }
+                          //           });
+                          //         },
+                          //         items: listCategories.map((String category) {
+                          //           return DropdownMenuItem<String>(
+                          //             value: category,
+                          //             child: Text(category),
+                          //           );
+                          //         }).toList(),
+                          //         decoration: InputDecoration(
+                          //           fillColor: Colors.white,
+                          //           filled: true,
+                          //           border: OutlineInputBorder(
+                          //             borderRadius: BorderRadius.circular(5.0),
+                          //           ),
+                          //         ),
+                          //       ),
+                          //     ],
+                          //   ),
+                          // ),
+                          // const SizedBox(width: 20),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text('Bodega:'),
                                 const SizedBox(height: 3),
-                                DropdownButtonFormField<String>(
-                                  isExpanded: true,
-                                  hint: Text(
-                                    'Seleccione Bodega',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Theme.of(context).hintColor,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  items: warehousesToSelect.map((item) {
-                                    return DropdownMenuItem(
-                                      value: item,
-                                      child: Text(
-                                        item,
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                SizedBox(
+                                  width: (screenWidthDialog / 2) - 10,
+                                  child: DropdownButtonFormField<String>(
+                                    isExpanded: true,
+                                    hint: Text(
+                                      'Seleccione Bodega',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Theme.of(context).hintColor,
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                    );
-                                  }).toList(),
-                                  value: warehouseValue,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      warehouseValue = value as String;
-                                    });
-                                  },
-                                  decoration: InputDecoration(
-                                    fillColor: Colors.white,
-                                    filled: true,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(5.0),
+                                    ),
+                                    items: warehousesToSelect.map((item) {
+                                      return DropdownMenuItem(
+                                        value: item,
+                                        child: Text(
+                                          item,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                    value: warehouseValue,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        warehouseValue = value as String;
+                                      });
+                                    },
+                                    decoration: InputDecoration(
+                                      fillColor: Colors.white,
+                                      filled: true,
+                                      border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(5.0),
+                                      ),
                                     ),
                                   ),
                                 ),

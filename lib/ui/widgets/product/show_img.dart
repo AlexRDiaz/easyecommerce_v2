@@ -54,22 +54,19 @@ class _ShowImagesState extends State<ShowImages> {
         SizedBox(
           width: screenWidth * 0.4,
           height: screenHeight * 0.8,
-          child: FadeInImage(
-            placeholder: NetworkImage("$generalServer$selectedImage"),
-            image: NetworkImage("$generalServer$selectedImage"),
-            fit: BoxFit.cover,
-            fadeInDuration: Duration(milliseconds: 1500),
-            fadeOutDuration: Duration(milliseconds: 1500),
-          ),
-
-          /*
           child: selectedImage != null
               ? Image.network(
                   "$generalServer$selectedImage",
                   fit: BoxFit.fill,
                 )
               : Container(),
-              */
+          // child: FadeInImage(
+          //   placeholder: NetworkImage("$generalServer$selectedImage"),
+          //   image: NetworkImage("$generalServer$selectedImage"),
+          //   fit: BoxFit.cover,
+          //   fadeInDuration: Duration(milliseconds: 1500),
+          //   fadeOutDuration: Duration(milliseconds: 1500),
+          // ),
         ),
       ],
     );
