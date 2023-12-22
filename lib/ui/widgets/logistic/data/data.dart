@@ -68,6 +68,7 @@ List optionsSellers = [
   {"name": "Guías Enviadas", "icon": Icons.send_outlined},
 
   {"name": "Catálogo de Productos", "icon": Icons.shopping_bag_outlined},
+  {"name": "Mis integraciones", "icon": Icons.integration_instructions},
 
   {"name": "Cambiar Contraseña", "icon": Icons.security},
   //{"name": "Cerrar Sesión", "icon": Icons.logout_outlined},

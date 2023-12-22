@@ -6894,5 +6894,43 @@ class Connections {
     }
   }
 
+  createIntegration(name, description) async {
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/users/generate-integration"),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ${sharedPrefs!.getString("jwt")}'
+          },
+          body: json.encode(
+              {"name": name, "user_id": 188, "description": description}));
 
+      if (response.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  getIntegrations() async {
+    try {
+      var response = await http.get(
+          Uri.parse(
+              "$serverLaravel/api/integrations/user/${sharedPrefs!.getString("id")}"),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ${sharedPrefs!.getString("jwt")}'
+          });
+      if (response.statusCode != 200) {
+        return 1;
+      } else {
+        return json.decode(response.body);
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
 }
