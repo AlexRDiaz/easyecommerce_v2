@@ -36,9 +36,9 @@ getThemeApp() {
         checkboxHorizontalMargin: 0.0,
       ),
       appBarTheme: const AppBarTheme(
-          iconTheme: IconThemeData(color: Colors.black),
+          iconTheme: IconThemeData(color: Colors.white),
           elevation: 0.5,
-          backgroundColor: Color(0xFFEFEFEF),
+          backgroundColor: Color(0xFF1A2B3C),
           titleTextStyle: TextStyle(color: Colors.white),
           centerTitle: true,
           toolbarTextStyle: TextStyle(color: Colors.black)));
