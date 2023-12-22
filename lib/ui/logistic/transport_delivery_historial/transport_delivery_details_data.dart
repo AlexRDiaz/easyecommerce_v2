@@ -10,8 +10,10 @@ import 'package:frontend/ui/widgets/forms/row_label.dart';
 import 'package:frontend/ui/widgets/forms/text_input.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/routes.dart';
+import 'package:frontend/ui/widgets/routes/routesAndSubroutes.dart';
 import 'package:frontend/ui/widgets/routes/sub_routes.dart';
 import 'package:frontend/ui/widgets/routes/sub_routes_historial.dart';
+// import 'package:frontend/ui/widgets/routes/sub_routes_historial_v2.dart';
 import 'package:frontend/ui/widgets/show_error_snackbar.dart';
 import 'package:frontend/ui/widgets/update_status_operator/update_status_operator_historial.dart';
 import 'package:get/route_manager.dart';
@@ -117,12 +119,12 @@ class _TransportDeliveryHistoryDetailsDataState
 
       listaPedidoEspecifico.add(pedidoEspecifico);
 
-      if (mounted) {
-        setState(() {
-          data = response;
-          loadTextEdtingControllers(data);
-        });
-      }
+      // if (mounted) {
+      setState(() {
+        data = response;
+        loadTextEdtingControllers(data);
+      });
+      // }
       // print("data> $data");
 
       // Future.delayed(const Duration(milliseconds: 500), () {
@@ -138,6 +140,10 @@ class _TransportDeliveryHistoryDetailsDataState
       // SnackBarHelper.showErrorSnackBar(context, "Error al guardar los datos");
     }
   }
+
+  // getIdRoute  (routeName) async {
+  //   var idRoute = await Connections().getRouteLaravel(route)
+  // }
 
   loadTextEdtingControllers(newData) {
     data = newData;
@@ -964,12 +970,12 @@ class _TransportDeliveryHistoryDetailsDataState
                 await showDialog(
                   context: context,
                   builder: (context) {
-                    return RoutesModal(
-                      idOrder: widget.data['id'],
-                      someOrders: false,
-                      phoneClient: "",
-                      codigo: "",
-                    );
+                    return RoutesandSubroutesModalv2(
+                        idOrder: widget.data['id'],
+                        someOrders: false,
+                        phoneClient: "",
+                        codigo: "",
+                        origin: " ");
                   },
                 );
 
@@ -987,33 +993,52 @@ class _TransportDeliveryHistoryDetailsDataState
                 ),
               ),
             ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                await showDialog(
-                  context: context,
-                  builder: (context) {
-                    return SubRoutesModalHistorial(
-                      idOrder: widget.data['id'],
-                      someOrders: false,
-                    );
-                  },
-                );
+            // SizedBox(height: 20),
+            // ElevatedButton(
+            //   onPressed: () async {
+            //     if (widget.data['ruta'] == [] || widget.data['ruta'].isEmpty) {
+            //       SnackBarHelper.showErrorSnackBar(
+            //           context, "Debe asignar una ruta previamente.");
+            //     } else if (widget.data['transportadora'] == [] ||
+            //         widget.data['transportadora'].isEmpty) {
+            //       SnackBarHelper.showErrorSnackBar(
+            //           context, "Debe asignar una transportadora previamente.");
+            //     } else {
+            //       await showDialog(
+            //         context: context,
+            //         builder: (context) {
+            //           return SubRoutesModalHistorialV2(
+            //               idOrder: widget.data['id'],
+            //               someOrders: false,
+            //               idRoute: widget.data['ruta'][0]['id'],
+            //               idTrans: widget.data['transportadora'][0]['id']);
+            //         },
+            //       );
+            //     }
+            //     // await showDialog(
+            //     //   context: context,
+            //     //   builder: (context) {
+            //     //     return SubRoutesModalHistorial(
+            //     //       idOrder: widget.data['id'],
+            //     //       someOrders: false,
+            //     //     );
+            //     //   },
+            //     // );
 
-                setState(() {});
-                await loadData();
-              },
-              child: SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: Center(
-                  child: Text(
-                    "Asignar SubRuta y Operador",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ),
+            //     setState(() {});
+            //     await loadData();
+            //   },
+            //   child: SizedBox(
+            //     width: double.infinity,
+            //     height: 50,
+            //     child: Center(
+            //       child: Text(
+            //         "Asignar SubRuta y Operador",
+            //         style: TextStyle(fontWeight: FontWeight.bold),
+            //       ),
+            //     ),
+            //   ),
+            // ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
