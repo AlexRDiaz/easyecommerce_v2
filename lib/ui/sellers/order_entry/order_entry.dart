@@ -1,6 +1,7 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
@@ -27,9 +28,10 @@ class OrderEntry extends StatefulWidget {
   State<OrderEntry> createState() => _OrderEntryState();
 }
 
+enum IconAction { phone, message, check, close }
+
 class _OrderEntryState extends State<OrderEntry> {
   OrderEntryControllers _controllers = OrderEntryControllers();
-
   List data = [];
   List optionsCheckBox = [];
   int counterChecks = 0;
@@ -46,6 +48,7 @@ class _OrderEntryState extends State<OrderEntry> {
   String logistico = 'TODO';
   bool enabledBusqueda = true;
   bool isLoading = false;
+  bool columnChecksActive = false;
 
   List filtersAnd = [];
   List filtersDefaultAnd = [
@@ -459,9 +462,6 @@ class _OrderEntryState extends State<OrderEntry> {
                             text: "Busqueda",
                             controller: _controllers.searchController),
                       ),
-                      const SizedBox(
-                        height: 5,
-                      ),
                       Container(
                         child: Row(
                           children: [
@@ -556,9 +556,6 @@ class _OrderEntryState extends State<OrderEntry> {
                                   "No Desea",
                                   style: TextStyle(fontWeight: FontWeight.bold),
                                 )),
-                            const SizedBox(
-                              width: 10,
-                            ),
                             ElevatedButton(
                                 onPressed: () async {
                                   await showDialog(
@@ -623,21 +620,42 @@ class _OrderEntryState extends State<OrderEntry> {
                   horizontalMargin: 12,
                   minWidth: 3500,
                   columns: [
+                    DataColumn2(
+                      label: Container(
+                        width: 40, // Ancho fijo para la columna
+                        alignment: Alignment.center,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue, // Color de fondo azul
+                            padding: EdgeInsets
+                                .zero, // Eliminar el relleno para reducir el tamaño del botón
+                          ),
+                          onPressed: () {
+                            // Acción al presionar el botón
+                            // print("Botón presionado");
+                            setState(() {
+                              columnChecksActive = !columnChecksActive;
+                            });
+                          },
+                          child: Icon(Icons.check,
+                              color: Colors.white), // Icono blanco
+                        ),
+                      ),
+                      size: ColumnSize.S,
+                      fixedWidth:
+                          40, // Asegúrate de que el ancho fijo coincida con el ancho del contenedor
+                    ),
                     const DataColumn2(
                       label: Text(''),
-                      size: ColumnSize.S,
+                      size: ColumnSize.L,
                     ),
                     DataColumn2(
                       label: const Text('Marca de Tiempo'),
-                      size: ColumnSize.M,
+                      size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
                         // sortFuncDate("Marca_T_I");
                         sortFunc3("marca_t_i", changevalue);
                       },
-                    ),
-                    const DataColumn2(
-                      label: Text(''),
-                      size: ColumnSize.M,
                     ),
                     DataColumn2(
                       label: Text('Código'),
@@ -814,140 +832,199 @@ class _OrderEntryState extends State<OrderEntry> {
                   rows: List<DataRow>.generate(
                       data.length,
                       (index) => DataRow(cells: [
-                            DataCell(Checkbox(
-                                //  verificarIndice
-                                value: verificarIndice(index),
-
-                                // value: optionsCheckBox[index]['check'],
-                                onChanged: (value) {
-                                  setState(() {
-                                    if (value!) {
-                                      optionsCheckBox[index +
-                                              ((currentPage - 1) * pageSize)]
-                                          ['check'] = value;
-                                      optionsCheckBox[index +
-                                              ((currentPage - 1) * pageSize)]
-                                          ['id'] = data[index]['id'];
-                                      optionsCheckBox[index +
+                            DataCell(columnChecksActive == true
+                                ? Checkbox(
+                                    //  verificarIndice
+                                    value: verificarIndice(index),
+                                    // value: optionsCheckBox[index]['check'],
+                                    onChanged: (value) {
+                                      setState(() {
+                                        if (value!) {
+                                          optionsCheckBox[index +
                                               ((currentPage - 1) *
-                                                  pageSize)]['numero_orden'] =
-                                          data[index]['numero_orden'];
+                                                  pageSize)]['check'] = value;
+                                          optionsCheckBox[index +
+                                                  ((currentPage - 1) *
+                                                      pageSize)]['id'] =
+                                              data[index]['id'];
+                                          optionsCheckBox[index +
+                                                      ((currentPage - 1) *
+                                                          pageSize)]
+                                                  ['numero_orden'] =
+                                              data[index]['numero_orden'];
 
-                                      counterChecks += 1;
-                                    } else {
-                                      optionsCheckBox[index +
-                                              ((currentPage - 1) * pageSize)]
-                                          ['check'] = value;
+                                          counterChecks += 1;
+                                        } else {
+                                          optionsCheckBox[index +
+                                              ((currentPage - 1) *
+                                                  pageSize)]['check'] = value;
 
-                                      optionsCheckBox[index +
-                                              (currentPage - 1) * pageSize]
-                                          ['id'] = '';
-                                      counterChecks -= 1;
-                                    }
-                                    counterChecks > 0
-                                        ? enabledBusqueda = false
-                                        : enabledBusqueda = true;
-                                  });
-                                })),
+                                          optionsCheckBox[index +
+                                                  (currentPage - 1) * pageSize]
+                                              ['id'] = '';
+                                          counterChecks -= 1;
+                                        }
+                                        counterChecks > 0
+                                            ? enabledBusqueda = false
+                                            : enabledBusqueda = true;
+                                      });
+                                    })
+                                : Container(
+                                    width: 1,
+                                  )),
+                            DataCell(
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: <Widget>[
+                                    Padding(
+                                        padding: EdgeInsets.all(2.0),
+                                        child: Row(
+                                          children: [
+                                            TextButton(
+                                              style: TextButton.styleFrom(
+                                                backgroundColor:
+                                                    ColorsSystem().colorBlack,
+                                                shadowColor: Color.fromARGB(
+                                                    255, 80, 78, 78),
+                                                shape:
+                                                    const RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.horizontal(
+                                                    left: Radius.circular(10.0),
+                                                  ),
+                                                ),
+                                              ),
+                                              onPressed: () async {
+                                                // print('Phone selected');
+                                                var _url = Uri(
+                                                    scheme: 'tel',
+                                                    path:
+                                                        '${data[index]['telefono_shipping'].toString()}');
+
+                                                if (!await launchUrl(_url)) {
+                                                  throw Exception(
+                                                      'Could not launch $_url');
+                                                }
+                                              },
+                                              child: Icon(Icons.phone,
+                                                  color: Colors.white),
+                                            ),
+                                            TextButton(
+                                              style: TextButton.styleFrom(
+                                                  backgroundColor:
+                                                      ColorsSystem().colorBlack,
+                                                  shadowColor: Color.fromARGB(
+                                                      255, 80, 78, 78),
+                                                  shape:
+                                                      RoundedRectangleBorder()),
+                                              onPressed: () async {
+                                                // print('Message selected');
+                                                var _url = Uri.parse(
+                                                    """https://api.whatsapp.com/send?phone=${data[index]['telefono_shipping'].toString()}&text=Hola ${data[index]['nombre_shipping'].toString()}, te saludo de la tienda ${data[index]['tienda_temporal'].toString()}, Me comunico con usted para confirmar su pedido de compra de: ${data[index]['producto_p'].toString()}${data[index]['producto_extra'] != null && data[index]['producto_extra'].toString() != 'null' && data[index]['producto_extra'].toString() != '' ? ' y ${data[index]['producto_extra'].toString()}' : ''}, por un valor total de: ${data[index]['precio_total'].toString()}. Su dirección de entrega será: ${data[index]['direccion_shipping'].toString()} Es correcto...? Desea mas información del producto?""");
+                                                if (!await launchUrl(_url)) {
+                                                  throw Exception(
+                                                      'Could not launch $_url');
+                                                }
+                                              },
+                                              child: Icon(Icons.message,
+                                                  color: Colors.white),
+                                            ),
+                                            TextButton(
+                                              style: TextButton.styleFrom(
+                                                  backgroundColor:
+                                                      ColorsSystem().colorBlack,
+                                                  shadowColor: Color.fromARGB(
+                                                      255, 80, 78, 78),
+                                                  shape:
+                                                      RoundedRectangleBorder()),
+                                              onPressed: () async {
+                                                // print('Check selected');
+                                                setState(() {});
+                                                await showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      // return RoutesModal(
+                                                      //   idOrder:
+                                                      //       data[index]['id'].toString(),
+                                                      //   someOrders: false,
+                                                      //   phoneClient: "",
+                                                      //   codigo:
+                                                      //       "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}",
+                                                      // );
+
+                                                      // * laravel version
+                                                      return RoutesModalv2(
+                                                          idOrder: data[index]
+                                                                  ['id']
+                                                              .toString(),
+                                                          someOrders: false,
+                                                          phoneClient: "",
+                                                          codigo:
+                                                              "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}",
+                                                          origin: "order_entry",
+                                                          skuProduct:
+                                                              data[index]['sku']
+                                                                  .toString(),
+                                                          quantity: data[index][
+                                                                  'cantidad_total']
+                                                              .toString());
+                                                      //
+                                                    });
+                                                loadData();
+                                              },
+                                              child: Icon(Icons.check,
+                                                  color: Colors.white),
+                                            ),
+                                            data[index]['estado_logistico']
+                                                        .toString() ==
+                                                    "ENVIADO"
+                                                ? Container()
+                                                : TextButton(
+                                                    style: TextButton.styleFrom(
+                                                      backgroundColor:
+                                                          ColorsSystem()
+                                                              .colorBlack,
+                                                      shadowColor:
+                                                          Color.fromARGB(
+                                                              255, 80, 78, 78),
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .horizontal(
+                                                          right:
+                                                              Radius.circular(
+                                                                  10.0),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    onPressed: () async {
+                                                      // print('Close selected');
+                                                      var response =
+                                                          await Connections()
+                                                              .updateOrderInteralStatusLaravel(
+                                                                  "NO DESEA",
+                                                                  data[index]
+                                                                          ['id']
+                                                                      .toString());
+                                                      setState(() {});
+                                                      loadData();
+                                                    },
+                                                    child: Icon(Icons.close,
+                                                        color: Colors.white),
+                                                  ),
+                                          ],
+                                        )),
+                                  ],
+                                ),
+                              ),
+                            ),
                             DataCell(
                                 Text('${data[index]['marca_t_i'].toString()}'),
                                 onTap: () {
                               info(context, index);
                             }),
-                            DataCell(Row(
-                              children: [
-                                GestureDetector(
-                                  onTap: () async {
-                                    var _url = Uri(
-                                        scheme: 'tel',
-                                        path:
-                                            '${data[index]['telefono_shipping'].toString()}');
-
-                                    if (!await launchUrl(_url)) {
-                                      throw Exception('Could not launch $_url');
-                                    }
-                                  },
-                                  child: const Icon(
-                                    Icons.call,
-                                    size: 20,
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                GestureDetector(
-                                  onTap: () async {
-                                    var _url = Uri.parse(
-                                        """https://api.whatsapp.com/send?phone=${data[index]['telefono_shipping'].toString()}&text=Hola ${data[index]['nombre_shipping'].toString()}, te saludo de la tienda ${data[index]['tienda_temporal'].toString()}, Me comunico con usted para confirmar su pedido de compra de: ${data[index]['producto_p'].toString()}${data[index]['producto_extra'] != null && data[index]['producto_extra'].toString() != 'null' && data[index]['producto_extra'].toString() != '' ? ' y ${data[index]['producto_extra'].toString()}' : ''}, por un valor total de: ${data[index]['precio_total'].toString()}. Su dirección de entrega será: ${data[index]['direccion_shipping'].toString()} Es correcto...? Desea mas información del producto?""");
-                                    if (!await launchUrl(_url)) {
-                                      throw Exception('Could not launch $_url');
-                                    }
-                                  },
-                                  child: const Icon(
-                                    Icons.message_outlined,
-                                    size: 20,
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                GestureDetector(
-                                  onTap: () async {
-                                    setState(() {});
-                                    await showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          // return RoutesModal(
-                                          //   idOrder:
-                                          //       data[index]['id'].toString(),
-                                          //   someOrders: false,
-                                          //   phoneClient: "",
-                                          //   codigo:
-                                          //       "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}",
-                                          // );
-
-                                          // * laravel version
-                                          return RoutesModalv2(
-                                              idOrder:
-                                                  data[index]['id'].toString(),
-                                              someOrders: false,
-                                              phoneClient: "",
-                                              codigo:
-                                                  "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}",
-                                              origin: "order_entry",
-                                              skuProduct: data[index]['sku'].toString(),
-                                              quantity: data[index]['cantidad_total'].toString());
-                                          //
-                                        });
-                                    loadData();
-                                  },
-                                  child: Icon(
-                                    Icons.check,
-                                    size: 20,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                data[index]['estado_logistico'].toString() ==
-                                        "ENVIADO"
-                                    ? Container()
-                                    : GestureDetector(
-                                        onTap: () async {
-                                          var response = await Connections()
-                                              .updateOrderInteralStatusLaravel(
-                                                  "NO DESEA",
-                                                  data[index]['id'].toString());
-                                          setState(() {});
-                                          loadData();
-                                        },
-                                        child: Icon(
-                                          Icons.cancel_outlined,
-                                          size: 20,
-                                        ),
-                                      )
-                              ],
-                            )),
                             DataCell(
                                 Text(
                                     "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}"

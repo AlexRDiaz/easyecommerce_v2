@@ -2986,6 +2986,41 @@ class Connections {
     return decodeData['data'];
   }
 
+  // laravel version ↑
+  getSubRoutesbyRoute(id, transid) async {
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/rutas/subroutesofroute/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"transportadora_id": transid.toString()}));
+
+      if (response.statusCode != 200) {
+        return 1;
+      } else {
+        return json.decode(response.body);
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  getOperatorsbySubRoutes(id, transid) async {
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/subrutas/operadores/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"transportadora_id": transid}));
+
+      if (response.statusCode != 200) {
+        return 1;
+      } else {
+        return json.decode(response.body);
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
   Future getSubRoutes() async {
     var request = await http.get(
       Uri.parse(
@@ -5208,6 +5243,20 @@ class Connections {
     }
   }
 
+  Future getRouteLaravel(id) async {
+    try {
+      var request = await http.get(
+        Uri.parse("$serverLaravel/api/rutas/$id"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      return decodeData;
+    } catch (e) {
+      print(e);
+    }
+  }
+
   Future getTransportsByRouteLaravel(search) async {
     try {
       var request = await http.get(
@@ -5232,6 +5281,25 @@ class Connections {
           body: json.encode({"ruta": route, "transportadora": transport}));
       var response = await request.body;
 
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        var decodeData = json.decode(response);
+        return decodeData;
+      }
+    } catch (e) {
+      2;
+    }
+  }
+
+  Future updateOrderSubRouteAndOperatorLaravel(subroute, operator, id) async {
+    try {
+      var request = await http.put(
+          Uri.parse(
+              "$serverLaravel/api/pedidos-shopify/updatesubrouteoperator/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"subruta": subroute, "operador": operator}));
+      var response = await request.body;
       if (request.statusCode != 200) {
         return 1;
       } else {
