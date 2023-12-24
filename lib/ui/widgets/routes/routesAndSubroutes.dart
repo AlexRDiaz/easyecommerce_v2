@@ -413,7 +413,7 @@ class _RoutesModalStatev2 extends State<RoutesandSubroutesModalv2> {
                                   selectedValueTransport
                                       .toString()
                                       .split("-")[1],
-                                  widget.idOrder[i]['id']);
+                                  widget.idOrder);
 
                           var response2 = await Connections()
                               .updatenueva(widget.idOrder[i]['id'].toString(), {
@@ -441,7 +441,7 @@ class _RoutesModalStatev2 extends State<RoutesandSubroutesModalv2> {
                                   selectedValueOperator
                                       .toString()
                                       .split("-")[1],
-                                  widget.idOrder[i]['id']);
+                                  widget.idOrder);
 
                           //for guides sent
                           if (widget.origin == "sent") {
