@@ -1,0 +1,312 @@
+import 'package:data_table_2/data_table_2.dart';
+import 'package:flutter/material.dart';
+import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
+import 'package:frontend/ui/widgets/loading.dart';
+import 'package:number_paginator/number_paginator.dart';
+import 'package:intl/intl.dart';
+
+class TransactionsView extends StatefulWidget {
+  const TransactionsView({super.key});
+
+  @override
+  State<TransactionsView> createState() => _TransactionsViewState();
+}
+
+class _TransactionsViewState extends State<TransactionsView> {
+  NumberPaginatorController paginatorController = NumberPaginatorController();
+  int currentPage = 1;
+  int pageSize = 70;
+  int pageCount = 100;
+  bool isLoading = false;
+  bool isFirst = false;
+  List data = [];
+
+  @override
+  void initState() {
+    data = [];
+
+    // loadData();
+    super.initState();
+  }
+
+  paginateData() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
+
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
+      setState(() {
+        isFirst = false;
+        isLoading = false;
+      });
+      // print("datos paginados");
+    } catch (e) {
+      SnackBarHelper.showErrorSnackBar(
+          context, "Ha ocurrido un error de conexión");
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Row(
+        children: <Widget>[
+          Expanded(
+            child: Container(
+              color: Colors.grey[300],
+              child: Center(
+                child: Container(
+                  margin: const EdgeInsets.all(6.0),
+                  padding: const EdgeInsets.all(10.0),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              //
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF274965),
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  "Solicitar Retiro",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      // Container(
+                      //   width: double.infinity,
+                      //   color: Colors.white,
+                      //   padding: const EdgeInsets.all(5),
+                      //   child: Row(
+                      //     children: [
+                      //       // Expanded(
+                      //       //   child: _modelTextField(
+                      //       //       text: "Busqueda", controller: _search),
+                      //       // ),
+                      //       Expanded(
+                      //         child: Row(
+                      //           children: [
+                      //             const SizedBox(width: 20),
+                      //             const SizedBox(width: 30),
+                      //             Expanded(child: numberPaginator()),
+                      //           ],
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
+                      const SizedBox(height: 10),
+                      Expanded(
+                        child: DataTable2(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(4)),
+                            border: Border.all(color: Colors.blueGrey),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.3),
+                                blurRadius: 4,
+                                spreadRadius: 2,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          dataRowHeight: 120,
+                          dividerThickness: 1,
+                          dataRowColor:
+                              MaterialStateColor.resolveWith((states) {
+                            if (states.contains(MaterialState.selected)) {
+                            } else if (states.contains(MaterialState.hovered)) {
+                              return const Color.fromARGB(255, 234, 241, 251);
+                            }
+                            return const Color.fromARGB(0, 255, 255, 255);
+                          }),
+                          headingTextStyle: const TextStyle(
+                              fontWeight: FontWeight.bold, color: Colors.black),
+                          dataTextStyle: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black),
+                          columnSpacing: 12,
+                          // headingRowHeight: 80,
+                          horizontalMargin: 12,
+                          // minWidth: 3500,
+                          columns: [
+                            const DataColumn2(
+                              label: Text('Fecha Envio'), //check
+                              size: ColumnSize.S,
+                            ),
+                            DataColumn2(
+                              label: const Text('Fecha Entrega'), //img
+                              size: ColumnSize.L,
+                              onSort: (columnIndex, ascending) {
+                                // sortFunc3("marca_t_i", changevalue);
+                              },
+                            ),
+                            DataColumn2(
+                              label: const Text('Tipo'),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {
+                                // sortFunc3("numero_orden", changevalue);
+                              },
+                            ),
+                            DataColumn2(
+                              label: const Text('Codigo'),
+                              size: ColumnSize.M,
+                              onSort: (columnIndex, ascending) {
+                                // sortFunc3("ciudad_shipping", changevalue);
+                              },
+                            ),
+                            DataColumn2(
+                              label: const Text('Cantidad'),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {
+                                // sortFunc3("nombre_shipping", changevalue);
+                              },
+                            ),
+                            DataColumn2(
+                              label: const Text('Producto'),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {
+                                // sortFunc3("direccion_shipping", changevalue);
+                              },
+                            ),
+                            DataColumn2(
+                              label: const Text('Valor'),
+                              size: ColumnSize.M,
+                              onSort: (columnIndex, ascending) {
+                                // sortFunc3("telefonoS_shipping", changevalue);
+                              },
+                            ),
+                            DataColumn2(
+                              label: const Text('Descripcion'),
+                              size: ColumnSize.M,
+                              onSort: (columnIndex, ascending) {
+                                // sortFunc3("telefonoS_shipping", changevalue);
+                              },
+                            ),
+                            DataColumn2(
+                              label: const Text('Valor Anterior'),
+                              size: ColumnSize.M,
+                              onSort: (columnIndex, ascending) {
+                                // sortFunc3("cantidad_total", changevalue);
+                              },
+                            ),
+                            DataColumn2(
+                              label: const Text('Valor Actual'),
+                              size: ColumnSize.M,
+                              onSort: (columnIndex, ascending) {
+                                // sortFunc3("producto_p", changevalue);
+                              },
+                            ),
+                            DataColumn2(
+                              label: const Text('Estado'),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {
+                                // sortFunc3("producto_extra", changevalue);
+                              },
+                            ),
+                          ],
+                          rows: List<DataRow>.generate(
+                            // data.length,
+                            3,
+                            (index) => DataRow(
+                              cells: [
+                                DataCell(
+                                    // Text(data[index]['product_id'].toString()),
+                                    Text("Fecha Envio")),
+                                DataCell(
+                                    // Text(data[index]['product_id'].toString()),
+                                    Text("Fecha Entrega")),
+                                DataCell(
+                                    // Text(data[index]['product_id'].toString()),
+                                    Text("Tipo")),
+                                DataCell(
+                                    // Text(data[index]['product_id'].toString()),
+                                    Text("Codigo")),
+                                DataCell(
+                                    // Text(data[index]['product_id'].toString()),
+                                    Text("Cantidad")),
+                                DataCell(
+                                    // Text(data[index]['product_id'].toString()),
+                                    Text("Producto")),
+                                DataCell(
+                                    // Text(data[index]['product_id'].toString()),
+                                    Text("Valor")),
+                                DataCell(
+                                    // Text(data[index]['product_id'].toString()),
+                                    Text("Descripcion")),
+                                DataCell(
+                                    // Text(data[index]['product_id'].toString()),
+                                    Text("Valor Anterior")),
+                                DataCell(
+                                    // Text(data[index]['product_id'].toString()),
+                                    Text("'Valor Actual")),
+                                DataCell(
+                                    // Text(data[index]['product_id'].toString()),
+                                    Text("Estado")),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  formatDate(dateStringFromDatabase) {
+    DateTime dateTime = DateTime.parse(dateStringFromDatabase);
+    Duration offset = const Duration(hours: -7);
+    dateTime = dateTime.toUtc().add(offset);
+    String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
+    return formattedDate;
+  }
+
+  NumberPaginator numberPaginator() {
+    return NumberPaginator(
+      config: NumberPaginatorUIConfig(
+        buttonSelectedBackgroundColor: const Color(0xFF253e55),
+        buttonShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5), // Customize the button shape
+        ),
+      ),
+      controller: paginatorController,
+      numberPages: pageCount > 0 ? pageCount : 1,
+      onPageChange: (index) async {
+        setState(() {
+          currentPage = index + 1;
+        });
+        if (!isLoading) {
+          await paginateData();
+        }
+      },
+    );
+  }
+}

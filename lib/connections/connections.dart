@@ -6054,6 +6054,105 @@ class Connections {
     }
   }
 
+  //*
+  Future createStockHistory(id, sku, units, description, type) async {
+    int res;
+    try {
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/stockhistory/"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "product_id": int.parse(id),
+                "sku_product": sku,
+                "units": int.parse(units),
+                "description": description,
+                "type": int.parse(type)
+              }));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return 0;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  //*
+  Future historyByProduct(id) async {
+    int res;
+    try {
+      var response = await http.get(
+        Uri.parse("$serverLaravel/api/stockhistory/byproduct/$id"),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  // *
+  getPersonalInfoAccountByEmail(email) async {
+    int res;
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/users/userbyemail"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"email": email}));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData['user'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  //*
+  Future createReserve(
+      product_id, sku, stock, id_comercial, warehouse_price) async {
+    int res;
+    print(json.encode({
+      "product_id": int.parse(product_id),
+      "sku": sku,
+      "stock": int.parse(stock),
+      "id_comercial": int.parse(id_comercial),
+      "warehouse_price": double.parse(warehouse_price)
+    }));
+    try {
+      var response = await http.post(Uri.parse("$serverLaravel/api/reserve"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "product_id": int.parse(product_id),
+            "sku": sku,
+            "stock": int.parse(stock),
+            "id_comercial": int.parse(id_comercial),
+            "warehouse_price": double.parse(warehouse_price)
+          }));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return 0;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
   //TEST
 
   Future getOrdersTest1() async {

@@ -7,8 +7,21 @@ class ProductController extends ControllerMVC {
 
 // add new product //ok
   addProduct(ProductModel product) async {
-    await Connections().createProduct(product);
-    setState(() {});
+    // await Connections().createProduct(product);
+    // setState(() {});
+    try {
+      var response = await Connections().createProduct(product);
+      if (response is List && response.length == 2 && response[0] == true) {
+        // La respuesta es válida, devuelve el decodeData
+        return response[1];
+      } else {
+        // Si la respuesta no es válida, puedes manejarlo de acuerdo a tus necesidades
+        return [];
+      }
+    } catch (e) {
+      // Si hay una excepción, puedes manejarlo de acuerdo a tus necesidades
+      return [];
+    }
   }
 
   editProduct(ProductModel product) async {

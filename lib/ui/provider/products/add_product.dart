@@ -24,7 +24,7 @@ import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/product/search_menu.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'package:remove_diacritic/remove_diacritic.dart';
+// import 'package:remove_diacritic/remove_diacritic.dart';
 
 class AddProduct extends StatefulWidget {
   const AddProduct({super.key});
@@ -39,11 +39,13 @@ class _AddProductState extends State<AddProduct> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _inventaryController = TextEditingController();
 
-  final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _priceWarehouseController =
+      TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _stockController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _quantityController = TextEditingController();
+  final TextEditingController _quantityReserveController =
+      TextEditingController();
   final TextEditingController _priceUnitController = TextEditingController();
   final TextEditingController _skuController = TextEditingController();
   final TextEditingController _nameGuideController = TextEditingController();
@@ -54,7 +56,8 @@ class _AddProductState extends State<AddProduct> {
   List warehouseList = [];
 
   String? selectedWarehouse;
-  List<String> categoriesToSelect = UIUtils.categories();
+  List<String> categoriesToSelect = [];
+  // = UIUtils.categories();
 
   String? selectedCategory;
   List<String> selectedCategories = [];
@@ -101,6 +104,11 @@ class _AddProductState extends State<AddProduct> {
 
   List<Map<String, String>> selectedCategoriesMap = [];
 
+  //reservas
+  List<String> variantsToSelect = [];
+  List<Map<String, dynamic>> reservasToSend = [];
+  String? chosenVariantToReserv;
+
   bool containsEmoji(String text) {
     final emojiPattern = RegExp(
         r'[\u2000-\u3300]|[\uD83C][\uDF00-\uDFFF]|[\uD83D][\uDC00-\uDE4F]'
@@ -140,6 +148,16 @@ class _AddProductState extends State<AddProduct> {
     sizesToSelect = optionsList[0]["sizes"]!;
     colorsToSelect = optionsList[1]["colors"]!;
     dimensionToSelect = optionsList[2]["dimensions"]!;
+
+    List<dynamic> data = [];
+    String jsonData = await rootBundle.loadString('assets/taxonomy3.json');
+    data = json.decode(jsonData);
+
+    for (var item in data) {
+      var lastKey = item.keys.last;
+      String menuItemLabel = "${item[lastKey]}-${item['id']}";
+      categoriesToSelect.add(menuItemLabel);
+    }
   }
 
   @override
@@ -181,28 +199,6 @@ class _AddProductState extends State<AddProduct> {
                         Expanded(
                           child: Column(
                             children: [
-                              // const Text('Nombre del producto'),
-                              // const SizedBox(height: 3),
-                              // TextFormField(
-                              //   controller: _nameController,
-                              //   keyboardType: TextInputType.text,
-                              //   maxLines: null,
-                              //   decoration: InputDecoration(
-                              //     fillColor: Colors.white,
-                              //     // contentPadding: const EdgeInsets.symmetric(
-                              //     //     vertical: 10.0, horizontal: 15.0),
-                              //     filled: true,
-                              //     border: OutlineInputBorder(
-                              //       borderRadius: BorderRadius.circular(5.0),
-                              //     ),
-                              //   ),
-                              //   validator: (value) {
-                              //     if (value!.isEmpty) {
-                              //       return 'Por favor, ingrese el nombre del producto';
-                              //     }
-                              //     return null;
-                              //   },
-                              // ),
                               TextFieldWithIcon(
                                 controller: _nameController,
                                 labelText: 'Nombre del producto',
@@ -260,33 +256,6 @@ class _AddProductState extends State<AddProduct> {
                                   ),
                                 ],
                               ),
-                              // const Text('SKU'),
-                              // const SizedBox(height: 3),
-                              // SizedBox(
-                              //   width: 200,
-                              //   child: TextFormField(
-                              //     controller: _skuController,
-                              //     keyboardType: TextInputType.number,
-                              //     inputFormatters: [
-                              //       FilteringTextInputFormatter.allow(
-                              //         RegExp(r'[a-zA-Z0-9]'),
-                              //       ),
-                              //     ],
-                              //     decoration: InputDecoration(
-                              //       fillColor: Colors.white,
-                              //       filled: true,
-                              //       border: OutlineInputBorder(
-                              //         borderRadius: BorderRadius.circular(5.0),
-                              //       ),
-                              //     ),
-                              //     validator: (value) {
-                              //       if (value!.isEmpty) {
-                              //         return 'Por favor, ingrese el SKU del producto';
-                              //       }
-                              //       return null;
-                              //     },
-                              //   ),
-                              // ),
                             ],
                           ),
                         ),
@@ -296,7 +265,7 @@ class _AddProductState extends State<AddProduct> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               TextFieldWithIcon(
-                                controller: _priceController,
+                                controller: _priceWarehouseController,
                                 labelText: 'Precio Bodega',
                                 icon: Icons.monetization_on,
                                 inputType: TextInputType.number,
@@ -305,32 +274,6 @@ class _AddProductState extends State<AddProduct> {
                                       RegExp(r'^\d+\.?\d{0,2}$')),
                                 ],
                               ),
-                              // const Text('Precio Bodega'),
-                              // const SizedBox(height: 3),
-                              // SizedBox(
-                              //   width: 120,
-                              //   child: TextFormField(
-                              //     controller: _priceController,
-                              //     keyboardType: TextInputType.number,
-                              //     inputFormatters: <TextInputFormatter>[
-                              //       FilteringTextInputFormatter.allow(
-                              //           RegExp(r'^\d+\.?\d{0,2}$')),
-                              //     ],
-                              //     decoration: InputDecoration(
-                              //       fillColor: Colors.white,
-                              //       filled: true,
-                              //       border: OutlineInputBorder(
-                              //         borderRadius: BorderRadius.circular(5.0),
-                              //       ),
-                              //     ),
-                              //     validator: (value) {
-                              //       if (value!.isEmpty) {
-                              //         return 'Por favor, ingrese el precio del producto';
-                              //       }
-                              //       return null;
-                              //     },
-                              //   ),
-                              // ),
                             ],
                           ),
                         ),
@@ -389,18 +332,42 @@ class _AddProductState extends State<AddProduct> {
                                       .toList(),
                                   value: selectedType,
                                   onChanged: (value) {
-                                    setState(() {
-                                      selectedColores = [];
-                                      selectedSizes = [];
-                                      selectedDimensions = [];
-                                      optionsTypes = [];
-                                      variantsList = [];
-                                      _stockController.clear();
-                                      selectedVariablesList.clear();
-                                      if (value != null) {
-                                        selectedType = value;
+                                    if (_skuController.text.isEmpty ||
+                                        _priceWarehouseController
+                                            .text.isEmpty ||
+                                        _priceSuggestedController
+                                            .text.isEmpty) {
+                                      showSuccessModal(
+                                          context,
+                                          "Por favor, ingrese el SKU, Precio Bodega y el Precio sugerido del producto",
+                                          Icons8.alert);
+                                    } else {
+                                      if (double.parse(_priceWarehouseController
+                                                  .text) <=
+                                              0 &&
+                                          double.parse(_priceSuggestedController
+                                                  .text) <=
+                                              0) {
+                                        showSuccessModal(
+                                            context,
+                                            "Por favor, ingrese el precio Bodega y el sugerido de los productos validos",
+                                            Icons8.alert);
+                                      } else {
+                                        setState(() {
+                                          selectedColores = [];
+                                          selectedSizes = [];
+                                          selectedDimensions = [];
+                                          optionsTypes = [];
+                                          variantsList = [];
+                                          _stockController.clear();
+                                          selectedVariablesList.clear();
+                                          if (value != null) {
+                                            selectedType = value;
+                                          }
+                                          print("selectedType: $selectedType");
+                                        });
                                       }
-                                    });
+                                    }
                                   },
                                   decoration: InputDecoration(
                                     fillColor: Colors.white,
@@ -448,6 +415,14 @@ class _AddProductState extends State<AddProduct> {
                                       chipLabel +=
                                           " - Cantidad: ${variable['inventory_quantity']}";
 
+                                      String skuVar = variable['sku'];
+                                      if (!variantsToSelect.contains(skuVar)) {
+                                        variantsToSelect.add(skuVar);
+                                      } else {
+                                        // print(
+                                        //     'El SKU ya está presente en la lista.');
+                                      }
+
                                       return Chip(
                                         label: Text(chipLabel),
                                         onDeleted: () {
@@ -472,6 +447,10 @@ class _AddProductState extends State<AddProduct> {
                                             }
 
                                             variantsList.remove(variable);
+
+                                            if (variable.containsKey('sku')) {
+                                              variantsToSelect.remove(variable);
+                                            }
                                           });
                                           // print("variablesList act:");
                                           // print(variablesList);
@@ -556,7 +535,7 @@ class _AddProductState extends State<AddProduct> {
                                             }
 
                                             _priceUnitController.text =
-                                                _priceController.text;
+                                                _priceWarehouseController.text;
                                           }
                                         }
                                       });
@@ -1389,7 +1368,7 @@ class _AddProductState extends State<AddProduct> {
                                           // print(selectedDimensions);
 
                                           _priceUnitController.text =
-                                              _priceController.text;
+                                              _priceWarehouseController.text;
                                           _inventaryController.clear();
 
                                           setState(() {});
@@ -1437,32 +1416,9 @@ class _AddProductState extends State<AddProduct> {
                                     FilteringTextInputFormatter.digitsOnly
                                   ],
                                   enabled:
-                                      selectedType == 'VARIABLE' ? false : true,
+                                      selectedType == 'SIMPLE' ? true : false,
                                 ),
                               ),
-
-                              // const Text('Cantidad en Stock'),
-                              // const SizedBox(height: 3),
-                              // TextFormField(
-                              //   controller: _stockController,
-                              //   keyboardType: TextInputType.number,
-                              //   inputFormatters: <TextInputFormatter>[
-                              //     FilteringTextInputFormatter.digitsOnly
-                              //   ],
-                              //   decoration: InputDecoration(
-                              //     fillColor: Colors.white,
-                              //     filled: true,
-                              //     border: OutlineInputBorder(
-                              //       borderRadius: BorderRadius.circular(5.0),
-                              //     ),
-                              //   ),
-                              //   validator: (value) {
-                              //     if (value!.isEmpty) {
-                              //       return 'Por favor, ingrese la cantidad en stock del producto';
-                              //     }
-                              //     return null;
-                              //   },
-                              // ),
                             ],
                           ),
                         ),
@@ -1532,6 +1488,7 @@ class _AddProductState extends State<AddProduct> {
                     ),
 
                     //version cat-easy con id taxonomy
+                    /*v3
                     Row(
                       children: [
                         Expanded(
@@ -1573,14 +1530,77 @@ class _AddProductState extends State<AddProduct> {
                         ),
                       ],
                     ),
-
+                    */
+                    //v4
                     Row(
                       children: [
-                        const Expanded(
-                            child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [])),
-                        const SizedBox(width: 20),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: (screenWidthDialog / 3) - 10,
+                                child: DropdownButtonFormField<String>(
+                                  isExpanded: true,
+                                  hint: Text(
+                                    'Seleccione Categoria',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Theme.of(context).hintColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  items: categoriesToSelect.map((item) {
+                                    var parts = item.split('-');
+                                    var name = parts[0];
+                                    return DropdownMenuItem(
+                                      value: item,
+                                      child: Text(
+                                        '$name',
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                  value: selectedCategory,
+                                  onChanged: (value) {
+                                    selectedCategory = value;
+                                    List<String> parts =
+                                        selectedCategory!.split('-');
+
+                                    if (!selectedCategoriesMap.any((category) =>
+                                        category["id"] == parts[1])) {
+                                      setState(() {
+                                        selectedCategoriesMap.add({
+                                          "id": parts[1],
+                                          "name": parts[0],
+                                        });
+                                      });
+                                    }
+                                  },
+                                  decoration: InputDecoration(
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(5.0),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        // const Expanded(
+                        //     child: Column(
+                        //         crossAxisAlignment: CrossAxisAlignment.start,
+                        //         children: [])),
+                        // const SizedBox(width: 20),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1727,8 +1747,7 @@ class _AddProductState extends State<AddProduct> {
                         ],
                       ),
                     ),
-//
-                    /* dont delete
+                    //Priv
                     const SizedBox(height: 20),
                     const Row(
                       children: [
@@ -1774,6 +1793,67 @@ class _AddProductState extends State<AddProduct> {
                             ],
                           ),
                         ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Visibility(
+                          visible: selectedType == "VARIABLE",
+                          child: Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Variable'),
+                                const SizedBox(height: 3),
+                                SizedBox(
+                                  width: (screenWidthDialog / 2) - 10,
+                                  child: DropdownButtonFormField<String>(
+                                    isExpanded: true,
+                                    hint: Text(
+                                      'Seleccione Variante',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Theme.of(context).hintColor,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    items: variantsToSelect.map((item) {
+                                      return DropdownMenuItem(
+                                        value: item,
+                                        child: Text(
+                                          item,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                    value: chosenVariantToReserv,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        chosenVariantToReserv = value as String;
+                                        // _inventoryVariantController
+                                        //     .text = getInventory(
+                                        //         chosenVariant!.split('-')[0])
+                                        //     .toString();
+                                      });
+                                    },
+                                    decoration: InputDecoration(
+                                      fillColor: Colors.white,
+                                      filled: true,
+                                      border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(5.0),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                         const SizedBox(width: 20),
                         Expanded(
                           child: Column(
@@ -1782,8 +1862,12 @@ class _AddProductState extends State<AddProduct> {
                               const Text('Cantidad'),
                               const SizedBox(height: 3),
                               TextFormField(
-                                controller: _quantityController,
-                                enabled: _emailController.text.isNotEmpty,
+                                controller: _quantityReserveController,
+                                // enabled: _emailController.text.isNotEmpty,
+                                // enabled: chosenVariantToReserv != null,
+                                enabled: selectedType == "VARIABLE"
+                                    ? chosenVariantToReserv != null
+                                    : _emailController.text.isNotEmpty,
                                 keyboardType: TextInputType.number,
                                 inputFormatters: <TextInputFormatter>[
                                   FilteringTextInputFormatter.digitsOnly
@@ -1795,20 +1879,215 @@ class _AddProductState extends State<AddProduct> {
                                     borderRadius: BorderRadius.circular(5.0),
                                   ),
                                 ),
-                                validator: (value) {
-                                  if (_emailController.text.isNotEmpty &&
-                                      value!.isEmpty) {
-                                    return 'Por favor, ingresa la cantidad de los productos privados';
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 20),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () async {
+                                  if (_emailController.text.isNotEmpty) {
+                                    if (!_emailController.text.contains('@')) {
+                                      showSuccessModal(
+                                          context,
+                                          "Por favor, ingrese un correo electrónico válido.",
+                                          Icons8.alert);
+                                    } else {
+                                      int? stock =
+                                          int.tryParse(_stockController.text);
+                                      int? cantidadPriv = int.tryParse(
+                                          _quantityReserveController.text);
+
+                                      if ((cantidadPriv! > stock!) ||
+                                          (cantidadPriv == 0)) {
+                                        showSuccessModal(
+                                            context,
+                                            "Por favor, revise la cantidad de los productos privados.",
+                                            Icons8.alert);
+                                      } else {
+                                        print("Add en reservasToSend");
+
+                                        String id_comercial = "";
+
+                                        var response = await Connections()
+                                            .getPersonalInfoAccountByEmail(
+                                                _emailController.text
+                                                    .toString());
+                                        if (response != 1 || response != 2) {
+                                          id_comercial = response['vendedores']
+                                              [0]['id_master'];
+
+                                          if (selectedType == "VARIABLE") {
+                                            String skuVariant =
+                                                chosenVariantToReserv
+                                                    .toString();
+                                            if (reservasToSend.any((reserva) =>
+                                                reserva["sku"] == skuVariant &&
+                                                reserva["id_comercial"] ==
+                                                    id_comercial)) {
+                                              print(
+                                                  "Ya existe este SKU en la lista para actualizar.");
+                                            } else {
+                                              int currentStockVariant =
+                                                  getInventoryBySku(skuVariant);
+                                              if (int.parse(
+                                                      _quantityReserveController
+                                                          .text) >
+                                                  currentStockVariant) {
+                                                // ignore: use_build_context_synchronously
+                                                showSuccessModal(
+                                                    context,
+                                                    "Revise la cantidad de los productos privados no pueden ser mayor a la existencia ",
+                                                    Icons8.alert);
+                                              } else {
+                                                setState(() {
+                                                  reservasToSend.add({
+                                                    "sku": skuVariant
+                                                        .toUpperCase(),
+                                                    "stock":
+                                                        _quantityReserveController
+                                                            .text,
+                                                    "email":
+                                                        _emailController.text,
+                                                    "id_comercial":
+                                                        id_comercial,
+                                                    "priceW":
+                                                        _priceWarehouseController
+                                                            .text,
+                                                  });
+                                                });
+
+                                                _quantityReserveController
+                                                    .text = "";
+                                                // _emailController.text = "";
+                                              }
+                                            }
+                                          } else {
+                                            print("add selectedType SIMPLE");
+                                            if (reservasToSend.any((reserva) =>
+                                                reserva["sku"] ==
+                                                    _skuController.text &&
+                                                reserva["id_comercial"] ==
+                                                    id_comercial)) {
+                                              print(
+                                                  "ya existe este sku en list to upt");
+                                            } else {
+                                              if (int.parse(
+                                                      _quantityReserveController
+                                                          .text) >
+                                                  int.parse(
+                                                      _stockController.text)) {
+                                                // ignore: use_build_context_synchronously
+                                                showSuccessModal(
+                                                    context,
+                                                    "Revise la cantidad de los productos privados no pueden ser mayor a la existencia ",
+                                                    Icons8.alert);
+                                              } else {
+                                                setState(() {
+                                                  reservasToSend.add({
+                                                    "sku": _skuController.text
+                                                        .toUpperCase(),
+                                                    "stock":
+                                                        _quantityReserveController
+                                                            .text,
+                                                    "email":
+                                                        _emailController.text,
+                                                    "id_comercial":
+                                                        id_comercial,
+                                                    "priceW":
+                                                        _priceWarehouseController
+                                                            .text,
+                                                  });
+                                                });
+
+                                                _quantityReserveController
+                                                    .text = "";
+                                                // _emailController.text = "";
+                                              }
+                                            }
+                                          }
+                                        } else if (response == []) {
+                                          print(
+                                              "Error no existe este email o no tiene una tienda relacionada");
+                                        }
+                                        //
+
+                                        print("act reservasToSend");
+                                        print(reservasToSend);
+                                      }
+                                    }
                                   }
-                                  return null;
                                 },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.indigo[400],
+                                ),
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      "Añadir",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
                         ),
                       ],
                     ),
-                    */
+                    const SizedBox(height: 5),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Reservas'),
+                              const SizedBox(height: 3),
+                              Visibility(
+                                visible: true,
+                                child: Wrap(
+                                  spacing: 8.0,
+                                  runSpacing: 8.0,
+                                  children:
+                                      reservasToSend.map<Widget>((reserva) {
+                                    String chipLabel = "SKU: ${reserva['sku']}";
+
+                                    // Asegúrate de que la clave 'email' exista en el mapa antes de intentar acceder
+                                    if (reserva.containsKey('email')) {
+                                      chipLabel +=
+                                          " - Correo: ${reserva['email']}";
+                                    }
+                                    if (reserva.containsKey('stock')) {
+                                      chipLabel +=
+                                          " - Cantidad: ${reserva['stock']}";
+                                    }
+
+                                    return Chip(
+                                      label: Text(chipLabel),
+                                      onDeleted: () {
+                                        setState(() {
+                                          reservasToSend.remove(reserva);
+                                        });
+                                        print("reservasToSend actualizado:");
+                                        print(reservasToSend);
+                                      },
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    //
                     //btn
                     const SizedBox(height: 20),
                     Row(
@@ -1850,29 +2129,6 @@ class _AddProductState extends State<AddProduct> {
                                       //     "Por favor, Es necesario que seleccione el Tipo, Categoría/as y Bodega.",
                                       //     Icons8.alert);
                                     } else {
-                                      if (_emailController.text.isNotEmpty) {
-                                        if (!_emailController.text
-                                            .contains('@')) {
-                                          showSuccessModal(
-                                              context,
-                                              "Por favor, ingrese un correo electrónico válido.",
-                                              Icons8.alert);
-                                        } else {
-                                          int? stock = int.tryParse(
-                                              _stockController.text);
-                                          int? cantidadPriv = int.tryParse(
-                                              _quantityController.text);
-
-                                          if ((cantidadPriv! > stock!) ||
-                                              (cantidadPriv == 0)) {
-                                            showSuccessModal(
-                                                context,
-                                                "Por favor, revise la cantidad de los productos privados.",
-                                                Icons8.alert);
-                                          }
-                                        }
-                                      }
-
                                       if (selectedType == "SIMPLE") {
                                         optionsTypes = [];
                                         variantsList = [];
@@ -1938,12 +2194,12 @@ class _AddProductState extends State<AddProduct> {
 
                                       // print("featuresToSend: $featuresToSend");
 
-                                      var response = _productController
+                                      var response = await _productController
                                           .addProduct(ProductModel(
                                         productName: _nameController.text,
                                         stock: int.parse(_stockController.text),
-                                        price:
-                                            double.parse(_priceController.text),
+                                        price: double.parse(
+                                            _priceWarehouseController.text),
                                         urlImg: urlsImgsListToSend,
                                         isvariable: isVariable,
                                         features: featuresToSend,
@@ -1953,6 +2209,34 @@ class _AddProductState extends State<AddProduct> {
                                             .toString()),
                                       ));
 
+                                      var dataProductNew = response;
+                                      dataProductNew = response;
+
+                                      String productId =
+                                          response["product_id"].toString();
+
+                                      if (reservasToSend.isNotEmpty) {
+                                        print("need to send reservasToSend");
+
+                                        for (var reserva in reservasToSend) {
+                                          var response =
+                                              await Connections().createReserve(
+                                            productId,
+                                            reserva['sku'],
+                                            reserva['stock'],
+                                            reserva['id_comercial'],
+                                            reserva['priceW'],
+                                          );
+                                          if (response == 0) {
+                                            print("successful reservar");
+                                          } else {
+                                            print("error al reservar");
+                                          }
+                                        }
+                                      } else {
+                                        print(
+                                            "NO need to upt variantsStockToUpt");
+                                      }
                                       // print(response);
 
                                       Navigator.pop(context);
@@ -2038,6 +2322,16 @@ class _AddProductState extends State<AddProduct> {
           existingVariant.containsKey(clave) &&
           existingVariant[clave] == variante[clave]);
     });
+  }
+
+  int getInventoryBySku(String sku) {
+    for (Map<String, dynamic> variant in variantsList) {
+      if (variant.containsKey("sku") && variant["sku"] == sku) {
+        int inventory_quantity = int.parse(variant["inventory_quantity"]);
+        return inventory_quantity;
+      }
+    }
+    return 0; // O cualquier otro valor que represente "no encontrado"
   }
 
 //
