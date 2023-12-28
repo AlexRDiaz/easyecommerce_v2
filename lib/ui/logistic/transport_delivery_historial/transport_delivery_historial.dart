@@ -961,12 +961,6 @@ class _TransportDeliveryHistorialState
                           sortFunc("estado_pagado");
                         },
                       ),
-                      DataColumn2(
-                        label: const Text(""),
-                        size: ColumnSize.M,
-                        numeric: true,
-                        onSort: (columnIndex, ascending) {},
-                      ),
                     ],
                     rows: List<DataRow>.generate(data.length, (index) {
                       final color =
@@ -1370,34 +1364,34 @@ class _TransportDeliveryHistorialState
                             SizedBox(
                               height: 10,
                             ),
-                            ElevatedButton(
-                                onPressed: () async {
-                                  getLoadingModal(context, false);
+                            // ElevatedButton(
+                            //     onPressed: () async {
+                            //       getLoadingModal(context, false);
 
-                                  for (var i = 0;
-                                      i < optionsCheckBox.length;
-                                      i++) {
-                                    if (optionsCheckBox[i]['id']
-                                            .toString()
-                                            .isNotEmpty &&
-                                        optionsCheckBox[i]['id'].toString() !=
-                                            '' &&
-                                        optionsCheckBox[i]['check'] == true) {
-                                      await Connections().updateOrderReturnAll(
-                                          optionsCheckBox[i]['id'].toString());
-                                    }
-                                  }
+                            //       for (var i = 0;
+                            //           i < optionsCheckBox.length;
+                            //           i++) {
+                            //         if (optionsCheckBox[i]['id']
+                            //                 .toString()
+                            //                 .isNotEmpty &&
+                            //             optionsCheckBox[i]['id'].toString() !=
+                            //                 '' &&
+                            //             optionsCheckBox[i]['check'] == true) {
+                            //           await Connections().updateOrderReturnAll(
+                            //               optionsCheckBox[i]['id'].toString());
+                            //         }
+                            //       }
 
-                                  Navigator.pop(context);
-                                  await loadData();
-                                },
-                                child: Text(
-                                  "PENDIENTE",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                )),
-                            SizedBox(
-                              height: 20,
-                            ),
+                            //       Navigator.pop(context);
+                            //       await loadData();
+                            //     },
+                            //     child: Text(
+                            //       "PENDIENTE",
+                            //       style: TextStyle(fontWeight: FontWeight.bold),
+                            //     )),
+                            // SizedBox(
+                            //   height: 20,
+                            // ),
                             ElevatedButton(
                                 onPressed: () async {
                                   getLoadingModal(context, false);
@@ -1908,39 +1902,6 @@ class _TransportDeliveryHistorialState
           ), onTap: () {
         showDialogInfoData(data[index]);
       }),
-      DataCell(InkWell(
-          child: Center(child: Icon(Icons.restart_alt_outlined)),
-          onTap: () async {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: const Text('Atención'),
-                  content: const SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        Text(
-                            '¿Se reestableceran los costos ingresados y estados del pedido?'),
-                        Text(''),
-                      ],
-                    ),
-                  ),
-                  actions: [
-                    TextButton(
-                      child: const Text('Cancelar'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                    TextButton(
-                      child: const Text('Continuar'),
-                      onPressed: () async {},
-                    ),
-                  ],
-                );
-              },
-            );
-          })),
     ];
   }
 

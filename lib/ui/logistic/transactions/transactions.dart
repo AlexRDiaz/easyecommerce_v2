@@ -112,9 +112,9 @@ class _TransactionsState extends State<Transactions> {
                                   color: Colors.black),
                             ),
                           ),
-                          IconButton(
+                          TextButton(
                               onPressed: () => RollbackInputDialog(context),
-                              icon: const Icon(Icons.menu_outlined)),
+                              child: Text("Restaurar")),
                           Spacer(),
                           refreshButton(),
                         ],

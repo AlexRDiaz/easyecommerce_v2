@@ -792,6 +792,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.6"
+  remove_diacritic:
+    dependency: "direct main"
+    description:
+      name: remove_diacritic
+      sha256: "778912615e4584563590ae79e71398b9ea0a41d2dfc38b3ad888024cd4459b19"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.9.0"
   rive:
     dependency: transitive
     description:
