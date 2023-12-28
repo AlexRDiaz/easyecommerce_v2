@@ -6446,14 +6446,18 @@ class Connections {
     }
   }
 
-  rollbackTransaction(ids) async {
+  rollbackTransaction(ids, idOrigen) async {
     String? generatedBy = sharedPrefs!.getString("id");
     try {
       var response = await http.post(
           Uri.parse(
             "$serverLaravel/api/transacciones/rollback",
           ),
-          body: json.encode({"ids": ids, "generated_by": generatedBy}));
+          body: json.encode({
+            "ids": ids,
+            "generated_by": generatedBy,
+            "id_origen": idOrigen
+          }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         // print(decodeData);
@@ -7069,8 +7073,11 @@ class Connections {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ${sharedPrefs!.getString("jwt")}'
           },
-          body: json.encode(
-              {"name": name, "user_id": 188, "description": description}));
+          body: json.encode({
+            "name": name,
+            "user_id": sharedPrefs!.getString("id"),
+            "description": description
+          }));
 
       if (response.statusCode != 200) {
         return 1;

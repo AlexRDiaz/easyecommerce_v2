@@ -18,7 +18,7 @@ class _TransactionRollbackState extends State<TransactionRollback> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(children: [
-        const Text("Ingrese el identificador de la transacción"),
+        const Text("Ingrese el id de Origen"),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -123,7 +123,8 @@ class _TransactionRollbackState extends State<TransactionRollback> {
       btnOkOnPress: () async {
         // Navigator.pop(context);
 
-        var res = await Connections().rollbackTransaction(listaIds);
+        var res = await Connections()
+            .rollbackTransaction(listaIds, idRollbackTransaction.text);
         if (res == 1 || res == 2) {
           // ignore: use_build_context_synchronously
           AwesomeDialog(
@@ -143,12 +144,6 @@ class _TransactionRollbackState extends State<TransactionRollback> {
             },
           ).show();
         } else {
-          for (var transaction in listToRollback) {
-            Connections().updatenueva(transaction["id_origen"], {
-              "status": "PEDIDO PROGRAMADO",
-              "estado_devolucion": "PENDIENTE"
-            });
-          }
           AwesomeDialog(
             width: 500,
             context: context,
