@@ -25,9 +25,9 @@ class _TransactionsViewState extends State<TransactionsView> {
   bool isLoading = false;
   bool isFirst = false;
 
-  List populate = ["product"];
+  List populate = ["pedido"];
   List arrayFiltersAnd = [];
-  List arrayFiltersOr = ["product_id", "product_name", "stock", "price"];
+  List arrayFiltersOr = [];
   var sortFieldDefaultValue = "id:DESC";
 
   late TransactionsController _transactionsController;
@@ -298,12 +298,24 @@ class _TransactionsViewState extends State<TransactionsView> {
                             (index) => DataRow(
                               cells: [
                                 DataCell(
-                                  // Text(data[index]['product_id'].toString()),
-                                  Text("Fecha Envio"),
+                                  Text(data[index]['pedido']
+                                                  ['marca_tiempo_envio']
+                                              .toString() ==
+                                          "null"
+                                      ? ""
+                                      : data[index]['pedido']
+                                              ['marca_tiempo_envio']
+                                          .toString()),
                                 ),
                                 DataCell(
-                                  // Text(data[index]['product_id'].toString()),
-                                  Text("Fecha Entrega"),
+                                  Text(
+                                    (data[index]['pedido']['fecha_entrega']
+                                                .toString() ==
+                                            "null"
+                                        ? ""
+                                        : data[index]['pedido']['fecha_entrega']
+                                            .toString()),
+                                  ),
                                 ),
                                 DataCell(
                                   Text(data[index]['transaction_type']
@@ -311,12 +323,12 @@ class _TransactionsViewState extends State<TransactionsView> {
                                   // Text("Tipo"),
                                 ),
                                 DataCell(
-                                  // Text(data[index]['product_id'].toString()),
-                                  Text("Codigo"),
+                                  Text(
+                                      '${data[index]['pedido']['name_comercial'] ?? "NaN"}-${data[index]['pedido']['numero_orden'].toString()}'),
                                 ),
                                 DataCell(
                                   // Text(data[index]['product_id'].toString()),
-                                  Text("Cantidad"),
+                                  Text(data[index]['pedido']['cantidad_total']),
                                 ),
                                 DataCell(
                                   Text(data[index]['comment'].toString()),
@@ -326,7 +338,7 @@ class _TransactionsViewState extends State<TransactionsView> {
                                 ),
                                 DataCell(
                                   // Text(data[index]['product_id'].toString()),
-                                  Text("Descripcion"),
+                                  Text(""),
                                 ),
                                 DataCell(
                                   Text(
@@ -336,8 +348,8 @@ class _TransactionsViewState extends State<TransactionsView> {
                                   Text(data[index]['current_value'].toString()),
                                 ),
                                 DataCell(
-                                  // Text(data[index]['product_id'].toString()),
-                                  Text("Estado"),
+                                  Text(data[index]['pedido']['status']
+                                      .toString()),
                                 ),
                               ],
                             ),

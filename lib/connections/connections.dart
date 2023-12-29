@@ -6109,18 +6109,7 @@ class Connections {
     }
   }
 
-  //  * http://localhost:8000/api/providertransaction/provider/16
-  /*
-  {
-    "populate": ["product"],
-    "page_size": 70,
-    "page_number": 1,
-    "or": [],
-    "and": [],
-    "sort": "id:DESC",
-    "search": ""
-}
-   */
+  //  *
   getTransactionsByProvider(idProvider, populate, page_size, current_page, or,
       and, sort, search) async {
     try {
@@ -7045,13 +7034,6 @@ class Connections {
 
   updateProductVariantStock(skuProduct, quantity, type, idComercial) async {
     try {
-      print(json.encode({
-        "sku_product": skuProduct,
-        "quantity": quantity,
-        "type": type,
-        "id_comercial": idComercial
-      }));
-
       var response =
           await http.post(Uri.parse("$serverLaravel/api/products/updatestock"),
               headers: {'Content-Type': 'application/json'},
@@ -7062,10 +7044,15 @@ class Connections {
                 "id_comercial": idComercial
               }));
 
-      if (response.statusCode != 200) {
-        return 1;
-      } else {
+      if (response.statusCode == 200) {
         return 0;
+      } else {
+        var responseData = json.decode(response.body);
+        if (responseData.containsKey('message')) {
+          String errorMessage = responseData['message'];
+          return errorMessage;
+        }
+        return 1;
       }
     } catch (e) {
       return 2;

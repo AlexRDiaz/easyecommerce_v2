@@ -4,6 +4,7 @@ import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/navigators.dart';
 import 'package:frontend/main.dart';
+import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:get/route_manager.dart';
 
@@ -198,24 +199,30 @@ class _PrintedGuideInfoStateSeller extends State<PrintedGuideInfoSeller> {
               onPressed: () async {
                 getLoadingModal(context, false);
 
-                var responseL = await Connections().updateOrderWithTime(
-                    widget.id.toString(),
-                    "estado_logistico:ENVIADO",
-                    idUser,
-                    "",
-                    "");
-
-
                 var responsereduceStock = await Connections()
                     .updateProductVariantStock(data['sku'],
                         data['cantidad_total'], 0, data['id_comercial']);
-                
-                
+
+                if (responsereduceStock == 0) {
+                  var responseL = await Connections().updateOrderWithTime(
+                      widget.id.toString(),
+                      "estado_logistico:ENVIADO",
+                      idUser,
+                      "",
+                      "");
+                }
+
                 Navigator.pop(context);
 
                 setState(() {});
 
                 await loadData();
+                if (responsereduceStock ==
+                    "No Dispone de Stock en la Reserva Comuniquese con el Proveedor") {
+                  // ignore: use_build_context_synchronously
+                  SnackBarHelper.showErrorSnackBar(
+                      context, "$responsereduceStock");
+                }
               },
               child: const Text(
                 "MARCAR ENVIADO",
