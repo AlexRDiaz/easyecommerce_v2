@@ -7,9 +7,9 @@ import 'dart:io';
 
 String generalServer = "https://api.easyecomerce.com";
 String serverUrlByShopify = "https://api.easyecomerce.com/api/orders/post";
-// String generalServerApiLaravel =
-//     "https://devapi.easyecomerce.com/apitest/public/index.php";
+String generalServerApiLaravel =
+    "https://devapi.easyecomerce.com/apitest/public/index.php";
 String generalServeserverppweb = "https://easyentregas.easyecomerce.com";
 
-String generalServerApiLaravel =
-    "https://easyecommercelaravel-production.up.railway.app";
+// String generalServerApiLaravel =
+//     "https://easyecommercelaravel-production.up.railway.app";

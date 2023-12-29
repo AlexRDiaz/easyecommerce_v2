@@ -109,7 +109,11 @@ class _InfoStateOrdersOperatorState extends State<InfoStateOrdersOperator> {
                                               novedades: data['attributes']
                                                   ['novedades']['data'],
                                               currentStatus: data['attributes']
-                                                  ['Status'],
+                                                          ['Status'] ==
+                                                      "NOVEDAD"
+                                                  ? ""
+                                                  : data['attributes']
+                                                      ['Status'],
                                               comment: widget.comment!,
                                               dataL: widget.data!,
                                               rolidinvoke: 4,
