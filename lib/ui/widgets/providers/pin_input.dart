@@ -23,7 +23,7 @@ class _PinInputState extends State<PinInput> {
   final focusNode = FocusNode();
   final formKey = GlobalKey<FormState>();
   late Timer _timer;
-  int _start = 1 * 10; // 5 minutos en segundos
+  int _start = 1 * 60; // 5 minutos en segundos
 
   @override
   void dispose() {
@@ -169,12 +169,6 @@ class _PinInputState extends State<PinInput> {
                   },
                   child: const Text('Reintentar'),
                 ),
-          TextButton(
-            onPressed: () {
-              pinController.clear();
-            },
-            child: const Text('Borrar'),
-          ),
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,

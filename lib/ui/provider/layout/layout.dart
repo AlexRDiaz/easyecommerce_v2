@@ -6,6 +6,7 @@ import 'package:frontend/main.dart';
 import 'package:frontend/providers/sellers/navigation_provider.dart';
 import 'package:frontend/ui/provider/add_provider/sub_providers_view.dart';
 import 'package:frontend/ui/provider/products/products_view.dart';
+import 'package:frontend/ui/provider/profile/profile_view.dart';
 import 'package:frontend/ui/provider/transactions/transactions_view.dart';
 import 'package:frontend/ui/provider/warehouses/warehouses.dart';
 import 'package:frontend/ui/sellers/add_seller_user/add_seller_user.dart';
@@ -196,7 +197,7 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
             onSelected: (value) {
               if (value == "my_account") {
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => MySellerAccount()));
+                    MaterialPageRoute(builder: (context) => ProfileView()));
               } else if (value == "password") {
                 Navigator.push(
                     context,
