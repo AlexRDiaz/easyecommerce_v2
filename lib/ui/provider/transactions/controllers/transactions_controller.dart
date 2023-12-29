@@ -26,7 +26,8 @@ class TransactionsController extends ControllerMVC {
         setState(() {});
         // Construir el objeto de respuesta
         Map<String, dynamic> result = {
-          'data': transactions.map((product) => product.toJson()).toList(),
+          'data':
+              transactions.map((transaction) => transaction.toJson()).toList(),
           'total': total,
           'last_page': lastPage,
         };
@@ -34,7 +35,7 @@ class TransactionsController extends ControllerMVC {
       }
     } catch (e) {
       // Maneja otros errores
-      print('Error al cargar productos: $e');
+      print('Error al cargar transactions: $e');
     }
     return {
       'data': [],
