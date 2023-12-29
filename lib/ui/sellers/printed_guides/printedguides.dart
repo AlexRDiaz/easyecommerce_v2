@@ -702,6 +702,10 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                         idUser,
                         "",
                         "");
+                    
+                    var responsereduceStock = await Connections()
+                      .updateProductVariantStock(data[i]['sku'],
+                          data[i]['cantidad_total'], 0, data[i]['id_comercial']);
                   }
                 }
                 Navigator.pop(context);

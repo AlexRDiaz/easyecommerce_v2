@@ -198,10 +198,6 @@ class _PrintedGuideInfoStateSeller extends State<PrintedGuideInfoSeller> {
               onPressed: () async {
                 getLoadingModal(context, false);
 
-                // var response = await Connections()
-                //     .updateOrderLogisticStatusPrint("ENVIADO", widget.id);
-
-                //new
                 var responseL = await Connections().updateOrderWithTime(
                     widget.id.toString(),
                     "estado_logistico:ENVIADO",
@@ -209,6 +205,12 @@ class _PrintedGuideInfoStateSeller extends State<PrintedGuideInfoSeller> {
                     "",
                     "");
 
+
+                var responsereduceStock = await Connections()
+                    .updateProductVariantStock(data['sku'],
+                        data['cantidad_total'], 0, data['id_comercial']);
+                
+                
                 Navigator.pop(context);
 
                 setState(() {});

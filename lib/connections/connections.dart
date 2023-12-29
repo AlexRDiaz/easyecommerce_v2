@@ -7070,12 +7070,24 @@ class Connections {
     }
   }
 
-  updateProductVariantStock(skuProduct, quantity) async {
+  updateProductVariantStock(skuProduct, quantity, type, idComercial) async {
     try {
-      var response = await http.post(
-          Uri.parse("$serverLaravel/api/products/updatestock"),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({"sku_product": skuProduct, "quantity": quantity}));
+      print(json.encode({
+        "sku_product": skuProduct,
+        "quantity": quantity,
+        "type": type,
+        "id_comercial": idComercial
+      }));
+
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/products/updatestock"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "sku_product": skuProduct,
+                "quantity": quantity,
+                "type": type,
+                "id_comercial": idComercial
+              }));
 
       if (response.statusCode != 200) {
         return 1;
@@ -7130,6 +7142,65 @@ class Connections {
     }
   }
 
+
+  Future createStockHistory(id, sku, units, description, type) async {
+    int res;
+    try {
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/stockhistory/"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "product_id": int.parse(id),
+                "sku_product": sku,
+                "units": int.parse(units),
+                "description": description,
+                "type": int.parse(type)
+              }));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return 0;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  // Future createStockHistoryD(id, sku, units, description, type) async {
+  //   int res;
+  //   print(json.encode({
+  //     "product_id": id,
+  //     "sku_product": sku,
+  //     "units": units,
+  //     "description": description,
+  //     "type": type
+  //   }));
+  //   try {
+  //     var response =
+  //         await http.post(Uri.parse("$serverLaravel/api/stockhistory/v2"),
+  //             headers: {'Content-Type': 'application/json'},
+  //             body: json.encode({
+  //               "product_id": id,
+  //               "sku_product": sku,
+  //               "units": units,
+  //               "description": description,
+  //               "type": type
+  //             }));
+
+  //     if (response.statusCode == 200) {
+  //       var decodeData = json.decode(response.body);
+  //       return 0;
+  //     } else {
+  //       return 1;
+  //     }
+  //   } catch (error) {
+  //     return 2;
+  //   }
+  // }
+
+
   sendWithdrawal(amount) async {
     print(sharedPrefs!.getString("email").toString());
     try {
@@ -7157,4 +7228,5 @@ class Connections {
       return 2;
     }
   }
+
 }

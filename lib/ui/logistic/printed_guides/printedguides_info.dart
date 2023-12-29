@@ -30,7 +30,8 @@ class _PrintedGuideInfoState extends State<PrintedGuideInfo> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
-    var response = await Connections().getOrdersByIDLogistic(widget.id);
+    // var response = await Connections().getOrdersByIDLogistic(widget.id);
+    var response = await Connections().getOrderByIDHistoryLaravel(widget.id);
     // data = response;
     data = response;
     Future.delayed(Duration(milliseconds: 500), () {
@@ -74,7 +75,7 @@ class _PrintedGuideInfoState extends State<PrintedGuideInfo> {
                         height: 20,
                       ),
                       Text(
-                        "  Código: ${data['attributes']['Name_Comercial'].toString()}-${data['attributes']['NumeroOrden']}",
+                        "  Código: ${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data['numero_orden']}",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
@@ -82,7 +83,7 @@ class _PrintedGuideInfoState extends State<PrintedGuideInfo> {
                         height: 20,
                       ),
                       Text(
-                        "  Ciudad: ${data['attributes']['CiudadShipping'].toString()}",
+                        "  Ciudad: ${data['ciudad_shipping'].toString()}",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
@@ -90,7 +91,7 @@ class _PrintedGuideInfoState extends State<PrintedGuideInfo> {
                         height: 20,
                       ),
                       Text(
-                        "  Nombre Cliente: ${data['attributes']['NombreShipping'].toString()}",
+                        "  Nombre Cliente: ${data['nombre_shipping'].toString()}",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
@@ -98,7 +99,7 @@ class _PrintedGuideInfoState extends State<PrintedGuideInfo> {
                         height: 20,
                       ),
                       Text(
-                        " Dirección: ${data['attributes']['DireccionShipping'].toString()}",
+                        " Dirección: ${data['direccion_shipping'].toString()}",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
@@ -106,7 +107,7 @@ class _PrintedGuideInfoState extends State<PrintedGuideInfo> {
                         height: 20,
                       ),
                       Text(
-                        " Cantidad: ${data['attributes']['Cantidad_Total'].toString()}",
+                        " Cantidad: ${data['cantidad_total'].toString()}",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
@@ -114,7 +115,7 @@ class _PrintedGuideInfoState extends State<PrintedGuideInfo> {
                         height: 20,
                       ),
                       Text(
-                        " Producto: ${data['attributes']['ProductoP'].toString()}",
+                        " Producto: ${data['producto_p'].toString()}",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
@@ -122,7 +123,7 @@ class _PrintedGuideInfoState extends State<PrintedGuideInfo> {
                         height: 20,
                       ),
                       Text(
-                        " Producto Extra: ${data['attributes']['ProductoExtra'].toString()}",
+                        " Producto Extra: ${data['producto_extra'] != null ? data['producto_extra'].toString() : ''}",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
@@ -130,7 +131,7 @@ class _PrintedGuideInfoState extends State<PrintedGuideInfo> {
                         height: 20,
                       ),
                       Text(
-                        " Precio Total: ${data['attributes']['PrecioTotal'].toString()}",
+                        " Precio Total: ${data['precio_total'].toString()}",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
@@ -138,7 +139,7 @@ class _PrintedGuideInfoState extends State<PrintedGuideInfo> {
                         height: 20,
                       ),
                       Text(
-                        " Estado: ${data['attributes']['Estado_Interno'].toString()}",
+                        " Estado: ${data['estado_interno'].toString()}",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
@@ -146,7 +147,7 @@ class _PrintedGuideInfoState extends State<PrintedGuideInfo> {
                         height: 20,
                       ),
                       Text(
-                        " Estado Logistico: ${data['attributes']['Estado_Logistico'].toString()}",
+                        " Estado Logistico: ${data['estado_logistico'].toString()}",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
@@ -154,7 +155,7 @@ class _PrintedGuideInfoState extends State<PrintedGuideInfo> {
                         height: 20,
                       ),
                       Text(
-                        " Transportadora: ${data['attributes']['transportadora']['data'] != null ? data['attributes']['transportadora']['data']['attributes']['Nombre'].toString() : ''}",
+                        " Transportadora: ${data['transportadora'] != null ? data['transportadora'][0]['nombre'].toString() : ''}",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
@@ -210,6 +211,10 @@ class _PrintedGuideInfoState extends State<PrintedGuideInfo> {
                     "",
                     "");
 
+                  var responsereduceStock = await Connections()
+                      .updateProductVariantStock(data['sku'],
+                          data['cantidad_total'], 0, data['id_comercial']);
+                
                 Navigator.pop(context);
 
                 setState(() {});

@@ -607,8 +607,9 @@ class _ReturnsState extends State<Returns> {
                       }),
                       DataCell(
                           Text(
-                            data[index]['attributes']['Marca_Tiempo_Envio']
-                                .toString(),
+                            data[index]['attributes']['Marca_Tiempo_Envio'] 
+                                .toString().isNotEmpty ? data[index]['attributes']['Marca_Tiempo_Envio'] 
+                                .toString() :"" ,
                             style: TextStyle(
                               color: rowColor,
                             ),
@@ -618,9 +619,10 @@ class _ReturnsState extends State<Returns> {
                       DataCell(
                           Text(
                             data[index]['attributes']['Marca_Tiempo_Envio']
-                                .toString()
-                                .split(" ")[0]
-                                .toString(),
+                                .toString().isNotEmpty ?
+                                data[index]['attributes']['Marca_Tiempo_Envio']
+                                .toString().split(" ")[0]
+                                .toString() : "",
                             style: TextStyle(
                               color: rowColor,
                             ),
@@ -682,7 +684,7 @@ class _ReturnsState extends State<Returns> {
                       }),
                       DataCell(
                           Text(
-                            data[index]['attributes']['Comentario'].toString(),
+                            data[index]['attributes']['Comentario'].toString().isNotEmpty ? data[index]['attributes']['Comentario'].toString() :"",
                             style: TextStyle(
                               color: rowColor,
                             ),
@@ -692,7 +694,8 @@ class _ReturnsState extends State<Returns> {
                       DataCell(
                           Text(
                             data[index]['attributes']['Fecha_Entrega']
-                                .toString(),
+                                .toString().isNotEmpty ? data[index]['attributes']['Fecha_Entrega']
+                                .toString():"",
                             style: TextStyle(
                               color: rowColor,
                             ),
@@ -702,7 +705,8 @@ class _ReturnsState extends State<Returns> {
                       DataCell(
                           Text(
                             data[index]['attributes']['NombreShipping']
-                                .toString(),
+                                .toString().isNotEmpty ? data[index]['attributes']['NombreShipping']
+                                .toString() :"",
                             style: TextStyle(
                               color: rowColor,
                             ),
@@ -712,7 +716,8 @@ class _ReturnsState extends State<Returns> {
                       DataCell(
                           Text(
                             data[index]['attributes']['TelefonoShipping']
-                                .toString(),
+                                .toString().isNotEmpty ? data[index]['attributes']['TelefonoShipping']
+                                .toString() :"",
                             style: TextStyle(
                               color: rowColor,
                             ),
@@ -722,7 +727,8 @@ class _ReturnsState extends State<Returns> {
                       DataCell(
                           Text(
                             data[index]['attributes']['Estado_Devolucion']
-                                .toString(),
+                                .toString().isNotEmpty ? data[index]['attributes']['Estado_Devolucion']
+                                .toString() :"",
                             style: TextStyle(
                               color: rowColor,
                             ),
@@ -731,7 +737,7 @@ class _ReturnsState extends State<Returns> {
                       }),
                       DataCell(
                           Text(
-                            data[index]['attributes']['Marca_T_D'].toString(),
+                            data[index]['attributes']['Marca_T_D'].toString().isNotEmpty ? data[index]['attributes']['Marca_T_D'].toString() :"",
                             style: TextStyle(
                               color: rowColor,
                             ),
@@ -740,7 +746,7 @@ class _ReturnsState extends State<Returns> {
                       }),
                       DataCell(
                           Text(
-                            data[index]['attributes']['Marca_T_D_T'].toString(),
+                            data[index]['attributes']['Marca_T_D_T'].toString().isNotEmpty ? data[index]['attributes']['Marca_T_D_T'].toString() :"",
                             style: TextStyle(
                               color: rowColor,
                             ),
@@ -749,7 +755,7 @@ class _ReturnsState extends State<Returns> {
                       }),
                       DataCell(
                           Text(
-                            data[index]['attributes']['Marca_T_D_L'].toString(),
+                            data[index]['attributes']['Marca_T_D_L'].toString().isNotEmpty ? data[index]['attributes']['Marca_T_D_L'].toString() : "",
                             style: TextStyle(
                               color: rowColor,
                             ),

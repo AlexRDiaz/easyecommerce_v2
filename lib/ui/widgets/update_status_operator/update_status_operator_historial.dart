@@ -292,6 +292,7 @@ class _UpdateStatusOperatorHistorialState
 
                       await paymentEntregado(datacostos, tipo, urlImg);
 
+
                       //add transaccion_pedido
                       var today = DateTime.now().toString().split(' ')[0];
                       var getTransaccion = await Connections()
@@ -521,6 +522,19 @@ class _UpdateStatusOperatorHistorialState
         _controllerModalText.text,
         urlImage != "" ? urlImage[1] : "",
         tipo);
+
+    // ! proceso separacion sku / id
+    String skuProducto = datacostos['sku'];
+    if(datacostos['sku']=="" || datacostos['sku']==null){
+      skuProducto = "UKNOWNPC0";
+    }
+    int indiceC = skuProducto.lastIndexOf('C');
+    String sku = skuProducto.substring(0, indiceC);
+    int idProducto = int.parse(skuProducto.substring(indiceC + 1));
+    // ! ******************************
+    await Connections().createStockHistory(idProducto, sku,
+        datacostos['cantidad_total'], "Aumento de Stock Pedido EN BODEGA", 1);
+    // ! ******************************
 
     dialogEntregado(resDelivered);
   }
