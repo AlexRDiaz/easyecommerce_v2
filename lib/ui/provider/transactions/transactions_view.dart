@@ -1,6 +1,7 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
+import 'package:frontend/ui/provider/transactions/withdrawal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:intl/intl.dart';
@@ -72,7 +73,7 @@ class _TransactionsViewState extends State<TransactionsView> {
                         children: [
                           ElevatedButton(
                             onPressed: () {
-                              //
+                              withdrawalInputDialog(context);
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF274965),
@@ -287,6 +288,33 @@ class _TransactionsViewState extends State<TransactionsView> {
     dateTime = dateTime.toUtc().add(offset);
     String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
     return formattedDate;
+  }
+
+  Future<dynamic> withdrawalInputDialog(BuildContext context) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Container(
+              width: MediaQuery.of(context).size.width / 2,
+              height: MediaQuery.of(context).size.height / 2,
+              child: Column(
+                children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Icon(Icons.close),
+                    ),
+                  ),
+                  Expanded(child: Withdrawal())
+                ],
+              ),
+            ),
+          );
+        });
   }
 
   NumberPaginator numberPaginator() {
