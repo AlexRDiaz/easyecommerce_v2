@@ -377,29 +377,27 @@ class _TransactionsViewState extends State<TransactionsView> {
 
   Future<dynamic> withdrawalInputDialog(BuildContext context) {
     return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            content: Container(
-              width: MediaQuery.of(context).size.width / 2,
-              height: MediaQuery.of(context).size.height / 2,
-              child: Column(
-                children: [
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      child: Icon(Icons.close),
-                    ),
-                  ),
-                  Expanded(child: Withdrawal())
-                ],
-              ),
-            ),
-          );
-        });
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(0.0), // Establece el radio del borde a 0
+          ),
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.35,
+            height: MediaQuery.of(context).size.height * 0.35,
+            child: Withdrawal(),
+          ),
+        );
+      },
+    ).then((value) {
+      // Aquí puedes realizar cualquier acción que necesites después de cerrar el diálogo
+      // Por ejemplo, actualizar algún estado
+      // setState(() {
+      //   //_futureProviderData = _loadProviders(); // Actualiza el Future
+      // });
+    });
   }
 
   NumberPaginator numberPaginator() {
