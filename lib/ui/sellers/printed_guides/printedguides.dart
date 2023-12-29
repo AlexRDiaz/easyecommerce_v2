@@ -10,6 +10,7 @@ import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
 import 'package:frontend/ui/logistic/printed_guides/controllers/controllers.dart';
 import 'package:flutter_barcode_listener/flutter_barcode_listener.dart';
 import 'package:frontend/ui/logistic/printed_guides/printedguides_info.dart';
+import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/sellers/printed_guides/controllers/controllers.dart';
 import 'package:frontend/ui/sellers/printed_guides/printedguides_info.dart';
 import 'package:frontend/ui/widgets/loading.dart';
@@ -686,7 +687,7 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
           ElevatedButton(
               onPressed: () async {
                 getLoadingModal(context, false);
-
+                var responsereduceStock;
                 for (var i = 0; i < optionsCheckBox.length; i++) {
                   if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
                       optionsCheckBox[i]['id'].toString() != '' &&
@@ -696,16 +697,21 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                     //         "ENVIADO", optionsCheckBox[i]['id'].toString());
 
                     //new
-                    var responseL = await Connections().updateOrderWithTime(
-                        optionsCheckBox[i]['id'].toString(),
-                        "estado_logistico:ENVIADO",
-                        idUser,
-                        "",
-                        "");
-                    
-                    var responsereduceStock = await Connections()
-                      .updateProductVariantStock(data[i]['sku'],
-                          data[i]['cantidad_total'], 0, data[i]['id_comercial']);
+                    responsereduceStock = await Connections()
+                        .updateProductVariantStock(
+                            data[i]['sku'],
+                            data[i]['cantidad_total'],
+                            0,
+                            data[i]['id_comercial']);
+
+                    if (responsereduceStock == 0) {
+                      var responseL = await Connections().updateOrderWithTime(
+                          optionsCheckBox[i]['id'].toString(),
+                          "estado_logistico:ENVIADO",
+                          idUser,
+                          "",
+                          "");
+                    }
                   }
                 }
                 Navigator.pop(context);
@@ -714,6 +720,12 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                 selectAll = false;
                 getOldValue(true);
                 await loadData();
+                if (responsereduceStock ==
+                    "No Dispone de Stock en la Reserva Comuniquese con el Proveedor") {
+                  // ignore: use_build_context_synchronously
+                  SnackBarHelper.showErrorSnackBar(
+                      context, "$responsereduceStock");
+                }
               },
               child: const Text(
                 "MARCAR ENVIADO",
