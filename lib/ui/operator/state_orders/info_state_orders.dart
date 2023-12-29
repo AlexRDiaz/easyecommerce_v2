@@ -108,17 +108,13 @@ class _InfoStateOrdersOperatorState extends State<InfoStateOrdersOperator> {
                                               id: widget.id,
                                               novedades: data['attributes']
                                                   ['novedades']['data'],
-                                              currentStatus: '',
+                                              currentStatus: data['attributes']
+                                                  ['Status'],
                                               comment: widget.comment!,
-                                              // function: widget.function!,
                                               dataL: widget.data!,
                                               rolidinvoke: 4,
                                             );
                                           });
-                                      // print("cmt> ${ data['attributes']
-                                      //             ['Comentario']
-                                      //         .toString()}");
-                                      // await loadData();
 
                                       Navigator.pop(context);
                                     },

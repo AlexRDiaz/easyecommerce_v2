@@ -2,30 +2,33 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
 
-class TransactionRollback extends StatefulWidget {
-  const TransactionRollback({super.key});
+class Withdrawal extends StatefulWidget {
+  const Withdrawal({super.key});
 
   @override
-  State<TransactionRollback> createState() => _TransactionRollbackState();
+  State<Withdrawal> createState() => _WithdrawalState();
 }
 
-class _TransactionRollbackState extends State<TransactionRollback> {
+class _WithdrawalState extends State<Withdrawal> {
   List<Map> listToRollback = [];
-  TextEditingController idRollbackTransaction = TextEditingController();
-  String responseTransactionRollback = "";
+  TextEditingController withdrawal = TextEditingController();
+
+  String responseWithdrawal = "";
+  String code = "";
+
   bool enableBoxTransaction = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(children: [
-        const Text("Ingrese el id de Origen"),
+        const Text("Ingrese el monto a retirar"),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
               width: MediaQuery.of(context).size.width * 0.3,
               child: TextField(
-                controller: idRollbackTransaction,
+                controller: withdrawal,
                 decoration: InputDecoration(
                   fillColor: Colors.white, // Color del fondo del TextFormField
                   filled: true,
@@ -38,8 +41,7 @@ class _TransactionRollbackState extends State<TransactionRollback> {
                 // },
               ),
             ),
-            ElevatedButton(
-                onPressed: getlistToRollback, child: Text("Consultar"))
+            ElevatedButton(onPressed: sendWithdrawal, child: Text("Solicitar"))
           ],
         ),
         Column(
@@ -91,11 +93,10 @@ class _TransactionRollbackState extends State<TransactionRollback> {
             ),
             Visibility(
                 visible: !enableBoxTransaction,
-                child: Center(child: Text(responseTransactionRollback))),
+                child: Center(child: Text(responseWithdrawal))),
             listToRollback.isNotEmpty
                 ? TextButton(
-                    onPressed: () => rollbackTransactions(),
-                    child: Text("Restaurar"))
+                    onPressed: () => sendWithdrawal(), child: Text("Restaurar"))
                 : Container()
           ],
         )
@@ -103,89 +104,40 @@ class _TransactionRollbackState extends State<TransactionRollback> {
     );
   }
 
-  Future<void> rollbackTransactions() async {
-    List<String> listaIds =
-        listToRollback.map((elemento) => elemento["id"].toString()).toList();
-
-    AwesomeDialog(
-      width: 500,
-      context: context,
-      dialogType: DialogType.warning,
-      animType: AnimType.rightSlide,
-      title: "Advertencia",
-      desc: 'Se reestauraran los valores de las transacciones',
-      btnCancelText: "Cancelar",
-      btnOkText: "Continuar",
-      btnOkColor: Colors.green,
-      btnCancelOnPress: () {
-        Navigator.pop(context);
-      },
-      btnOkOnPress: () async {
-        // Navigator.pop(context);
-
-        var res = await Connections()
-            .rollbackTransaction(listaIds, idRollbackTransaction.text);
-        if (res == 1 || res == 2) {
-          // ignore: use_build_context_synchronously
-          AwesomeDialog(
-            width: 500,
-            context: context,
-            dialogType: DialogType.error,
-            animType: AnimType.rightSlide,
-            title: "Ha ocurrido un error al restaurar los valores",
-            //  desc: 'Vuelve a intentarlo',
-            btnCancel: Container(),
-            btnOkText: "Aceptar",
-            btnOkColor: Colors.green,
-
-            btnCancelOnPress: () {},
-            btnOkOnPress: () {
-              Navigator.pop(context);
-            },
-          ).show();
-        } else {
-          AwesomeDialog(
-            width: 500,
-            context: context,
-            dialogType: DialogType.success,
-            animType: AnimType.rightSlide,
-            title: "Valores restaurados",
-            //  desc: 'Vuelve a intentarlo',
-            btnCancel: Container(),
-            btnOkText: "Aceptar",
-            btnOkColor: Colors.green,
-
-            btnCancelOnPress: () {},
-            btnOkOnPress: () {
-              Navigator.pop(context);
-            },
-          ).show();
-        }
-      },
-    ).show();
+  void sendWithdrawal() async {
+    var resultSendWithdrawal = await Connections().sendWithdrawal(withdrawal);
+    if (resultSendWithdrawal != 1 || resultSendWithdrawal != 2) {
+      setState(() {
+        code = resultSendWithdrawal['code'];
+      });
+      codeInputDialog(context);
+    }
   }
 
-  void getlistToRollback() async {
-    listToRollback = [];
-    var listRollback =
-        await Connections().getListToRollback(idRollbackTransaction.text);
-    if (listRollback != 1 || listToRollback != 2) {
-      setState(() {
-        for (var element in listRollback) {
-          listToRollback.add(element);
-        }
-        if (listToRollback.isEmpty) {
-          setState(() {
-            responseTransactionRollback =
-                "No existe ninguna transaccion valida para este id";
-            enableBoxTransaction = false;
-          });
-        } else {
-          setState(() {
-            enableBoxTransaction = true;
-          });
-        }
-      });
-    }
+  Future<dynamic> codeInputDialog(BuildContext context) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Container(
+              width: MediaQuery.of(context).size.width / 2,
+              height: MediaQuery.of(context).size.height / 2,
+              child: Column(
+                children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Icon(Icons.close),
+                    ),
+                  ),
+                  Expanded(child: Withdrawal())
+                ],
+              ),
+            ),
+          );
+        });
   }
 }

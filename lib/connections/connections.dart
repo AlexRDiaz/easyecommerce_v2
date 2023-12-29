@@ -5844,14 +5844,6 @@ class Connections {
   //  *
   getProductsCatalog(populate, page_size, current_page, or, and, outFilter,
       filterps, sort, search) async {
-    // print(json.encode({
-    //   "populate": populate,
-    //   "or": or,
-    //   "and": and,
-    //   "out_filters": outFilter,
-    //   "filterps": filterps,
-    //   "search": search
-    // }));
     try {
       var response =
           await http.post(Uri.parse("$serverLaravel/api/products/all"),
@@ -5881,15 +5873,6 @@ class Connections {
   //  *
   getProductsByProvider(idProvider, populate, page_size, current_page, or, and,
       sort, search) async {
-    // print(json.encode({
-    //   "populate": populate,
-    //   "page_size": page_size,
-    //   "page_number": current_page,
-    //   "or": or,
-    //   "and": and,
-    //   "sort": sort,
-    //   "search": search
-    // }));
     try {
       var response = await http.post(
           Uri.parse("$serverLaravel/api/products/by/$idProvider"),
@@ -6046,6 +6029,144 @@ class Connections {
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         return 0;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  //*
+  Future createStockHistory(id, sku, units, description, type) async {
+    int res;
+    try {
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/stockhistory/"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "product_id": int.parse(id),
+                "sku_product": sku,
+                "units": int.parse(units),
+                "description": description,
+                "type": int.parse(type)
+              }));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return 0;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  //*
+  Future historyByProduct(id) async {
+    int res;
+    try {
+      var response = await http.get(
+        Uri.parse("$serverLaravel/api/stockhistory/byproduct/$id"),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  // *
+  getPersonalInfoAccountByEmail(email) async {
+    int res;
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/users/userbyemail"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"email": email}));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData['user'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  //*
+  Future createReserve(
+      product_id, sku, stock, id_comercial, warehouse_price) async {
+    int res;
+    print(json.encode({
+      "product_id": int.parse(product_id),
+      "sku": sku,
+      "stock": int.parse(stock),
+      "id_comercial": int.parse(id_comercial),
+      "warehouse_price": double.parse(warehouse_price)
+    }));
+    try {
+      var response = await http.post(Uri.parse("$serverLaravel/api/reserve"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "product_id": int.parse(product_id),
+            "sku": sku,
+            "stock": int.parse(stock),
+            "id_comercial": int.parse(id_comercial),
+            "warehouse_price": double.parse(warehouse_price)
+          }));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return 0;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  //  * http://localhost:8000/api/providertransaction/provider/16
+  /*
+  {
+    "populate": ["product"],
+    "page_size": 70,
+    "page_number": 1,
+    "or": [],
+    "and": [],
+    "sort": "id:DESC",
+    "search": ""
+}
+   */
+  getTransactionsByProvider(idProvider, populate, page_size, current_page, or,
+      and, sort, search) async {
+    try {
+      var response = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/providertransaction/provider/$idProvider"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "populate": populate,
+            "page_size": page_size,
+            "page_number": current_page,
+            "or": or,
+            "and": and,
+            "sort": sort,
+            "search": search
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
       } else {
         return 1;
       }
@@ -6347,14 +6468,18 @@ class Connections {
     }
   }
 
-  rollbackTransaction(ids) async {
+  rollbackTransaction(ids, idOrigen) async {
     String? generatedBy = sharedPrefs!.getString("id");
     try {
       var response = await http.post(
           Uri.parse(
             "$serverLaravel/api/transacciones/rollback",
           ),
-          body: json.encode({"ids": ids, "generated_by": generatedBy}));
+          body: json.encode({
+            "ids": ids,
+            "generated_by": generatedBy,
+            "id_origen": idOrigen
+          }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         // print(decodeData);
@@ -6982,8 +7107,11 @@ class Connections {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ${sharedPrefs!.getString("jwt")}'
           },
-          body: json.encode(
-              {"name": name, "user_id": 188, "description": description}));
+          body: json.encode({
+            "name": name,
+            "user_id": sharedPrefs!.getString("id"),
+            "description": description
+          }));
 
       if (response.statusCode != 200) {
         return 1;
@@ -7013,6 +7141,7 @@ class Connections {
       return 2;
     }
   }
+
 
   Future createStockHistory(id, sku, units, description, type) async {
     int res;
@@ -7070,5 +7199,34 @@ class Connections {
   //     return 2;
   //   }
   // }
+
+
+  sendWithdrawal(amount) async {
+    print(sharedPrefs!.getString("email").toString());
+    try {
+      var request = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/seller/ordenesretiro/withdrawal-provider/${sharedPrefs!.getString("idProviderUserMaster")}"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "monto": amount,
+            "fecha":
+                "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+            "email": sharedPrefs!.getString("email").toString(),
+            "id_vendedor": "${sharedPrefs!.getString("idProviderUserMaster")}"
+            // "id_vendedor" : "5"
+          }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return response ;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
 
 }

@@ -70,7 +70,7 @@ class _EditProductState extends State<EditProduct> {
   String stock = "";
   final TextEditingController _priceSuggestedController =
       TextEditingController();
-  String sku = "";
+  String skuOriginal = "";
   List<String> selectedCategories = [];
   List optionsTypesOriginal = [];
   List variantsListOriginal = [];
@@ -96,12 +96,19 @@ class _EditProductState extends State<EditProduct> {
   int showStockTotal = 0;
   List<Map<String, List<String>>> optionsList = UIUtils.variablesToSelect();
   bool showToResetType = false;
+  late List<dynamic> categoriesOriginal;
+
   //edit variant stock
+  bool showToEditStock = false;
+
   List<String> variantsToSelect = [];
   String? chosenVariant;
   final TextEditingController _inventoryVariantController =
       TextEditingController();
   final TextEditingController _commentController = TextEditingController();
+  List<Map<String, dynamic>> variantsStockToUpt = [];
+  List variantsListCopy = [];
+  String variablesTextEdit = "";
 
   @override
   void initState() {
@@ -153,9 +160,10 @@ class _EditProductState extends State<EditProduct> {
     dataFeatures = jsonDecode(product.features);
     _nameGuideController.text = dataFeatures["guide_name"];
     _priceSuggestedController.text = dataFeatures["price_suggested"].toString();
-    sku = dataFeatures["sku"];
+    skuOriginal = dataFeatures["sku"];
     _skuController.text = dataFeatures["sku"];
     _descriptionController.text = dataFeatures["description"];
+    categoriesOriginal = dataFeatures["categories"];
 
     // selectedCategories =
     //     (dataFeatures["categories"] as List<dynamic>).cast<String>().toList();
@@ -164,6 +172,8 @@ class _EditProductState extends State<EditProduct> {
     if (product.isvariable == 1) {
       optionsTypesOriginal = dataFeatures["options"];
       variantsListOriginal = dataFeatures["variants"];
+      variantsListCopy = dataFeatures["variants"];
+      print(variantsListCopy);
 
       for (var variant in variantsListOriginal) {
         if (variant.containsKey('color')) {
@@ -186,8 +196,6 @@ class _EditProductState extends State<EditProduct> {
         // .add(
         //     '${variant["sku"]}-${variant["color"]}-${variant["inventory_quantity:"]}');
       }
-
-      print("variantsListOriginal: $variantsListOriginal");
 
       List<Map<String, dynamic>>? variants =
           (dataFeatures["variants"] as List<dynamic>)
@@ -524,7 +532,9 @@ class _EditProductState extends State<EditProduct> {
                                               const Text('Variables'),
                                               const SizedBox(height: 3),
                                               Text(
-                                                variablesText,
+                                                variantsStockToUpt.isEmpty
+                                                    ? variablesText
+                                                    : variablesTextEdit,
                                                 style: const TextStyle(
                                                   color: Colors.black,
                                                 ),
@@ -541,9 +551,36 @@ class _EditProductState extends State<EditProduct> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          const SizedBox(height: 10),
+                          ElevatedButton(
+                            onPressed: () {
+                              //
+                              setState(() {
+                                showToEditStock = true;
+                              });
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.indigo[300],
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  "Editar Stock",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                       Visibility(
-                        visible: typeValue == "VARIABLE",
+                        // visible: typeValue == "VARIABLE",
+                        visible: showToEditStock && typeValue == "VARIABLE",
                         child: Row(
                           children: [
                             Expanded(
@@ -553,7 +590,7 @@ class _EditProductState extends State<EditProduct> {
                                   const Text('Variantes'),
                                   const SizedBox(height: 3),
                                   SizedBox(
-                                    width: (screenWidthDialog / 3) - 10,
+                                    width: (screenWidthDialog / 2) - 10,
                                     child: DropdownButtonFormField<String>(
                                       isExpanded: true,
                                       hint: Text(
@@ -580,10 +617,10 @@ class _EditProductState extends State<EditProduct> {
                                       onChanged: (value) {
                                         setState(() {
                                           chosenVariant = value as String;
-                                          _inventoryVariantController
-                                              .text = getInventory(
-                                                  chosenVariant!.split('-')[0])
-                                              .toString();
+                                          // _inventoryVariantController
+                                          //     .text = getInventory(
+                                          //         chosenVariant!.split('-')[0])
+                                          //     .toString();
                                         });
                                       },
                                       decoration: InputDecoration(
@@ -599,21 +636,210 @@ class _EditProductState extends State<EditProduct> {
                                 ],
                               ),
                             ),
-                            const SizedBox(width: 20),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Visibility(
+                        // visible:
+                        //     typeValue == "VARIABLE" && chosenVariant != null,
+                        visible: showToEditStock,
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 125,
+                              child: TextFieldWithIcon(
+                                controller: _inventoryVariantController,
+                                labelText: 'Unidades',
+                                icon: Icons.numbers,
+                                inputType: TextInputType.number,
+                                inputFormatters: <TextInputFormatter>[
+                                  FilteringTextInputFormatter.digitsOnly
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            SizedBox(
+                              width: 350,
+                              child: TextFieldWithIcon(
+                                controller: _commentController,
+                                labelText: 'Motivo',
+                                maxLines: null,
+                                icon: Icons.notes,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Visibility(
+                        // visible:
+                        //     typeValue == "VARIABLE" && chosenVariant != null,
+                        visible: showToEditStock,
+                        child: Row(
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                //
+                                if (_inventoryVariantController.text == "" ||
+                                    _commentController.text == "") {
+                                  showSuccessModal(
+                                      context,
+                                      "Por favor, ingrese las unidades y el motivo.",
+                                      Icons8.alert);
+                                } else {
+                                  if (isVariable == 1) {
+                                    String skuVariant =
+                                        chosenVariant.toString().split("-")[0];
+                                    if (!variantsStockToUpt.any((category) =>
+                                        category["sku"] == skuVariant)) {
+                                      variantsStockToUpt.add({
+                                        "sku": skuVariant,
+                                        "units":
+                                            _inventoryVariantController.text,
+                                        "description": _commentController.text,
+                                        "type": 1
+                                      });
+
+                                      updateInventoryBySku(
+                                          skuVariant,
+                                          int.parse(
+                                              _inventoryVariantController.text),
+                                          1);
+
+                                      _inventoryVariantController.text = "";
+                                      _commentController.text = "";
+                                    } else {
+                                      print(
+                                          "ya existe este sku en list to upt");
+                                    }
+                                    calcuateStockTotalEsditVariants();
+                                  } else {
+                                    if (!variantsStockToUpt.any((category) =>
+                                        category["sku"] == skuOriginal)) {
+                                      variantsStockToUpt.add({
+                                        "sku": skuOriginal,
+                                        "units":
+                                            _inventoryVariantController.text,
+                                        "description": _commentController.text,
+                                        "type": 1
+                                      });
+                                      int unitsN = int.parse(
+                                          _inventoryVariantController.text);
+                                      showStockTotal =
+                                          int.parse(_stockController.text);
+                                      showStockTotal += unitsN;
+                                      print("showStockTotal: $showStockTotal");
+                                      _stockController.text =
+                                          showStockTotal.toString();
+
+                                      _inventoryVariantController.text = "";
+                                      _commentController.text = "";
+                                    } else {
+                                      print(
+                                          "ya existe este sku en list to upt");
+                                    }
+                                  }
+
+                                  print(
+                                      "variantsStockToUpt: $variantsStockToUpt");
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF274965),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  SizedBox(
-                                    width: (screenWidthDialog / 2) - 10,
-                                    child: TextFieldWithIcon(
-                                      controller: _inventoryVariantController,
-                                      labelText: 'Stock',
-                                      icon: Icons.numbers,
-                                      inputType: TextInputType.number,
-                                      inputFormatters: <TextInputFormatter>[
-                                        FilteringTextInputFormatter.digitsOnly
-                                      ],
+                                  Text(
+                                    "Agregar",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            ElevatedButton(
+                              onPressed: () {
+                                //
+                                if (_inventoryVariantController.text == "" ||
+                                    _commentController.text == "") {
+                                  showSuccessModal(
+                                      context,
+                                      "Por favor, ingrese las unidades y el motivo.",
+                                      Icons8.alert);
+                                } else {
+                                  if (isVariable == 1) {
+                                    String skuVariant =
+                                        chosenVariant.toString().split("-")[0];
+                                    if (!variantsStockToUpt.any((category) =>
+                                        category["sku"] == skuVariant)) {
+                                      variantsStockToUpt.add({
+                                        "sku": skuVariant,
+                                        "units":
+                                            _inventoryVariantController.text,
+                                        "description": _commentController.text,
+                                        "type": 0
+                                      });
+
+                                      updateInventoryBySku(
+                                          skuVariant,
+                                          int.parse(
+                                              _inventoryVariantController.text),
+                                          0);
+
+                                      _inventoryVariantController.text = "";
+                                      _commentController.text = "";
+                                    } else {
+                                      print(
+                                          "ya existe este sku en list to upt");
+                                    }
+                                    calcuateStockTotalEsditVariants();
+                                  } else {
+                                    if (!variantsStockToUpt.any((category) =>
+                                        category["sku"] == skuOriginal)) {
+                                      variantsStockToUpt.add({
+                                        "sku": skuOriginal,
+                                        "units":
+                                            _inventoryVariantController.text,
+                                        "description": _commentController.text,
+                                        "type": 0
+                                      });
+
+                                      int unitsN = int.parse(
+                                          _inventoryVariantController.text);
+
+                                      showStockTotal =
+                                          int.parse(_stockController.text);
+
+                                      showStockTotal -= unitsN;
+                                      print("showStockTotal: $showStockTotal");
+                                      _stockController.text =
+                                          showStockTotal.toString();
+
+                                      _inventoryVariantController.text = "";
+                                      _commentController.text = "";
+                                    } else {
+                                      print(
+                                          "ya existe este sku en list to upt");
+                                    }
+                                  }
+
+                                  print(
+                                      "variantsStockToUpt: $variantsStockToUpt");
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    "Quitar",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ],
@@ -622,7 +848,26 @@ class _EditProductState extends State<EditProduct> {
                           ],
                         ),
                       ),
-                      /*
+                      /*  _commentController version simple
+                      Visibility(
+                        visible:
+                            typeValue == "SIMPLE" && chosenVariant != null,
+                        child: Row(
+                          children: [                            
+                            SizedBox(
+                              width: 350,
+                              child: TextFieldWithIcon(
+                                controller: _commentController,
+                                labelText: 'Motivo',
+                                maxLines: null,
+                                icon: Icons.notes,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      */
+                      /*  //reseteo de variable
                       const SizedBox(height: 10),
                       SizedBox(
                         child: ElevatedButton(
@@ -1417,7 +1662,8 @@ class _EditProductState extends State<EditProduct> {
                                       width: 150,
                                       child: TextFormField(
                                         controller: _stockController,
-                                        enabled: showToResetType,
+                                        // enabled: isVariable == 0,
+                                        enabled: false,
                                         keyboardType: TextInputType.number,
                                         inputFormatters: <TextInputFormatter>[
                                           FilteringTextInputFormatter.digitsOnly
@@ -1768,17 +2014,19 @@ class _EditProductState extends State<EditProduct> {
                                           _priceSuggestedController.text,
                                       "sku": showToResetType
                                           ? _skuController.text.toUpperCase()
-                                          : sku.toUpperCase(),
-                                      "categories": selectedCategories,
+                                          : skuOriginal.toUpperCase(),
+                                      "categories": categoriesOriginal,
                                       "description":
                                           _descriptionController.text,
                                       "type": typeValue,
-                                      "variants": variantsListSend.isNotEmpty
-                                          ? variantsListSend
-                                          : variantsListOriginal,
-                                      "options": optionsTypesSend.isNotEmpty
-                                          ? optionsTypesSend
-                                          : optionsTypesOriginal
+                                      "variants": variantsListOriginal,
+                                      "options": optionsTypesOriginal
+                                      // "variants": variantsListSend.isNotEmpty
+                                      //     ? variantsListSend
+                                      //     : variantsListOriginal,
+                                      // "options": optionsTypesSend.isNotEmpty
+                                      //     ? optionsTypesSend
+                                      //     : optionsTypesOriginal
                                     };
 
                                     _productController.editProduct(ProductModel(
@@ -1797,6 +2045,27 @@ class _EditProductState extends State<EditProduct> {
                                           .split("-")[0]
                                           .toString()),
                                     ));
+
+                                    if (variantsStockToUpt.isNotEmpty) {
+                                      print("need to upt variantsStockToUpt");
+                                      for (var variant in variantsStockToUpt) {
+                                        var response = await Connections()
+                                            .createStockHistory(
+                                                codigo,
+                                                variant['sku'],
+                                                variant['units'],
+                                                variant['description'],
+                                                variant['type'].toString());
+                                        if (response == 0) {
+                                          print("successful");
+                                        } else {
+                                          print("error");
+                                        }
+                                      }
+                                    } else {
+                                      print(
+                                          "NO need to upt variantsStockToUpt");
+                                    }
 
                                     widget.hasEdited(true);
                                     Navigator.pop(context);
@@ -1869,6 +2138,62 @@ class _EditProductState extends State<EditProduct> {
     int val = int.parse(valor);
     showStockTotal = showStockTotal + val;
     _stockController.text = showStockTotal.toString();
+  }
+
+  updateInventoryBySku(String sku, int newInventory, int type) {
+    for (int i = 0; i < variantsListCopy.length; i++) {
+      Map<String, dynamic> variant = variantsListCopy[i];
+      if (variant.containsKey("sku") && variant["sku"] == sku) {
+        int inventory_current =
+            int.parse(variantsListCopy[i]["inventory_quantity"]);
+        if (type == 1) {
+          inventory_current += newInventory;
+        } else if (type == 0) {
+          inventory_current -= newInventory;
+        }
+        variantsListCopy[i]["inventory_quantity"] =
+            inventory_current.toString();
+        break;
+      }
+    }
+  }
+
+  calcuateStockTotalEsditVariants() {
+    int showStockTotal = 0;
+    for (Map<String, dynamic> variant in variantsListCopy) {
+      if (variant.containsKey("inventory_quantity")) {
+        int inventory = int.parse(variant["inventory_quantity"]);
+        showStockTotal += inventory;
+      }
+    }
+    _stockController.text = showStockTotal.toString();
+
+    List<Map<String, dynamic>>? variantsEdit =
+        (variantsListCopy as List<dynamic>).cast<Map<String, dynamic>>();
+
+    setState(() {
+      variablesTextEdit = variantsEdit.map((variable) {
+        List<String> variableDetails = [];
+
+        if (variable.containsKey('sku')) {
+          variableDetails.add("SKU: ${variable['sku']}");
+        }
+        if (variable.containsKey('color')) {
+          variableDetails.add("Color: ${variable['color']}");
+        }
+        if (variable.containsKey('size')) {
+          variableDetails.add("Talla: ${variable['size']}");
+        }
+        if (variable.containsKey('dimension')) {
+          variableDetails.add("Tamaño: ${variable['dimension']}");
+        }
+        if (variable.containsKey('inventory_quantity')) {
+          variableDetails.add("Cantidad: ${variable['inventory_quantity']}");
+        }
+
+        return variableDetails.join(';  ');
+      }).join('\n');
+    });
   }
 
   bool varianteExistente(
@@ -1996,26 +2321,34 @@ class TextFieldWithIcon extends StatelessWidget {
   final TextEditingController controller;
   final String labelText;
   final IconData icon;
-  final TextInputType inputType;
+  final TextInputType? inputType;
   final List<TextInputFormatter>? inputFormatters;
+  final bool enabled;
+  final bool applyValidator;
+  final int? maxLines;
 
   const TextFieldWithIcon({
     Key? key,
     required this.controller,
     required this.labelText,
     required this.icon,
-    required this.inputType,
+    this.inputType,
     this.inputFormatters,
+    this.enabled = true,
+    this.applyValidator = true,
+    this.maxLines = 1, // Valor por defecto es 1
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: 5),
       child: TextFormField(
         controller: controller,
         keyboardType: inputType,
         inputFormatters: inputFormatters,
+        enabled: enabled,
+        maxLines: maxLines,
         decoration: InputDecoration(
           prefixIcon: Icon(icon, color: ColorsSystem().colorSelectMenu),
           labelText: labelText,
@@ -2024,10 +2357,22 @@ class TextFieldWithIcon extends StatelessWidget {
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(5.0),
           ),
+          labelStyle: const TextStyle(
+            color: Colors.black,
+            fontSize: 14.0,
+          ),
         ),
         style: const TextStyle(
           color: Colors.black,
         ),
+        validator: applyValidator
+            ? (value) {
+                if (value!.isEmpty) {
+                  return 'Por favor, ingrese ${labelText.toLowerCase()}';
+                }
+                return null;
+              }
+            : null,
       ),
     );
   }

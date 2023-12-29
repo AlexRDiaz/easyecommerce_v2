@@ -577,6 +577,10 @@ class _ProductsViewState extends State<ProductsView> {
                               },
                             ),
                             const DataColumn2(
+                              label: Text('Historial Stock'),
+                              size: ColumnSize.S,
+                            ),
+                            const DataColumn2(
                               label: Text(''), //btns para crud
                               size: ColumnSize.S,
                             ),
@@ -670,6 +674,13 @@ class _ProductsViewState extends State<ProductsView> {
                                               color: Colors.indigo)
                                           : const Icon(Icons.cancel_rounded,
                                               color: Colors.red),
+                                ),
+                                DataCell(
+                                  const Icon(Icons.list_alt_outlined,
+                                      color: Colors.orange),
+                                  onTap: () {
+                                    _historyProductInfo(data[index]);
+                                  },
                                 ),
                                 DataCell(Row(
                                   children: [
@@ -1525,6 +1536,199 @@ class _ProductsViewState extends State<ProductsView> {
     );
   }
 
+  Future<void> _historyProductInfo(data) async {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    TextStyle customTextStyleTitle = GoogleFonts.dmSerifDisplay(
+      fontWeight: FontWeight.bold,
+      fontSize: 18,
+      color: Colors.black,
+    );
+
+    TextStyle customTextStyleText = GoogleFonts.dmSans(
+      fontSize: 17,
+      color: Colors.black,
+    );
+
+    ProductModel product = ProductModel.fromJson(data);
+
+    int? productId = product.productId;
+    var response = await Connections().historyByProduct(productId);
+    List dataHistory = response ?? [];
+
+    if (dataHistory.isNotEmpty) {
+      print("successful");
+    } else {
+      print("error");
+    }
+
+    // ignore: use_build_context_synchronously
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: Container(
+            width: screenWidth * 0.50,
+            height: screenHeight,
+            child: ListView(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              SizedBox(
+                                // width: 100,
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      "Producto:",
+                                      style: customTextStyleTitle,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      "${product.productName}",
+                                      style: customTextStyleText,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          Row(
+                            children: [
+                              SizedBox(
+                                // width: 100,
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      "Historial de Stock",
+                                      style: customTextStyleTitle,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 15),
+                          Container(
+                            height: screenHeight * 0.7,
+                            child: DataTable2(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(4)),
+                                border: Border.all(color: Colors.blueGrey),
+                              ),
+                              // dataRowHeight: 120,
+                              dataRowColor:
+                                  MaterialStateColor.resolveWith((states) {
+                                return Colors.white;
+                              }),
+                              dividerThickness: 1,
+                              headingTextStyle: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black),
+                              dataTextStyle: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black),
+                              columnSpacing: 12,
+                              horizontalMargin: 12,
+                              columns: const [
+                                DataColumn2(
+                                  label: Text('SKU'), //check
+                                  size: ColumnSize.S,
+                                ),
+                                DataColumn2(
+                                  label: Text('Tipo'), //img
+                                  size: ColumnSize.S,
+                                ),
+                                DataColumn2(
+                                  label: Text('Fecha'),
+                                  size: ColumnSize.S,
+                                ),
+                                DataColumn2(
+                                  label: Text('Unidades'),
+                                  size: ColumnSize.S,
+                                ),
+                                DataColumn2(
+                                  label: Text('Stock Anterior'),
+                                  size: ColumnSize.S,
+                                ),
+                                DataColumn2(
+                                  label: Text('Stock Actual'),
+                                  size: ColumnSize.S,
+                                ),
+                                DataColumn2(
+                                  label: Text('Descripcion'),
+                                  size: ColumnSize.L,
+                                ),
+                              ],
+                              rows: List<DataRow>.generate(
+                                dataHistory.length,
+                                (index) => DataRow(cells: [
+                                  DataCell(
+                                    Text(dataHistory[index]['variant_sku']
+                                        .toString()),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                      dataHistory[index]['type'] == 1
+                                          ? 'Entrada'
+                                          : 'Salida',
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Text(formatDate(
+                                        dataHistory[index]['date'].toString())),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                        dataHistory[index]['units'].toString()),
+                                  ),
+                                  DataCell(
+                                    Text(dataHistory[index]['last_stock']
+                                        .toString()),
+                                  ),
+                                  DataCell(
+                                    Text(dataHistory[index]['current_stock']
+                                        .toString()),
+                                  ),
+                                  DataCell(
+                                    Text(dataHistory[index]['description']
+                                        .toString()),
+                                  ),
+                                ]),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  formatDate(dateStringFromDatabase) {
+    DateTime dateTime = DateTime.parse(dateStringFromDatabase);
+    Duration offset = const Duration(hours: -7);
+    dateTime = dateTime.toUtc().add(offset);
+    String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
+    return formattedDate;
+  }
+
   _modelTextField({text, controller}) {
     return Container(
       width: double.infinity,
@@ -1572,14 +1776,6 @@ class _ProductsViewState extends State<ProductsView> {
         ),
       ),
     );
-  }
-
-  formatDate(dateStringFromDatabase) {
-    DateTime dateTime = DateTime.parse(dateStringFromDatabase);
-    Duration offset = const Duration(hours: -5);
-    dateTime = dateTime.toUtc().add(offset);
-    String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
-    return formattedDate;
   }
 
   NumberPaginator numberPaginator() {

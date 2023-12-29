@@ -6,6 +6,7 @@ import 'package:frontend/main.dart';
 import 'package:frontend/providers/sellers/navigation_provider.dart';
 import 'package:frontend/ui/provider/add_provider/sub_providers_view.dart';
 import 'package:frontend/ui/provider/products/products_view.dart';
+import 'package:frontend/ui/provider/transactions/transactions_view.dart';
 import 'package:frontend/ui/provider/warehouses/warehouses.dart';
 import 'package:frontend/ui/sellers/add_seller_user/add_seller_user.dart';
 import 'package:frontend/ui/sellers/cash_withdrawals_sellers/cash_withdrawals_sellers.dart';
@@ -70,8 +71,12 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
         const WarehousesView(),
       ),
       getOption(
-        "Proveedores",
+        "Sub Proveedores",
         SubProviderView(),
+      ),
+      getOption(
+        "Mis Transacciones",
+        TransactionsView(),
       ),
     ];
     return Scaffold(
