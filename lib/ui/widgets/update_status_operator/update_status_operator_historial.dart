@@ -292,7 +292,6 @@ class _UpdateStatusOperatorHistorialState
 
                       await paymentEntregado(datacostos, tipo, urlImg);
 
-
                       //add transaccion_pedido
                       var today = DateTime.now().toString().split(' ')[0];
                       var getTransaccion = await Connections()
@@ -525,7 +524,7 @@ class _UpdateStatusOperatorHistorialState
 
     // ! proceso separacion sku / id
     String skuProducto = datacostos['sku'];
-    if(datacostos['sku']=="" || datacostos['sku']==null){
+    if (datacostos['sku'] == "" || datacostos['sku'] == null) {
       skuProducto = "UKNOWNPC0";
     }
     int indiceC = skuProducto.lastIndexOf('C');
