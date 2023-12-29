@@ -1,6 +1,9 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/main.dart';
+import 'package:frontend/models/provider_transactions_model.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
+import 'package:frontend/ui/provider/transactions/controllers/transactions_controller.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:intl/intl.dart';
@@ -13,20 +16,84 @@ class TransactionsView extends StatefulWidget {
 }
 
 class _TransactionsViewState extends State<TransactionsView> {
+  TextEditingController _search = TextEditingController(text: "");
   NumberPaginatorController paginatorController = NumberPaginatorController();
   int currentPage = 1;
   int pageSize = 70;
   int pageCount = 100;
   bool isLoading = false;
   bool isFirst = false;
+
+  List populate = ["product"];
+  List arrayFiltersAnd = [];
+  List arrayFiltersOr = ["product_id", "product_name", "stock", "price"];
+  var sortFieldDefaultValue = "id:DESC";
+
+  late TransactionsController _transactionsController;
+  List<ProviderTransactionsModel> transactions = [];
+
   List data = [];
+  int total = 0;
 
   @override
   void initState() {
     data = [];
+    _transactionsController = TransactionsController();
 
-    // loadData();
+    loadData();
     super.initState();
+  }
+
+  Future<List<ProviderTransactionsModel>>
+      _getProviderTransactionsModelData() async {
+    await _transactionsController.loadTransactionsByProvider(
+        sharedPrefs!.getString("idProvider"),
+        populate,
+        pageSize,
+        currentPage,
+        arrayFiltersOr,
+        arrayFiltersAnd,
+        sortFieldDefaultValue.toString(),
+        _search.text);
+    return _transactionsController.transactions;
+  }
+
+  loadData() async {
+    // try {
+    setState(() {
+      isLoading = true;
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      getLoadingModal(context, false);
+    });
+
+    transactions = await _getProviderTransactionsModelData();
+
+    var response = await _transactionsController.loadTransactionsByProvider(
+        sharedPrefs!.getString("idProvider"),
+        populate,
+        pageSize,
+        currentPage,
+        arrayFiltersOr,
+        arrayFiltersAnd,
+        sortFieldDefaultValue.toString(),
+        _search.text);
+
+    data = response['data'];
+    // print(data);
+    total = response['total'];
+    pageCount = response['last_page'];
+
+    paginatorController.navigateToPage(0);
+    Future.delayed(Duration(milliseconds: 500), () {
+      Navigator.pop(context);
+    });
+    // print("datos cargados correctamente");
+    setState(() {
+      isFirst = false;
+      isLoading = false;
+    });
   }
 
   paginateData() async {
@@ -131,7 +198,7 @@ class _TransactionsViewState extends State<TransactionsView> {
                               ),
                             ],
                           ),
-                          dataRowHeight: 120,
+                          // dataRowHeight: 120,
                           dividerThickness: 1,
                           dataRowColor:
                               MaterialStateColor.resolveWith((states) {
@@ -148,9 +215,7 @@ class _TransactionsViewState extends State<TransactionsView> {
                               fontWeight: FontWeight.bold,
                               color: Colors.black),
                           columnSpacing: 12,
-                          // headingRowHeight: 80,
                           horizontalMargin: 12,
-                          // minWidth: 3500,
                           columns: [
                             const DataColumn2(
                               label: Text('Fecha Envio'), //check
@@ -186,14 +251,14 @@ class _TransactionsViewState extends State<TransactionsView> {
                             ),
                             DataColumn2(
                               label: const Text('Producto'),
-                              size: ColumnSize.S,
+                              size: ColumnSize.L,
                               onSort: (columnIndex, ascending) {
                                 // sortFunc3("direccion_shipping", changevalue);
                               },
                             ),
                             DataColumn2(
                               label: const Text('Valor'),
-                              size: ColumnSize.M,
+                              size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {
                                 // sortFunc3("telefonoS_shipping", changevalue);
                               },
@@ -207,14 +272,14 @@ class _TransactionsViewState extends State<TransactionsView> {
                             ),
                             DataColumn2(
                               label: const Text('Valor Anterior'),
-                              size: ColumnSize.M,
+                              size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {
                                 // sortFunc3("cantidad_total", changevalue);
                               },
                             ),
                             DataColumn2(
                               label: const Text('Valor Actual'),
-                              size: ColumnSize.M,
+                              size: ColumnSize.S,
                               onSort: (columnIndex, ascending) {
                                 // sortFunc3("producto_p", changevalue);
                               },
@@ -228,43 +293,51 @@ class _TransactionsViewState extends State<TransactionsView> {
                             ),
                           ],
                           rows: List<DataRow>.generate(
-                            // data.length,
-                            3,
+                            data.length,
                             (index) => DataRow(
                               cells: [
                                 DataCell(
-                                    // Text(data[index]['product_id'].toString()),
-                                    Text("Fecha Envio")),
+                                  // Text(data[index]['product_id'].toString()),
+                                  Text("Fecha Envio"),
+                                ),
                                 DataCell(
-                                    // Text(data[index]['product_id'].toString()),
-                                    Text("Fecha Entrega")),
+                                  // Text(data[index]['product_id'].toString()),
+                                  Text("Fecha Entrega"),
+                                ),
                                 DataCell(
-                                    // Text(data[index]['product_id'].toString()),
-                                    Text("Tipo")),
+                                  Text(data[index]['transaction_type']
+                                      .toString()),
+                                  // Text("Tipo"),
+                                ),
                                 DataCell(
-                                    // Text(data[index]['product_id'].toString()),
-                                    Text("Codigo")),
+                                  // Text(data[index]['product_id'].toString()),
+                                  Text("Codigo"),
+                                ),
                                 DataCell(
-                                    // Text(data[index]['product_id'].toString()),
-                                    Text("Cantidad")),
+                                  // Text(data[index]['product_id'].toString()),
+                                  Text("Cantidad"),
+                                ),
                                 DataCell(
-                                    // Text(data[index]['product_id'].toString()),
-                                    Text("Producto")),
+                                  Text(data[index]['comment'].toString()),
+                                ),
                                 DataCell(
-                                    // Text(data[index]['product_id'].toString()),
-                                    Text("Valor")),
+                                  Text(data[index]['amount'].toString()),
+                                ),
                                 DataCell(
-                                    // Text(data[index]['product_id'].toString()),
-                                    Text("Descripcion")),
+                                  // Text(data[index]['product_id'].toString()),
+                                  Text("Descripcion"),
+                                ),
                                 DataCell(
-                                    // Text(data[index]['product_id'].toString()),
-                                    Text("Valor Anterior")),
+                                  Text(
+                                      data[index]['previous_value'].toString()),
+                                ),
                                 DataCell(
-                                    // Text(data[index]['product_id'].toString()),
-                                    Text("'Valor Actual")),
+                                  Text(data[index]['current_value'].toString()),
+                                ),
                                 DataCell(
-                                    // Text(data[index]['product_id'].toString()),
-                                    Text("Estado")),
+                                  // Text(data[index]['product_id'].toString()),
+                                  Text("Estado"),
+                                ),
                               ],
                             ),
                           ),

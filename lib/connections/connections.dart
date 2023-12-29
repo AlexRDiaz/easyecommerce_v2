@@ -5844,14 +5844,6 @@ class Connections {
   //  *
   getProductsCatalog(populate, page_size, current_page, or, and, outFilter,
       filterps, sort, search) async {
-    // print(json.encode({
-    //   "populate": populate,
-    //   "or": or,
-    //   "and": and,
-    //   "out_filters": outFilter,
-    //   "filterps": filterps,
-    //   "search": search
-    // }));
     try {
       var response =
           await http.post(Uri.parse("$serverLaravel/api/products/all"),
@@ -5881,15 +5873,6 @@ class Connections {
   //  *
   getProductsByProvider(idProvider, populate, page_size, current_page, or, and,
       sort, search) async {
-    // print(json.encode({
-    //   "populate": populate,
-    //   "page_size": page_size,
-    //   "page_number": current_page,
-    //   "or": or,
-    //   "and": and,
-    //   "sort": sort,
-    //   "search": search
-    // }));
     try {
       var response = await http.post(
           Uri.parse("$serverLaravel/api/products/by/$idProvider"),
@@ -6145,6 +6128,45 @@ class Connections {
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         return 0;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  //  * http://localhost:8000/api/providertransaction/provider/16
+  /*
+  {
+    "populate": ["product"],
+    "page_size": 70,
+    "page_number": 1,
+    "or": [],
+    "and": [],
+    "sort": "id:DESC",
+    "search": ""
+}
+   */
+  getTransactionsByProvider(idProvider, populate, page_size, current_page, or,
+      and, sort, search) async {
+    try {
+      var response = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/providertransaction/provider/$idProvider"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "populate": populate,
+            "page_size": page_size,
+            "page_number": current_page,
+            "or": or,
+            "and": and,
+            "sort": sort,
+            "search": search
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
       } else {
         return 1;
       }
