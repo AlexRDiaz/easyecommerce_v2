@@ -7129,4 +7129,32 @@ class Connections {
       return 2;
     }
   }
+
+  sendWithdrawal(amount) async {
+    print(sharedPrefs!.getString("email").toString());
+    try {
+      var request = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/seller/ordenesretiro/withdrawal-provider/${sharedPrefs!.getString("idProviderUserMaster")}"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "monto": amount,
+            "fecha":
+                "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+            "email": sharedPrefs!.getString("email").toString(),
+            "id_vendedor": "${sharedPrefs!.getString("idProviderUserMaster")}"
+            // "id_vendedor" : "5"
+          }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return response ;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
 }
