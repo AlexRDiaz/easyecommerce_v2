@@ -6017,7 +6017,6 @@ class Connections {
     }
   }
 
-//*
   Future updateProductSeller(id, datajson) async {
     int res;
     try {
@@ -6025,32 +6024,6 @@ class Connections {
           Uri.parse("$serverLaravel/api/productseller/$id"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode(datajson));
-
-      if (response.statusCode == 200) {
-        var decodeData = json.decode(response.body);
-        return 0;
-      } else {
-        return 1;
-      }
-    } catch (error) {
-      return 2;
-    }
-  }
-
-  //*
-  Future createStockHistory(id, sku, units, description, type) async {
-    int res;
-    try {
-      var response =
-          await http.post(Uri.parse("$serverLaravel/api/stockhistory/"),
-              headers: {'Content-Type': 'application/json'},
-              body: json.encode({
-                "product_id": int.parse(id),
-                "sku_product": sku,
-                "units": int.parse(units),
-                "description": description,
-                "type": int.parse(type)
-              }));
 
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -7142,7 +7115,6 @@ class Connections {
     }
   }
 
-
   Future createStockHistory(id, sku, units, description, type) async {
     int res;
     try {
@@ -7168,39 +7140,6 @@ class Connections {
     }
   }
 
-  // Future createStockHistoryD(id, sku, units, description, type) async {
-  //   int res;
-  //   print(json.encode({
-  //     "product_id": id,
-  //     "sku_product": sku,
-  //     "units": units,
-  //     "description": description,
-  //     "type": type
-  //   }));
-  //   try {
-  //     var response =
-  //         await http.post(Uri.parse("$serverLaravel/api/stockhistory/v2"),
-  //             headers: {'Content-Type': 'application/json'},
-  //             body: json.encode({
-  //               "product_id": id,
-  //               "sku_product": sku,
-  //               "units": units,
-  //               "description": description,
-  //               "type": type
-  //             }));
-
-  //     if (response.statusCode == 200) {
-  //       var decodeData = json.decode(response.body);
-  //       return 0;
-  //     } else {
-  //       return 1;
-  //     }
-  //   } catch (error) {
-  //     return 2;
-  //   }
-  // }
-
-
   sendWithdrawal(amount) async {
     print(sharedPrefs!.getString("email").toString());
     try {
@@ -7222,11 +7161,10 @@ class Connections {
       if (request.statusCode != 200) {
         return 1;
       } else {
-        return response ;
+        return response;
       }
     } catch (e) {
       return 2;
     }
   }
-
 }
