@@ -813,7 +813,11 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                         idUser,
                         "",
                         "");
+                    var responsereduceStock = await Connections()
+                      .updateProductVariantStock(optionsCheckBox[i]['sku'],
+                          optionsCheckBox[i]['cantidad_total'], 0, optionsCheckBox[i]['id_comercial']);
                   }
+
                 }
                 Navigator.pop(context);
 

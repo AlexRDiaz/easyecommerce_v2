@@ -148,10 +148,12 @@ class _OrderInfoState extends State<OrderInfo> {
                                                 data['telefono_shipping']
                                                     .toString(),
                                             codigo: widget.codigo,
-                                            origin: "order_entry",
-                                            skuProduct: data['sku'].toString(),
-                                            quantity:
-                                                data['cantidad_total'].toString());
+                                            origin: "",
+                                            // origin: "order_entry",
+                                            // skuProduct: data['sku'].toString(),
+                                            // quantity:
+                                                // data['cantidad_total'].toString()
+                                                );
                                         //
                                       });
                                   loadData();

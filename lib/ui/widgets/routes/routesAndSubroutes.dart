@@ -14,8 +14,10 @@ class RoutesandSubroutesModalv2 extends StatefulWidget {
   final String phoneClient;
   final String codigo;
   final String origin;
-  final String? skuProduct;
-  final String? quantity;
+  // final String? skuProduct;
+  // final String? quantity;
+  // final String? type;
+  // final String? idComercial;
 
   const RoutesandSubroutesModalv2(
       {super.key,
@@ -24,8 +26,11 @@ class RoutesandSubroutesModalv2 extends StatefulWidget {
       required this.phoneClient,
       required this.codigo,
       required this.origin,
-      this.skuProduct,
-      this.quantity});
+      // this.skuProduct,
+      // this.quantity,
+      // this.type,
+      // this.idComercial
+      });
 
   @override
   State<RoutesandSubroutesModalv2> createState() => _RoutesModalStatev2();
@@ -463,17 +468,20 @@ class _RoutesModalStatev2 extends State<RoutesandSubroutesModalv2> {
                         sendMessage(widget.phoneClient, widget.codigo);
                       }
 
-                      if (widget.origin == "order_entry") {
-                        var responsereduceStock = await Connections()
-                            .updateProductVariantStock(
-                                widget.skuProduct, widget.quantity);
+                      // if (widget.origin == "order_entry") {
+                      //   var responsereduceStock = await Connections()
+                      //       .updateProductVariantStock(
+                      //           widget.skuProduct,
+                      //           widget.quantity,
+                      //           widget.type,
+                      //           widget.idComercial);
 
-                        if (responsereduceStock == 0) {
-                          print(true);
-                        } else {
-                          print(false);
-                        }
-                      }
+                      //   if (responsereduceStock == 0) {
+                      //     print(true);
+                      //   } else {
+                      //     print(false);
+                      //   }
+                      // }
 
                       setState(() {});
                       Navigator.pop(context);

@@ -962,13 +962,15 @@ class _OrderEntryState extends State<OrderEntry> {
                                                           phoneClient: "",
                                                           codigo:
                                                               "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}",
-                                                          origin: "order_entry",
-                                                          skuProduct:
-                                                              data[index]['sku']
-                                                                  .toString(),
-                                                          quantity: data[index][
-                                                                  'cantidad_total']
-                                                              .toString());
+                                                          origin: "",
+                                                          // origin: "order_entry",
+                                                          // skuProduct:
+                                                              // data[index]['sku']
+                                                                  // .toString(),
+                                                          // quantity: data[index][
+                                                                  // 'cantidad_total']
+                                                              // .toString()
+                                                              );
                                                       //
                                                     });
                                                 loadData();
