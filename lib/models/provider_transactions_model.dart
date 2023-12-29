@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:frontend/models/pedido_shopify_model.dart';
+
 class ProviderTransactionsModel {
   int? id;
   String? transactionType;
@@ -11,18 +15,22 @@ class ProviderTransactionsModel {
   String? comment;
   String? generatedBy;
 
-  ProviderTransactionsModel(
-      {this.id,
-      this.transactionType,
-      this.amount,
-      this.previousValue,
-      this.currentValue,
-      this.timestamp,
-      this.originId,
-      this.originCode,
-      this.providerId,
-      this.comment,
-      this.generatedBy});
+  PedidoShopifyModel? pedidoShopify;
+
+  ProviderTransactionsModel({
+    this.id,
+    this.transactionType,
+    this.amount,
+    this.previousValue,
+    this.currentValue,
+    this.timestamp,
+    this.originId,
+    this.originCode,
+    this.providerId,
+    this.comment,
+    this.generatedBy,
+    this.pedidoShopify,
+  });
 
   factory ProviderTransactionsModel.fromJson(Map<String, dynamic> json) {
     return ProviderTransactionsModel(
@@ -37,6 +45,9 @@ class ProviderTransactionsModel {
       providerId: json['provider_id'],
       comment: json['comment'],
       generatedBy: json['generated_by'],
+      pedidoShopify: json['pedido'] == null
+          ? PedidoShopifyModel()
+          : PedidoShopifyModel.fromJson(json['pedido']),
     );
   }
 
@@ -53,6 +64,7 @@ class ProviderTransactionsModel {
       'provider_id': providerId,
       'comment': comment,
       'generated_by': generatedBy,
+      'pedido': pedidoShopify?.toJson(),
     };
   }
 }

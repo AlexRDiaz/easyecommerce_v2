@@ -6109,18 +6109,7 @@ class Connections {
     }
   }
 
-  //  * http://localhost:8000/api/providertransaction/provider/16
-  /*
-  {
-    "populate": ["product"],
-    "page_size": 70,
-    "page_number": 1,
-    "or": [],
-    "and": [],
-    "sort": "id:DESC",
-    "search": ""
-}
-   */
+  //  *
   getTransactionsByProvider(idProvider, populate, page_size, current_page, or,
       and, sort, search) async {
     try {
