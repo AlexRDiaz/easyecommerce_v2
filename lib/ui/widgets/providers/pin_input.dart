@@ -1,10 +1,18 @@
+import 'dart:async';
+
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/connections/connections.dart';
 import 'package:pinput/pinput.dart';
 
 /// This is the basic usage of Pinput
 /// For more examples check out the demo directory
 class PinInput extends StatefulWidget {
-  const PinInput({Key? key}) : super(key: key);
+  String code;
+  String amount;
+
+  PinInput({Key? key, required this.code, required this.amount})
+      : super(key: key);
 
   @override
   State<PinInput> createState() => _PinInputState();
@@ -14,12 +22,53 @@ class _PinInputState extends State<PinInput> {
   final pinController = TextEditingController();
   final focusNode = FocusNode();
   final formKey = GlobalKey<FormState>();
+  late Timer _timer;
+  int _start = 1 * 10; // 5 minutos en segundos
 
   @override
   void dispose() {
     pinController.dispose();
     focusNode.dispose();
+    _timer.cancel();
     super.dispose();
+  }
+
+  String get timerText {
+    int minutes = _start ~/ 60;
+    int seconds = _start % 60;
+    return '$minutes:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  void startTimer() {
+    const oneSecond = Duration(seconds: 1);
+    _timer = Timer.periodic(
+      oneSecond,
+      (Timer timer) {
+        setState(() {
+          if (_start == 0) {
+            timer.cancel();
+            // Llama a la función cuando el contador llega a cero
+            onTimerFinished();
+          } else {
+            _start--;
+          }
+        });
+      },
+    );
+  }
+
+  void onTimerFinished() {
+    // Lógica para ejecutar una función cuando el contador llega a cero
+    setState(() {
+      widget.code = "";
+    });
+    // Aquí puedes llamar a la función que necesites ejecutar al llegar a cero
+  }
+
+  @override
+  void initState() {
+    startTimer();
+    super.initState();
   }
 
   @override
@@ -55,11 +104,14 @@ class _PinInputState extends State<PinInput> {
               focusNode: focusNode,
               androidSmsAutofillMethod:
                   AndroidSmsAutofillMethod.smsUserConsentApi,
+              length: 8,
               listenForMultipleSmsOnAndroid: true,
               defaultPinTheme: defaultPinTheme,
               separatorBuilder: (index) => const SizedBox(width: 8),
               validator: (value) {
-                return value == '2222' ? null : 'Pin is incorrect';
+                return value == widget.code
+                    ? saveApplication()
+                    : 'El pin es incorrecto';
               },
               // onClipboardFound: (value) {
               //   debugPrint('onClipboardFound: $value');
@@ -101,15 +153,67 @@ class _PinInputState extends State<PinInput> {
               ),
             ),
           ),
+          Text(widget.code != "" ? "" : "Tiempo de espera terminado"),
+          widget.code != ""
+              ? Container()
+              : TextButton(
+                  onPressed: () async {
+                    pinController.clear();
+                    var data =
+                        await Connections().sendWithdrawal(widget.amount);
+                    setState(() {
+                      widget.code = data["code"];
+                      _start = 1 * 10;
+                    });
+                    startTimer();
+                  },
+                  child: const Text('Reintentar'),
+                ),
           TextButton(
             onPressed: () {
-              focusNode.unfocus();
-              formKey.currentState!.validate();
+              pinController.clear();
             },
-            child: const Text('Validate'),
+            child: const Text('Borrar'),
+          ),
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  'Tiempo restante:',
+                  style: TextStyle(fontSize: 20),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  timerText,
+                  style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 20),
+              ],
+            ),
           ),
         ],
       ),
     );
+  }
+
+  saveApplication() async {
+    await Connections().sendWithdrawalAprovate(widget.amount);
+    // ignore: use_build_context_synchronously
+    AwesomeDialog(
+      width: 500,
+      context: context,
+      dialogType: DialogType.success,
+      animType: AnimType.rightSlide,
+      title: 'Solicitud aprobada',
+      desc: 'Se ha registrado su solicitud de retiro',
+      btnCancel: Container(),
+      btnOkText: "Aceptar",
+      btnOkColor: Colors.green,
+      btnCancelOnPress: () {},
+      btnOkOnPress: () {
+        Navigator.pop(context);
+      },
+    ).show();
   }
 }

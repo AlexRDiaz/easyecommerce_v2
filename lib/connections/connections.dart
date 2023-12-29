@@ -166,7 +166,7 @@ class Connections {
           sharedPrefs!.setString("idProvider",
               decodeDataUser['user']['providers'][0]['id'].toString());
           sharedPrefs!.setString("idProviderUserMaster",
-              decodeDataUser['user']['providers'][0]['id_user'].toString());
+              decodeDataUser['user']['providers'][0]['user_id'].toString());
           sharedPrefs!.setString("NameProvider",
               decodeDataUser['user']['providers'][0]['name'].toString());
           List temporalPermisos =
@@ -7141,7 +7141,6 @@ class Connections {
   }
 
   sendWithdrawal(amount) async {
-    print(sharedPrefs!.getString("email").toString());
     try {
       var request = await http.post(
           Uri.parse(
@@ -7149,11 +7148,9 @@ class Connections {
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
             "monto": amount,
-            "fecha":
-                "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
-            "email": sharedPrefs!.getString("email").toString(),
+            "email": "bugi2532@hotmail.com",
+            //sharedPrefs!.getString("email").toString(),
             "id_vendedor": "${sharedPrefs!.getString("idProviderUserMaster")}"
-            // "id_vendedor" : "5"
           }));
       var response = await request.body;
       var decodeData = json.decode(response);
@@ -7161,7 +7158,31 @@ class Connections {
       if (request.statusCode != 200) {
         return 1;
       } else {
-        return response;
+        return decodeData;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  sendWithdrawalAprovate(amount) async {
+    try {
+      var request = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/seller/ordenesretiro/withdrawal-provider-aproved/${sharedPrefs!.getString("idProviderUserMaster")}"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "monto": amount,
+            "codigo": "2983",
+            "id_vendedor": "${sharedPrefs!.getString("idProviderUserMaster")}"
+          }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return decodeData;
       }
     } catch (e) {
       return 2;

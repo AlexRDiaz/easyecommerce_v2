@@ -1,6 +1,7 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/ui/widgets/providers/pin_input.dart';
 
 class Withdrawal extends StatefulWidget {
   const Withdrawal({super.key});
@@ -105,12 +106,28 @@ class _WithdrawalState extends State<Withdrawal> {
   }
 
   void sendWithdrawal() async {
-    var resultSendWithdrawal = await Connections().sendWithdrawal(withdrawal);
+    var resultSendWithdrawal =
+        await Connections().sendWithdrawal(withdrawal.text);
     if (resultSendWithdrawal != 1 || resultSendWithdrawal != 2) {
       setState(() {
-        code = resultSendWithdrawal['code'];
+        code = resultSendWithdrawal['code'].toString();
       });
       codeInputDialog(context);
+    } else {
+      // ignore: use_build_context_synchronously
+      AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.rightSlide,
+        title: 'Error',
+        desc: 'No se pudo solicitar el retiro',
+        btnCancel: Container(),
+        btnOkText: "Aceptar",
+        btnOkColor: Colors.redAccent,
+        btnCancelOnPress: () {},
+        btnOkOnPress: () {},
+      ).show();
     }
   }
 
@@ -133,7 +150,7 @@ class _WithdrawalState extends State<Withdrawal> {
                       child: Icon(Icons.close),
                     ),
                   ),
-                  Expanded(child: Withdrawal())
+                  Expanded(child: PinInput(code: code, amount: withdrawal.text))
                 ],
               ),
             ),
