@@ -91,6 +91,12 @@ class _UpdateStatusOperatorHistorialState
     loadData();
   }
 
+  @override
+  void dispose() {
+    // Cancelar timers, listeners, etc.
+    super.dispose();
+  }
+
   loadData() async {
     createlistStatus();
 
@@ -398,14 +404,17 @@ class _UpdateStatusOperatorHistorialState
                                     getTransaccion[0]['id'], "ENTREGADO");
                           }
 
-                          setState(() {
-                            _controllerModalText.clear();
-                            tipo = "";
-                            deposito = false;
-                            efectivo = false;
-                            transferencia = false;
-                            imageSelect = null;
-                          });
+
+                          if (mounted) {
+                            setState(() {
+                              _controllerModalText.clear();
+                              tipo = "";
+                              deposito = false;
+                              efectivo = false;
+                              transferencia = false;
+                              imageSelect = null;
+                            });
+                          }
                         }
                       : null,
               child: Text(
@@ -523,7 +532,7 @@ class _UpdateStatusOperatorHistorialState
         tipo);
 
     // ! proceso separacion sku / id
-    String skuProducto = datacostos['sku'];
+    String skuProducto = "";
     if (datacostos['sku'] == "" || datacostos['sku'] == null) {
       skuProducto = "UKNOWNPC0";
     }
