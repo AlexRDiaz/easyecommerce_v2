@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:frontend/models/product_seller.dart';
+import 'package:frontend/models/reserve_model.dart';
 import 'package:frontend/models/warehouses_model.dart';
 
 class ProductModel {
@@ -19,6 +20,7 @@ class ProductModel {
   // Considerar si necesitas un objeto relacionado como en ProviderModel
   WarehouseModel? warehouse;
   List<ProductSellerModel>? productseller;
+  List<ReserveModel>? reserves;
 
   ProductModel({
     this.productId,
@@ -35,6 +37,7 @@ class ProductModel {
     this.updatedAt,
     this.warehouse,
     this.productseller,
+    this.reserves,
   });
 
   // Método para crear un objeto ProductModel desde un mapa
@@ -82,6 +85,27 @@ class ProductModel {
           productsellerData.map((item) => ProductSellerModel.fromJson(item)));
     }
 
+    dynamic reservesData;
+
+    if (json['reserve'] != null) {
+      var reserveValue = json['reserve'];
+      if (reserveValue is List<dynamic>) {
+        try {
+          // Aquí tratamos productsellerValue como una lista de objetos JSON
+          reservesData = reserveValue;
+        } catch (e) {
+          print('Error decoding reserves list: $e');
+        }
+      }
+    }
+
+    List<ReserveModel>? reservesModels;
+    if (reservesData != null) {
+      // Aquí tratamos productsellerData como una lista de objetos JSON
+      reservesModels = List<ReserveModel>.from(
+          reservesData.map((item) => ReserveModel.fromJson(item)));
+    }
+
     return ProductModel(
       productId: json['product_id'],
       productName: json['product_name'],
@@ -96,6 +120,7 @@ class ProductModel {
       warehouseId: json['warehouse_id'],
       warehouse: warehouseModel,
       productseller: productsellerModels,
+      reserves: reservesModels,
     );
   }
 
@@ -114,6 +139,7 @@ class ProductModel {
       'warehouse_id': warehouseId,
       'warehouse': warehouse?.toJson(),
       'productseller': productseller?.map((item) => item.toJson()).toList(),
+      'reserve': reserves?.map((item) => item.toJson()).toList(),
     };
   }
 }

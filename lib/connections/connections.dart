@@ -6871,7 +6871,18 @@ class Connections {
       archivo, tipo) async {
     try {
       String? generatedBy = sharedPrefs!.getString("id");
-
+      print(json.encode({
+        "id": id,
+        "monto": monto,
+        "monto_debit": montoDebit,
+        "id_origen": idOrigen,
+        "codigo": codigo,
+        "state": "1",
+        "generated_by": generatedBy,
+        "comentario": comentario,
+        "archivo": archivo,
+        "tipo": tipo
+      }));
       var response = await http.post(
           Uri.parse("$serverLaravel/api/transacciones/payment-order-delivered"),
           headers: {'Content-Type': 'application/json'},

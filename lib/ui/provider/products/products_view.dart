@@ -10,6 +10,7 @@ import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/models/product_model.dart';
+import 'package:frontend/models/reserve_model.dart';
 import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/provider/products/add_product.dart';
@@ -39,7 +40,7 @@ class _ProductsViewState extends State<ProductsView> {
   int pageCount = 100;
   bool isLoading = false;
   bool isFirst = false;
-  List populate = ["warehouse.provider"];
+  List populate = ["warehouse.provider", "reserve"];
   List arrayFiltersAnd = [
     // {"warehouse.warehouse_id": 1}
   ];
@@ -991,6 +992,20 @@ class _ProductsViewState extends State<ProductsView> {
     guideName = features["guide_name"];
     priceSuggested = features["price_suggested"].toString();
     sku = features["sku"];
+
+    String reservesText = "";
+
+    List<ReserveModel>? reservesList = product.reserves;
+    if (reservesList != null) {
+      for (ReserveModel reserve in reservesList) {
+        // print(reserve.sku);
+        // print(reserve.idComercial);
+        // print(reserve.stock);
+        reservesText +=
+            "SKU: ${reserve.sku}, ID Comercial: ${reserve.idComercial}, Cantidad: ${reserve.stock}\n";
+      }
+    }
+
     description = features["description"];
     type = features["type"];
     categories = features["categories"];
@@ -1424,6 +1439,52 @@ class _ProductsViewState extends State<ProductsView> {
                               ],
                             ),
                             const SizedBox(height: 10),
+                            Visibility(
+                              visible: reservesText != "",
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text(
+                                              "Reservas:",
+                                              style: customTextStyleTitle,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Visibility(
+                              visible: reservesText != "",
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text(
+                                              reservesText,
+                                              style: customTextStyleText,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                             Visibility(
                               visible: product.isvariable == 1,
                               child: Row(
