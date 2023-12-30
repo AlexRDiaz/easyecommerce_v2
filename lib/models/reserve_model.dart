@@ -8,7 +8,7 @@ class ReserveModel {
   int? stock;
   String? warehousePrice;
   int? idComercial;
-  // UserModel? user;
+  UserModel? user;
 
   // Constructor
   ReserveModel({
@@ -18,6 +18,7 @@ class ReserveModel {
     this.stock,
     this.warehousePrice,
     this.idComercial,
+    this.user,
   });
 
   // Método para crear un objeto ProviderModel desde un mapa
@@ -30,7 +31,7 @@ class ReserveModel {
       stock: json['stock'],
       warehousePrice: json['warehouse_price'],
       idComercial: json['id_comercial'],
-      // user: json['user'] != null ? UserModel.fromJson(json['user']) : null,
+      user: json['seller'] != null ? UserModel.fromJson(json['seller']) : null,
     );
   }
 
@@ -42,6 +43,7 @@ class ReserveModel {
       'stock': stock,
       'warehouse_price': warehousePrice,
       'id_comercial': idComercial,
+      'seller': user != null ? user?.toJson() : null,
     };
   }
 }

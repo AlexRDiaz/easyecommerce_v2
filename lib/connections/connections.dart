@@ -5909,13 +5909,11 @@ class Connections {
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         return decodeData;
-      } else if (response.statusCode == 400) {
-        print("Error 400: Bad Request");
       } else {
-        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+        return 1;
       }
     } catch (error) {
-      print("Ocurrió un error durante la solicitud: $error");
+      return 2;
     }
   }
 
