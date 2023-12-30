@@ -697,14 +697,14 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                     //         "ENVIADO", optionsCheckBox[i]['id'].toString());
 
                     //new
-                    responsereduceStock = await Connections()
-                        .updateProductVariantStock(
-                            data[i]['sku'],
-                            data[i]['cantidad_total'],
-                            0,
-                            data[i]['id_comercial']);
+                    // responsereduceStock = await Connections()
+                    //     .updateProductVariantStock(
+                    //         data[i]['sku'],
+                    //         data[i]['cantidad_total'],
+                    //         0,
+                    //         data[i]['id_comercial']);
 
-                    if (responsereduceStock == 0) {
+                    // if (responsereduceStock == 0) {
                       var responseL = await Connections().updateOrderWithTime(
                           optionsCheckBox[i]['id'].toString(),
                           "estado_logistico:ENVIADO",
@@ -713,19 +713,19 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                           "");
                     }
                   }
-                }
+                // }
                 Navigator.pop(context);
 
                 setState(() {});
                 selectAll = false;
                 getOldValue(true);
                 await loadData();
-                if (responsereduceStock ==
-                    "No Dispone de Stock en la Reserva Comuniquese con el Proveedor") {
-                  // ignore: use_build_context_synchronously
-                  SnackBarHelper.showErrorSnackBar(
-                      context, "$responsereduceStock");
-                }
+                // if (responsereduceStock ==
+                //     "No Dispone de Stock en la Reserva Comuniquese con el Proveedor") {
+                //   // ignore: use_build_context_synchronously
+                //   SnackBarHelper.showErrorSnackBar(
+                //       context, "$responsereduceStock");
+                // }
               },
               child: const Text(
                 "MARCAR ENVIADO",
