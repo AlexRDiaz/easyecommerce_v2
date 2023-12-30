@@ -824,6 +824,15 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                           "",
                           "");
                     }
+                     if (responsereduceStock == "No Dispone de Stock en la Reserva") {
+                      var emojiSaludo = "\u{1F44B}"; // 👋
+                      var _url = Uri.parse(
+                                        "https://api.whatsapp.com/send?phone=+593${data[i]['users'][0]['vendedores'][0]['telefono_1'].toString()}&text=Hola,${emojiSaludo} ${data[i]['users'][0]['vendedores'][0]['nombre_comercial'].toString()} tu pedido con el id ${data[i]['numero_orden']} no tiene Stock en tu reserva de Producto. Deseas Recargar el Stock o Eliminar la reserva ? ");
+                                    if (!await launchUrl(_url)) {
+                                      throw Exception('Could not launch $_url');
+                                    }
+
+                    }
                   }
                 }
                 Navigator.pop(context);
@@ -832,7 +841,7 @@ class _PrintedGuidesState extends State<PrintedGuides> {
 
                 await loadData();
                 if (responsereduceStock ==
-                    "No Dispone de Stock en la Reserva Comuniquese con el Proveedor") {
+                    "No Dispone de Stock en la Reserva") {
                   // ignore: use_build_context_synchronously
                   SnackBarHelper.showErrorSnackBar(
                       context, "$responsereduceStock");

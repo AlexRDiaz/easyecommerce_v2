@@ -7,6 +7,7 @@ import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:get/route_manager.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PrintedGuideInfo extends StatefulWidget {
   final String id;
@@ -213,6 +214,15 @@ class _PrintedGuideInfoState extends State<PrintedGuideInfo> {
                       "",
                       "");
                 }
+                if (responsereduceStock ==
+                    "No Dispone de Stock en la Reserva") {
+                  var emojiSaludo = "\u{1F44B}"; // 👋
+                  var _url = Uri.parse(
+                      "https://api.whatsapp.com/send?phone=+593${data['users'][0]['vendedores'][0]['telefono_1'].toString()}&text=Hola,${emojiSaludo} ${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()} tu pedido con el id ${data['numero_orden']} no tiene Stock en tu reserva de Producto. Deseas Recargar el Stock o Eliminar la reserva ? ");
+                  if (!await launchUrl(_url)) {
+                    throw Exception('Could not launch $_url');
+                  }
+                }
 
                 Navigator.pop(context);
 
@@ -220,7 +230,7 @@ class _PrintedGuideInfoState extends State<PrintedGuideInfo> {
 
                 await loadData();
                 if (responsereduceStock ==
-                    "No Dispone de Stock en la Reserva Comuniquese con el Proveedor") {
+                    "No Dispone de Stock en la Reserva") {
                   // ignore: use_build_context_synchronously
                   SnackBarHelper.showErrorSnackBar(
                       context, "$responsereduceStock");
