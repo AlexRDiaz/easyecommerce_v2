@@ -621,22 +621,29 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
                       children: [
                         _buildMenu(
                             'Crear', Icon(Icons.person, color: colorlabels), [
-                          _buildMenuItem('Agregar proveedor', 'Sub Proveedores',
-                              Icon(Icons.person_add, color: colorlabels)),
+                          _buildMenuItem(
+                              'Agregar proveedor',
+                              'Sub Proveedores',
+                              Icon(Icons.supervisor_account,
+                                  color: colorlabels)),
+                          _buildMenuItem('Agregar productos', 'Productos',
+                              Icon(Icons.article, color: colorlabels)),
+                          _buildMenuItem('Agregar bodegas', 'Bodegas',
+                              Icon(Icons.warehouse, color: colorlabels)),
                         ]),
                         _buildMenu('Reportes',
                             Icon(Icons.report, color: colorlabels), [
                           _buildMenuItem(
                               'Mis Transacciones',
                               'Mis Transacciones',
-                              Icon(Icons.shopping_cart, color: colorlabels)),
+                              Icon(Icons.wallet, color: colorlabels)),
                         ]),
                         _buildMenu(
                             'Imprimir', Icon(Icons.print, color: colorlabels), [
                           _buildMenuItem('Imprimir Guías', 'Imprimir Guías',
                               Icon(Icons.print_outlined, color: colorlabels)),
                           _buildMenuItem('Guías Impresas', 'Guías Impresas',
-                              Icon(Icons.print_disabled, color: colorlabels)),
+                              Icon(Icons.picture_as_pdf, color: colorlabels)),
                           _buildMenuItem('Guías Enviadas', 'Guías Enviadas',
                               Icon(Icons.send, color: colorlabels)),
                         ]),
@@ -781,12 +788,6 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
           ),
         );
       },
-    ).then((value) {
-      // Aquí puedes realizar cualquier acción que necesites después de cerrar el diálogo
-      // Por ejemplo, actualizar algún estado
-      // setState(() {
-      //   //_futureProviderData = _loadProviders(); // Actualiza el Future
-      // });
-    });
+    ).then((value) {});
   }
 }
