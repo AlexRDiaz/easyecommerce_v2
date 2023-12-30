@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/main.dart';
+import 'package:frontend/providers/provider/navigation_provider.dart';
 import 'package:frontend/providers/sellers/navigation_provider.dart';
 import 'package:frontend/ui/provider/add_provider/sub_providers_view.dart';
+import 'package:frontend/ui/provider/layout/welcome_provider_screen.dart';
 import 'package:frontend/ui/provider/products/products_view.dart';
 import 'package:frontend/ui/provider/profile/profile_view.dart';
 import 'package:frontend/ui/provider/transactions/transactions_view.dart';
@@ -49,10 +51,10 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
 
   final GlobalKey _menuKey = GlobalKey();
 
-  late NavigationProviderSellers navigation;
+  late NavigationProviderProvider navigation;
   @override
   void didChangeDependencies() {
-    navigation = Provider.of<NavigationProviderSellers>(context);
+    navigation = Provider.of<NavigationProviderProvider>(context);
     super.didChangeDependencies();
   }
 
@@ -61,7 +63,7 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
     List pages = [
       getOption(
         "Home",
-        const WelcomeScreen(),
+        WelcomeProviderScreen(),
       ),
       getOption(
         "Productos",
@@ -196,8 +198,7 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
             },
             onSelected: (value) {
               if (value == "my_account") {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => ProfileView()));
+                profileViewModal(context);
               } else if (value == "password") {
                 Navigator.push(
                     context,
@@ -238,6 +239,31 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
             context, '/login', (Route<dynamic> route) => false);
       },
     ).show();
+  }
+
+  Future<dynamic> profileViewModal(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(0.0), // Establece el radio del borde a 0
+          ),
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.7,
+            height: MediaQuery.of(context).size.height * 0.9,
+            child: ProfileView(),
+          ),
+        );
+      },
+    ).then((value) {
+      // Aquí puedes realizar cualquier acción que necesites después de cerrar el diálogo
+      // Por ejemplo, actualizar algún estado
+      // setState(() {
+      //   //_futureProviderData = _loadProviders(); // Actualiza el Future
+      // });
+    });
   }
 
   getOption(name, data) {

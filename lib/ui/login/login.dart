@@ -9,6 +9,7 @@ import 'package:frontend/main.dart';
 import 'package:frontend/ui/login/controllers/controllers.dart';
 import 'package:frontend/ui/logistic/add_sellers/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/loading.dart';
+import 'package:frontend/ui/widgets/loading_button.dart';
 import 'package:frontend/ui/widgets/menu_categories.dart';
 import 'package:frontend/ui/widgets/terms_conditions.dart';
 
@@ -204,55 +205,35 @@ class _LoginPageState extends State<LoginPage> {
         ),
         Column(
           children: [
-            ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.all(16.0),
-                  backgroundColor: Colors.greenAccent[700],
-                  minimumSize: const Size(460, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(10.0), // Bordes redondeados
-                  ),
-                  elevation: 5,
-                  shadowColor: Colors.greenAccent[400],
-                ),
-                onPressed: () async {
-                  getLoadingModal(context, false);
-                  Navigator.pop(context);
+            LoadingButton(
+              function: submit,
+              colorPrimary: const Color.fromRGBO(0, 200, 83, 1),
+              colorSecundary: Colors.white,
+              focusNode: _focusNodeSubmitButton,
+            ),
+            // ElevatedButton(
+            //     style: ElevatedButton.styleFrom(
+            //       padding: const EdgeInsets.all(16.0),
+            //       backgroundColor: Colors.greenAccent[700],
+            //       minimumSize: const Size(460, 50),
+            //       shape: RoundedRectangleBorder(
+            //         borderRadius:
+            //             BorderRadius.circular(10.0), // Bordes redondeados
+            //       ),
+            //       elevation: 5,
+            //       shadowColor: Colors.greenAccent[400],
+            //     ),
+            //     onPressed: () async {
+            //       await submit();
+            //     },
+            //     child: const Text(
+            //       "INGRESAR",
+            //       style: TextStyle(
+            //         fontWeight: FontWeight.bold,
+            //         fontSize: 16,
+            //       ),
+            //     )),
 
-                  await _controllers.login(success: () async {
-                    var user_id = sharedPrefs!.getString('id') ?? "";
-                    var acceptedTC = await _controllers2.verifyUserTC(user_id);
-
-                    // print(acceptedTC);
-                    if (acceptedTC == 'false') {
-                      await showTermsAndConditionsDialog(context, user_id);
-                    } else {
-                      redirectToCorrectView(context);
-                    }
-                  }, error: () {
-                    AwesomeDialog(
-                      width: 500,
-                      context: context,
-                      dialogType: DialogType.error,
-                      animType: AnimType.rightSlide,
-                      title: 'Credenciales Incorrectas',
-                      desc: 'Vuelve a intentarlo',
-                      btnCancel: Container(),
-                      btnOkText: "Aceptar",
-                      btnOkColor: colors.colorGreen,
-                      btnCancelOnPress: () {},
-                      btnOkOnPress: () {},
-                    ).show();
-                  });
-                },
-                child: const Text(
-                  "INGRESAR",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                )),
             const SizedBox(
               height: 30,
             ),
@@ -264,6 +245,37 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ],
     );
+  }
+
+  Future<void> submit() async {
+    getLoadingModal(context, false);
+    Navigator.pop(context);
+
+    await _controllers.login(success: () async {
+      var user_id = sharedPrefs!.getString('id') ?? "";
+      var acceptedTC = await _controllers2.verifyUserTC(user_id);
+
+      // print(acceptedTC);
+      if (acceptedTC == 'false') {
+        await showTermsAndConditionsDialog(context, user_id);
+      } else {
+        redirectToCorrectView(context);
+      }
+    }, error: () {
+      AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.rightSlide,
+        title: 'Credenciales Incorrectas',
+        desc: 'Vuelve a intentarlo',
+        btnCancel: Container(),
+        btnOkText: "Aceptar",
+        btnOkColor: colors.colorGreen,
+        btnCancelOnPress: () {},
+        btnOkOnPress: () {},
+      ).show();
+    });
   }
 
   Column _logo() {

@@ -2,23 +2,38 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
 
-class PaymentInformation extends StatefulWidget {
-  const PaymentInformation({super.key});
+class PaymentInformationUpdate extends StatefulWidget {
+  final List currentAccount;
+  final int index;
+  const PaymentInformationUpdate(
+      {super.key, required this.currentAccount, required this.index});
 
   @override
-  State<PaymentInformation> createState() => _PaymentInformationState();
+  State<PaymentInformationUpdate> createState() =>
+      _PaymentInformationUpdateState();
 }
 
-class _PaymentInformationState extends State<PaymentInformation> {
+class _PaymentInformationUpdateState extends State<PaymentInformationUpdate> {
   TextEditingController _nameController = TextEditingController();
   TextEditingController _lastnameController = TextEditingController();
   TextEditingController _bankEntityController = TextEditingController();
   TextEditingController _accountTypeController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _accountNumber = TextEditingController();
-  TextEditingController _dniController = TextEditingController();
-
   final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    _nameController.text = widget.currentAccount[widget.index]['names'];
+    _lastnameController.text = widget.currentAccount[widget.index]['last_name'];
+    _bankEntityController.text =
+        widget.currentAccount[widget.index]['bank_entity'];
+    _accountTypeController.text =
+        widget.currentAccount[widget.index]['account_type'];
+    _emailController.text = widget.currentAccount[widget.index]['email'];
+    _accountNumber.text = widget.currentAccount[widget.index]['account_number'];
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -149,7 +164,7 @@ class _PaymentInformationState extends State<PaymentInformation> {
                     ),
                     SizedBox(height: 10),
                     TextFormField(
-                      keyboardType: TextInputType.number,
+                      keyboardType: TextInputType.emailAddress,
                       controller: _accountNumber,
                       decoration: InputDecoration(
                         labelText: 'Numero de cuenta',
@@ -168,25 +183,6 @@ class _PaymentInformationState extends State<PaymentInformation> {
                         return null;
                       },
                     ),
-                    TextFormField(
-                      keyboardType: TextInputType.number,
-                      controller: _dniController,
-                      decoration: InputDecoration(
-                        labelText: 'Cédula',
-                        fillColor:
-                            Colors.white, // Color del fondo del TextFormField
-                        filled: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Por favor, ingresa tu numero de cédula';
-                        }
-                        return null;
-                      },
-                    ),
                   ],
                 ),
               )),
@@ -195,7 +191,7 @@ class _PaymentInformationState extends State<PaymentInformation> {
 
             ElevatedButton(
               onPressed: () async {
-                saveAccount();
+                editAccount();
               },
               style: ElevatedButton.styleFrom(
                 primary: Colors.blue, // Cambia el color de fondo del botón
@@ -212,7 +208,7 @@ class _PaymentInformationState extends State<PaymentInformation> {
                 elevation: 3, // Agrega una sombra al botón
               ),
               child: Text(
-                'Guardar',
+                'Editar',
                 style: TextStyle(
                   fontSize: 18, // Cambia el tamaño del texto
                   fontWeight: FontWeight.bold, // Aplica negrita al texto
@@ -225,14 +221,17 @@ class _PaymentInformationState extends State<PaymentInformation> {
     );
   }
 
-  Future<void> saveAccount() async {
-    var response = await Connections().editAccountData(
-        _nameController.text,
-        _lastnameController.text,
-        _emailController.text,
-        _bankEntityController.text,
-        _accountTypeController.text,
-        _accountNumber.text);
+  Future<void> editAccount() async {
+    widget.currentAccount[widget.index]['names'] = _nameController.text;
+    widget.currentAccount[widget.index]['last_name'] = _lastnameController.text;
+    widget.currentAccount[widget.index]['bank_entity'] =
+        _bankEntityController.text;
+    widget.currentAccount[widget.index]['account_type'] =
+        _accountTypeController.text;
+    widget.currentAccount[widget.index]['email'] = _emailController.text;
+    widget.currentAccount[widget.index]['account_number'] = _accountNumber.text;
+
+    var response = await Connections().modifyAccountData(widget.currentAccount);
     if (response == 0) {
       // ignore: use_build_context_synchronously
       AwesomeDialog(
@@ -241,7 +240,7 @@ class _PaymentInformationState extends State<PaymentInformation> {
         dialogType: DialogType.success,
         animType: AnimType.rightSlide,
         title: 'Guardado Exitosamente',
-        desc: 'Su cuenta bancaria ha sido guardada',
+        desc: 'Su cuenta bancaria ha sido editada',
         btnCancel: Container(),
         btnOkText: "Aceptar",
         btnOkColor: Colors.green,

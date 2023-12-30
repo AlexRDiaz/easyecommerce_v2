@@ -7175,4 +7175,81 @@ class Connections {
       return 2;
     }
   }
+
+  editAccountData(names, last_name, email, bank_entity, account_type,
+      account_number) async {
+    try {
+      var request = await http.put(
+          Uri.parse(
+              "$serverLaravel/api/users/update-paiment-information/${sharedPrefs!.getString("idProviderUserMaster")}"),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ${sharedPrefs!.getString('jwt')}'
+          },
+          body: json.encode({
+            "names": names,
+            "last_name": last_name,
+            "email": email,
+            "bank_entity": bank_entity,
+            "account_type": account_type,
+            "account_number": account_number
+          }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  getAccountData() async {
+    try {
+      var request = await http.get(
+        Uri.parse(
+            "$serverLaravel/api/users/get-paiment-information/${sharedPrefs!.getString("idProviderUserMaster")}"),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${sharedPrefs!.getString('jwt')}'
+        },
+      );
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return decodeData['data'];
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  modifyAccountData(accountData) async {
+    try {
+      var request = await http.put(
+          Uri.parse(
+              "$serverLaravel/api/users/modify-account/${sharedPrefs!.getString("idProviderUserMaster")}"),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ${sharedPrefs!.getString('jwt')}'
+          },
+          body: json.encode({"account_data": accountData}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
 }

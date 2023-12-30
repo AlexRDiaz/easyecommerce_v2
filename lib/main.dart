@@ -3,6 +3,7 @@ import 'package:frontend/middlewares/navigation_middlewares.dart';
 import 'package:frontend/providers/filters_orders/filters_orders.dart';
 import 'package:frontend/providers/logistic/navigation_provider.dart';
 import 'package:frontend/providers/operator/navigation_provider.dart';
+import 'package:frontend/providers/provider/navigation_provider.dart';
 import 'package:frontend/providers/sellers/navigation_provider.dart';
 import 'package:frontend/providers/transport/navigation_provider.dart';
 import 'package:frontend/routes/get_routes.dart';
@@ -40,6 +41,9 @@ void main() async {
       ),
       ListenableProvider<NavigationProviderOperator>(
         create: (_) => NavigationProviderOperator(),
+      ),
+      ListenableProvider<NavigationProviderProvider>(
+        create: (_) => NavigationProviderProvider(),
       ),
       ListenableProvider<OrderEntryControllers>(
         create: (_) => OrderEntryControllers(),

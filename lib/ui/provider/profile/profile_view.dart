@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/connections/connections.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/provider/profile/payment_information.dart';
+import 'package:frontend/ui/provider/profile/payment_information_update.dart';
 import 'package:frontend/ui/widgets/forms/input_row.dart';
 
 class ProfileView extends StatefulWidget {
@@ -15,14 +17,20 @@ class _ProfileViewState extends State<ProfileView> {
   TextEditingController nameProviderController = TextEditingController();
   TextEditingController correoController = TextEditingController();
   TextEditingController usuarioController = TextEditingController();
-
+  List accounts = [];
   @override
   void initState() {
     loadData();
     super.initState();
   }
 
-  loadData() {
+  loadData() async {
+    var request = await Connections().getAccountData();
+
+    setState(() {
+      accounts = request;
+    });
+
     nameProviderController.text =
         sharedPrefs!.getString("NameProvider").toString();
     correoController.text = sharedPrefs!.getString("email").toString();
@@ -91,6 +99,61 @@ class _ProfileViewState extends State<ProfileView> {
                               fontWeight: FontWeight.w800,
                             ),
                           ),
+                        ),
+                        Container(
+                          width: 500,
+                          height: 400,
+                          color: Colors.grey,
+                          child: ListView.builder(
+                            itemCount: accounts.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return Card(
+                                elevation: 3,
+                                margin: EdgeInsets.symmetric(
+                                    vertical: 8, horizontal: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: ListTile(
+                                  contentPadding: EdgeInsets.all(16),
+                                  title: Text(
+                                    '${accounts[index]['names']} ${accounts[index]['last_name']}',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    accounts[index]['bank_entity'],
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: Icon(Icons.arrow_forward),
+                                        onPressed: () {
+                                          editAccounts(context, index);
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: Icon(Icons.delete),
+                                        onPressed: () {
+                                          // Lógica para eliminar el elemento de la lista
+                                          setState(() {
+                                            accounts.removeAt(index);
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
                         )
                       ],
                     ),
@@ -114,6 +177,32 @@ class _ProfileViewState extends State<ProfileView> {
             width: MediaQuery.of(context).size.width * 0.5,
             height: MediaQuery.of(context).size.height * 0.8,
             child: PaymentInformation(),
+          ),
+        );
+      },
+    ).then((value) {
+      // Aquí puedes realizar cualquier acción que necesites después de cerrar el diálogo
+      // Por ejemplo, actualizar algún estado
+      // setState(() {
+      //   //_futureProviderData = _loadProviders(); // Actualiza el Future
+      // });
+    });
+  }
+
+  Future<dynamic> editAccounts(BuildContext context, index) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(0.0), // Establece el radio del borde a 0
+          ),
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.5,
+            height: MediaQuery.of(context).size.height * 0.8,
+            child: PaymentInformationUpdate(
+                currentAccount: accounts, index: index),
           ),
         );
       },
