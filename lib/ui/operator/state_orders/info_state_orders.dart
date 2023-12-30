@@ -109,8 +109,11 @@ class _InfoStateOrdersOperatorState extends State<InfoStateOrdersOperator> {
                                               novedades: data['attributes']
                                                   ['novedades']['data'],
                                               currentStatus: data['attributes']
-                                                          ['Status'] ==
-                                                      "NOVEDAD"
+                                                              ['Status'] ==
+                                                          "NOVEDAD" ||
+                                                      data['attributes']
+                                                              ['Status'] ==
+                                                          "REAGENDADO"
                                                   ? ""
                                                   : data['attributes']
                                                       ['Status'],

@@ -52,7 +52,8 @@ class _EditProductState extends State<EditProduct> {
   var data = {};
   List<dynamic> dataL = [];
   List<Map<String, dynamic>> listaProduct = [];
-  List<String> listCategories = UIUtils.categories();
+  // List<String> listCategories = UIUtils.categories();
+  List<String> listCategories = [];
 
   var selectedCat;
   late Map<String, dynamic> dataFeatures;
@@ -97,6 +98,7 @@ class _EditProductState extends State<EditProduct> {
   List<Map<String, List<String>>> optionsList = UIUtils.variablesToSelect();
   bool showToResetType = false;
   late List<dynamic> categoriesOriginal;
+  List<Map<String, String>> selectedCategoriesMap = [];
 
   //edit variant stock
   bool showToEditStock = false;
@@ -117,6 +119,7 @@ class _EditProductState extends State<EditProduct> {
     _warehouseController = WrehouseController();
     loadTextEdtingControllers(widget.data);
     getWarehouses();
+    getCategories();
   }
 
   Future<List<WarehouseModel>> _getWarehousesData() async {
@@ -134,6 +137,18 @@ class _EditProductState extends State<EditProduct> {
               .add('${warehouse.id}-${warehouse.branchName}-${warehouse.city}');
         });
       }
+    }
+  }
+
+  getCategories() async {
+    List<dynamic> data = [];
+    String jsonData = await rootBundle.loadString('assets/taxonomy3.json');
+    data = json.decode(jsonData);
+
+    for (var item in data) {
+      var lastKey = item.keys.last;
+      String menuItemLabel = "${item[lastKey]}-${item['id']}";
+      listCategories.add(menuItemLabel);
     }
   }
 
@@ -165,15 +180,36 @@ class _EditProductState extends State<EditProduct> {
     _descriptionController.text = dataFeatures["description"];
     categoriesOriginal = dataFeatures["categories"];
 
-    // selectedCategories =
-    //     (dataFeatures["categories"] as List<dynamic>).cast<String>().toList();
+    // print(categoriesOriginal);
 
+    categoriesOriginal = dataFeatures["categories"];
+
+    selectedCategories = categoriesOriginal.map<String>((category) {
+      return "${category['name']}-${category['id']}";
+    }).toList();
+
+    selectedCategories.forEach((selectedCat) {
+      List<String> parts = selectedCat.split('-');
+
+      if (!selectedCategoriesMap
+          .any((category) => category["id"] == parts[1])) {
+        setState(() {
+          selectedCategoriesMap.add({
+            "id": parts[1],
+            "name": parts[0],
+          });
+        });
+      }
+    });
+
+    print(selectedCategoriesMap);
     //no cambia si no cambia variables
+    variantsListOriginal = dataFeatures["variants"];
+
     if (product.isvariable == 1) {
       optionsTypesOriginal = dataFeatures["options"];
-      variantsListOriginal = dataFeatures["variants"];
       variantsListCopy = dataFeatures["variants"];
-      print(variantsListCopy);
+      print(variantsListOriginal);
 
       for (var variant in variantsListOriginal) {
         if (variant.containsKey('color')) {
@@ -1688,54 +1724,126 @@ class _EditProductState extends State<EditProduct> {
                       const SizedBox(height: 20),
                       Row(
                         children: [
-                          // Expanded(
-                          //   child: Column(
-                          //     crossAxisAlignment: CrossAxisAlignment.start,
-                          //     children: [
-                          //       Text(
-                          //         "Categorias",
-                          //         style: TextStyle(
-                          //           fontWeight: FontWeight.bold,
-                          //           fontSize: fontSizeTitle,
-                          //           color: Colors.black,
-                          //         ),
-                          //       ),
-                          //       const SizedBox(height: 5),
-                          //       DropdownButtonFormField<String>(
-                          //         hint: const Text("Seleccione una categoría"),
-                          //         value: selectedCat,
-                          //         onChanged: (value) {
-                          //           setState(() {
-                          //             selectedCat = value;
-                          //             if (value != null) {
-                          //               if (!selectedCategories
-                          //                   .contains(selectedCat)) {
-                          //                 setState(() {
-                          //                   selectedCategories
-                          //                       .add(selectedCat!);
-                          //                 });
-                          //               }
-                          //             }
-                          //           });
-                          //         },
-                          //         items: listCategories.map((String category) {
-                          //           return DropdownMenuItem<String>(
-                          //             value: category,
-                          //             child: Text(category),
-                          //           );
-                          //         }).toList(),
-                          //         decoration: InputDecoration(
-                          //           fillColor: Colors.white,
-                          //           filled: true,
-                          //           border: OutlineInputBorder(
-                          //             borderRadius: BorderRadius.circular(5.0),
-                          //           ),
-                          //         ),
-                          //       ),
-                          //     ],
-                          //   ),
-                          // ),
-                          // const SizedBox(width: 20),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Categorias",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: fontSizeTitle,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                SizedBox(
+                                  width: (screenWidthDialog / 1.5) - 10,
+                                  child: DropdownButtonFormField<String>(
+                                    hint:
+                                        const Text("Seleccione una categoría"),
+                                    value: selectedCat,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        selectedCat = value;
+                                        List<String> parts =
+                                            selectedCat!.split('-');
+
+                                        if (!selectedCategoriesMap.any(
+                                            (category) =>
+                                                category["id"] == parts[1])) {
+                                          setState(() {
+                                            selectedCategoriesMap.add({
+                                              "id": parts[1],
+                                              "name": parts[0],
+                                            });
+                                          });
+                                        }
+                                        // if (value != null) {
+                                        //   if (!selectedCategories
+                                        //       .contains(selectedCat)) {
+                                        //     setState(() {
+                                        //       selectedCategories
+                                        //           .add(selectedCat!);
+                                        //     });
+                                        //   }
+                                        // }
+                                      });
+                                    },
+                                    items:
+                                        listCategories.map((String category) {
+                                      var parts = category.split('-');
+                                      var name = parts[0];
+                                      return DropdownMenuItem<String>(
+                                        value: category,
+                                        child: Text(name),
+                                      );
+                                    }).toList(),
+                                    decoration: InputDecoration(
+                                      fillColor: Colors.white,
+                                      filled: true,
+                                      border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(5.0),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Wrap(
+                                  spacing: 8.0,
+                                  runSpacing: 8.0,
+                                  children: List.generate(
+                                      selectedCategoriesMap.length, (index) {
+                                    String categoryName =
+                                        selectedCategoriesMap[index]["name"] ??
+                                            "";
+
+                                    return Chip(
+                                      label: Text(categoryName),
+                                      onDeleted: () {
+                                        setState(() {
+                                          selectedCategoriesMap.removeAt(index);
+                                          // print("catAct: $selectedCategoriesMap");
+                                        });
+                                      },
+                                    );
+                                  }),
+                                ),
+                                // Wrap(
+                                //   spacing: 8.0,
+                                //   runSpacing: 8.0,
+                                //   children: selectedCategories
+                                //       .map<Widget>((category) {
+                                //     return Chip(
+                                //       label: Text(category),
+                                //       onDeleted: () {
+                                //         setState(() {
+                                //           selectedCategories.remove(category);
+                                //           // print("catAct: $categories");
+                                //         });
+                                //       },
+                                //     );
+                                //   }).toList(),
+                                // ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1781,33 +1889,6 @@ class _EditProductState extends State<EditProduct> {
                                       ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Wrap(
-                                  spacing: 8.0,
-                                  runSpacing: 8.0,
-                                  children: selectedCategories
-                                      .map<Widget>((category) {
-                                    return Chip(
-                                      label: Text(category),
-                                      onDeleted: () {
-                                        setState(() {
-                                          selectedCategories.remove(category);
-                                          // print("catAct: $categories");
-                                        });
-                                      },
-                                    );
-                                  }).toList(),
                                 ),
                               ],
                             ),
@@ -1967,7 +2048,6 @@ class _EditProductState extends State<EditProduct> {
                                     if (typeValue == "SIMPLE") {
                                       isVariable = 0;
                                       optionsTypesOriginal = [];
-                                      variantsListOriginal = [];
                                       optionsTypesSend = [];
                                       variantsListSend = [];
                                     } else {
@@ -2008,6 +2088,9 @@ class _EditProductState extends State<EditProduct> {
                                           await saveImages(imgsTemporales);
                                     }
 
+                                    print("variantsListOriginal");
+                                    print(variantsListOriginal);
+
                                     var featuresToSend = {
                                       "guide_name": _nameGuideController.text,
                                       "price_suggested":
@@ -2015,7 +2098,7 @@ class _EditProductState extends State<EditProduct> {
                                       "sku": showToResetType
                                           ? _skuController.text.toUpperCase()
                                           : skuOriginal.toUpperCase(),
-                                      "categories": categoriesOriginal,
+                                      "categories": selectedCategoriesMap,
                                       "description":
                                           _descriptionController.text,
                                       "type": typeValue,

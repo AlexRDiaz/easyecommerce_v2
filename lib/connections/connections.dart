@@ -5909,13 +5909,11 @@ class Connections {
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         return decodeData;
-      } else if (response.statusCode == 400) {
-        print("Error 400: Bad Request");
       } else {
-        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+        return 1;
       }
     } catch (error) {
-      print("Ocurrió un error durante la solicitud: $error");
+      return 2;
     }
   }
 
@@ -6871,7 +6869,18 @@ class Connections {
       archivo, tipo) async {
     try {
       String? generatedBy = sharedPrefs!.getString("id");
-
+      print(json.encode({
+        "id": id,
+        "monto": monto,
+        "monto_debit": montoDebit,
+        "id_origen": idOrigen,
+        "codigo": codigo,
+        "state": "1",
+        "generated_by": generatedBy,
+        "comentario": comentario,
+        "archivo": archivo,
+        "tipo": tipo
+      }));
       var response = await http.post(
           Uri.parse("$serverLaravel/api/transacciones/payment-order-delivered"),
           headers: {'Content-Type': 'application/json'},

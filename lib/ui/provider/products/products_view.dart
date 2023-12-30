@@ -10,6 +10,8 @@ import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/models/product_model.dart';
+import 'package:frontend/models/reserve_model.dart';
+import 'package:frontend/models/user_model.dart';
 import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/provider/products/add_product.dart';
@@ -39,7 +41,7 @@ class _ProductsViewState extends State<ProductsView> {
   int pageCount = 100;
   bool isLoading = false;
   bool isFirst = false;
-  List populate = ["warehouse.provider"];
+  List populate = ["warehouse.provider", "reserve.seller"];
   List arrayFiltersAnd = [
     // {"warehouse.warehouse_id": 1}
   ];
@@ -60,6 +62,7 @@ class _ProductsViewState extends State<ProductsView> {
   late WrehouseController _warehouseController;
   List<WarehouseModel> warehousesList = [];
   List<String> warehousesToSelect = [];
+  List<String> warehouseToCopy = [];
   bool edited = false;
   bool warehouseActAprob = false;
 
@@ -139,6 +142,7 @@ class _ProductsViewState extends State<ProductsView> {
         _search.text);
 
     data = response['data'];
+    // print(data);
     // total = response['total'];
     // pageCount = response['last_page'];
 
@@ -991,6 +995,22 @@ class _ProductsViewState extends State<ProductsView> {
     guideName = features["guide_name"];
     priceSuggested = features["price_suggested"].toString();
     sku = features["sku"];
+
+    String reservesText = "";
+
+    List<ReserveModel>? reservesList = product.reserves;
+    if (reservesList != null) {
+      for (int i = 0; i < reservesList.length; i++) {
+        ReserveModel reserve = reservesList[i];
+        UserModel? userSeller = reserve.user;
+        reservesText +=
+            "SKU: ${reserve.sku} \nVendedor: ${userSeller?.email}\nCantidad: ${reserve.stock}";
+        if (i < reservesList.length - 1) {
+          reservesText += "\n\n";
+        }
+      }
+    }
+
     description = features["description"];
     type = features["type"];
     categories = features["categories"];
@@ -1425,6 +1445,52 @@ class _ProductsViewState extends State<ProductsView> {
                             ),
                             const SizedBox(height: 10),
                             Visibility(
+                              visible: reservesText != "",
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text(
+                                              "Reservas:",
+                                              style: customTextStyleTitle,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Visibility(
+                              visible: reservesText != "",
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text(
+                                              reservesText,
+                                              style: customTextStyleText,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Visibility(
                               visible: product.isvariable == 1,
                               child: Row(
                                 children: [
@@ -1801,6 +1867,15 @@ class _ProductsViewState extends State<ProductsView> {
 
   showCopyProductToWarehouse() {
     // print(selectedWarehouseToCopy.toString());
+    warehouseToCopy = [];
+    for (var warehouse in warehousesList) {
+      warehouseToCopy
+          .add('${warehouse.id}-${warehouse.branchName}-${warehouse.city}');
+
+      if (warehouse.approved == 1 && warehouse.active == 1) {
+        warehouseActAprob = true;
+      }
+    }
 
     return AlertDialog(
       content: Container(
@@ -1829,11 +1904,11 @@ class _ProductsViewState extends State<ProductsView> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              items: warehousesToSelect
+              items: warehouseToCopy
                   .map((item) => DropdownMenuItem(
                         value: item,
                         child: Text(
-                          item.split('-')[0],
+                          item.split('-')[1],
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -1870,50 +1945,94 @@ class _ProductsViewState extends State<ProductsView> {
                   for (var i = 0; i < selectedCheckBox.length; i++) {
                     var idProductToSearch =
                         selectedCheckBox[i]['product_id'].toString();
-                    var foundItem = data.firstWhere(
-                        (item) =>
-                            item['product_id'].toString() == idProductToSearch,
-                        orElse: () => null);
 
-                    if (foundItem != null) {
-                      var nameProduct = foundItem['product_name'].toString();
-                      var stock = 0;
-                      var price = foundItem['price'].toString();
+                    var productoEncontrado = await Connections()
+                        .getProductByID(int.parse(idProductToSearch), []);
 
-                      var img_url = foundItem['url_img'].toString();
-                      if (img_url == "null" || img_url == "") {
-                        img_url = "";
+                    if (productoEncontrado != 1 || productoEncontrado != 2) {
+                      //
+                      ProductModel product =
+                          ProductModel.fromJson(productoEncontrado);
+
+                      List<String> urlsImgsList = product.urlImg != null &&
+                              product.urlImg.isNotEmpty &&
+                              product.urlImg.toString() != "[]"
+                          ? (jsonDecode(product.urlImg) as List).cast<String>()
+                          : [];
+
+                      Map<String, dynamic> dataFeatures =
+                          jsonDecode(product.features);
+                      List<dynamic> variantsListOriginal = [];
+                      List<dynamic> optionsTypesOriginal = [];
+
+                      if (product.isvariable == 1) {
+                        optionsTypesOriginal = dataFeatures["options"];
+                        variantsListOriginal = dataFeatures["variants"];
+                        variantsListOriginal.forEach((variant) {
+                          variant['inventory_quantity'] = "0";
+                        });
+                      } else {
+                        optionsTypesOriginal = [];
                       }
-                      // var dataFeatures = foundItem['features'] ?? "";
-                      var dataFeatures;
-                      if (foundItem['features'] != null) {
-                        dataFeatures = json.decode(foundItem['features']);
+
+                      var featuresToSend = {
+                        "guide_name": dataFeatures["guide_name"],
+                        "price_suggested":
+                            dataFeatures["price_suggested"].toString(),
+                        "sku": dataFeatures["sku"],
+                        "categories": dataFeatures["categories"],
+                        "description": dataFeatures["description"],
+                        "type": product.isvariable == 1 ? "VARIABLE" : "SIMPLE",
+                        "variants": variantsListOriginal,
+                        "options": optionsTypesOriginal
+                      };
+
+                      var response =
+                          await _productController.addProduct(ProductModel(
+                        productName: product.productName,
+                        stock: 0,
+                        price: double.parse(product.price.toString()),
+                        urlImg: urlsImgsList,
+                        isvariable: product.isvariable,
+                        features: featuresToSend,
+                        warehouseId: int.parse(selectedWarehouseToCopy
+                            .toString()
+                            .split("-")[0]
+                            .toString()),
+                      ));
+
+                      if (response == []) {
+                        print("Error");
+                        // ignore: use_build_context_synchronously
+                        AwesomeDialog(
+                          width: 500,
+                          context: context,
+                          dialogType: DialogType.error,
+                          animType: AnimType.rightSlide,
+                          title: 'Error',
+                          desc: 'Ocurrio un error en la copia del producto.',
+                          btnCancel: Container(),
+                          btnOkText: "Aceptar",
+                          btnOkColor: colors.colorGreen,
+                          btnCancelOnPress: () {},
+                          btnOkOnPress: () {
+                            Navigator.pop(context);
+                          },
+                        ).show();
+                      } else {
+                        print("Se ha copiado el producto");
                       }
-                      // print(dataFeatures);
-                      var isVariable = foundItem['isvariable'].toString();
-
-                      //create a copy
-
-                      var response = await Connections().createProduct0(
-                          nameProduct,
-                          stock,
-                          dataFeatures,
-                          price,
-                          img_url,
-                          isVariable,
-                          selectedWarehouseToCopy
-                              .toString()
-                              .split("-")[1]
-                              .toString());
-                      // 13);
-                      // print(response[0]);
-                      Navigator.pop(context);
 
                       //
                     } else {
                       print(
                           'Producto con product_id $idProductToSearch no encontrado.');
                     }
+
+                    Navigator.pop(context);
+
+                    //
+
                     counterChecks = 0;
                   }
 
