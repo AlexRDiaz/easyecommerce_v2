@@ -5,6 +5,9 @@ import 'package:frontend/config/exports.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/providers/sellers/navigation_provider.dart';
 import 'package:frontend/ui/provider/add_provider/sub_providers_view.dart';
+import 'package:frontend/ui/provider/guidesgroup/guides_sent/table_orders_guides_sent.dart';
+import 'package:frontend/ui/provider/guidesgroup/print_guides/print_guides.dart';
+import 'package:frontend/ui/provider/guidesgroup/printed_guides/printedguides.dart';
 import 'package:frontend/ui/provider/products/products_view.dart';
 import 'package:frontend/ui/provider/profile/profile_view.dart';
 import 'package:frontend/ui/provider/transactions/transactions_view.dart';
@@ -77,7 +80,18 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
       ),
       getOption(
         "Mis Transacciones",
-        TransactionsView(),
+        const TransactionsView(),
+      ),
+      getOption(
+        "Imprimir Guías",
+        const PrintGuidesProvider(),
+      ),
+      getOption(
+        "Guías Impresas",
+        const PrintedGuidesProvider(),
+      ),
+      getOption("Guías Enviadas", 
+        const TableOrdersGuidesSentProvider()
       ),
     ];
     return Scaffold(

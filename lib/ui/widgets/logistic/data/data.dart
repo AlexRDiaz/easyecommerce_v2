@@ -110,4 +110,8 @@ List optionsProvider = [
   {"name": "Bodegas", "icon": Icons.store},
   {"name": "Sub Proveedores", "icon": Icons.home_outlined},
   {"name": "Mis Transacciones", "icon": Icons.home_outlined},
+  {"name": "Imprimir Guías", "icon": Icons.print_outlined},
+  {"name": "Guías Impresas", "icon": Icons.print},
+  {"name": "Guías Enviadas", "icon": Icons.send_outlined},
+
 ];
