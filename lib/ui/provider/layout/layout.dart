@@ -397,11 +397,6 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
       "selected": false
     },
     {
-      "page": "Imprimir Guías",
-      "view": const PrintGuidesProvider(),
-      "selected": false
-    },
-    {
       "page": "Guías Impresas",
       "view": const PrintedGuidesProvider(),
       "selected": false
@@ -484,9 +479,7 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
             PopupMenuItem<String>(
               child: Text(
                 "Hola, ${username}",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(color: Colors.white),
               ),
               enabled: false,
             ),
@@ -578,7 +571,7 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
               onPressed: () {},
             ),
             Text(
-              sharedPrefs!.getString("NameComercialSeller").toString(),
+              sharedPrefs!.getString("NameProvider").toString(),
               style: TextStyle(color: Colors.white),
             )
           ],

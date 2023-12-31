@@ -9,6 +9,7 @@ import 'package:frontend/providers/sellers/navigation_provider.dart';
 import 'package:frontend/ui/logistic/delivery_status/delivery_status.dart';
 import 'package:frontend/ui/sellers/add_seller_user/add_seller_user.dart';
 import 'package:frontend/ui/sellers/cash_withdrawals_sellers/cash_withdrawals_sellers.dart';
+import 'package:frontend/ui/sellers/catalog/catalog.dart';
 import 'package:frontend/ui/sellers/dashboard/dashboard.dart';
 import 'package:frontend/ui/sellers/guides_sent/table_orders_guides_sent.dart';
 import 'package:frontend/ui/sellers/my_integrations/my_integrations.dart';
@@ -131,6 +132,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
       "selected": false
     },
     {"page": "Mis integraciones", "view": MyIntegrations(), "selected": false},
+    {"page": "Catálogo de Productos", "view": Catalog(), "selected": false},
   ];
 
   Widget _buildPhoneLayout() {
@@ -366,6 +368,10 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                               'Devoluciones',
                               Icon(Icons.assignment_return,
                                   color: colorlabels)),
+                          _buildMenuItem(
+                              'Catálogo de Productos',
+                              'Catálogo de Productos',
+                              Icon(Icons.send, color: colorlabels)),
                         ]),
                         _buildMenu('Movimientos',
                             Icon(Icons.paid, color: colorlabels), [
