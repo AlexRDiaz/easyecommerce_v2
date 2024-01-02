@@ -111,6 +111,7 @@ class _EditProductState extends State<EditProduct> {
   List<Map<String, dynamic>> variantsStockToUpt = [];
   List variantsListCopy = [];
   String variablesTextEdit = "";
+  int stockOriginal = 0;
 
   @override
   void initState() {
@@ -159,6 +160,7 @@ class _EditProductState extends State<EditProduct> {
     createdAt = formatDate(product.createdAt.toString());
     approved = product.approved!;
     _stockController.text = product.stock.toString();
+    stockOriginal = int.parse(product.stock.toString());
     stock = product.stock.toString();
     isVariable = int.parse(product.isvariable.toString());
     typeValue = product.isvariable == 1 ? "VARIABLE" : "SIMPLE";
@@ -202,14 +204,14 @@ class _EditProductState extends State<EditProduct> {
       }
     });
 
-    print(selectedCategoriesMap);
+    // print(selectedCategoriesMap);
     //no cambia si no cambia variables
     variantsListOriginal = dataFeatures["variants"];
 
     if (product.isvariable == 1) {
       optionsTypesOriginal = dataFeatures["options"];
       variantsListCopy = dataFeatures["variants"];
-      print(variantsListOriginal);
+      // print(variantsListOriginal);
 
       for (var variant in variantsListOriginal) {
         if (variant.containsKey('color')) {
@@ -776,8 +778,8 @@ class _EditProductState extends State<EditProduct> {
                                     }
                                   }
 
-                                  print(
-                                      "variantsStockToUpt: $variantsStockToUpt");
+                                  // print(
+                                  //     "variantsStockToUpt: $variantsStockToUpt");
                                 }
                               },
                               style: ElevatedButton.styleFrom(
@@ -2088,8 +2090,8 @@ class _EditProductState extends State<EditProduct> {
                                           await saveImages(imgsTemporales);
                                     }
 
-                                    print("variantsListOriginal");
-                                    print(variantsListOriginal);
+                                    // print("variantsListOriginal");
+                                    // print(variantsListOriginal);
 
                                     var featuresToSend = {
                                       "guide_name": _nameGuideController.text,
@@ -2115,7 +2117,7 @@ class _EditProductState extends State<EditProduct> {
                                     _productController.editProduct(ProductModel(
                                       productId: widget.data['product_id'],
                                       productName: _nameController.text,
-                                      stock: int.parse(_stockController.text),
+                                      stock: stockOriginal,
                                       price:
                                           double.parse(_priceController.text),
                                       urlImg: imgsTemporales.isNotEmpty
@@ -2129,8 +2131,12 @@ class _EditProductState extends State<EditProduct> {
                                           .toString()),
                                     ));
 
+                                    // print("variantsStockToUpt can:");
+                                    // print(variantsStockToUpt.length);
                                     if (variantsStockToUpt.isNotEmpty) {
-                                      print("need to upt variantsStockToUpt");
+                                      // print("need to upt variantsStockToUpt:");
+                                      // print(variantsStockToUpt.length);
+
                                       for (var variant in variantsStockToUpt) {
                                         var response = await Connections()
                                             .createStockHistory(

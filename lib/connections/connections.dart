@@ -5764,6 +5764,12 @@ class Connections {
   }
 
   Future updateOrderWithTime(id, keyvalue, iduser, from, datarequest) async {
+    print(json.encode({
+      "keyvalue": keyvalue,
+      "iduser": iduser,
+      "from": from,
+      "datarequest": datarequest
+    }));
     try {
       var request = await http.put(
           Uri.parse("$serverLaravel/api/pedidos-shopify/updatefieldtime/$id"),

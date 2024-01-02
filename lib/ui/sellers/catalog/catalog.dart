@@ -1018,7 +1018,7 @@ ra                                                  // print("clck Favoritos");
                                                 ),
                                                 const SizedBox(width: 5),
                                                 Text(
-                                                  'Seleccionar En Venta  ',
+                                                  'Seleccionar En Venta',
                                                   style: GoogleFonts
                                                       .robotoCondensed(
                                                     fontSize: 16,
