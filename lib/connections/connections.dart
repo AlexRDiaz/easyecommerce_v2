@@ -4029,6 +4029,26 @@ class Connections {
     return decodeData;
   }
 
+// ! principal para la vista de agregar operadores en transportadora
+
+  getOperatorsTransportLaravel() async {
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/getoperatorstransport"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({}));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
   Future getAllOperatorsAndByTransport(id) async {
     var request = await http.get(
       Uri.parse(
