@@ -1130,7 +1130,10 @@ class _TransportDeliveryHistoryDetailsDataState
                             numberCliente: "${data['telefono_shipping']}",
                             id: widget.data['id'].toString(),
                             novedades: data['novedades'],
-                            currentStatus: data['status'],
+                            currentStatus: data['status'] == "NOVEDAD" ||
+                                    data['status'] == "REAGENDADO"
+                                ? ""
+                                : data['status'],
                             rolidinvoke: 1,
                             comment: data['comentario'].toString() != null &&
                                     data['comentario'].toString().isNotEmpty
