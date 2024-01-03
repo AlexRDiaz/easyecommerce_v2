@@ -274,7 +274,7 @@ class _ModelGuideState extends State<ModelGuide> {
                             barcode: Barcode.code128(),
                             data: '${widget.idForBarcode.toString()}',
                             drawText: true,
-                            style: TextStyle(fontSize: 10),
+                            style: TextStyle(fontSize: 20),
                           ),
                         ),
                       ],
