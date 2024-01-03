@@ -190,7 +190,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
             Text(
               "${email}",
               style: TextStyle(
-                color: Colors.black,
+                color: Colors.white,
               ),
             ),
             const Icon(
@@ -371,7 +371,8 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                           _buildMenuItem(
                               'Catálogo de Productos',
                               'Catálogo de Productos',
-                              Icon(Icons.send, color: colorlabels)),
+                              Icon(Icons.shopping_bag_rounded,
+                                  color: colorlabels)),
                         ]),
                         _buildMenu('Movimientos',
                             Icon(Icons.paid, color: colorlabels), [
