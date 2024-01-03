@@ -6,11 +6,11 @@ import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/providers/logistic/navigation_provider.dart';
 import 'package:frontend/providers/sellers/navigation_provider.dart';
-import 'package:frontend/ui/logistic/delivery_status/delivery_status.dart';
 import 'package:frontend/ui/sellers/add_seller_user/add_seller_user.dart';
 import 'package:frontend/ui/sellers/cash_withdrawals_sellers/cash_withdrawals_sellers.dart';
 import 'package:frontend/ui/sellers/catalog/catalog.dart';
 import 'package:frontend/ui/sellers/dashboard/dashboard.dart';
+import 'package:frontend/ui/sellers/delivery_status/delivery_status.dart';
 import 'package:frontend/ui/sellers/guides_sent/table_orders_guides_sent.dart';
 import 'package:frontend/ui/sellers/my_integrations/my_integrations.dart';
 import 'package:frontend/ui/sellers/my_seller_account/my_seller_account.dart';
@@ -190,7 +190,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
             Text(
               "${email}",
               style: TextStyle(
-                color: Colors.black,
+                color: Colors.white,
               ),
             ),
             const Icon(
@@ -371,7 +371,8 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                           _buildMenuItem(
                               'Catálogo de Productos',
                               'Catálogo de Productos',
-                              Icon(Icons.send, color: colorlabels)),
+                              Icon(Icons.shopping_bag_rounded,
+                                  color: colorlabels)),
                         ]),
                         _buildMenu('Movimientos',
                             Icon(Icons.paid, color: colorlabels), [

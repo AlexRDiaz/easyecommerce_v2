@@ -219,547 +219,531 @@ class _ProductsViewState extends State<ProductsView> {
   Widget build(BuildContext context) {
     // return const Text("hola mundo");
     return Scaffold(
-      body: Row(
-        children: <Widget>[
-          Expanded(
-            child: Container(
-              color: Colors.grey[300],
-              child: Center(
-                child: Container(
-                  margin: const EdgeInsets.all(6.0),
-                  padding: const EdgeInsets.all(10.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          ElevatedButton(
-                            onPressed: warehouseActAprob
-                                ? () async {
-                                    await showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return const AddProduct();
-                                      },
-                                    );
-                                    arrayFiltersAnd.clear();
-                                    await loadData();
-                                  }
-                                : null, // Deshabilitar el botón si warehouseActAprob es false
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF274965),
-                            ),
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  "Nuevo",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(width: 5),
-                                Icon(
-                                  Icons.add_box,
-                                  size: 24,
-                                  color: Colors.white,
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 5),
-                          ElevatedButton.icon(
-                            onPressed: () async {
-                              resetFilters();
-                              await loadData();
-                            },
-                            icon: const Icon(
-                              Icons.replay_circle_filled_sharp,
-                              color: Colors.white,
-                            ),
-                            label: const Text(
-                              "",
-                              style: TextStyle(
-                                decoration: TextDecoration.underline,
-                                color: Colors.white,
-                              ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.2,
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: DropdownButtonFormField<String>(
-                                isExpanded: true,
-                                hint: Text(
-                                  'TODO',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Theme.of(context).hintColor,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                items: warehousesToSelect
-                                    .map((item) => DropdownMenuItem(
-                                          value: item,
-                                          child: Text(
-                                            item,
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ))
-                                    .toList(),
-                                value: selectedWarehouse,
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectedWarehouse = value;
-                                  });
-
-                                  if (value != 'TODO') {
-                                    if (value is String) {
-                                      arrayFiltersAnd = [];
-                                      arrayFiltersAnd.add({
-                                        "warehouse.warehouse_id":
-                                            selectedWarehouse
-                                                .toString()
-                                                .split("-")[0]
-                                                .toString()
-                                      });
-                                    }
-                                  } else {
-                                    arrayFiltersAnd = [];
-                                  }
-
-                                  loadData();
+      body: Container(
+        width: double.infinity,
+        color: Colors.grey[300],
+        child: Center(
+          child: Container(
+            margin: const EdgeInsets.all(6.0),
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    ElevatedButton(
+                      onPressed: warehouseActAprob
+                          ? () async {
+                              await showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return const AddProduct();
                                 },
-                                decoration: InputDecoration(
-                                  fillColor: Colors.white,
-                                  filled: true,
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(5.0),
-                                  ),
-                                ),
-                              ),
+                              );
+                              arrayFiltersAnd.clear();
+                              await loadData();
+                            }
+                          : null, // Deshabilitar el botón si warehouseActAprob es false
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF274965),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "Nuevo",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                          Expanded(child: Container()),
+                          SizedBox(width: 5),
+                          Icon(
+                            Icons.add_box,
+                            size: 24,
+                            color: Colors.white,
+                          ),
                         ],
                       ),
-                      const SizedBox(height: 10),
-                      Container(
-                        width: double.infinity,
+                    ),
+                    const SizedBox(width: 5),
+                    ElevatedButton.icon(
+                      onPressed: () async {
+                        resetFilters();
+                        await loadData();
+                      },
+                      icon: const Icon(
+                        Icons.replay_circle_filled_sharp,
                         color: Colors.white,
-                        padding: const EdgeInsets.all(5),
+                      ),
+                      label: const Text(
+                        "",
+                        style: TextStyle(
+                          decoration: TextDecoration.underline,
+                          color: Colors.white,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.2,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: DropdownButtonFormField<String>(
+                          isExpanded: true,
+                          hint: Text(
+                            'TODO',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Theme.of(context).hintColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          items: warehousesToSelect
+                              .map((item) => DropdownMenuItem(
+                                    value: item,
+                                    child: Text(
+                                      item,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ))
+                              .toList(),
+                          value: selectedWarehouse,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedWarehouse = value;
+                            });
+
+                            if (value != 'TODO') {
+                              if (value is String) {
+                                arrayFiltersAnd = [];
+                                arrayFiltersAnd.add({
+                                  "warehouse.warehouse_id": selectedWarehouse
+                                      .toString()
+                                      .split("-")[0]
+                                      .toString()
+                                });
+                              }
+                            } else {
+                              arrayFiltersAnd = [];
+                            }
+
+                            loadData();
+                          },
+                          decoration: InputDecoration(
+                            fillColor: Colors.white,
+                            filled: true,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(child: Container()),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  width: double.infinity,
+                  color: Colors.white,
+                  padding: const EdgeInsets.all(5),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _modelTextField(
+                            text: "Busqueda", controller: _search),
+                      ),
+                      Expanded(
                         child: Row(
                           children: [
-                            Expanded(
-                              child: _modelTextField(
-                                  text: "Busqueda", controller: _search),
+                            Container(
+                              padding:
+                                  const EdgeInsets.only(left: 15, right: 5),
+                              child: Text(
+                                "Registros: $total",
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black),
+                              ),
                             ),
-                            Expanded(
+                            Container(
+                              padding: const EdgeInsets.only(left: 5, right: 5),
                               child: Row(
                                 children: [
-                                  Container(
-                                    padding: const EdgeInsets.only(
-                                        left: 15, right: 5),
-                                    child: Text(
-                                      "Registros: $total",
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black),
-                                    ),
+                                  Text(
+                                    counterChecks > 0
+                                        ? "Seleccionados: $counterChecks"
+                                        : "",
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black),
                                   ),
-                                  Container(
-                                    padding: const EdgeInsets.only(
-                                        left: 5, right: 5),
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          counterChecks > 0
-                                              ? "Seleccionados: $counterChecks"
-                                              : "",
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black),
-                                        ),
-                                        counterChecks > 0
-                                            ? Visibility(
-                                                visible: true,
-                                                child: IconButton(
-                                                  iconSize: 20,
-                                                  onPressed: () {
-                                                    {
-                                                      setState(() {
-                                                        selectedCheckBox = [];
-                                                        counterChecks = 0;
-                                                      });
-                                                      loadData();
-                                                    }
-                                                  },
-                                                  icon:
-                                                      Icon(Icons.close_rounded),
-                                                ),
-                                              )
-                                            : Container(),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 20),
-                                  Container(
-                                      padding: const EdgeInsets.only(
-                                          left: 5, right: 5),
-                                      child: Row(children: [
-                                        counterChecks > 0
-                                            ? Visibility(
-                                                visible: true,
-                                                child: ElevatedButton(
-                                                  onPressed: () async {
-                                                    // print(selectedCheckBox);
-                                                    await showDialog(
-                                                      context: context,
-                                                      builder: (context) =>
-                                                          showCopyProductToWarehouse(),
-                                                    );
-                                                  },
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    backgroundColor:
-                                                        Colors.blue[600],
-                                                  ),
-                                                  child: const Row(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: [
-                                                      Text(
-                                                        "Copiar",
-                                                        style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
-                                                      ),
-                                                      SizedBox(width: 5),
-                                                      Icon(
-                                                        Icons.copy,
-                                                        size: 24,
-                                                        color: Colors.white,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              )
-                                            : Container(),
-                                      ])),
-                                  const SizedBox(width: 30),
-                                  Expanded(child: numberPaginator()),
+                                  counterChecks > 0
+                                      ? Visibility(
+                                          visible: true,
+                                          child: IconButton(
+                                            iconSize: 20,
+                                            onPressed: () {
+                                              {
+                                                setState(() {
+                                                  selectedCheckBox = [];
+                                                  counterChecks = 0;
+                                                });
+                                                loadData();
+                                              }
+                                            },
+                                            icon: Icon(Icons.close_rounded),
+                                          ),
+                                        )
+                                      : Container(),
                                 ],
                               ),
                             ),
+                            const SizedBox(width: 20),
+                            Container(
+                                padding:
+                                    const EdgeInsets.only(left: 5, right: 5),
+                                child: Row(children: [
+                                  counterChecks > 0
+                                      ? Visibility(
+                                          visible: true,
+                                          child: ElevatedButton(
+                                            onPressed: () async {
+                                              // print(selectedCheckBox);
+                                              await showDialog(
+                                                context: context,
+                                                builder: (context) =>
+                                                    showCopyProductToWarehouse(),
+                                              );
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.blue[600],
+                                            ),
+                                            child: const Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Text(
+                                                  "Copiar",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                SizedBox(width: 5),
+                                                Icon(
+                                                  Icons.copy,
+                                                  size: 24,
+                                                  color: Colors.white,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      : Container(),
+                                ])),
+                            const SizedBox(width: 30),
+                            Expanded(child: numberPaginator()),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 10),
-                      Expanded(
-                        child: DataTable2(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(4)),
-                            border: Border.all(color: Colors.blueGrey),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.3),
-                                blurRadius: 4,
-                                spreadRadius: 2,
-                                offset: const Offset(0, 2),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Expanded(
+                  child: DataTable2(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: const BorderRadius.all(Radius.circular(4)),
+                      border: Border.all(color: Colors.blueGrey),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.3),
+                          blurRadius: 4,
+                          spreadRadius: 2,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    dataRowHeight: 120,
+                    dividerThickness: 1,
+                    dataRowColor: MaterialStateColor.resolveWith((states) {
+                      if (states.contains(MaterialState.selected)) {
+                      } else if (states.contains(MaterialState.hovered)) {
+                        return const Color.fromARGB(255, 234, 241, 251);
+                      }
+                      return const Color.fromARGB(0, 255, 255, 255);
+                    }),
+                    headingTextStyle: const TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.black),
+                    dataTextStyle: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black),
+                    columnSpacing: 12,
+                    // headingRowHeight: 80,
+                    horizontalMargin: 12,
+                    // minWidth: 3500,
+                    columns: [
+                      const DataColumn2(
+                        label: Text(''), //check
+                        size: ColumnSize.S,
+                      ),
+                      DataColumn2(
+                        label: const Text(''), //img
+                        size: ColumnSize.L,
+                        onSort: (columnIndex, ascending) {
+                          // sortFunc3("marca_t_i", changevalue);
+                        },
+                      ),
+                      DataColumn2(
+                        label: const Text('ID'),
+                        size: ColumnSize.S,
+                        onSort: (columnIndex, ascending) {
+                          // sortFunc3("numero_orden", changevalue);
+                        },
+                      ),
+                      DataColumn2(
+                        label: const Text('Nombre'),
+                        size: ColumnSize.M,
+                        onSort: (columnIndex, ascending) {
+                          // sortFunc3("ciudad_shipping", changevalue);
+                        },
+                      ),
+                      DataColumn2(
+                        label: const Text('Tipo'),
+                        size: ColumnSize.S,
+                        onSort: (columnIndex, ascending) {
+                          // sortFunc3("nombre_shipping", changevalue);
+                        },
+                      ),
+                      DataColumn2(
+                        label: const Text('Stock'),
+                        size: ColumnSize.S,
+                        onSort: (columnIndex, ascending) {
+                          // sortFunc3("direccion_shipping", changevalue);
+                        },
+                      ),
+                      DataColumn2(
+                        label: const Text('Precio Bodega'),
+                        size: ColumnSize.M,
+                        onSort: (columnIndex, ascending) {
+                          // sortFunc3("telefonoS_shipping", changevalue);
+                        },
+                      ),
+                      DataColumn2(
+                        label: const Text('Precio Sugerido'),
+                        size: ColumnSize.M,
+                        onSort: (columnIndex, ascending) {
+                          // sortFunc3("telefonoS_shipping", changevalue);
+                        },
+                      ),
+                      DataColumn2(
+                        label: const Text('Creado'),
+                        size: ColumnSize.M,
+                        onSort: (columnIndex, ascending) {
+                          // sortFunc3("cantidad_total", changevalue);
+                        },
+                      ),
+                      DataColumn2(
+                        label: const Text('Bodega'),
+                        size: ColumnSize.L,
+                        onSort: (columnIndex, ascending) {
+                          // sortFunc3("producto_p", changevalue);
+                        },
+                      ),
+                      DataColumn2(
+                        label: const Text('Aprobado'),
+                        size: ColumnSize.S,
+                        onSort: (columnIndex, ascending) {
+                          // sortFunc3("producto_extra", changevalue);
+                        },
+                      ),
+                      const DataColumn2(
+                        label: Text('Historial Stock'),
+                        size: ColumnSize.M,
+                      ),
+                      const DataColumn2(
+                        label: Text(''), //btns para crud
+                        size: ColumnSize.L,
+                      ),
+                    ],
+                    rows: List<DataRow>.generate(
+                      data.length,
+                      (index) => DataRow(
+                        cells: [
+                          DataCell(
+                            Checkbox(
+                              value: data[index]['check'] ?? false,
+                              onChanged: (value) {
+                                setState(() {
+                                  data[index]['check'] = value;
+                                });
+                                if (value!) {
+                                  selectedCheckBox.add({
+                                    "product_id":
+                                        data[index]['product_id'].toString()
+                                  });
+                                } else {
+                                  selectedCheckBox.removeWhere((element) =>
+                                      element['product_id'] ==
+                                      data[index]['id'].toString());
+                                }
+
+                                setState(() {
+                                  counterChecks = selectedCheckBox.length;
+                                });
+                              },
+                            ),
+                          ),
+                          DataCell(
+                            Align(
+                              alignment: Alignment.center,
+                              child: FractionallySizedBox(
+                                widthFactor: 0.6,
+                                heightFactor: 0.9,
+                                child: data[index]['url_img'] != null &&
+                                        data[index]['url_img'].isNotEmpty &&
+                                        data[index]['url_img'].toString() !=
+                                            "[]"
+                                    ? Image.network(
+                                        "$generalServer${getFirstUrl(data[index]['url_img'])}",
+                                        fit: BoxFit.fill,
+                                      )
+                                    : Container(),
+                              ),
+                            ),
+                            onTap: () {
+                              _showProductInfo(data[index]);
+                            },
+                          ),
+                          DataCell(
+                            Text(data[index]['product_id'].toString()),
+                          ),
+                          DataCell(
+                            Text(data[index]['product_name']),
+                          ),
+                          DataCell(Text(data[index]['isvariable'] == 1
+                              ? "VARIABLE"
+                              : "SIMPLE")),
+                          DataCell(
+                            Text(data[index]['stock'].toString()),
+                          ),
+                          DataCell(
+                            Text('\$${data[index]['price'].toString()}'),
+                          ),
+                          DataCell(
+                            Text(
+                                '\$${getValue(jsonDecode(data[index]['features']), "price_suggested")}'),
+                          ),
+                          DataCell(Text(//
+                              formatDate(
+                                  data[index]['created_at'].toString()))),
+                          DataCell(
+                            Text(data[index]['warehouse']['branch_name']
+                                .toString()),
+                          ),
+                          DataCell(
+                            data[index]['approved'] == 1
+                                ? const Icon(Icons.check_circle_rounded,
+                                    color: Colors.green)
+                                : data[index]['approved'] == 2
+                                    ? const Icon(Icons.hourglass_bottom_sharp,
+                                        color: Colors.indigo)
+                                    : const Icon(Icons.cancel_rounded,
+                                        color: Colors.red),
+                          ),
+                          DataCell(
+                            const Icon(Icons.list_alt_outlined,
+                                color: Colors.orange),
+                            onTap: () {
+                              _historyProductInfo(data[index]);
+                            },
+                          ),
+                          DataCell(Row(
+                            children: [
+                              const SizedBox(width: 10),
+                              GestureDetector(
+                                onTap: () async {
+                                  //edit
+                                  // showDialogInfoData(data[index]);
+
+                                  await showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return EditProduct(
+                                        data: data[index],
+                                        // function: paginateData,
+                                        hasEdited: hasEdited,
+                                      );
+                                    },
+                                  );
+
+                                  // arrayFiltersAnd.clear();
+                                  // await loadData();
+                                },
+                                child: const Icon(
+                                  Icons.edit_square,
+                                  size: 20,
+                                  color: Colors.blue,
+                                ),
+                              ),
+                              const SizedBox(width: 20),
+                              GestureDetector(
+                                onTap: () async {
+                                  AwesomeDialog(
+                                    width: 500,
+                                    context: context,
+                                    dialogType: DialogType.info,
+                                    animType: AnimType.rightSlide,
+                                    title:
+                                        '¿Estás seguro de eliminar el Producto?',
+                                    desc:
+                                        '${data[index]['product_id']}-${data[index]['product_name']}',
+                                    btnOkText: "Confirmar",
+                                    btnCancelText: "Cancelar",
+                                    btnOkColor: Colors.blueAccent,
+                                    btnCancelOnPress: () {},
+                                    btnOkOnPress: () async {
+                                      getLoadingModal(context, false);
+
+                                      // await Connections().deleteProduct(
+                                      //     data[index]['product_id']);
+
+                                      _productController.disableProduct(
+                                          data[index]['product_id']);
+
+                                      Navigator.pop(context);
+                                      await loadData();
+                                    },
+                                  ).show();
+                                },
+                                child: const Icon(
+                                  Icons.delete,
+                                  size: 20,
+                                  color: Colors.red,
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 10,
                               ),
                             ],
-                          ),
-                          dataRowHeight: 120,
-                          dividerThickness: 1,
-                          dataRowColor:
-                              MaterialStateColor.resolveWith((states) {
-                            if (states.contains(MaterialState.selected)) {
-                            } else if (states.contains(MaterialState.hovered)) {
-                              return const Color.fromARGB(255, 234, 241, 251);
-                            }
-                            return const Color.fromARGB(0, 255, 255, 255);
-                          }),
-                          headingTextStyle: const TextStyle(
-                              fontWeight: FontWeight.bold, color: Colors.black),
-                          dataTextStyle: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black),
-                          columnSpacing: 12,
-                          // headingRowHeight: 80,
-                          horizontalMargin: 12,
-                          // minWidth: 3500,
-                          columns: [
-                            const DataColumn2(
-                              label: Text(''), //check
-                              size: ColumnSize.S,
-                            ),
-                            DataColumn2(
-                              label: const Text(''), //img
-                              size: ColumnSize.L,
-                              onSort: (columnIndex, ascending) {
-                                // sortFunc3("marca_t_i", changevalue);
-                              },
-                            ),
-                            DataColumn2(
-                              label: const Text('ID'),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {
-                                // sortFunc3("numero_orden", changevalue);
-                              },
-                            ),
-                            DataColumn2(
-                              label: const Text('Nombre'),
-                              size: ColumnSize.M,
-                              onSort: (columnIndex, ascending) {
-                                // sortFunc3("ciudad_shipping", changevalue);
-                              },
-                            ),
-                            DataColumn2(
-                              label: const Text('Tipo'),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {
-                                // sortFunc3("nombre_shipping", changevalue);
-                              },
-                            ),
-                            DataColumn2(
-                              label: const Text('Stock'),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {
-                                // sortFunc3("direccion_shipping", changevalue);
-                              },
-                            ),
-                            DataColumn2(
-                              label: const Text('Precio Bodega'),
-                              size: ColumnSize.M,
-                              onSort: (columnIndex, ascending) {
-                                // sortFunc3("telefonoS_shipping", changevalue);
-                              },
-                            ),
-                            DataColumn2(
-                              label: const Text('Precio Sugerido'),
-                              size: ColumnSize.M,
-                              onSort: (columnIndex, ascending) {
-                                // sortFunc3("telefonoS_shipping", changevalue);
-                              },
-                            ),
-                            DataColumn2(
-                              label: const Text('Creado'),
-                              size: ColumnSize.M,
-                              onSort: (columnIndex, ascending) {
-                                // sortFunc3("cantidad_total", changevalue);
-                              },
-                            ),
-                            DataColumn2(
-                              label: const Text('Bodega'),
-                              size: ColumnSize.M,
-                              onSort: (columnIndex, ascending) {
-                                // sortFunc3("producto_p", changevalue);
-                              },
-                            ),
-                            DataColumn2(
-                              label: const Text('Aprobado'),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {
-                                // sortFunc3("producto_extra", changevalue);
-                              },
-                            ),
-                            const DataColumn2(
-                              label: Text('Historial Stock'),
-                              size: ColumnSize.S,
-                            ),
-                            const DataColumn2(
-                              label: Text(''), //btns para crud
-                              size: ColumnSize.S,
-                            ),
-                          ],
-                          rows: List<DataRow>.generate(
-                            data.length,
-                            (index) => DataRow(
-                              cells: [
-                                DataCell(
-                                  Checkbox(
-                                    value: data[index]['check'] ?? false,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        data[index]['check'] = value;
-                                      });
-                                      if (value!) {
-                                        selectedCheckBox.add({
-                                          "product_id": data[index]
-                                                  ['product_id']
-                                              .toString()
-                                        });
-                                      } else {
-                                        selectedCheckBox.removeWhere(
-                                            (element) =>
-                                                element['product_id'] ==
-                                                data[index]['id'].toString());
-                                      }
-
-                                      setState(() {
-                                        counterChecks = selectedCheckBox.length;
-                                      });
-                                    },
-                                  ),
-                                ),
-                                DataCell(
-                                  Align(
-                                    alignment: Alignment.center,
-                                    child: FractionallySizedBox(
-                                      widthFactor: 0.6,
-                                      heightFactor: 0.9,
-                                      child: data[index]['url_img'] != null &&
-                                              data[index]['url_img']
-                                                  .isNotEmpty &&
-                                              data[index]['url_img']
-                                                      .toString() !=
-                                                  "[]"
-                                          ? Image.network(
-                                              "$generalServer${getFirstUrl(data[index]['url_img'])}",
-                                              fit: BoxFit.fill,
-                                            )
-                                          : Container(),
-                                    ),
-                                  ),
-                                  onTap: () {
-                                    _showProductInfo(data[index]);
-                                  },
-                                ),
-                                DataCell(
-                                  Text(data[index]['product_id'].toString()),
-                                ),
-                                DataCell(
-                                  Text(data[index]['product_name']),
-                                ),
-                                DataCell(Text(data[index]['isvariable'] == 1
-                                    ? "VARIABLE"
-                                    : "SIMPLE")),
-                                DataCell(
-                                  Text(data[index]['stock'].toString()),
-                                ),
-                                DataCell(
-                                  Text('\$${data[index]['price'].toString()}'),
-                                ),
-                                DataCell(
-                                  Text(
-                                      '\$${getValue(jsonDecode(data[index]['features']), "price_suggested")}'),
-                                ),
-                                DataCell(Text(//
-                                    formatDate(
-                                        data[index]['created_at'].toString()))),
-                                DataCell(
-                                  Text(data[index]['warehouse']['branch_name']
-                                      .toString()),
-                                ),
-                                DataCell(
-                                  data[index]['approved'] == 1
-                                      ? const Icon(Icons.check_circle_rounded,
-                                          color: Colors.green)
-                                      : data[index]['approved'] == 2
-                                          ? const Icon(
-                                              Icons.hourglass_bottom_sharp,
-                                              color: Colors.indigo)
-                                          : const Icon(Icons.cancel_rounded,
-                                              color: Colors.red),
-                                ),
-                                DataCell(
-                                  const Icon(Icons.list_alt_outlined,
-                                      color: Colors.orange),
-                                  onTap: () {
-                                    _historyProductInfo(data[index]);
-                                  },
-                                ),
-                                DataCell(Row(
-                                  children: [
-                                    const SizedBox(width: 10),
-                                    GestureDetector(
-                                      onTap: () async {
-                                        //edit
-                                        // showDialogInfoData(data[index]);
-
-                                        await showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            return EditProduct(
-                                              data: data[index],
-                                              // function: paginateData,
-                                              hasEdited: hasEdited,
-                                            );
-                                          },
-                                        );
-
-                                        // arrayFiltersAnd.clear();
-                                        // await loadData();
-                                      },
-                                      child: const Icon(
-                                        Icons.edit_square,
-                                        size: 20,
-                                        color: Colors.blue,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 20),
-                                    GestureDetector(
-                                      onTap: () async {
-                                        AwesomeDialog(
-                                          width: 500,
-                                          context: context,
-                                          dialogType: DialogType.info,
-                                          animType: AnimType.rightSlide,
-                                          title:
-                                              '¿Estás seguro de eliminar el Producto?',
-                                          desc:
-                                              '${data[index]['product_id']}-${data[index]['product_name']}',
-                                          btnOkText: "Confirmar",
-                                          btnCancelText: "Cancelar",
-                                          btnOkColor: Colors.blueAccent,
-                                          btnCancelOnPress: () {},
-                                          btnOkOnPress: () async {
-                                            getLoadingModal(context, false);
-
-                                            // await Connections().deleteProduct(
-                                            //     data[index]['product_id']);
-
-                                            _productController.disableProduct(
-                                                data[index]['product_id']);
-
-                                            Navigator.pop(context);
-                                            await loadData();
-                                          },
-                                        ).show();
-                                      },
-                                      child: const Icon(
-                                        Icons.delete,
-                                        size: 20,
-                                        color: Colors.red,
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      width: 10,
-                                    ),
-                                  ],
-                                )),
-                              ],
-                            ),
-                          ),
-                          // ProductModel version
-                          /*
+                          )),
+                        ],
+                      ),
+                    ),
+                    // ProductModel version
+                    /*
                           rows: products.map<DataRow>(
                             (product) {
                               return DataRow(
@@ -893,15 +877,12 @@ class _ProductsViewState extends State<ProductsView> {
                           ).toList(),
                           //
                           */
-                        ),
-                      ),
-                    ],
                   ),
                 ),
-              ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -1709,7 +1690,7 @@ class _ProductsViewState extends State<ProductsView> {
                               columns: const [
                                 DataColumn2(
                                   label: Text('SKU'), //check
-                                  size: ColumnSize.S,
+                                  size: ColumnSize.M,
                                 ),
                                 DataColumn2(
                                   label: Text('Tipo'), //img
@@ -1724,11 +1705,11 @@ class _ProductsViewState extends State<ProductsView> {
                                   size: ColumnSize.S,
                                 ),
                                 DataColumn2(
-                                  label: Text('Stock Anterior'),
+                                  label: Text('Stock Actual'),
                                   size: ColumnSize.S,
                                 ),
                                 DataColumn2(
-                                  label: Text('Stock Actual'),
+                                  label: Text('Stock Anterior'),
                                   size: ColumnSize.S,
                                 ),
                                 DataColumn2(
@@ -1759,11 +1740,11 @@ class _ProductsViewState extends State<ProductsView> {
                                         dataHistory[index]['units'].toString()),
                                   ),
                                   DataCell(
-                                    Text(dataHistory[index]['last_stock']
+                                    Text(dataHistory[index]['current_stock']
                                         .toString()),
                                   ),
                                   DataCell(
-                                    Text(dataHistory[index]['current_stock']
+                                    Text(dataHistory[index]['last_stock']
                                         .toString()),
                                   ),
                                   DataCell(

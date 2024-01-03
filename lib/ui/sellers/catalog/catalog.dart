@@ -154,6 +154,7 @@ class _CatalogState extends State<Catalog> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+    // print(screenWidth);
 
     double textSize = screenWidth > 600 ? 16 : 12;
     double iconSize = screenWidth > 600 ? 70 : 25;
@@ -524,7 +525,7 @@ class _CatalogState extends State<Catalog> {
                                                                 .start,
                                                         children: [
                                                           Text(
-                                                            'Minimo:',
+                                                            'Mínimo:',
                                                             style: GoogleFonts
                                                                 .robotoCondensed(
                                                               fontSize: 16,
@@ -580,7 +581,7 @@ class _CatalogState extends State<Catalog> {
                                                                 .start,
                                                         children: [
                                                           Text(
-                                                            'Maximo:',
+                                                            'Máximo:',
                                                             style: GoogleFonts
                                                                 .robotoCondensed(
                                                               fontSize: 16,
@@ -859,7 +860,7 @@ class _CatalogState extends State<Catalog> {
                                                 ),
                                                 const SizedBox(width: 5),
                                                 Text(
-                                                  'Seleccionar Favoritos',
+                                                  'Favoritos',
                                                   style: GoogleFonts
                                                       .robotoCondensed(
                                                     fontSize: 16,
@@ -1018,7 +1019,7 @@ ra                                                  // print("clck Favoritos");
                                                 ),
                                                 const SizedBox(width: 5),
                                                 Text(
-                                                  'Seleccionar En Venta  ',
+                                                  'En Venta',
                                                   style: GoogleFonts
                                                       .robotoCondensed(
                                                     fontSize: 16,

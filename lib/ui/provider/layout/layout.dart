@@ -463,7 +463,7 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
             Text(
               "${email}",
               style: TextStyle(
-                color: Colors.black,
+                color: Colors.white,
               ),
             ),
             const Icon(
@@ -479,7 +479,7 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
             PopupMenuItem<String>(
               child: Text(
                 "Hola, ${username}",
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.grey[600]),
               ),
               enabled: false,
             ),
@@ -491,7 +491,7 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
                     color: Colors.black,
                   ),
                   SizedBox(width: 5),
-                  Text("Mi Cuenta Vendedor"),
+                  Text("Mi Cuenta Proveedor"),
                 ],
               ),
               value: "my_account",
@@ -619,8 +619,11 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
                               'Sub Proveedores',
                               Icon(Icons.supervisor_account,
                                   color: colorlabels)),
-                          _buildMenuItem('Agregar productos', 'Productos',
-                              Icon(Icons.article, color: colorlabels)),
+                          _buildMenuItem(
+                              'Agregar productos',
+                              'Productos',
+                              Icon(Icons.shopping_bag_rounded,
+                                  color: colorlabels)),
                           _buildMenuItem('Agregar bodegas', 'Bodegas',
                               Icon(Icons.warehouse, color: colorlabels)),
                         ]),
