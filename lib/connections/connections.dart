@@ -3045,12 +3045,12 @@ class Connections {
     return decodeData['data'];
   }
 
-  Future getOrdersSCalendar(id, month) async {
+  Future getOrdersSCalendar(id, month, year) async {
+    // print(json.encode({"mes": month, "year": year}));
     var request = await http.post(
         Uri.parse("$server/api/pedidos/filter/transporter/$id"),
         headers: {'Content-Type': 'application/json'},
-        body: json
-            .encode({"mes": month, "year": DateTime.now().year.toString()}));
+        body: json.encode({"mes": month, "year": year}));
     var response = await request.body;
     var decodeData = json.decode(response);
     return decodeData['data'];

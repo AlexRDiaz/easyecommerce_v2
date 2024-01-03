@@ -144,7 +144,7 @@ class _ProofPaymentState2 extends State<ProofPayment2> {
     var endYear = 0;
 
     if (selectedYear != null) {
-      endYear = selectedYear + 5;
+      endYear = selectedYear;
 
       for (int i = startYear; i <= endYear; i++) {
         years.add(i.toString());
