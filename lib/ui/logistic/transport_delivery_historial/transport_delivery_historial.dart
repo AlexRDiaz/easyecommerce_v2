@@ -123,6 +123,7 @@ class _TransportDeliveryHistorialState
   NumberPaginatorController paginatorController = NumberPaginatorController();
 
   TextEditingController codigoController = TextEditingController(text: "");
+  TextEditingController idPedidoController = TextEditingController(text: "");
   TextEditingController marcaTiController = TextEditingController(text: "");
   TextEditingController fechaController = TextEditingController(text: "");
   TextEditingController ciudadShippingController =
@@ -580,6 +581,14 @@ class _TransportDeliveryHistorialState
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
                           sortFunc("Fecha");
+                        },
+                      ),
+                      DataColumn2(
+                        label: InputFilter('Id Pedido', 'IdPedido',
+                            idPedidoController, '/id'),
+                        size: ColumnSize.M,
+                        onSort: (columnIndex, ascending) {
+                          sortFunc("IdPedido");
                         },
                       ),
                       DataColumn2(
@@ -1601,6 +1610,15 @@ class _TransportDeliveryHistorialState
       DataCell(
           Text(
             data[index]['marca_t_i'].toString().split(' ')[0].toString(),
+            style: TextStyle(
+              color: rowColor,
+            ),
+          ), onTap: () {
+        showDialogInfoData(data[index]);
+      }),
+      DataCell(
+          Text(
+            data[index]['id'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
