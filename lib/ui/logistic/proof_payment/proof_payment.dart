@@ -34,6 +34,9 @@ class _ProofPaymentState extends State<ProofPayment> {
   List dataGeneral = [];
   var dateSelect;
   List datares = [];
+  List<String> yearsToSelect = [];
+  String currentYear = DateTime.now().year.toString();
+  String? selectedValueYear;
 
   @override
   void didChangeDependencies() {
@@ -47,7 +50,8 @@ class _ProofPaymentState extends State<ProofPayment> {
     List daysM = [];
     var response = await Connections().getOrdersSCalendar(
         selectedValueTransportator.toString().split("-")[1].toString(),
-        selectedValueMonth.toString());
+        selectedValueMonth.toString(),
+        selectedValueYear.toString());
     setState(() {
       if (response != null) {
         dataGeneral = response;
@@ -199,6 +203,19 @@ class _ProofPaymentState extends State<ProofPayment> {
       setState(() {});
     }
 
+    yearsToSelect.clear();
+    var selectedYear = int.parse(currentYear);
+    var startYear = 2023;
+    var endYear = 0;
+    // print("selectedYear: $selectedYear");
+    if (selectedYear != null) {
+      endYear = selectedYear;
+      selectedValueYear = currentYear;
+      for (int i = startYear; i <= endYear; i++) {
+        yearsToSelect.add(i.toString());
+      }
+    }
+
     transportatorList = await Connections().getAllTransportators();
     for (var i = 0; i < transportatorList.length; i++) {
       setState(() {
@@ -299,6 +316,40 @@ class _ProofPaymentState extends State<ProofPayment> {
                         selectedValueMonth = value as String;
                         sharedPrefs!
                             .setString("mesComprobante", value as String);
+                      });
+                    },
+
+                    //This to clear the search value when you close the menu
+                    onMenuStateChange: (isOpen) {
+                      if (!isOpen) {}
+                    },
+                  ),
+                ),
+                DropdownButtonHideUnderline(
+                  child: DropdownButton2<String>(
+                    isExpanded: true,
+                    hint: Text(
+                      'AÑO',
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(context).hintColor,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    items: yearsToSelect
+                        .map((item) => DropdownMenuItem(
+                              value: item,
+                              child: Text(
+                                item,
+                                style: const TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.bold),
+                              ),
+                            ))
+                        .toList(),
+                    value: selectedValueYear,
+                    onChanged: (value) async {
+                      setState(() {
+                        selectedValueYear = value as String;
+                        // print('selectedValueYear: $selectedValueYear');
                       });
                     },
 
