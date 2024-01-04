@@ -390,6 +390,11 @@ class _AuditState extends State<Audit> {
                           minWidth: 2500,
                           columns: [
                             DataColumn2(
+                              label: Text("Id Pedido"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
                               label: SelectFilter(
                                   'Tienda',
                                   'equals/id_comercial',
@@ -607,6 +612,11 @@ class _AuditState extends State<Audit> {
                           minWidth: 2500,
                           columns: [
                             DataColumn2(
+                              label: Text("Id Pedido"),
+                              size: ColumnSize.S,
+                              onSort: (columnIndex, ascending) {},
+                            ),
+                            DataColumn2(
                               label: SelectFilter(
                                   'Tienda',
                                   'equals/id_comercial',
@@ -799,6 +809,15 @@ class _AuditState extends State<Audit> {
   List<DataCell> getRows(index) {
     Color rowColor = Colors.black;
     return [
+      DataCell(
+          Text(
+            data[index]['id'].toString(),
+            style: TextStyle(
+              color: rowColor,
+            ),
+          ), onTap: () {
+        info(context, index);
+      }),
       DataCell(
           Text(
             data[index]['users'][0]['vendedores'][0]['nombre_comercial'],
