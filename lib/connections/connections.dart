@@ -7041,17 +7041,27 @@ class Connections {
     }
   }
 
-  updateProductVariantStock(skuProduct, quantity) async {
+  updateProductVariantStock(skuProduct, quantity, type, idComercial) async {
     try {
-      var response = await http.post(
-          Uri.parse("$serverLaravel/api/products/updatestock"),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({"sku_product": skuProduct, "quantity": quantity}));
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/products/updatestock"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "sku_product": skuProduct,
+                "quantity": quantity,
+                "type": type,
+                "id_comercial": idComercial
+              }));
 
-      if (response.statusCode != 200) {
-        return 1;
-      } else {
+      if (response.statusCode == 200) {
         return 0;
+      } else {
+        var responseData = json.decode(response.body);
+        if (responseData.containsKey('message')) {
+          String errorMessage = responseData['message'];
+          return errorMessage;
+        }
+        return 1;
       }
     } catch (e) {
       return 2;
