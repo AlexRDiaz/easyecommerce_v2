@@ -229,8 +229,9 @@ class _AddCarrierModalState extends State<AddCarrierModal> {
                             await Connections().generateCodeAccount(
                           _correo.text,
                         );
-                        var accesofRol = await Connections().getAccessofSpecificRol("TRANSPORTADOR");
-                        
+                        var accesofRol = await Connections()
+                            .getAccessofSpecificRol("TRANSPORTADOR");
+
                         var responseCreateGeneral = await Connections()
                             .createTransporterGeneral(_usuario.text, listaFinal,
                                 _costo.text, _telefono.text, _telefono2.text);

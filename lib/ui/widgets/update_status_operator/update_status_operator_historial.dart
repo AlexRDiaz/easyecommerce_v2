@@ -546,14 +546,14 @@ class _UpdateStatusOperatorHistorialState
     dialogEntregado(resDelivered);
   }
 
-  Future<void> paymentNoEntregado(datane) async {
+  Future<void> paymentNoEntregado(datane, comentario) async {
     var response = await Connections().postDoc(imageSelect!);
     var resDelivered = await Connections().paymentOrderNotDelivered(
         datane['users'][0]['vendedores'][0]['id_master'],
         datane['users'][0]['vendedores'][0]['costo_envio'],
         datane['id'],
         "${datane['name_comercial']}-${datane['numero_orden']}",
-        _controllerModalText.text,
+        comentario,
         response[1]);
 
     dialogNoEntregado(resDelivered);
@@ -666,7 +666,7 @@ class _UpdateStatusOperatorHistorialState
                       var datane = await Connections()
                           .getOrderByIDHistoryLaravel(widget.id);
 
-                      paymentNoEntregado(datane);
+                      paymentNoEntregado(datane, _controllerModalText.text);
 
                       // var today = DateTime.now().toString().split(' ')[0];
                       // var getTransaccion = await Connections()

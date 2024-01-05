@@ -1,6 +1,9 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/ui/widgets/custom_dropdown_menu.dart';
 import 'package:frontend/ui/widgets/providers/pin_input.dart';
 
 class Withdrawal extends StatefulWidget {
@@ -11,110 +14,97 @@ class Withdrawal extends StatefulWidget {
 }
 
 class _WithdrawalState extends State<Withdrawal> {
-  List<Map> listToRollback = [];
   TextEditingController withdrawal = TextEditingController();
   bool isLoading = false;
   String responseWithdrawal = "";
   String code = "";
-
+  int accountId = 0;
+  List accounts = [];
   bool enableBoxTransaction = false;
+  List<String> selectedItems = [];
+  String _selectedValue =
+      ''; // Declara una variable para almacenar el valor seleccionado
+
+  @override
+  void initState() {
+    loadData();
+    super.initState();
+  }
+
+  loadData() async {
+    var request = await Connections().getAccountData();
+
+    setState(() {
+      accounts = request;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        padding: EdgeInsets.all(10),
-        child: Column(children: [
-          Container(
-              padding: EdgeInsets.all(10),
-              child: const Text("Ingrese el monto a retirar")),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width * 0.3,
-                child: TextField(
-                  controller: withdrawal,
-                  decoration: InputDecoration(
-                    fillColor:
-                        Colors.white, // Color del fondo del TextFormField
-                    filled: true,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ),
-                  // onChanged: (value) {
-                  //   idRollbackTransaction.text = value;
-                  // },
-                ),
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          solicitarButton(context),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // listToRollback.isNotEmpty
-              //     ?
-              Visibility(
-                visible: enableBoxTransaction,
-                child: Container(
-                    height: 200,
-                    width: MediaQuery.of(context).size.width / 2,
-                    child: ListView.builder(
-                      itemCount: listToRollback.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Container(
-                            padding: EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              border:
-                                  Border.all(color: Colors.blueGrey), // Borde
-                              borderRadius: BorderRadius.circular(
-                                  10), // Bordes redondeados
+      appBar: AppBar(
+        title: Text("Solicitud de retiro"),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          keyboardType: TextInputType.number,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          decoration: InputDecoration(
+                            labelText: 'Ingrese cantidad a retirar',
+                            hintText: 'Ingrese aquí',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
                             ),
-                            child: Row(
-                              children: [
-                                Text(listToRollback[index]["tipo"].toString()),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Text(listToRollback[index]["monto"].toString()),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Text(listToRollback[index]["comentario"]
-                                    .toString()),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Text(
-                                    listToRollback[index]["codigo"].toString()),
-                              ],
-                            ),
+                            filled: true,
+                            fillColor: Colors.grey[200],
+                            prefixIcon: Icon(Icons.attach_money),
                           ),
-                          onTap: () {
-                            // Acción al tocar el elemento
-                          },
-                        );
-                      },
-                    )),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  CustomDropdownMenu(
+                    items: accounts,
+                    hintText: "Cuenta",
+                    onValueChanged: (value) {},
+                  ),
+                  SizedBox(height: 40),
+                ],
               ),
-              Visibility(
-                  visible: !enableBoxTransaction,
-                  child: Center(child: Text(responseWithdrawal))),
-              listToRollback.isNotEmpty
-                  ? TextButton(
-                      onPressed: () => sendWithdrawal(),
-                      child: Text("Restaurar"))
-                  : Container()
-            ],
-          )
-        ]),
+            ),
+          ),
+          Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: solicitarButton(context)),
+        ],
       ),
     );
+  }
+
+  List<String> getItems() {
+    // List<Map<String, dynamic>> accounts = [
+    //   {'names': 'Alex'},
+    //   {'names': 'John'},
+    //   {'names': 'Sarah'},
+    //   // Otros elementos
+    // ];
+    List<String> arrayItems =
+        accounts.map((account) => account['names'].toString()).toList();
+    return arrayItems;
   }
 
   void sendWithdrawal() async {
@@ -179,12 +169,12 @@ class _WithdrawalState extends State<Withdrawal> {
 
   SizedBox solicitarButton(BuildContext context) {
     return SizedBox(
-      width: 200, // Ancho deseado para el botón
+      // Ancho deseado para el botón
       child: ElevatedButton(
         onPressed: () => sendWithdrawal(),
         style: ElevatedButton.styleFrom(
-          primary: Colors.white,
-          onPrimary: Colors.blue,
+          primary: const Color.fromRGBO(0, 200, 83, 1),
+          onPrimary: Colors.white,
           padding:
               const EdgeInsets.only(top: 15, bottom: 15, left: 10, right: 10),
           textStyle: const TextStyle(fontSize: 18),
@@ -201,7 +191,7 @@ class _WithdrawalState extends State<Withdrawal> {
                     width: 20, // Ancho deseado para el indicador circular
                     height: 20, // Altura deseada para el indicador circular
                     child: CircularProgressIndicator(
-                      color: Colors.blue,
+                      color: Colors.white,
                       strokeWidth:
                           4, // Ancho de la línea del indicador circular
                       // Color del indicador circular
