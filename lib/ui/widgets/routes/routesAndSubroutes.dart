@@ -14,10 +14,8 @@ class RoutesandSubroutesModalv2 extends StatefulWidget {
   final String phoneClient;
   final String codigo;
   final String origin;
-  // final String? skuProduct;
-  // final String? quantity;
-  // final String? type;
-  // final String? idComercial;
+  final String? skuProduct;
+  final String? quantity;
 
   const RoutesandSubroutesModalv2(
       {super.key,
@@ -26,11 +24,8 @@ class RoutesandSubroutesModalv2 extends StatefulWidget {
       required this.phoneClient,
       required this.codigo,
       required this.origin,
-      // this.skuProduct,
-      // this.quantity,
-      // this.type,
-      // this.idComercial
-      });
+      this.skuProduct,
+      this.quantity});
 
   @override
   State<RoutesandSubroutesModalv2> createState() => _RoutesModalStatev2();
@@ -133,6 +128,10 @@ class _RoutesModalStatev2 extends State<RoutesandSubroutesModalv2> {
       setState(() {
         subroutes = subroutesList.map((route) => '$route').toList();
       });
+    }
+
+    if (subroutes.isEmpty) {
+      subroutes = ["N.A-9999"];
     }
 
     Future.delayed(Duration(milliseconds: 500), () {
@@ -468,20 +467,17 @@ class _RoutesModalStatev2 extends State<RoutesandSubroutesModalv2> {
                         sendMessage(widget.phoneClient, widget.codigo);
                       }
 
-                      // if (widget.origin == "order_entry") {
-                      //   var responsereduceStock = await Connections()
-                      //       .updateProductVariantStock(
-                      //           widget.skuProduct,
-                      //           widget.quantity,
-                      //           widget.type,
-                      //           widget.idComercial);
+                      if (widget.origin == "order_entry") {
+                        var responsereduceStock = await Connections()
+                            .updateProductVariantStock(
+                                widget.skuProduct, widget.quantity);
 
-                      //   if (responsereduceStock == 0) {
-                      //     print(true);
-                      //   } else {
-                      //     print(false);
-                      //   }
-                      // }
+                        if (responsereduceStock == 0) {
+                          print(true);
+                        } else {
+                          print(false);
+                        }
+                      }
 
                       setState(() {});
                       Navigator.pop(context);
