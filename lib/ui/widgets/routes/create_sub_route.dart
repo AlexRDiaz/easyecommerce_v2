@@ -30,7 +30,8 @@ class _CreateSubRoutesModalState extends State<CreateSubRoutesModal> {
       getLoadingModal(context, false);
     });
 
-    routesList = await Connections().getRoutesForTransporter();
+    routesList =
+        await Connections().getRoutesForTransporter(widget.idTransport);
 
     for (var i = 0; i < routesList.length; i++) {
       setState(() {

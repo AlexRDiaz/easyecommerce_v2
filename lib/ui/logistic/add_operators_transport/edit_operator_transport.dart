@@ -13,14 +13,14 @@ import 'package:frontend/ui/widgets/routes/create_sub_route.dart';
 import 'package:get/route_manager.dart';
 import 'package:frontend/helpers/server.dart';
 
-class EditOperatorTransport extends StatefulWidget {
-  const EditOperatorTransport({super.key});
+class EditOperatorLogistic extends StatefulWidget {
+  const EditOperatorLogistic({super.key});
 
   @override
-  State<EditOperatorTransport> createState() => _EditOperatorTransportState();
+  State<EditOperatorLogistic> createState() => _EditOperatorLogisticState();
 }
 
-class _EditOperatorTransportState extends State<EditOperatorTransport> {
+class _EditOperatorLogisticState extends State<EditOperatorLogistic> {
   AddOperatorsTransportControllers _controllers =
       AddOperatorsTransportControllers();
   List<String> subRoutes = [];
@@ -45,27 +45,42 @@ class _EditOperatorTransportState extends State<EditOperatorTransport> {
     setState(() {
       subRoutes = [];
     });
-    // routesList = await Connections().getSubRoutes();
-    routesList = await Connections().getSubroutesByTransportadoraId(
-        sharedPrefs!.getString("idTransportadora").toString());
 
-    for (var i = 0; i < routesList.length; i++) {
-      setState(() {
-        subRoutes.add('${routesList[i]}');
-      });
-    }
+    // routesList = await Connections().getSubRoutes();
+    // data['id_Transportadora']
+
     var response = await Connections().getOperatorsGeneralByID();
     data = response;
+    print(data);
     idUser = data["id"];
     accessTemp = data['PERMISOS'];
     accessGeneralofRol = await Connections().getAccessofRolById(4);
+
+    routesList = await Connections().getSubroutesByTransportadoraId(
+        data['operadore']['transportadora']['id']);
+    if (routesList.isNotEmpty) {
+      var specificItem =
+          '${response['operadore']['sub_ruta']['Titulo']}-${response['operadore']['sub_ruta']['id']}';
+      for (var i = 0; i < routesList.length; i++) {
+        setState(() {
+          subRoutes.add('${routesList[i]}');
+        });
+      }
+      if (!subRoutes.contains(specificItem)) {
+        subRoutes.add(specificItem);
+      }
+    } else {
+      subRoutes.add(
+          '${response['operadore']['sub_ruta']['Titulo']}-${response['operadore']['sub_ruta']['id']}');
+    }
 
     _controllers.updateControllersEdit(response);
     setState(() {
       selectedValueRoute =
           '${response['operadore']['sub_ruta']['Titulo']}-${response['operadore']['sub_ruta']['id']}';
     });
-    Future.delayed(Duration(milliseconds: 500), () {
+
+    Future.delayed(const Duration(milliseconds: 500), () {
       Navigator.pop(context);
     });
 
@@ -80,12 +95,11 @@ class _EditOperatorTransportState extends State<EditOperatorTransport> {
         backgroundColor: Colors.white,
         leading: GestureDetector(
             onTap: () {
-              Navigators()
-                  .pushNamedAndRemoveUntil(context, "/layout/transport");
+              Navigators().pushNamedAndRemoveUntil(context, "/layout/logistic");
             },
-            child: Icon(Icons.arrow_back_ios, color: Colors.black)),
+            child: const Icon(Icons.arrow_back_ios, color: Colors.black)),
         centerTitle: true,
-        title: Text(
+        title: const Text(
           "Información",
           style: TextStyle(
               fontWeight: FontWeight.bold, color: Colors.black, fontSize: 20),
@@ -101,19 +115,20 @@ class _EditOperatorTransportState extends State<EditOperatorTransport> {
             children: [
               Column(
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     height: 10,
                   ),
                   Text(
                     "Bloqueado: ${data["blocked"].toString()}",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 17),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 30,
                   ),
                   _modelTextFieldComplete(
                       "Usuario", _controllers.userEditController),
-                  SizedBox(
+                  const SizedBox(
                     height: 10,
                   ),
                   TextButton(
@@ -122,8 +137,8 @@ class _EditOperatorTransportState extends State<EditOperatorTransport> {
                             context: context,
                             builder: (context) {
                               return CreateSubRoutesModal(
-                                idTransport: sharedPrefs!
-                                    .getString("idTransportadora")
+                                idTransport: data['operadore']['transportadora']
+                                        ['id']
                                     .toString(),
                               );
                             });
@@ -131,11 +146,11 @@ class _EditOperatorTransportState extends State<EditOperatorTransport> {
 
                         setState(() {});
                       },
-                      child: Text(
+                      child: const Text(
                         "CREAR SUBRUTA",
                         style: TextStyle(fontWeight: FontWeight.bold),
                       )),
-                  SizedBox(
+                  const SizedBox(
                     height: 10,
                   ),
                   DropdownButtonHideUnderline(
@@ -174,7 +189,7 @@ class _EditOperatorTransportState extends State<EditOperatorTransport> {
                       },
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 20,
                   ),
                   _modelTextFieldComplete(
@@ -250,15 +265,15 @@ class _EditOperatorTransportState extends State<EditOperatorTransport> {
                       },
                       style: ElevatedButton.styleFrom(
                           backgroundColor: colors.colorGreen),
-                      child: Text(
+                      child: const Text(
                         "Actualizar Datos",
                         style: TextStyle(fontWeight: FontWeight.bold),
                       )),
-                  SizedBox(
+                  const SizedBox(
                     height: 20,
                   ),
                   _modelTextFieldComplete("Contraseña", _password),
-                  SizedBox(
+                  const SizedBox(
                     height: 10,
                   ),
                   ElevatedButton(
@@ -284,25 +299,25 @@ class _EditOperatorTransportState extends State<EditOperatorTransport> {
                       },
                       style: ElevatedButton.styleFrom(
                           backgroundColor: colors.colorGreen),
-                      child: Text(
+                      child: const Text(
                         "Actualizar Contraseña",
                         style: TextStyle(fontWeight: FontWeight.bold),
                       )),
-                  SizedBox(
+                  const SizedBox(
                     height: 20,
                   ),
-                  Text(
+                  const Text(
                     "Accesos",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                   ),
                   Container(
-                    margin: EdgeInsets.all(20.0),
+                    margin: const EdgeInsets.all(20.0),
                     height: 500,
                     width: 500,
                     decoration: BoxDecoration(
                         border: Border.all(
                             width: 1.0,
-                            color: Color.fromARGB(255, 224, 222, 222)),
+                            color: const Color.fromARGB(255, 224, 222, 222)),
                         borderRadius: BorderRadius.circular(10.0)),
                     child: Builder(
                       builder: (context) {
@@ -315,7 +330,7 @@ class _EditOperatorTransportState extends State<EditOperatorTransport> {
                       },
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 30,
                   ),
                 ],
@@ -334,13 +349,13 @@ class _EditOperatorTransportState extends State<EditOperatorTransport> {
       children: [
         Text(
           title,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
         ),
-        SizedBox(
+        const SizedBox(
           height: 10,
         ),
         _modelTextField(controller: controller),
-        SizedBox(
+        const SizedBox(
           height: 20,
         ),
       ],
@@ -356,16 +371,16 @@ class _EditOperatorTransportState extends State<EditOperatorTransport> {
         children: [
           Text(
             title,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
           ),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           Text(
             text,
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
         ],
@@ -378,23 +393,23 @@ class _EditOperatorTransportState extends State<EditOperatorTransport> {
       width: 500,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10.0),
-        color: Color.fromARGB(255, 245, 244, 244),
+        color: const Color.fromARGB(255, 245, 244, 244),
       ),
       child: TextField(
         controller: controller,
         onChanged: (value) {
           setState(() {});
         },
-        style: TextStyle(fontWeight: FontWeight.bold),
+        style: const TextStyle(fontWeight: FontWeight.bold),
         decoration: InputDecoration(
           enabledBorder: OutlineInputBorder(
-            borderSide:
-                BorderSide(width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
+            borderSide: const BorderSide(
+                width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
             borderRadius: BorderRadius.circular(10.0),
           ),
           focusedBorder: OutlineInputBorder(
-            borderSide:
-                BorderSide(width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
+            borderSide: const BorderSide(
+                width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
             borderRadius: BorderRadius.circular(10.0),
           ),
           focusColor: Colors.black,

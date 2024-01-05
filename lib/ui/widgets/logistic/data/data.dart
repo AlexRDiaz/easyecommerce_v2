@@ -40,7 +40,10 @@ List optionsLogistic = [
   {"name": "Cambiar Contraseña", "icon": Icons.security},
   {"name": "Configuración de Roles", "icon": Icons.new_releases_outlined},
   {"name": "Novedades", "icon": Icons.warning_amber_outlined},
-
+  {
+    "name": "Configuración General Transporte",
+    "icon": Icons.emoji_transportation
+  },
   {"name": "Cerrar Sesión", "icon": Icons.logout_outlined},
 ];
 
@@ -113,5 +116,4 @@ List optionsProvider = [
   {"name": "Imprimir Guías", "icon": Icons.print_outlined},
   {"name": "Guías Impresas", "icon": Icons.print},
   {"name": "Guías Enviadas", "icon": Icons.send_outlined},
-
 ];

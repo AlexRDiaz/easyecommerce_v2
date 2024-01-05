@@ -2950,10 +2950,10 @@ class Connections {
     return decodeData['data'];
   }
 
-  Future getRoutesForTransporter() async {
+  Future getRoutesForTransporter(idTransport) async {
     var request = await http.get(
       Uri.parse(
-          "$server/api/rutas?populate=transportadoras&populate=sub_rutas&filters[transportadoras][id][\$eq]=${sharedPrefs!.getString("idTransportadora").toString()}&pagination[limit]=-1"),
+          "$server/api/rutas?populate=transportadoras&populate=sub_rutas&filters[transportadoras][id][\$eq]=$idTransport&pagination[limit]=-1"),
       headers: {'Content-Type': 'application/json'},
     );
     var response = await request.body;
@@ -7256,6 +7256,106 @@ class Connections {
         return 1;
       } else {
         return 0;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  getSubroutesByTransportadoraId(id) async {
+    List<String> auxi = [];
+    try {
+      var response = await http.get(
+          Uri.parse("$serverLaravel/api/subrutas/bytransport/$id"),
+          headers: {'Content-Type': 'application/json'});
+
+      if (response.statusCode != 200) {
+        return auxi;
+      } else {
+        return json.decode(response.body);
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  // ! principal para la vista de agregar operadores en transportadora
+
+  getOperatorsTransportLaravel(
+      List filtersAnd, List filtersOr, searchValue, List defaultAnd) async {
+    List filtersAndAll = [];
+    filtersAndAll.addAll(filtersAnd);
+
+    filtersAndAll.addAll(defaultAnd);
+    print(json.encode(
+        {"and": filtersAndAll, "or": filtersOr, "searchValue": searchValue}));
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/operadoresoftransport"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "and": filtersAndAll,
+            "or": filtersOr,
+            "searchValue": searchValue
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData['data'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  getActiveTransportadoras() async {
+    try {
+      var response = await http.get(
+        Uri.parse("$serverLaravel/api/active/transportadoras"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      // var decodeData = json.decode(response);
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+  getSubRoutesID() async {
+    try {
+      var response = await http.get(
+          Uri.parse("$serverLaravel/api/subrutas/withid"),
+          headers: {'Content-Type': 'application/json'});
+
+      if (response.statusCode != 200) {
+        return 1;
+      } else {
+        return json.decode(response.body);
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  getOperatorsAvailables() async {
+    try {
+      var response = await http.get(Uri.parse("$serverLaravel/api/operators"),
+          headers: {'Content-Type': 'application/json'});
+
+      if (response.statusCode != 200) {
+        return 1;
+      } else {
+        var result = json.decode(response.body);
+        return result['data'];
       }
     } catch (e) {
       return 2;
