@@ -1378,6 +1378,10 @@ ra                                                  // print("clck Favoritos");
           //   leading: Container(),
           //   centerTitle: true,
           // ),
+          shape: RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(0.0), // Establece el radio del borde a 0
+          ),
           content: Container(
             child: SizedBox(
               width: MediaQuery.of(context).size.width,

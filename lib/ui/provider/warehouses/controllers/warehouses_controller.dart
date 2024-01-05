@@ -55,6 +55,14 @@ class WrehouseController extends ControllerMVC {
     await loadWarehouses(sharedPrefs!.getString("idProvider").toString());
   }
 
+  upate(int warehouseId, json) async {
+    await Connections().updateWarehouseReq(warehouseId, json);
+    setState(() {
+      // warehouses.removeWhere((warehouse) => warehouse.id == warehouseId);
+    });
+    // await loadWarehouses(sharedPrefs!.getString("idProvider").toString());
+  }
+
   Future<void> loadWarehouses(idProvider) async {
     try {
       var data =

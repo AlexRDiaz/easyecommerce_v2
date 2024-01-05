@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:frontend/config/colors.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:frontend/ui/logistic/add_provider/add_provider.dart';
+import 'package:frontend/ui/logistic/add_provider/approve_products.dart';
+import 'package:frontend/ui/logistic/add_provider/approve_warehouses.dart';
 import 'package:frontend/ui/logistic/add_provider/controllers/provider_controller.dart';
 import 'package:frontend/ui/logistic/add_provider/edit_provider.dart';
+import 'package:frontend/ui/logistic/add_provider/layout_approve.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class ProviderView extends StatefulWidget {
@@ -59,13 +62,45 @@ class _ProviderViewState extends State<ProviderView> {
     });
   }
 
+  approveDialog(provider) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          // return AlertDialog(
+          //   content: Container(
+          //     width: MediaQuery.of(context).size.width * 0.95,
+          //     child: LayoutApprovePage(provider: provider),
+          //   ),
+          // );
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(
+                  0.0), // Establece el radio del borde a 0
+            ),
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.95,
+              child: LayoutApprovePage(provider: provider),
+            ),
+          );
+        }).then((value) {
+      if (edited) {
+        setState(() {
+          //   //_futureProviderData = _loadProviders(); // Actualiza el Future
+        });
+      }
+      setState(() {
+        _getProviderModelData();
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.only(
-            left: MediaQuery.of(context).size.width * 0.2,
-            right: MediaQuery.of(context).size.width * 0.2),
+            left: MediaQuery.of(context).size.width * 0.1,
+            right: MediaQuery.of(context).size.width * 0.1),
         child: Column(
           children: [
             Padding(
@@ -104,6 +139,7 @@ class _ProviderViewState extends State<ProviderView> {
                 } else {
                   final providerModelDataSource = ProviderModelDataSource(
                     editProviderDialog: editProviderDialog,
+                    approveDialog: approveDialog,
                     providers: snapshot.data!,
                   );
 
@@ -352,9 +388,12 @@ class _ProviderViewState extends State<ProviderView> {
 
 class ProviderModelDataSource extends DataGridSource {
   final Function(dynamic) editProviderDialog;
+  final Function(dynamic) approveDialog;
+
   ProviderModelDataSource(
       {required List<ProviderModel> providers,
-      required this.editProviderDialog}) {
+      required this.editProviderDialog,
+      required this.approveDialog}) {
     _providersData = providers
         .map<DataGridRow>((e) => DataGridRow(cells: [
               DataGridCell<String>(columnName: 'name', value: e.name),
@@ -401,14 +440,26 @@ class ProviderModelDataSource extends DataGridSource {
                 },
               ),
             ),
-            SizedBox(
-              child: IconButton(
-                icon: Icon(Icons.store),
-                onPressed: () {
-                  // Lógica para eliminar la fila correspondiente
-                },
+            // SizedBox(
+            //   child: IconButton(
+            //     icon: Icon(Icons.check_box),
+            //     onPressed: () {
+            //       approveDialog(e.value);
+            //     },
+            //   ),
+            // )
+            TextButton(
+              onPressed: () async {
+                approveDialog(e.value);
+              },
+              child: const Row(
+                children: [
+                  // Icon(Icons.image),
+                  SizedBox(width: 10),
+                  Text('Aprobaciones'),
+                ],
               ),
-            )
+            ),
           ],
         );
         // IconButton(
