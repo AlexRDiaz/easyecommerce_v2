@@ -6575,7 +6575,7 @@ class Connections {
   getProvidersAll() async {
     try {
       var response = await http.get(
-        Uri.parse("$serverLaravel/api/providers/all"),
+        Uri.parse("$serverLaravel/api/providers/nofilter"),
         headers: {'Content-Type': 'application/json'},
       );
       if (response.statusCode == 200) {

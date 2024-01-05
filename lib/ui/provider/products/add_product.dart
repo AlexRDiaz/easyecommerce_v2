@@ -109,6 +109,11 @@ class _AddProductState extends State<AddProduct> {
   List<Map<String, dynamic>> reservasToSend = [];
   String? chosenVariantToReserv;
 
+  //input variants
+  final TextEditingController _sizeController = TextEditingController();
+  final TextEditingController _colorController = TextEditingController();
+  final TextEditingController _dimensionController = TextEditingController();
+
   bool containsEmoji(String text) {
     final emojiPattern = RegExp(
         r'[\u2000-\u3300]|[\uD83C][\uDF00-\uDFFF]|[\uD83D][\uDC00-\uDE4F]'
@@ -127,7 +132,8 @@ class _AddProductState extends State<AddProduct> {
   }
 
   Future<List<WarehouseModel>> _getWarehousesData() async {
-    await _warehouseController.loadWarehouses(); //byprovider loged
+    await _warehouseController.loadWarehouses(
+        sharedPrefs!.getString("idProvider").toString()); //byprovider loged
     return _warehouseController.warehouses;
   }
 
@@ -300,87 +306,84 @@ class _AddProductState extends State<AddProduct> {
                     const SizedBox(height: 10),
                     Row(
                       children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('Tipo'),
-                              const SizedBox(height: 3),
-                              SizedBox(
-                                width: 150,
-                                child: DropdownButtonFormField<String>(
-                                  isExpanded: true,
-                                  hint: Text(
-                                    'Seleccione',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Theme.of(context).hintColor,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Tipo'),
+                            const SizedBox(height: 3),
+                            SizedBox(
+                              width: 150,
+                              child: DropdownButtonFormField<String>(
+                                isExpanded: true,
+                                hint: Text(
+                                  'Seleccione',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Theme.of(context).hintColor,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  items: types
-                                      .map((item) => DropdownMenuItem(
-                                            value: item,
-                                            child: Text(
-                                              item,
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                ),
+                                items: types
+                                    .map((item) => DropdownMenuItem(
+                                          value: item,
+                                          child: Text(
+                                            item,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
                                             ),
-                                          ))
-                                      .toList(),
-                                  value: selectedType,
-                                  onChanged: (value) {
-                                    if (_skuController.text.isEmpty ||
-                                        _priceWarehouseController
-                                            .text.isEmpty ||
-                                        _priceSuggestedController
-                                            .text.isEmpty) {
+                                          ),
+                                        ))
+                                    .toList(),
+                                value: selectedType,
+                                onChanged: (value) {
+                                  if (_skuController.text.isEmpty ||
+                                      _priceWarehouseController.text.isEmpty ||
+                                      _priceSuggestedController.text.isEmpty) {
+                                    showSuccessModal(
+                                        context,
+                                        "Por favor, ingrese el SKU, Precio Bodega y el Precio sugerido del producto",
+                                        Icons8.alert);
+                                  } else {
+                                    if (double.parse(_priceWarehouseController
+                                                .text) <=
+                                            0 &&
+                                        double.parse(_priceSuggestedController
+                                                .text) <=
+                                            0) {
                                       showSuccessModal(
                                           context,
-                                          "Por favor, ingrese el SKU, Precio Bodega y el Precio sugerido del producto",
+                                          "Por favor, ingrese el precio Bodega y el sugerido de los productos validos",
                                           Icons8.alert);
                                     } else {
-                                      if (double.parse(_priceWarehouseController
-                                                  .text) <=
-                                              0 &&
-                                          double.parse(_priceSuggestedController
-                                                  .text) <=
-                                              0) {
-                                        showSuccessModal(
-                                            context,
-                                            "Por favor, ingrese el precio Bodega y el sugerido de los productos validos",
-                                            Icons8.alert);
-                                      } else {
-                                        setState(() {
-                                          selectedColores = [];
-                                          selectedSizes = [];
-                                          selectedDimensions = [];
-                                          optionsTypes = [];
-                                          variantsList = [];
-                                          _stockController.clear();
-                                          selectedVariablesList.clear();
-                                          if (value != null) {
-                                            selectedType = value;
-                                          }
-                                          print("selectedType: $selectedType");
-                                        });
-                                      }
+                                      setState(() {
+                                        selectedColores = [];
+                                        selectedSizes = [];
+                                        selectedDimensions = [];
+                                        optionsTypes = [];
+                                        variantsList = [];
+                                        _stockController.clear();
+                                        selectedVariablesList.clear();
+                                        if (value != null) {
+                                          selectedType = value;
+                                        }
+                                        print("selectedType: $selectedType");
+                                      });
                                     }
-                                  },
-                                  decoration: InputDecoration(
-                                    fillColor: Colors.white,
-                                    filled: true,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(5.0),
-                                    ),
+                                  }
+                                },
+                                decoration: InputDecoration(
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(5.0),
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
+                        const SizedBox(width: 10),
                         Visibility(
                           visible: selectedType == 'VARIABLE',
                           child: Expanded(
@@ -993,6 +996,13 @@ class _AddProductState extends State<AddProduct> {
                                       selectedVariablesList.contains("Tallas"),
                                   child: Column(
                                     children: [
+                                      TextFieldWithIcon(
+                                        controller: _sizeController,
+                                        labelText: 'Ingrese Talla',
+                                        icon: Icons.numbers,
+                                        applyValidator: false,
+                                      ),
+                                      /*
                                       DropdownButtonFormField<String>(
                                         isExpanded: true,
                                         hint: Text(
@@ -1031,6 +1041,7 @@ class _AddProductState extends State<AddProduct> {
                                           ),
                                         ),
                                       ),
+                                      */
                                       const SizedBox(height: 10),
                                     ],
                                   ),
@@ -1040,6 +1051,13 @@ class _AddProductState extends State<AddProduct> {
                                       selectedVariablesList.contains("Colores"),
                                   child: Column(
                                     children: [
+                                      TextFieldWithIcon(
+                                        controller: _colorController,
+                                        labelText: 'Ingrese Color',
+                                        icon: Icons.color_lens,
+                                        applyValidator: false,
+                                      ),
+                                      /*
                                       DropdownButtonFormField<String>(
                                         isExpanded: true,
                                         hint: Text(
@@ -1078,6 +1096,7 @@ class _AddProductState extends State<AddProduct> {
                                           ),
                                         ),
                                       ),
+                                      */
                                       const SizedBox(height: 10),
                                     ],
                                   ),
@@ -1085,7 +1104,14 @@ class _AddProductState extends State<AddProduct> {
                                 Visibility(
                                   visible:
                                       selectedVariablesList.contains("Tamaños"),
-                                  child: DropdownButtonFormField<String>(
+                                  child: TextFieldWithIcon(
+                                    controller: _dimensionController,
+                                    labelText: 'Ingrese Tamaño',
+                                    icon: Icons.numbers,
+                                    applyValidator: false,
+                                  ),
+                                  /*
+                                  DropdownButtonFormField<String>(
                                     isExpanded: true,
                                     hint: Text(
                                       'Seleccione Tamaño',
@@ -1122,6 +1148,7 @@ class _AddProductState extends State<AddProduct> {
                                       ),
                                     ),
                                   ),
+                                  */
                                 ),
                               ],
                             ),
@@ -1183,9 +1210,16 @@ class _AddProductState extends State<AddProduct> {
                                             "Por favor, ingrese un SKU.",
                                             Icons8.alert);
                                       } else {
-                                        if ((chosenSize == null ||
-                                            chosenColor == null ||
-                                            chosenDimension == null)) {
+                                        // if ((chosenSize == null ||
+                                        //     chosenColor == null ||
+                                        //     chosenDimension == null)) {
+                                        //   // print(
+                                        //   //     "no selected size o color o dimension");
+                                        // }
+                                        if ((_sizeController.text.isEmpty ||
+                                            _colorController.text.isEmpty ||
+                                            _dimensionController
+                                                .text.isEmpty)) {
                                           // print(
                                           //     "no selected size o color o dimension");
                                         }
@@ -1207,6 +1241,13 @@ class _AddProductState extends State<AddProduct> {
                                               Random().nextInt(9000000) +
                                                   1000000;
 
+                                          String sizeN = _sizeController.text
+                                              .replaceAll(" ", "");
+                                          String colorN = _colorController.text
+                                              .replaceAll(" ", "");
+                                          String dimensionN =
+                                              _dimensionController.text
+                                                  .replaceAll(" ", "");
                                           if (selectedVariablesList
                                                   .contains("Tallas") &&
                                               selectedVariablesList
@@ -1214,9 +1255,10 @@ class _AddProductState extends State<AddProduct> {
                                             variant = {
                                               "id": idRandom,
                                               "sku":
-                                                  "${_skuController.text.toUpperCase()}${chosenSize}${chosenColor?.toUpperCase()}",
-                                              "size": "$chosenSize",
-                                              "color": "$chosenColor",
+                                                  "${_skuController.text.toUpperCase()}${sizeN.toUpperCase()}${colorN.toUpperCase()}",
+                                              // "${_skuController.text.toUpperCase()}${chosenSize}${chosenColor?.toUpperCase()}",
+                                              "size": "$sizeN",
+                                              "color": "$colorN",
                                               "inventory_quantity":
                                                   _inventaryController.text,
                                               "price": _priceSuggestedController
@@ -1233,8 +1275,8 @@ class _AddProductState extends State<AddProduct> {
                                               //     "Ya existe una variante con talla: $chosenSize y color: $chosenColor");
                                             } else {
                                               variantsList.add(variant);
-                                              selectedSizes.add(chosenSize!);
-                                              selectedColores.add(chosenColor!);
+                                              selectedSizes.add(sizeN);
+                                              selectedColores.add(colorN);
 
                                               calcuateStockTotal(
                                                   _inventaryController.text);
@@ -1247,9 +1289,9 @@ class _AddProductState extends State<AddProduct> {
                                             variant = {
                                               "id": idRandom,
                                               "sku":
-                                                  "${_skuController.text.toUpperCase()}${chosenDimension?.isNotEmpty == true ? chosenDimension![0].toUpperCase() : ""}${chosenColor?.toUpperCase()}",
-                                              "dimension": "$chosenDimension",
-                                              "color": "$chosenColor",
+                                                  "${_skuController.text.toUpperCase()}${dimensionN.toUpperCase()}${colorN.toUpperCase()}",
+                                              "dimension": "$dimensionN",
+                                              "color": "$colorN",
                                               "inventory_quantity":
                                                   _inventaryController.text,
                                               "price": _priceSuggestedController
@@ -1267,8 +1309,8 @@ class _AddProductState extends State<AddProduct> {
                                             } else {
                                               variantsList.add(variant);
                                               selectedDimensions
-                                                  .add(chosenDimension!);
-                                              selectedColores.add(chosenColor!);
+                                                  .add(dimensionN);
+                                              selectedColores.add(colorN);
 
                                               calcuateStockTotal(
                                                   _inventaryController.text);
@@ -1279,8 +1321,8 @@ class _AddProductState extends State<AddProduct> {
                                             variant = {
                                               "id": idRandom,
                                               "sku":
-                                                  "${_skuController.text.toUpperCase()}${chosenSize}",
-                                              "size": "$chosenSize",
+                                                  "${_skuController.text.toUpperCase()}${sizeN.toUpperCase()}",
+                                              "size": "$sizeN",
                                               "inventory_quantity":
                                                   _inventaryController.text,
                                               "price": _priceSuggestedController
@@ -1294,7 +1336,7 @@ class _AddProductState extends State<AddProduct> {
                                               //     "Ya existe una variante con talla: $chosenSize");
                                             } else {
                                               variantsList.add(variant);
-                                              selectedSizes.add(chosenSize!);
+                                              selectedSizes.add(sizeN);
 
                                               calcuateStockTotal(
                                                   _inventaryController.text);
@@ -1305,8 +1347,8 @@ class _AddProductState extends State<AddProduct> {
                                             variant = {
                                               "id": idRandom,
                                               "sku":
-                                                  "${_skuController.text.toUpperCase()}${chosenColor?.toUpperCase()}",
-                                              "color": "$chosenColor",
+                                                  "${_skuController.text.toUpperCase()}${colorN.toUpperCase()}",
+                                              "color": "$colorN",
                                               "inventory_quantity":
                                                   _inventaryController.text,
                                               "price": _priceSuggestedController
@@ -1320,7 +1362,7 @@ class _AddProductState extends State<AddProduct> {
                                               //     "Ya existe una variante con color: $chosenColor");
                                             } else {
                                               variantsList.add(variant);
-                                              selectedColores.add(chosenColor!);
+                                              selectedColores.add(colorN);
 
                                               calcuateStockTotal(
                                                   _inventaryController.text);
@@ -1331,8 +1373,8 @@ class _AddProductState extends State<AddProduct> {
                                             variant = {
                                               "id": idRandom,
                                               "sku":
-                                                  "${_skuController.text.toUpperCase()}${chosenDimension?.isNotEmpty == true ? chosenDimension![0].toUpperCase() : ""}",
-                                              "dimension": "$chosenDimension",
+                                                  "${_skuController.text.toUpperCase()}${dimensionN.toUpperCase()}",
+                                              "dimension": "$dimensionN",
                                               "inventory_quantity":
                                                   _inventaryController.text,
                                               "price": _priceSuggestedController
@@ -1347,7 +1389,7 @@ class _AddProductState extends State<AddProduct> {
                                             } else {
                                               variantsList.add(variant);
                                               selectedDimensions
-                                                  .add(chosenDimension!);
+                                                  .add(dimensionN);
 
                                               calcuateStockTotal(
                                                   _inventaryController.text);
@@ -1850,11 +1892,11 @@ class _AddProductState extends State<AddProduct> {
                                     ),
                                   ),
                                 ),
+                                const SizedBox(width: 20),
                               ],
                             ),
                           ),
                         ),
-                        const SizedBox(width: 20),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,

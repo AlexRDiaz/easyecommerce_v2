@@ -65,6 +65,7 @@ class _ProductsViewState extends State<ProductsView> {
   List<String> warehouseToCopy = [];
   bool edited = false;
   bool warehouseActAprob = false;
+  String idProv = sharedPrefs!.getString("idProvider").toString();
 
   @override
   void initState() {
@@ -81,7 +82,7 @@ class _ProductsViewState extends State<ProductsView> {
 
   Future<List<ProductModel>> _getProductModelData() async {
     await _productController.loadProductsByProvider(
-        sharedPrefs!.getString("idProvider"),
+        idProv,
         populate,
         pageSize,
         currentPage,
@@ -93,7 +94,7 @@ class _ProductsViewState extends State<ProductsView> {
   }
 
   Future<List<WarehouseModel>> _getWarehousesData() async {
-    await _warehouseController.loadWarehouses();
+    await _warehouseController.loadWarehouses(idProv);
     return _warehouseController.warehouses;
   }
 

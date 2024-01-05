@@ -39,6 +39,8 @@ class ProviderController extends ControllerMVC {
         print('Error: Status Code 2');
       } else {
         List<dynamic> jsonData = data;
+        print(jsonData);
+
         providers =
             jsonData.map((data) => ProviderModel.fromJson(data)).toList();
         // print(providers);

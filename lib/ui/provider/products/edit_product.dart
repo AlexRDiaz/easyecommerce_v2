@@ -124,7 +124,8 @@ class _EditProductState extends State<EditProduct> {
   }
 
   Future<List<WarehouseModel>> _getWarehousesData() async {
-    await _warehouseController.loadWarehouses(); //byprovider loged
+    await _warehouseController.loadWarehouses(
+        sharedPrefs!.getString("idProvider").toString()); //byprovider loged
     return _warehouseController.warehouses;
   }
 

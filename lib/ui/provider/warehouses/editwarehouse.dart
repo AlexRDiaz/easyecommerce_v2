@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/config/colors.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/provider/warehouses/controllers/warehouses_controller.dart';
@@ -1250,7 +1251,8 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
   }
 
   Future<List<WarehouseModel>> _loadWarehouses([String query = '']) async {
-    await _controller.loadWarehouses();
+    await _controller
+        .loadWarehouses(sharedPrefs!.getString("idProvider").toString());
     if (query.isEmpty) {
       return _controller.warehouses;
     } else {

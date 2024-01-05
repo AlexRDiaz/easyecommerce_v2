@@ -400,6 +400,14 @@ class ProviderModelDataSource extends DataGridSource {
                   // Lógica para eliminar la fila correspondiente
                 },
               ),
+            ),
+            SizedBox(
+              child: IconButton(
+                icon: Icon(Icons.store),
+                onPressed: () {
+                  // Lógica para eliminar la fila correspondiente
+                },
+              ),
             )
           ],
         );
