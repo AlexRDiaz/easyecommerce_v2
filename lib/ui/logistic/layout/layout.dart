@@ -8,6 +8,7 @@ import 'package:frontend/ui/logistic/account_status/account_status.dart';
 import 'package:frontend/ui/logistic/account_status2/account_status2.dart';
 import 'package:frontend/ui/logistic/add_carrier/add_carrier.dart';
 import 'package:frontend/ui/logistic/add_logistics_user/add_logistics_user.dart';
+import 'package:frontend/ui/logistic/add_operators_transport/add_operators_transport.dart';
 import 'package:frontend/ui/logistic/add_provider/providers_view.dart';
 import 'package:frontend/ui/logistic/add_sellers/add_sellers.dart';
 import 'package:frontend/ui/logistic/add_stock_to_vendors/add_stock_to_vendors.dart';
@@ -178,7 +179,8 @@ class _LayoutPageState extends State<LayoutPage> {
         "Configuración de Roles",
         RoleConfiguration(),
       ),
-      getOption("Novedades", NoveltiesL())
+      getOption("Novedades", NoveltiesL()),
+      getOption("Configuración General Transporte", AddOperatorsTransportLogistic()),
       // AddStockToVendors(),
       // WithdrawalAssignment(),
     ];
