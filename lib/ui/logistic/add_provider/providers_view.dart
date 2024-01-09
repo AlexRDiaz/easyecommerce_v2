@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/config/colors.dart';
 import 'package:frontend/models/provider_model.dart';
@@ -7,6 +8,7 @@ import 'package:frontend/ui/logistic/add_provider/approve_warehouses.dart';
 import 'package:frontend/ui/logistic/add_provider/controllers/provider_controller.dart';
 import 'package:frontend/ui/logistic/add_provider/edit_provider.dart';
 import 'package:frontend/ui/logistic/add_provider/layout_approve.dart';
+import 'package:frontend/ui/widgets/loading.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class ProviderView extends StatefulWidget {
@@ -66,12 +68,6 @@ class _ProviderViewState extends State<ProviderView> {
     return showDialog(
         context: context,
         builder: (context) {
-          // return AlertDialog(
-          //   content: Container(
-          //     width: MediaQuery.of(context).size.width * 0.95,
-          //     child: LayoutApprovePage(provider: provider),
-          //   ),
-          // );
           return Dialog(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(
@@ -79,15 +75,38 @@ class _ProviderViewState extends State<ProviderView> {
             ),
             child: Container(
               width: MediaQuery.of(context).size.width * 0.95,
-              child: LayoutApprovePage(provider: provider),
+              child: LayoutApprovePage(
+                provider: provider,
+                currentV: "",
+              ),
             ),
           );
-        }).then((value) {
-      if (edited) {
-        setState(() {
-          //   //_futureProviderData = _loadProviders(); // Actualiza el Future
-        });
-      }
+        }).then((value) {});
+  }
+
+  deleteDialog(provider) {
+    ProviderModel providerM = provider;
+    return AwesomeDialog(
+      width: 500,
+      context: context,
+      dialogType: DialogType.info,
+      animType: AnimType.rightSlide,
+      title: '¿Está seguro de eliminar el Proveedor?',
+      desc:
+          '${providerM.name.toString()} de ${providerM.user?.username.toString()}',
+      btnOkText: "Confirmar",
+      btnCancelText: "Cancelar",
+      btnOkColor: Colors.blueAccent,
+      btnCancelOnPress: () {},
+      btnOkOnPress: () async {
+        getLoadingModal(context, false);
+
+        await _providerController
+            .upate(int.parse(providerM.id.toString()), {"active": 0});
+
+        Navigator.pop(context);
+      },
+    ).show().then((value) {
       setState(() {
         _getProviderModelData();
       });
@@ -141,6 +160,7 @@ class _ProviderViewState extends State<ProviderView> {
                     editProviderDialog: editProviderDialog,
                     approveDialog: approveDialog,
                     providers: snapshot.data!,
+                    deleteDialog: deleteDialog,
                   );
 
                   return Container(
@@ -152,6 +172,15 @@ class _ProviderViewState extends State<ProviderView> {
                       showVerticalScrollbar: true,
                       showHorizontalScrollbar: true,
                       columns: <GridColumn>[
+                        GridColumn(
+                            autoFitPadding: EdgeInsets.all(30.0),
+                            columnName: 'creado',
+                            label: FilterIcon(
+                              name: "Creado",
+                              onFilterPressed: () {
+                                // Lógica para aplicar el filtro
+                              },
+                            )),
                         GridColumn(
                             autoFitPadding: EdgeInsets.all(30.0),
                             columnName: 'nombre',
@@ -389,13 +418,16 @@ class _ProviderViewState extends State<ProviderView> {
 class ProviderModelDataSource extends DataGridSource {
   final Function(dynamic) editProviderDialog;
   final Function(dynamic) approveDialog;
+  final Function(dynamic) deleteDialog;
 
   ProviderModelDataSource(
       {required List<ProviderModel> providers,
       required this.editProviderDialog,
-      required this.approveDialog}) {
+      required this.approveDialog,
+      required this.deleteDialog}) {
     _providersData = providers
         .map<DataGridRow>((e) => DataGridRow(cells: [
+              DataGridCell<String>(columnName: 'name', value: e.createdAt),
               DataGridCell<String>(columnName: 'name', value: e.name),
               DataGridCell<String>(
                   columnName: 'username', value: e.user!.username),
@@ -436,7 +468,7 @@ class ProviderModelDataSource extends DataGridSource {
               child: IconButton(
                 icon: Icon(Icons.delete),
                 onPressed: () {
-                  // Lógica para eliminar la fila correspondiente
+                  deleteDialog(e.value);
                 },
               ),
             ),

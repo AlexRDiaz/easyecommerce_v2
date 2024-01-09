@@ -2,8 +2,10 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:frontend/models/warehouses_model.dart';
+import 'package:frontend/ui/logistic/add_provider/layout_approve.dart';
 import 'package:frontend/ui/logistic/add_provider/providers_view.dart';
 import 'package:frontend/ui/provider/warehouses/controllers/warehouses_controller.dart';
+import 'package:frontend/ui/utils/utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
@@ -31,7 +33,7 @@ class _ApproveWarehouseState extends State<ApproveWarehouse> {
     await _warehouseController.loadWarehouses(widget.provider.id.toString());
     // return _warehouseController.warehouses;
     List<WarehouseModel> filteredWarehouses = _warehouseController.warehouses
-        .where((warehouse) => warehouse.active == 1)
+        .where((warehouse) => warehouse.active == 1 && warehouse.approved == 2)
         .toList();
 
     return filteredWarehouses;
@@ -51,13 +53,9 @@ class _ApproveWarehouseState extends State<ApproveWarehouse> {
     );
     return Scaffold(
       body: Padding(
-        padding: EdgeInsets.only(left: 20, right: 20),
+        padding: EdgeInsets.all(20),
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-            ),
-            const SizedBox(height: 10),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -166,7 +164,8 @@ class _ApproveWarehouseState extends State<ApproveWarehouse> {
                         (index) => DataRow(
                           cells: [
                             DataCell(
-                              Text(warehouses[index].createdAt.toString()),
+                              Text(UIUtils.formatDate(
+                                  warehouses[index].createdAt.toString())),
                             ),
                             DataCell(
                               Text(warehouses[index].id.toString()),
@@ -182,13 +181,6 @@ class _ApproveWarehouseState extends State<ApproveWarehouse> {
                                   .customerphoneNumber
                                   .toString()),
                             ),
-                            // DataCell(
-                            //   Text(warehouses[index].approved == 1
-                            //       ? "Aprobado"
-                            //       : warehouses[index].approved == 2
-                            //           ? "Pendiente"
-                            //           : "Rechazado"),
-                            // ),
                             DataCell(warehouses[index].approved == 1
                                 ? const Icon(Icons.check_circle_rounded,
                                     color: Colors.green)
@@ -210,7 +202,29 @@ class _ApproveWarehouseState extends State<ApproveWarehouse> {
                                                 ? 1
                                                 : 0
                                       });
-                                  setState(() {});
+
+                                  Navigator.pop(context);
+
+                                  return showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return Dialog(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                                0.0), // Establece el radio del borde a 0
+                                          ),
+                                          child: Container(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.95,
+                                            child: LayoutApprovePage(
+                                                provider: widget.provider,
+                                                currentV: "Bodegas"),
+                                          ),
+                                        );
+                                      }).then((value) {});
+
                                   //
                                 },
                                 style: ElevatedButton.styleFrom(

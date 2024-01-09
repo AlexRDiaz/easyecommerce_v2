@@ -20,6 +20,13 @@ class ProviderController extends ControllerMVC {
   }
 
   // Método para actualizar un proveedor existente
+  upate(int providerId, json) async {
+    await Connections().updateProviderRequest(providerId, json);
+    setState(() {
+      // warehouses.removeWhere((warehouse) => warehouse.id == warehouseId);
+    });
+    // await loadWarehouses(sharedPrefs!.getString("idProvider").toString());
+  }
 
   // Método para eliminar un proveedor
   void deleteProvider(int providerId) {

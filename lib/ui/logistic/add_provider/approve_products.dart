@@ -4,8 +4,12 @@ import 'package:frontend/models/product_model.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/ui/logistic/add_provider/controllers/provider_controller.dart';
+import 'package:frontend/ui/logistic/add_provider/layout_approve.dart';
 import 'package:frontend/ui/provider/products/controllers/product_controller.dart';
 import 'package:frontend/ui/provider/warehouses/controllers/warehouses_controller.dart';
+import 'package:frontend/ui/utils/utils.dart';
+import 'package:frontend/ui/widgets/loading.dart';
+import 'package:frontend/ui/widgets/product/product_info.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ApproveProducts extends StatefulWidget {
@@ -26,39 +30,41 @@ class _ApproveProductsState extends State<ApproveProducts> {
   String? selectedWarehouse;
 
   int currentPage = 1;
-  int pageSize = 70;
+  int pageSize = 500;
   int pageCount = 100;
   bool isLoading = false;
   bool isFirst = false;
   List populate = ["warehouse.provider"];
   List arrayFiltersAnd = [];
-  List arrayFiltersOr = [];
+  List arrayFiltersOr = ["product_id", "product_name"];
   var sortFieldDefaultValue = "product_id:DESC";
+  TextEditingController _search = TextEditingController(text: "");
 
   @override
   void initState() {
     super.initState();
-    _productController = ProductController();
     _warehouseController = WrehouseController();
     getWarehouses();
+    _productController = ProductController();
   }
 
   Future<List<WarehouseModel>> _getWarehousesData() async {
     await _warehouseController.loadWarehouses(widget.provider.id.toString());
-    return _warehouseController.warehouses;
+    List<WarehouseModel> filteredWarehouses = _warehouseController.warehouses
+        .where((warehouse) => warehouse.active == 1 && warehouse.approved == 1)
+        .toList();
+    return filteredWarehouses;
   }
 
   getWarehouses() async {
     var responseBodegas = await _getWarehousesData();
     warehousesList = responseBodegas;
-    warehousesToSelect.insert(0, 'TODO');
-    for (var warehouse in warehousesList) {
-      if (warehouse.approved == 1 && warehouse.active == 1) {
-        warehousesToSelect.add('${warehouse.id}-${warehouse.branchName}');
-      }
+    warehousesToSelect.insert(0, '0-TODO');
+    for (var provider in responseBodegas) {
+      setState(() {
+        warehousesToSelect.add('${provider.id}-${provider.branchName}');
+      });
     }
-
-    print(warehousesToSelect);
   }
 
   Future<List<ProductModel>> _getProductModelData() async {
@@ -70,8 +76,11 @@ class _ApproveProductsState extends State<ApproveProducts> {
         arrayFiltersOr,
         arrayFiltersAnd,
         sortFieldDefaultValue.toString(),
-        "");
-    return _productController.products;
+        _search.text);
+    List<ProductModel> filteredProducts = _productController.products
+        .where((product) => product.approved == 2)
+        .toList();
+    return filteredProducts;
   }
 
   @override
@@ -92,20 +101,27 @@ class _ApproveProductsState extends State<ApproveProducts> {
 
     return Scaffold(
       body: Padding(
-        padding: EdgeInsets.only(left: 20, right: 20),
+        padding: EdgeInsets.all(20),
         child: Column(
           children: [
-            const SizedBox(height: 10),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Productos:",
+                  widget.provider.name.toString(),
                   style: customTextStyleTitle,
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Bodega:",
+                  style: customTextStyleTitle,
+                ),
+              ],
+            ),
             Row(
               children: [
                 SizedBox(
@@ -122,18 +138,20 @@ class _ApproveProductsState extends State<ApproveProducts> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      items: warehousesToSelect
-                          .map((item) => DropdownMenuItem(
-                                value: item,
-                                child: Text(
-                                  item,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ))
-                          .toList(),
+                      items: warehousesToSelect.map((item) {
+                        var parts = item.split('-');
+                        var branchName = parts[1];
+                        return DropdownMenuItem(
+                          value: item,
+                          child: Text(
+                            '$branchName',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        );
+                      }).toList(),
                       value: selectedWarehouse,
                       onChanged: (value) {
                         setState(() {
@@ -168,6 +186,20 @@ class _ApproveProductsState extends State<ApproveProducts> {
                 ),
                 Expanded(child: Container()),
               ],
+            ),
+            const SizedBox(height: 15),
+            Container(
+              width: double.infinity,
+              color: Colors.white,
+              padding: const EdgeInsets.all(5),
+              child: Row(
+                children: [
+                  Expanded(
+                    child:
+                        _modelTextField(text: "Busqueda", controller: _search),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 10),
             Expanded(
@@ -208,11 +240,11 @@ class _ApproveProductsState extends State<ApproveProducts> {
                       columns: [
                         const DataColumn2(
                           label: Text('Creado'),
-                          size: ColumnSize.L,
+                          size: ColumnSize.M,
                         ),
                         DataColumn2(
                           label: const Text('ID'),
-                          size: ColumnSize.M,
+                          size: ColumnSize.S,
                           onSort: (columnIndex, ascending) {
                             // Lógica para ordenar
                           },
@@ -251,19 +283,29 @@ class _ApproveProductsState extends State<ApproveProducts> {
                         (index) => DataRow(
                           cells: [
                             DataCell(
-                              Text(products[index].createdAt.toString()),
+                              Text(UIUtils.formatDate(
+                                  products[index].createdAt.toString())),
                             ),
                             DataCell(
                               Text(products[index].productId.toString()),
+                              onTap: () {
+                                showProductInfoDialog(products[index]);
+                              },
                             ),
                             DataCell(
                               Text(products[index]
                                   .warehouse!
                                   .branchName
                                   .toString()),
+                              onTap: () {
+                                showProductInfoDialog(products[index]);
+                              },
                             ),
                             DataCell(
                               Text(products[index].productName.toString()),
+                              onTap: () {
+                                showProductInfoDialog(products[index]);
+                              },
                             ),
                             DataCell(products[index].approved == 1
                                 ? const Icon(Icons.check_circle_rounded,
@@ -286,8 +328,28 @@ class _ApproveProductsState extends State<ApproveProducts> {
                                                 ? 1
                                                 : 0
                                       });
-                                  setState(() {});
-                                  //
+                                  Navigator.pop(context);
+
+                                  return showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return Dialog(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                                0.0), // Establece el radio del borde a 0
+                                          ),
+                                          child: Container(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.95,
+                                            child: LayoutApprovePage(
+                                              provider: widget.provider,
+                                              currentV: "Productos",
+                                            ),
+                                          ),
+                                        );
+                                      }).then((value) {}); //
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: products[index].approved != 1
@@ -322,5 +384,70 @@ class _ApproveProductsState extends State<ApproveProducts> {
         ),
       ),
     );
+  }
+
+  _modelTextField({text, controller}) {
+    return Container(
+      width: double.infinity,
+      child: TextField(
+        controller: controller,
+        onSubmitted: (value) {
+          // getOldValue(true);
+          setState(() {
+            _search.text = value;
+          });
+          getLoadingModal(context, false);
+
+          setState(() {});
+          Future.delayed(Duration(milliseconds: 500), () {
+            Navigator.pop(context);
+          });
+        },
+        decoration: InputDecoration(
+          labelText: 'Buscar producto',
+          prefixIcon: const Icon(Icons.search),
+          suffixIcon: _search.text.isNotEmpty
+              ? GestureDetector(
+                  onTap: () {
+                    getLoadingModal(context, false);
+                    setState(() {
+                      _search.clear();
+                      arrayFiltersAnd = [];
+                    });
+
+                    // resetFilters();
+                    setState(() {});
+                    Navigator.pop(context);
+                  },
+                  child: const Icon(Icons.close))
+              : null,
+          hintText: text,
+          border: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.grey),
+          ),
+          focusColor: Colors.black,
+          iconColor: Colors.black,
+        ),
+      ),
+    );
+  }
+
+  showProductInfoDialog(product) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(0.0),
+            ),
+            contentPadding: EdgeInsets.all(10),
+            content: Container(
+              width: MediaQuery.of(context).size.width * 0.90,
+              child: ProductInfo(
+                product: product,
+              ),
+            ),
+          );
+        }).then((value) {});
   }
 }

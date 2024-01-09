@@ -6703,6 +6703,26 @@ class Connections {
     }
   }
 
+  //  *
+  updateProviderRequest(int id, datajson) async {
+    try {
+      var request = await http.put(
+          Uri.parse("$serverLaravel/api/providers/update/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(datajson));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
   createWarehouse(WarehouseModel warehouse) async {
     try {
       var response = await http.post(Uri.parse("$serverLaravel/api/warehouses"),

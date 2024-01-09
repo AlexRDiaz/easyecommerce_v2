@@ -1,5 +1,6 @@
 import 'package:frontend/models/user_model.dart';
 import 'package:frontend/models/warehouses_model.dart';
+import 'package:frontend/ui/utils/utils.dart';
 
 class ProviderModel {
   int? id;
@@ -7,6 +8,8 @@ class ProviderModel {
   String? name;
   String? phone;
   String? description;
+  String? createdAt;
+
   UserModel? user;
   List<WarehouseModel>? warehouses;
 
@@ -17,6 +20,7 @@ class ProviderModel {
     this.name,
     this.phone,
     this.description,
+    this.createdAt,
     this.user,
     this.warehouses,
   });
@@ -52,6 +56,7 @@ class ProviderModel {
       name: json['name'],
       phone: json['phone'],
       description: json['description'],
+      createdAt: UIUtils.formatDate(json['created_at']),
       user: json['user'] != null ? UserModel.fromJson(json['user']) : null,
       warehouses: warehousesModels,
     );
@@ -64,6 +69,7 @@ class ProviderModel {
       'name': name,
       'phone': phone,
       'description': description,
+      'created_at': createdAt,
       'warehouses': warehouses
     };
   }

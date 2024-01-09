@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:frontend/models/product_seller.dart';
 import 'package:frontend/models/reserve_model.dart';
 import 'package:frontend/models/warehouses_model.dart';
+import 'package:frontend/ui/utils/utils.dart';
 
 class ProductModel {
   int? productId;
