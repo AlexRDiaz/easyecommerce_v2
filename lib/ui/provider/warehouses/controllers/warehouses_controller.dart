@@ -26,8 +26,16 @@ class WrehouseController extends ControllerMVC {
       String url_image,
       String city,
       var collection) async {
-    await Connections().updateWarehouse(warehouseId, nameSucursal, address, customerphoneNumber,
-        reference, description, url_image, city, collection);
+    await Connections().updateWarehouse(
+        warehouseId,
+        nameSucursal,
+        address,
+        customerphoneNumber,
+        reference,
+        description,
+        url_image,
+        city,
+        collection);
     setState(() {});
   }
 
@@ -36,7 +44,7 @@ class WrehouseController extends ControllerMVC {
     setState(() {
       // warehouses.removeWhere((warehouse) => warehouse.id == warehouseId);
     });
-    await loadWarehouses();
+    await loadWarehouses(sharedPrefs!.getString("idProvider").toString());
   }
 
   activateWarehouse(int warehouseId) async {
@@ -44,13 +52,21 @@ class WrehouseController extends ControllerMVC {
     setState(() {
       // warehouses.removeWhere((warehouse) => warehouse.id == warehouseId);
     });
-    await loadWarehouses();
+    await loadWarehouses(sharedPrefs!.getString("idProvider").toString());
   }
 
-  Future<void> loadWarehouses() async {
+  upate(int warehouseId, json) async {
+    await Connections().updateWarehouseReq(warehouseId, json);
+    setState(() {
+      // warehouses.removeWhere((warehouse) => warehouse.id == warehouseId);
+    });
+    // await loadWarehouses(sharedPrefs!.getString("idProvider").toString());
+  }
+
+  Future<void> loadWarehouses(idProvider) async {
     try {
-      var data = await Connections().getWarehousesProvider(
-          int.parse(sharedPrefs!.getString("idProvider").toString()));
+      var data =
+          await Connections().getWarehousesProvider(int.parse(idProvider));
       if (data == 1) {
         // Maneja el caso de error 1
         print('Error: Status Code 1');

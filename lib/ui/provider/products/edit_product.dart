@@ -124,7 +124,8 @@ class _EditProductState extends State<EditProduct> {
   }
 
   Future<List<WarehouseModel>> _getWarehousesData() async {
-    await _warehouseController.loadWarehouses(); //byprovider loged
+    await _warehouseController.loadWarehouses(
+        sharedPrefs!.getString("idProvider").toString()); //byprovider loged
     return _warehouseController.warehouses;
   }
 
@@ -304,6 +305,10 @@ class _EditProductState extends State<EditProduct> {
     double fontSizeText = 14;
 
     return AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.circular(0.0), // Establece el radio del borde a 0
+      ),
       title: AppBar(
         title: const Text(
           "Editar Producto",

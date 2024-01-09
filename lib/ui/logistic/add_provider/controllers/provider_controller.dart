@@ -20,6 +20,13 @@ class ProviderController extends ControllerMVC {
   }
 
   // Método para actualizar un proveedor existente
+  upate(int providerId, json) async {
+    await Connections().updateProviderRequest(providerId, json);
+    setState(() {
+      // warehouses.removeWhere((warehouse) => warehouse.id == warehouseId);
+    });
+    // await loadWarehouses(sharedPrefs!.getString("idProvider").toString());
+  }
 
   // Método para eliminar un proveedor
   void deleteProvider(int providerId) {
@@ -39,6 +46,7 @@ class ProviderController extends ControllerMVC {
         print('Error: Status Code 2');
       } else {
         List<dynamic> jsonData = data;
+
         providers =
             jsonData.map((data) => ProviderModel.fromJson(data)).toList();
         // print(providers);

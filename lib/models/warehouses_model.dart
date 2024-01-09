@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:frontend/models/provider_model.dart';
+import 'package:frontend/ui/utils/utils.dart';
 
 class WarehouseModel {
   int? id;
@@ -15,6 +16,7 @@ class WarehouseModel {
   int? active;
   int? approved;
   int? providerId;
+  String? createdAt;
 
   // Considerar si necesitas un objeto relacionado como en ProviderModel
   ProviderModel? provider;
@@ -32,6 +34,7 @@ class WarehouseModel {
     this.collection,
     this.active,
     this.approved,
+    this.createdAt,
     this.providerId,
     this.provider,
   });
@@ -71,6 +74,7 @@ class WarehouseModel {
       collection: json['collection'],
       active: json['active'],
       approved: json['approved'],
+      createdAt: json['created_at'],
       providerId: json['provider_id'],
       provider: providerModel,
     );
@@ -89,6 +93,7 @@ class WarehouseModel {
       'collection': collection,
       'active': active,
       'approved': approved,
+      'created_at': createdAt,
       'provider_id': providerId,
       // Si tienes un objeto relacionado
       // 'provider': provider?.toJson(),

@@ -5971,6 +5971,26 @@ class Connections {
   }
 
   //  *
+  updateProductRequest(int id, datajson) async {
+    try {
+      var request = await http.put(
+          Uri.parse("$serverLaravel/api/products/update/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(datajson));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  //  *
   Future createProductSeller(int idProduct, int idMaster, String key) async {
     int res;
     try {
@@ -6575,7 +6595,7 @@ class Connections {
   getProvidersAll() async {
     try {
       var response = await http.get(
-        Uri.parse("$serverLaravel/api/providers/all"),
+        Uri.parse("$serverLaravel/api/providers/nofilter"),
         headers: {'Content-Type': 'application/json'},
       );
       if (response.statusCode == 200) {
@@ -6683,6 +6703,26 @@ class Connections {
     }
   }
 
+  //  *
+  updateProviderRequest(int id, datajson) async {
+    try {
+      var request = await http.put(
+          Uri.parse("$serverLaravel/api/providers/update/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(datajson));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
   createWarehouse(WarehouseModel warehouse) async {
     try {
       var response = await http.post(Uri.parse("$serverLaravel/api/warehouses"),
@@ -6769,6 +6809,26 @@ class Connections {
         return 1;
       }
     } catch (error) {
+      return 2;
+    }
+  }
+
+  //  *
+  updateWarehouseReq(int id, datajson) async {
+    try {
+      var request = await http.put(
+          Uri.parse("$serverLaravel/api/warehouses/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(datajson));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
       return 2;
     }
   }

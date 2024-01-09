@@ -18,6 +18,7 @@ import 'package:frontend/ui/provider/products/add_product.dart';
 import 'package:frontend/ui/provider/products/controllers/product_controller.dart';
 import 'package:frontend/ui/provider/products/edit_product.dart';
 import 'package:frontend/ui/provider/warehouses/controllers/warehouses_controller.dart';
+import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/product/show_img.dart';
@@ -65,6 +66,7 @@ class _ProductsViewState extends State<ProductsView> {
   List<String> warehouseToCopy = [];
   bool edited = false;
   bool warehouseActAprob = false;
+  String idProv = sharedPrefs!.getString("idProvider").toString();
 
   @override
   void initState() {
@@ -81,7 +83,7 @@ class _ProductsViewState extends State<ProductsView> {
 
   Future<List<ProductModel>> _getProductModelData() async {
     await _productController.loadProductsByProvider(
-        sharedPrefs!.getString("idProvider"),
+        idProv,
         populate,
         pageSize,
         currentPage,
@@ -93,7 +95,7 @@ class _ProductsViewState extends State<ProductsView> {
   }
 
   Future<List<WarehouseModel>> _getWarehousesData() async {
-    await _warehouseController.loadWarehouses();
+    await _warehouseController.loadWarehouses(idProv);
     return _warehouseController.warehouses;
   }
 
@@ -647,7 +649,7 @@ class _ProductsViewState extends State<ProductsView> {
                                 '\$${getValue(jsonDecode(data[index]['features']), "price_suggested")}'),
                           ),
                           DataCell(Text(//
-                              formatDate(
+                              UIUtils.formatDate(
                                   data[index]['created_at'].toString()))),
                           DataCell(
                             Text(data[index]['warehouse']['branch_name']
@@ -1108,7 +1110,7 @@ class _ProductsViewState extends State<ProductsView> {
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
-                                            "${formatDate(product.createdAt.toString())}",
+                                            "${UIUtils.formatDate(product.createdAt)}",
                                             style: customTextStyleText,
                                           ),
                                         ],

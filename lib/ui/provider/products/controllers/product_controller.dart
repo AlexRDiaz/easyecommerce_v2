@@ -29,9 +29,17 @@ class ProductController extends ControllerMVC {
     setState(() {});
   }
 
+  upate(int productId, json) async {
+    await Connections().updateProductRequest(productId, json);
+    setState(() {
+      // warehouses.removeWhere((warehouse) => warehouse.id == warehouseId);
+    });
+    // await loadWarehouses(sharedPrefs!.getString("idProvider").toString());
+  }
+
 //ok
-  disableProduct(int warehouseId) async {
-    await Connections().deleteProduct(warehouseId);
+  disableProduct(int productId) async {
+    await Connections().deleteProduct(productId);
     setState(() {});
   }
 

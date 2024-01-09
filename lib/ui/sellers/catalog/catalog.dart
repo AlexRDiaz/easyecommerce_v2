@@ -1378,6 +1378,10 @@ ra                                                  // print("clck Favoritos");
           //   leading: Container(),
           //   centerTitle: true,
           // ),
+          shape: RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(0.0), // Establece el radio del borde a 0
+          ),
           content: Container(
             child: SizedBox(
               width: MediaQuery.of(context).size.width,
@@ -2347,14 +2351,6 @@ ra                                                  // print("clck Favoritos");
         );
       },
     );
-  }
-
-  formatDate(dateStringFromDatabase) {
-    DateTime dateTime = DateTime.parse(dateStringFromDatabase);
-    Duration offset = const Duration(hours: -5);
-    dateTime = dateTime.toUtc().add(offset);
-    String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
-    return formattedDate;
   }
 
   _modelTextField({text, controller}) {
