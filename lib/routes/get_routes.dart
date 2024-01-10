@@ -20,7 +20,6 @@ import 'package:frontend/ui/provider/layout/layout.dart';
 import 'package:frontend/ui/sellers/cash_withdrawals_sellers/withdrawal_info.dart';
 import 'package:frontend/ui/sellers/delivery_status/info_delivery.dart';
 import 'package:frontend/ui/sellers/layout/layout.dart';
-import 'package:frontend/ui/sellers/layout/layout0.dart';
 import 'package:frontend/ui/sellers/order_entry/order_info.dart';
 import 'package:frontend/ui/transport/add_operators_transport/edit_operator_transport.dart';
 import 'package:frontend/ui/transport/layout/layout.dart';
