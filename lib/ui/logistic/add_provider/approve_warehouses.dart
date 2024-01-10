@@ -31,26 +31,26 @@ class _ApproveWarehouseState extends State<ApproveWarehouse> {
 
   Future<List<WarehouseModel>> _getWarehouseModelData() async {
     await _warehouseController.loadWarehouses(widget.provider.id.toString());
-    // return _warehouseController.warehouses;
-    List<WarehouseModel> filteredWarehouses = _warehouseController.warehouses
-        .where((warehouse) => warehouse.active == 1 && warehouse.approved == 2)
-        .toList();
+    return _warehouseController.warehouses;
+    // List<WarehouseModel> filteredWarehouses = _warehouseController.warehouses
+    //     .where((warehouse) => warehouse.active == 1 && warehouse.approved == 2)
+    //     .toList();
 
-    return filteredWarehouses;
+    // return filteredWarehouses;
   }
 
   @override
   Widget build(BuildContext context) {
-    TextStyle customTextStyleTitle = GoogleFonts.dmSerifDisplay(
-      fontWeight: FontWeight.bold,
-      fontSize: 18,
-      color: Colors.black,
-    );
+    // TextStyle customTextStyleTitle = GoogleFonts.dmMono(
+    //   fontWeight: FontWeight.bold,
+    //   fontSize: 18,
+    //   color: Colors.black,
+    // );
 
-    TextStyle customTextStyleText = GoogleFonts.dmSans(
-      fontSize: 17,
-      color: Colors.black,
-    );
+    // TextStyle customTextStyleText = GoogleFonts.dmSans(
+    //   fontSize: 17,
+    //   color: Colors.black,
+    // );
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.all(20),
@@ -61,7 +61,10 @@ class _ApproveWarehouseState extends State<ApproveWarehouse> {
               children: [
                 Text(
                   widget.provider.name.toString(),
-                  style: customTextStyleTitle,
+                  // style: customTextStyleTitle,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -71,7 +74,10 @@ class _ApproveWarehouseState extends State<ApproveWarehouse> {
               children: [
                 Text(
                   "Bodegas:",
-                  style: customTextStyleTitle,
+                  // style: customTextStyleTitle,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -105,10 +111,11 @@ class _ApproveWarehouseState extends State<ApproveWarehouse> {
                         return Colors.white;
                       }),
                       headingTextStyle: const TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.black),
+                          // fontWeight: FontWeight.bold,
+                          color: Colors.black),
                       dataTextStyle: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
+                          // fontSize: 12,
+                          // fontWeight: FontWeight.bold,
                           color: Colors.black),
                       columnSpacing: 12,
                       columns: [
@@ -181,29 +188,99 @@ class _ApproveWarehouseState extends State<ApproveWarehouse> {
                                   .customerphoneNumber
                                   .toString()),
                             ),
-                            DataCell(warehouses[index].approved == 1
-                                ? const Icon(Icons.check_circle_rounded,
-                                    color: Colors.green)
-                                : warehouses[index].approved == 2
-                                    ? const Icon(Icons.hourglass_bottom_sharp,
-                                        color: Colors.indigo)
-                                    : const Icon(Icons.cancel_rounded,
-                                        color: Colors.red)),
+                            // DataCell(warehouses[index].approved == 1
+                            //     ? const Icon(Icons.check_circle_rounded,
+                            //         color: Colors.green)
+                            //     : warehouses[index].approved == 2
+                            //         ? const Icon(Icons.hourglass_bottom_sharp,
+                            //             color: Colors.indigo)
+                            //         : const Icon(Icons.cancel_rounded,
+                            //             color: Colors.red)),
+                            // add supendido
                             DataCell(
-                              ElevatedButton(
-                                onPressed: () async {
+                              Text(
+                                warehouses[index].approved == 1
+                                    ? 'Aprobado'
+                                    : warehouses[index].approved == 2
+                                        ? 'Pendiente'
+                                        : warehouses[index].approved == 3
+                                            ? 'Suspendido'
+                                            : 'Rechazado',
+                                style: TextStyle(
+                                  color: warehouses[index].approved == 1
+                                      ? Colors.green
+                                      : warehouses[index].approved == 2
+                                          ? Colors.indigo.shade600
+                                          : warehouses[index].approved == 3
+                                              ? Colors.orange
+                                              : Colors.red,
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              PopupMenuButton<String>(
+                                padding: EdgeInsets.zero,
+                                elevation: 10,
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      "Cambiar Estado",
+                                      style: TextStyle(
+                                          decoration: TextDecoration.underline,
+                                          color: Colors.blue.shade700),
+                                    ),
+                                  ],
+                                ),
+                                itemBuilder: (BuildContext context) {
+                                  return [
+                                    PopupMenuItem<String>(
+                                      child: Text(
+                                        "Aprobar",
+                                      ),
+                                      value: "approve",
+                                    ),
+                                    PopupMenuItem<String>(
+                                      child: Row(
+                                        children: [
+                                          Text("Rechazar"),
+                                        ],
+                                      ),
+                                      value: "reject",
+                                    ),
+                                    PopupMenuItem<String>(
+                                      child: Row(
+                                        children: [
+                                          Text("Suspender"),
+                                        ],
+                                      ),
+                                      value: "suspend",
+                                    ),
+                                  ];
+                                },
+                                onSelected: (value) async {
                                   //
-                                  _warehouseController.upate(
-                                      int.parse(
-                                          warehouses[index].id.toString()),
-                                      {
-                                        "approved":
-                                            warehouses[index].approved != 1
-                                                ? 1
-                                                : 0
-                                      });
+                                  if (value == "approve") {
+                                    _warehouseController.upate(
+                                        int.parse(
+                                            warehouses[index].id.toString()),
+                                        {"approved": 1});
 
-                                  Navigator.pop(context);
+                                    Navigator.pop(context);
+                                  } else if (value == "reject") {
+                                    _warehouseController.upate(
+                                        int.parse(
+                                            warehouses[index].id.toString()),
+                                        {"approved": 0});
+
+                                    Navigator.pop(context);
+                                  } else if (value == "suspend") {
+                                    _warehouseController.upate(
+                                        int.parse(
+                                            warehouses[index].id.toString()),
+                                        {"approved": 3});
+
+                                    Navigator.pop(context);
+                                  }
 
                                   return showDialog(
                                       context: context,
@@ -224,29 +301,8 @@ class _ApproveWarehouseState extends State<ApproveWarehouse> {
                                           ),
                                         );
                                       }).then((value) {});
-
                                   //
                                 },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      warehouses[index].approved != 1
-                                          ? Colors.green
-                                          : Colors.red[400],
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      warehouses[index].approved != 1
-                                          ? "Aprobar"
-                                          : "Rechazar",
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ],
-                                ),
                               ),
                             ),
                           ],

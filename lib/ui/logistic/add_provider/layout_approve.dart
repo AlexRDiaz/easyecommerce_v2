@@ -107,7 +107,8 @@ class _LayoutApprovePageState extends State<LayoutApprovePage> {
         [],
         [],
         "product_id:DESC",
-        "");
+        "",
+        "approve");
     List<ProductModel> filteredProducts = _productController.products
         .where((warehouse) => warehouse.approved == 2)
         .toList();
@@ -310,7 +311,7 @@ class _LayoutApprovePageState extends State<LayoutApprovePage> {
               showBadge: numApprov == 0 ? false : true,
               child: icon,
               badgeStyle: badges.BadgeStyle(
-                badgeColor: Colors.indigo.shade500,
+                badgeColor: Colors.red,
                 elevation: 0,
               ),
             ),

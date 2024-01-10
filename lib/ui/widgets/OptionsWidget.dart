@@ -118,7 +118,7 @@ class _OptionsWidgetState extends State<OptionsWidget> {
                         ),
                       ),
                       Container(
-                        width: 100,
+                        width: 113,
                         height: 25,
                         decoration: BoxDecoration(
                           color: selectedList[index] || hoveredList[index]

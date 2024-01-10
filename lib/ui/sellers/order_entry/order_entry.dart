@@ -556,6 +556,9 @@ class _OrderEntryState extends State<OrderEntry> {
                                   "No Desea",
                                   style: TextStyle(fontWeight: FontWeight.bold),
                                 )),
+                            const SizedBox(
+                              width: 10,
+                            ),
                             ElevatedButton(
                                 onPressed: () async {
                                   await showDialog(
@@ -955,22 +958,22 @@ class _OrderEntryState extends State<OrderEntry> {
 
                                                       // * laravel version
                                                       return RoutesModalv2(
-                                                          idOrder: data[index]
-                                                                  ['id']
-                                                              .toString(),
-                                                          someOrders: false,
-                                                          phoneClient: "",
-                                                          codigo:
-                                                              "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}",
-                                                          origin: "",
-                                                          // origin: "order_entry",
-                                                          // skuProduct:
-                                                              // data[index]['sku']
-                                                                  // .toString(),
-                                                          // quantity: data[index][
-                                                                  // 'cantidad_total']
-                                                              // .toString()
-                                                              );
+                                                        idOrder: data[index]
+                                                                ['id']
+                                                            .toString(),
+                                                        someOrders: false,
+                                                        phoneClient: "",
+                                                        codigo:
+                                                            "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}",
+                                                        origin: "",
+                                                        // origin: "order_entry",
+                                                        // skuProduct:
+                                                        // data[index]['sku']
+                                                        // .toString(),
+                                                        // quantity: data[index][
+                                                        // 'cantidad_total']
+                                                        // .toString()
+                                                      );
                                                       //
                                                     });
                                                 loadData();
