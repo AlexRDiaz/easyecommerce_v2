@@ -135,6 +135,11 @@ class _RoutesModalStatev2 extends State<RoutesandSubroutesModalv2> {
       });
     }
 
+    if (subroutes.isEmpty) {
+      subroutes = ["N.A-9999"];
+    }
+
+
     Future.delayed(Duration(milliseconds: 500), () {
       Navigator.pop(context);
     });

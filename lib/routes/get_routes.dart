@@ -3,6 +3,7 @@ import 'package:frontend/middlewares/navigation_middlewares.dart';
 import 'package:frontend/ui/Register/register.dart';
 import 'package:frontend/ui/login/login.dart';
 import 'package:frontend/ui/logistic/add_logistics_user/edit_logistic_user.dart';
+import 'package:frontend/ui/logistic/add_operators_transport/edit_operator_transport.dart';
 import 'package:frontend/ui/logistic/add_sellers/edit_sellers.dart';
 import 'package:frontend/ui/logistic/delivery_historial/history_by_date.dart';
 import 'package:frontend/ui/logistic/delivery_status/delivery_status_info.dart';
@@ -236,6 +237,10 @@ getRoutes() {
     GetPage(
         name: '/layout/logistic',
         page: () => LayoutPage(),
+        middlewares: [AuthMiddleware()]),
+    GetPage(
+        name: '/layout/logistic/info',
+        page: () => EditOperatorLogistic(),
         middlewares: [AuthMiddleware()]),
     GetPage(
         name: '/layout/logistic/sellers/info',
