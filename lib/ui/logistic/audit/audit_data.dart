@@ -14,6 +14,7 @@ import 'package:frontend/ui/logistic/novelties/novelties_info.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_details.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_details_data.dart';
 import 'package:frontend/ui/logistic/vendor_invoices/controllers/controllers.dart';
+import 'package:frontend/ui/widgets/logistic/customwidgetvalues.dart';
 import 'package:lottie/lottie.dart';
 import 'package:number_paginator/number_paginator.dart';
 import '../../../helpers/navigators.dart';
@@ -31,6 +32,7 @@ class _AuditState extends State<Audit> {
   TextEditingController _search = TextEditingController();
   List allData = [];
   List data = [];
+  // var datavalue ;
   bool sort = false;
   ScreenshotController screenshotController = ScreenshotController();
   ScrollController _scrollController = ScrollController();
@@ -48,6 +50,11 @@ class _AuditState extends State<Audit> {
   bool enabledBusqueda = true;
   int totalRegistros = 0;
   int generalValuetotal = 0;
+
+  String costTrans = "0.0";
+  String costEnt = "0.0";
+  String costDev = "0.0";
+  var respvalues;
 
   var getReport = CreateReportAudit();
 
@@ -198,6 +205,14 @@ class _AuditState extends State<Audit> {
           sharedPrefs!.getString("dateDesdeLogistica").toString(),
           sharedPrefs!.getString("dateHastaLogistica").toString());
 
+      respvalues = await Connections().getByDateRangeValuesAudit(
+          sharedPrefs!.getString("dateDesdeLogistica").toString(),
+          sharedPrefs!.getString("dateHastaLogistica").toString(),
+          arrayFiltersAnd,
+          defaultArrayFiltersAnd);
+
+      print(respvalues);
+
       if (listtransportadores.length == 1) {
         var responsetransportadoras = await Connections().getTransportadoras();
         List<dynamic> transportadorasList =
@@ -218,7 +233,7 @@ class _AuditState extends State<Audit> {
       setState(() {
         data = [];
         data = response['data'];
-
+        // datavalue = respvalues['Costo_Transporte'];
         total = response['total'];
 
         pageCount = response['last_page'];
@@ -304,6 +319,25 @@ class _AuditState extends State<Audit> {
           child: responsive(
               Column(
                 children: [
+                 MyCustomWidget(
+  value1: respvalues != null && respvalues['Costo_Transporte'] != null ? respvalues['Costo_Transporte'].toString() : "0.0",
+  value2: respvalues != null && respvalues['Costo_Entrega'] != null ? respvalues['Costo_Entrega'].toString() : "0.0",
+  value3: respvalues != null && respvalues['Costo_Devolución'] != null ? respvalues['Costo_Devolución'].toString() : "0.0",
+),
+
+
+                  // MyCustomWidget(
+                  //   value1: respvalues['Costo_Transporte'] != null
+                  //       ? respvalues['Costo_Transporte'].toString()
+                  //       : "0.0",
+                  //   value2: respvalues['Costo_Entrega'] != null
+                  //       ? respvalues['Costo_Entrega'].toString()
+                  //       : "0.0",
+                  //   value3: respvalues['Costo_Devolución'] != null
+                  //       ? respvalues['Costo_Devolución'].toString()
+                  //       : "0.0",
+                  // ),
+
                   _dates(context),
                   SizedBox(
                     height: 10,
@@ -392,7 +426,7 @@ class _AuditState extends State<Audit> {
                             DataColumn2(
                               label: Text("Id Pedido"),
                               size: ColumnSize.S,
-                              onSort: (columnIndex, ascending){},
+                              onSort: (columnIndex, ascending) {},
                             ),
                             DataColumn2(
                               label: SelectFilter(
@@ -614,7 +648,7 @@ class _AuditState extends State<Audit> {
                             DataColumn2(
                               label: Text("Id Pedido"),
                               size: ColumnSize.S,
-                              onSort: (columnIndex, ascending){},
+                              onSort: (columnIndex, ascending) {},
                             ),
                             DataColumn2(
                               label: SelectFilter(
@@ -816,7 +850,7 @@ class _AuditState extends State<Audit> {
               color: rowColor,
             ),
           ), onTap: () {
-        info(context, index);      
+        info(context, index);
       }),
       DataCell(
           Text(
