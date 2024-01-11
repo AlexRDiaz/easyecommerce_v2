@@ -42,11 +42,11 @@ class _AddOperatorsTransportState extends State<AddOperatorsTransport> {
       subRoutes = [];
       data = [];
     });
-    routesList = await Connections().getSubRoutes();
+    routesList = await Connections().getSubroutesByTransportadoraId(
+        sharedPrefs!.getString("idTransportadora").toString());
     for (var i = 0; i < routesList.length; i++) {
       setState(() {
-        subRoutes.add(
-            '${routesList[i]['attributes']['Titulo']}-${routesList[i]['id']}');
+        subRoutes.add('${routesList[i]}');
       });
     }
     var response = await Connections()
@@ -86,9 +86,12 @@ class _AddOperatorsTransportState extends State<AddOperatorsTransport> {
             ),
             Expanded(
               child: DataTable2(
-                  headingTextStyle: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-                  dataTextStyle:
-                      TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black),
+                  headingTextStyle: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.black),
+                  dataTextStyle: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black),
                   columnSpacing: 12,
                   horizontalMargin: 12,
                   minWidth: 600,
@@ -371,78 +374,118 @@ class _AddOperatorsTransportState extends State<AddOperatorsTransport> {
                                   minimumSize: Size(200, 40)),
                               onPressed: selectedValueRoute != null
                                   ? () async {
-                                      getLoadingModal(context, false);
-                                      var responseCode = await Connections()
-                                          .generateCodeAccount(
-                                              _controllers.mailController.text);
-                                      await _controllers.createUser(
-                                          code: responseCode.toString(),
-                                          success: (id) {
-                                            Navigator.pop(context);
-                                            // loadData();
-                                            showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return AlertDialog(
-                                                    title: Text(
-                                                      "Completado",
-                                                      style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold),
-                                                    ),
-                                                    content: Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [],
-                                                    ),
-                                                    actions: [
-                                                      ElevatedButton(
-                                                          onPressed: () async {
-                                                            await loadData();
-                                                            Navigator.pop(
-                                                                context);
-                                                          },
-                                                          child: Text(
-                                                            "ACEPTAR",
-                                                            style: TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          )),
-                                                      SizedBox(
-                                                        width: 10,
-                                                      )
-                                                    ],
-                                                  );
-                                                });
+                                      if (_controllers.phoneController.text !=
+                                              "" &&
+                                          _controllers.userController.text !=
+                                              "" &&
+                                          _controllers.mailController.text !=
+                                              "" &&
+                                          _controllers.costOperatorController
+                                                  .text !=
+                                              "") {
 
-                                            _controllers.userController.clear();
-                                            _controllers.mailController.clear();
-                                            _controllers.phoneController
-                                                .clear();
-                                            _controllers.costOperatorController
-                                                .clear();
-                                            selectedValueRoute = null;
-                                            setState(() {});
-                                          },
-                                          error: () {
-                                            Navigator.pop(context);
-                                            AwesomeDialog(
-                                              width: 500,
-                                              context: context,
-                                              dialogType: DialogType.error,
-                                              animType: AnimType.rightSlide,
-                                              title: 'Error',
-                                              desc: 'Vuelve a intentarlo',
-                                              btnCancel: Container(),
-                                              btnOkText: "Aceptar",
-                                              btnOkColor: colors.colorGreen,
-                                              btnCancelOnPress: () {},
-                                              btnOkOnPress: () {},
-                                            ).show();
-                                          },
-                                          subruta: selectedValueRoute!
-                                              .split('-')[1]);
+                                        String phoneNumber =
+                                            _controllers.phoneController.text;
+                                        if (phoneNumber.startsWith("0")) {
+                                          phoneNumber =
+                                              "+593" + phoneNumber.substring(1);
+                                        }
+                                        _controllers.phoneController.text = phoneNumber;
+                                        // print(
+                                            // "Número de teléfono: ${_controllers.phoneController.text}");
+
+                                        getLoadingModal(context, false);
+                                        var responseCode = await Connections()
+                                            .generateCodeAccount(_controllers
+                                                .mailController.text);
+                                        await _controllers.createUser(
+                                            code: responseCode.toString(),
+                                            success: (id) {
+                                              Navigator.pop(context);
+                                              // loadData();
+                                              showDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return AlertDialog(
+                                                      title: Text(
+                                                        "Completado",
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                      content: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: [],
+                                                      ),
+                                                      actions: [
+                                                        ElevatedButton(
+                                                            onPressed:
+                                                                () async {
+                                                              await loadData();
+                                                              Navigator.pop(
+                                                                  context);
+                                                            },
+                                                            child: Text(
+                                                              "ACEPTAR",
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            )),
+                                                        SizedBox(
+                                                          width: 10,
+                                                        )
+                                                      ],
+                                                    );
+                                                  });
+
+                                              _controllers.userController
+                                                  .clear();
+                                              _controllers.mailController
+                                                  .clear();
+                                              _controllers.phoneController
+                                                  .clear();
+                                              _controllers
+                                                  .costOperatorController
+                                                  .clear();
+                                              selectedValueRoute = null;
+                                              setState(() {});
+                                            },
+                                            error: () {
+                                              Navigator.pop(context);
+                                              AwesomeDialog(
+                                                width: 500,
+                                                context: context,
+                                                dialogType: DialogType.error,
+                                                animType: AnimType.rightSlide,
+                                                title: 'Error',
+                                                desc: 'Vuelve a intentarlo',
+                                                btnCancel: Container(),
+                                                btnOkText: "Aceptar",
+                                                btnOkColor: colors.colorGreen,
+                                                btnCancelOnPress: () {},
+                                                btnOkOnPress: () {},
+                                              ).show();
+                                            },
+                                            subruta: selectedValueRoute!
+                                                .split('-')[1]);
+                                      
+                                      } else {
+                                        AwesomeDialog(
+                                          width: 500,
+                                          context: context,
+                                          dialogType: DialogType.error,
+                                          animType: AnimType.rightSlide,
+                                          title: 'Error en el Registro',
+                                          desc: 'Campos Incompletos',
+                                          btnCancel: Container(),
+                                          btnOkText: "Aceptar",
+                                          btnOkColor: colors.colorGreen,
+                                          btnOkOnPress: () {},
+                                        ).show();
+                                      }
                                     }
                                   : null,
                               child: Text(

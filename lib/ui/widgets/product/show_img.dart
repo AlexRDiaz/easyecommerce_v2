@@ -39,7 +39,7 @@ class _ShowImagesState extends State<ShowImages> {
                   });
                 },
                 child: Container(
-                  width: screenWidth * 0.08,
+                  width: screenWidth * 0.09,
                   height: screenHeight * 0.15,
                   margin: const EdgeInsets.all(5),
                   child: Image.network(
@@ -52,7 +52,7 @@ class _ShowImagesState extends State<ShowImages> {
         ),
         const SizedBox(width: 20),
         SizedBox(
-          width: screenWidth * 0.4,
+          width: screenWidth * 0.35,
           height: screenHeight * 0.8,
           child: selectedImage != null
               ? Image.network(

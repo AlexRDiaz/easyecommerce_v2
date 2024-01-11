@@ -143,8 +143,13 @@ class _TransportProDeliveryHistoryDetails
                                                         id: widget.id,
                                                         novedades:
                                                             data['novedades'],
-                                                        currentStatus:
-                                                            data['status'],
+                                                        currentStatus: data[
+                                                                        'status'] ==
+                                                                    "NOVEDAD" ||
+                                                                data['status'] ==
+                                                                    "REAGENDADO"
+                                                            ? ""
+                                                            : data['status'],
                                                         dataL: widget.data!,
                                                       );
                                                     });

@@ -404,7 +404,6 @@ class _UpdateStatusOperatorHistorialState
                           //           getTransaccion[0]['id'], "ENTREGADO");
                           // }
 
-
                           if (mounted) {
                             setState(() {
                               _controllerModalText.clear();
@@ -547,14 +546,14 @@ class _UpdateStatusOperatorHistorialState
     dialogEntregado(resDelivered);
   }
 
-  Future<void> paymentNoEntregado(datane) async {
+  Future<void> paymentNoEntregado(datane, comentario) async {
     var response = await Connections().postDoc(imageSelect!);
     var resDelivered = await Connections().paymentOrderNotDelivered(
         datane['users'][0]['vendedores'][0]['id_master'],
         datane['users'][0]['vendedores'][0]['costo_envio'],
         datane['id'],
         "${datane['name_comercial']}-${datane['numero_orden']}",
-        _controllerModalText.text,
+        comentario,
         response[1]);
 
     dialogNoEntregado(resDelivered);
@@ -667,7 +666,7 @@ class _UpdateStatusOperatorHistorialState
                       var datane = await Connections()
                           .getOrderByIDHistoryLaravel(widget.id);
 
-                      paymentNoEntregado(datane);
+                      paymentNoEntregado(datane, _controllerModalText.text);
 
                       // var today = DateTime.now().toString().split(' ')[0];
                       // var getTransaccion = await Connections()
@@ -963,17 +962,17 @@ class _UpdateStatusOperatorHistorialState
                       });
 
                       // * if it exists, delete transaccion_pedidos_transportadora
-                      var datares = await Connections()
-                          .getOrderByIDHistoryLaravel(widget.id);
-                      var today = DateTime.now().toString().split(' ')[0];
-                      var getTransaccion = await Connections()
-                          .getTraccionPedidoTransportadora(widget.id,
-                              datares['transportadora'][0]['id'], today);
-                      if (getTransaccion != null) {
-                        var deleteTransacc = await Connections()
-                            .deleteTraccionPedidoTransportadora(
-                                getTransaccion[0]['id']);
-                      }
+                      // var datares = await Connections()
+                      //     .getOrderByIDHistoryLaravel(widget.id);
+                      // var today = DateTime.now().toString().split(' ')[0];
+                      // var getTransaccion = await Connections()
+                      //     .getTraccionPedidoTransportadora(widget.id,
+                      //         datares['transportadora'][0]['id'], today);
+                      // if (getTransaccion != null) {
+                      //   var deleteTransacc = await Connections()
+                      //       .deleteTraccionPedidoTransportadora(
+                      //           getTransaccion[0]['id']);
+                      // }
 
                       setState(() {
                         _controllerModalText.clear();
@@ -1045,17 +1044,17 @@ class _UpdateStatusOperatorHistorialState
                     {"comentario": _controllerModalText.text, "archivo": ""});
 
                 // * if it exists, delete transaccion_pedidos_transportadora
-                var datares =
-                    await Connections().getOrderByIDHistoryLaravel(widget.id);
-                var today = DateTime.now().toString().split(' ')[0];
-                var getTransaccion = await Connections()
-                    .getTraccionPedidoTransportadora(
-                        widget.id, datares['transportadora'][0]['id'], today);
-                if (getTransaccion != null) {
-                  var deleteTransacc = await Connections()
-                      .deleteTraccionPedidoTransportadora(
-                          getTransaccion[0]['id']);
-                }
+                // var datares =
+                //     await Connections().getOrderByIDHistoryLaravel(widget.id);
+                // var today = DateTime.now().toString().split(' ')[0];
+                // var getTransaccion = await Connections()
+                //     .getTraccionPedidoTransportadora(
+                //         widget.id, datares['transportadora'][0]['id'], today);
+                // if (getTransaccion != null) {
+                //   var deleteTransacc = await Connections()
+                //       .deleteTraccionPedidoTransportadora(
+                //           getTransaccion[0]['id']);
+                // }
 
                 setState(() {
                   _controllerModalText.clear();
@@ -1124,17 +1123,17 @@ class _UpdateStatusOperatorHistorialState
                     {"comentario": _controllerModalText.text, "archivo": ""});
 
                 // * if it exists, delete transaccion_pedidos_transportadora
-                var datares =
-                    await Connections().getOrderByIDHistoryLaravel(widget.id);
-                var today = DateTime.now().toString().split(' ')[0];
-                var getTransaccion = await Connections()
-                    .getTraccionPedidoTransportadora(
-                        widget.id, datares['transportadora'][0]['id'], today);
-                if (getTransaccion != null) {
-                  var deleteTransacc = await Connections()
-                      .deleteTraccionPedidoTransportadora(
-                          getTransaccion[0]['id']);
-                }
+                // var datares =
+                //     await Connections().getOrderByIDHistoryLaravel(widget.id);
+                // var today = DateTime.now().toString().split(' ')[0];
+                // var getTransaccion = await Connections()
+                //     .getTraccionPedidoTransportadora(
+                //         widget.id, datares['transportadora'][0]['id'], today);
+                // if (getTransaccion != null) {
+                //   var deleteTransacc = await Connections()
+                //       .deleteTraccionPedidoTransportadora(
+                //           getTransaccion[0]['id']);
+                // }
 
                 setState(() {
                   _controllerModalText.clear();
@@ -1203,17 +1202,17 @@ class _UpdateStatusOperatorHistorialState
                     {"comentario": _controllerModalText.text, "archivo": ""});
 
                 // * if it exists, delete transaccion_pedidos_transportadora
-                var datares =
-                    await Connections().getOrderByIDHistoryLaravel(widget.id);
-                var today = DateTime.now().toString().split(' ')[0];
-                var getTransaccion = await Connections()
-                    .getTraccionPedidoTransportadora(
-                        widget.id, datares['transportadora'][0]['id'], today);
-                if (getTransaccion != null) {
-                  var deleteTransacc = await Connections()
-                      .deleteTraccionPedidoTransportadora(
-                          getTransaccion[0]['id']);
-                }
+                // var datares =
+                //     await Connections().getOrderByIDHistoryLaravel(widget.id);
+                // var today = DateTime.now().toString().split(' ')[0];
+                // var getTransaccion = await Connections()
+                //     .getTraccionPedidoTransportadora(
+                //         widget.id, datares['transportadora'][0]['id'], today);
+                // if (getTransaccion != null) {
+                //   var deleteTransacc = await Connections()
+                //       .deleteTraccionPedidoTransportadora(
+                //           getTransaccion[0]['id']);
+                // }
 
                 setState(() {
                   _controllerModalText.clear();

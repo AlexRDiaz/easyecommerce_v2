@@ -376,30 +376,71 @@ class _WithDrawalDetailsState extends State<WithdrawalDetails> {
                                                       getLoadingModal(
                                                           context, false);
 
-                                                      var result = await Connections()
-                                                          .updateWithdrawalRealizado(
-                                                              response[1]
-                                                                  .toString());
-
-                                                      var dtsrt =
+                                                      var res =
                                                           await Connections()
-                                                              .getdtsOrdenRetiro();
+                                                              .debitWithdrawal(
+                                                                  response[1]);
 
-                                                      await Connections().postDebit(
-                                                          "${dtsrt['id_vendedor']}",
-                                                          data['attributes']
-                                                                  ['Monto']
-                                                              .toString(),
-                                                          "${dtsrt['id']}",
-                                                          "retiro - ${Get.parameters['id'].toString()}",
-                                                          "retiro",
-                                                          "orden de retiro pagada");
+                                                      if (res == 0) {
+                                                        // ignore: use_build_context_synchronously
+                                                        AwesomeDialog(
+                                                          width: 500,
+                                                          context: context,
+                                                          dialogType: DialogType
+                                                              .success,
+                                                          animType: AnimType
+                                                              .rightSlide,
+                                                          title:
+                                                              'Pago de solicitud exitoso',
+                                                          desc:
+                                                              'Se ha cambiado a estado REALIZADO',
+                                                          btnCancel:
+                                                              Container(),
+                                                          btnOkText: "Aceptar",
+                                                          btnOkColor:
+                                                              colors.colorGreen,
+                                                          btnOkOnPress: () {
+                                                            Navigator.pop(
+                                                                context);
+                                                            Navigator.pop(
+                                                                context);
+                                                          },
+                                                          onDismissCallback:
+                                                              (type) {
+                                                            Navigator.pop(
+                                                                context);
+                                                            Navigator.pop(
+                                                                context);
+                                                          },
+                                                        ).show();
+                                                      } else {
+                                                        // ignore: use_build_context_synchronously
+                                                        AwesomeDialog(
+                                                          width: 500,
+                                                          context: context,
+                                                          dialogType:
+                                                              DialogType.error,
+                                                          animType: AnimType
+                                                              .rightSlide,
+                                                          title:
+                                                              'Error al registrar pago',
+                                                          desc:
+                                                              'Vuelve a intentarlo',
+                                                          btnCancel:
+                                                              Container(),
+                                                          btnOkText: "Aceptar",
+                                                          btnOkColor:
+                                                              colors.colorGreen,
+                                                          btnCancelOnPress:
+                                                              () {},
+                                                          btnOkOnPress: () {},
+                                                        ).show();
+                                                      }
+
                                                       await loadData();
                                                       setState(() {
                                                         imageSelect = null;
                                                       });
-                                                      Navigator.pop(context);
-                                                      Navigator.pop(context);
                                                     } else {
                                                       AwesomeDialog(
                                                         width: 500,

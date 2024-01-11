@@ -29,9 +29,17 @@ class ProductController extends ControllerMVC {
     setState(() {});
   }
 
+  upate(int productId, json) async {
+    await Connections().updateProductRequest(productId, json);
+    setState(() {
+      // warehouses.removeWhere((warehouse) => warehouse.id == warehouseId);
+    });
+    // await loadWarehouses(sharedPrefs!.getString("idProvider").toString());
+  }
+
 //ok
-  disableProduct(int warehouseId) async {
-    await Connections().deleteProduct(warehouseId);
+  disableProduct(int productId) async {
+    await Connections().deleteProduct(productId);
     setState(() {});
   }
 
@@ -62,10 +70,10 @@ class ProductController extends ControllerMVC {
   // }
 
   Future<Map<String, dynamic>> loadProductsByProvider(idProvider, populate,
-      pageSize, currentPage, or, and, sort, search) async {
+      pageSize, currentPage, or, and, sort, search, to) async {
     try {
-      var response = await Connections().getProductsByProvider(
-          idProvider, populate, pageSize, currentPage, or, and, sort, search);
+      var response = await Connections().getProductsByProvider(idProvider,
+          populate, pageSize, currentPage, or, and, sort, search, to);
       if (response == 1) {
         print('Error: Status Code 1');
       } else if (response == 2) {

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/config/colors.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/server.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/ui/logistic/add_provider/add_provider.dart';
@@ -61,7 +62,8 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
   }
 
   Future<List<WarehouseModel>> _loadWarehouses([String query = '']) async {
-    await _controller.loadWarehouses();
+    await _controller
+        .loadWarehouses(sharedPrefs!.getString("idProvider").toString());
     if (query.isEmpty) {
       return _controller.warehouses;
     } else {
@@ -132,8 +134,7 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
         screenWidth > 600 ? 70 : 25; // Ejemplo de ajuste basado en el ancho
 
     return Scaffold(
-      body: 
-      Column(
+      body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -268,8 +269,7 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
                                         )
                                       : Icon(
                                           Icons.lock,
-                                          color: Colors
-                                              .red,
+                                          color: Colors.red,
                                           size: 20,
                                         ),
                                 ),
@@ -279,8 +279,7 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
                                   child: Container(
                                     decoration: BoxDecoration(
                                       color: warehouses[index].active == 1
-                                          ? Color.fromARGB(
-                                              255, 45, 228, 51)
+                                          ? Color.fromARGB(255, 45, 228, 51)
                                           : Colors.red,
                                       borderRadius: BorderRadius.only(
                                         bottomLeft: Radius.circular(20),

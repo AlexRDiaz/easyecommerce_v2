@@ -6,11 +6,11 @@ import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/providers/logistic/navigation_provider.dart';
 import 'package:frontend/providers/sellers/navigation_provider.dart';
-import 'package:frontend/ui/logistic/delivery_status/delivery_status.dart';
 import 'package:frontend/ui/sellers/add_seller_user/add_seller_user.dart';
 import 'package:frontend/ui/sellers/cash_withdrawals_sellers/cash_withdrawals_sellers.dart';
 import 'package:frontend/ui/sellers/catalog/catalog.dart';
 import 'package:frontend/ui/sellers/dashboard/dashboard.dart';
+import 'package:frontend/ui/sellers/delivery_status/delivery_status.dart';
 import 'package:frontend/ui/sellers/guides_sent/table_orders_guides_sent.dart';
 import 'package:frontend/ui/sellers/my_integrations/my_integrations.dart';
 import 'package:frontend/ui/sellers/my_seller_account/my_seller_account.dart';
@@ -136,43 +136,116 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
   ];
 
   Widget _buildPhoneLayout() {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double textSizeTitle = screenWidth > 600 ? 22 : 14;
+    // print(isSidebarOpen);
     return Scaffold(
+      key: _key,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Phone Layout'),
+        // toolbarHeight: heigth * 0.060,
+        leadingWidth: screenWidth * 0.6,
         actions: getActions,
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
+        leading: Row(
           children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text('Drawer Header'),
-            ),
-            ListTile(
-              title: Text('Change Password'),
-              onTap: () {
-                // Manejar la selección del cambio de contraseña
-                Navigator.pop(context);
+            IconButton(
+              icon: Icon(Icons.menu),
+              onPressed: () {
+                setState(() {
+                  isSidebarOpen = !isSidebarOpen;
+                });
               },
             ),
-            ListTile(
-              title: Text('Security Questions'),
-              onTap: () {
-                // Manejar la selección de las preguntas de seguridad
-                Navigator.pop(context);
-              },
-            ),
+            // Text(
+            //   sharedPrefs!.getString("NameComercialSeller").toString(),
+            //   style: TextStyle(color: Colors.white),
+            // )
           ],
         ),
       ),
-      body: Center(
-        child: Text(
-          'Phone Layout',
-          style: TextStyle(fontSize: 24),
-        ),
+      body: Stack(
+        children: [
+          AnimatedPositioned(
+            duration: Duration(milliseconds: 300),
+            top: 0,
+            bottom: 0,
+            left: isSidebarOpen ? 260 : 0,
+            right: 0,
+            child: currentView["view"],
+          ),
+          AnimatedPositioned(
+            duration: Duration(milliseconds: 300),
+            top: 0,
+            bottom: 0,
+            left: isSidebarOpen ? 0 : -260,
+            child: Container(
+              color: colorDrawer,
+              width: 250,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Image.asset(images.logoEasyEcommercce,
+                          fit: BoxFit.fill),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Expanded(
+                    child: ListView(
+                      children: [
+                        _buildMenuItemSimple('DashBoard', 'DashBoard',
+                            Icon(Icons.home_outlined, color: colorlabels)),
+                        _buildMenuItemSimple(
+                            'Agregar vendedor',
+                            'Agregar Usuarios Vendedores',
+                            Icon(Icons.person_add, color: colorlabels)),
+                        _buildMenuItemSimple(
+                            'Ingreso de pedidos',
+                            'Ingreso de Pedidos',
+                            Icon(Icons.shopping_cart, color: colorlabels)),
+                        _buildMenuItemSimple(
+                            'Estado de entregas',
+                            'Estado Entregas Pedidos',
+                            Icon(Icons.local_shipping, color: colorlabels)),
+                        _buildMenuItemSimple(
+                            'Pedidos no deseados',
+                            'Pedidos No Deseados',
+                            Icon(Icons.delete, color: colorlabels)),
+                        _buildMenuItemSimple('Devoluciones', 'Devoluciones',
+                            Icon(Icons.assignment_return, color: colorlabels)),
+                        _buildMenuItemSimple(
+                            'Catálogo de Productos',
+                            'Catálogo de Productos',
+                            Icon(Icons.shopping_bag_rounded,
+                                color: colorlabels)),
+                        _buildMenuItemSimple('Billetera', 'Billetera',
+                            Icon(Icons.wallet, color: colorlabels)),
+                        _buildMenuItemSimple('Mi bileltera', 'Mi Billetera',
+                            Icon(Icons.wallet, color: colorlabels)),
+                        _buildMenuItemSimple(
+                            "Retiros en efectivo",
+                            'Retiros en Efectivo',
+                            Icon(Icons.account_balance, color: colorlabels)),
+                        _buildMenuItemSimple('Imprimir guías', 'Imprimir Guías',
+                            Icon(Icons.print_outlined, color: colorlabels)),
+                        _buildMenuItemSimple('Guías impresas', 'Guías Impresas',
+                            Icon(Icons.print_disabled, color: colorlabels)),
+                        _buildMenuItemSimple('Guías enviadas', 'Guías Enviadas',
+                            Icon(Icons.send, color: colorlabels)),
+                        _buildMenuItemSimple(
+                            'Mis integraciones',
+                            'Mis integraciones',
+                            Icon(Icons.settings, color: colorlabels)),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -190,7 +263,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
             Text(
               "${email}",
               style: TextStyle(
-                color: Colors.black,
+                color: Colors.white,
               ),
             ),
             const Icon(
@@ -371,7 +444,8 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                           _buildMenuItem(
                               'Catálogo de Productos',
                               'Catálogo de Productos',
-                              Icon(Icons.send, color: colorlabels)),
+                              Icon(Icons.shopping_bag_rounded,
+                                  color: colorlabels)),
                         ]),
                         _buildMenu('Movimientos',
                             Icon(Icons.paid, color: colorlabels), [
@@ -511,12 +585,69 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                   }
 
                   pages = List.from(pages)..[selectedIndex]['selected'] = true;
+                  String cv = currentView['view'].toString();
+                  print(cv);
+
+                  if (cv == "Catalog") {
+                    print("if");
+                    isSidebarOpen = false;
+                  }
                 });
-                Provider.of<NavigationProviderLogistic>(context, listen: false)
+
+                Provider.of<NavigationProviderSellers>(context, listen: false)
                     .changeIndex(selectedIndex, selectedView['page']);
               },
             ),
           )
         : Container();
+  }
+
+  Widget _buildMenuItemSimple(String title, String page, Icon icon) {
+    final theme = Theme.of(context);
+
+    var betweenSelected =
+        pages.indexWhere((element) => element['selected'] == true);
+
+    var selectedView = pages.firstWhere((element) => element['page'] == page);
+    var selectedIndex = pages.indexWhere((element) => element['page'] == page);
+
+    return Container(
+      color: selectedView["selected"]
+          ? Colors.blue.withOpacity(0.2)
+          : Colors.white,
+      padding: const EdgeInsets.only(left: 20),
+      child: ListTile(
+        title: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            icon,
+            Container(
+              padding: EdgeInsets.only(left: 10),
+              child: Text(
+                title,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: colorlabels,
+                ),
+              ),
+            ),
+          ],
+        ),
+        onTap: () {
+          sharedPrefs!.setString("index", selectedIndex.toString());
+
+          setState(() {
+            currentView = selectedView;
+            if (betweenSelected != -1) {
+              pages = List.from(pages)..[betweenSelected]['selected'] = false;
+            }
+
+            pages = List.from(pages)..[selectedIndex]['selected'] = true;
+            isSidebarOpen = false;
+          });
+          Provider.of<NavigationProviderSellers>(context, listen: false)
+              .changeIndex(selectedIndex, selectedView['page']);
+        },
+      ),
+    );
   }
 }

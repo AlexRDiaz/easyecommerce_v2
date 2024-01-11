@@ -385,8 +385,8 @@ class _TransactionsViewState extends State<TransactionsView> {
                 BorderRadius.circular(0.0), // Establece el radio del borde a 0
           ),
           child: Container(
-            width: MediaQuery.of(context).size.width * 0.35,
-            height: MediaQuery.of(context).size.height * 0.35,
+            width: MediaQuery.of(context).size.width * 0.30,
+            height: MediaQuery.of(context).size.height * 0.50,
             child: Withdrawal(),
           ),
         );

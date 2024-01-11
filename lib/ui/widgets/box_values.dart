@@ -43,7 +43,7 @@ class boxValues extends StatelessWidget {
         ],
       ),
       Container(
-        height: 45.0, // Ajusta la altura según tus necesidades
+        height: 55.0, // Ajusta la altura según tus necesidades
         child: ListView(
           scrollDirection: Axis.horizontal,
           children: [

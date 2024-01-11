@@ -51,8 +51,12 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
   int numDays = 31;
   List<String> meses = [];
   List<String> years = [];
-  String? selectedValueYear = DateTime.now().year.toString();
-  String? selectedValueMonth = DateTime.now().month.toString();
+  String selectedValueYear = "";
+  String currentYear = DateTime.now().year.toString();
+
+  String selectedValueMonth = "";
+  String currentMonth = DateTime.now().month.toString();
+
   List<Map> selectedChecks = [];
   int counterChecks = 0;
   // List data = [];
@@ -71,6 +75,13 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
   }
 
   loadData() async {
+    // print("loadData");
+    selectedValueYear =
+        selectedValueYear == "" ? currentYear : selectedValueYear;
+    selectedValueMonth =
+        selectedValueMonth == "" ? currentMonth : selectedValueMonth;
+    // print("selectedAñ: $selectedValueYear selectedMes: $selectedValueMonth");
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
@@ -101,25 +112,18 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
     }
 
     years.clear();
-    var selectedYear = int.parse(selectedValueYear ?? '');
+    var selectedYear = int.parse(currentYear ?? '');
     var startYear = 2023;
     var endYear = 0;
 
     if (selectedYear != null) {
-      endYear = selectedYear + 5;
+      // endYear = selectedYear + 5;
+      endYear = selectedYear;
 
       for (int i = startYear; i <= endYear; i++) {
         years.add(i.toString());
       }
     }
-
-    setState(() {
-      idTSC = 0;
-      totalProceeds = 0.0;
-      totalShippingCost = 0.0;
-      total = 0.0;
-      statusTransportadoraShipping = 'PENDIENTE';
-    });
 
     Future.delayed(Duration(milliseconds: 500), () {
       Navigator.pop(context);
@@ -128,14 +132,30 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
   }
 
   getOrders() async {
+    // print("getOrders");
+    setState(() {
+      idTSC = 0;
+      totalProceeds = 0.0;
+      totalShippingCost = 0.0;
+      total = 0.0;
+      statusTransportadoraShipping = 'PENDIENTE';
+    });
+    selectedValueYear =
+        selectedValueYear == "" ? currentYear : selectedValueYear;
+    selectedValueMonth =
+        selectedValueMonth == "" ? currentMonth : selectedValueMonth;
+    // print("selectedAñ: $selectedValueYear selectedMes: $selectedValueMonth");
+
     selectedChecks = [];
 
     idTransp = int.parse(sharedPrefs!.getString("idTransportadora").toString());
     // var fecha = sharedPrefs!.getString("dateOperatorState");
     var fecha =
-        "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
+        "${DateTime.now().day}/${selectedValueMonth.split('-')[1]}/${selectedValueYear}";
+
+    // "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
     var fechaFormatted =
-        "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}";
+        "${selectedValueYear}-${selectedValueMonth.split('-')[1]}-${DateTime.now().day}";
 
     //TSC:transportadoras_shipping_cost
     //TPT:transaccion_pedido_transportadora
@@ -152,31 +172,55 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
       // print("NO existen TSC para hoy");
     }
 
-    //no lo se, creo que hay que hacer que esto funcione para que si existe no hacer el data.add y ni la consulta de ordersDate
+    bool isCurrentYearMonth = false;
+    try {
+      int selectedY = int.parse(selectedValueYear!);
 
-    List<String> dayDate = [];
-    dayDate.add(fechaFormatted);
-    var ordersDate = await Connections()
-        .getTransaccionesOrdersByTransportadorasDates(idTransp, dayDate);
+      if (selectedY == DateTime.now().year) {
+        // print("mismo año");
+        // Analizar mes
+        int selectedM = int.parse(selectedValueMonth.split('-')[1]);
 
-    if (ordersDate.isNotEmpty) {
-      // print("Transacciones NO esta vacio");
-
-      var dataOrders = ordersDate['data'];
-      totalShippingCost = ordersDate['total'];
-
-      for (var pedido in dataOrders) {
-        if (pedido["status"] == "ENTREGADO") {
-          double precioTotal = double.parse(pedido["precio_total"].toString());
-          totalProceeds += precioTotal;
+        if (selectedM == DateTime.now().month) {
+          // print("es el mes actual hay que consultar data en vivo");
+          isCurrentYearMonth = true;
+        } else {
+          // print("NO es un mes actual, maybe < o > al actual");
         }
+      } else {
+        // print("Año anterior");
       }
-      totalProceeds = double.parse((totalProceeds).toStringAsFixed(2));
-      totalShippingCost = double.parse((totalShippingCost).toStringAsFixed(2));
-      total = totalProceeds - totalShippingCost;
-      total = double.parse((total).toStringAsFixed(2));
-    } else {
-      // print("Transacciones esta vacio");
+    } catch (e) {
+      print("Error al convertir el año a un número.");
+    }
+
+    if (isCurrentYearMonth) {
+      List<String> dayDate = [];
+      dayDate.add(fechaFormatted);
+      var ordersDate = await Connections()
+          .getTransaccionesOrdersByTransportadorasDates(idTransp, dayDate);
+
+      if (ordersDate.isNotEmpty) {
+        // print("Transacciones NO esta vacio");
+
+        var dataOrders = ordersDate['data'];
+        totalShippingCost = ordersDate['total'];
+
+        for (var pedido in dataOrders) {
+          if (pedido["status"] == "ENTREGADO") {
+            double precioTotal =
+                double.parse(pedido["precio_total"].toString());
+            totalProceeds += precioTotal;
+          }
+        }
+        totalProceeds = double.parse((totalProceeds).toStringAsFixed(2));
+        totalShippingCost =
+            double.parse((totalShippingCost).toStringAsFixed(2));
+        total = totalProceeds - totalShippingCost;
+        total = double.parse((total).toStringAsFixed(2));
+      } else {
+        // print("Transacciones esta vacio");
+      }
     }
 
     var responseTSC = await Connections().getOrdersSCalendarLaravel(
@@ -193,18 +237,20 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
     });
 
     data = responseTSC;
-
-    data.add({
-      // "day": currentDayDate,
-      "id": "new123id",
-      "fecha": fechaFormatted,
-      "status": statusTransportadoraShipping,
-      "daily_proceeds": totalProceeds,
-      "daily_shipping_cost": totalShippingCost,
-      "daily_total": total,
-      "rejected_reason": "",
-      "url_proof_payment": "",
-    });
+    if (isCurrentYearMonth) {
+      // print("add current");
+      data.add({
+        // "day": currentDayDate,
+        "id": "new123id",
+        "fecha": fechaFormatted,
+        "status": statusTransportadoraShipping,
+        "daily_proceeds": totalProceeds,
+        "daily_shipping_cost": totalShippingCost,
+        "daily_total": total,
+        "rejected_reason": "",
+        "url_proof_payment": "",
+      });
+    }
 
     if (data.isNotEmpty) {
       //
@@ -568,10 +614,9 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
                                             TextSpan(
                                               text:
                                                   "Total: \$${getByDay2(index + 1)[0]["daily_total"].toString()}",
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontWeight: FontWeight.bold,
-                                                color: Color.fromARGB(
-                                                    255, 7, 1, 181),
+                                                color: Colors.indigo[600],
                                               ),
                                             ),
                                         ],

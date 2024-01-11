@@ -61,7 +61,7 @@ class ProductCard extends StatelessWidget {
 
     double textSize = screenWidth > 600 ? 14 : 12;
     double iconSize = screenWidth > 600 ? 70 : 25;
-    double imgHeight = 260;
+    double imgHeight = screenWidth > 600 ? 260 : 200;
 
     return Card(
       shape: RoundedRectangleBorder(

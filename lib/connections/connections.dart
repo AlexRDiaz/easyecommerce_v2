@@ -1351,6 +1351,26 @@ class Connections {
     }
   }
 
+  getActiveTransportadoras() async {
+    try {
+      var response = await http.get(
+        Uri.parse("$serverLaravel/api/active/transportadoras"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      // var decodeData = json.decode(response);
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
   // ! ****************** pdf's
   getByDateRangeOrdersforAudit(List defaultAnd, List and, List or, List not,
       currentPage, search, sortField, String dateStart, String dateEnd) async {
@@ -2950,10 +2970,10 @@ class Connections {
     return decodeData['data'];
   }
 
-  Future getRoutesForTransporter() async {
+  Future getRoutesForTransporter(idTransport) async {
     var request = await http.get(
       Uri.parse(
-          "$server/api/rutas?populate=transportadoras&populate=sub_rutas&filters[transportadoras][id][\$eq]=${sharedPrefs!.getString("idTransportadora").toString()}&pagination[limit]=-1"),
+          "$server/api/rutas?populate=transportadoras&populate=sub_rutas&filters[transportadoras][id][\$eq]=$idTransport&pagination[limit]=-1"),
       headers: {'Content-Type': 'application/json'},
     );
     var response = await request.body;
@@ -3004,6 +3024,55 @@ class Connections {
     }
   }
 
+  getSubRoutesID() async {
+    try {
+      var response = await http.get(
+          Uri.parse("$serverLaravel/api/subrutas/withid"),
+          headers: {'Content-Type': 'application/json'});
+
+      if (response.statusCode != 200) {
+        return 1;
+      } else {
+        return json.decode(response.body);
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  getOperatorsAvailables() async {
+    try {
+      var response = await http.get(Uri.parse("$serverLaravel/api/operators"),
+          headers: {'Content-Type': 'application/json'});
+
+      if (response.statusCode != 200) {
+        return 1;
+      } else {
+        var result = json.decode(response.body);
+        return result['data'];
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  getSubroutesByTransportadoraId(id) async {
+    List<String> auxi = [];
+    try {
+      var response = await http.get(
+          Uri.parse("$serverLaravel/api/subrutas/bytransport/$id"),
+          headers: {'Content-Type': 'application/json'});
+
+      if (response.statusCode != 200) {
+        return auxi;
+      } else {
+        return json.decode(response.body);
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
   getOperatorsbySubRoutes(id, transid) async {
     try {
       var response = await http.post(
@@ -3045,12 +3114,12 @@ class Connections {
     return decodeData['data'];
   }
 
-  Future getOrdersSCalendar(id, month) async {
+  Future getOrdersSCalendar(id, month, year) async {
+    // print(json.encode({"mes": month, "year": year}));
     var request = await http.post(
         Uri.parse("$server/api/pedidos/filter/transporter/$id"),
         headers: {'Content-Type': 'application/json'},
-        body: json
-            .encode({"mes": month, "year": DateTime.now().year.toString()}));
+        body: json.encode({"mes": month, "year": year}));
     var response = await request.body;
     var decodeData = json.decode(response);
     return decodeData['data'];
@@ -4029,6 +4098,37 @@ class Connections {
     return decodeData;
   }
 
+// ! principal para la vista de agregar operadores en transportadora
+
+  getOperatorsTransportLaravel(
+      List filtersAnd, List filtersOr, searchValue, List defaultAnd) async {
+    List filtersAndAll = [];
+    filtersAndAll.addAll(filtersAnd);
+
+    filtersAndAll.addAll(defaultAnd);
+    print(json.encode(
+        {"and": filtersAndAll, "or": filtersOr, "searchValue": searchValue}));
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/operadoresoftransport"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "and": filtersAndAll,
+            "or": filtersOr,
+            "searchValue": searchValue
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData['data'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
   Future getAllOperatorsAndByTransport(id) async {
     var request = await http.get(
       Uri.parse(
@@ -4310,6 +4410,31 @@ class Connections {
       return false;
     } else {
       return true;
+    }
+  }
+
+  Future debitWithdrawal(comprobante) async {
+    try {
+      String id = Get.parameters['id'].toString();
+
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/transacciones/debit_withdrawal/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "comprobante": comprobante,
+            "fecha_transferencia":
+                "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year} ${DateTime.now().hour}:${DateTime.now().minute}",
+            "generated_by": sharedPrefs!.getString("id").toString()
+          }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      return 2;
     }
   }
 
@@ -5872,7 +5997,7 @@ class Connections {
 
   //  *
   getProductsByProvider(idProvider, populate, page_size, current_page, or, and,
-      sort, search) async {
+      sort, search, to) async {
     try {
       var response = await http.post(
           Uri.parse("$serverLaravel/api/products/by/$idProvider"),
@@ -5884,7 +6009,8 @@ class Connections {
             "or": or,
             "and": and,
             "sort": sort,
-            "search": search
+            "search": search,
+            "to": to
           }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -5967,6 +6093,26 @@ class Connections {
     } catch (e) {
       res = 3;
       return res;
+    }
+  }
+
+  //  *
+  updateProductRequest(int id, datajson) async {
+    try {
+      var request = await http.put(
+          Uri.parse("$serverLaravel/api/products/update/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(datajson));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      return 2;
     }
   }
 
@@ -6575,7 +6721,7 @@ class Connections {
   getProvidersAll() async {
     try {
       var response = await http.get(
-        Uri.parse("$serverLaravel/api/providers/all"),
+        Uri.parse("$serverLaravel/api/providers/nofilter"),
         headers: {'Content-Type': 'application/json'},
       );
       if (response.statusCode == 200) {
@@ -6683,6 +6829,26 @@ class Connections {
     }
   }
 
+  //  *
+  updateProviderRequest(int id, datajson) async {
+    try {
+      var request = await http.put(
+          Uri.parse("$serverLaravel/api/providers/update/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(datajson));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
   createWarehouse(WarehouseModel warehouse) async {
     try {
       var response = await http.post(Uri.parse("$serverLaravel/api/warehouses"),
@@ -6769,6 +6935,26 @@ class Connections {
         return 1;
       }
     } catch (error) {
+      return 2;
+    }
+  }
+
+  //  *
+  updateWarehouseReq(int id, datajson) async {
+    try {
+      var request = await http.put(
+          Uri.parse("$serverLaravel/api/warehouses/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(datajson));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
       return 2;
     }
   }

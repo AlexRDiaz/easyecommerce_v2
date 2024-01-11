@@ -12,6 +12,7 @@ import 'package:frontend/ui/provider/transactions/transactions_view.dart';
 import 'package:frontend/ui/provider/warehouses/warehouses.dart';
 import 'package:frontend/ui/sellers/add_seller_user/add_seller_user.dart';
 import 'package:frontend/ui/sellers/cash_withdrawals_sellers/cash_withdrawals_sellers.dart';
+import 'package:frontend/ui/sellers/catalog/catalog.dart';
 import 'package:frontend/ui/sellers/dashboard/dashboard.dart';
 import 'package:frontend/ui/sellers/guides_sent/table_orders_guides_sent.dart';
 import 'package:frontend/ui/sellers/my_integrations/my_integrations.dart';
@@ -57,6 +58,7 @@ List<Map<String, dynamic>> pagesSeller = [
     "view": tansportStats(),
     "selected": false
   },
+  {"page": "Catálogo de Productos", "view": Catalog(), "selected": false},
   {"page": "Imprimir Guías", "view": PrintGuidesSeller(), "selected": false},
   {"page": "Guías Impresas", "view": PrintedGuidesSeller(), "selected": false},
   {
