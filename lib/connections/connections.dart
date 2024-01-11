@@ -5976,7 +5976,7 @@ class Connections {
 
   //  *
   getProductsByProvider(idProvider, populate, page_size, current_page, or, and,
-      sort, search) async {
+      sort, search, to) async {
     try {
       var response = await http.post(
           Uri.parse("$serverLaravel/api/products/by/$idProvider"),
@@ -5988,7 +5988,8 @@ class Connections {
             "or": or,
             "and": and,
             "sort": sort,
-            "search": search
+            "search": search,
+            "to": to
           }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);

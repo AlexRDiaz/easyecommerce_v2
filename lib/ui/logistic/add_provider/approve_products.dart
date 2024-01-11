@@ -76,11 +76,13 @@ class _ApproveProductsState extends State<ApproveProducts> {
         arrayFiltersOr,
         arrayFiltersAnd,
         sortFieldDefaultValue.toString(),
-        _search.text);
-    List<ProductModel> filteredProducts = _productController.products
-        .where((product) => product.approved == 2)
-        .toList();
-    return filteredProducts;
+        _search.text,
+        "approve");
+    // List<ProductModel> filteredProducts = _productController.products
+    //     .where((product) => product.approved == 2)
+    //     .toList();
+    // return filteredProducts;
+    return _productController.products;
   }
 
   @override
@@ -109,7 +111,9 @@ class _ApproveProductsState extends State<ApproveProducts> {
               children: [
                 Text(
                   widget.provider.name.toString(),
-                  style: customTextStyleTitle,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -118,7 +122,9 @@ class _ApproveProductsState extends State<ApproveProducts> {
               children: [
                 Text(
                   "Bodega:",
-                  style: customTextStyleTitle,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -231,10 +237,11 @@ class _ApproveProductsState extends State<ApproveProducts> {
                         return Colors.white;
                       }),
                       headingTextStyle: const TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.black),
+                          // fontWeight: FontWeight.bold,
+                          color: Colors.black),
                       dataTextStyle: const TextStyle(
                           fontSize: 12,
-                          fontWeight: FontWeight.bold,
+                          // fontWeight: FontWeight.bold,
                           color: Colors.black),
                       columnSpacing: 12,
                       columns: [
@@ -307,15 +314,117 @@ class _ApproveProductsState extends State<ApproveProducts> {
                                 showProductInfoDialog(products[index]);
                               },
                             ),
-                            DataCell(products[index].approved == 1
-                                ? const Icon(Icons.check_circle_rounded,
-                                    color: Colors.green)
-                                : products[index].approved == 2
-                                    ? const Icon(Icons.hourglass_bottom_sharp,
-                                        color: Colors.indigo)
-                                    : const Icon(Icons.cancel_rounded,
-                                        color: Colors.red)),
                             DataCell(
+                              Text(
+                                products[index].approved == 1
+                                    ? 'Aprobado'
+                                    : products[index].approved == 2
+                                        ? 'Pendiente'
+                                        : products[index].approved == 3
+                                            ? 'Suspendido'
+                                            : 'Rechazado',
+                                style: TextStyle(
+                                  color: products[index].approved == 1
+                                      ? Colors.green
+                                      : products[index].approved == 2
+                                          ? Colors.indigo.shade600
+                                          : products[index].approved == 3
+                                              ? Colors.orange
+                                              : Colors.red,
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              PopupMenuButton<String>(
+                                padding: EdgeInsets.zero,
+                                elevation: 10,
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      "Cambiar Estado",
+                                      style: TextStyle(
+                                          decoration: TextDecoration.underline,
+                                          color: Colors.blue.shade700),
+                                    ),
+                                  ],
+                                ),
+                                itemBuilder: (BuildContext context) {
+                                  return [
+                                    PopupMenuItem<String>(
+                                      child: Text(
+                                        "Aprobar",
+                                      ),
+                                      value: "approve",
+                                    ),
+                                    PopupMenuItem<String>(
+                                      child: Row(
+                                        children: [
+                                          Text("Rechazar"),
+                                        ],
+                                      ),
+                                      value: "reject",
+                                    ),
+                                    PopupMenuItem<String>(
+                                      child: Row(
+                                        children: [
+                                          Text("Suspender"),
+                                        ],
+                                      ),
+                                      value: "suspend",
+                                    ),
+                                  ];
+                                },
+                                onSelected: (value) async {
+                                  //
+                                  if (value == "approve") {
+                                    _productController.upate(
+                                        int.parse(products[index]
+                                            .productId
+                                            .toString()),
+                                        {"approved": 1});
+
+                                    Navigator.pop(context);
+                                  } else if (value == "reject") {
+                                    _productController.upate(
+                                        int.parse(products[index]
+                                            .productId
+                                            .toString()),
+                                        {"approved": 0});
+
+                                    Navigator.pop(context);
+                                  } else if (value == "suspend") {
+                                    _productController.upate(
+                                        int.parse(products[index]
+                                            .productId
+                                            .toString()),
+                                        {"approved": 3});
+
+                                    Navigator.pop(context);
+                                  }
+
+                                  return showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return Dialog(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(0.0),
+                                          ),
+                                          child: Container(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.95,
+                                            child: LayoutApprovePage(
+                                                provider: widget.provider,
+                                                currentV: "Productos"),
+                                          ),
+                                        );
+                                      }).then((value) {});
+                                  //
+                                },
+                              ),
+                              /*
                               ElevatedButton(
                                 onPressed: () async {
                                   //
@@ -371,6 +480,7 @@ class _ApproveProductsState extends State<ApproveProducts> {
                                   ],
                                 ),
                               ),
+                            */
                             ),
                           ],
                         ),

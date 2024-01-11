@@ -118,8 +118,8 @@ class _ProviderViewState extends State<ProviderView> {
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.only(
-            left: MediaQuery.of(context).size.width * 0.1,
-            right: MediaQuery.of(context).size.width * 0.1),
+            left: MediaQuery.of(context).size.width * 0.020,
+            right: MediaQuery.of(context).size.width * 0.020),
         child: Column(
           children: [
             Padding(

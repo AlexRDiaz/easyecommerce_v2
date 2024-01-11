@@ -556,6 +556,9 @@ class _OrderEntryState extends State<OrderEntry> {
                                   "No Desea",
                                   style: TextStyle(fontWeight: FontWeight.bold),
                                 )),
+                            const SizedBox(
+                              width: 10,
+                            ),
                             ElevatedButton(
                                 onPressed: () async {
                                   await showDialog(

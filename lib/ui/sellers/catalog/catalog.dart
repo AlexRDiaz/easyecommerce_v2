@@ -7,6 +7,7 @@ import 'package:flutter_animated_icons/icons8.dart';
 import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/models/product_model.dart';
@@ -21,6 +22,7 @@ import 'package:frontend/ui/provider/warehouses/controllers/warehouses_controlle
 import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/product/product_card.dart';
+import 'package:frontend/ui/widgets/product/product_carousel.dart';
 import 'package:frontend/ui/widgets/product/show_img.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -168,989 +170,1268 @@ class _CatalogState extends State<Catalog> {
               child: Container(
                 child: ListView(
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: screenWidth * 0.010,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 20),
-                                Text(
-                                  'Filtros',
-                                  style: GoogleFonts.robotoCondensed(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                    color: Theme.of(context).hintColor,
-                                  ),
+                    responsive(
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: screenWidth * 0.010,
                                 ),
-                                const SizedBox(height: 30),
-                                TextButton(
-                                  onPressed: () async {
-                                    setState(() {
-                                      selectedProvider = 'TODO';
-                                      selectedCategory = 'TODO';
-                                      selectedCategoriesList = [];
-                                      arrayFiltersAnd = [];
-                                      outFilter = [];
-                                      _minPriceController.clear();
-                                      _maxPriceController.clear();
-                                      isSelectedFavorites = false;
-                                      isSelectedOnSale = false;
-                                      filterps = [];
-                                    });
-                                  },
-                                  child: const Row(
-                                    children: [
-                                      Icon(Icons.clear),
-                                      SizedBox(width: 5),
-                                      Text('Limpiar Filtros'),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 30),
-                                Row(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                    const SizedBox(height: 20),
+                                    Text(
+                                      'Filtros',
+                                      style: GoogleFonts.robotoCondensed(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20,
+                                        color: Theme.of(context).hintColor,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 30),
+                                    TextButton(
+                                      onPressed: () async {
+                                        setState(() {
+                                          selectedProvider = 'TODO';
+                                          selectedCategory = 'TODO';
+                                          selectedCategoriesList = [];
+                                          arrayFiltersAnd = [];
+                                          outFilter = [];
+                                          _minPriceController.clear();
+                                          _maxPriceController.clear();
+                                          isSelectedFavorites = false;
+                                          isSelectedOnSale = false;
+                                          filterps = [];
+                                        });
+                                      },
+                                      child: const Row(
                                         children: [
-                                          Text(
-                                            'Proveedor',
-                                            style: GoogleFonts.robotoCondensed(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 5),
-                                          DropdownButtonFormField<String>(
-                                            isExpanded: true,
-                                            hint: Text(
-                                              'Seleccione una opción',
-                                              style: GoogleFonts.roboto(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14,
-                                                color:
-                                                    Theme.of(context).hintColor,
-                                              ),
-                                            ),
-                                            items: providersToSelect
-                                                .map((item) => DropdownMenuItem(
-                                                      value: item,
-                                                      child: Text(
-                                                        item == 'TODO'
-                                                            ? 'TODO'
-                                                            : '${item.split('-')[1]}',
-                                                        style:
-                                                            GoogleFonts.roboto(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize: 14,
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .hintColor,
-                                                        ),
-                                                      ),
-                                                    ))
-                                                .toList(),
-                                            value: selectedProvider,
-                                            onChanged: (value) {
-                                              setState(() {
-                                                selectedProvider = value;
-                                              });
-                                              if (value != 'TODO') {
-                                                if (value is String) {
-                                                  arrayFiltersAnd = [];
-                                                  arrayFiltersAnd.add({
-                                                    "warehouse.provider_id":
-                                                        selectedProvider
-                                                            .toString()
-                                                            .split("-")[0]
-                                                            .toString()
-                                                  });
-                                                }
-                                              } else {
-                                                arrayFiltersAnd = [];
-                                              }
-                                            },
-                                            decoration: InputDecoration(
-                                              fillColor: Colors.white,
-                                              filled: true,
-                                              border: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5.0),
-                                              ),
-                                            ),
-                                          ),
+                                          Icon(Icons.clear),
+                                          SizedBox(width: 5),
+                                          Text('Limpiar Filtros'),
                                         ],
                                       ),
                                     ),
-                                  ],
-                                ),
-                                const SizedBox(height: 20),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Categorias',
-                                            style: GoogleFonts.robotoCondensed(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 5),
-                                          DropdownButtonFormField<String>(
-                                            isExpanded: true,
-                                            hint: Text(
-                                              'Seleccione una categoria',
-                                              style: GoogleFonts.roboto(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14,
-                                                color:
-                                                    Theme.of(context).hintColor,
-                                              ),
-                                            ),
-                                            items: categoriesToSelect
-                                                .map((item) => DropdownMenuItem(
-                                                      value: item,
-                                                      child: Text(
-                                                        item == 'TODO'
-                                                            ? 'TODO'
-                                                            : item
-                                                                .split('-')[0],
-                                                        style:
-                                                            GoogleFonts.roboto(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize: 14,
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .hintColor,
-                                                        ),
-                                                      ),
-                                                    ))
-                                                .toList(),
-                                            value: selectedCategory ?? 'TODO',
-                                            onChanged: (value) {
-                                              setState(() {
-                                                selectedCategory = value;
-
-                                                if (value != 'TODO') {
-                                                  if (!selectedCategoriesList
-                                                      .contains(selectedCategory
-                                                          ?.split('-')[0])) {
-                                                    setState(() {
-                                                      selectedCategoriesList
-                                                          .add(selectedCategory!
-                                                              .split('-')[0]
-                                                              .toString());
-                                                    });
-                                                  }
-
-                                                  bool categoryRangeExists =
-                                                      outFilter.any((filter) =>
-                                                          filter.containsKey(
-                                                              "input_categories"));
-                                                  if (!categoryRangeExists) {
-                                                    outFilter.add({
-                                                      "input_categories":
-                                                          selectedCategoriesList
-                                                    });
-                                                  }
-                                                } else {
-                                                  outFilter.removeWhere((filter) =>
-                                                      filter.containsKey(
-                                                          "input_categories"));
-                                                }
-                                              });
-                                            },
-                                            decoration: InputDecoration(
-                                              fillColor: Colors.white,
-                                              filled: true,
-                                              border: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5.0),
-                                              ),
-                                            ),
-                                          ),
-                                          /*
-                                            DropdownButtonFormField<String>(
-                                              isExpanded: true,
-                                              hint: Text(
-                                                'Seleccione la categoria',
-                                                style: GoogleFonts.roboto(
+                                    const SizedBox(height: 30),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Proveedor',
+                                                style:
+                                                    GoogleFonts.robotoCondensed(
                                                   fontWeight: FontWeight.bold,
-                                                  fontSize: 14,
-                                                  color: Theme.of(context)
-                                                      .hintColor,
+                                                  fontSize: 16,
+                                                  color: Colors.black,
                                                 ),
                                               ),
-                                              items: [
-                                                'TODO',
-                                                ...categoriesToSelect
-                                              ]
-                                                  .map((item) =>
-                                                      DropdownMenuItem(
-                                                        value: item,
-                                                        child: Text(
-                                                          item,
-                                                          style: GoogleFonts
-                                                              .roboto(
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            fontSize: 14,
-                                                            color: Theme.of(
-                                                                    context)
-                                                                .hintColor,
+                                              const SizedBox(height: 5),
+                                              DropdownButtonFormField<String>(
+                                                isExpanded: true,
+                                                hint: Text(
+                                                  'Seleccione una opción',
+                                                  style: GoogleFonts.roboto(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 14,
+                                                    color: Theme.of(context)
+                                                        .hintColor,
+                                                  ),
+                                                ),
+                                                items: providersToSelect
+                                                    .map((item) =>
+                                                        DropdownMenuItem(
+                                                          value: item,
+                                                          child: Text(
+                                                            item == 'TODO'
+                                                                ? 'TODO'
+                                                                : '${item.split('-')[1]}',
+                                                            style: GoogleFonts
+                                                                .roboto(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 14,
+                                                              color: Theme.of(
+                                                                      context)
+                                                                  .hintColor,
+                                                            ),
                                                           ),
-                                                        ),
-                                                      ))
-                                                  .toList(),
-                                              value: selectedCategory ?? 'TODO',
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  selectedCategory = value;
+                                                        ))
+                                                    .toList(),
+                                                value: selectedProvider,
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    selectedProvider = value;
+                                                  });
                                                   if (value != 'TODO') {
-                                                    if (!selectedCategoriesList
-                                                        .contains(
-                                                            selectedCategory)) {
-                                                      setState(() {
-                                                        selectedCategoriesList.add(
-                                                            selectedCategory!);
-                                                      });
-                                                    }
-
-                                                    bool categoryRangeExists =
-                                                        outFilter.any((filter) =>
-                                                            filter.containsKey(
-                                                                "input_categories"));
-                                                    if (!categoryRangeExists) {
-                                                      outFilter.add({
-                                                        "input_categories":
-                                                            selectedCategoriesList
+                                                    if (value is String) {
+                                                      arrayFiltersAnd = [];
+                                                      arrayFiltersAnd.add({
+                                                        "warehouse.provider_id":
+                                                            selectedProvider
+                                                                .toString()
+                                                                .split("-")[0]
+                                                                .toString()
                                                       });
                                                     }
                                                   } else {
-                                                    outFilter.removeWhere(
-                                                        (filter) =>
-                                                            filter.containsKey(
-                                                                "input_categories"));
+                                                    arrayFiltersAnd = [];
                                                   }
-                                                });
-                                                //
-                                              },
-                                              decoration: InputDecoration(
-                                                fillColor: Colors.white,
-                                                filled: true,
-                                                border: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          5.0),
+                                                },
+                                                decoration: InputDecoration(
+                                                  fillColor: Colors.white,
+                                                  filled: true,
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            5.0),
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                            */
-                                          const SizedBox(height: 5),
-                                          Wrap(
-                                            spacing: 5.0,
-                                            runSpacing: 5.0,
-                                            children: selectedCategoriesList
-                                                .map<Widget>((category) {
-                                              return Chip(
-                                                label: Text(category),
-                                                backgroundColor:
-                                                    Colors.blue[50],
-                                                onDeleted: () {
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 20),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Categorias',
+                                                style:
+                                                    GoogleFonts.robotoCondensed(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 5),
+                                              DropdownButtonFormField<String>(
+                                                isExpanded: true,
+                                                hint: Text(
+                                                  'Seleccione una categoria',
+                                                  style: GoogleFonts.roboto(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 14,
+                                                    color: Theme.of(context)
+                                                        .hintColor,
+                                                  ),
+                                                ),
+                                                items: categoriesToSelect
+                                                    .map((item) =>
+                                                        DropdownMenuItem(
+                                                          value: item,
+                                                          child: Text(
+                                                            item == 'TODO'
+                                                                ? 'TODO'
+                                                                : item.split(
+                                                                    '-')[0],
+                                                            style: GoogleFonts
+                                                                .roboto(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 14,
+                                                              color: Theme.of(
+                                                                      context)
+                                                                  .hintColor,
+                                                            ),
+                                                          ),
+                                                        ))
+                                                    .toList(),
+                                                value:
+                                                    selectedCategory ?? 'TODO',
+                                                onChanged: (value) {
                                                   setState(() {
-                                                    selectedCategoriesList
-                                                        .remove(category);
+                                                    selectedCategory = value;
+
+                                                    if (value != 'TODO') {
+                                                      if (!selectedCategoriesList
+                                                          .contains(
+                                                              selectedCategory
+                                                                      ?.split(
+                                                                          '-')[
+                                                                  0])) {
+                                                        setState(() {
+                                                          selectedCategoriesList
+                                                              .add(selectedCategory!
+                                                                  .split('-')[0]
+                                                                  .toString());
+                                                        });
+                                                      }
+
+                                                      bool categoryRangeExists =
+                                                          outFilter.any((filter) =>
+                                                              filter.containsKey(
+                                                                  "input_categories"));
+                                                      if (!categoryRangeExists) {
+                                                        outFilter.add({
+                                                          "input_categories":
+                                                              selectedCategoriesList
+                                                        });
+                                                      }
+                                                    } else {
+                                                      outFilter.removeWhere(
+                                                          (filter) => filter
+                                                              .containsKey(
+                                                                  "input_categories"));
+                                                    }
                                                   });
                                                 },
-                                              );
-                                            }).toList(),
+                                                decoration: InputDecoration(
+                                                  fillColor: Colors.white,
+                                                  filled: true,
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            5.0),
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(height: 5),
+                                              Wrap(
+                                                spacing: 5.0,
+                                                runSpacing: 5.0,
+                                                children: selectedCategoriesList
+                                                    .map<Widget>((category) {
+                                                  return Chip(
+                                                    label: Text(category),
+                                                    backgroundColor:
+                                                        Colors.blue[50],
+                                                    onDeleted: () {
+                                                      setState(() {
+                                                        selectedCategoriesList
+                                                            .remove(category);
+                                                      });
+                                                    },
+                                                  );
+                                                }).toList(),
+                                              ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                                const SizedBox(height: 20),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          SizedBox(
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.18,
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Row(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        "Precios",
-                                                        style: GoogleFonts
-                                                            .robotoCondensed(
-                                                          fontSize: 16,
-                                                          color: Colors.black,
-                                                        ),
-                                                      )
-                                                    ]),
-                                                Row(
+                                    const SizedBox(height: 20),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              SizedBox(
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.18,
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
                                                   children: [
-                                                    Expanded(
-                                                      child: Column(
+                                                    Row(
                                                         crossAxisAlignment:
                                                             CrossAxisAlignment
                                                                 .start,
                                                         children: [
                                                           Text(
-                                                            'Mínimo:',
+                                                            "Precios",
                                                             style: GoogleFonts
                                                                 .robotoCondensed(
                                                               fontSize: 16,
                                                               color:
                                                                   Colors.black,
                                                             ),
-                                                          ),
-                                                          const SizedBox(
-                                                              height: 3),
-                                                          SizedBox(
-                                                            width: 100,
-                                                            child:
-                                                                TextFormField(
-                                                              controller:
-                                                                  _minPriceController,
-                                                              keyboardType:
-                                                                  TextInputType
-                                                                      .number,
-                                                              inputFormatters: <TextInputFormatter>[
-                                                                FilteringTextInputFormatter
-                                                                    .allow(RegExp(
-                                                                        r'^\d+\.?\d{0,2}$')),
-                                                              ],
-                                                              /*
+                                                          )
+                                                        ]),
+                                                    Row(
+                                                      children: [
+                                                        Expanded(
+                                                          child: Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Text(
+                                                                'Mínimo:',
+                                                                style: GoogleFonts
+                                                                    .robotoCondensed(
+                                                                  fontSize: 16,
+                                                                  color: Colors
+                                                                      .black,
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                  height: 3),
+                                                              SizedBox(
+                                                                width: 100,
+                                                                child:
+                                                                    TextFormField(
+                                                                  controller:
+                                                                      _minPriceController,
+                                                                  keyboardType:
+                                                                      TextInputType
+                                                                          .number,
+                                                                  inputFormatters: <TextInputFormatter>[
+                                                                    FilteringTextInputFormatter
+                                                                        .allow(RegExp(
+                                                                            r'^\d+\.?\d{0,2}$')),
+                                                                  ],
+                                                                  /*
                                                                 inputFormatters: <TextInputFormatter>[
                                                                     FilteringTextInputFormatter.digitsOnly,
                                                                   ],
                                                                 */
-                                                              decoration:
-                                                                  InputDecoration(
-                                                                fillColor:
-                                                                    Colors
-                                                                        .white,
-                                                                filled: true,
-                                                                border:
-                                                                    OutlineInputBorder(
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
+                                                                  decoration:
+                                                                      InputDecoration(
+                                                                    fillColor:
+                                                                        Colors
+                                                                            .white,
+                                                                    filled:
+                                                                        true,
+                                                                    border:
+                                                                        OutlineInputBorder(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
                                                                               5.0),
+                                                                    ),
+                                                                  ),
                                                                 ),
                                                               ),
-                                                            ),
+                                                            ],
                                                           ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 10),
-                                                    Expanded(
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            'Máximo:',
-                                                            style: GoogleFonts
-                                                                .robotoCondensed(
-                                                              fontSize: 16,
-                                                              color:
-                                                                  Colors.black,
-                                                            ),
-                                                          ),
-                                                          const SizedBox(
-                                                              height: 3),
-                                                          SizedBox(
-                                                            width: 100,
-                                                            child:
-                                                                TextFormField(
-                                                              controller:
-                                                                  _maxPriceController,
-                                                              keyboardType:
-                                                                  TextInputType
-                                                                      .number,
-                                                              inputFormatters: <TextInputFormatter>[
-                                                                FilteringTextInputFormatter
-                                                                    .allow(RegExp(
-                                                                        r'^\d+\.?\d{0,2}$')),
-                                                              ],
-                                                              decoration:
-                                                                  InputDecoration(
-                                                                fillColor:
-                                                                    Colors
-                                                                        .white,
-                                                                filled: true,
-                                                                border:
-                                                                    OutlineInputBorder(
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              5.0),
+                                                        ),
+                                                        const SizedBox(
+                                                            width: 10),
+                                                        Expanded(
+                                                          child: Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Text(
+                                                                'Máximo:',
+                                                                style: GoogleFonts
+                                                                    .robotoCondensed(
+                                                                  fontSize: 16,
+                                                                  color: Colors
+                                                                      .black,
                                                                 ),
                                                               ),
-                                                            ),
+                                                              const SizedBox(
+                                                                  height: 3),
+                                                              SizedBox(
+                                                                width: 100,
+                                                                child:
+                                                                    TextFormField(
+                                                                  controller:
+                                                                      _maxPriceController,
+                                                                  keyboardType:
+                                                                      TextInputType
+                                                                          .number,
+                                                                  inputFormatters: <TextInputFormatter>[
+                                                                    FilteringTextInputFormatter
+                                                                        .allow(RegExp(
+                                                                            r'^\d+\.?\d{0,2}$')),
+                                                                  ],
+                                                                  decoration:
+                                                                      InputDecoration(
+                                                                    fillColor:
+                                                                        Colors
+                                                                            .white,
+                                                                    filled:
+                                                                        true,
+                                                                    border:
+                                                                        OutlineInputBorder(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              5.0),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
                                                           ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 10),
-                                                    SizedBox(
-                                                      child: ElevatedButton(
-                                                        onPressed: () async {
-                                                          setState(() {
-                                                            bool
-                                                                priceRangeExists =
-                                                                outFilter.any(
-                                                                    (filter) =>
-                                                                        filter.containsKey(
-                                                                            "price_range"));
-                                                            if (_minPriceController
-                                                                    .text
-                                                                    .isEmpty &&
-                                                                _maxPriceController
-                                                                    .text
-                                                                    .isEmpty) {
-                                                              // print(
-                                                              //     "Ambos están vacíos.");
-                                                              // Agrega un filtro vacío con la clave "price_range"
-                                                              outFilter.add({
-                                                                "price_range":
-                                                                    ""
+                                                        ),
+                                                        const SizedBox(
+                                                            width: 10),
+                                                        SizedBox(
+                                                          child: ElevatedButton(
+                                                            onPressed:
+                                                                () async {
+                                                              setState(() {
+                                                                bool
+                                                                    priceRangeExists =
+                                                                    outFilter.any(
+                                                                        (filter) =>
+                                                                            filter.containsKey("price_range"));
+                                                                if (_minPriceController
+                                                                        .text
+                                                                        .isEmpty &&
+                                                                    _maxPriceController
+                                                                        .text
+                                                                        .isEmpty) {
+                                                                  // print(
+                                                                  //     "Ambos están vacíos.");
+                                                                  // Agrega un filtro vacío con la clave "price_range"
+                                                                  outFilter
+                                                                      .add({
+                                                                    "price_range":
+                                                                        ""
+                                                                  });
+                                                                } else if (_minPriceController
+                                                                        .text
+                                                                        .isNotEmpty &&
+                                                                    _maxPriceController
+                                                                        .text
+                                                                        .isEmpty) {
+                                                                  if (double.parse(
+                                                                          _minPriceController
+                                                                              .text) >
+                                                                      0) {
+                                                                    // print(
+                                                                    //     "Añadir al filtro solo el mínimo");
+                                                                    if (priceRangeExists) {
+                                                                      // Elimina el filtro existente con la clave "price_range"
+                                                                      outFilter.removeWhere(
+                                                                          (filter) =>
+                                                                              filter.containsKey("price_range"));
+                                                                    }
+
+                                                                    outFilter
+                                                                        .add({
+                                                                      "price_range":
+                                                                          "${_minPriceController.text}-"
+                                                                    });
+                                                                  } else {
+                                                                    if (priceRangeExists) {
+                                                                      outFilter.removeWhere(
+                                                                          (filter) =>
+                                                                              filter.containsKey("price_range"));
+                                                                    }
+                                                                    // print(
+                                                                    //     "Error, es menor a 0");
+                                                                  }
+                                                                  //
+                                                                } else if (_minPriceController
+                                                                        .text
+                                                                        .isEmpty &&
+                                                                    _maxPriceController
+                                                                        .text
+                                                                        .isNotEmpty) {
+                                                                  if (double.parse(
+                                                                          _maxPriceController
+                                                                              .text) >
+                                                                      0) {
+                                                                    // print(
+                                                                    //     "Añadir al filtro solo el máximo");
+                                                                    if (priceRangeExists) {
+                                                                      outFilter.removeWhere(
+                                                                          (filter) =>
+                                                                              filter.containsKey("price_range"));
+                                                                    }
+
+                                                                    // Agrega el nuevo filtro con la clave "price_range"
+                                                                    outFilter
+                                                                        .add({
+                                                                      "price_range":
+                                                                          "-${_maxPriceController.text}"
+                                                                    });
+                                                                  } else {
+                                                                    if (priceRangeExists) {
+                                                                      outFilter.removeWhere(
+                                                                          (filter) =>
+                                                                              filter.containsKey("price_range"));
+                                                                    }
+                                                                    // print(
+                                                                    //     "Error, es menor a 0");
+                                                                  }
+                                                                } else if (_minPriceController
+                                                                        .text
+                                                                        .isNotEmpty &&
+                                                                    _maxPriceController
+                                                                        .text
+                                                                        .isNotEmpty) {
+                                                                  //
+                                                                  if (double.parse(
+                                                                          _maxPriceController
+                                                                              .text) >
+                                                                      double.parse(
+                                                                          _minPriceController
+                                                                              .text)) {
+                                                                    // print(
+                                                                    //     "Añadir ambos");
+                                                                    if (priceRangeExists) {
+                                                                      outFilter.removeWhere(
+                                                                          (filter) =>
+                                                                              filter.containsKey("price_range"));
+                                                                    }
+
+                                                                    // Agrega el nuevo filtro con la clave "price_range"
+                                                                    outFilter
+                                                                        .add({
+                                                                      "price_range":
+                                                                          "${_minPriceController.text}-${_maxPriceController.text}"
+                                                                    });
+                                                                  } else {
+                                                                    if (priceRangeExists) {
+                                                                      outFilter.removeWhere(
+                                                                          (filter) =>
+                                                                              filter.containsKey("price_range"));
+                                                                    }
+                                                                    // print(
+                                                                    //     "Error, el max es < a min");
+                                                                  }
+                                                                }
+                                                                //
                                                               });
-                                                            } else if (_minPriceController
-                                                                    .text
-                                                                    .isNotEmpty &&
-                                                                _maxPriceController
-                                                                    .text
-                                                                    .isEmpty) {
-                                                              if (double.parse(
-                                                                      _minPriceController
-                                                                          .text) >
-                                                                  0) {
-                                                                // print(
-                                                                //     "Añadir al filtro solo el mínimo");
-                                                                if (priceRangeExists) {
-                                                                  // Elimina el filtro existente con la clave "price_range"
-                                                                  outFilter.removeWhere(
-                                                                      (filter) =>
-                                                                          filter
-                                                                              .containsKey("price_range"));
-                                                                }
-
-                                                                outFilter.add({
-                                                                  "price_range":
-                                                                      "${_minPriceController.text}-"
-                                                                });
-                                                              } else {
-                                                                if (priceRangeExists) {
-                                                                  outFilter.removeWhere(
-                                                                      (filter) =>
-                                                                          filter
-                                                                              .containsKey("price_range"));
-                                                                }
-                                                                // print(
-                                                                //     "Error, es menor a 0");
-                                                              }
-                                                              //
-                                                            } else if (_minPriceController
-                                                                    .text
-                                                                    .isEmpty &&
-                                                                _maxPriceController
-                                                                    .text
-                                                                    .isNotEmpty) {
-                                                              if (double.parse(
-                                                                      _maxPriceController
-                                                                          .text) >
-                                                                  0) {
-                                                                // print(
-                                                                //     "Añadir al filtro solo el máximo");
-                                                                if (priceRangeExists) {
-                                                                  outFilter.removeWhere(
-                                                                      (filter) =>
-                                                                          filter
-                                                                              .containsKey("price_range"));
-                                                                }
-
-                                                                // Agrega el nuevo filtro con la clave "price_range"
-                                                                outFilter.add({
-                                                                  "price_range":
-                                                                      "-${_maxPriceController.text}"
-                                                                });
-                                                              } else {
-                                                                if (priceRangeExists) {
-                                                                  outFilter.removeWhere(
-                                                                      (filter) =>
-                                                                          filter
-                                                                              .containsKey("price_range"));
-                                                                }
-                                                                // print(
-                                                                //     "Error, es menor a 0");
-                                                              }
-                                                            } else if (_minPriceController
-                                                                    .text
-                                                                    .isNotEmpty &&
-                                                                _maxPriceController
-                                                                    .text
-                                                                    .isNotEmpty) {
-                                                              //
-                                                              if (double.parse(
-                                                                      _maxPriceController
-                                                                          .text) >
-                                                                  double.parse(
-                                                                      _minPriceController
-                                                                          .text)) {
-                                                                // print(
-                                                                //     "Añadir ambos");
-                                                                if (priceRangeExists) {
-                                                                  outFilter.removeWhere(
-                                                                      (filter) =>
-                                                                          filter
-                                                                              .containsKey("price_range"));
-                                                                }
-
-                                                                // Agrega el nuevo filtro con la clave "price_range"
-                                                                outFilter.add({
-                                                                  "price_range":
-                                                                      "${_minPriceController.text}-${_maxPriceController.text}"
-                                                                });
-                                                              } else {
-                                                                if (priceRangeExists) {
-                                                                  outFilter.removeWhere(
-                                                                      (filter) =>
-                                                                          filter
-                                                                              .containsKey("price_range"));
-                                                                }
-                                                                // print(
-                                                                //     "Error, el max es < a min");
-                                                              }
-                                                            }
-                                                            //
-                                                          });
-                                                        },
-                                                        style: ElevatedButton
-                                                            .styleFrom(
-                                                          backgroundColor:
-                                                              Colors
-                                                                  .indigo[800],
-                                                        ),
-                                                        child: const Row(
-                                                          mainAxisSize:
-                                                              MainAxisSize.min,
-                                                          children: [
-                                                            Text(
-                                                              "Filtrar",
-                                                              style: TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                              ),
+                                                            },
+                                                            style:
+                                                                ElevatedButton
+                                                                    .styleFrom(
+                                                              backgroundColor:
+                                                                  Colors.indigo[
+                                                                      800],
                                                             ),
-                                                          ],
+                                                            child: const Row(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .min,
+                                                              children: [
+                                                                Text(
+                                                                  "Filtrar",
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
                                                         ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                    const SizedBox(height: 30),
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  setState(() {
+                                                    isSelectedFavorites =
+                                                        !isSelectedFavorites;
+
+                                                    if (isSelectedFavorites) {
+                                                      selectedKeyList
+                                                          .add("favorite");
+                                                    } else {
+                                                      selectedKeyList
+                                                          .remove("favorite");
+                                                    }
+
+                                                    filterps.add({
+                                                      "id_master": int.parse(
+                                                          sharedPrefs!
+                                                              .getString(
+                                                                  "idComercialMasterSeller")
+                                                              .toString())
+                                                    });
+
+                                                    filterps.add({
+                                                      "key": selectedKeyList
+                                                    });
+                                                  });
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                      isSelectedFavorites
+                                                          ? Colors.indigo[50]
+                                                          : Colors.white,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            50),
+                                                    side: const BorderSide(
+                                                      width: 1,
+                                                      color: Colors.indigo,
+                                                    ),
+                                                  ),
+                                                ),
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Container(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8),
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        color:
+                                                            isSelectedFavorites
+                                                                ? Colors
+                                                                    .indigo[50]
+                                                                : Colors.white,
+                                                      ),
+                                                      child: Icon(
+                                                        isSelectedFavorites
+                                                            ? Icons.favorite
+                                                            : Icons
+                                                                .favorite_border,
+                                                        color:
+                                                            Colors.indigo[900],
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    Text(
+                                                      'Favoritos',
+                                                      style: GoogleFonts
+                                                          .robotoCondensed(
+                                                        fontSize: 16,
+                                                        color: Colors.black,
                                                       ),
                                                     ),
                                                   ],
                                                 ),
-                                              ],
-                                            ),
+                                              ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
-                                    )
+                                        )
+                                      ],
+                                    ),
+                                    const SizedBox(height: 30),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  setState(() {
+                                                    isSelectedOnSale =
+                                                        !isSelectedOnSale;
+                                                    if (isSelectedOnSale) {
+                                                      selectedKeyList
+                                                          .add("onsale");
+                                                    } else {
+                                                      selectedKeyList
+                                                          .remove("onsale");
+                                                    }
+
+                                                    filterps.add({
+                                                      "id_master": int.parse(
+                                                          sharedPrefs!
+                                                              .getString(
+                                                                  "idComercialMasterSeller")
+                                                              .toString())
+                                                    });
+
+                                                    filterps.add({
+                                                      "key": selectedKeyList
+                                                    });
+                                                  });
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                      isSelectedOnSale
+                                                          ? Colors.indigo[50]
+                                                          : Colors.white,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            50),
+                                                    side: const BorderSide(
+                                                      width: 1,
+                                                      color: Colors.indigo,
+                                                    ),
+                                                  ),
+                                                ),
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Container(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8),
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        color: isSelectedOnSale
+                                                            ? Colors.indigo[50]
+                                                            : Colors.white,
+                                                      ),
+                                                      child: Icon(
+                                                        isSelectedOnSale
+                                                            ? Icons.local_offer
+                                                            : Icons
+                                                                .local_offer_outlined,
+                                                        color:
+                                                            Colors.indigo[900],
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    Text(
+                                                      'En Venta',
+                                                      style: GoogleFonts
+                                                          .robotoCondensed(
+                                                        fontSize: 16,
+                                                        color: Colors.black,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                    const SizedBox(height: 50),
+                                    const SizedBox(height: 20),
                                   ],
                                 ),
-                                const SizedBox(height: 30),
-                                Row(
+                              ),
+                            ),
+                            Expanded(
+                              flex: 8,
+                              child: Align(
+                                alignment: Alignment.topLeft,
+                                child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              setState(() {
-                                                isSelectedFavorites =
-                                                    !isSelectedFavorites;
-
-                                                if (isSelectedFavorites) {
-                                                  selectedKeyList
-                                                      .add("favorite");
-                                                } else {
-                                                  selectedKeyList
-                                                      .remove("favorite");
-                                                }
-
-                                                filterps.add({
-                                                  "id_master": int.parse(
-                                                      sharedPrefs!
-                                                          .getString(
-                                                              "idComercialMasterSeller")
-                                                          .toString())
-                                                });
-
-                                                filterps.add(
-                                                    {"key": selectedKeyList});
-                                              });
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor:
-                                                  isSelectedFavorites
-                                                      ? Colors.indigo[50]
-                                                      : Colors.white,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(50),
-                                                side: const BorderSide(
-                                                  width: 1,
-                                                  color: Colors.indigo,
+                                    const SizedBox(height: 20),
+                                    Row(
+                                      children: [
+                                        Container(
+                                          width: screenWidth * 0.4,
+                                          color: Colors.white,
+                                          padding: const EdgeInsets.all(0),
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                child: _modelTextField(
+                                                  text: "Buscar",
+                                                  controller: _search,
                                                 ),
                                               ),
-                                            ),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Container(
-                                                  padding:
-                                                      const EdgeInsets.all(8),
-                                                  decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    color: isSelectedFavorites
-                                                        ? Colors.indigo[50]
-                                                        : Colors.white,
-                                                  ),
-                                                  child: Icon(
-                                                    isSelectedFavorites
-                                                        ? Icons.favorite
-                                                        : Icons.favorite_border,
-                                                    color: Colors.indigo[900],
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 5),
-                                                Text(
-                                                  'Favoritos',
-                                                  style: GoogleFonts
-                                                      .robotoCondensed(
-                                                    fontSize: 16,
-                                                    color: Colors.black,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                            ],
                                           ),
-
-                                          /*
-                                            ChoiceChip(
-                                              label: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Container(
-                                                    padding:
-                                                        const EdgeInsets.all(8),
-                                                    decoration:
-                                                        const BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      color: Colors.white,
-                                                    ),
-                                                    child: Icon(
-                                                      isSelectedFavorites
-                                                          ? Icons.favorite
-                                                          : Icons
-                                                              .favorite_border,
-                                                      color: Colors.indigo[900],
-                                                    ),
+                                        ),
+                                      ],
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10.0),
+                                      child: Container(
+                                        width: screenWidth * 0.78,
+                                        color: Colors.white,
+                                        padding: const EdgeInsets.all(10.0),
+                                        child: FutureBuilder(
+                                          future: _getProductModelCatalog(),
+                                          builder: (context, snapshot) {
+                                            if (snapshot.connectionState ==
+                                                ConnectionState.waiting) {
+                                              return const Center(
+                                                child:
+                                                    CircularProgressIndicator(),
+                                              );
+                                            } else if (snapshot.hasError) {
+                                              return const Center(
+                                                child: Text(
+                                                    'Error al cargar los productos'),
+                                              );
+                                            } else {
+                                              List<ProductModel> products =
+                                                  snapshot.data ?? [];
+                                              return SizedBox(
+                                                height: screenHeight * 0.75,
+                                                child: GridView.builder(
+                                                  itemCount: products.length,
+                                                  gridDelegate:
+                                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                                    crossAxisCount: 4,
+                                                    crossAxisSpacing: 10,
+                                                    mainAxisSpacing: 10,
+                                                    childAspectRatio: 7 / 10,
                                                   ),
-                                                  const SizedBox(width: 5),
-                                                  Text(
-                                                    'Seleccionar Favoritos',
-                                                    style: GoogleFonts
-                                                        .robotoCondensed(
-                                                      fontSize: 16,
-                                                      color: Colors.black,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              selected: isSelectedFavorites,
-                                              onSelected: (selected) {
-                                                setState(() {
-ra                                                  // print("clck Favoritos");
-                                                  isSelectedFavorites =
-                                                      selected;
-
-                                                  if (isSelectedOnSale) {
-                                                    selectedKeyList
-                                                        .add("onsale");
-                                                  } else {
-                                                    selectedKeyList
-                                                        .remove("onsale");
-                                                  }
-
-                                                  if (isSelectedFavorites) {
-                                                    selectedKeyList
-                                                        .add("favorite");
-                                                  } else {
-                                                    selectedKeyList
-                                                        .remove("favorite");
-                                                  }
-                                                  filterps.add({
-                                                    "id_master": int.parse(
-                                                        sharedPrefs!
-                                                            .getString(
-                                                                "idComercialMasterSeller")
-                                                            .toString())
-                                                  });
-
-                                                  filterps.add(
-                                                      {"key": selectedKeyList});
-                                                  //
-                                                });
-                                              },
-                                              selectedColor: Colors.indigo[50],
-                                              backgroundColor: Colors.white,
-                                              shape: const StadiumBorder(
-                                                side: BorderSide(
-                                                    width: 1,
-                                                    color: Colors.indigo),
-                                              ),
-                                            ),
-                                            */
-                                        ],
-                                      ),
-                                    )
-                                  ],
-                                ),
-                                const SizedBox(height: 30),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              setState(() {
-                                                isSelectedOnSale =
-                                                    !isSelectedOnSale;
-                                                if (isSelectedOnSale) {
-                                                  selectedKeyList.add("onsale");
-                                                } else {
-                                                  selectedKeyList
-                                                      .remove("onsale");
-                                                }
-
-                                                filterps.add({
-                                                  "id_master": int.parse(
-                                                      sharedPrefs!
-                                                          .getString(
-                                                              "idComercialMasterSeller")
-                                                          .toString())
-                                                });
-
-                                                filterps.add(
-                                                    {"key": selectedKeyList});
-                                              });
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: isSelectedOnSale
-                                                  ? Colors.indigo[50]
-                                                  : Colors.white,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(50),
-                                                side: const BorderSide(
-                                                  width: 1,
-                                                  color: Colors.indigo,
+                                                  itemBuilder:
+                                                      (context, index) {
+                                                    ProductModel product =
+                                                        products[index];
+                                                    return ProductCard(
+                                                      product: product,
+                                                      onTapCallback:
+                                                          (context) =>
+                                                              _showProductInfo(
+                                                        context,
+                                                        product,
+                                                      ),
+                                                    );
+                                                  },
                                                 ),
-                                              ),
-                                            ),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Container(
-                                                  padding:
-                                                      const EdgeInsets.all(8),
-                                                  decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    color: isSelectedOnSale
-                                                        ? Colors.indigo[50]
-                                                        : Colors.white,
-                                                  ),
-                                                  child: Icon(
-                                                    isSelectedOnSale
-                                                        ? Icons.local_offer
-                                                        : Icons
-                                                            .local_offer_outlined,
-                                                    color: Colors.indigo[900],
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 5),
-                                                Text(
-                                                  'En Venta',
-                                                  style: GoogleFonts
-                                                      .robotoCondensed(
-                                                    fontSize: 16,
-                                                    color: Colors.black,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-/*
-                                            ChoiceChip(
-                                              label: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Container(
-                                                    padding:
-                                                        const EdgeInsets.all(8),
-                                                    decoration:
-                                                        const BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      color: Colors.white,
-                                                    ),
-                                                    child: Icon(
-                                                      isSelectedOnSale
-                                                          ? Icons.local_offer
-                                                          : Icons
-                                                              .local_offer_outlined,
-                                                      color: Colors.indigo[900],
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 5),
-                                                  Text(
-                                                    'Seleccionar En Venta',
-                                                    style: GoogleFonts
-                                                        .robotoCondensed(
-                                                      fontSize: 16,
-                                                      color: Colors.black,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              selected: isSelectedOnSale,
-                                              onSelected: (selected) {
-                                                setState(() {
-                                                  filterps = [];
-                                                  // print("clck Favoritos");
-                                                  isSelectedOnSale = selected;
-                                                  //
-
-                                                  if (isSelectedOnSale) {
-                                                    selectedKeyList
-                                                        .add("onsale");
-                                                  } else {
-                                                    selectedKeyList
-                                                        .remove("onsale");
-                                                  }
-
-                                                  if (isSelectedFavorites) {
-                                                    selectedKeyList
-                                                        .add("favorite");
-                                                  } else {
-                                                    selectedKeyList
-                                                        .remove("favorite");
-                                                  }
-                                                  filterps.add({
-                                                    "id_master": int.parse(
-                                                        sharedPrefs!
-                                                            .getString(
-                                                                "idComercialMasterSeller")
-                                                            .toString())
-                                                  });
-
-                                                  filterps.add(
-                                                      {"key": selectedKeyList});
-                                                  //
-                                                });
-
-                                                //
-                                              },
-                                              selectedColor: Colors.indigo[50],
-                                              backgroundColor: Colors.white,
-                                              shape: const StadiumBorder(
-                                                side: BorderSide(
-                                                    width: 1,
-                                                    color: Colors.indigo),
-                                              ),
-                                            ),
-                                            */
-                                        ],
-                                      ),
-                                    )
-                                  ],
-                                ),
-                                const SizedBox(height: 50),
-                                const SizedBox(height: 20),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 8,
-                          child: Align(
-                            alignment: Alignment.topLeft,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 20),
-                                Row(
-                                  children: [
-                                    Container(
-                                      width: screenWidth * 0.4,
-                                      color: Colors.white,
-                                      padding: const EdgeInsets.all(0),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            child: _modelTextField(
-                                              text: "Buscar",
-                                              controller: _search,
-                                            ),
-                                          ),
-                                        ],
+                                              );
+                                            }
+                                          },
+                                        ),
                                       ),
                                     ),
                                   ],
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10.0),
-                                  child: Container(
-                                    width: screenWidth * 0.78,
+                              ),
+                            ),
+                          ],
+                        ),
+                        //
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: screenWidth * 0.020),
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 20),
+                              Row(
+                                children: [
+                                  Text(
+                                    'Filtros',
+                                    style: GoogleFonts.robotoCondensed(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
+                                      color: Theme.of(context).hintColor,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 20),
+                                  TextButton(
+                                    onPressed: () async {
+                                      setState(() {
+                                        selectedProvider = 'TODO';
+                                        selectedCategory = 'TODO';
+                                        selectedCategoriesList = [];
+                                        arrayFiltersAnd = [];
+                                        outFilter = [];
+                                        _minPriceController.clear();
+                                        _maxPriceController.clear();
+                                        isSelectedFavorites = false;
+                                        isSelectedOnSale = false;
+                                        filterps = [];
+                                      });
+                                    },
+                                    child: const Row(
+                                      children: [
+                                        Icon(Icons.clear),
+                                        SizedBox(width: 5),
+                                        Text('Limpiar Filtros'),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Proveedor',
+                                          style: GoogleFonts.robotoCondensed(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 5),
+                                        DropdownButtonFormField<String>(
+                                          isExpanded: true,
+                                          hint: Text(
+                                            'Seleccione una opción',
+                                            style: GoogleFonts.roboto(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                              color:
+                                                  Theme.of(context).hintColor,
+                                            ),
+                                          ),
+                                          items: providersToSelect
+                                              .map((item) => DropdownMenuItem(
+                                                    value: item,
+                                                    child: Text(
+                                                      item == 'TODO'
+                                                          ? 'TODO'
+                                                          : '${item.split('-')[1]}',
+                                                      style: GoogleFonts.roboto(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 14,
+                                                        color: Theme.of(context)
+                                                            .hintColor,
+                                                      ),
+                                                    ),
+                                                  ))
+                                              .toList(),
+                                          value: selectedProvider,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              selectedProvider = value;
+                                            });
+                                            if (value != 'TODO') {
+                                              if (value is String) {
+                                                arrayFiltersAnd = [];
+                                                arrayFiltersAnd.add({
+                                                  "warehouse.provider_id":
+                                                      selectedProvider
+                                                          .toString()
+                                                          .split("-")[0]
+                                                          .toString()
+                                                });
+                                              }
+                                            } else {
+                                              arrayFiltersAnd = [];
+                                            }
+                                          },
+                                          decoration: InputDecoration(
+                                            fillColor: Colors.white,
+                                            filled: true,
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(5.0),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 20),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Categorias',
+                                          style: GoogleFonts.robotoCondensed(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 5),
+                                        DropdownButtonFormField<String>(
+                                          isExpanded: true,
+                                          hint: Text(
+                                            'Seleccione una categoria',
+                                            style: GoogleFonts.roboto(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                              color:
+                                                  Theme.of(context).hintColor,
+                                            ),
+                                          ),
+                                          items: categoriesToSelect
+                                              .map((item) => DropdownMenuItem(
+                                                    value: item,
+                                                    child: Text(
+                                                      item == 'TODO'
+                                                          ? 'TODO'
+                                                          : item.split('-')[0],
+                                                      style: GoogleFonts.roboto(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 14,
+                                                        color: Theme.of(context)
+                                                            .hintColor,
+                                                      ),
+                                                    ),
+                                                  ))
+                                              .toList(),
+                                          value: selectedCategory ?? 'TODO',
+                                          onChanged: (value) {
+                                            setState(() {
+                                              selectedCategory = value;
+
+                                              if (value != 'TODO') {
+                                                if (!selectedCategoriesList
+                                                    .contains(selectedCategory
+                                                        ?.split('-')[0])) {
+                                                  setState(() {
+                                                    selectedCategoriesList.add(
+                                                        selectedCategory!
+                                                            .split('-')[0]
+                                                            .toString());
+                                                  });
+                                                }
+
+                                                bool categoryRangeExists =
+                                                    outFilter.any((filter) =>
+                                                        filter.containsKey(
+                                                            "input_categories"));
+                                                if (!categoryRangeExists) {
+                                                  outFilter.add({
+                                                    "input_categories":
+                                                        selectedCategoriesList
+                                                  });
+                                                }
+                                              } else {
+                                                outFilter.removeWhere((filter) =>
+                                                    filter.containsKey(
+                                                        "input_categories"));
+                                              }
+                                            });
+                                          },
+                                          decoration: InputDecoration(
+                                            fillColor: Colors.white,
+                                            filled: true,
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(5.0),
+                                            ),
+                                          ),
+                                        ),
+                                        // const SizedBox(height: 5),
+                                        // Wrap(
+                                        //   spacing: 5.0,
+                                        //   runSpacing: 5.0,
+                                        //   children: selectedCategoriesList
+                                        //       .map<Widget>((category) {
+                                        //     return Chip(
+                                        //       label: Text(category),
+                                        //       backgroundColor: Colors.blue[50],
+                                        //       onDeleted: () {
+                                        //         setState(() {
+                                        //           selectedCategoriesList
+                                        //               .remove(category);
+                                        //         });
+                                        //       },
+                                        //     );
+                                        //   }).toList(),
+                                        // ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Wrap(
+                                          spacing: 5.0,
+                                          runSpacing: 5.0,
+                                          children: selectedCategoriesList
+                                              .map<Widget>((category) {
+                                            return Chip(
+                                              label: Text(category),
+                                              backgroundColor: Colors.blue[50],
+                                              onDeleted: () {
+                                                setState(() {
+                                                  selectedCategoriesList
+                                                      .remove(category);
+                                                });
+                                              },
+                                            );
+                                          }).toList(),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              isSelectedFavorites =
+                                                  !isSelectedFavorites;
+
+                                              if (isSelectedFavorites) {
+                                                selectedKeyList.add("favorite");
+                                              } else {
+                                                selectedKeyList
+                                                    .remove("favorite");
+                                              }
+
+                                              filterps.add({
+                                                "id_master": int.parse(sharedPrefs!
+                                                    .getString(
+                                                        "idComercialMasterSeller")
+                                                    .toString())
+                                              });
+
+                                              filterps.add(
+                                                  {"key": selectedKeyList});
+                                            });
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: isSelectedFavorites
+                                                ? Colors.indigo[50]
+                                                : Colors.white,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(50),
+                                              side: const BorderSide(
+                                                width: 1,
+                                                color: Colors.indigo,
+                                              ),
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.all(8),
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: isSelectedFavorites
+                                                      ? Colors.indigo[50]
+                                                      : Colors.white,
+                                                ),
+                                                child: Icon(
+                                                  isSelectedFavorites
+                                                      ? Icons.favorite
+                                                      : Icons.favorite_border,
+                                                  color: Colors.indigo[900],
+                                                ),
+                                              ),
+                                              const SizedBox(width: 5),
+                                              Text(
+                                                'Favoritos',
+                                                style:
+                                                    GoogleFonts.robotoCondensed(
+                                                  fontSize: 16,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              isSelectedOnSale =
+                                                  !isSelectedOnSale;
+                                              if (isSelectedOnSale) {
+                                                selectedKeyList.add("onsale");
+                                              } else {
+                                                selectedKeyList
+                                                    .remove("onsale");
+                                              }
+
+                                              filterps.add({
+                                                "id_master": int.parse(sharedPrefs!
+                                                    .getString(
+                                                        "idComercialMasterSeller")
+                                                    .toString())
+                                              });
+
+                                              filterps.add(
+                                                  {"key": selectedKeyList});
+                                            });
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: isSelectedOnSale
+                                                ? Colors.indigo[50]
+                                                : Colors.white,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(50),
+                                              side: const BorderSide(
+                                                width: 1,
+                                                color: Colors.indigo,
+                                              ),
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.all(8),
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: isSelectedOnSale
+                                                      ? Colors.indigo[50]
+                                                      : Colors.white,
+                                                ),
+                                                child: Icon(
+                                                  isSelectedOnSale
+                                                      ? Icons.local_offer
+                                                      : Icons
+                                                          .local_offer_outlined,
+                                                  color: Colors.indigo[900],
+                                                ),
+                                              ),
+                                              const SizedBox(width: 5),
+                                              Text(
+                                                'En Venta',
+                                                style:
+                                                    GoogleFonts.robotoCondensed(
+                                                  fontSize: 16,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Container(
+                                    width: screenWidth * 0.95,
                                     color: Colors.white,
                                     padding: const EdgeInsets.all(10.0),
                                     child: FutureBuilder(
@@ -1175,10 +1456,10 @@ ra                                                  // print("clck Favoritos");
                                               itemCount: products.length,
                                               gridDelegate:
                                                   const SliverGridDelegateWithFixedCrossAxisCount(
-                                                crossAxisCount: 4,
+                                                crossAxisCount: 2,
                                                 crossAxisSpacing: 10,
                                                 mainAxisSpacing: 10,
-                                                childAspectRatio: 7 / 10,
+                                                childAspectRatio: 6 / 10,
                                               ),
                                               itemBuilder: (context, index) {
                                                 ProductModel product =
@@ -1198,13 +1479,14 @@ ra                                                  // print("clck Favoritos");
                                       },
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
+
+                        //
+                        context),
                   ],
                 ),
               ),
@@ -1388,961 +1670,1880 @@ ra                                                  // print("clck Favoritos");
               height: MediaQuery.of(context).size.height,
               child: ListView(
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        flex: 6,
-                        child: ShowImages(urlsImgsList: urlsImgsList),
-                      ),
-                      Expanded(
-                        flex: 4,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
+                  responsive(
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 6,
+                            child: ShowImages(urlsImgsList: urlsImgsList),
+                          ),
+                          Expanded(
+                            flex: 4,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            "Producto:",
-                                            style: customTextStyleTitle,
+                                          Row(
+                                            children: [
+                                              Text(
+                                                "Producto:",
+                                                style: customTextStyleTitle,
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 5),
-                            RichText(
-                              text: TextSpan(
-                                children: <TextSpan>[
-                                  TextSpan(
-                                    text: product.productName,
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.grey[800],
                                     ),
-                                  )
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
+                                  ],
+                                ),
+                                const SizedBox(height: 5),
+                                RichText(
+                                  text: TextSpan(
+                                    children: <TextSpan>[
+                                      TextSpan(
+                                        text: product.productName,
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          color: Colors.grey[800],
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            'Nombre a mostrar en la guia de envio:',
-                                            style: customTextStyleTitle,
+                                          Row(
+                                            children: [
+                                              Text(
+                                                'Nombre a mostrar en la guia de envio:',
+                                                style: customTextStyleTitle,
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
+                                    ),
+                                  ],
+                                ),
+                                RichText(
+                                  text: TextSpan(
+                                    children: <TextSpan>[
+                                      TextSpan(
+                                        text: guideName,
+                                        style: customTextStyleText,
+                                      )
                                     ],
                                   ),
                                 ),
-                              ],
-                            ),
-                            RichText(
-                              text: TextSpan(
-                                children: <TextSpan>[
-                                  TextSpan(
-                                    text: guideName,
-                                    style: customTextStyleText,
-                                  )
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
+                                const SizedBox(height: 10),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            "ID:",
-                                            style: customTextStyleTitle,
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            product.productId.toString(),
-                                            style: customTextStyleText,
+                                          Row(
+                                            children: [
+                                              Text(
+                                                "ID:",
+                                                style: customTextStyleTitle,
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Text(
+                                                product.productId.toString(),
+                                                style: customTextStyleText,
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
+                                const SizedBox(height: 10),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            "Descripción:",
-                                            style: customTextStyleTitle,
+                                          Row(
+                                            children: [
+                                              Text(
+                                                "Descripción:",
+                                                style: customTextStyleTitle,
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Html(
-                                        data: description,
-                                        style: {
-                                          'p': Style(
-                                            fontSize: FontSize(16),
-                                            color: Colors.grey[800],
-                                            margin: Margins.only(bottom: 0),
-                                          ),
-                                          'li': Style(
-                                            margin: Margins.only(bottom: 0),
-                                          ),
-                                          'ol': Style(
-                                            margin: Margins.only(bottom: 0),
-                                          ),
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Text(
-                                            "SKU:",
-                                            style: customTextStyleTitle,
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            sku,
-                                            style: customTextStyleText,
+                                          Html(
+                                            data: description,
+                                            style: {
+                                              'p': Style(
+                                                fontSize: FontSize(16),
+                                                color: Colors.grey[800],
+                                                margin: Margins.only(bottom: 0),
+                                              ),
+                                              'li': Style(
+                                                margin: Margins.only(bottom: 0),
+                                              ),
+                                              'ol': Style(
+                                                margin: Margins.only(bottom: 0),
+                                              ),
+                                            },
                                           ),
                                         ],
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Visibility(
-                              visible: product.isvariable == 1,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
+                                const SizedBox(height: 10),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Text(
+                                                "SKU:",
+                                                style: customTextStyleTitle,
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Text(
+                                                sku,
+                                                style: customTextStyleText,
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                Visibility(
+                                  visible: product.isvariable == 1,
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            Text(
-                                              "SKU Variables:",
-                                              style: customTextStyleTitle,
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  "SKU Variables:",
+                                                  style: customTextStyleTitle,
+                                                ),
+                                              ],
                                             ),
-                                          ],
-                                        ),
-                                        Text(
-                                          variablesSKU,
-                                          style: customTextStyleText,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 10),
-                                ],
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "Precio Bodega:",
-                                            style: customTextStyleTitle,
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            "\$${product.price}",
-                                            style: customTextStyleText,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "Precio Sugerido:",
-                                            style: customTextStyleTitle,
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            priceSuggested.isNotEmpty ||
-                                                    priceSuggested != ""
-                                                ? '\$$priceSuggested'
-                                                : '',
-                                            style: customTextStyleText,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "Tipo:",
-                                            style: customTextStyleTitle,
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            type,
-                                            style: customTextStyleText,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "Stock general:",
-                                            style: customTextStyleTitle,
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            "${product.stock}",
-                                            style: customTextStyleText,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Visibility(
-                              visible: reservesText != "",
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const SizedBox(height: 10),
-                                        Row(
-                                          children: [
                                             Text(
-                                              "Mis Reservas:",
-                                              style: customTextStyleTitle,
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Visibility(
-                              visible: reservesText != "",
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Text(
-                                              reservesText,
+                                              variablesSKU,
                                               style: customTextStyleText,
                                             ),
                                           ],
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                      const SizedBox(height: 10),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Visibility(
-                              visible: product.isvariable == 1,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
+                                ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Text(
+                                                "Precio Bodega:",
+                                                style: customTextStyleTitle,
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Text(
+                                                "\$${product.price}",
+                                                style: customTextStyleText,
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Text(
+                                                "Precio Sugerido:",
+                                                style: customTextStyleTitle,
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Text(
+                                                priceSuggested.isNotEmpty ||
+                                                        priceSuggested != ""
+                                                    ? '\$$priceSuggested'
+                                                    : '',
+                                                style: customTextStyleText,
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Text(
+                                                "Tipo:",
+                                                style: customTextStyleTitle,
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Text(
+                                                type,
+                                                style: customTextStyleText,
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Text(
+                                                "Stock general:",
+                                                style: customTextStyleTitle,
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Text(
+                                                "${product.stock}",
+                                                style: customTextStyleText,
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Visibility(
+                                  visible: reservesText != "",
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            Text(
-                                              "Variables:",
-                                              style: customTextStyleTitle,
+                                            const SizedBox(height: 10),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  "Mis Reservas:",
+                                                  style: customTextStyleTitle,
+                                                ),
+                                              ],
                                             ),
                                           ],
                                         ),
-                                        Text(
-                                          variablesText,
-                                          style: customTextStyleText,
-                                        ),
-                                        const SizedBox(height: 10),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "Categorias:",
-                                            style: customTextStyleTitle,
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            categoriesText,
-                                            style: customTextStyleText,
-                                          ),
-                                        ],
                                       ),
                                     ],
                                   ),
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                Visibility(
+                                  visible: reservesText != "",
+                                  child: Row(
                                     children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "Bodega:",
-                                            style: customTextStyleTitle,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            product.warehouse!.branchName
-                                                .toString(),
-                                            style: customTextStyleText,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "Atención al cliente:",
-                                            style: customTextStyleText,
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            product.warehouse!
-                                                        .customerphoneNumber !=
-                                                    null
-                                                ? product.warehouse!
-                                                    .customerphoneNumber
-                                                    .toString()
-                                                : "",
-                                            style: customTextStyleText,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 30),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () async {
-                          // var userId = sharedPrefs!.getString("id");
-                          // print(userId);
-                          var userIdComercialMasterSeller =
-                              sharedPrefs!.getString("idComercialMasterSeller");
-
-                          if (isFavorite != 3) {
-                            //existe el registro, need upt
-                            //update
-                            var response = await Connections().getProductSeller(
-                                int.parse(product.productId.toString()),
-                                int.parse(
-                                    userIdComercialMasterSeller.toString()));
-
-                            print(response['id']);
-
-                            var responseUpt = await Connections()
-                                .updateProductSeller(response['id'], {
-                              "favorite": isFavorite == 1 ? 0 : 1,
-                            });
-
-                            // print(responseUpt);
-
-                            if (responseUpt == 1 || responseUpt == 2) {
-                              print('Error update new');
-                              // ignore: use_build_context_synchronously
-                              showSuccessModal(
-                                  context,
-                                  "Ha ocurrido un error al actualizar favoritos.",
-                                  Icons8.alert);
-                            } else {
-                              // ignore: use_build_context_synchronously
-                              AwesomeDialog(
-                                width: 500,
-                                context: context,
-                                dialogType: DialogType.success,
-                                animType: AnimType.rightSlide,
-                                title: 'Info',
-                                desc: isFavorite == 1
-                                    ? "Se ha quitado de favoritos"
-                                    : "Se ha agregado a favoritos",
-                                btnCancel: Container(),
-                                btnOkText: "Aceptar",
-                                btnOkColor: colors.colorGreen,
-                                btnCancelOnPress: () {},
-                                btnOkOnPress: () {
-                                  setState(() {});
-                                  Navigator.pop(context);
-                                },
-                              ).show();
-                            }
-                            //
-                          } else {
-                            //create new
-                            var responseNew = await Connections()
-                                .createProductSeller(
-                                    int.parse(product.productId.toString()),
-                                    int.parse(
-                                        userIdComercialMasterSeller.toString()),
-                                    "favorite");
-                            print("responseNew: $responseNew");
-                            if (responseNew == 1 || responseNew == 2) {
-                              print('Error Created new');
-                              // ignore: use_build_context_synchronously
-                              showSuccessModal(
-                                  context,
-                                  "Ha ocurrido un error al agregar a favoritos.",
-                                  Icons8.alert);
-                            } else {
-                              // ignore: use_build_context_synchronously
-                              AwesomeDialog(
-                                width: 500,
-                                context: context,
-                                dialogType: DialogType.success,
-                                animType: AnimType.rightSlide,
-                                title: 'Info',
-                                desc: "Se ha agregado exitosamente a favoritos",
-                                btnCancel: Container(),
-                                btnOkText: "Aceptar",
-                                btnOkColor: colors.colorGreen,
-                                btnCancelOnPress: () {},
-                                btnOkOnPress: () {
-                                  setState(() {});
-                                  Navigator.pop(context);
-                                },
-                              ).show();
-                            }
-                          }
-                          //
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.indigo[600],
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              labelIsFavorite,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(width: 5),
-                            Icon(
-                              isFavorite == 1
-                                  ? Icons.favorite
-                                  : Icons.favorite_border,
-                              size: 24,
-                              color: Colors.white,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 30),
-                      ElevatedButton(
-                        onPressed: () async {
-                          //Onsale
-                          // var userId = sharedPrefs!.getString("id");
-                          // print(userId);
-                          var userIdComercialMasterSeller =
-                              sharedPrefs!.getString("idComercialMasterSeller");
-
-                          if (isFavorite != 3) {
-                            //existe el registro, need upt
-                            //update
-                            var response = await Connections().getProductSeller(
-                                int.parse(product.productId.toString()),
-                                int.parse(
-                                    userIdComercialMasterSeller.toString()));
-
-                            print(response['id']);
-
-                            var responseUpt = await Connections()
-                                .updateProductSeller(response['id'], {
-                              "onsale": isOnSale == 1 ? 0 : 1,
-                            });
-
-                            // print(responseUpt);
-
-                            if (responseUpt == 1 || responseUpt == 2) {
-                              print('Error update new');
-                              // ignore: use_build_context_synchronously
-                              showSuccessModal(
-                                  context,
-                                  "Ha ocurrido un error al actualizar En venta.",
-                                  Icons8.alert);
-                            } else {
-                              // ignore: use_build_context_synchronously
-                              AwesomeDialog(
-                                width: 500,
-                                context: context,
-                                dialogType: DialogType.success,
-                                animType: AnimType.rightSlide,
-                                title: 'Información',
-                                desc: isOnSale == 1
-                                    ? "Se ha quitado de En venta"
-                                    : "El ID: ${product.productId} del producto ${product.productName} ha sido copiado con éxito. Péguelo en EasyShop para importar los productos a su tienda en Shopify.",
-                                btnCancel: Container(),
-                                btnOkText: "Aceptar",
-                                btnOkColor: colors.colorGreen,
-                                btnCancelOnPress: () {},
-                                btnOkOnPress: () {
-                                  if (isOnSale != 1) {
-                                    Clipboard.setData(ClipboardData(
-                                        text: "${product.productId}"));
-
-                                    Get.snackbar(
-                                      'COPIADO',
-                                      'Copiado al Clipboard',
-                                    );
-                                  }
-                                  setState(() {});
-                                  Navigator.pop(context);
-                                },
-                              ).show();
-                              // Clipboard.setData(
-                              //     ClipboardData(text: "${product.productId}"));
-
-                              // Get.snackbar(
-                              //   'COPIADO',
-                              //   'Copiado al Clipboard',
-                              // );
-
-                              // // ignore: use_build_context_synchronously
-                              // return showDialog(
-                              //     context: context,
-                              //     builder: (context) {
-                              //       return AlertDialog(
-                              //         content: SizedBox(
-                              //           width: screenWidth * 0.25,
-                              //           height: screenHeight * 0.20,
-                              //           child: Expanded(
-                              //               child: Column(
-                              //             children: [
-                              //               const Text(
-                              //                 "Información",
-                              //                 style: TextStyle(
-                              //                   fontSize: 20,
-                              //                   color: Colors.black,
-                              //                   fontWeight: FontWeight.bold,
-                              //                 ),
-                              //               ),
-                              //               const SizedBox(height: 10),
-                              //               RichText(
-                              //                 text: TextSpan(
-                              //                   children: <TextSpan>[
-                              //                     TextSpan(
-                              //                       text:
-                              //                           'El ID: "${product.productId}" del producto "${product.productName}" ha sido copiado con éxito. Péguelo en EasyShop para importar los productos a su tienda en Shopify.',
-                              //                       style: const TextStyle(
-                              //                         fontSize: 18,
-                              //                         color: Colors.black,
-                              //                       ),
-                              //                     ),
-                              //                   ],
-                              //                 ),
-                              //               ),
-                              //             ],
-                              //           )),
-                              //         ),
-                              //       );
-                              //     }).then((value) => setState(() {
-                              //       _getProductModelCatalog(); // Actualiza el Future
-                              //     }));
-                            }
-                            //
-                          } else {
-                            //create new
-                            var responseNew = await Connections()
-                                .createProductSeller(
-                                    int.parse(product.productId.toString()),
-                                    int.parse(
-                                        userIdComercialMasterSeller.toString()),
-                                    "onsale");
-                            print("responseNew: $responseNew");
-                            if (responseNew == 1 || responseNew == 2) {
-                              print('Error Created new');
-                              // ignore: use_build_context_synchronously
-                              showSuccessModal(
-                                  context,
-                                  "Ha ocurrido un error al agregar a En venta.",
-                                  Icons8.alert);
-                            } else {
-                              // ignore: use_build_context_synchronously
-                              AwesomeDialog(
-                                width: 500,
-                                context: context,
-                                dialogType: DialogType.success,
-                                animType: AnimType.rightSlide,
-                                title: 'Información',
-                                desc:
-                                    "El ID: ${product.productId} del producto ${product.productName} ha sido copiado con éxito. Péguelo en EasyShop para importar los productos a su tienda en Shopify.",
-                                btnCancel: Container(),
-                                btnOkText: "Aceptar",
-                                btnOkColor: colors.colorGreen,
-                                btnCancelOnPress: () {},
-                                btnOkOnPress: () {
-                                  if (isOnSale != 1) {
-                                    Clipboard.setData(ClipboardData(
-                                        text: "${product.productId}"));
-
-                                    Get.snackbar(
-                                      'COPIADO',
-                                      'Copiado al Clipboard',
-                                    );
-                                  }
-                                  setState(() {});
-                                  Navigator.pop(context);
-                                },
-                              ).show();
-
-                              // Clipboard.setData(
-                              //     ClipboardData(text: "${product.productId}"));
-
-                              // Get.snackbar(
-                              //   'COPIADO',
-                              //   'Copiado al Clipboard',
-                              // );
-
-                              // // ignore: use_build_context_synchronously
-                              // return showDialog(
-                              //     context: context,
-                              //     builder: (context) {
-                              //       return AlertDialog(
-                              //         content: SizedBox(
-                              //           width: screenWidth * 0.25,
-                              //           height: screenHeight * 0.20,
-                              //           child: Expanded(
-                              //               child: Column(
-                              //             children: [
-                              //               const Text(
-                              //                 "Información",
-                              //                 style: TextStyle(
-                              //                   fontSize: 20,
-                              //                   color: Colors.black,
-                              //                   fontWeight: FontWeight.bold,
-                              //                 ),
-                              //               ),
-                              //               const SizedBox(height: 10),
-                              //               RichText(
-                              //                 text: TextSpan(
-                              //                   children: <TextSpan>[
-                              //                     TextSpan(
-                              //                       text:
-                              //                           'El ID: "${product.productId}" del producto "${product.productName}" ha sido copiado con éxito. Péguelo en EasyShop para importar los productos a su tienda en Shopify.',
-                              //                       style: const TextStyle(
-                              //                         fontSize: 18,
-                              //                         color: Colors.black,
-                              //                       ),
-                              //                     ),
-                              //                   ],
-                              //                 ),
-                              //               ),
-                              //             ],
-                              //           )),
-                              //         ),
-                              //       );
-                              //     }).then((value) => setState(() {
-                              //       _getProductModelCatalog(); // Actualiza el Future
-                              //     }));
-                            }
-                          }
-                          //
-                          // var userIdComercialMasterSeller =
-                          //     sharedPrefs!.getString("idComercialMasterSeller");
-                          // print(userIdComercialMasterSeller);
-                          // print(product.productId);
-/*
-                          var response = await Connections().getProductSeller(
-                              int.parse(product.productId.toString()),
-                              int.parse(
-                                  userIdComercialMasterSeller.toString()));
-                          print("response: $response");
-
-                          if (response == 1 || response['onsale'] == null) {
-                            print('No existe');
-                            //create new
-                            var responseNew = await Connections()
-                                .createProductSeller(
-                                    int.parse(product.productId.toString()),
-                                    int.parse(
-                                        userIdComercialMasterSeller.toString()),
-                                    "onsale");
-                            print("responseNew: $responseNew");
-                            if (responseNew == 1 || responseNew == 2) {
-                              print('Error Created new');
-                              // ignore: use_build_context_synchronously
-                              showSuccessModal(
-                                  context,
-                                  "Ha ocurrido un error al agregar a favoritos.",
-                                  Icons8.alert);
-                            } else {
-                              Clipboard.setData(
-                                  ClipboardData(text: "${product.productId}"));
-
-                              Get.snackbar(
-                                'COPIADO',
-                                'Copiado al Clipboard',
-                              );
-
-                              // ignore: use_build_context_synchronously
-                              return showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      content: SizedBox(
-                                        width: screenWidth * 0.25,
-                                        height: screenHeight * 0.20,
-                                        child: Expanded(
-                                            child: Column(
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            const Text(
-                                              "Información",
-                                              style: TextStyle(
-                                                fontSize: 20,
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  reservesText,
+                                                  style: customTextStyleText,
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Visibility(
+                                  visible: product.isvariable == 1,
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  "Variables:",
+                                                  style: customTextStyleTitle,
+                                                ),
+                                              ],
+                                            ),
+                                            Text(
+                                              variablesText,
+                                              style: customTextStyleText,
                                             ),
                                             const SizedBox(height: 10),
-                                            RichText(
-                                              text: TextSpan(
-                                                children: <TextSpan>[
-                                                  TextSpan(
-                                                    text:
-                                                        'El ID: "${product.productId}" del producto "${product.productName}" ha sido copiado con éxito. Péguelo en EasyShop para importar los productos a su tienda en Shopify.',
-                                                    style: const TextStyle(
-                                                      fontSize: 18,
-                                                      color: Colors.black,
-                                                    ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Text(
+                                                "Categorias:",
+                                                style: customTextStyleTitle,
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Text(
+                                                categoriesText,
+                                                style: customTextStyleText,
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Text(
+                                                "Bodega:",
+                                                style: customTextStyleTitle,
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Text(
+                                                product.warehouse!.branchName
+                                                    .toString(),
+                                                style: customTextStyleText,
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Text(
+                                                "Atención al cliente:",
+                                                style: customTextStyleText,
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Text(
+                                                product.warehouse!
+                                                            .customerphoneNumber !=
+                                                        null
+                                                    ? product.warehouse!
+                                                        .customerphoneNumber
+                                                        .toString()
+                                                    : "",
+                                                style: customTextStyleText,
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 30),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      //mobile
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              children: [
+                                // Row(
+                                //   children: [
+                                //     // ShowImages(urlsImgsList: urlsImgsList),
+                                //     ProductCarousel(
+                                //         urlImages: urlsImgsList,
+                                //         imgHeight: 100),
+                                //   ],
+                                // ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Producto:",
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    RichText(
+                                      text: TextSpan(
+                                        children: <TextSpan>[
+                                          TextSpan(
+                                            text: product.productName,
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 5),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Nombre-guia de envio:',
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    RichText(
+                                      text: TextSpan(
+                                        children: <TextSpan>[
+                                          TextSpan(
+                                            text: guideName,
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 5),
+                                Row(
+                                  children: [
+                                    Text(
+                                      "ID:",
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      product.productId.toString(),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 5),
+                                Row(
+                                  children: [
+                                    Text(
+                                      "Descripción:",
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Html(
+                                            data: description,
+                                            style: {
+                                              'p': Style(
+                                                fontSize: FontSize(12),
+                                                color: Colors.grey[800],
+                                                margin: Margins.only(bottom: 0),
+                                              ),
+                                              'li': Style(
+                                                margin: Margins.only(bottom: 0),
+                                              ),
+                                              'ol': Style(
+                                                margin: Margins.only(bottom: 0),
+                                              ),
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 5),
+                                Row(
+                                  children: [
+                                    Text(
+                                      "SKU:",
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      sku,
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 5),
+                                Visibility(
+                                  visible: product.isvariable == 1,
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  "SKU Variables:",
+                                                ),
+                                              ],
+                                            ),
+                                            Text(
+                                              variablesSKU,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 5),
+                                    ],
+                                  ),
+                                ),
+                                Row(
+                                  children: [
+                                    Text(
+                                      "Precio Bodega:",
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      "\$${product.price}",
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 5),
+                                Row(
+                                  children: [
+                                    Text(
+                                      "Precio Sugerido:",
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      priceSuggested.isNotEmpty ||
+                                              priceSuggested != ""
+                                          ? '\$$priceSuggested'
+                                          : '',
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 5),
+                                Row(
+                                  children: [
+                                    Text(
+                                      "Tipo:",
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      type,
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 5),
+                                Row(
+                                  children: [
+                                    Text(
+                                      "Stock general:",
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      "${product.stock}",
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 5),
+                                Visibility(
+                                  visible: reservesText != "",
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const SizedBox(height: 10),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  "Mis Reservas:",
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Visibility(
+                                  visible: reservesText != "",
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  reservesText,
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Visibility(
+                                  visible: product.isvariable == 1,
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  "Variables:",
+                                                ),
+                                              ],
+                                            ),
+                                            Text(
+                                              variablesText,
+                                            ),
+                                            const SizedBox(height: 5),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Row(
+                                  children: [
+                                    Text(
+                                      "Categorias:",
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(width: 5),
+                                Row(
+                                  children: [
+                                    Text(
+                                      categoriesText,
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 5),
+                                Row(
+                                  children: [
+                                    Text(
+                                      "Bodega:",
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Text(
+                                      product.warehouse!.branchName.toString(),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Text(
+                                      "Atención al cliente:",
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      product.warehouse!.customerphoneNumber !=
+                                              null
+                                          ? product
+                                              .warehouse!.customerphoneNumber
+                                              .toString()
+                                          : "",
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+
+/*
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "Producto:",
+                                                    style: customTextStyleTitle,
                                                   ),
                                                 ],
                                               ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 5),
+                                    RichText(
+                                      text: TextSpan(
+                                        children: <TextSpan>[
+                                          TextSpan(
+                                            text: product.productName,
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              color: Colors.grey[800],
                                             ),
-                                          ],
-                                        )),
+                                          )
+                                        ],
                                       ),
-                                    );
-                                  }).then((value) => setState(() {
-                                    _getProductModelCatalog(); // Actualiza el Future
-                                  }));
-                              print('Created new');
-                            }
-                          } else if (response == 2) {
-                            print('Error: Status Code 2');
-                            //maybe show succesful dialog
-                          } else {
-                            //update
-                            var responseUpt = await Connections()
-                                .updateProductSeller(response['id'], {
-                              "favorite": 1,
-                            });
-
-                            if (responseUpt == 1 || responseUpt == 2) {
-                              print('Error update new');
-                              // ignore: use_build_context_synchronously
-                              showSuccessModal(
-                                  context,
-                                  "Ha ocurrido un error al actualizar favoritos.",
-                                  Icons8.alert);
-                            } else {
-                              // ignore: use_build_context_synchronously
-                              showSuccessModal(
-                                  context,
-                                  "Se ha agregado actualizado correctamente",
-                                  Icons8.alert);
-                              print('Updated ');
-                            }
-                          }
-                          */
-                          //
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.indigo[800],
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              labelIsOnSale,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    'Nombre a mostrar en la guia de envio:',
+                                                    style: customTextStyleTitle,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    RichText(
+                                      text: TextSpan(
+                                        children: <TextSpan>[
+                                          TextSpan(
+                                            text: guideName,
+                                            style: customTextStyleText,
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "ID:",
+                                                    style: customTextStyleTitle,
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  Text(
+                                                    product.productId
+                                                        .toString(),
+                                                    style: customTextStyleText,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "Descripción:",
+                                                    style: customTextStyleTitle,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Html(
+                                                data: description,
+                                                style: {
+                                                  'p': Style(
+                                                    fontSize: FontSize(16),
+                                                    color: Colors.grey[800],
+                                                    margin:
+                                                        Margins.only(bottom: 0),
+                                                  ),
+                                                  'li': Style(
+                                                    margin:
+                                                        Margins.only(bottom: 0),
+                                                  ),
+                                                  'ol': Style(
+                                                    margin:
+                                                        Margins.only(bottom: 0),
+                                                  ),
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "SKU:",
+                                                    style: customTextStyleTitle,
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  Text(
+                                                    sku,
+                                                    style: customTextStyleText,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Visibility(
+                                      visible: product.isvariable == 1,
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      "SKU Variables:",
+                                                      style:
+                                                          customTextStyleTitle,
+                                                    ),
+                                                  ],
+                                                ),
+                                                Text(
+                                                  variablesSKU,
+                                                  style: customTextStyleText,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                        ],
+                                      ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "Precio Bodega:",
+                                                    style: customTextStyleTitle,
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  Text(
+                                                    "\$${product.price}",
+                                                    style: customTextStyleText,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "Precio Sugerido:",
+                                                    style: customTextStyleTitle,
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  Text(
+                                                    priceSuggested.isNotEmpty ||
+                                                            priceSuggested != ""
+                                                        ? '\$$priceSuggested'
+                                                        : '',
+                                                    style: customTextStyleText,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "Tipo:",
+                                                    style: customTextStyleTitle,
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  Text(
+                                                    type,
+                                                    style: customTextStyleText,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "Stock general:",
+                                                    style: customTextStyleTitle,
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  Text(
+                                                    "${product.stock}",
+                                                    style: customTextStyleText,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Visibility(
+                                      visible: reservesText != "",
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const SizedBox(height: 10),
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      "Mis Reservas:",
+                                                      style:
+                                                          customTextStyleTitle,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Visibility(
+                                      visible: reservesText != "",
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      reservesText,
+                                                      style:
+                                                          customTextStyleText,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Visibility(
+                                      visible: product.isvariable == 1,
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      "Variables:",
+                                                      style:
+                                                          customTextStyleTitle,
+                                                    ),
+                                                  ],
+                                                ),
+                                                Text(
+                                                  variablesText,
+                                                  style: customTextStyleText,
+                                                ),
+                                                const SizedBox(height: 10),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "Categorias:",
+                                                    style: customTextStyleTitle,
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  Text(
+                                                    categoriesText,
+                                                    style: customTextStyleText,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "Bodega:",
+                                                    style: customTextStyleTitle,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    product
+                                                        .warehouse!.branchName
+                                                        .toString(),
+                                                    style: customTextStyleText,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "Atención al cliente:",
+                                                    style: customTextStyleText,
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  Text(
+                                                    product.warehouse!
+                                                                .customerphoneNumber !=
+                                                            null
+                                                        ? product.warehouse!
+                                                            .customerphoneNumber
+                                                            .toString()
+                                                        : "",
+                                                    style: customTextStyleText,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 30),
+                                  ],
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 5),
-                            const Icon(
-                              Icons.copy_rounded,
-                              size: 24,
-                              color: Colors.white,
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
+                        
+                        */
+                        ],
                       ),
-                    ],
-                  ),
+                      context),
+                  const SizedBox(height: 20),
+                  responsive(
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () async {
+                              // var userId = sharedPrefs!.getString("id");
+                              // print(userId);
+                              var userIdComercialMasterSeller = sharedPrefs!
+                                  .getString("idComercialMasterSeller");
+
+                              if (isFavorite != 3) {
+                                //existe el registro, need upt
+                                //update
+                                var response = await Connections()
+                                    .getProductSeller(
+                                        int.parse(product.productId.toString()),
+                                        int.parse(userIdComercialMasterSeller
+                                            .toString()));
+
+                                print(response['id']);
+
+                                var responseUpt = await Connections()
+                                    .updateProductSeller(response['id'], {
+                                  "favorite": isFavorite == 1 ? 0 : 1,
+                                });
+
+                                // print(responseUpt);
+
+                                if (responseUpt == 1 || responseUpt == 2) {
+                                  print('Error update new');
+                                  // ignore: use_build_context_synchronously
+                                  showSuccessModal(
+                                      context,
+                                      "Ha ocurrido un error al actualizar favoritos.",
+                                      Icons8.alert);
+                                } else {
+                                  // ignore: use_build_context_synchronously
+                                  AwesomeDialog(
+                                    width: 500,
+                                    context: context,
+                                    dialogType: DialogType.success,
+                                    animType: AnimType.rightSlide,
+                                    title: 'Info',
+                                    desc: isFavorite == 1
+                                        ? "Se ha quitado de favoritos"
+                                        : "Se ha agregado a favoritos",
+                                    btnCancel: Container(),
+                                    btnOkText: "Aceptar",
+                                    btnOkColor: colors.colorGreen,
+                                    btnCancelOnPress: () {},
+                                    btnOkOnPress: () {
+                                      setState(() {});
+                                      Navigator.pop(context);
+                                    },
+                                  ).show();
+                                }
+                                //
+                              } else {
+                                //create new
+                                var responseNew = await Connections()
+                                    .createProductSeller(
+                                        int.parse(product.productId.toString()),
+                                        int.parse(userIdComercialMasterSeller
+                                            .toString()),
+                                        "favorite");
+                                print("responseNew: $responseNew");
+                                if (responseNew == 1 || responseNew == 2) {
+                                  print('Error Created new');
+                                  // ignore: use_build_context_synchronously
+                                  showSuccessModal(
+                                      context,
+                                      "Ha ocurrido un error al agregar a favoritos.",
+                                      Icons8.alert);
+                                } else {
+                                  // ignore: use_build_context_synchronously
+                                  AwesomeDialog(
+                                    width: 500,
+                                    context: context,
+                                    dialogType: DialogType.success,
+                                    animType: AnimType.rightSlide,
+                                    title: 'Info',
+                                    desc:
+                                        "Se ha agregado exitosamente a favoritos",
+                                    btnCancel: Container(),
+                                    btnOkText: "Aceptar",
+                                    btnOkColor: colors.colorGreen,
+                                    btnCancelOnPress: () {},
+                                    btnOkOnPress: () {
+                                      setState(() {});
+                                      Navigator.pop(context);
+                                    },
+                                  ).show();
+                                }
+                              }
+                              //
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.indigo[600],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  labelIsFavorite,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                                Icon(
+                                  isFavorite == 1
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
+                                  size: 24,
+                                  color: Colors.white,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 30),
+                          ElevatedButton(
+                            onPressed: () async {
+                              //Onsale
+                              // var userId = sharedPrefs!.getString("id");
+                              // print(userId);
+                              var userIdComercialMasterSeller = sharedPrefs!
+                                  .getString("idComercialMasterSeller");
+
+                              if (isFavorite != 3) {
+                                //existe el registro, need upt
+                                //update
+                                var response = await Connections()
+                                    .getProductSeller(
+                                        int.parse(product.productId.toString()),
+                                        int.parse(userIdComercialMasterSeller
+                                            .toString()));
+
+                                print(response['id']);
+
+                                var responseUpt = await Connections()
+                                    .updateProductSeller(response['id'], {
+                                  "onsale": isOnSale == 1 ? 0 : 1,
+                                });
+
+                                // print(responseUpt);
+
+                                if (responseUpt == 1 || responseUpt == 2) {
+                                  print('Error update new');
+                                  // ignore: use_build_context_synchronously
+                                  showSuccessModal(
+                                      context,
+                                      "Ha ocurrido un error al actualizar En venta.",
+                                      Icons8.alert);
+                                } else {
+                                  // ignore: use_build_context_synchronously
+                                  AwesomeDialog(
+                                    width: 500,
+                                    context: context,
+                                    dialogType: DialogType.success,
+                                    animType: AnimType.rightSlide,
+                                    title: 'Información',
+                                    desc: isOnSale == 1
+                                        ? "Se ha quitado de En venta"
+                                        : "El ID: ${product.productId} del producto ${product.productName} ha sido copiado con éxito. Péguelo en EasyShop para importar los productos a su tienda en Shopify.",
+                                    btnCancel: Container(),
+                                    btnOkText: "Aceptar",
+                                    btnOkColor: colors.colorGreen,
+                                    btnCancelOnPress: () {},
+                                    btnOkOnPress: () {
+                                      if (isOnSale != 1) {
+                                        Clipboard.setData(ClipboardData(
+                                            text: "${product.productId}"));
+
+                                        Get.snackbar(
+                                          'COPIADO',
+                                          'Copiado al Clipboard',
+                                        );
+                                      }
+                                      setState(() {});
+                                      Navigator.pop(context);
+                                    },
+                                  ).show();
+                                }
+                                //
+                              } else {
+                                //create new
+                                var responseNew = await Connections()
+                                    .createProductSeller(
+                                        int.parse(product.productId.toString()),
+                                        int.parse(userIdComercialMasterSeller
+                                            .toString()),
+                                        "onsale");
+                                print("responseNew: $responseNew");
+                                if (responseNew == 1 || responseNew == 2) {
+                                  print('Error Created new');
+                                  // ignore: use_build_context_synchronously
+                                  showSuccessModal(
+                                      context,
+                                      "Ha ocurrido un error al agregar a En venta.",
+                                      Icons8.alert);
+                                } else {
+                                  // ignore: use_build_context_synchronously
+                                  AwesomeDialog(
+                                    width: 500,
+                                    context: context,
+                                    dialogType: DialogType.success,
+                                    animType: AnimType.rightSlide,
+                                    title: 'Información',
+                                    desc:
+                                        "El ID: ${product.productId} del producto ${product.productName} ha sido copiado con éxito. Péguelo en EasyShop para importar los productos a su tienda en Shopify.",
+                                    btnCancel: Container(),
+                                    btnOkText: "Aceptar",
+                                    btnOkColor: colors.colorGreen,
+                                    btnCancelOnPress: () {},
+                                    btnOkOnPress: () {
+                                      if (isOnSale != 1) {
+                                        Clipboard.setData(ClipboardData(
+                                            text: "${product.productId}"));
+
+                                        Get.snackbar(
+                                          'COPIADO',
+                                          'Copiado al Clipboard',
+                                        );
+                                      }
+                                      setState(() {});
+                                      Navigator.pop(context);
+                                    },
+                                  ).show();
+                                }
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.indigo[800],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  labelIsOnSale,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                                const Icon(
+                                  Icons.copy_rounded,
+                                  size: 24,
+                                  color: Colors.white,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Row(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        // var userId = sharedPrefs!.getString("id");
+                                        // print(userId);
+                                        var userIdComercialMasterSeller =
+                                            sharedPrefs!.getString(
+                                                "idComercialMasterSeller");
+
+                                        if (isFavorite != 3) {
+                                          //existe el registro, need upt
+                                          //update
+                                          var response = await Connections()
+                                              .getProductSeller(
+                                                  int.parse(product.productId
+                                                      .toString()),
+                                                  int.parse(
+                                                      userIdComercialMasterSeller
+                                                          .toString()));
+
+                                          print(response['id']);
+
+                                          var responseUpt = await Connections()
+                                              .updateProductSeller(
+                                                  response['id'], {
+                                            "favorite": isFavorite == 1 ? 0 : 1,
+                                          });
+
+                                          // print(responseUpt);
+
+                                          if (responseUpt == 1 ||
+                                              responseUpt == 2) {
+                                            print('Error update new');
+                                            // ignore: use_build_context_synchronously
+                                            showSuccessModal(
+                                                context,
+                                                "Ha ocurrido un error al actualizar favoritos.",
+                                                Icons8.alert);
+                                          } else {
+                                            // ignore: use_build_context_synchronously
+                                            AwesomeDialog(
+                                              width: 500,
+                                              context: context,
+                                              dialogType: DialogType.success,
+                                              animType: AnimType.rightSlide,
+                                              title: 'Info',
+                                              desc: isFavorite == 1
+                                                  ? "Se ha quitado de favoritos"
+                                                  : "Se ha agregado a favoritos",
+                                              btnCancel: Container(),
+                                              btnOkText: "Aceptar",
+                                              btnOkColor: colors.colorGreen,
+                                              btnCancelOnPress: () {},
+                                              btnOkOnPress: () {
+                                                setState(() {});
+                                                Navigator.pop(context);
+                                              },
+                                            ).show();
+                                          }
+                                          //
+                                        } else {
+                                          //create new
+                                          var responseNew = await Connections()
+                                              .createProductSeller(
+                                                  int.parse(product.productId
+                                                      .toString()),
+                                                  int.parse(
+                                                      userIdComercialMasterSeller
+                                                          .toString()),
+                                                  "favorite");
+                                          print("responseNew: $responseNew");
+                                          if (responseNew == 1 ||
+                                              responseNew == 2) {
+                                            print('Error Created new');
+                                            // ignore: use_build_context_synchronously
+                                            showSuccessModal(
+                                                context,
+                                                "Ha ocurrido un error al agregar a favoritos.",
+                                                Icons8.alert);
+                                          } else {
+                                            // ignore: use_build_context_synchronously
+                                            AwesomeDialog(
+                                              width: 500,
+                                              context: context,
+                                              dialogType: DialogType.success,
+                                              animType: AnimType.rightSlide,
+                                              title: 'Info',
+                                              desc:
+                                                  "Se ha agregado exitosamente a favoritos",
+                                              btnCancel: Container(),
+                                              btnOkText: "Aceptar",
+                                              btnOkColor: colors.colorGreen,
+                                              btnCancelOnPress: () {},
+                                              btnOkOnPress: () {
+                                                setState(() {});
+                                                Navigator.pop(context);
+                                              },
+                                            ).show();
+                                          }
+                                        }
+                                        //
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.indigo[600],
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            labelIsFavorite,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 5),
+                                          Icon(
+                                            isFavorite == 1
+                                                ? Icons.favorite
+                                                : Icons.favorite_border,
+                                            size: 24,
+                                            color: Colors.white,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 20),
+                                Row(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        //Onsale
+                                        // var userId = sharedPrefs!.getString("id");
+                                        // print(userId);
+                                        var userIdComercialMasterSeller =
+                                            sharedPrefs!.getString(
+                                                "idComercialMasterSeller");
+
+                                        if (isFavorite != 3) {
+                                          //existe el registro, need upt
+                                          //update
+                                          var response = await Connections()
+                                              .getProductSeller(
+                                                  int.parse(product.productId
+                                                      .toString()),
+                                                  int.parse(
+                                                      userIdComercialMasterSeller
+                                                          .toString()));
+
+                                          print(response['id']);
+
+                                          var responseUpt = await Connections()
+                                              .updateProductSeller(
+                                                  response['id'], {
+                                            "onsale": isOnSale == 1 ? 0 : 1,
+                                          });
+
+                                          // print(responseUpt);
+
+                                          if (responseUpt == 1 ||
+                                              responseUpt == 2) {
+                                            print('Error update new');
+                                            // ignore: use_build_context_synchronously
+                                            showSuccessModal(
+                                                context,
+                                                "Ha ocurrido un error al actualizar En venta.",
+                                                Icons8.alert);
+                                          } else {
+                                            // ignore: use_build_context_synchronously
+                                            AwesomeDialog(
+                                              width: 500,
+                                              context: context,
+                                              dialogType: DialogType.success,
+                                              animType: AnimType.rightSlide,
+                                              title: 'Información',
+                                              desc: isOnSale == 1
+                                                  ? "Se ha quitado de En venta"
+                                                  : "El ID: ${product.productId} del producto ${product.productName} ha sido copiado con éxito. Péguelo en EasyShop para importar los productos a su tienda en Shopify.",
+                                              btnCancel: Container(),
+                                              btnOkText: "Aceptar",
+                                              btnOkColor: colors.colorGreen,
+                                              btnCancelOnPress: () {},
+                                              btnOkOnPress: () {
+                                                if (isOnSale != 1) {
+                                                  Clipboard.setData(ClipboardData(
+                                                      text:
+                                                          "${product.productId}"));
+
+                                                  Get.snackbar(
+                                                    'COPIADO',
+                                                    'Copiado al Clipboard',
+                                                  );
+                                                }
+                                                setState(() {});
+                                                Navigator.pop(context);
+                                              },
+                                            ).show();
+                                          }
+                                          //
+                                        } else {
+                                          //create new
+                                          var responseNew = await Connections()
+                                              .createProductSeller(
+                                                  int.parse(product.productId
+                                                      .toString()),
+                                                  int.parse(
+                                                      userIdComercialMasterSeller
+                                                          .toString()),
+                                                  "onsale");
+                                          print("responseNew: $responseNew");
+                                          if (responseNew == 1 ||
+                                              responseNew == 2) {
+                                            print('Error Created new');
+                                            // ignore: use_build_context_synchronously
+                                            showSuccessModal(
+                                                context,
+                                                "Ha ocurrido un error al agregar a En venta.",
+                                                Icons8.alert);
+                                          } else {
+                                            // ignore: use_build_context_synchronously
+                                            AwesomeDialog(
+                                              width: 500,
+                                              context: context,
+                                              dialogType: DialogType.success,
+                                              animType: AnimType.rightSlide,
+                                              title: 'Información',
+                                              desc:
+                                                  "El ID: ${product.productId} del producto ${product.productName} ha sido copiado con éxito. Péguelo en EasyShop para importar los productos a su tienda en Shopify.",
+                                              btnCancel: Container(),
+                                              btnOkText: "Aceptar",
+                                              btnOkColor: colors.colorGreen,
+                                              btnCancelOnPress: () {},
+                                              btnOkOnPress: () {
+                                                if (isOnSale != 1) {
+                                                  Clipboard.setData(ClipboardData(
+                                                      text:
+                                                          "${product.productId}"));
+
+                                                  Get.snackbar(
+                                                    'COPIADO',
+                                                    'Copiado al Clipboard',
+                                                  );
+                                                }
+                                                setState(() {});
+                                                Navigator.pop(context);
+                                              },
+                                            ).show();
+                                          }
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.indigo[800],
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            labelIsOnSale,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 5),
+                                          const Icon(
+                                            Icons.copy_rounded,
+                                            size: 24,
+                                            color: Colors.white,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                // Row(
+                                //   children: [
+                                //     Text(
+                                //       "Producto:",
+                                //       style: customTextStyleTitle,
+                                //     ),
+                                //   ],
+                                // ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      context),
                   const SizedBox(height: 30),
                 ],
               ),

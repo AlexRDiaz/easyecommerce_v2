@@ -90,7 +90,8 @@ class _ProductsViewState extends State<ProductsView> {
         arrayFiltersOr,
         arrayFiltersAnd,
         sortFieldDefaultValue.toString(),
-        _search.text);
+        _search.text,
+        "");
     return _productController.products;
   }
 
@@ -141,7 +142,8 @@ class _ProductsViewState extends State<ProductsView> {
         arrayFiltersOr,
         arrayFiltersAnd,
         sortFieldDefaultValue.toString(),
-        _search.text);
+        _search.text,
+        "");
 
     data = response['data'];
     // print(data);
