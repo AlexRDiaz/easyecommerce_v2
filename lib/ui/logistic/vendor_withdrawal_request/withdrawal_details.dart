@@ -382,6 +382,7 @@ class _WithDrawalDetailsState extends State<WithdrawalDetails> {
                                                                   response[1]);
 
                                                       if (res == 0) {
+                                                        // ignore: use_build_context_synchronously
                                                         AwesomeDialog(
                                                           width: 500,
                                                           context: context,
@@ -413,6 +414,7 @@ class _WithDrawalDetailsState extends State<WithdrawalDetails> {
                                                           },
                                                         ).show();
                                                       } else {
+                                                        // ignore: use_build_context_synchronously
                                                         AwesomeDialog(
                                                           width: 500,
                                                           context: context,
