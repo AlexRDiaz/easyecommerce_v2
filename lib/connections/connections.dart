@@ -3023,7 +3023,7 @@ class Connections {
       return 2;
     }
   }
-  
+
   getSubRoutesID() async {
     try {
       var response = await http.get(
@@ -3042,8 +3042,7 @@ class Connections {
 
   getOperatorsAvailables() async {
     try {
-      var response = await http.get(
-          Uri.parse("$serverLaravel/api/operators"),
+      var response = await http.get(Uri.parse("$serverLaravel/api/operators"),
           headers: {'Content-Type': 'application/json'});
 
       if (response.statusCode != 200) {
@@ -3057,16 +3056,15 @@ class Connections {
     }
   }
 
-
   getSubroutesByTransportadoraId(id) async {
-    List <String>auxi = [];
+    List<String> auxi = [];
     try {
       var response = await http.get(
           Uri.parse("$serverLaravel/api/subrutas/bytransport/$id"),
           headers: {'Content-Type': 'application/json'});
 
       if (response.statusCode != 200) {
-        return  auxi; 
+        return auxi;
       } else {
         return json.decode(response.body);
       }
@@ -3074,6 +3072,7 @@ class Connections {
       return 2;
     }
   }
+
   getOperatorsbySubRoutes(id, transid) async {
     try {
       var response = await http.post(
@@ -4107,11 +4106,8 @@ class Connections {
     filtersAndAll.addAll(filtersAnd);
 
     filtersAndAll.addAll(defaultAnd);
-    print(json.encode({
-            "and": filtersAndAll,
-            "or": filtersOr,
-            "searchValue": searchValue
-          }));
+    print(json.encode(
+        {"and": filtersAndAll, "or": filtersOr, "searchValue": searchValue}));
     try {
       var response = await http.post(
           Uri.parse("$serverLaravel/api/operadoresoftransport"),
@@ -4414,6 +4410,31 @@ class Connections {
       return false;
     } else {
       return true;
+    }
+  }
+
+  Future debitWithdrawal(comprobante) async {
+    try {
+      String id = Get.parameters['id'].toString();
+
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/transacciones/debit_withdrawal/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "comprobante": comprobante,
+            "fecha_transferencia":
+                "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year} ${DateTime.now().hour}:${DateTime.now().minute}",
+            "generated_by": sharedPrefs!.getString("id").toString()
+          }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      return 2;
     }
   }
 

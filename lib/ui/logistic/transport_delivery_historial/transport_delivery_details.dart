@@ -328,17 +328,7 @@ class _TransportDeliveryHistoryDetailsState
                                                           data['attributes']
                                                                   ['novedades']
                                                               ['data'],
-                                                      currentStatus: data['attributes']
-                                                                      [
-                                                                      'Status'] ==
-                                                                  "NOVEDAD" ||
-                                                              data['attributes']
-                                                                      [
-                                                                      'Status'] ==
-                                                                  "REAGENDADO"
-                                                          ? ""
-                                                          : data['attributes']
-                                                              ['Status'],
+                                                      currentStatus: "",
                                                       rolidinvoke: 4,
                                                       comment:
                                                           data['attributes']
