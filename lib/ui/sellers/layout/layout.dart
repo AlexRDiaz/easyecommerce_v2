@@ -585,7 +585,15 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                   }
 
                   pages = List.from(pages)..[selectedIndex]['selected'] = true;
+                  String cv = currentView['view'].toString();
+                  print(cv);
+
+                  if (cv == "Catalog") {
+                    print("if");
+                    isSidebarOpen = false;
+                  }
                 });
+
                 Provider.of<NavigationProviderSellers>(context, listen: false)
                     .changeIndex(selectedIndex, selectedView['page']);
               },
