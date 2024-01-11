@@ -390,7 +390,8 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
               right: 0,
               child: currentView["view"]),
           AnimatedPositioned(
-            duration: Duration(milliseconds: 300),
+            duration: Duration(milliseconds: 200),
+            curve: Curves.decelerate,
             top: 0,
             bottom: 0,
             left: isSidebarOpen ? 0 : -260,
