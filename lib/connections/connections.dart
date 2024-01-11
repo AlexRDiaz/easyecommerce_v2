@@ -7447,4 +7447,45 @@ class Connections {
       return 2;
     }
   }
+
+  getByDateRangeValuesAudit(
+    String dateStart,
+    String dateEnd,
+    List and,
+    List defaultAnd,
+  ) async {
+    try {
+      List filtersAndAll = [];
+      filtersAndAll.addAll(and);
+      filtersAndAll.addAll(defaultAnd);
+
+      print(json.encode({
+            "start": dateStart,
+            "end": dateEnd,
+            "and": filtersAndAll,
+          }));
+
+      var request = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/logistic/values/getByDateRangeValuesAudit"),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode({
+            "start": dateStart,
+            "end": dateEnd,
+            "and": filtersAndAll,
+          }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return decodeData;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
 }
