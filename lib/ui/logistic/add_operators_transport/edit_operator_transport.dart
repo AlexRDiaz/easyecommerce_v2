@@ -29,7 +29,7 @@ class _EditOperatorLogisticState extends State<EditOperatorLogistic> {
   int idUser = 0;
   List<dynamic> accessTemp = [];
   Map<String, dynamic> accessGeneralofRol = {};
-
+ 
   var data = {};
   @override
   void didChangeDependencies() {
@@ -51,7 +51,7 @@ class _EditOperatorLogisticState extends State<EditOperatorLogistic> {
 
     var response = await Connections().getOperatorsGeneralByID();
     data = response;
-    print(data);
+    // print(data);
     idUser = data["id"];
     accessTemp = data['PERMISOS'];
     accessGeneralofRol = await Connections().getAccessofRolById(4);
@@ -95,7 +95,16 @@ class _EditOperatorLogisticState extends State<EditOperatorLogistic> {
         backgroundColor: Colors.white,
         leading: GestureDetector(
             onTap: () {
+              //  if (Get.parameters.containsKey('andback')) {
+                // print(Get.parameters['andback']);
+      // List arrayFiltersAndback = Get.parameters['andback'] as List;
+
+      // if (arrayFiltersAndback.isEmpty && arrayFiltersAndback == []) {
+          // Navigators().pushNamedAndRemoveUntil(context, "/layout/logistic?andback=${Get.parameters['andback']}");
+      // }
+    // }else{
               Navigators().pushNamedAndRemoveUntil(context, "/layout/logistic");
+    // }
             },
             child: const Icon(Icons.arrow_back_ios, color: Colors.black)),
         centerTitle: true,

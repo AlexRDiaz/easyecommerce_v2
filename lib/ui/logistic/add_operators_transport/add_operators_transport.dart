@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -12,6 +14,7 @@ import 'package:frontend/main.dart';
 import 'package:frontend/ui/transport/add_operators_transport/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/create_sub_route.dart';
+import 'package:get/get.dart';
 
 class AddOperatorsTransportLogistic extends StatefulWidget {
   const AddOperatorsTransportLogistic({super.key});
@@ -53,8 +56,10 @@ class _AddOperatorsTransportLogisticState
   TextEditingController transportadorasController =
       TextEditingController(text: "TODO");
   TextEditingController routesController = TextEditingController(text: "TODO");
-  TextEditingController subRoutesController = TextEditingController(text: "TODO");
-  TextEditingController operatorsController = TextEditingController(text: "TODO");
+  TextEditingController subRoutesController =
+      TextEditingController(text: "TODO");
+  TextEditingController operatorsController =
+      TextEditingController(text: "TODO");
 
   @override
   void didChangeDependencies() {
@@ -81,6 +86,18 @@ class _AddOperatorsTransportLogisticState
             '${routesList[i]['attributes']['Titulo']}-${routesList[i]['id']}');
       });
     }
+
+    // if (Get.parameters.containsKey('andback')) {
+    //   List<String> arrayFiltersAndback = convertJsonStringToList(
+    //     // Get.parameters['andback'].toString()
+    //     [{"operadores.transportadoras.transportadora_id":  19}].toString()
+    //   );
+
+    //   if (arrayFiltersAndback.isNotEmpty) {
+    //     arrayFiltersAnd = arrayFiltersAndback;
+    //   }
+    // }
+
     var response = await Connections().getOperatorsTransportLaravel(
         arrayFiltersAnd,
         arrayFiltersOr,
@@ -120,13 +137,25 @@ class _AddOperatorsTransportLogisticState
       }
     }
 
-    
-
     Future.delayed(Duration(milliseconds: 500), () {
       Navigator.pop(context);
     });
     setState(() {});
   }
+
+// List<String> convertJsonStringToList(String jsonString) {
+//   print(jsonString);
+//   try {
+//     List<dynamic> jsonList = json.decode(jsonString);
+//     List<String> result = jsonList.map((item) {
+//       return item.toString();
+//     }).toList();
+//     return result;
+//   } catch (e) {
+//     print("Error parsing JSON: $e");
+//     return [];
+//   }
+// }
 
   @override
   Widget build(BuildContext context) {
@@ -172,11 +201,8 @@ class _AddOperatorsTransportLogisticState
                     minWidth: 600,
                     columns: [
                       DataColumn2(
-                        label: SelectFilter(
-                            'Usuario',
-                            'id',
-                            operatorsController,
-                            listOperators),
+                        label: SelectFilter('Usuario', 'id',
+                            operatorsController, listOperators),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
                           sortFuncUser("username");
@@ -211,6 +237,10 @@ class _AddOperatorsTransportLogisticState
                         onSort: (columnIndex, ascending) {
                           // sortFuncCostOperator();
                         },
+                      ),
+                      DataColumn2(
+                        label: Text('Número de Teléfono'),
+                        size: ColumnSize.M,
                       ),
                       DataColumn2(
                         label: Text('Bloquear'),
@@ -255,20 +285,35 @@ class _AddOperatorsTransportLogisticState
                                 ),
                                 onTap: () {
                                   // Código para manejar la acción onTap
-                                  Navigators().pushNamed(context, '/layout/logistic/info?id=${data[index]['id']}&id_Operator=${data[index]['operadores'][0]['id']}');
+
+                                  // Navigators().pushNamed(context,
+                                  //     '/layout/logistic/info?id=${data[index]['id']}&id_Operator=${data[index]['operadores'][0]['id']}');
+                                  // if(arrayFiltersAnd.isNotEmpty){
+                                  Navigators().pushNamed(context,
+                                      '/layout/logistic/info?id=${data[index]['id']}&id_Operator=${data[index]['operadores'][0]['id']}&andback=${arrayFiltersAnd}');
+                                    
+                                  // }
                                 },
                               ),
                               DataCell(
                                   Row(
                                     children: [
-                                        getIcon(
-                                          int.parse(data[index]['operadores'][0]['transportadoras'][0]['id'].toString()),
-                                          int.parse(data[index]['operadores'][0]['sub_rutas'][0]['id_operadora'].toString()))
-                                      ,
+                                      getIcon(
+                                          int.parse(data[index]['operadores'][0]
+                                                  ['transportadoras'][0]['id']
+                                              .toString()),
+                                          int.parse(data[index]['operadores'][0]
+                                                      ['sub_rutas'][0]
+                                                  ['id_operadora']
+                                              .toString())),
                                       SizedBox(width: 5),
-                                      Expanded(child:  Text(data[index]['operadores'][0]
-                                              ['sub_rutas'][0]['titulo']
-                                          .toString(),overflow: TextOverflow.ellipsis,))
+                                      Expanded(
+                                          child: Text(
+                                        data[index]['operadores'][0]
+                                                ['sub_rutas'][0]['titulo']
+                                            .toString(),
+                                        overflow: TextOverflow.ellipsis,
+                                      ))
                                     ],
                                   ), onTap: () {
                                 // Navigators().pushNamed(context,
@@ -334,6 +379,24 @@ class _AddOperatorsTransportLogisticState
                                   // Aquí puedes colocar el código para manejar la acción onTap
                                   // Navigators().pushNamed(context, '/layout/transport/operator/info?id=${data[index]['id']}&id_Operator=${data[index]['operadore']['id']}');
                                 },
+                              ),
+                              DataCell(
+                                Text(
+                                  (data.length > index &&
+                                          data[index]['operadores'] != null &&
+                                          data[index]['operadores']
+                                              .isNotEmpty &&
+                                          data[index]['operadores'][0]
+                                                  ['telefono'] !=
+                                              null &&
+                                          data[index]['operadores'][0]
+                                                  ['telefono']
+                                              .isNotEmpty)
+                                      ? data[index]['operadores'][0]['telefono']
+                                          .toString()
+                                      : "",
+                                ),
+                                onTap: () {},
                               ),
                               DataCell(GestureDetector(
                                 onTap: () async {
@@ -864,7 +927,6 @@ class _AddOperatorsTransportLogisticState
   }
 
   Widget getIcon(dynamic idTransportadora, dynamic idOperadora) {
-
     // Verificar si las cadenas son nulas o vacías antes de la conversión
     if (idTransportadora != null &&
         idOperadora != null &&
