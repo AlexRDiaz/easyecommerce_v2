@@ -319,25 +319,40 @@ class _AuditState extends State<Audit> {
           child: responsive(
               Column(
                 children: [
-                 MyCustomWidget(
-  value1: respvalues != null && respvalues['Costo_Transporte'] != null ? respvalues['Costo_Transporte'].toString() : "0.0",
-  value2: respvalues != null && respvalues['Costo_Entrega'] != null ? respvalues['Costo_Entrega'].toString() : "0.0",
-  value3: respvalues != null && respvalues['Costo_Devolución'] != null ? respvalues['Costo_Devolución'].toString() : "0.0",
-),
-
-
-                  // MyCustomWidget(
-                  //   value1: respvalues['Costo_Transporte'] != null
-                  //       ? respvalues['Costo_Transporte'].toString()
-                  //       : "0.0",
-                  //   value2: respvalues['Costo_Entrega'] != null
-                  //       ? respvalues['Costo_Entrega'].toString()
-                  //       : "0.0",
-                  //   value3: respvalues['Costo_Devolución'] != null
-                  //       ? respvalues['Costo_Devolución'].toString()
-                  //       : "0.0",
-                  // ),
-
+                  MyCustomWidget(
+                    value1: respvalues != null &&
+                            respvalues['Costo_Transporte'] != null
+                        ? respvalues['Costo_Transporte'].toString()
+                        : "0.0",
+                    value2: respvalues != null &&
+                            respvalues['Costo_Entrega'] != null
+                        ? respvalues['Costo_Entrega'].toString()
+                        : "0.0",
+                    value3: respvalues != null &&
+                            respvalues['Costo_Devolución'] != null
+                        ? respvalues['Costo_Devolución'].toString()
+                        : "0.0",
+                    filterInvoke: respvalues != null &&
+                            respvalues['Filtro_Existente'] != null
+                        ? respvalues['Filtro_Existente'].toString()
+                        : "0",
+                    entregados: respvalues != null &&
+                            respvalues['Estado_Pedidos'] != null &&
+                            respvalues['Estado_Pedidos']['ENTREGADO'] != null
+                        ? respvalues['Estado_Pedidos']['ENTREGADO'].toString()
+                        : "0",
+                    noEntregados: respvalues != null &&
+                            respvalues['Estado_Pedidos'] != null &&
+                            respvalues['Estado_Pedidos']['NO ENTREGADO'] != null
+                        ? respvalues['Estado_Pedidos']['NO ENTREGADO']
+                            .toString()
+                        : "0",
+                    novedad: respvalues != null &&
+                            respvalues['Estado_Pedidos'] != null &&
+                            respvalues['Estado_Pedidos']['NOVEDAD'] != null
+                        ? respvalues['Estado_Pedidos']['NOVEDAD'].toString()
+                        : "0",
+                  ),
                   _dates(context),
                   SizedBox(
                     height: 10,
@@ -560,6 +575,40 @@ class _AuditState extends State<Audit> {
               ),
               Column(
                 children: [
+                  MyCustomWidget(
+                    value1: respvalues != null &&
+                            respvalues['Costo_Transporte'] != null
+                        ? respvalues['Costo_Transporte'].toString()
+                        : "0.0",
+                    value2: respvalues != null &&
+                            respvalues['Costo_Entrega'] != null
+                        ? respvalues['Costo_Entrega'].toString()
+                        : "0.0",
+                    value3: respvalues != null &&
+                            respvalues['Costo_Devolución'] != null
+                        ? respvalues['Costo_Devolución'].toString()
+                        : "0.0",
+                    filterInvoke: respvalues != null &&
+                            respvalues['Filtro_Existente'] != null
+                        ? respvalues['Filtro_Existente'].toString()
+                        : "0",
+                    entregados: respvalues != null &&
+                            respvalues['Estado_Pedidos'] != null &&
+                            respvalues['Estado_Pedidos']['ENTREGADO'] != null
+                        ? respvalues['Estado_Pedidos']['ENTREGADO'].toString()
+                        : "0",
+                    noEntregados: respvalues != null &&
+                            respvalues['Estado_Pedidos'] != null &&
+                            respvalues['Estado_Pedidos']['NO ENTREGADO'] != null
+                        ? respvalues['Estado_Pedidos']['NO ENTREGADO']
+                            .toString()
+                        : "0",
+                    novedad: respvalues != null &&
+                            respvalues['Estado_Pedidos'] != null &&
+                            respvalues['Estado_Pedidos']['NOVEDAD'] != null
+                        ? respvalues['Estado_Pedidos']['NOVEDAD'].toString()
+                        : "0",
+                  ),
                   _datesMovil(context),
                   SizedBox(
                     height: 10,
