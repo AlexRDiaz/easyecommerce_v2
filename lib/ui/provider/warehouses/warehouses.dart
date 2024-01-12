@@ -273,7 +273,30 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
                                           size: 20,
                                         ),
                                 ),
-
+                                Positioned(
+                                    top: 8,
+                                    right: 10,
+                                    child: warehouses[index].approved == 1
+                                        ? const Text(
+                                            'Aprobada',
+                                            style: TextStyle(
+                                                color: Color.fromARGB(
+                                                    255, 45, 228, 51),
+                                                fontWeight: FontWeight.bold),
+                                          )
+                                        : warehouses[index].approved == 2
+                                            ? Text(
+                                                'Pendiente',
+                                                style: TextStyle(
+                                                    color: Color.fromARGB(255, 224, 221, 14),
+                                                    fontWeight: FontWeight.bold),
+                                              )
+                                            : const Text(
+                                                'Rechazada',
+                                                style: TextStyle(
+                                                    color: Colors.red,
+                                                    fontWeight: FontWeight.bold),
+                                              )),
                                 Align(
                                   alignment: Alignment.bottomCenter,
                                   child: Container(

@@ -9,6 +9,7 @@ import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/navigators.dart';
 import 'package:frontend/main.dart';
+import 'package:frontend/ui/logistic/add_operators_transport/edit_operator_transport.dart';
 import 'package:frontend/ui/transport/add_operators_transport/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/create_sub_route.dart';
@@ -53,8 +54,10 @@ class _AddOperatorsTransportLogisticState
   TextEditingController transportadorasController =
       TextEditingController(text: "TODO");
   TextEditingController routesController = TextEditingController(text: "TODO");
-  TextEditingController subRoutesController = TextEditingController(text: "TODO");
-  TextEditingController operatorsController = TextEditingController(text: "TODO");
+  TextEditingController subRoutesController =
+      TextEditingController(text: "TODO");
+  TextEditingController operatorsController =
+      TextEditingController(text: "TODO");
 
   @override
   void didChangeDependencies() {
@@ -120,8 +123,6 @@ class _AddOperatorsTransportLogisticState
       }
     }
 
-    
-
     Future.delayed(Duration(milliseconds: 500), () {
       Navigator.pop(context);
     });
@@ -172,11 +173,8 @@ class _AddOperatorsTransportLogisticState
                     minWidth: 600,
                     columns: [
                       DataColumn2(
-                        label: SelectFilter(
-                            'Usuario',
-                            'id',
-                            operatorsController,
-                            listOperators),
+                        label: SelectFilter('Usuario', 'id',
+                            operatorsController, listOperators),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
                           sortFuncUser("username");
@@ -211,6 +209,10 @@ class _AddOperatorsTransportLogisticState
                         onSort: (columnIndex, ascending) {
                           // sortFuncCostOperator();
                         },
+                      ),
+                      DataColumn2(
+                        label: Text('Teléfono'),
+                        size: ColumnSize.M,
                       ),
                       DataColumn2(
                         label: Text('Bloquear'),
@@ -253,22 +255,41 @@ class _AddOperatorsTransportLogisticState
                                     ),
                                   ],
                                 ),
-                                onTap: () {
-                                  // Código para manejar la acción onTap
-                                  Navigators().pushNamed(context, '/layout/logistic/info?id=${data[index]['id']}&id_Operator=${data[index]['operadores'][0]['id']}');
+                                onTap: () async {
+                                  await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          EditOperatorLogistic(
+                                        idUserE: data[index]['id'].toString(),
+                                        idOperator: data[index]['operadores'][0]
+                                                ['id']
+                                            .toString(),
+                                      ),
+                                    ),
+                                  );
+                                  loadData();
                                 },
                               ),
                               DataCell(
                                   Row(
                                     children: [
-                                        getIcon(
-                                          int.parse(data[index]['operadores'][0]['transportadoras'][0]['id'].toString()),
-                                          int.parse(data[index]['operadores'][0]['sub_rutas'][0]['id_operadora'].toString()))
-                                      ,
+                                      getIcon(
+                                          int.parse(data[index]['operadores'][0]
+                                                  ['transportadoras'][0]['id']
+                                              .toString()),
+                                          int.parse(data[index]['operadores'][0]
+                                                      ['sub_rutas'][0]
+                                                  ['id_operadora']
+                                              .toString())),
                                       SizedBox(width: 5),
-                                      Expanded(child:  Text(data[index]['operadores'][0]
-                                              ['sub_rutas'][0]['titulo']
-                                          .toString(),overflow: TextOverflow.ellipsis,))
+                                      Expanded(
+                                          child: Text(
+                                        data[index]['operadores'][0]
+                                                ['sub_rutas'][0]['titulo']
+                                            .toString(),
+                                        overflow: TextOverflow.ellipsis,
+                                      ))
                                     ],
                                   ), onTap: () {
                                 // Navigators().pushNamed(context,
@@ -328,6 +349,27 @@ class _AddOperatorsTransportLogisticState
                                                   [0]['rutas'][0]['titulo'] !=
                                               "")
                                       ? data[index]['operadores'][0]['sub_rutas'][0]['rutas'][0]['titulo'].toString()
+                                      : "",
+                                ),
+                                onTap: () {
+                                  // Aquí puedes colocar el código para manejar la acción onTap
+                                  // Navigators().pushNamed(context, '/layout/transport/operator/info?id=${data[index]['id']}&id_Operator=${data[index]['operadore']['id']}');
+                                },
+                              ),
+                              DataCell(
+                                Text(
+                                  (data.length > index &&
+                                          data[index]['operadores'] != null &&
+                                          data[index]['operadores']
+                                              .isNotEmpty &&
+                                          data[index]['operadores'][0]
+                                                  ['telefono'] !=
+                                              null &&
+                                          data[index]['operadores'][0]
+                                                  ['telefono']
+                                              .isNotEmpty)
+                                      ? data[index]['operadores'][0]['telefono']
+                                          .toString()
                                       : "",
                                 ),
                                 onTap: () {
@@ -864,7 +906,6 @@ class _AddOperatorsTransportLogisticState
   }
 
   Widget getIcon(dynamic idTransportadora, dynamic idOperadora) {
-
     // Verificar si las cadenas son nulas o vacías antes de la conversión
     if (idTransportadora != null &&
         idOperadora != null &&
@@ -886,5 +927,16 @@ class _AddOperatorsTransportLogisticState
     }
 
     return const Icon(Icons.close, color: Colors.orange);
+  }
+
+  void _mostrarVentanaModal(BuildContext context, Widget contenidoModal) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: contenidoModal,
+        );
+      },
+    );
   }
 }

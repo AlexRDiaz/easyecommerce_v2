@@ -238,10 +238,10 @@ getRoutes() {
         name: '/layout/logistic',
         page: () => LayoutPage(),
         middlewares: [AuthMiddleware()]),
-    GetPage(
-        name: '/layout/logistic/info',
-        page: () => EditOperatorLogistic(),
-        middlewares: [AuthMiddleware()]),
+    // GetPage(
+    //     name: '/layout/logistic/info',
+    //     page: () => EditOperatorLogistic(),
+    //     middlewares: [AuthMiddleware()]),
     GetPage(
         name: '/layout/logistic/sellers/info',
         page: () => EditSellers(),
