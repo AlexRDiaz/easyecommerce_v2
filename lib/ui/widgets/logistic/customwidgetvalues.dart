@@ -76,7 +76,7 @@ class MyCustomWidget extends StatelessWidget {
                       SizedBox(width: 8.0),
                       CustomContainer(
                         value: novedad!,
-                        labelText: 'Novedad',
+                        labelText: 'Devoluciones',
                         type: "2",
                       ),
                     ]
@@ -215,7 +215,7 @@ Color? getColor(state) {
     case "Entregados":
       color = 0xFF66BB6A;
       break;
-    case "Novedad":
+    case "Devoluciones":
       color = 0xFFD6DC27;
       break;
     case "No Entregados":
