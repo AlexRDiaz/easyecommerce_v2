@@ -7460,10 +7460,10 @@ class Connections {
       filtersAndAll.addAll(defaultAnd);
 
       print(json.encode({
-            "start": dateStart,
-            "end": dateEnd,
-            "and": filtersAndAll,
-          }));
+        "start": dateStart,
+        "end": dateEnd,
+        "and": filtersAndAll,
+      }));
 
       var request = await http.post(
           Uri.parse(
@@ -7472,9 +7472,13 @@ class Connections {
             'Content-Type': 'application/json',
           },
           body: json.encode({
-            "start": dateStart,
-            "end": dateEnd,
-            "and": filtersAndAll,
+            "start": "1/12/2023",
+            "end": "11/01/2024",
+            "and": [
+              {"equals/transportadora.transportadora_id": 19},
+              {"/estado_interno": "CONFIRMADO"},
+              {"/estado_logistico": "ENVIADO"}
+            ]
           }));
       var response = await request.body;
       var decodeData = json.decode(response);

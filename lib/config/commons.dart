@@ -1,7 +1,6 @@
 // ignore: unused_import
 import 'dart:io';
 
-import 'package:frontend/ui/logistic/delivery_status/delivery_status.dart';
 import 'package:frontend/ui/provider/add_provider/sub_providers_view.dart';
 import 'package:frontend/ui/provider/guidesgroup/guides_sent/table_orders_guides_sent.dart';
 import 'package:frontend/ui/provider/guidesgroup/print_guides/print_guides.dart';
@@ -25,6 +24,7 @@ import 'package:frontend/ui/sellers/sales_report/sales_report.dart';
 import 'package:frontend/ui/sellers/transport_stats/transport_stats.dart';
 import 'package:frontend/ui/sellers/unwanted_orders_sellers/unwanted_orders_sellers.dart';
 import 'package:frontend/ui/sellers/wallet_sellers/wallet_sellers.dart';
+import 'package:frontend/ui/sellers/delivery_status/delivery_status.dart';
 
 List<Map<String, dynamic>> pagesSeller = [
   {"page": "DashBoard", "view": DashBoardSellers(), "selected": false},
