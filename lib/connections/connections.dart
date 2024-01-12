@@ -68,6 +68,11 @@ class Connections {
               ? sharedPrefs!.setString(
                   "referer", decodeDataUser['user']['vendedores'][0]['referer'])
               : "";
+          //  *
+          sharedPrefs!.setString(
+              "seller_costo_envio",
+              decodeDataUser['user']['vendedores'][0]['costo_envio']
+                  .toString());
           List temporalPermisos =
               jsonDecode(decodeDataUser['user']['permisos']);
           List<String> finalPermisos = [];
@@ -6273,6 +6278,55 @@ class Connections {
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  //  *
+  Future createOrderProduct(
+      idMaster,
+      numOrder,
+      nombre,
+      direccion,
+      telefono,
+      ciudad,
+      productoP,
+      productoE,
+      cantidadT,
+      precio,
+      observacion,
+      // sku,
+      productId,
+      variantsDetails) async {
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/orderproduct/$idMaster"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "NumeroOrden": numOrder.toString(),
+            "NombreShipping": nombre.toString(),
+            "DireccionShipping": direccion.toString(),
+            "TelefonoShipping": telefono.toString(),
+            "CiudadShipping": ciudad.toString(),
+            "ProductoP": productoP.toString(),
+            "ProductoExtra": productoE.toString(),
+            "Cantidad_Total": cantidadT.toString(),
+            "PrecioTotal": precio.toString(),
+            "Observacion": observacion.toString(),
+            "Name_Comercial": sharedPrefs!.getString("NameComercialSeller"),
+            // "sku": sku.toString(),
+            "product_id": int.parse(productId),
+            "variant_details": json.encode(variantsDetails)
+          }));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData['orden_ingresada']);
+        return decodeData['orden_ingresada'];
       } else {
         return 1;
       }

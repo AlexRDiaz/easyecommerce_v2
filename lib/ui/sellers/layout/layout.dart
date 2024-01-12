@@ -231,7 +231,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                         _buildMenuItemSimple('Imprimir guías', 'Imprimir Guías',
                             Icon(Icons.print_outlined, color: colorlabels)),
                         _buildMenuItemSimple('Guías impresas', 'Guías Impresas',
-                            Icon(Icons.print_disabled, color: colorlabels)),
+                            Icon(Icons.picture_as_pdf, color: colorlabels)),
                         _buildMenuItemSimple('Guías enviadas', 'Guías Enviadas',
                             Icon(Icons.send, color: colorlabels)),
                         _buildMenuItemSimple(
@@ -463,7 +463,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                           _buildMenuItem('Imprimir guías', 'Imprimir Guías',
                               Icon(Icons.print_outlined, color: colorlabels)),
                           _buildMenuItem('Guías impresas', 'Guías Impresas',
-                              Icon(Icons.print_disabled, color: colorlabels)),
+                              Icon(Icons.picture_as_pdf, color: colorlabels)),
                           _buildMenuItem('Guías enviadas', 'Guías Enviadas',
                               Icon(Icons.send, color: colorlabels)),
                           _buildMenuItem(

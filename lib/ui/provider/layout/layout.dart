@@ -619,13 +619,13 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
                               'Sub Proveedores',
                               Icon(Icons.supervisor_account,
                                   color: colorlabels)),
+                          _buildMenuItem('Agregar bodegas', 'Bodegas',
+                              Icon(Icons.warehouse, color: colorlabels)),
                           _buildMenuItem(
                               'Agregar productos',
                               'Productos',
                               Icon(Icons.shopping_bag_rounded,
                                   color: colorlabels)),
-                          _buildMenuItem('Agregar bodegas', 'Bodegas',
-                              Icon(Icons.warehouse, color: colorlabels)),
                         ]),
                         _buildMenu('Reportes',
                             Icon(Icons.report, color: colorlabels), [

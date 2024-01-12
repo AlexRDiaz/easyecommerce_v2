@@ -214,27 +214,20 @@ class _EditProductState extends State<EditProduct> {
       variantsListCopy = dataFeatures["variants"];
       // print(variantsListOriginal);
 
-      for (var variant in variantsListOriginal) {
-        if (variant.containsKey('color')) {
-          variantsToSelect.add('${variant["sku"]}-${variant["color"]}');
-        }
-        if (variant.containsKey('size')) {
-          variantsToSelect.add('${variant["sku"]}-${variant["size"]}');
-        }
-        if (variant.containsKey('dimension')) {
-          variantsToSelect.add('${variant["sku"]}-${variant["dimension"]}');
-        }
-        if (variant.containsKey('color') && variant.containsKey('size')) {
-          variantsToSelect
-              .add('${variant["sku"]}-${variant["size"]}-${variant["color"]}');
-        }
-        if (variant.containsKey('color') && variant.containsKey('dimension')) {
-          variantsToSelect.add(
-              '${variant["sku"]}-${variant["dimension"]}-${variant["color"]}');
-        }
-        // .add(
-        //     '${variant["sku"]}-${variant["color"]}-${variant["inventory_quantity:"]}');
+      Set<String> uniqueVariants = Set<String>();
+
+      for (var variantData in variantsListOriginal) {
+        String sku = variantData["sku"];
+        String size = variantData["size"] ?? "";
+        String color = variantData["color"] ?? "";
+        String dimension = variantData["dimension"] ?? "";
+
+        String variantString =
+            "$sku${size.isNotEmpty ? '-$size' : ''}${color.isNotEmpty ? '/$color' : ''}${dimension.isNotEmpty ? '/$dimension' : ''}";
+
+        uniqueVariants.add(variantString);
       }
+      variantsToSelect = uniqueVariants.toList();
 
       List<Map<String, dynamic>>? variants =
           (dataFeatures["variants"] as List<dynamic>)
@@ -533,64 +526,48 @@ class _EditProductState extends State<EditProduct> {
                         visible: !showToResetType,
                         child: Row(
                           children: [
-                            Expanded(
+                            SizedBox(
+                              width: screenWidthDialog * 0.15,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Row(
-                                    children: [
-                                      SizedBox(
-                                        width: 150,
-                                        child: Row(
-                                          children: [
-                                            Text(
-                                              "Tipo: ",
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: fontSizeTitle,
-                                                color: Colors.black,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 5),
-                                            Text(
-                                              isVariable == 1
-                                                  ? "VARIABLE"
-                                                  : "SIMPLE",
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                color: Colors.grey[800],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Visibility(
-                                        visible: isVariable == 1,
-                                        child: Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              const Text('Variables'),
-                                              const SizedBox(height: 3),
-                                              Text(
-                                                variantsStockToUpt.isEmpty
-                                                    ? variablesText
-                                                    : variablesTextEdit,
-                                                style: const TextStyle(
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                                  Text(
+                                    "Tipo: ",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: fontSizeTitle,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                    isVariable == 1 ? "VARIABLE" : "SIMPLE",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.grey[800],
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
+                            SizedBox(
+                              width: screenWidthDialog * 0.80,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Variables'),
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    variantsStockToUpt.isEmpty
+                                        ? variablesText
+                                        : variablesTextEdit,
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
                           ],
                         ),
                       ),

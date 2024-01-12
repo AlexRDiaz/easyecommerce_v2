@@ -1242,12 +1242,15 @@ class _AddProductState extends State<AddProduct> {
                                                   1000000;
 
                                           String sizeN = _sizeController.text
-                                              .replaceAll(" ", "");
+                                              .replaceAll(" ", "")
+                                              .toUpperCase();
                                           String colorN = _colorController.text
-                                              .replaceAll(" ", "");
+                                              .replaceAll(" ", "")
+                                              .toUpperCase();
                                           String dimensionN =
                                               _dimensionController.text
-                                                  .replaceAll(" ", "");
+                                                  .replaceAll(" ", "")
+                                                  .toUpperCase();
                                           if (selectedVariablesList
                                                   .contains("Tallas") &&
                                               selectedVariablesList
@@ -1255,7 +1258,7 @@ class _AddProductState extends State<AddProduct> {
                                             variant = {
                                               "id": idRandom,
                                               "sku":
-                                                  "${_skuController.text.toUpperCase()}${sizeN.toUpperCase()}${colorN.toUpperCase()}",
+                                                  "${_skuController.text.toUpperCase()}${sizeN}${colorN}",
                                               // "${_skuController.text.toUpperCase()}${chosenSize}${chosenColor?.toUpperCase()}",
                                               "size": "$sizeN",
                                               "color": "$colorN",
@@ -1289,7 +1292,7 @@ class _AddProductState extends State<AddProduct> {
                                             variant = {
                                               "id": idRandom,
                                               "sku":
-                                                  "${_skuController.text.toUpperCase()}${dimensionN.toUpperCase()}${colorN.toUpperCase()}",
+                                                  "${_skuController.text.toUpperCase()}${dimensionN}${colorN}",
                                               "dimension": "$dimensionN",
                                               "color": "$colorN",
                                               "inventory_quantity":
@@ -1321,7 +1324,7 @@ class _AddProductState extends State<AddProduct> {
                                             variant = {
                                               "id": idRandom,
                                               "sku":
-                                                  "${_skuController.text.toUpperCase()}${sizeN.toUpperCase()}",
+                                                  "${_skuController.text.toUpperCase()}${sizeN}",
                                               "size": "$sizeN",
                                               "inventory_quantity":
                                                   _inventaryController.text,
@@ -1347,7 +1350,7 @@ class _AddProductState extends State<AddProduct> {
                                             variant = {
                                               "id": idRandom,
                                               "sku":
-                                                  "${_skuController.text.toUpperCase()}${colorN.toUpperCase()}",
+                                                  "${_skuController.text.toUpperCase()}${colorN}",
                                               "color": "$colorN",
                                               "inventory_quantity":
                                                   _inventaryController.text,
@@ -1373,7 +1376,7 @@ class _AddProductState extends State<AddProduct> {
                                             variant = {
                                               "id": idRandom,
                                               "sku":
-                                                  "${_skuController.text.toUpperCase()}${dimensionN.toUpperCase()}",
+                                                  "${_skuController.text.toUpperCase()}${dimensionN}",
                                               "dimension": "$dimensionN",
                                               "inventory_quantity":
                                                   _inventaryController.text,
