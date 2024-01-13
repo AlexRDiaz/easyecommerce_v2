@@ -4441,13 +4441,14 @@ class Connections {
   Future updateWithdrawalRealizado(comprobante) async {
     String id = Get.parameters['id'].toString();
 
-    var request = await http.put(Uri.parse("$server/api/ordenes-retiros/$id"),
+    var request = await http.put(
+        Uri.parse(
+            "$serverLaravel/api/seller/ordenesretiro/withdrawal/done/$id"),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           "data": {
-            "Estado": "REALIZADO",
-            "Comprobante": comprobante,
-            "FechaTransferencia":
+            "comprobante": comprobante,
+            "fecha_transferencia":
                 "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year} ${DateTime.now().hour}:${DateTime.now().minute} "
           }
         }));
@@ -7322,11 +7323,11 @@ class Connections {
     }
   }
 
-  sendWithdrawal(amount) async {
+  sendWithdrawalProvider(amount) async {
     try {
       var request = await http.post(
           Uri.parse(
-              "$serverLaravel/api/seller/ordenesretiro/withdrawal-provider/${sharedPrefs!.getString("idProviderUserMaster")}"),
+              "$serverLaravel/api/seller/ordenesretiro/withdrawal-provider"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
             "monto": amount,
@@ -7347,16 +7348,15 @@ class Connections {
     }
   }
 
-  sendWithdrawalAprovate(amount) async {
+  sendWithdrawalSeller(amount) async {
     try {
       var request = await http.post(
           Uri.parse(
-              "$serverLaravel/api/seller/ordenesretiro/withdrawal-provider-aproved/${sharedPrefs!.getString("idProviderUserMaster")}"),
+              "$serverLaravel/api/seller/ordenesretiro/withdrawal/generate-code"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
             "monto": amount,
-            "codigo": "2983",
-            "id_vendedor": "${sharedPrefs!.getString("idProviderUserMaster")}"
+            "email": "bugi2532@hotmail.com",
           }));
       var response = await request.body;
       var decodeData = json.decode(response);
@@ -7365,6 +7365,29 @@ class Connections {
         return 1;
       } else {
         return decodeData;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  sendWithdrawalAprovate(amount) async {
+    try {
+      var idVendedor =
+          sharedPrefs!.getString("idComercialMasterSeller").toString();
+      var request = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/transacciones/withdrawal-provider-aproved/${sharedPrefs!.getString("idComercialMasterSeller")}"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(
+              {"monto": amount, "codigo": "2983", "id_vendedor": idVendedor}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
       }
     } catch (e) {
       return 2;
@@ -7487,6 +7510,25 @@ class Connections {
         return 1;
       } else {
         return decodeData;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  paymentOrderInWarehouseProvider(id) async {
+    try {
+      String? generatedBy = sharedPrefs!.getString("id");
+
+      var response = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/transacciones/payment-order-in-warehouse-provider/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"generated_by": generatedBy}));
+      if (response.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
       }
     } catch (e) {
       return 2;

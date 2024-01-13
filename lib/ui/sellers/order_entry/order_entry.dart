@@ -439,12 +439,7 @@ class _OrderEntryState extends State<OrderEntry> {
                             ),
                             ElevatedButton(
                                 onPressed: () async {
-                                  await showDialog(
-                                      context: (context),
-                                      builder: (context) {
-                                        return const AddOrderSellers();
-                                      });
-                                  await loadData();
+                                  await newOrderDialog(context);
                                 },
                                 child: const Row(
                                   children: [Text(" Nuevo"), Icon(Icons.add)],
@@ -1155,6 +1150,27 @@ class _OrderEntryState extends State<OrderEntry> {
         ),
       ),
     );
+  }
+
+  Future<dynamic> newOrderDialog(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(0.0), // Establece el radio del borde a 0
+          ),
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.30,
+            height: MediaQuery.of(context).size.height * 0.50,
+            child: AddOrderSellers(),
+          ),
+        );
+      },
+    ).then((value) {
+      loadData();
+    });
   }
 
   NumberPaginator numberPaginator() {

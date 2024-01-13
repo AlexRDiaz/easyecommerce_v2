@@ -4,7 +4,9 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/ui/provider/transactions/withdrawal.dart';
 import 'package:frontend/ui/sellers/cash_withdrawals_sellers/controllers/controllers.dart';
+import 'package:frontend/ui/sellers/cash_withdrawals_sellers/withdrawal_seller.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:frontend/helpers/server.dart';
@@ -76,8 +78,31 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
       ),
       body: Container(
         width: double.infinity,
+        padding: EdgeInsets.all(20),
         child: Column(
           children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  withdrawalInputDialog(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF274965),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Solicitar Retiro",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
             Expanded(
               child: DataTable2(
                   headingTextStyle: TextStyle(
@@ -182,6 +207,25 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
           .toString()
           .compareTo(b['attributes'][name].toString()));
     }
+  }
+
+  Future<dynamic> withdrawalInputDialog(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(0.0), // Establece el radio del borde a 0
+          ),
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.30,
+            height: MediaQuery.of(context).size.height * 0.50,
+            child: WithdrawalSeller(),
+          ),
+        );
+      },
+    ).then((value) {});
   }
 
   _modelTextField({text, controller}) {

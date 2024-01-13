@@ -2,16 +2,16 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/connections/connections.dart';
-import 'package:frontend/ui/widgets/providers/pin_input_provider.dart';
+import 'package:frontend/ui/widgets/sellers/pin_input_seller.dart';
 
-class Withdrawal extends StatefulWidget {
-  const Withdrawal({super.key});
+class WithdrawalSeller extends StatefulWidget {
+  const WithdrawalSeller({super.key});
 
   @override
-  State<Withdrawal> createState() => _WithdrawalState();
+  State<WithdrawalSeller> createState() => _WithdrawalSellerState();
 }
 
-class _WithdrawalState extends State<Withdrawal> {
+class _WithdrawalSellerState extends State<WithdrawalSeller> {
   TextEditingController withdrawal = TextEditingController();
   bool isLoading = false;
   String responseWithdrawal = "";
@@ -55,6 +55,7 @@ class _WithdrawalState extends State<Withdrawal> {
                     children: [
                       Expanded(
                         child: TextField(
+                          controller: withdrawal,
                           keyboardType: TextInputType.number,
                           inputFormatters: <TextInputFormatter>[
                             FilteringTextInputFormatter.digitsOnly,
@@ -111,7 +112,7 @@ class _WithdrawalState extends State<Withdrawal> {
       isLoading = true;
     });
     var resultSendWithdrawal =
-        await Connections().sendWithdrawalProvider(withdrawal.text);
+        await Connections().sendWithdrawalSeller(withdrawal.text);
     if (resultSendWithdrawal != 1 || resultSendWithdrawal != 2) {
       setState(() {
         code = resultSendWithdrawal['code'].toString();
@@ -160,7 +161,7 @@ class _WithdrawalState extends State<Withdrawal> {
                   ),
                   Expanded(
                       child:
-                          PinInputProvider(code: code, amount: withdrawal.text))
+                          PinInputSeller(code: code, amount: withdrawal.text))
                 ],
               ),
             ),

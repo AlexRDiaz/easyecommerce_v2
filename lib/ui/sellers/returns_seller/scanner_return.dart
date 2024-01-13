@@ -51,12 +51,10 @@ class _ScannerReturnState extends State<ScannerReturn> {
 
                   if (userIdComercial == idComercialOrder) {
                     //
-                    var responseUpt = await Connections().updateOrderWithTime(
-                        barcode.toString(),
-                        "estado_devolucion:EN BODEGA PROVEEDOR",
-                        sharedPrefs!.getString("id"),
-                        "seller",
-                        "");
+                    var responseUpt =
+                        await Connections().paymentOrderInWarehouseProvider(
+                      barcode.toString(),
+                    );
 
                     if (responseUpt == 0) {
                       statusUpt = true;

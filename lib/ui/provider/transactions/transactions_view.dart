@@ -391,13 +391,7 @@ class _TransactionsViewState extends State<TransactionsView> {
           ),
         );
       },
-    ).then((value) {
-      // Aquí puedes realizar cualquier acción que necesites después de cerrar el diálogo
-      // Por ejemplo, actualizar algún estado
-      // setState(() {
-      //   //_futureProviderData = _loadProviders(); // Actualiza el Future
-      // });
-    });
+    ).then((value) {});
   }
 
   NumberPaginator numberPaginator() {

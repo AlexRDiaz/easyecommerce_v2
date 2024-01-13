@@ -429,6 +429,8 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                               'Ingreso de pedidos',
                               'Ingreso de Pedidos',
                               Icon(Icons.shopping_cart, color: colorlabels)),
+                          _buildMenuItem('DashBoard', 'DashBoard',
+                              Icon(Icons.dashboard, color: colorlabels)),
                           _buildMenuItem(
                               'Estado de entregas',
                               'Estado Entregas Pedidos',

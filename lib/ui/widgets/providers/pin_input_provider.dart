@@ -7,18 +7,18 @@ import 'package:pinput/pinput.dart';
 
 /// This is the basic usage of Pinput
 /// For more examples check out the demo directory
-class PinInput extends StatefulWidget {
+class PinInputProvider extends StatefulWidget {
   String code;
   String amount;
 
-  PinInput({Key? key, required this.code, required this.amount})
+  PinInputProvider({Key? key, required this.code, required this.amount})
       : super(key: key);
 
   @override
-  State<PinInput> createState() => _PinInputState();
+  State<PinInputProvider> createState() => _PinInputProviderState();
 }
 
-class _PinInputState extends State<PinInput> {
+class _PinInputProviderState extends State<PinInputProvider> {
   final pinController = TextEditingController();
   final focusNode = FocusNode();
   final formKey = GlobalKey<FormState>();
@@ -159,8 +159,8 @@ class _PinInputState extends State<PinInput> {
               : TextButton(
                   onPressed: () async {
                     pinController.clear();
-                    var data =
-                        await Connections().sendWithdrawal(widget.amount);
+                    var data = await Connections()
+                        .sendWithdrawalProvider(widget.amount);
                     setState(() {
                       widget.code = data["code"];
                       _start = 1 * 10;

@@ -148,25 +148,47 @@ class _SellerWithdrawalInfoState extends State<SellerWithdrawalInfo> {
                                   if (_codeController.text ==
                                       data['attributes']['CodigoGenerado']) {
                                     getLoadingModal(context, false);
-                                    var response = await Connections()
-                                        .withdrawalPut(_codeController.text);
-                                    Navigator.pop(context);
+                                    var res = await Connections()
+                                        .debitWithdrawal(_codeController.text);
 
-                                    AwesomeDialog(
-                                      width: 500,
-                                      context: context,
-                                      dialogType: DialogType.success,
-                                      animType: AnimType.rightSlide,
-                                      title: 'Completado',
-                                      desc: '',
-                                      btnCancel: Container(),
-                                      btnOkText: "Aceptar",
-                                      btnOkColor: colors.colorGreen,
-                                      btnCancelOnPress: () {},
-                                      btnOkOnPress: () async {
-                                        await loadData();
-                                      },
-                                    ).show();
+                                    if (res == 0) {
+                                      // ignore: use_build_context_synchronously
+                                      AwesomeDialog(
+                                        width: 500,
+                                        context: context,
+                                        dialogType: DialogType.success,
+                                        animType: AnimType.rightSlide,
+                                        title: 'Solicitud aprobada',
+                                        desc:
+                                            'Porfavor espera la realizacion del pago',
+                                        btnCancel: Container(),
+                                        btnOkText: "Aceptar",
+                                        btnOkColor: colors.colorGreen,
+                                        btnOkOnPress: () {
+                                          Navigator.pop(context);
+                                          Navigator.pop(context);
+                                        },
+                                        onDismissCallback: (type) {
+                                          Navigator.pop(context);
+                                          Navigator.pop(context);
+                                        },
+                                      ).show();
+                                    } else {
+                                      // ignore: use_build_context_synchronously
+                                      AwesomeDialog(
+                                        width: 500,
+                                        context: context,
+                                        dialogType: DialogType.error,
+                                        animType: AnimType.rightSlide,
+                                        title: 'Error al validar la solicitud',
+                                        desc: 'Vuelve a intentarlo',
+                                        btnCancel: Container(),
+                                        btnOkText: "Aceptar",
+                                        btnOkColor: colors.colorGreen,
+                                        btnCancelOnPress: () {},
+                                        btnOkOnPress: () {},
+                                      ).show();
+                                    }
                                   } else {
                                     AwesomeDialog(
                                       width: 500,
