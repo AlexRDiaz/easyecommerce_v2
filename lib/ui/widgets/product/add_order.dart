@@ -176,7 +176,10 @@ class _AddOrderProductState extends State<AddOrderProduct> {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidthDialog = MediaQuery.of(context).size.width * 0.40;
+    double screenWidthDialog = MediaQuery.of(context).size.width;
+
+    double screenWidth =
+        screenWidthDialog > 600 ? screenWidthDialog * 0.40 : screenWidthDialog;
 
     return Scaffold(
       body: Container(
@@ -266,17 +269,15 @@ class _AddOrderProductState extends State<AddOrderProduct> {
                   ),
                   const SizedBox(height: 10),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
                         "Numero de Orden:",
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(width: 10),
-                      SizedBox(
-                        width: 200,
-                        child: Text(
-                          numeroOrden,
-                        ),
+                      Text(
+                        numeroOrden,
                       ),
                     ],
                   ),
@@ -359,7 +360,7 @@ class _AddOrderProductState extends State<AddOrderProduct> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(
-                          width: screenWidthDialog * 0.25,
+                          width: screenWidth * 0.25,
                           child: Column(
                             children: [
                               Row(
@@ -384,7 +385,7 @@ class _AddOrderProductState extends State<AddOrderProduct> {
                         ),
                         const SizedBox(width: 20),
                         SizedBox(
-                          width: screenWidthDialog * 0.15,
+                          width: screenWidth * 0.15,
                           child: Column(
                             children: [
                               ElevatedButton(
@@ -442,7 +443,7 @@ class _AddOrderProductState extends State<AddOrderProduct> {
                     child: Row(
                       children: [
                         SizedBox(
-                          width: screenWidthDialog * 0.40,
+                          width: screenWidth * 0.40,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -456,7 +457,7 @@ class _AddOrderProductState extends State<AddOrderProduct> {
                                 ],
                               ),
                               SizedBox(
-                                width: (screenWidthDialog * 0.40) - 10,
+                                width: (screenWidth * 0.40) - 10,
                                 child: DropdownButtonFormField<String>(
                                   isExpanded: true,
                                   hint: Text(
@@ -503,7 +504,7 @@ class _AddOrderProductState extends State<AddOrderProduct> {
                         ),
                         const SizedBox(width: 20),
                         SizedBox(
-                          width: screenWidthDialog * 0.25,
+                          width: screenWidth * 0.25,
                           child: Column(
                             children: [
                               const Row(
@@ -537,7 +538,7 @@ class _AddOrderProductState extends State<AddOrderProduct> {
                         ),
                         const SizedBox(width: 20),
                         SizedBox(
-                          width: screenWidthDialog * 0.15,
+                          width: screenWidth * 0.15,
                           child: Column(
                             children: [
                               ElevatedButton(
@@ -594,7 +595,7 @@ class _AddOrderProductState extends State<AddOrderProduct> {
                     child: Row(
                       children: [
                         SizedBox(
-                          width: screenWidthDialog * 0.80,
+                          width: screenWidth * 0.80,
                           child: Wrap(
                             spacing: 8.0,
                             runSpacing: 8.0,

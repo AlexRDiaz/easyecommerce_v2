@@ -586,10 +586,8 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
 
                   pages = List.from(pages)..[selectedIndex]['selected'] = true;
                   String cv = currentView['view'].toString();
-                  print(cv);
 
                   if (cv == "Catalog") {
-                    print("if");
                     isSidebarOpen = false;
                   }
                 });

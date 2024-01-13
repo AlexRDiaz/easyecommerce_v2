@@ -955,6 +955,7 @@ class _CatalogState extends State<Catalog> {
                                           horizontal: 10.0),
                                       child: Container(
                                         width: screenWidth * 0.78,
+                                        height: screenHeight * 0.90,
                                         color: Colors.white,
                                         padding: const EdgeInsets.all(10.0),
                                         child: FutureBuilder(
@@ -1218,24 +1219,6 @@ class _CatalogState extends State<Catalog> {
                                             ),
                                           ),
                                         ),
-                                        // const SizedBox(height: 5),
-                                        // Wrap(
-                                        //   spacing: 5.0,
-                                        //   runSpacing: 5.0,
-                                        //   children: selectedCategoriesList
-                                        //       .map<Widget>((category) {
-                                        //     return Chip(
-                                        //       label: Text(category),
-                                        //       backgroundColor: Colors.blue[50],
-                                        //       onDeleted: () {
-                                        //         setState(() {
-                                        //           selectedCategoriesList
-                                        //               .remove(category);
-                                        //         });
-                                        //       },
-                                        //     );
-                                        //   }).toList(),
-                                        // ),
                                       ],
                                     ),
                                   ),
@@ -1428,7 +1411,27 @@ class _CatalogState extends State<Catalog> {
                                   )
                                 ],
                               ),
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 20),
+                              Row(
+                                children: [
+                                  Container(
+                                    width: screenWidth * 0.90,
+                                    color: Colors.white,
+                                    padding: const EdgeInsets.all(0),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: _modelTextField(
+                                            text: "Buscar",
+                                            controller: _search,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
                               Row(
                                 children: [
                                   Container(
@@ -1545,7 +1548,7 @@ class _CatalogState extends State<Catalog> {
             reservesText += "\n\n";
           }
         } else {
-          print("Existen reservas pero NO de este userMaster");
+          // print("Existen reservas pero NO de este userMaster");
         }
       }
     }
@@ -2179,7 +2182,7 @@ class _CatalogState extends State<Catalog> {
                                 //         imgHeight: 100),
                                 //   ],
                                 // ),
-                                Row(
+                                const Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
@@ -2190,19 +2193,27 @@ class _CatalogState extends State<Catalog> {
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    RichText(
-                                      text: TextSpan(
-                                        children: <TextSpan>[
-                                          TextSpan(
-                                            text: product.productName,
-                                          )
-                                        ],
+                                    Expanded(
+                                      child: Text(
+                                        '${product.productName}',
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 3,
                                       ),
                                     ),
+                                    // RichText(
+                                    //   text: TextSpan(
+                                    //     children: <TextSpan>[
+                                    //       TextSpan(
+                                    //         text: product.productName,
+                                    //         maxLines: null,
+                                    //       )
+                                    //     ],
+                                    //   ),
+                                    // ),
                                   ],
                                 ),
                                 const SizedBox(height: 5),
-                                Row(
+                                const Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
@@ -2213,13 +2224,20 @@ class _CatalogState extends State<Catalog> {
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    RichText(
-                                      text: TextSpan(
-                                        children: <TextSpan>[
-                                          TextSpan(
-                                            text: guideName,
-                                          )
-                                        ],
+                                    // RichText(
+                                    //   text: TextSpan(
+                                    //     children: <TextSpan>[
+                                    //       TextSpan(
+                                    //         text: guideName,
+                                    //       )
+                                    //     ],
+                                    //   ),
+                                    // ),
+                                    Expanded(
+                                      child: Text(
+                                        guideName,
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 3,
                                       ),
                                     ),
                                   ],
@@ -2502,12 +2520,12 @@ class _CatalogState extends State<Catalog> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.indigo[600],
                             ),
-                            child: Row(
+                            child: const Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
                                   "Crear Guia",
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
                                   ),
@@ -2540,7 +2558,7 @@ class _CatalogState extends State<Catalog> {
                                         int.parse(userIdComercialMasterSeller
                                             .toString()));
 
-                                print(response['id']);
+                                // print(response['id']);
 
                                 var responseUpt = await Connections()
                                     .updateProductSeller(response['id'], {
@@ -2586,7 +2604,7 @@ class _CatalogState extends State<Catalog> {
                                         int.parse(userIdComercialMasterSeller
                                             .toString()),
                                         "favorite");
-                                print("responseNew: $responseNew");
+                                // print("responseNew: $responseNew");
                                 if (responseNew == 1 || responseNew == 2) {
                                   print('Error Created new');
                                   // ignore: use_build_context_synchronously
@@ -2714,7 +2732,7 @@ class _CatalogState extends State<Catalog> {
                                         int.parse(userIdComercialMasterSeller
                                             .toString()),
                                         "onsale");
-                                print("responseNew: $responseNew");
+                                // print("responseNew: $responseNew");
                                 if (responseNew == 1 || responseNew == 2) {
                                   print('Error Created new');
                                   // ignore: use_build_context_synchronously
@@ -2789,6 +2807,41 @@ class _CatalogState extends State<Catalog> {
                                     ElevatedButton(
                                       onPressed: () async {
                                         // var userId = sharedPrefs!.getString("id");
+                                        addOrderDialog(product);
+                                        //
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.indigo[600],
+                                      ),
+                                      child: const Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            "Crear Guia",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                          // const SizedBox(width: 5),
+                                          // Icon(
+                                          //   isFavorite == 1
+                                          //       ? Icons.favorite
+                                          //       : Icons.favorite_border,
+                                          //   size: 24,
+                                          //   color: Colors.white,
+                                          // ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 20),
+                                Row(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        // var userId = sharedPrefs!.getString("id");
                                         // print(userId);
                                         var userIdComercialMasterSeller =
                                             sharedPrefs!.getString(
@@ -2805,7 +2858,7 @@ class _CatalogState extends State<Catalog> {
                                                       userIdComercialMasterSeller
                                                           .toString()));
 
-                                          print(response['id']);
+                                          // print(response['id']);
 
                                           var responseUpt = await Connections()
                                               .updateProductSeller(
@@ -3086,6 +3139,11 @@ class _CatalogState extends State<Catalog> {
   }
 
   addOrderDialog(ProductModel product) {
+    double screenWidthDialog = MediaQuery.of(context).size.width;
+
+    double screenWidth =
+        screenWidthDialog > 600 ? screenWidthDialog * 0.40 : screenWidthDialog;
+
     return showDialog(
       context: context,
       builder: (context) {
@@ -3095,7 +3153,7 @@ class _CatalogState extends State<Catalog> {
           ),
           child: Container(
             // padding: EdgeInsets.all(20),
-            width: MediaQuery.of(context).size.width * 0.40,
+            width: screenWidth,
             child: AddOrderProduct(
               product: product,
             ),
