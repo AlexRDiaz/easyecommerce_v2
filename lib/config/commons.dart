@@ -58,7 +58,6 @@ List<Map<String, dynamic>> pagesSeller = [
     "view": tansportStats(),
     "selected": false
   },
-  {"page": "Catálogo de Productos", "view": Catalog(), "selected": false},
   {"page": "Imprimir Guías", "view": PrintGuidesSeller(), "selected": false},
   {"page": "Guías Impresas", "view": PrintedGuidesSeller(), "selected": false},
   {
@@ -67,6 +66,7 @@ List<Map<String, dynamic>> pagesSeller = [
     "selected": false
   },
   {"page": "Mis integraciones", "view": MyIntegrations(), "selected": false},
+  {"page": "Catálogo de Productos", "view": Catalog(), "selected": false},
 ];
 
 List<Map<String, dynamic>> pagesProvider = [

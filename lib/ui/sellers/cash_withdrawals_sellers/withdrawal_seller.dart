@@ -39,12 +39,15 @@ class _WithdrawalSellerState extends State<WithdrawalSeller> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Solicitud de retiro"),
-      ),
-      body: Column(
+    return Container(
+      child: Column(
         children: [
+          Container(
+              padding: EdgeInsets.only(top: 30, bottom: 20),
+              child: Text(
+                "SOLICITUD DE RETIRO",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              )),
           Expanded(
             child: SingleChildScrollView(
               padding: EdgeInsets.all(20),

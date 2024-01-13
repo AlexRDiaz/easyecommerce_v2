@@ -215,13 +215,29 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
       builder: (context) {
         return Dialog(
           shape: RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(0.0), // Establece el radio del borde a 0
+            borderRadius: BorderRadius.circular(0.0),
           ),
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.30,
-            height: MediaQuery.of(context).size.height * 0.50,
-            child: WithdrawalSeller(),
+          child: Stack(
+            children: [
+              Container(
+                width: MediaQuery.of(context).size.width * 0.27,
+                height: MediaQuery.of(context).size.height * 0.60,
+                child: WithdrawalSeller(),
+              ),
+              Positioned(
+                right: 0,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.of(context)
+                        .pop(); // Cierra el modal al tocar el botón de cierre
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(8.0),
+                    child: Icon(Icons.close),
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       },

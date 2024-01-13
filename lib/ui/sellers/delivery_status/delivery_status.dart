@@ -12,11 +12,10 @@ import 'package:frontend/ui/sellers/delivery_status/create_report.dart';
 import 'package:frontend/ui/transport/delivery_status_transport/Opcion.dart';
 import 'package:frontend/ui/widgets/OptionsWidget.dart';
 import 'package:frontend/ui/transport/delivery_status_transport/delivery_details.dart';
-import 'package:frontend/ui/transport/delivery_status_transport/scanner_delivery_status_transport.dart';
 import 'package:frontend/ui/transport/my_orders_prv/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/box_values.dart';
-import 'package:frontend/ui/widgets/box_values_transport.dart';
 import 'package:frontend/ui/widgets/loading.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:number_paginator/number_paginator.dart';
 import '../../widgets/show_error_snackbar.dart';
@@ -214,16 +213,6 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
 
       var responseCounters = await Connections().getOrdersCountersSeller(
           populate, arrayfiltersDefaultAnd, [], arrayFiltersNotEq);
-
-      // var responseValues = await Connections().getValuesSeller(populate, [
-      //   {
-      //     "transportadora": {"\$not": null}
-      //   },
-      //   {
-      //     'IdComercial':
-      //         sharedPrefs!.getString("idComercialMasterSeller").toString()
-      //   }
-      // ]);
 
       var responseValues =
           await Connections().getValuesSellerLaravel(arrayfiltersDefaultAnd);
@@ -517,7 +506,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                   Container(
                     width: double.infinity,
                     color: currentColor.withOpacity(0.3),
-                    padding: EdgeInsets.all(10),
+                    padding: EdgeInsets.all(1),
                     child: responsive(
                         Row(
                           children: [
@@ -617,8 +606,6 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                   // Expanded(
                   Container(
                     height: MediaQuery.of(context).size.height * 0.58,
-                    // width: MediaQuery.of(context).size.width * 0.50,
-                    // padding: EdgeInsets.only(left: 15, right: 15),
                     child: DataTable2(
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -645,12 +632,12 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                         }
                         return const Color.fromARGB(0, 173, 233, 231);
                       }),
-                      headingTextStyle: const TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.black),
-                      dataTextStyle: const TextStyle(
-                          fontSize: 12,
+                      headingTextStyle: GoogleFonts.roboto(
+                          color: Colors.black,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black),
+                          fontSize: 13),
+                      dataTextStyle:
+                          GoogleFonts.roboto(color: Colors.black, fontSize: 13),
                       columnSpacing: 12,
                       horizontalMargin: 12,
                       minWidth: 4500,

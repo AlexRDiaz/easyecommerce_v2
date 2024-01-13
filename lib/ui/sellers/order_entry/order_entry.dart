@@ -14,6 +14,7 @@ import 'package:frontend/ui/widgets/routes/routes.dart';
 import 'package:frontend/ui/widgets/routes/routes_v2.dart';
 import 'package:frontend/ui/widgets/sellers/add_order.dart';
 import 'package:frontend/ui/widgets/sellers/add_order_laravel.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/main.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -609,7 +610,8 @@ class _OrderEntryState extends State<OrderEntry> {
                   }),
                   headingTextStyle: const TextStyle(
                       fontWeight: FontWeight.bold, color: Colors.black),
-                  dataTextStyle: const TextStyle(color: Colors.black),
+                  dataTextStyle:
+                      GoogleFonts.roboto(color: Colors.black, fontSize: 13),
                   columnSpacing: 12,
                   headingRowHeight: 80,
                   horizontalMargin: 12,
@@ -645,7 +647,10 @@ class _OrderEntryState extends State<OrderEntry> {
                       size: ColumnSize.L,
                     ),
                     DataColumn2(
-                      label: const Text('Marca de Tiempo'),
+                      label: const Text(
+                        'Marca de Tiempo',
+                        style: TextStyle(),
+                      ),
                       size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
                         // sortFuncDate("Marca_T_I");

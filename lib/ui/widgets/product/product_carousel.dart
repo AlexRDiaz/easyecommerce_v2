@@ -29,10 +29,11 @@ class _ProductCarouselState extends State<ProductCarousel> {
               itemCount: widget.urlImages?.length ?? 0,
               carouselController: controller,
               options: CarouselOptions(
+                viewportFraction: 1.0,
+                enlargeCenterPage: false,
                 autoPlay: true,
-                enableInfiniteScroll: false,
-                autoPlayAnimationDuration: Duration(seconds: 2),
-                enlargeCenterPage: true,
+                enableInfiniteScroll: true,
+                autoPlayAnimationDuration: Duration(seconds: 3),
                 onPageChanged: (index, reason) {
                   setState(() {
                     activeIndex = index;

@@ -1,9 +1,11 @@
 import 'dart:convert';
 
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animated_icons/icons8.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
@@ -88,9 +90,13 @@ class _CatalogState extends State<Catalog> {
     getProviders();
     // getWarehouses();
     getCategories();
+    _getProductModelCatalog();
   }
 
   Future<List<ProductModel>> _getProductModelCatalog() async {
+    setState(() {
+      isLoading = true;
+    });
     await _productController.loadProductsCatalog(
         populate,
         pageSize,
@@ -101,6 +107,12 @@ class _CatalogState extends State<Catalog> {
         filterps,
         sortFieldDefaultValue,
         _search.text);
+
+    setState(() {
+      products = _productController.products;
+      isLoading = false;
+    });
+
     return _productController.products;
   }
 
@@ -165,1333 +177,1154 @@ class _CatalogState extends State<Catalog> {
       body: Row(
         children: <Widget>[
           Expanded(
-            child: Container(
-              color: Colors.grey[50],
-              child: Container(
-                child: ListView(
-                  children: [
-                    responsive(
-                        Row(
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: screenWidth * 0.010,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 20),
-                                    Text(
-                                      'Filtros',
-                                      style: GoogleFonts.robotoCondensed(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20,
-                                        color: Theme.of(context).hintColor,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 30),
-                                    TextButton(
-                                      onPressed: () async {
-                                        setState(() {
-                                          selectedProvider = 'TODO';
-                                          selectedCategory = 'TODO';
-                                          selectedCategoriesList = [];
-                                          arrayFiltersAnd = [];
-                                          outFilter = [];
-                                          _minPriceController.clear();
-                                          _maxPriceController.clear();
-                                          isSelectedFavorites = false;
-                                          isSelectedOnSale = false;
-                                          filterps = [];
-                                        });
-                                      },
-                                      child: const Row(
-                                        children: [
-                                          Icon(Icons.clear),
-                                          SizedBox(width: 5),
-                                          Text('Limpiar Filtros'),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 30),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Proveedor',
-                                                style:
-                                                    GoogleFonts.robotoCondensed(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 16,
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 5),
-                                              DropdownButtonFormField<String>(
-                                                isExpanded: true,
-                                                hint: Text(
-                                                  'Seleccione una opción',
-                                                  style: GoogleFonts.roboto(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 14,
-                                                    color: Theme.of(context)
-                                                        .hintColor,
-                                                  ),
-                                                ),
-                                                items: providersToSelect
-                                                    .map((item) =>
-                                                        DropdownMenuItem(
-                                                          value: item,
-                                                          child: Text(
-                                                            item == 'TODO'
-                                                                ? 'TODO'
-                                                                : '${item.split('-')[1]}',
-                                                            style: GoogleFonts
-                                                                .roboto(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              fontSize: 14,
-                                                              color: Theme.of(
-                                                                      context)
-                                                                  .hintColor,
-                                                            ),
-                                                          ),
-                                                        ))
-                                                    .toList(),
-                                                value: selectedProvider,
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                    selectedProvider = value;
-                                                  });
-                                                  if (value != 'TODO') {
-                                                    if (value is String) {
-                                                      arrayFiltersAnd = [];
-                                                      arrayFiltersAnd.add({
-                                                        "warehouse.provider_id":
-                                                            selectedProvider
-                                                                .toString()
-                                                                .split("-")[0]
-                                                                .toString()
-                                                      });
-                                                    }
-                                                  } else {
-                                                    arrayFiltersAnd = [];
-                                                  }
-                                                },
-                                                decoration: InputDecoration(
-                                                  fillColor: Colors.white,
-                                                  filled: true,
-                                                  border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            5.0),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 20),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Categorias',
-                                                style:
-                                                    GoogleFonts.robotoCondensed(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 16,
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 5),
-                                              DropdownButtonFormField<String>(
-                                                isExpanded: true,
-                                                hint: Text(
-                                                  'Seleccione una categoria',
-                                                  style: GoogleFonts.roboto(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 14,
-                                                    color: Theme.of(context)
-                                                        .hintColor,
-                                                  ),
-                                                ),
-                                                items: categoriesToSelect
-                                                    .map((item) =>
-                                                        DropdownMenuItem(
-                                                          value: item,
-                                                          child: Text(
-                                                            item == 'TODO'
-                                                                ? 'TODO'
-                                                                : item.split(
-                                                                    '-')[0],
-                                                            style: GoogleFonts
-                                                                .roboto(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              fontSize: 14,
-                                                              color: Theme.of(
-                                                                      context)
-                                                                  .hintColor,
-                                                            ),
-                                                          ),
-                                                        ))
-                                                    .toList(),
-                                                value:
-                                                    selectedCategory ?? 'TODO',
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                    selectedCategory = value;
-
-                                                    if (value != 'TODO') {
-                                                      if (!selectedCategoriesList
-                                                          .contains(
-                                                              selectedCategory
-                                                                      ?.split(
-                                                                          '-')[
-                                                                  0])) {
-                                                        setState(() {
-                                                          selectedCategoriesList
-                                                              .add(selectedCategory!
-                                                                  .split('-')[0]
-                                                                  .toString());
-                                                        });
-                                                      }
-
-                                                      bool categoryRangeExists =
-                                                          outFilter.any((filter) =>
-                                                              filter.containsKey(
-                                                                  "input_categories"));
-                                                      if (!categoryRangeExists) {
-                                                        outFilter.add({
-                                                          "input_categories":
-                                                              selectedCategoriesList
-                                                        });
-                                                      }
-                                                    } else {
-                                                      outFilter.removeWhere(
-                                                          (filter) => filter
-                                                              .containsKey(
-                                                                  "input_categories"));
-                                                    }
-                                                  });
-                                                },
-                                                decoration: InputDecoration(
-                                                  fillColor: Colors.white,
-                                                  filled: true,
-                                                  border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            5.0),
-                                                  ),
-                                                ),
-                                              ),
-                                              const SizedBox(height: 5),
-                                              Wrap(
-                                                spacing: 5.0,
-                                                runSpacing: 5.0,
-                                                children: selectedCategoriesList
-                                                    .map<Widget>((category) {
-                                                  return Chip(
-                                                    label: Text(category),
-                                                    backgroundColor:
-                                                        Colors.blue[50],
-                                                    onDeleted: () {
-                                                      setState(() {
-                                                        selectedCategoriesList
-                                                            .remove(category);
-                                                      });
-                                                    },
-                                                  );
-                                                }).toList(),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 20),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              SizedBox(
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.18,
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Row(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            "Precios",
-                                                            style: GoogleFonts
-                                                                .robotoCondensed(
-                                                              fontSize: 16,
-                                                              color:
-                                                                  Colors.black,
-                                                            ),
-                                                          )
-                                                        ]),
-                                                    Row(
-                                                      children: [
-                                                        Expanded(
-                                                          child: Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              Text(
-                                                                'Mínimo:',
-                                                                style: GoogleFonts
-                                                                    .robotoCondensed(
-                                                                  fontSize: 16,
-                                                                  color: Colors
-                                                                      .black,
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                  height: 3),
-                                                              SizedBox(
-                                                                width: 100,
-                                                                child:
-                                                                    TextFormField(
-                                                                  controller:
-                                                                      _minPriceController,
-                                                                  keyboardType:
-                                                                      TextInputType
-                                                                          .number,
-                                                                  inputFormatters: <TextInputFormatter>[
-                                                                    FilteringTextInputFormatter
-                                                                        .allow(RegExp(
-                                                                            r'^\d+\.?\d{0,2}$')),
-                                                                  ],
-                                                                  /*
-                                                                inputFormatters: <TextInputFormatter>[
-                                                                    FilteringTextInputFormatter.digitsOnly,
-                                                                  ],
-                                                                */
-                                                                  decoration:
-                                                                      InputDecoration(
-                                                                    fillColor:
-                                                                        Colors
-                                                                            .white,
-                                                                    filled:
-                                                                        true,
-                                                                    border:
-                                                                        OutlineInputBorder(
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                              5.0),
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        const SizedBox(
-                                                            width: 10),
-                                                        Expanded(
-                                                          child: Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              Text(
-                                                                'Máximo:',
-                                                                style: GoogleFonts
-                                                                    .robotoCondensed(
-                                                                  fontSize: 16,
-                                                                  color: Colors
-                                                                      .black,
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                  height: 3),
-                                                              SizedBox(
-                                                                width: 100,
-                                                                child:
-                                                                    TextFormField(
-                                                                  controller:
-                                                                      _maxPriceController,
-                                                                  keyboardType:
-                                                                      TextInputType
-                                                                          .number,
-                                                                  inputFormatters: <TextInputFormatter>[
-                                                                    FilteringTextInputFormatter
-                                                                        .allow(RegExp(
-                                                                            r'^\d+\.?\d{0,2}$')),
-                                                                  ],
-                                                                  decoration:
-                                                                      InputDecoration(
-                                                                    fillColor:
-                                                                        Colors
-                                                                            .white,
-                                                                    filled:
-                                                                        true,
-                                                                    border:
-                                                                        OutlineInputBorder(
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                              5.0),
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        const SizedBox(
-                                                            width: 10),
-                                                        SizedBox(
-                                                          child: ElevatedButton(
-                                                            onPressed:
-                                                                () async {
-                                                              setState(() {
-                                                                bool
-                                                                    priceRangeExists =
-                                                                    outFilter.any(
-                                                                        (filter) =>
-                                                                            filter.containsKey("price_range"));
-                                                                if (_minPriceController
-                                                                        .text
-                                                                        .isEmpty &&
-                                                                    _maxPriceController
-                                                                        .text
-                                                                        .isEmpty) {
-                                                                  // print(
-                                                                  //     "Ambos están vacíos.");
-                                                                  // Agrega un filtro vacío con la clave "price_range"
-                                                                  outFilter
-                                                                      .add({
-                                                                    "price_range":
-                                                                        ""
-                                                                  });
-                                                                } else if (_minPriceController
-                                                                        .text
-                                                                        .isNotEmpty &&
-                                                                    _maxPriceController
-                                                                        .text
-                                                                        .isEmpty) {
-                                                                  if (double.parse(
-                                                                          _minPriceController
-                                                                              .text) >
-                                                                      0) {
-                                                                    // print(
-                                                                    //     "Añadir al filtro solo el mínimo");
-                                                                    if (priceRangeExists) {
-                                                                      // Elimina el filtro existente con la clave "price_range"
-                                                                      outFilter.removeWhere(
-                                                                          (filter) =>
-                                                                              filter.containsKey("price_range"));
-                                                                    }
-
-                                                                    outFilter
-                                                                        .add({
-                                                                      "price_range":
-                                                                          "${_minPriceController.text}-"
-                                                                    });
-                                                                  } else {
-                                                                    if (priceRangeExists) {
-                                                                      outFilter.removeWhere(
-                                                                          (filter) =>
-                                                                              filter.containsKey("price_range"));
-                                                                    }
-                                                                    // print(
-                                                                    //     "Error, es menor a 0");
-                                                                  }
-                                                                  //
-                                                                } else if (_minPriceController
-                                                                        .text
-                                                                        .isEmpty &&
-                                                                    _maxPriceController
-                                                                        .text
-                                                                        .isNotEmpty) {
-                                                                  if (double.parse(
-                                                                          _maxPriceController
-                                                                              .text) >
-                                                                      0) {
-                                                                    // print(
-                                                                    //     "Añadir al filtro solo el máximo");
-                                                                    if (priceRangeExists) {
-                                                                      outFilter.removeWhere(
-                                                                          (filter) =>
-                                                                              filter.containsKey("price_range"));
-                                                                    }
-
-                                                                    // Agrega el nuevo filtro con la clave "price_range"
-                                                                    outFilter
-                                                                        .add({
-                                                                      "price_range":
-                                                                          "-${_maxPriceController.text}"
-                                                                    });
-                                                                  } else {
-                                                                    if (priceRangeExists) {
-                                                                      outFilter.removeWhere(
-                                                                          (filter) =>
-                                                                              filter.containsKey("price_range"));
-                                                                    }
-                                                                    // print(
-                                                                    //     "Error, es menor a 0");
-                                                                  }
-                                                                } else if (_minPriceController
-                                                                        .text
-                                                                        .isNotEmpty &&
-                                                                    _maxPriceController
-                                                                        .text
-                                                                        .isNotEmpty) {
-                                                                  //
-                                                                  if (double.parse(
-                                                                          _maxPriceController
-                                                                              .text) >
-                                                                      double.parse(
-                                                                          _minPriceController
-                                                                              .text)) {
-                                                                    // print(
-                                                                    //     "Añadir ambos");
-                                                                    if (priceRangeExists) {
-                                                                      outFilter.removeWhere(
-                                                                          (filter) =>
-                                                                              filter.containsKey("price_range"));
-                                                                    }
-
-                                                                    // Agrega el nuevo filtro con la clave "price_range"
-                                                                    outFilter
-                                                                        .add({
-                                                                      "price_range":
-                                                                          "${_minPriceController.text}-${_maxPriceController.text}"
-                                                                    });
-                                                                  } else {
-                                                                    if (priceRangeExists) {
-                                                                      outFilter.removeWhere(
-                                                                          (filter) =>
-                                                                              filter.containsKey("price_range"));
-                                                                    }
-                                                                    // print(
-                                                                    //     "Error, el max es < a min");
-                                                                  }
-                                                                }
-                                                                //
-                                                              });
-                                                            },
-                                                            style:
-                                                                ElevatedButton
-                                                                    .styleFrom(
-                                                              backgroundColor:
-                                                                  Colors.indigo[
-                                                                      800],
-                                                            ),
-                                                            child: const Row(
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .min,
-                                                              children: [
-                                                                Text(
-                                                                  "Filtrar",
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                    const SizedBox(height: 30),
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              ElevatedButton(
-                                                onPressed: () {
-                                                  setState(() {
-                                                    isSelectedFavorites =
-                                                        !isSelectedFavorites;
-
-                                                    if (isSelectedFavorites) {
-                                                      selectedKeyList
-                                                          .add("favorite");
-                                                    } else {
-                                                      selectedKeyList
-                                                          .remove("favorite");
-                                                    }
-
-                                                    filterps.add({
-                                                      "id_master": int.parse(
-                                                          sharedPrefs!
-                                                              .getString(
-                                                                  "idComercialMasterSeller")
-                                                              .toString())
-                                                    });
-
-                                                    filterps.add({
-                                                      "key": selectedKeyList
-                                                    });
-                                                  });
-                                                },
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      isSelectedFavorites
-                                                          ? Colors.indigo[50]
-                                                          : Colors.white,
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            50),
-                                                    side: const BorderSide(
-                                                      width: 1,
-                                                      color: Colors.indigo,
-                                                    ),
-                                                  ),
-                                                ),
-                                                child: Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    Container(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              8),
-                                                      decoration: BoxDecoration(
-                                                        shape: BoxShape.circle,
-                                                        color:
-                                                            isSelectedFavorites
-                                                                ? Colors
-                                                                    .indigo[50]
-                                                                : Colors.white,
-                                                      ),
-                                                      child: Icon(
-                                                        isSelectedFavorites
-                                                            ? Icons.favorite
-                                                            : Icons
-                                                                .favorite_border,
-                                                        color:
-                                                            Colors.indigo[900],
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 5),
-                                                    Text(
-                                                      'Favoritos',
-                                                      style: GoogleFonts
-                                                          .robotoCondensed(
-                                                        fontSize: 16,
-                                                        color: Colors.black,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                    const SizedBox(height: 30),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              ElevatedButton(
-                                                onPressed: () {
-                                                  setState(() {
-                                                    isSelectedOnSale =
-                                                        !isSelectedOnSale;
-                                                    if (isSelectedOnSale) {
-                                                      selectedKeyList
-                                                          .add("onsale");
-                                                    } else {
-                                                      selectedKeyList
-                                                          .remove("onsale");
-                                                    }
-
-                                                    filterps.add({
-                                                      "id_master": int.parse(
-                                                          sharedPrefs!
-                                                              .getString(
-                                                                  "idComercialMasterSeller")
-                                                              .toString())
-                                                    });
-
-                                                    filterps.add({
-                                                      "key": selectedKeyList
-                                                    });
-                                                  });
-                                                },
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      isSelectedOnSale
-                                                          ? Colors.indigo[50]
-                                                          : Colors.white,
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            50),
-                                                    side: const BorderSide(
-                                                      width: 1,
-                                                      color: Colors.indigo,
-                                                    ),
-                                                  ),
-                                                ),
-                                                child: Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    Container(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              8),
-                                                      decoration: BoxDecoration(
-                                                        shape: BoxShape.circle,
-                                                        color: isSelectedOnSale
-                                                            ? Colors.indigo[50]
-                                                            : Colors.white,
-                                                      ),
-                                                      child: Icon(
-                                                        isSelectedOnSale
-                                                            ? Icons.local_offer
-                                                            : Icons
-                                                                .local_offer_outlined,
-                                                        color:
-                                                            Colors.indigo[900],
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 5),
-                                                    Text(
-                                                      'En Venta',
-                                                      style: GoogleFonts
-                                                          .robotoCondensed(
-                                                        fontSize: 16,
-                                                        color: Colors.black,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                    const SizedBox(height: 50),
-                                    const SizedBox(height: 20),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 8,
-                              child: Align(
-                                alignment: Alignment.topLeft,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 20),
-                                    Row(
-                                      children: [
-                                        Container(
-                                          width: screenWidth * 0.4,
-                                          color: Colors.white,
-                                          padding: const EdgeInsets.all(0),
-                                          child: Row(
-                                            children: [
-                                              Expanded(
-                                                child: _modelTextField(
-                                                  text: "Buscar",
-                                                  controller: _search,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10.0),
-                                      child: Container(
-                                        width: screenWidth * 0.78,
-                                        color: Colors.white,
-                                        padding: const EdgeInsets.all(10.0),
-                                        child: FutureBuilder(
-                                          future: _getProductModelCatalog(),
-                                          builder: (context, snapshot) {
-                                            if (snapshot.connectionState ==
-                                                ConnectionState.waiting) {
-                                              return const Center(
-                                                child:
-                                                    CircularProgressIndicator(),
-                                              );
-                                            } else if (snapshot.hasError) {
-                                              return const Center(
-                                                child: Text(
-                                                    'Error al cargar los productos'),
-                                              );
-                                            } else {
-                                              List<ProductModel> products =
-                                                  snapshot.data ?? [];
-                                              return SizedBox(
-                                                height: screenHeight * 0.75,
-                                                child: GridView.builder(
-                                                  itemCount: products.length,
-                                                  gridDelegate:
-                                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                                    crossAxisCount: 4,
-                                                    crossAxisSpacing: 10,
-                                                    mainAxisSpacing: 10,
-                                                    childAspectRatio: 7 / 10,
-                                                  ),
-                                                  itemBuilder:
-                                                      (context, index) {
-                                                    ProductModel product =
-                                                        products[index];
-                                                    return ProductCard(
-                                                      product: product,
-                                                      onTapCallback:
-                                                          (context) =>
-                                                              _showProductInfo(
-                                                        context,
-                                                        product,
-                                                      ),
-                                                    );
-                                                  },
-                                                ),
-                                              );
-                                            }
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        //
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: screenWidth * 0.020),
-                          child: Column(
+            child: ListView(
+              children: [
+                responsive(
+                    Container(
+                      width: screenWidth,
+                      height: screenHeight,
+                      color: Colors.green,
+                      child: Row(
+                        children: [
+                          _filtersWeb(screenWidth, context),
+                          _catalog(screenWidth, screenHeight),
+                        ],
+                      ),
+                    ),
+                    //
+                    Container(
+                      color: Colors.blueGrey,
+                      padding:
+                          EdgeInsets.symmetric(horizontal: screenWidth * 0.020),
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 20),
+                          Row(
                             children: [
-                              const SizedBox(height: 20),
-                              Row(
-                                children: [
-                                  Text(
-                                    'Filtros',
-                                    style: GoogleFonts.robotoCondensed(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20,
-                                      color: Theme.of(context).hintColor,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 20),
-                                  TextButton(
-                                    onPressed: () async {
-                                      setState(() {
-                                        selectedProvider = 'TODO';
-                                        selectedCategory = 'TODO';
-                                        selectedCategoriesList = [];
-                                        arrayFiltersAnd = [];
-                                        outFilter = [];
-                                        _minPriceController.clear();
-                                        _maxPriceController.clear();
-                                        isSelectedFavorites = false;
-                                        isSelectedOnSale = false;
-                                        filterps = [];
-                                      });
-                                    },
-                                    child: const Row(
-                                      children: [
-                                        Icon(Icons.clear),
-                                        SizedBox(width: 5),
-                                        Text('Limpiar Filtros'),
-                                      ],
-                                    ),
-                                  ),
-                                ],
+                              Text(
+                                'Filtros',
+                                style: GoogleFonts.robotoCondensed(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                  color: Theme.of(context).hintColor,
+                                ),
                               ),
-                              const SizedBox(height: 20),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Proveedor',
-                                          style: GoogleFonts.robotoCondensed(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 5),
-                                        DropdownButtonFormField<String>(
-                                          isExpanded: true,
-                                          hint: Text(
-                                            'Seleccione una opción',
-                                            style: GoogleFonts.roboto(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
-                                              color:
-                                                  Theme.of(context).hintColor,
-                                            ),
-                                          ),
-                                          items: providersToSelect
-                                              .map((item) => DropdownMenuItem(
-                                                    value: item,
-                                                    child: Text(
-                                                      item == 'TODO'
-                                                          ? 'TODO'
-                                                          : '${item.split('-')[1]}',
-                                                      style: GoogleFonts.roboto(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 14,
-                                                        color: Theme.of(context)
-                                                            .hintColor,
-                                                      ),
-                                                    ),
-                                                  ))
-                                              .toList(),
-                                          value: selectedProvider,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              selectedProvider = value;
-                                            });
-                                            if (value != 'TODO') {
-                                              if (value is String) {
-                                                arrayFiltersAnd = [];
-                                                arrayFiltersAnd.add({
-                                                  "warehouse.provider_id":
-                                                      selectedProvider
-                                                          .toString()
-                                                          .split("-")[0]
-                                                          .toString()
-                                                });
-                                              }
-                                            } else {
-                                              arrayFiltersAnd = [];
-                                            }
-                                          },
-                                          decoration: InputDecoration(
-                                            fillColor: Colors.white,
-                                            filled: true,
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5.0),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 20),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Categorias',
-                                          style: GoogleFonts.robotoCondensed(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 5),
-                                        DropdownButtonFormField<String>(
-                                          isExpanded: true,
-                                          hint: Text(
-                                            'Seleccione una categoria',
-                                            style: GoogleFonts.roboto(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
-                                              color:
-                                                  Theme.of(context).hintColor,
-                                            ),
-                                          ),
-                                          items: categoriesToSelect
-                                              .map((item) => DropdownMenuItem(
-                                                    value: item,
-                                                    child: Text(
-                                                      item == 'TODO'
-                                                          ? 'TODO'
-                                                          : item.split('-')[0],
-                                                      style: GoogleFonts.roboto(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 14,
-                                                        color: Theme.of(context)
-                                                            .hintColor,
-                                                      ),
-                                                    ),
-                                                  ))
-                                              .toList(),
-                                          value: selectedCategory ?? 'TODO',
-                                          onChanged: (value) {
-                                            setState(() {
-                                              selectedCategory = value;
-
-                                              if (value != 'TODO') {
-                                                if (!selectedCategoriesList
-                                                    .contains(selectedCategory
-                                                        ?.split('-')[0])) {
-                                                  setState(() {
-                                                    selectedCategoriesList.add(
-                                                        selectedCategory!
-                                                            .split('-')[0]
-                                                            .toString());
-                                                  });
-                                                }
-
-                                                bool categoryRangeExists =
-                                                    outFilter.any((filter) =>
-                                                        filter.containsKey(
-                                                            "input_categories"));
-                                                if (!categoryRangeExists) {
-                                                  outFilter.add({
-                                                    "input_categories":
-                                                        selectedCategoriesList
-                                                  });
-                                                }
-                                              } else {
-                                                outFilter.removeWhere((filter) =>
-                                                    filter.containsKey(
-                                                        "input_categories"));
-                                              }
-                                            });
-                                          },
-                                          decoration: InputDecoration(
-                                            fillColor: Colors.white,
-                                            filled: true,
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5.0),
-                                            ),
-                                          ),
-                                        ),
-                                        // const SizedBox(height: 5),
-                                        // Wrap(
-                                        //   spacing: 5.0,
-                                        //   runSpacing: 5.0,
-                                        //   children: selectedCategoriesList
-                                        //       .map<Widget>((category) {
-                                        //     return Chip(
-                                        //       label: Text(category),
-                                        //       backgroundColor: Colors.blue[50],
-                                        //       onDeleted: () {
-                                        //         setState(() {
-                                        //           selectedCategoriesList
-                                        //               .remove(category);
-                                        //         });
-                                        //       },
-                                        //     );
-                                        //   }).toList(),
-                                        // ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 5),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Wrap(
-                                          spacing: 5.0,
-                                          runSpacing: 5.0,
-                                          children: selectedCategoriesList
-                                              .map<Widget>((category) {
-                                            return Chip(
-                                              label: Text(category),
-                                              backgroundColor: Colors.blue[50],
-                                              onDeleted: () {
-                                                setState(() {
-                                                  selectedCategoriesList
-                                                      .remove(category);
-                                                });
-                                              },
-                                            );
-                                          }).toList(),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              isSelectedFavorites =
-                                                  !isSelectedFavorites;
-
-                                              if (isSelectedFavorites) {
-                                                selectedKeyList.add("favorite");
-                                              } else {
-                                                selectedKeyList
-                                                    .remove("favorite");
-                                              }
-
-                                              filterps.add({
-                                                "id_master": int.parse(sharedPrefs!
-                                                    .getString(
-                                                        "idComercialMasterSeller")
-                                                    .toString())
-                                              });
-
-                                              filterps.add(
-                                                  {"key": selectedKeyList});
-                                            });
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: isSelectedFavorites
-                                                ? Colors.indigo[50]
-                                                : Colors.white,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(50),
-                                              side: const BorderSide(
-                                                width: 1,
-                                                color: Colors.indigo,
-                                              ),
-                                            ),
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Container(
-                                                padding:
-                                                    const EdgeInsets.all(8),
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  color: isSelectedFavorites
-                                                      ? Colors.indigo[50]
-                                                      : Colors.white,
-                                                ),
-                                                child: Icon(
-                                                  isSelectedFavorites
-                                                      ? Icons.favorite
-                                                      : Icons.favorite_border,
-                                                  color: Colors.indigo[900],
-                                                ),
-                                              ),
-                                              const SizedBox(width: 5),
-                                              Text(
-                                                'Favoritos',
-                                                style:
-                                                    GoogleFonts.robotoCondensed(
-                                                  fontSize: 16,
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              isSelectedOnSale =
-                                                  !isSelectedOnSale;
-                                              if (isSelectedOnSale) {
-                                                selectedKeyList.add("onsale");
-                                              } else {
-                                                selectedKeyList
-                                                    .remove("onsale");
-                                              }
-
-                                              filterps.add({
-                                                "id_master": int.parse(sharedPrefs!
-                                                    .getString(
-                                                        "idComercialMasterSeller")
-                                                    .toString())
-                                              });
-
-                                              filterps.add(
-                                                  {"key": selectedKeyList});
-                                            });
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: isSelectedOnSale
-                                                ? Colors.indigo[50]
-                                                : Colors.white,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(50),
-                                              side: const BorderSide(
-                                                width: 1,
-                                                color: Colors.indigo,
-                                              ),
-                                            ),
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Container(
-                                                padding:
-                                                    const EdgeInsets.all(8),
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  color: isSelectedOnSale
-                                                      ? Colors.indigo[50]
-                                                      : Colors.white,
-                                                ),
-                                                child: Icon(
-                                                  isSelectedOnSale
-                                                      ? Icons.local_offer
-                                                      : Icons
-                                                          .local_offer_outlined,
-                                                  color: Colors.indigo[900],
-                                                ),
-                                              ),
-                                              const SizedBox(width: 5),
-                                              Text(
-                                                'En Venta',
-                                                style:
-                                                    GoogleFonts.robotoCondensed(
-                                                  fontSize: 16,
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              Row(
-                                children: [
-                                  Container(
-                                    width: screenWidth * 0.95,
-                                    color: Colors.white,
-                                    padding: const EdgeInsets.all(10.0),
-                                    child: FutureBuilder(
-                                      future: _getProductModelCatalog(),
-                                      builder: (context, snapshot) {
-                                        if (snapshot.connectionState ==
-                                            ConnectionState.waiting) {
-                                          return const Center(
-                                            child: CircularProgressIndicator(),
-                                          );
-                                        } else if (snapshot.hasError) {
-                                          return const Center(
-                                            child: Text(
-                                                'Error al cargar los productos'),
-                                          );
-                                        } else {
-                                          List<ProductModel> products =
-                                              snapshot.data ?? [];
-                                          return SizedBox(
-                                            height: screenHeight * 0.75,
-                                            child: GridView.builder(
-                                              itemCount: products.length,
-                                              gridDelegate:
-                                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                                crossAxisCount: 2,
-                                                crossAxisSpacing: 10,
-                                                mainAxisSpacing: 10,
-                                                childAspectRatio: 6 / 10,
-                                              ),
-                                              itemBuilder: (context, index) {
-                                                ProductModel product =
-                                                    products[index];
-                                                return ProductCard(
-                                                  product: product,
-                                                  onTapCallback: (context) =>
-                                                      _showProductInfo(
-                                                    context,
-                                                    product,
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          );
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                ],
+                              const SizedBox(width: 20),
+                              TextButton(
+                                onPressed: () async {
+                                  setState(() {
+                                    selectedProvider = 'TODO';
+                                    selectedCategory = 'TODO';
+                                    selectedCategoriesList = [];
+                                    arrayFiltersAnd = [];
+                                    outFilter = [];
+                                    _minPriceController.clear();
+                                    _maxPriceController.clear();
+                                    isSelectedFavorites = false;
+                                    isSelectedOnSale = false;
+                                    filterps = [];
+                                  });
+                                },
+                                child: const Row(
+                                  children: [
+                                    Icon(Icons.clear),
+                                    SizedBox(width: 5),
+                                    Text('Limpiar Filtros'),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
-                        ),
+                          const SizedBox(height: 20),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Proveedor',
+                                      style: GoogleFonts.robotoCondensed(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    DropdownButtonFormField<String>(
+                                      isExpanded: true,
+                                      hint: Text(
+                                        'Seleccione una opción',
+                                        style: GoogleFonts.roboto(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                          color: Theme.of(context).hintColor,
+                                        ),
+                                      ),
+                                      items: providersToSelect
+                                          .map((item) => DropdownMenuItem(
+                                                value: item,
+                                                child: Text(
+                                                  item == 'TODO'
+                                                      ? 'TODO'
+                                                      : '${item.split('-')[1]}',
+                                                  style: GoogleFonts.roboto(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 14,
+                                                    color: Theme.of(context)
+                                                        .hintColor,
+                                                  ),
+                                                ),
+                                              ))
+                                          .toList(),
+                                      value: selectedProvider,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          selectedProvider = value;
+                                        });
+                                        if (value != 'TODO') {
+                                          if (value is String) {
+                                            arrayFiltersAnd = [];
+                                            arrayFiltersAnd.add({
+                                              "warehouse.provider_id":
+                                                  selectedProvider
+                                                      .toString()
+                                                      .split("-")[0]
+                                                      .toString()
+                                            });
+                                          }
+                                        } else {
+                                          arrayFiltersAnd = [];
+                                        }
+                                      },
+                                      decoration: InputDecoration(
+                                        fillColor: Colors.white,
+                                        filled: true,
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(5.0),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 20),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Categorias',
+                                      style: GoogleFonts.robotoCondensed(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    DropdownButtonFormField<String>(
+                                      isExpanded: true,
+                                      hint: Text(
+                                        'Seleccione una categoria',
+                                        style: GoogleFonts.roboto(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                          color: Theme.of(context).hintColor,
+                                        ),
+                                      ),
+                                      items: categoriesToSelect
+                                          .map((item) => DropdownMenuItem(
+                                                value: item,
+                                                child: Text(
+                                                  item == 'TODO'
+                                                      ? 'TODO'
+                                                      : item.split('-')[0],
+                                                  style: GoogleFonts.roboto(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 14,
+                                                    color: Theme.of(context)
+                                                        .hintColor,
+                                                  ),
+                                                ),
+                                              ))
+                                          .toList(),
+                                      value: selectedCategory ?? 'TODO',
+                                      onChanged: (value) {
+                                        setState(() {
+                                          selectedCategory = value;
 
-                        //
-                        context),
+                                          if (value != 'TODO') {
+                                            if (!selectedCategoriesList
+                                                .contains(selectedCategory
+                                                    ?.split('-')[0])) {
+                                              setState(() {
+                                                selectedCategoriesList.add(
+                                                    selectedCategory!
+                                                        .split('-')[0]
+                                                        .toString());
+                                              });
+                                            }
+
+                                            bool categoryRangeExists =
+                                                outFilter.any((filter) =>
+                                                    filter.containsKey(
+                                                        "input_categories"));
+                                            if (!categoryRangeExists) {
+                                              outFilter.add({
+                                                "input_categories":
+                                                    selectedCategoriesList
+                                              });
+                                            }
+                                          } else {
+                                            outFilter.removeWhere((filter) =>
+                                                filter.containsKey(
+                                                    "input_categories"));
+                                          }
+                                        });
+                                      },
+                                      decoration: InputDecoration(
+                                        fillColor: Colors.white,
+                                        filled: true,
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(5.0),
+                                        ),
+                                      ),
+                                    ),
+                                    // const SizedBox(height: 5),
+                                    // Wrap(
+                                    //   spacing: 5.0,
+                                    //   runSpacing: 5.0,
+                                    //   children: selectedCategoriesList
+                                    //       .map<Widget>((category) {
+                                    //     return Chip(
+                                    //       label: Text(category),
+                                    //       backgroundColor: Colors.blue[50],
+                                    //       onDeleted: () {
+                                    //         setState(() {
+                                    //           selectedCategoriesList
+                                    //               .remove(category);
+                                    //         });
+                                    //       },
+                                    //     );
+                                    //   }).toList(),
+                                    // ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 5),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Wrap(
+                                      spacing: 5.0,
+                                      runSpacing: 5.0,
+                                      children: selectedCategoriesList
+                                          .map<Widget>((category) {
+                                        return Chip(
+                                          label: Text(category),
+                                          backgroundColor: Colors.blue[50],
+                                          onDeleted: () {
+                                            setState(() {
+                                              selectedCategoriesList
+                                                  .remove(category);
+                                            });
+                                          },
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          isSelectedFavorites =
+                                              !isSelectedFavorites;
+
+                                          if (isSelectedFavorites) {
+                                            selectedKeyList.add("favorite");
+                                          } else {
+                                            selectedKeyList.remove("favorite");
+                                          }
+
+                                          filterps.add({
+                                            "id_master": int.parse(sharedPrefs!
+                                                .getString(
+                                                    "idComercialMasterSeller")
+                                                .toString())
+                                          });
+
+                                          filterps
+                                              .add({"key": selectedKeyList});
+                                        });
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: isSelectedFavorites
+                                            ? Colors.indigo[50]
+                                            : Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(50),
+                                          side: const BorderSide(
+                                            width: 1,
+                                            color: Colors.indigo,
+                                          ),
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: isSelectedFavorites
+                                                  ? Colors.indigo[50]
+                                                  : Colors.white,
+                                            ),
+                                            child: Icon(
+                                              isSelectedFavorites
+                                                  ? Icons.favorite
+                                                  : Icons.favorite_border,
+                                              color: Colors.indigo[900],
+                                            ),
+                                          ),
+                                          const SizedBox(width: 5),
+                                          Text(
+                                            'Favoritos',
+                                            style: GoogleFonts.robotoCondensed(
+                                              fontSize: 16,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          isSelectedOnSale = !isSelectedOnSale;
+                                          if (isSelectedOnSale) {
+                                            selectedKeyList.add("onsale");
+                                          } else {
+                                            selectedKeyList.remove("onsale");
+                                          }
+
+                                          filterps.add({
+                                            "id_master": int.parse(sharedPrefs!
+                                                .getString(
+                                                    "idComercialMasterSeller")
+                                                .toString())
+                                          });
+
+                                          filterps
+                                              .add({"key": selectedKeyList});
+                                        });
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: isSelectedOnSale
+                                            ? Colors.indigo[50]
+                                            : Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(50),
+                                          side: const BorderSide(
+                                            width: 1,
+                                            color: Colors.indigo,
+                                          ),
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: isSelectedOnSale
+                                                  ? Colors.indigo[50]
+                                                  : Colors.white,
+                                            ),
+                                            child: Icon(
+                                              isSelectedOnSale
+                                                  ? Icons.local_offer
+                                                  : Icons.local_offer_outlined,
+                                              color: Colors.indigo[900],
+                                            ),
+                                          ),
+                                          const SizedBox(width: 5),
+                                          Text(
+                                            'En Venta',
+                                            style: GoogleFonts.robotoCondensed(
+                                              fontSize: 16,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              Container(
+                                width: screenWidth * 0.95,
+                                color: Colors.white,
+                                padding: const EdgeInsets.all(10.0),
+                                child: FutureBuilder(
+                                  future: _getProductModelCatalog(),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    } else if (snapshot.hasError) {
+                                      return const Center(
+                                        child: Text(
+                                            'Error al cargar los productos'),
+                                      );
+                                    } else {
+                                      List<ProductModel> products =
+                                          snapshot.data ?? [];
+                                      return SizedBox(
+                                        height: screenHeight * 0.75,
+                                        child: GridView.builder(
+                                          itemCount: products.length,
+                                          gridDelegate:
+                                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                            crossAxisCount: 2,
+                                            crossAxisSpacing: 10,
+                                            mainAxisSpacing: 10,
+                                            childAspectRatio: 6 / 10,
+                                          ),
+                                          itemBuilder: (context, index) {
+                                            ProductModel product =
+                                                products[index];
+                                            return ProductCard(
+                                              product: product,
+                                              onTapCallback: (context) =>
+                                                  _showProductInfo(
+                                                context,
+                                                product,
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      );
+                                    }
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    //
+                    context),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Expanded _catalog(double screenWidth, double screenHeight) {
+    return Expanded(
+      flex: 8,
+      child: Align(
+        alignment: Alignment.topLeft,
+        child: Container(
+          color: Colors.amber,
+          padding: EdgeInsets.all(10),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20),
+              Container(
+                width: screenWidth * 0.4,
+                color: Colors.white,
+                padding: const EdgeInsets.all(0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _modelTextField(
+                        text: "Buscar",
+                        controller: _search,
+                      ),
+                    ),
                   ],
                 ),
               ),
+              SizedBox(
+                height: 20,
+              ),
+              Expanded(
+                child: Container(
+                  color: const Color.fromARGB(255, 184, 44, 44),
+                  padding: const EdgeInsets.all(10.0),
+                  child: BlurryModalProgressHUD(
+                    inAsyncCall: isLoading,
+                    blurEffectIntensity: 0,
+                    progressIndicator: SpinKitFadingCircle(
+                      color: const Color.fromARGB(255, 4, 2, 5),
+                      size: 90.0,
+                    ),
+                    dismissible: false,
+                    opacity: 0.4,
+                    color: Colors.black87,
+                    child: SizedBox(
+                      height: screenHeight * 0.75,
+                      child: GridView.builder(
+                        itemCount: products.length,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 4,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                          childAspectRatio: 7 / 10,
+                        ),
+                        itemBuilder: (context, index) {
+                          ProductModel product = products[index];
+                          return ProductCard(
+                            product: product,
+                            onTapCallback: (context) => _showProductInfo(
+                              context,
+                              product,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Container _filtersWeb(double screenWidth, BuildContext context) {
+    return Container(
+      width: screenWidth * 0.2,
+      color: Colors.blueGrey,
+      padding: EdgeInsets.symmetric(
+        horizontal: screenWidth * 0.010,
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 20),
+          Text(
+            'Filtros',
+            style: GoogleFonts.robotoCondensed(
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+              color: Theme.of(context).hintColor,
             ),
           ),
+          const SizedBox(height: 30),
+          TextButton(
+            onPressed: () async {
+              setState(() {
+                selectedProvider = 'TODO';
+                selectedCategory = 'TODO';
+                selectedCategoriesList = [];
+                arrayFiltersAnd = [];
+                outFilter = [];
+                _minPriceController.clear();
+                _maxPriceController.clear();
+                isSelectedFavorites = false;
+                isSelectedOnSale = false;
+                filterps = [];
+              });
+            },
+            child: const Row(
+              children: [
+                Icon(Icons.clear),
+                SizedBox(width: 5),
+                Text('Limpiar Filtros'),
+              ],
+            ),
+          ),
+          const SizedBox(height: 30),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Proveedor',
+                      style: GoogleFonts.robotoCondensed(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    DropdownButtonFormField<String>(
+                      isExpanded: true,
+                      hint: Text(
+                        'Seleccione una opción',
+                        style: GoogleFonts.roboto(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: Theme.of(context).hintColor,
+                        ),
+                      ),
+                      items: providersToSelect
+                          .map((item) => DropdownMenuItem(
+                                value: item,
+                                child: Text(
+                                  item == 'TODO'
+                                      ? 'TODO'
+                                      : '${item.split('-')[1]}',
+                                  style: GoogleFonts.roboto(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                    color: Theme.of(context).hintColor,
+                                  ),
+                                ),
+                              ))
+                          .toList(),
+                      value: selectedProvider,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedProvider = value;
+                        });
+                        if (value != 'TODO') {
+                          if (value is String) {
+                            arrayFiltersAnd = [];
+                            arrayFiltersAnd.add({
+                              "warehouse.provider_id": selectedProvider
+                                  .toString()
+                                  .split("-")[0]
+                                  .toString()
+                            });
+                          }
+                        } else {
+                          arrayFiltersAnd = [];
+                        }
+                      },
+                      decoration: InputDecoration(
+                        fillColor: Colors.white,
+                        filled: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Categorias',
+                      style: GoogleFonts.robotoCondensed(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    DropdownButtonFormField<String>(
+                      isExpanded: true,
+                      hint: Text(
+                        'Seleccione una categoria',
+                        style: GoogleFonts.roboto(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: Theme.of(context).hintColor,
+                        ),
+                      ),
+                      items: categoriesToSelect
+                          .map((item) => DropdownMenuItem(
+                                value: item,
+                                child: Text(
+                                  item == 'TODO' ? 'TODO' : item.split('-')[0],
+                                  style: GoogleFonts.roboto(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                    color: Theme.of(context).hintColor,
+                                  ),
+                                ),
+                              ))
+                          .toList(),
+                      value: selectedCategory ?? 'TODO',
+                      onChanged: (value) {
+                        setState(() {
+                          selectedCategory = value;
+
+                          if (value != 'TODO') {
+                            if (!selectedCategoriesList
+                                .contains(selectedCategory?.split('-')[0])) {
+                              setState(() {
+                                selectedCategoriesList.add(
+                                    selectedCategory!.split('-')[0].toString());
+                              });
+                            }
+
+                            bool categoryRangeExists = outFilter.any((filter) =>
+                                filter.containsKey("input_categories"));
+                            if (!categoryRangeExists) {
+                              outFilter.add(
+                                  {"input_categories": selectedCategoriesList});
+                            }
+                          } else {
+                            outFilter.removeWhere((filter) =>
+                                filter.containsKey("input_categories"));
+                          }
+                        });
+                      },
+                      decoration: InputDecoration(
+                        fillColor: Colors.white,
+                        filled: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Wrap(
+                      spacing: 5.0,
+                      runSpacing: 5.0,
+                      children: selectedCategoriesList.map<Widget>((category) {
+                        return Chip(
+                          label: Text(category),
+                          backgroundColor: Colors.blue[50],
+                          onDeleted: () {
+                            setState(() {
+                              selectedCategoriesList.remove(category);
+                            });
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.18,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Precios",
+                                  style: GoogleFonts.robotoCondensed(
+                                    fontSize: 16,
+                                    color: Colors.black,
+                                  ),
+                                )
+                              ]),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Mínimo:',
+                                      style: GoogleFonts.robotoCondensed(
+                                        fontSize: 16,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 3),
+                                    SizedBox(
+                                      width: 100,
+                                      child: TextFormField(
+                                        controller: _minPriceController,
+                                        keyboardType: TextInputType.number,
+                                        inputFormatters: <TextInputFormatter>[
+                                          FilteringTextInputFormatter.allow(
+                                              RegExp(r'^\d+\.?\d{0,2}$')),
+                                        ],
+                                        /*
+                                                              inputFormatters: <TextInputFormatter>[
+                                                                  FilteringTextInputFormatter.digitsOnly,
+                                                                ],
+                                                              */
+                                        decoration: InputDecoration(
+                                          fillColor: Colors.white,
+                                          filled: true,
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(5.0),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Máximo:',
+                                      style: GoogleFonts.robotoCondensed(
+                                        fontSize: 16,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 3),
+                                    SizedBox(
+                                      width: 100,
+                                      child: TextFormField(
+                                        controller: _maxPriceController,
+                                        keyboardType: TextInputType.number,
+                                        inputFormatters: <TextInputFormatter>[
+                                          FilteringTextInputFormatter.allow(
+                                              RegExp(r'^\d+\.?\d{0,2}$')),
+                                        ],
+                                        decoration: InputDecoration(
+                                          fillColor: Colors.white,
+                                          filled: true,
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(5.0),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              SizedBox(
+                                child: ElevatedButton(
+                                  onPressed: () async {
+                                    setState(() {
+                                      bool priceRangeExists = outFilter.any(
+                                          (filter) => filter
+                                              .containsKey("price_range"));
+                                      if (_minPriceController.text.isEmpty &&
+                                          _maxPriceController.text.isEmpty) {
+                                        // print(
+                                        //     "Ambos están vacíos.");
+                                        // Agrega un filtro vacío con la clave "price_range"
+                                        outFilter.add({"price_range": ""});
+                                      } else if (_minPriceController
+                                              .text.isNotEmpty &&
+                                          _maxPriceController.text.isEmpty) {
+                                        if (double.parse(
+                                                _minPriceController.text) >
+                                            0) {
+                                          // print(
+                                          //     "Añadir al filtro solo el mínimo");
+                                          if (priceRangeExists) {
+                                            // Elimina el filtro existente con la clave "price_range"
+                                            outFilter.removeWhere((filter) =>
+                                                filter.containsKey(
+                                                    "price_range"));
+                                          }
+
+                                          outFilter.add({
+                                            "price_range":
+                                                "${_minPriceController.text}-"
+                                          });
+                                        } else {
+                                          if (priceRangeExists) {
+                                            outFilter.removeWhere((filter) =>
+                                                filter.containsKey(
+                                                    "price_range"));
+                                          }
+                                          // print(
+                                          //     "Error, es menor a 0");
+                                        }
+                                        //
+                                      } else if (_minPriceController
+                                              .text.isEmpty &&
+                                          _maxPriceController.text.isNotEmpty) {
+                                        if (double.parse(
+                                                _maxPriceController.text) >
+                                            0) {
+                                          // print(
+                                          //     "Añadir al filtro solo el máximo");
+                                          if (priceRangeExists) {
+                                            outFilter.removeWhere((filter) =>
+                                                filter.containsKey(
+                                                    "price_range"));
+                                          }
+
+                                          // Agrega el nuevo filtro con la clave "price_range"
+                                          outFilter.add({
+                                            "price_range":
+                                                "-${_maxPriceController.text}"
+                                          });
+                                        } else {
+                                          if (priceRangeExists) {
+                                            outFilter.removeWhere((filter) =>
+                                                filter.containsKey(
+                                                    "price_range"));
+                                          }
+                                          // print(
+                                          //     "Error, es menor a 0");
+                                        }
+                                      } else if (_minPriceController
+                                              .text.isNotEmpty &&
+                                          _maxPriceController.text.isNotEmpty) {
+                                        //
+                                        if (double.parse(
+                                                _maxPriceController.text) >
+                                            double.parse(
+                                                _minPriceController.text)) {
+                                          // print(
+                                          //     "Añadir ambos");
+                                          if (priceRangeExists) {
+                                            outFilter.removeWhere((filter) =>
+                                                filter.containsKey(
+                                                    "price_range"));
+                                          }
+
+                                          // Agrega el nuevo filtro con la clave "price_range"
+                                          outFilter.add({
+                                            "price_range":
+                                                "${_minPriceController.text}-${_maxPriceController.text}"
+                                          });
+                                        } else {
+                                          if (priceRangeExists) {
+                                            outFilter.removeWhere((filter) =>
+                                                filter.containsKey(
+                                                    "price_range"));
+                                          }
+                                          // print(
+                                          //     "Error, el max es < a min");
+                                        }
+                                      }
+                                      //
+                                    });
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.indigo[800],
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        "Filtrar",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+          const SizedBox(height: 30),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          isSelectedFavorites = !isSelectedFavorites;
+
+                          if (isSelectedFavorites) {
+                            selectedKeyList.add("favorite");
+                          } else {
+                            selectedKeyList.remove("favorite");
+                          }
+
+                          filterps.add({
+                            "id_master": int.parse(sharedPrefs!
+                                .getString("idComercialMasterSeller")
+                                .toString())
+                          });
+
+                          filterps.add({"key": selectedKeyList});
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: isSelectedFavorites
+                            ? Colors.indigo[50]
+                            : Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                          side: const BorderSide(
+                            width: 1,
+                            color: Colors.indigo,
+                          ),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isSelectedFavorites
+                                  ? Colors.indigo[50]
+                                  : Colors.white,
+                            ),
+                            child: Icon(
+                              isSelectedFavorites
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              color: Colors.indigo[900],
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            'Favoritos',
+                            style: GoogleFonts.robotoCondensed(
+                              fontSize: 16,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+          const SizedBox(height: 30),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          isSelectedOnSale = !isSelectedOnSale;
+                          if (isSelectedOnSale) {
+                            selectedKeyList.add("onsale");
+                          } else {
+                            selectedKeyList.remove("onsale");
+                          }
+
+                          filterps.add({
+                            "id_master": int.parse(sharedPrefs!
+                                .getString("idComercialMasterSeller")
+                                .toString())
+                          });
+
+                          filterps.add({"key": selectedKeyList});
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            isSelectedOnSale ? Colors.indigo[50] : Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                          side: const BorderSide(
+                            width: 1,
+                            color: Colors.indigo,
+                          ),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isSelectedOnSale
+                                  ? Colors.indigo[50]
+                                  : Colors.white,
+                            ),
+                            child: Icon(
+                              isSelectedOnSale
+                                  ? Icons.local_offer
+                                  : Icons.local_offer_outlined,
+                              color: Colors.indigo[900],
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            'En Venta',
+                            style: GoogleFonts.robotoCondensed(
+                              fontSize: 16,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+          const SizedBox(height: 50),
+          const SizedBox(height: 20),
         ],
       ),
     );
@@ -2165,6 +1998,7 @@ class _CatalogState extends State<Catalog> {
                         ],
                       ),
                       //mobile
+
                       Row(
                         children: [
                           Expanded(
