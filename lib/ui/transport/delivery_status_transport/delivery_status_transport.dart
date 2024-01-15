@@ -1077,8 +1077,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                   ),
                   Expanded(
                       child: TransportProDeliveryHistoryDetails(
-                    id: id,
-                  ))
+                          id: id, data: data))
                 ],
               ),
             ),
@@ -1259,7 +1258,8 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                       context: context,
                       dialogType: DialogType.info,
                       animType: AnimType.rightSlide,
-                      title: 'El Número Total de Registros debe ser menor a 2.000', 
+                      title:
+                          'El Número Total de Registros debe ser menor a 2.000',
                       desc: '',
                       btnOkText: "Aceptar",
                       btnOkColor: Colors.green,

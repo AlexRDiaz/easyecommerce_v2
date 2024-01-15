@@ -4393,23 +4393,23 @@ class Connections {
 
   Future updateWithdrawalRechazado(comentario) async {
     String id = Get.parameters['id'].toString();
-
-    var request = await http.put(Uri.parse("$server/api/ordenes-retiros/$id"),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          "data": {
-            "Estado": "RECHAZADO",
-            "Comentario": comentario,
-            "FechaTransferencia":
-                "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year} ${DateTime.now().hour}:${DateTime.now().minute} "
-          }
-        }));
-    var response = await request.body;
-    var decodeData = json.decode(response);
-    if (request.statusCode != 200) {
-      return false;
-    } else {
-      return true;
+    try {
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/transacciones/deny-withdrawal/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "generated_by": sharedPrefs!.getString("idComercialMasterSeller"),
+            "comentario": comentario,
+          }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      return 2;
     }
   }
 
@@ -7357,17 +7357,18 @@ class Connections {
           body: json.encode({
             "monto": amount,
             "email": "bugi2532@hotmail.com",
+            "user_id": sharedPrefs!.getString("idComercialMasterSeller")
           }));
       var response = await request.body;
       var decodeData = json.decode(response);
 
       if (request.statusCode != 200) {
-        return 1;
+        return {"res": 1, "response": decodeData['response']};
       } else {
-        return decodeData;
+        return {"res": 0, "response": decodeData['code']};
       }
     } catch (e) {
-      return 2;
+      return {"res": 1, "response": "error de conexion"};
     }
   }
 

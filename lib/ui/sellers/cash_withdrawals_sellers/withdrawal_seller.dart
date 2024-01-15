@@ -116,9 +116,9 @@ class _WithdrawalSellerState extends State<WithdrawalSeller> {
     });
     var resultSendWithdrawal =
         await Connections().sendWithdrawalSeller(withdrawal.text);
-    if (resultSendWithdrawal != 1 || resultSendWithdrawal != 2) {
+    if (resultSendWithdrawal["res"] == 0) {
       setState(() {
-        code = resultSendWithdrawal['code'].toString();
+        code = resultSendWithdrawal['response'].toString();
         isLoading = false;
       });
       codeInputDialog(context);
@@ -133,7 +133,7 @@ class _WithdrawalSellerState extends State<WithdrawalSeller> {
         dialogType: DialogType.error,
         animType: AnimType.rightSlide,
         title: 'Error',
-        desc: 'No se pudo solicitar el retiro',
+        desc: resultSendWithdrawal['response'],
         btnCancel: Container(),
         btnOkText: "Aceptar",
         btnOkColor: Colors.redAccent,

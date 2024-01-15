@@ -25,6 +25,7 @@ import 'package:frontend/ui/sellers/unwanted_orders_sellers/unwanted_orders_sell
 import 'package:frontend/ui/sellers/update_password/update_password.dart';
 import 'package:frontend/ui/sellers/wallet_sellers/wallet_sellers.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LayoutSellersPage extends StatefulWidget {
   const LayoutSellersPage({Key? key}) : super(key: key);
@@ -34,7 +35,9 @@ class LayoutSellersPage extends StatefulWidget {
 }
 
 class _LayoutSellersPageState extends State<LayoutSellersPage> {
-  bool isSidebarOpen = true;
+  bool isSidebarOpen = sharedPrefs!.getBool("sidebarOpen") != null
+      ? sharedPrefs!.getBool("sidebarOpen") ?? false
+      : false;
   List<String> permissions = sharedPrefs!.getStringList("PERMISOS")!;
 
   final GlobalKey<ScaffoldState> _key = GlobalKey();
@@ -153,6 +156,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
               onPressed: () {
                 setState(() {
                   isSidebarOpen = !isSidebarOpen;
+                  sharedPrefs!.setBool("sidebarOpen", isSidebarOpen);
                 });
               },
             ),
@@ -358,6 +362,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
               onPressed: () {
                 setState(() {
                   isSidebarOpen = !isSidebarOpen;
+                  sharedPrefs!.setBool("sidebarOpen", isSidebarOpen);
                 });
               },
             ),
@@ -597,6 +602,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                   if (cv == "Catalog") {
                     print("if");
                     isSidebarOpen = false;
+                    sharedPrefs!.setBool("sidebarOpen", isSidebarOpen);
                   }
                 });
 
@@ -649,6 +655,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
 
             pages = List.from(pages)..[selectedIndex]['selected'] = true;
             isSidebarOpen = false;
+            sharedPrefs!.setBool("sidebarOpen", isSidebarOpen);
           });
           Provider.of<NavigationProviderSellers>(context, listen: false)
               .changeIndex(selectedIndex, selectedView['page']);

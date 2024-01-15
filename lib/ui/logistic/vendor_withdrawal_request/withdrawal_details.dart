@@ -134,18 +134,62 @@ class _WithDrawalDetailsState extends State<WithdrawalDetails> {
                                               onConfirm:
                                                   (String selected) async {
                                                 if (selected == "RECHAZADO") {
-                                                  getLoadingModal(
-                                                      context, false);
                                                   var result = await Connections()
                                                       .updateWithdrawalRechazado(
                                                           _modalController
                                                               .text);
+                                                  if (result == 0) {
+                                                    // ignore: use_build_context_synchronously
+                                                    AwesomeDialog(
+                                                      width: 500,
+                                                      context: context,
+                                                      dialogType:
+                                                          DialogType.success,
+                                                      animType:
+                                                          AnimType.rightSlide,
+                                                      title:
+                                                          'Solicitud Rechazada',
+                                                      desc:
+                                                          'Se ha actualizado el estado de la solicitud',
+                                                      btnCancel: Container(),
+                                                      btnOkText: "Aceptar",
+                                                      btnOkColor: Colors.green,
+                                                      btnCancelOnPress: () {},
+                                                      btnOkOnPress: () {
+                                                        Navigator.pop(context);
+                                                      },
+                                                      onDismissCallback:
+                                                          (type) {
+                                                        Navigator.pop(context);
+                                                      },
+                                                    ).show();
+                                                  } else {
+                                                    // ignore: use_build_context_synchronously
+                                                    AwesomeDialog(
+                                                      width: 500,
+                                                      context: context,
+                                                      dialogType:
+                                                          DialogType.error,
+                                                      animType:
+                                                          AnimType.rightSlide,
+                                                      title: 'Error',
+                                                      desc:
+                                                          'No se pudo actualizar el estado',
+                                                      btnCancel: Container(),
+                                                      btnOkText: "Aceptar",
+                                                      btnOkColor:
+                                                          Colors.redAccent,
+                                                      btnCancelOnPress: () {},
+                                                      btnOkOnPress: () {},
+                                                    ).show();
+                                                  }
+
                                                   await loadData();
                                                   setState(() {
                                                     _modalController.clear();
                                                   });
-                                                  Navigator.pop(context);
-                                                  Navigator.pop(context);
+                                                  // Navigator.pop(context);
+                                                  // Navigator.pop(context);
                                                 }
                                                 if (selected == "REALIZADO") {
                                                   if (imageSelect != null) {
@@ -353,18 +397,64 @@ class _WithDrawalDetailsState extends State<WithdrawalDetails> {
                                                 onConfirm:
                                                     (String selected) async {
                                                   if (selected == "RECHAZADO") {
-                                                    getLoadingModal(
-                                                        context, false);
                                                     var result = await Connections()
                                                         .updateWithdrawalRechazado(
                                                             _modalController
                                                                 .text);
+
+                                                    if (result == 0) {
+                                                      // ignore: use_build_context_synchronously
+                                                      AwesomeDialog(
+                                                        width: 500,
+                                                        context: context,
+                                                        dialogType:
+                                                            DialogType.success,
+                                                        animType:
+                                                            AnimType.rightSlide,
+                                                        title:
+                                                            'Solicitud Rechazada',
+                                                        desc:
+                                                            'Se ha actualizado el estado de la solicitud',
+                                                        btnCancel: Container(),
+                                                        btnOkText: "Aceptar",
+                                                        btnOkColor:
+                                                            Colors.green,
+                                                        btnCancelOnPress: () {},
+                                                        btnOkOnPress: () {
+                                                          Navigator.pop(
+                                                              context);
+                                                        },
+                                                        onDismissCallback:
+                                                            (type) {
+                                                          Navigator.pop(
+                                                              context);
+                                                        },
+                                                      ).show();
+                                                    } else {
+                                                      // ignore: use_build_context_synchronously
+                                                      AwesomeDialog(
+                                                        width: 500,
+                                                        context: context,
+                                                        dialogType:
+                                                            DialogType.error,
+                                                        animType:
+                                                            AnimType.rightSlide,
+                                                        title: 'Error',
+                                                        desc:
+                                                            'No se pudo actualizar el estado',
+                                                        btnCancel: Container(),
+                                                        btnOkText: "Aceptar",
+                                                        btnOkColor:
+                                                            Colors.redAccent,
+                                                        btnCancelOnPress: () {},
+                                                        btnOkOnPress: () {},
+                                                      ).show();
+                                                    }
+
                                                     await loadData();
                                                     setState(() {
                                                       _modalController.clear();
                                                     });
-                                                    Navigator.pop(context);
-                                                    Navigator.pop(context);
                                                   }
                                                   if (selected == "REALIZADO") {
                                                     if (imageSelect != null) {

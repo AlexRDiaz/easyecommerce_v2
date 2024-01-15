@@ -209,6 +209,9 @@ class _PinInputSellerState extends State<PinInputSeller> {
         btnOkOnPress: () {
           Navigator.pop(context);
         },
+        onDismissCallback: (type) {
+          Navigator.pop(context);
+        },
       ).show();
     } else {
       AwesomeDialog(
