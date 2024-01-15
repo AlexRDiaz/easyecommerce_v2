@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animated_icons/icons8.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/models/product_model.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
@@ -150,9 +151,8 @@ class _AddOrderProductState extends State<AddOrderProduct> {
     variantsListOriginal = features["variants"];
     //  print(variantsListOriginal);
 
-// Verifica si el producto es variable y hay variantes
     if (widget.product.isvariable == 1) {
-      Set<String> uniqueVariants = Set<String>();
+      Set<String> uniqueVariants = <String>{};
 
       for (var variantData in variantsListOriginal) {
         String sku = variantData["sku"];
@@ -180,12 +180,13 @@ class _AddOrderProductState extends State<AddOrderProduct> {
 
     double screenWidth =
         screenWidthDialog > 600 ? screenWidthDialog * 0.40 : screenWidthDialog;
+    print(screenWidth);
 
     return Scaffold(
       body: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
-        padding: const EdgeInsets.all(30),
+        padding: const EdgeInsets.all(15),
         child: Form(
           key: formKey,
           child: ListView(
@@ -360,7 +361,10 @@ class _AddOrderProductState extends State<AddOrderProduct> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(
-                          width: screenWidth * 0.25,
+                          // width: screenWidth * 0.25,
+                          width: screenWidthDialog > 600
+                              ? screenWidth * 0.25
+                              : screenWidth * 0.35,
                           child: Column(
                             children: [
                               Row(
@@ -385,7 +389,10 @@ class _AddOrderProductState extends State<AddOrderProduct> {
                         ),
                         const SizedBox(width: 20),
                         SizedBox(
-                          width: screenWidth * 0.15,
+                          // width: screenWidth * 0.15,
+                          width: screenWidthDialog > 600
+                              ? screenWidth * 0.15
+                              : screenWidth * 0.2,
                           child: Column(
                             children: [
                               ElevatedButton(
@@ -440,153 +447,291 @@ class _AddOrderProductState extends State<AddOrderProduct> {
                   // var
                   Visibility(
                     visible: widget.product.isvariable == 1,
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: screenWidth * 0.40,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Row(
+                    child: responsive(
+                        //web,
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: screenWidth * 0.40,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
+                                  const Text(
                                     "Variante:",
                                     style:
                                         TextStyle(fontWeight: FontWeight.bold),
                                   ),
-                                ],
-                              ),
-                              SizedBox(
-                                width: (screenWidth * 0.40) - 10,
-                                child: DropdownButtonFormField<String>(
-                                  isExpanded: true,
-                                  hint: Text(
-                                    'Seleccione Variante',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Theme.of(context).hintColor,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  items: variantsToSelect.map((item) {
-                                    var parts = item.split('-');
-                                    var name = parts[1];
-                                    return DropdownMenuItem(
-                                      value: item,
-                                      child: Text(
-                                        name,
-                                        style: const TextStyle(
+                                  SizedBox(
+                                    child: DropdownButtonFormField<String>(
+                                      isExpanded: true,
+                                      hint: Text(
+                                        'Seleccione Variante',
+                                        style: TextStyle(
                                           fontSize: 14,
+                                          color: Theme.of(context).hintColor,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                    );
-                                  }).toList(),
-                                  value: chosenVariant,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      chosenVariant = value as String;
-                                      var parts = value.split('-');
-                                      chosenSku = parts[0];
-                                    });
-                                  },
-                                  decoration: InputDecoration(
-                                    fillColor: Colors.white,
-                                    filled: true,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(5.0),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 20),
-                        SizedBox(
-                          width: screenWidth * 0.25,
-                          child: Column(
-                            children: [
-                              const Row(
-                                children: [
-                                  Text(
-                                    "Cantidad:",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  SizedBox(
-                                    width: 150,
-                                    child: SpinBox(
-                                      min: 1,
-                                      max: 100,
-                                      value: quantity,
+                                      items: variantsToSelect.map((item) {
+                                        var parts = item.split('-');
+                                        var name = parts[1];
+                                        return DropdownMenuItem(
+                                          value: item,
+                                          child: Text(
+                                            name,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                      value: chosenVariant,
                                       onChanged: (value) {
                                         setState(() {
-                                          quantity = value;
+                                          chosenVariant = value as String;
+                                          var parts = value.split('-');
+                                          chosenSku = parts[0];
                                         });
                                       },
+                                      decoration: InputDecoration(
+                                        fillColor: Colors.white,
+                                        filled: true,
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(5.0),
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(width: 10),
+                            SizedBox(
+                              child: Column(
+                                children: [
+                                  const Row(
+                                    children: [
+                                      Text(
+                                        "Cantidad:",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 150,
+                                        child: SpinBox(
+                                          min: 1,
+                                          max: 100,
+                                          value: quantity,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              quantity = value;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            SizedBox(
+                              child: Column(
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: widget.product.isvariable == 1 &&
+                                            chosenVariant == null
+                                        ? null
+                                        : () async {
+                                            bool existVariant = false;
+                                            for (var variant
+                                                in variantsDetailsList) {
+                                              if (variant['sku'].toString() ==
+                                                  chosenSku.toString()) {
+                                                existVariant = true;
+                                                break;
+                                              }
+                                            }
+                                            if (!existVariant) {
+                                              var variant =
+                                                  await generateVariantData(
+                                                      chosenSku);
+                                              setState(() {
+                                                variantsDetailsList
+                                                    .add(variant);
+                                              });
+                                              calculateTotalWPrice();
+                                              calculateTotalQuantity();
+                                              // print("variantsDetailsList");
+                                              // print(variantsDetailsList);
+                                            }
+                                          },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.green,
+                                    ),
+                                    child: const Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          "Añadir",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 20),
-                        SizedBox(
-                          width: screenWidth * 0.15,
-                          child: Column(
-                            children: [
-                              ElevatedButton(
-                                onPressed: widget.product.isvariable == 1 &&
-                                        chosenVariant == null
-                                    ? null
-                                    : () async {
-                                        bool existVariant = false;
-                                        for (var variant
-                                            in variantsDetailsList) {
-                                          if (variant['sku'].toString() ==
-                                              chosenSku.toString()) {
-                                            existVariant = true;
-                                            break;
-                                          }
-                                        }
-                                        if (!existVariant) {
-                                          var variant =
-                                              await generateVariantData(
-                                                  chosenSku);
-                                          setState(() {
-                                            variantsDetailsList.add(variant);
-                                          });
-                                          calculateTotalWPrice();
-                                          calculateTotalQuantity();
-                                          // print("variantsDetailsList");
-                                          // print(variantsDetailsList);
-                                        }
-                                      },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green,
-                                ),
-                                child: const Row(
-                                  mainAxisSize: MainAxisSize.min,
+                        //mobile,
+                        Column(
+                          children: [
+                            Row(
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      "Añadir",
+                                    const Text(
+                                      "Variante:",
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold),
                                     ),
+                                    SizedBox(
+                                      width: screenWidth * 0.65,
+                                      child: DropdownButtonFormField<String>(
+                                        isExpanded: true,
+                                        hint: Text(
+                                          'Seleccione Variante',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Theme.of(context).hintColor,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        items: variantsToSelect.map((item) {
+                                          var parts = item.split('-');
+                                          var name = parts[1];
+                                          return DropdownMenuItem(
+                                            value: item,
+                                            child: Text(
+                                              name,
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          );
+                                        }).toList(),
+                                        value: chosenVariant,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            chosenVariant = value as String;
+                                            var parts = value.split('-');
+                                            chosenSku = parts[0];
+                                          });
+                                        },
+                                        decoration: InputDecoration(
+                                          fillColor: Colors.white,
+                                          filled: true,
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(5.0),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 ),
-                              ),
-                            ],
-                          ),
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+                            Row(
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Cantidad:",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    SizedBox(
+                                      width: 150,
+                                      child: SpinBox(
+                                        min: 1,
+                                        max: 100,
+                                        value: quantity,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            quantity = value;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(width: 20),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: widget.product.isvariable ==
+                                                  1 &&
+                                              chosenVariant == null
+                                          ? null
+                                          : () async {
+                                              bool existVariant = false;
+                                              for (var variant
+                                                  in variantsDetailsList) {
+                                                if (variant['sku'].toString() ==
+                                                    chosenSku.toString()) {
+                                                  existVariant = true;
+                                                  break;
+                                                }
+                                              }
+                                              if (!existVariant) {
+                                                var variant =
+                                                    await generateVariantData(
+                                                        chosenSku);
+                                                setState(() {
+                                                  variantsDetailsList
+                                                      .add(variant);
+                                                });
+                                                calculateTotalWPrice();
+                                                calculateTotalQuantity();
+                                                // print("variantsDetailsList");
+                                                // print(variantsDetailsList);
+                                              }
+                                            },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.green,
+                                      ),
+                                      child: const Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            "Añadir",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              ],
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                        context),
                   ),
                   //
                   const SizedBox(height: 10),
@@ -594,8 +739,12 @@ class _AddOrderProductState extends State<AddOrderProduct> {
                     visible: true,
                     child: Row(
                       children: [
-                        SizedBox(
-                          width: screenWidth * 0.80,
+                        Expanded(
+                          // SizedBox(
+                          //   // width: screenWidth * 0.80,
+                          //   width: screenWidthDialog > 600
+                          //       ? screenWidth * 0.90
+                          //       : screenWidth * 0.60,
                           child: Wrap(
                             spacing: 8.0,
                             runSpacing: 8.0,
@@ -609,7 +758,16 @@ class _AddOrderProductState extends State<AddOrderProduct> {
                                   " - Precio Bodega: ${widget.product.price.toString()}";
                               chipLabel += " - Total: \$${variant['price']}";
 
+                              if (screenWidthDialog < 600) {
+                                chipLabel = "${variant['variant_title']}";
+
+                                chipLabel += "; ${variant['quantity']}";
+                                // chipLabel +=
+                                //     " - Bodega: \$${widget.product.price.toString()}";
+                                chipLabel += " ;Total:\$${variant['price']}";
+                              }
                               return Chip(
+                                padding: EdgeInsets.all(0),
                                 label: Text(chipLabel),
                                 onDeleted: () {
                                   if (widget.product.isvariable == 1) {
@@ -641,7 +799,8 @@ class _AddOrderProductState extends State<AddOrderProduct> {
                   Row(
                     children: [
                       SizedBox(
-                        width: 100,
+                        // width: 100,
+                        width: screenWidthDialog > 600 ? 100 : 70,
                         child: TextFormField(
                           style: const TextStyle(fontWeight: FontWeight.bold),
                           controller: _precioTotalEnt,
@@ -662,7 +821,8 @@ class _AddOrderProductState extends State<AddOrderProduct> {
                       ),
                       const Text("  .  ", style: TextStyle(fontSize: 35)),
                       SizedBox(
-                        width: 100,
+                        // width: 100,
+                        width: screenWidthDialog > 600 ? 100 : 70,
                         child: TextFormField(
                           style: const TextStyle(fontWeight: FontWeight.bold),
                           controller: _precioTotalDec,
@@ -706,7 +866,8 @@ class _AddOrderProductState extends State<AddOrderProduct> {
                       ),
                       const SizedBox(width: 10),
                       SizedBox(
-                        width: 200,
+                        // width: 200,
+                        width: screenWidthDialog > 600 ? 200 : 150,
                         child: Text(
                           priceWarehouseTotal.toString(),
                         ),
@@ -722,7 +883,8 @@ class _AddOrderProductState extends State<AddOrderProduct> {
                       ),
                       const SizedBox(width: 10),
                       SizedBox(
-                        width: 200,
+                        // width: 200,
+                        width: screenWidthDialog > 600 ? 200 : 150,
                         child: Text(
                           '\$${costShippingSeller.toString()}',
                         ),
@@ -738,7 +900,8 @@ class _AddOrderProductState extends State<AddOrderProduct> {
                       ),
                       const SizedBox(width: 10),
                       SizedBox(
-                        width: 200,
+                        // width: 200,
+                        width: screenWidthDialog > 600 ? 200 : 150,
                         child: Text(
                           profit.toString(),
                         ),
