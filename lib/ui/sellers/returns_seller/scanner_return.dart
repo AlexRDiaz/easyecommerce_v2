@@ -35,7 +35,7 @@ class _ScannerReturnState extends State<ScannerReturn> {
               child: BarcodeKeyboardListener(
                 bufferDuration: Duration(milliseconds: 200),
                 onBarcodeScanned: (barcode) async {
-                  // barcode = "65099";
+                  // barcode = "115505";
 
                   if (!visible) return;
                   getLoadingModal(context, false);
@@ -51,23 +51,29 @@ class _ScannerReturnState extends State<ScannerReturn> {
 
                   if (userIdComercial == idComercialOrder) {
                     //
-                    var responseUpt = await Connections().updateOrderWithTime(
-                        barcode.toString(),
-                        "estado_devolucion:EN BODEGA PROVEEDOR",
-                        sharedPrefs!.getString("id"),
-                        "seller",
-                        "");
-
-                    if (responseUpt == 0) {
-                      statusUpt = true;
+                    if (responseOrder['status'] != "NO ENTREGADO" ||
+                        responseOrder['status'] != "NOVEDAD") {
                       setState(() {
                         _barcode =
                             "${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']}";
-
-                        message = "ORDEN PROCESADA EXITOSAMENTE";
+                        message =
+                            "Este pedido se encuentra en estado ${responseOrder['status']}, el status debe encontrarse en NOVEDAD o NO ENTREGADO";
                       });
                     } else {
-                      message = "OCURRIÓ UN ERROR EN EL PROCESO";
+                      var responseUpt = await Connections()
+                          .paymentOrderInWarehouseProvider(barcode.toString());
+
+                      if (responseUpt == 0) {
+                        statusUpt = true;
+                        setState(() {
+                          _barcode =
+                              "${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']}";
+
+                          message = "ORDEN PROCESADA EXITOSAMENTE";
+                        });
+                      } else {
+                        message = "OCURRIÓ UN ERROR EN EL PROCESO";
+                      }
                     }
                   } else {
                     setState(() {

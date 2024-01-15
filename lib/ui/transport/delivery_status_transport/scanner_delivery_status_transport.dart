@@ -35,6 +35,7 @@ class _ScannerDeliveryStatusTransportState
               child: BarcodeKeyboardListener(
                 bufferDuration: Duration(milliseconds: 200),
                 onBarcodeScanned: (barcode) async {
+                  // barcode = '167448';
                   if (!visible) return;
                   var responseOrder = await Connections().getOrderByID(barcode);
                   setState(() {

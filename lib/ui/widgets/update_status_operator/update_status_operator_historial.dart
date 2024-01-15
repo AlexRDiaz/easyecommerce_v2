@@ -107,7 +107,9 @@ class _UpdateStatusOperatorHistorialState
     dataL = order;
 
     // _comentarioController.text = safeValue(dataL['comentario']);
-    _comentarioController.text = widget.comment!;
+    // _comentarioController.text = widget.comment!;
+    _comentarioController.text =
+        widget.comment == null ? "" : '${widget.comment}';
   }
 
   var idUser = sharedPrefs!.getString("id");

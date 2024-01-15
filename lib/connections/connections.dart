@@ -7492,4 +7492,23 @@ class Connections {
       return 2;
     }
   }
+
+  paymentOrderInWarehouseProvider(id) async {
+    try {
+      String? generatedBy = sharedPrefs!.getString("id");
+
+      var response = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/transacciones/payment-order-in-warehouse-provider/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"generated_by": generatedBy}));
+      if (response.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
 }
