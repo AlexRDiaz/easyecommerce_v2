@@ -180,7 +180,7 @@ class _AddOrderProductState extends State<AddOrderProduct> {
 
     double screenWidth =
         screenWidthDialog > 600 ? screenWidthDialog * 0.40 : screenWidthDialog;
-    print(screenWidth);
+    // print(screenWidth);
 
     return Scaffold(
       body: Container(
@@ -1011,8 +1011,18 @@ class _AddOrderProductState extends State<AddOrderProduct> {
                                     "",
                                   );
 
+                                  String messageVar = "";
+                                  if (widget.product.isvariable == 1) {
+                                    messageVar = " (";
+                                    for (var variant in variantsDetailsList) {
+                                      messageVar +=
+                                          "${variant['quantity']} de ${variant['variant_title']}; ";
+                                    }
+                                    messageVar += ") ";
+                                  }
+
                                   var _url = Uri.parse(
-                                    """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda ${comercial}, Me comunico con usted para confirmar su pedido de compra de: ${_producto.text}${_productoE.text.isNotEmpty ? ' y ${_productoE.text}' : ''}, por un valor total de: \$${priceTotal}. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                    """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda ${comercial}, Me comunico con usted para confirmar su pedido de compra de: ${_producto.text}${messageVar}${_productoE.text.isNotEmpty ? ' y ${_productoE.text}' : ''}, por un valor total de: \$${priceTotal}. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
                                   );
 
                                   if (!await launchUrl(_url)) {
