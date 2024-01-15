@@ -35,7 +35,7 @@ class _ScannerReturnState extends State<ScannerReturn> {
               child: BarcodeKeyboardListener(
                 bufferDuration: Duration(milliseconds: 200),
                 onBarcodeScanned: (barcode) async {
-                  // barcode = "115505";
+                  // barcode = '152813';
 
                   if (!visible) return;
                   getLoadingModal(context, false);
@@ -51,15 +51,8 @@ class _ScannerReturnState extends State<ScannerReturn> {
 
                   if (userIdComercial == idComercialOrder) {
                     //
-                    if (responseOrder['status'] != "NO ENTREGADO" ||
-                        responseOrder['status'] != "NOVEDAD") {
-                      setState(() {
-                        _barcode =
-                            "${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']}";
-                        message =
-                            "Este pedido se encuentra en estado ${responseOrder['status']}, el status debe encontrarse en NOVEDAD o NO ENTREGADO";
-                      });
-                    } else {
+                    if (responseOrder['status'].toString() == "NO ENTREGADO" ||
+                        responseOrder['status'].toString() == "NOVEDAD") {
                       var responseUpt = await Connections()
                           .paymentOrderInWarehouseProvider(barcode.toString());
 
@@ -74,6 +67,13 @@ class _ScannerReturnState extends State<ScannerReturn> {
                       } else {
                         message = "OCURRIÓ UN ERROR EN EL PROCESO";
                       }
+                    } else {
+                      setState(() {
+                        _barcode =
+                            "${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']}";
+                        message =
+                            "Este pedido se encuentra en estado ${responseOrder['status']}, el status debe encontrarse en NOVEDAD o NO ENTREGADO";
+                      });
                     }
                   } else {
                     setState(() {
