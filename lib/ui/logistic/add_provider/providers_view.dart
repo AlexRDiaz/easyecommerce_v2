@@ -387,7 +387,7 @@ class _ProviderViewState extends State<ProviderView> {
             ),
           );
         }).then((value) => setState(() {
-          //_futureProviderData = _loadProviders(); // Actualiza el Future
+          _getProviderModelData();
         }));
   }
 
@@ -433,7 +433,8 @@ class ProviderModelDataSource extends DataGridSource {
                   columnName: 'username', value: e.user!.username),
               DataGridCell<String>(columnName: 'email', value: e.user!.email),
               DataGridCell<String>(
-                  columnName: 'description', value: e.description),
+                  columnName: 'description',
+                  value: e.description == null ? '' : e.description),
               DataGridCell<ProviderModel>(
                 columnName: 'actions',
                 value: e,

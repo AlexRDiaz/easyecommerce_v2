@@ -1412,6 +1412,9 @@ class _AddProductState extends State<AddProduct> {
                                           // print("selectedDimensions act:");
                                           // print(selectedDimensions);
 
+                                          _sizeController.clear();
+                                          _colorController.clear();
+                                          _dimensionController.clear();
                                           _priceUnitController.text =
                                               _priceWarehouseController.text;
                                           _inventaryController.clear();

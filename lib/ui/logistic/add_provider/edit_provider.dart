@@ -53,10 +53,12 @@ class _EditProviderState extends StateMVC<EditProvider> {
   void initState() {
     _controller = ProviderController();
     _nameController.text = widget.provider.name!;
-    _phone1Controller.text = widget.provider.phone!;
+    _phone1Controller.text =
+        widget.provider.phone == null ? '' : widget.provider.phone!;
     _usernameController.text = widget.provider.user!.username!;
     _emailController.text = widget.provider.user!.email!;
-    _descriptionController.text = widget.provider.description!;
+    _descriptionController.text =
+        widget.provider.description == null ? '' : widget.provider.description!;
 
     super.initState();
     getAccess();

@@ -238,20 +238,22 @@ class _AddProviderState extends StateMVC<AddProvider> {
 
           ElevatedButton(
             onPressed: () async {
-              var getAccesofEspecificRol =
-                  await Connections().getAccessofSpecificRol("PROVEEDOR");
+              if (_formKey.currentState!.validate()) {
+                var getAccesofEspecificRol =
+                    await Connections().getAccessofSpecificRol("PROVEEDOR");
 
-              _controller.addProvider(ProviderModel(
-                  name: _nameController.text,
-                  phone: _phone1Controller.text,
-                  description: _descriptionController.text,
-                  user: UserModel(
-                    username: _usernameController.text,
-                    email: _emailController.text,
-                    permisos: getAccesofEspecificRol,
-                  )));
+                _controller.addProvider(ProviderModel(
+                    name: _nameController.text,
+                    phone: _phone1Controller.text,
+                    description: _descriptionController.text,
+                    user: UserModel(
+                      username: _usernameController.text,
+                      email: _emailController.text,
+                      permisos: getAccesofEspecificRol,
+                    )));
 
-              Navigator.pop(context);
+                Navigator.pop(context);
+              }
             },
             style: ElevatedButton.styleFrom(
               foregroundColor: Colors.white,

@@ -69,7 +69,7 @@ class _ApproveWarehouseState extends State<ApproveWarehouse> {
               ],
             ),
             const SizedBox(height: 10),
-            Row(
+            const Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
@@ -188,15 +188,6 @@ class _ApproveWarehouseState extends State<ApproveWarehouse> {
                                   .customerphoneNumber
                                   .toString()),
                             ),
-                            // DataCell(warehouses[index].approved == 1
-                            //     ? const Icon(Icons.check_circle_rounded,
-                            //         color: Colors.green)
-                            //     : warehouses[index].approved == 2
-                            //         ? const Icon(Icons.hourglass_bottom_sharp,
-                            //             color: Colors.indigo)
-                            //         : const Icon(Icons.cancel_rounded,
-                            //             color: Colors.red)),
-                            // add supendido
                             DataCell(
                               Text(
                                 warehouses[index].approved == 1

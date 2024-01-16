@@ -111,13 +111,14 @@ class _ApproveProductsState extends State<ApproveProducts> {
               children: [
                 Text(
                   widget.provider.name.toString(),
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
             ),
-            Row(
+            const SizedBox(height: 10),
+            const Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
@@ -128,6 +129,7 @@ class _ApproveProductsState extends State<ApproveProducts> {
                 ),
               ],
             ),
+            const SizedBox(height: 5),
             Row(
               children: [
                 SizedBox(
@@ -424,63 +426,6 @@ class _ApproveProductsState extends State<ApproveProducts> {
                                   //
                                 },
                               ),
-                              /*
-                              ElevatedButton(
-                                onPressed: () async {
-                                  //
-                                  _productController.upate(
-                                      int.parse(
-                                          products[index].productId.toString()),
-                                      {
-                                        "approved":
-                                            products[index].approved != 1
-                                                ? 1
-                                                : 0
-                                      });
-                                  Navigator.pop(context);
-
-                                  return showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return Dialog(
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                                0.0), // Establece el radio del borde a 0
-                                          ),
-                                          child: Container(
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.95,
-                                            child: LayoutApprovePage(
-                                              provider: widget.provider,
-                                              currentV: "Productos",
-                                            ),
-                                          ),
-                                        );
-                                      }).then((value) {}); //
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: products[index].approved != 1
-                                      ? Colors.green
-                                      : Colors.red[400],
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      products[index].approved != 1
-                                          ? "Aprobar"
-                                          : "Rechazar",
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            */
                             ),
                           ],
                         ),
