@@ -2,16 +2,13 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
-import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
+
+import 'package:frontend/helpers/server.dart';
 import 'package:frontend/ui/sellers/my_seller_account/controllers/controllers.dart';
 import 'package:frontend/ui/sellers/my_seller_account/edit_autome.dart';
-import 'package:frontend/ui/widgets/forms/input_row.dart';
 import 'package:frontend/ui/widgets/loading.dart';
-import 'package:get/route_manager.dart';
-import 'package:frontend/helpers/server.dart';
-import 'package:http/http.dart';
+import 'package:get/get.dart';
 
 class MySellerAccount extends StatefulWidget {
   const MySellerAccount({super.key});
@@ -32,6 +29,7 @@ class _MySellerAccountState extends State<MySellerAccount> {
   String referCost = "";
   var codigo = "";
   List<String> referers = [];
+
   @override
   void initState() {
     super.initState();
@@ -53,13 +51,13 @@ class _MySellerAccountState extends State<MySellerAccount> {
       loading = true;
     });
     _controllers = MySellerAccountControllers(
-        nombreComercial: '',
-        numeroTelefono: '',
-        telefonoDos: '',
-        usuario: '',
-        fechaAlta: '',
-        correo: '');
-    // var response = await Connections().getPersonalInfoAccount();
+      nombreComercial: '',
+      numeroTelefono: '',
+      telefonoDos: '',
+      usuario: '',
+      fechaAlta: '',
+      correo: '',
+    );
     var responseL = await Connections().getPersonalInfoAccountLaravel();
     var response = responseL['user'];
     referCost = response['vendedores'][0]['referer_cost'] ?? "";
@@ -86,18 +84,19 @@ class _MySellerAccountState extends State<MySellerAccount> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        margin: EdgeInsets.all(22),
+      appBar: AppBar(
+        title: Text('Perfil de Usuario'),
+      ),
+      backgroundColor: Colors.grey[200],
+      body: Padding(
+        padding: EdgeInsets.all(17),
         child: loading == true
             ? Container()
-            : Container(
-                color: Colors.grey[200],
+            : Center(
                 child: SingleChildScrollView(
-                  child: SizedBox(
-                    width: 500,
+                  child: Container(
+                    padding: EdgeInsets.all(20),
+                    width: 1200,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -110,127 +109,101 @@ class _MySellerAccountState extends State<MySellerAccount> {
                             Navigator.of(context)
                                 .pushReplacementNamed('/layout/sellers');
                           },
-                          icon: Icon(Icons.home), // Icono de Home
-                          iconSize: 30, // Tamaño del icono
+                          icon: Icon(Icons.home),
+                          iconSize: 30,
                         ),
-                        InputRow(
-                            controller: _controllers.nombreComercialController,
-                            title: 'Nombre Comercial'),
-                        SizedBox(
-                          height: 30,
+                        // ... (otros widgets)
+                        ProfileHeader(),
+                        // Sección 1
+                        _buildSection(
+                          'Información Personal',
+                          [
+                            _buildRow(
+                                'Nombre Comercial',
+                                _controllers.nombreComercialController.text,
+                                "El nombre de como se va a llamar tu tienda"),
+                            Divider(),
+                            _buildRow(
+                                'Correo',
+                                _controllers.correoController.text,
+                                "El email es necesario para poder recibir notificaciones de easyecommerce"),
+                            Divider(),
+                            _buildRow(
+                                'Usuario',
+                                _controllers.usuarioController.text,
+                                "Es el nombre del propietario de la cuenta de easyecommerce"),
+                            Divider(),
+                            _buildRow(
+                                'Número de Teléfono',
+                                _controllers.numeroTelefonoController.text,
+                                "El numero de telefono servirá para llamarte en caso de emergencias"),
+                            Divider(),
+                            _buildRow(
+                                'Teléfono Dos',
+                                _controllers.telefonoDosController.text,
+                                "El numero de telefono de respaldo en caso de no funcionar el segundo"),
+                            Divider(),
+                            _buildRow(
+                                'Fecha Alta',
+                                _controllers.fechaAltaController.text,
+                                "Cecha en que se validotu usuario dentro de la plataforma"),
+                          ],
                         ),
-                        _identifier(),
-                        SizedBox(
-                          height: 30,
+
+                        // Sección 2
+                        _buildSection(
+                          'Identificación y Referencia',
+                          [
+                            _buildRow(
+                                'Identificador',
+                                '${serverUrlByShopify}/$idShopify',
+                                "Con este webhook podras conectar easyecommerce a tu tienda de shopify"),
+                            Divider(),
+                            _buildRow(
+                                'Link de Referencia',
+                                '$generalServeserverppweb/register/$idShopify',
+                                "Este link es para aplicar como referenciado, por cada referenciado recibiras algunas ventajas"),
+                            Divider(),
+                            _buildRow(
+                                'Comisión de Referenciado',
+                                '\$ $referCost',
+                                "esta es la comision que puedes conseguir como referenciador")
+                          ],
                         ),
-                        _referenced(),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        InputRow(
-                            controller: _controllers.correoController,
-                            title: 'Correo'),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        InputRow(
-                            controller: _controllers.usuarioController,
-                            title: 'Usuario'),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        InputRow(
-                            controller: _controllers.numeroTelefonoController,
-                            title: 'Número de Teléfono'),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        InputRow(
-                            controller: _controllers.telefonoDosController,
-                            title: 'Teléfono Dos'),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        Text(
-                          "Fecha Alta: ${_controllers.fechaAltaController.text.toString()}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 17),
-                        ),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        Text(
-                          "ESTADO: ${state.toString()}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 17),
-                        ),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        Text(
-                          "Costo Entrega: $costoEntrega",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 17),
-                        ),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        Text(
-                          "Costo Devolución: $costoDevolucion",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 17),
-                        ),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        state != "NO VALIDADO" ? Container() : _validate(),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        SizedBox(
-                            width: 500,
-                            child: ElevatedButton(
-                              child: Text(
-                                "Guardar",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w800,
+
+                        // Sección 3
+                        _buildSection(
+                          'Costos y Validación',
+                          [
+                            _buildRow(
+                                'Costo Entrega',
+                                'Costo Entrega: $costoEntrega',
+                                "Este costo se te cobrará en cada pedido de easyecommerce"),
+                            Divider(),
+                            _buildRow(
+                                'Costo Devolución',
+                                'Costo Devolución: $costoDevolucion',
+                                "este es el costo de penalizacion por devolucion de un pedido"),
+                            Divider(),
+                            _buildRow('Validar', _validate(),
+                                "usa este boton para validar tu cuenta y poder usar todas las funcionalidades de la app"),
+                            Divider(),
+                            _buildRow(
+                                'Autome',
+                                ElevatedButton(
+                                  onPressed: () => openConfigAutome(),
+                                  child: Text(
+                                    'Configurar autome',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              onPressed: () async {
-                                getLoadingModal(context, false);
-                                var response = await Connections()
-                                    .updateUserLaravel(
-                                        _controllers.usuarioController.text,
-                                        _controllers.correoController.text,
-                                        "");
-                                var responseMaster = await Connections()
-                                    .updateSellerGeneralInternalAccountLaravel(
-                                        _controllers
-                                            .nombreComercialController.text,
-                                        _controllers
-                                            .numeroTelefonoController.text,
-                                        _controllers.telefonoDosController.text,
-                                        data['vendedores'][0]['id'].toString());
-                                await initControllers();
-                                Navigator.pop(context);
-                              },
-                            )),
-                        SizedBox(
-                          height: 30,
+                                "Configura tu cuenta con chatby de autome"),
+                          ],
                         ),
-                        ElevatedButton(
-                          onPressed: () => openConfigAutome(),
-                          child: Text(
-                            "Configurar autome",
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        )
                       ],
                     ),
                   ),
@@ -308,7 +281,7 @@ class _MySellerAccountState extends State<MySellerAccount> {
                     desc: 'Incorrecto',
                     btnCancel: Container(),
                     btnOkText: "Aceptar",
-                    btnOkColor: colors.colorGreen,
+                    btnOkColor: Colors.green,
                     btnCancelOnPress: () {},
                     btnOkOnPress: () {},
                   ).show();
@@ -510,6 +483,111 @@ class _MySellerAccountState extends State<MySellerAccount> {
           ),
         ],
       ),
+    );
+  }
+
+  // Métodos auxiliares
+  Widget _buildSection(String title, List<Widget> rows) {
+    return Container(
+      padding: EdgeInsets.all(20),
+      margin: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5), // Color de la sombra
+            spreadRadius: 5, // Cuánto se extiende la sombra
+            blurRadius: 7, // Qué tan difuminada está la sombra
+            offset:
+                Offset(0, 3), // La posición de la sombra (horizontal, vertical)
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                margin: EdgeInsets.all(10),
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Divider(),
+          ...rows
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRow(String title, dynamic content, description) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+            width: 300,
+            padding: EdgeInsets.only(left: 30),
+            child: Text(
+              title,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+          ),
+          content is Widget
+              ? Container(width: 300, child: content)
+              : Container(
+                  width: 300,
+                  alignment: Alignment.bottomLeft,
+                  child: Text(
+                    content.toString(),
+                  ),
+                ),
+          Container(
+            width: 300,
+            child: Text(
+              description,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ... (resto del código)
+}
+
+class ProfileHeader extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        CircleAvatar(
+          radius: 50,
+          backgroundImage: AssetImage(
+              'assets/profile_picture.jpg'), // Reemplaza con la ruta de tu imagen
+        ),
+        SizedBox(height: 8),
+        Text(
+          'John Doe',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        Text(
+          'Software Developer',
+          style: TextStyle(fontSize: 18, color: Colors.grey),
+        ),
+      ],
     );
   }
 }
