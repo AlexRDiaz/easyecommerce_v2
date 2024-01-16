@@ -205,7 +205,7 @@ class _MyOrdersPRVTransportState extends State<MyOrdersPRVTransport> {
                       },
                     ),
                     DataColumn2(
-                      label: Text('Nombre Cliente'),
+                      label: Text('Nombre-Cliente'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
                         sortFunc("NombreShipping");
