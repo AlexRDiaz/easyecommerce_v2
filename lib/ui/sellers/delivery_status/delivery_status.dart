@@ -106,7 +106,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     {
       'id_comercial':
           sharedPrefs!.getString("idComercialMasterSeller").toString()
-    }
+    },
+    {'estado_interno': "CONFIRMADO"},
+    {'estado_logistico': "ENVIADO"}
   ];
 
   List arrayFiltersNotEq = [
