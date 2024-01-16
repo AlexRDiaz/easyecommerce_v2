@@ -7485,10 +7485,10 @@ class Connections {
       filtersAndAll.addAll(defaultAnd);
 
       print(json.encode({
-            "start": dateStart,
-            "end": dateEnd,
-            "and": filtersAndAll,
-          }));
+        "start": dateStart,
+        "end": dateEnd,
+        "and": filtersAndAll,
+      }));
 
       var request = await http.post(
           Uri.parse(
@@ -7505,9 +7505,9 @@ class Connections {
       decodeData = json.decode(response);
 
       // if (request.statusCode != 200) {
-        // return 1;
+      // return 1;
       // } else {
-        return decodeData;
+      return decodeData;
       // }
     } catch (e) {
       return decodeData;
