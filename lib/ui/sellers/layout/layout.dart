@@ -25,6 +25,7 @@ import 'package:frontend/ui/sellers/unwanted_orders_sellers/unwanted_orders_sell
 import 'package:frontend/ui/sellers/update_password/update_password.dart';
 import 'package:frontend/ui/sellers/wallet_sellers/wallet_sellers.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LayoutSellersPage extends StatefulWidget {
   const LayoutSellersPage({Key? key}) : super(key: key);
@@ -34,7 +35,9 @@ class LayoutSellersPage extends StatefulWidget {
 }
 
 class _LayoutSellersPageState extends State<LayoutSellersPage> {
-  bool isSidebarOpen = true;
+  bool isSidebarOpen = sharedPrefs!.getBool("sidebarOpen") != null
+      ? sharedPrefs!.getBool("sidebarOpen") ?? false
+      : false;
   List<String> permissions = sharedPrefs!.getStringList("PERMISOS")!;
 
   final GlobalKey<ScaffoldState> _key = GlobalKey();
@@ -69,7 +72,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
           : DashBoardSellers()
     };
     if (sharedPrefs!.getString("index") != null) {
-      pages = List.from(pages)
+      pagesSeller = List.from(pagesSeller)
         ..[int.parse(sharedPrefs!.getString("index").toString())]['selected'] =
             true;
     }
@@ -87,53 +90,6 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
       },
     );
   }
-
-  List<Map<String, dynamic>> pages = [
-    {"page": "DashBoard", "view": DashBoardSellers(), "selected": false},
-    {"page": "Reporte de Ventas", "view": SalesReport(), "selected": false},
-    {
-      "page": "Agregar Usuarios Vendedores",
-      "view": AddSellerUser(),
-      "selected": false
-    },
-    {"page": "Ingreso de Pedidos", "view": OrderEntry(), "selected": false},
-    {
-      "page": "Estado Entregas Pedidos",
-      "view": DeliveryStatus(),
-      "selected": false
-    },
-    {
-      "page": "Pedidos No Deseados",
-      "view": UnwantedOrdersSellers(),
-      "selected": false
-    },
-    {"page": "Billetera", "view": WalletSellers(), "selected": false},
-    {"page": "Mi Billetera", "view": MyWallet(), "selected": false},
-    {"page": "Devoluciones", "view": ReturnsSeller(), "selected": false},
-    {
-      "page": "Retiros en Efectivo",
-      "view": CashWithdrawalsSellers(),
-      "selected": false
-    },
-    {
-      "page": "Conoce a tu Transporte",
-      "view": tansportStats(),
-      "selected": false
-    },
-    {"page": "Imprimir Guías", "view": PrintGuidesSeller(), "selected": false},
-    {
-      "page": "Guías Impresas",
-      "view": PrintedGuidesSeller(),
-      "selected": false
-    },
-    {
-      "page": "Guías Enviadas",
-      "view": TableOrdersGuidesSentSeller(),
-      "selected": false
-    },
-    {"page": "Mis integraciones", "view": MyIntegrations(), "selected": false},
-    {"page": "Catálogo de Productos", "view": Catalog(), "selected": false},
-  ];
 
   Widget _buildPhoneLayout() {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -153,6 +109,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
               onPressed: () {
                 setState(() {
                   isSidebarOpen = !isSidebarOpen;
+                  sharedPrefs!.setBool("sidebarOpen", isSidebarOpen);
                 });
               },
             ),
@@ -358,6 +315,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
               onPressed: () {
                 setState(() {
                   isSidebarOpen = !isSidebarOpen;
+                  sharedPrefs!.setBool("sidebarOpen", isSidebarOpen);
                 });
               },
             ),
@@ -429,6 +387,11 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                               'Ingreso de pedidos',
                               'Ingreso de Pedidos',
                               Icon(Icons.shopping_cart, color: colorlabels)),
+                          _buildMenuItem(
+                              'DashBoard',
+                              'DashBoard',
+                              Icon(Icons.dashboard_customize,
+                                  color: colorlabels)),
                           _buildMenuItem(
                               'Estado de entregas',
                               'Estado Entregas Pedidos',
@@ -529,6 +492,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
     final theme = Theme.of(context);
 
     return ExpansionTile(
+      initiallyExpanded: true,
       title: Row(
         children: [
           icon,
@@ -546,13 +510,15 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
   }
 
   Widget _buildMenuItem(String label, String title, Icon icon) {
-    pages = pages;
+    pagesSeller = pagesSeller;
     final theme = Theme.of(context);
     var betweenSelected =
-        pages.indexWhere((element) => element['selected'] == true);
+        pagesSeller.indexWhere((element) => element['selected'] == true);
 
-    var selectedView = pages.firstWhere((element) => element['page'] == title);
-    var selectedIndex = pages.indexWhere((element) => element['page'] == title);
+    var selectedView =
+        pagesSeller.firstWhere((element) => element['page'] == title);
+    var selectedIndex =
+        pagesSeller.indexWhere((element) => element['page'] == title);
     return permissions[0].contains(title)
         ? Container(
             color: selectedView["selected"]
@@ -581,17 +547,19 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                 setState(() {
                   currentView = selectedView;
                   if (betweenSelected != -1) {
-                    pages = List.from(pages)
+                    pagesSeller = List.from(pagesSeller)
                       ..[betweenSelected]['selected'] = false;
                   }
 
-                  pages = List.from(pages)..[selectedIndex]['selected'] = true;
+                  pagesSeller = List.from(pagesSeller)
+                    ..[selectedIndex]['selected'] = true;
                   String cv = currentView['view'].toString();
                   print(cv);
 
                   if (cv == "Catalog") {
                     print("if");
                     isSidebarOpen = false;
+                    sharedPrefs!.setBool("sidebarOpen", isSidebarOpen);
                   }
                 });
 
@@ -607,10 +575,12 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
     final theme = Theme.of(context);
 
     var betweenSelected =
-        pages.indexWhere((element) => element['selected'] == true);
+        pagesSeller.indexWhere((element) => element['selected'] == true);
 
-    var selectedView = pages.firstWhere((element) => element['page'] == page);
-    var selectedIndex = pages.indexWhere((element) => element['page'] == page);
+    var selectedView =
+        pagesSeller.firstWhere((element) => element['page'] == page);
+    var selectedIndex =
+        pagesSeller.indexWhere((element) => element['page'] == page);
 
     return Container(
       color: selectedView["selected"]
@@ -639,11 +609,14 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
           setState(() {
             currentView = selectedView;
             if (betweenSelected != -1) {
-              pages = List.from(pages)..[betweenSelected]['selected'] = false;
+              pagesSeller = List.from(pagesSeller)
+                ..[betweenSelected]['selected'] = false;
             }
 
-            pages = List.from(pages)..[selectedIndex]['selected'] = true;
+            pagesSeller = List.from(pagesSeller)
+              ..[selectedIndex]['selected'] = true;
             isSidebarOpen = false;
+            sharedPrefs!.setBool("sidebarOpen", isSidebarOpen);
           });
           Provider.of<NavigationProviderSellers>(context, listen: false)
               .changeIndex(selectedIndex, selectedView['page']);

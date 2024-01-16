@@ -602,7 +602,7 @@ class _OrderEntryState extends State<OrderEntry> {
                       ),
                     ],
                   ),
-                  dividerThickness: 1,
+                  // dividerThickness: 1,
                   dataRowColor: MaterialStateColor.resolveWith((states) {
                     if (states.contains(MaterialState.selected)) {
                       return Colors.blue
