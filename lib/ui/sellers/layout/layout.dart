@@ -354,7 +354,22 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
             bottom: 0,
             left: isSidebarOpen ? 0 : -260,
             child: Container(
-              color: colorDrawer,
+              padding: EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: colorDrawer,
+                borderRadius: BorderRadius.only(
+                    bottomRight: Radius.circular(15),
+                    topRight: Radius.circular(15)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey,
+                    spreadRadius: 5,
+                    blurRadius: 7,
+                    offset: Offset(0,
+                        3), // Cambia la posición de la sombra según tus preferencias
+                  ),
+                ],
+              ),
               width: 260,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

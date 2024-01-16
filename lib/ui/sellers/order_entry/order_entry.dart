@@ -2,6 +2,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:frontend/config/colors.dart';
+import 'package:frontend/config/commons.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
@@ -14,6 +15,7 @@ import 'package:frontend/ui/widgets/routes/routes.dart';
 import 'package:frontend/ui/widgets/routes/routes_v2.dart';
 import 'package:frontend/ui/widgets/sellers/add_order.dart';
 import 'package:frontend/ui/widgets/sellers/add_order_laravel.dart';
+import 'package:frontend/ui/widgets/sellers/custom_add_order.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/main.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -439,11 +441,11 @@ class _OrderEntryState extends State<OrderEntry> {
                             ),
                             ElevatedButton(
                                 onPressed: () async {
-                                  await showDialog(
-                                      context: (context),
-                                      builder: (context) {
-                                        return const AddOrderSellers();
-                                      });
+                                  openDialog(
+                                      context,
+                                      MediaQuery.of(context).size.width * 0.5,
+                                      CustomAddOrder());
+
                                   await loadData();
                                 },
                                 child: const Row(
@@ -602,7 +604,7 @@ class _OrderEntryState extends State<OrderEntry> {
                       ),
                     ],
                   ),
-                  // dividerThickness: 1,
+                  dividerThickness: 1,
                   dataRowColor: MaterialStateColor.resolveWith((states) {
                     if (states.contains(MaterialState.selected)) {
                       return Colors.blue

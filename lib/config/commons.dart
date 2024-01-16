@@ -1,6 +1,7 @@
 // ignore: unused_import
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:frontend/ui/provider/add_provider/sub_providers_view.dart';
 import 'package:frontend/ui/provider/guidesgroup/guides_sent/table_orders_guides_sent.dart';
 import 'package:frontend/ui/provider/guidesgroup/print_guides/print_guides.dart';
@@ -25,6 +26,7 @@ import 'package:frontend/ui/sellers/transport_stats/transport_stats.dart';
 import 'package:frontend/ui/sellers/unwanted_orders_sellers/unwanted_orders_sellers.dart';
 import 'package:frontend/ui/sellers/wallet_sellers/wallet_sellers.dart';
 import 'package:frontend/ui/sellers/delivery_status/delivery_status.dart';
+import 'package:frontend/ui/widgets/sellers/custom_add_order.dart';
 
 List<Map<String, dynamic>> pagesSeller = [
   {"page": "DashBoard", "view": DashBoardSellers(), "selected": false},
@@ -95,3 +97,21 @@ List<Map<String, dynamic>> pagesProvider = [
     "selected": false
   },
 ];
+Future<dynamic> openDialog(BuildContext context, width, content) {
+  return showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        backgroundColor: Colors.transparent, // Hace el fondo transparente
+        content: Container(
+          width: width,
+          decoration: BoxDecoration(
+            color: Colors.white, // Color del contenido del diálogo
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          child: content,
+        ),
+      );
+    },
+  ).then((value) {});
+}
