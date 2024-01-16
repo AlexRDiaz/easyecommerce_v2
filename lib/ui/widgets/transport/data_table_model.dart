@@ -22,24 +22,33 @@ class DataTableModelPrincipal extends StatelessWidget {
         color: Colors.white,
         borderRadius: const BorderRadius.all(Radius.circular(4)),
         border: Border.all(color: Colors.blueGrey),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Colors.grey,
-            offset: Offset(0, 2), // Desplazamiento en X e Y de la sombra
+            color: Colors.grey.withOpacity(0.3),
+            offset: const Offset(0, 2),
             blurRadius: 4, // Radio de desenfoque de la sombra
-            spreadRadius: 1, // Extensión de la sombra
+            spreadRadius: 2, // Extensión de la sombra
           ),
         ],
       ),
       headingRowHeight: 63,
       showBottomBorder: true,
+      dividerThickness: 1,
+      dataRowColor: MaterialStateColor.resolveWith((states) {
+        if (states.contains(MaterialState.selected)) {
+          return Colors.blue.withOpacity(0.5);
+        } else if (states.contains(MaterialState.hovered)) {
+          return const Color.fromARGB(255, 234, 241, 251);
+        }
+        return const Color.fromARGB(0, 173, 233, 231);
+      }),
       headingTextStyle:
           const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
       dataTextStyle: const TextStyle(
           fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black),
-      columnSpacing: 6,
-      horizontalMargin: 0,
-      minWidth: columnWidth,
+      columnSpacing: 12,
+      horizontalMargin: 12,
+      minWidth: 4500,
       columns: columns,
       rows: rows,
     );

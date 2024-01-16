@@ -357,9 +357,6 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
               padding: EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(
                 color: colorDrawer,
-                borderRadius: BorderRadius.only(
-                    bottomRight: Radius.circular(15),
-                    topRight: Radius.circular(15)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.grey,
