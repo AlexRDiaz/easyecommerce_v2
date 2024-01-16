@@ -54,7 +54,7 @@ class _MyOrdersPRVInfoState extends State<MyOrdersPRVInfo> {
           leading: Container(),
           centerTitle: true,
           title: Text(
-            "_Información Pedido_",
+            "Información Pedido",
             style: TextStyle(
                 fontWeight: FontWeight.bold, color: Colors.black, fontSize: 20),
           ),
