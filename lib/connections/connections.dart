@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'package:frontend/models/product_model.dart';
@@ -5820,6 +5821,38 @@ class Connections {
     }
   }
 
+  Future getOrdersForPrintGuidesLaravelD(List or, List defaultAnd, List and,
+      currentPage, sizePage, sortFiled, search, idWarehouse) async {
+    List filtersAndAll = [];
+    filtersAndAll.addAll(and);
+    filtersAndAll.addAll(defaultAnd);
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/pedidos-shopifies-prtgdD"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "or": or,
+            "and": filtersAndAll,
+            "page_size": sizePage,
+            "page_number": currentPage,
+            "search": search,
+            "sort": sortFiled,
+            "not": [],
+            "idw": idWarehouse
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
   // transportadora- comprobante New
   // http://localhost:8000/api/shippingcost/
   Future createTraspShippingCost(
@@ -7461,10 +7494,10 @@ class Connections {
       filtersAndAll.addAll(defaultAnd);
 
       print(json.encode({
-            "start": dateStart,
-            "end": dateEnd,
-            "and": filtersAndAll,
-          }));
+        "start": dateStart,
+        "end": dateEnd,
+        "and": filtersAndAll,
+      }));
 
       var request = await http.post(
           Uri.parse(
@@ -7481,12 +7514,60 @@ class Connections {
       decodeData = json.decode(response);
 
       // if (request.statusCode != 200) {
-        // return 1;
+      // return 1;
       // } else {
-        return decodeData;
+      return decodeData;
       // }
     } catch (e) {
       return decodeData;
+    }
+  }
+
+  getApprovedWarehouses() async {
+    String idTransport = sharedPrefs!.getString("idTransportadora").toString();
+    try {
+      var request =
+          await http.post(Uri.parse("$serverLaravel/api/warehouses/approved"),
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: json.encode({"idTransportadora": idTransport}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return decodeData['warehouses'];
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  getCountNotificationsWarehousesWithdrawals(
+      StreamController<List<Map<String, dynamic>>>
+          notificationsController) async {
+    String idTransport = sharedPrefs!.getString("idTransportadora").toString();
+    try {
+      var request =
+          await http.post(Uri.parse("$serverLaravel/api/values_not_test"),
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: json.encode({"idTransportadora": idTransport}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        List<Map<String, dynamic>> notificationsList =
+            List<Map<String, dynamic>>.from(
+                decodeData['ordersCountByWarehouse']);
+        notificationsController.add(notificationsList);
+        return notificationsList;
+      }
+    } catch (e) {
+      return 2;
     }
   }
 }

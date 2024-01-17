@@ -1078,6 +1078,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                   Expanded(
                       child: TransportProDeliveryHistoryDetails(
                     id: id,
+                    data: data,
                   ))
                 ],
               ),

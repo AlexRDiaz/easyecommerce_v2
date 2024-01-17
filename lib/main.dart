@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:frontend/middlewares/navigation_middlewares.dart';
+import 'package:frontend/models/pedido_shopify_model.dart';
 import 'package:frontend/providers/filters_orders/filters_orders.dart';
 import 'package:frontend/providers/logistic/navigation_provider.dart';
 import 'package:frontend/providers/operator/navigation_provider.dart';
@@ -21,15 +24,22 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_strategy/url_strategy.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:frontend/connections/connections.dart';
 
 SharedPreferences? sharedPrefs;
-
+NotificationManager? notificationManager;
 void main() async {
+  await initializeDateFormatting('es');
   WidgetsFlutterBinding.ensureInitialized();
   sharedPrefs = await SharedPreferences.getInstance();
   setPathUrlStrategy();
+
+  notificationManager = NotificationManager();
+
   runApp(MultiProvider(
     providers: [
+      Provider<NotificationManager>.value(value: notificationManager!),
       ListenableProvider<NavigationProviderLogistic>(
         create: (_) => NavigationProviderLogistic(),
       ),
@@ -73,6 +83,12 @@ void main() async {
               )),
     ),
   ));
+  // Dispose of NotificationManager when the app is closed
+
+  // // Llamado antes de que la aplicación se cierre
+  // WidgetsBinding.instance?.addPostFrameCallback((_) {
+  //   notificationManager.dispose();
+  // });
 }
 
 class MyCustomScrollBehavior extends MaterialScrollBehavior {
@@ -82,4 +98,58 @@ class MyCustomScrollBehavior extends MaterialScrollBehavior {
         PointerDeviceKind.touch,
         PointerDeviceKind.mouse,
       };
+}
+
+// class NotificationManager {
+//   StreamController<List<Map<String, dynamic>>>  _notificationsController =
+//       StreamController<List<Map<String, dynamic>>>();
+
+//   Stream<List<Map<String, dynamic>>> get notificationsStream =>
+//       _notificationsController.stream;
+
+//   NotificationManager(
+//       [StreamController<List<Map<String, dynamic>>>? controller]) {
+//     if (controller != null) {
+//       _notificationsController.addStream(controller.stream);
+//     } else {
+//       _loadNotifications(); // Carga inicial de notificaciones
+//       Timer.periodic(const Duration(minutes: 1), (Timer t) {
+//         _loadNotifications(); // Actualización periódica
+//       });
+//     }
+//   }
+
+  class NotificationManager {
+  // Usa StreamController.broadcast para permitir múltiples suscriptores
+  StreamController<List<Map<String, dynamic>>> _notificationsController =
+      StreamController<List<Map<String, dynamic>>>.broadcast();
+
+  Stream<List<Map<String, dynamic>>> get notificationsStream =>
+      _notificationsController.stream;
+
+  NotificationManager(
+      [StreamController<List<Map<String, dynamic>>>? controller]) {
+    if (controller != null) {
+      _notificationsController.addStream(controller.stream);
+    } else {
+      _loadNotifications(); // Carga inicial de notificaciones
+      Timer.periodic(const Duration(minutes: 1), (Timer t) {
+        _loadNotifications(); // Actualización periódica
+      });
+    }
+  }
+
+  Future<void> _loadNotifications() async {
+    try {
+      var res = await Connections()
+          .getCountNotificationsWarehousesWithdrawals(_notificationsController);
+      // print("akmain> $res");
+    } catch (e) {
+      print("Error loading notifications: $e");
+    }
+  }
+
+  void dispose() {
+    _notificationsController.close();
+  }
 }
