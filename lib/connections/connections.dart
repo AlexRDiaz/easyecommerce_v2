@@ -7454,6 +7454,7 @@ class Connections {
     List and,
     List defaultAnd,
   ) async {
+    var decodeData = null;
     try {
       List filtersAndAll = [];
       filtersAndAll.addAll(and);
@@ -7472,24 +7473,20 @@ class Connections {
             'Content-Type': 'application/json',
           },
           body: json.encode({
-            "start": "1/12/2023",
-            "end": "11/01/2024",
-            "and": [
-              {"equals/transportadora.transportadora_id": 19},
-              {"/estado_interno": "CONFIRMADO"},
-              {"/estado_logistico": "ENVIADO"}
-            ]
+            "start": dateStart,
+            "end": dateEnd,
+            "and": filtersAndAll,
           }));
       var response = await request.body;
-      var decodeData = json.decode(response);
+      decodeData = json.decode(response);
 
-      if (request.statusCode != 200) {
-        return 1;
-      } else {
-        return decodeData;
-      }
+      // if (request.statusCode != 200) {
+      // return 1;
+      // } else {
+      return decodeData;
+      // }
     } catch (e) {
-      return 2;
+      return decodeData;
     }
   }
 

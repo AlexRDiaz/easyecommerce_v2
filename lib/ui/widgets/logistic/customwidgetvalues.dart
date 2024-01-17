@@ -30,7 +30,7 @@ class MyCustomWidget extends StatelessWidget {
               ? [
                   CustomContainer(
                     value: value1,
-                    labelText: 'Costo Transporte',
+                    labelText: 'Costo Transporte!',
                     type: "1",
                   ),
                   SizedBox(width: 8.0),
@@ -52,7 +52,7 @@ class MyCustomWidget extends StatelessWidget {
                       SizedBox(width: 8.0),
                       CustomContainer(
                         value: value2,
-                        labelText: 'Costo Entrega',
+                        labelText: 'Costo Entrega!',
                         type: "1",
                       ),
                       SizedBox(width: 8.0),
@@ -76,7 +76,7 @@ class MyCustomWidget extends StatelessWidget {
                       SizedBox(width: 8.0),
                       CustomContainer(
                         value: novedad!,
-                        labelText: 'Novedad',
+                        labelText: 'Devoluciones',
                         type: "2",
                       ),
                     ]
@@ -90,7 +90,6 @@ class MyCustomWidget extends StatelessWidget {
                       )
                     ],
         ),
-      
       ]),
     );
   }
@@ -108,103 +107,115 @@ class CustomContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return type == "1"
         ? responsive(
-          Container(
-            // Estilo del contenedor según tus necesidades
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(5.0),
-              border: Border.all(width: 1, color: getColor(labelText)!),
-            ),
-            margin: EdgeInsets.all(8.0),
-            padding: EdgeInsets.all(16.0),
-            child:
-                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Text(
-                "\$ " + value,
-                style: TextStyle(
-                  color: ColorsSystem().colorSelectMenu,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 26.0,
-                ),
+            Container(
+              // Estilo del contenedor según tus necesidades
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(5.0),
+                border: Border.all(width: 1, color: getColor(labelText)!),
               ),
-              const SizedBox(height: 1.0),
-              Text(labelText),
-            ]),
-          ),Container(
-            // Estilo del contenedor según tus necesidades
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(5.0),
-              border: Border.all(width: 1, color: Colors.grey),
+              margin: EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "\$ " + value,
+                      style: TextStyle(
+                        color: ColorsSystem().colorSelectMenu,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 26.0,
+                      ),
+                    ),
+                    const SizedBox(height: 1.0),
+                    Text(labelText),
+                  ]),
             ),
-            padding: EdgeInsets.all(2.0),
-            child:
-                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Text(
-                "\$ " + value,
-                style: TextStyle(
-                  color: ColorsSystem().colorSelectMenu,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20.0,
-                ),
+            Container(
+              // Estilo del contenedor según tus necesidades
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(5.0),
+                border: Border.all(width: 1, color: Colors.grey),
               ),
-              const SizedBox(height: 1.0),
-              Text(labelText, style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 10.0,
-                ),),
-            ]),
-          ),context)
+              padding: EdgeInsets.all(2.0),
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "\$ " + value,
+                      style: TextStyle(
+                        color: ColorsSystem().colorSelectMenu,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20.0,
+                      ),
+                    ),
+                    const SizedBox(height: 1.0),
+                    Text(
+                      labelText,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 10.0,
+                      ),
+                    ),
+                  ]),
+            ),
+            context)
         : responsive(
-          Container(
-            // Estilo del contenedor según tus necesidades
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(5.0),
-              border: Border.all(width: 1,color: getColor(labelText)!),
-            ),
-            margin: EdgeInsets.all(8.0),
-            padding: EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  value,
-                  style: TextStyle(
-                    color: ColorsSystem().colorSelectMenu,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 26.0,
+            Container(
+              // Estilo del contenedor según tus necesidades
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(5.0),
+                border: Border.all(width: 1, color: getColor(labelText)!),
+              ),
+              margin: EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    value,
+                    style: TextStyle(
+                      color: ColorsSystem().colorSelectMenu,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 26.0,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 1.0),
-                Text(labelText, style: TextStyle(color: getColor(labelText)))
-              ],
+                  const SizedBox(height: 1.0),
+                  Text(labelText, style: TextStyle(color: getColor(labelText)))
+                ],
+              ),
             ),
-          ),Container(
-            // Estilo del contenedor según tus necesidades
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(5.0),
-              border: Border.all(width: 1, color: Colors.grey),
-            ),
-            padding: EdgeInsets.all(2.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  value,
-                  style: TextStyle(
-                    color: ColorsSystem().colorSelectMenu,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20.0,
+            Container(
+              // Estilo del contenedor según tus necesidades
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(5.0),
+                border: Border.all(width: 1, color: Colors.grey),
+              ),
+              padding: EdgeInsets.all(2.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    value,
+                    style: TextStyle(
+                      color: ColorsSystem().colorSelectMenu,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20.0,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 1.0),
-                Text(labelText, style: TextStyle(color: getColor(labelText),   fontWeight: FontWeight.bold,
-                    fontSize: 10.0))
-              ],
+                  const SizedBox(height: 1.0),
+                  Text(labelText,
+                      style: TextStyle(
+                          color: getColor(labelText),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10.0))
+                ],
+              ),
             ),
-          ), context);
+            context);
   }
 }
 
@@ -215,7 +226,7 @@ Color? getColor(state) {
     case "Entregados":
       color = 0xFF66BB6A;
       break;
-    case "Novedad":
+    case "Devoluciones":
       color = 0xFFD6DC27;
       break;
     case "No Entregados":
