@@ -97,7 +97,7 @@ List<Map<String, dynamic>> pagesProvider = [
     "selected": false
   },
 ];
-Future<dynamic> openDialog(BuildContext context, width, content) {
+Future<dynamic> openDialog(BuildContext context, width, height, content) {
   return showDialog(
     context: context,
     builder: (context) {
@@ -105,6 +105,7 @@ Future<dynamic> openDialog(BuildContext context, width, content) {
         backgroundColor: Colors.transparent, // Hace el fondo transparente
         content: Container(
           width: width,
+          height: height,
           decoration: BoxDecoration(
             color: Colors.white, // Color del contenido del diálogo
             borderRadius: BorderRadius.circular(8.0),

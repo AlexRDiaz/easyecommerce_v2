@@ -42,10 +42,8 @@ class DataTableModelPrincipal extends StatelessWidget {
         }
         return const Color.fromARGB(0, 173, 233, 231);
       }),
-      headingTextStyle:
-          const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-      dataTextStyle: const TextStyle(
-          fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black),
+      headingTextStyle: Theme.of(context).textTheme.bodyMedium,
+      dataTextStyle: Theme.of(context).textTheme.bodySmall,
       columnSpacing: 12,
       horizontalMargin: 12,
       minWidth: 4500,

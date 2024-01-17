@@ -3,6 +3,7 @@ import 'package:frontend/config/colors.dart';
 
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/server.dart';
+import 'package:frontend/main.dart';
 // import 'package:frontend/helpers/navigators.dart';
 // import 'package:frontend/helpers/server.dart';
 import 'package:frontend/ui/operator/orders_operator/controllers/controllers.dart';
@@ -10,6 +11,7 @@ import 'package:frontend/ui/operator/orders_operator/info_novedades.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 // import 'package:frontend/ui/widgets/update_status_operator/update_status_operator.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DeliveryStatusSellerInfo extends StatefulWidget {
   final String id;
@@ -29,6 +31,10 @@ class _DeliveryStatusSellerInfo extends State<DeliveryStatusSellerInfo> {
   var data = {};
   bool loading = true;
   OrderInfoOperatorControllers _controllers = OrderInfoOperatorControllers();
+  final TextEditingController _statusController =
+      TextEditingController(text: "NOVEDAD RESUELTA");
+  final TextEditingController _comentarioController = TextEditingController();
+  var idUser = sharedPrefs!.getString("id");
 
   @override
   void didChangeDependencies() {
@@ -58,9 +64,149 @@ class _DeliveryStatusSellerInfo extends State<DeliveryStatusSellerInfo> {
     setState(() {});
   }
 
+  void _showResolveModal() {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return Container(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    const Expanded(
+                      child: Text('Status:',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      flex: 3,
+                      child: TextFormField(
+                        controller: _statusController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                        ),
+                        enabled: false,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20),
+                Row(
+                  children: [
+                    const Expanded(
+                      child: Text('Comentario:',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      flex: 3,
+                      child: TextFormField(
+                        controller: _comentarioController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(Icons.cancel),
+                      label: const Text('Cancelar'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                      ),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () async {
+                        if (data['operadore'] != null &&
+                            data['operadore'].isNotEmpty) {
+                          await Connections().updateOrderWithTime(
+                              data['id'].toString(),
+                              "status:${_statusController.text}",
+                              idUser,
+                              "",
+                              {"comentario": _comentarioController.text});
+
+                          await sendWhatsAppMessage(
+                              context, data, _comentarioController.text);
+                        } else {
+                          _showErrorSnackBar(context,
+                              "El pedido no tiene un Operador Asignado.");
+                        }
+
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+
+                        //      await widget.function();
+                      },
+                      icon: const Icon(Icons.check),
+                      label: const Text('Guardar'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
+  void _showErrorSnackBar(BuildContext context, String errorMessage) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          errorMessage,
+          style: TextStyle(color: Color.fromRGBO(7, 0, 0, 1)),
+        ),
+        backgroundColor: Color.fromARGB(255, 253, 101, 90),
+        duration: Duration(seconds: 4),
+      ),
+    );
+  }
+
+  Future<void> sendWhatsAppMessage(BuildContext context,
+      Map<dynamic, dynamic> orderData, String newComment) async {
+    String? phoneNumber = orderData['operadore']?.isNotEmpty == true
+        ? orderData['operadore'][0]['telefono']
+        : null;
+
+    if (phoneNumber != null && phoneNumber.isNotEmpty) {
+      var message =
+          "Buen Día, la guía con el código ${orderData['name_comercial']}-${orderData['numero_orden']} indica que ' $newComment ' .";
+      var whatsappUrl =
+          "https://api.whatsapp.com/send?phone=$phoneNumber&text=${Uri.encodeFull(message)}";
+
+      if (!await launchUrl(Uri.parse(whatsappUrl))) {
+        throw Exception('Could not launch $whatsappUrl');
+      }
+    } else {
+      _showErrorSnackBar(context, "El pedido no tiene un operador asignado.");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
+        floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
+        floatingActionButton: data['status'] != "NOVEDAD RESUELTA"
+            ? FloatingActionButton.extended(
+                onPressed: _showResolveModal,
+                label: const Text('Resolver Novedad'),
+                icon: const Icon(Icons.check_circle),
+              )
+            : null,
         backgroundColor: Colors.white,
         appBar: AppBar(
           backgroundColor: ColorsSystem().colorBlack,
