@@ -74,7 +74,7 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
       children: [
         Center(
           child: Container(
-              margin: EdgeInsets.only(bottom: 20),
+              margin: EdgeInsets.only(bottom: 20, top: 10),
               child: Text(
                 "DETALLES DE GUÍA",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -84,7 +84,7 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
 
         Container(
           height: height * 0.73,
-          padding: EdgeInsets.only(bottom: 100),
+          padding: EdgeInsets.only(bottom: 40),
           child: loading == true
               ? Container()
               : SingleChildScrollView(

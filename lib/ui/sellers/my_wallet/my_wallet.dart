@@ -1,5 +1,7 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:frontend/config/commons.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
@@ -7,6 +9,7 @@ import 'package:frontend/ui/sellers/my_wallet/controllers/my_wallet_controller.d
 import 'package:frontend/ui/widgets/transport/data_table_model.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class Transaction {
@@ -24,6 +27,9 @@ class MyWallet extends StatefulWidget {
 class _MyWalletState extends State<MyWallet> {
   MyWalletController walletController = MyWalletController();
   TextEditingController searchController = TextEditingController();
+  final _startDateController = TextEditingController();
+  final _endDateController = TextEditingController();
+
   String saldo = '0';
   List data = [];
   String start = "";
@@ -54,10 +60,11 @@ class _MyWalletState extends State<MyWallet> {
     });
 
     try {
-      var response = await Connections().getTransactionsBySeller();
+      var response =
+          await Connections().getTransactionsBySeller([], [], [], 1, 100, "");
 
       setState(() {
-        data = response;
+        data = response["data"];
       });
     } catch (e) {
       print(e);
@@ -84,140 +91,369 @@ class _MyWalletState extends State<MyWallet> {
 
   @override
   Widget build(BuildContext context) {
+    double heigth = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Saldo de Cuenta',
-              style: TextStyle(fontSize: 24),
-            ),
-            Text(
-              '\$${saldo}',
-              style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Transacciones Recientes',
-              style: TextStyle(fontSize: 24),
-            ),
-            Container(
-              width: double.infinity,
-              color: Colors.grey.withOpacity(0.3),
-              padding: EdgeInsets.all(10),
-              child: responsive(
-                  Row(
-                    children: [
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.3,
-                        child: _modelTextField(
-                            text: "Buscar", controller: searchController),
-                      ),
-
-                      SizedBox(width: 10),
-                      ElevatedButton(
-                        onPressed: () {
-                          _showDatePickerModal(context);
-                        },
-                        child: Text('Seleccionar fechas'),
-                      ),
-                      SizedBox(width: 10),
-                      Container(
-                        padding: const EdgeInsets.only(left: 15, right: 5),
-                        child: Text(
-                          "Registros: ${data.length}",
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, color: Colors.black),
-                        ),
-                      ),
-                      Spacer(),
-                      TextButton(
-                          onPressed: () => loadData(),
-                          child: Text("Actualizar")),
-
-                      //   Expanded(child: numberPaginator()),
-                    ],
-                  ),
-                  Container(),
-                  context),
-            ),
-
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: DataTableModelPrincipal(
-                    columnWidth: 1200,
-                    columns: getColumns(),
-                    rows: buildDataRows(data)),
+        child: Container(
+          padding: EdgeInsets.only(left: width * 0.01, right: width * 0.01),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.all(20),
+                child: Text(
+                  'Mi Billetera',
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                ),
               ),
-            ),
-            // Expanded(
-            //   child: ListView.builder(
-            //     itemCount: transactions.length,
-            //     itemBuilder: (ctx, index) {
-            //       final transaction = transactions[index];
-            //       return Card(
-            //         elevation: 3,
-            //         margin: EdgeInsets.all(10),
-            //         child: ListTile(
-            //           title: Text(transaction.title),
-            //           trailing: Text(
-            //             '\$${transaction.amount.toStringAsFixed(2)}',
-            //             style: TextStyle(
-            //               color: transaction.amount < 0
-            //                   ? Colors.red
-            //                   : Colors.green,
-            //             ),
-            //           ),
-            //         ),
-            //       );
-            //     },
-            //   ),
-            // ),
-          ],
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _leftWidget(width, heigth, context),
+                  Container(
+                    child: Column(
+                      children: [
+                        _searchBar(width, heigth, context),
+                        _dataTableTransactions(),
+                      ],
+                    ),
+                  ),
+                ],
+              )
+            ],
+          ),
         ),
       ),
     );
   }
 
-  void _showDatePickerModal(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Seleccionar Rango de Fechas'),
-          content: Container(
-            width: MediaQuery.of(context).size.width * 0.4,
-            child: SfDateRangePicker(
-              selectionMode: DateRangePickerSelectionMode.range,
-              onSelectionChanged: _onSelectionChanged,
+  Container _dataTableTransactions() {
+    return Container(
+      height: 700,
+      width: 1070,
+      child: Expanded(
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: DataTableModelPrincipal(
+              columnWidth: 400,
+              columns: getColumns(),
+              rows: buildDataRows(data)),
+        ),
+      ),
+    );
+  }
+
+  Container _searchBar(double width, double heigth, BuildContext context) {
+    return Container(
+      width: width * 0.55,
+      height: heigth * 0.075,
+      color: Colors.grey.withOpacity(0.3),
+      child: responsive(
+          Row(
+            children: [
+              Container(
+                width: MediaQuery.of(context).size.width * 0.2,
+                child: _modelTextField(
+                    text: "Buscar", controller: searchController),
+              ),
+
+              SizedBox(width: 10),
+
+              SizedBox(width: 10),
+              Container(
+                padding: const EdgeInsets.only(left: 15, right: 5),
+                child: Text(
+                  "Registros: ${data.length}",
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.black),
+                ),
+              ),
+              Spacer(),
+              TextButton(
+                  onPressed: () => loadData(), child: Text("Actualizar")),
+
+              //   Expanded(child: numberPaginator()),
+            ],
+          ),
+          Container(),
+          context),
+    );
+  }
+
+  Container _leftWidget(double width, double heigth, BuildContext context) {
+    return Container(
+      width: width * 0.2,
+      height: heigth * 0.8,
+      padding: EdgeInsets.all(10),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
+      child:
+          Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        Container(
+          decoration: BoxDecoration(
+              color: Colors.white, borderRadius: BorderRadius.circular(15)),
+          width: width * 0.2,
+          height: heigth * 0.2,
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.all(20),
+                child: Text(
+                  'Saldo de Cuenta',
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Text(
+                '\$${formatNumber(double.parse(saldo))}',
+                style: TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blueAccent),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.all(15),
+          decoration: BoxDecoration(
+              color: Colors.white, borderRadius: BorderRadius.circular(15)),
+          width: width * 0.2,
+          child: Column(
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    width: width * 0.2,
+                    padding: EdgeInsets.only(bottom: 10),
+                    child: FilledButton.tonalIcon(
+                      onPressed: () {
+                        _showDatePickerModal(context);
+                      },
+                      style: ButtonStyle(
+                        shape: MaterialStateProperty.all<OutlinedBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                                5), // Ajusta el valor según sea necesario
+                          ),
+                        ),
+                      ),
+                      label: Text('Seleccionar'),
+                      icon: Icon(Icons.calendar_month_outlined),
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.only(bottom: 10),
+                    width: width * 0.2,
+                    child: FilledButton.tonalIcon(
+                      style: ButtonStyle(
+                        shape: MaterialStateProperty.all<OutlinedBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                                5), // Ajusta el valor según sea necesario
+                          ),
+                        ),
+                      ),
+                      onPressed: () {
+                        _showDatePickerModal(context);
+                      },
+                      label: Text('Consultar'),
+                      icon: Icon(Icons.search),
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                width: 300,
+                child: Column(
+                  children: [
+                    _buildDateField("Fecha Inicio", _startDateController),
+                    SizedBox(height: 16),
+                    _buildDateField("Fecha Fin", _endDateController),
+                    SizedBox(height: 16),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        _optionButtons(width),
+      ]),
+    );
+  }
+
+  String formatNumber(double number) {
+    var formatter =
+        NumberFormat('###,###.##', 'es'); // 'es' para formato en español
+    return formatter.format(number);
+  }
+
+  Container _optionButtons(double width) {
+    return Container(
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+          color: Colors.white, borderRadius: BorderRadius.circular(15)),
+      width: width * 0.2,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+            width: 300,
+            child: FilledButton.tonalIcon(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                  (Set<MaterialState> states) {
+                    if (states.contains(MaterialState.pressed)) {
+                      // Color cuando el botón está presionado
+                      return Color.fromARGB(255, 235, 251, 64);
+                    }
+                    // Color cuando el botón está en su estado normal
+                    return Color.fromARGB(255, 209, 184, 146);
+                  },
+                ),
+                // Otros estilos pueden ir aquí
+              ),
+              //  backgroundColor: Color.fromARGB(255, 196, 134, 207),
+              onPressed: () {},
+              label: const Text(
+                'Consultar',
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+              ),
+              icon: const Icon(Icons.check_circle),
             ),
           ),
-          actions: <Widget>[
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cerrar'),
+          Container(
+            width: 300,
+            child: FilledButton.tonalIcon(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                  (Set<MaterialState> states) {
+                    if (states.contains(MaterialState.pressed)) {
+                      // Color cuando el botón está presionado
+                      return Color.fromARGB(255, 235, 251, 64);
+                    }
+                    // Color cuando el botón está en su estado normal
+                    return Color.fromARGB(255, 209, 184, 146);
+                  },
+                ),
+                // Otros estilos pueden ir aquí
+              ),
+              //  backgroundColor: Color.fromARGB(255, 196, 134, 207),
+
+              onPressed: () {},
+              label: const Text(
+                'Descargar reporte',
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+              ),
+              icon: const Icon(Icons.check_circle),
+            ),
+          ),
+          Container(
+            width: 300,
+            child: FilledButton.tonalIcon(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                  (Set<MaterialState> states) {
+                    if (states.contains(MaterialState.pressed)) {
+                      // Color cuando el botón está presionado
+                      return Color.fromARGB(255, 235, 251, 64);
+                    }
+                    // Color cuando el botón está en su estado normal
+                    return Color.fromARGB(255, 209, 184, 146);
+                  },
+                ),
+                // Otros estilos pueden ir aquí
+              ),
+              //  backgroundColor: Color.fromARGB(255, 196, 134, 207),
+              onPressed: () {},
+              label: const Text(
+                'Últimos registros',
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+              ),
+              icon: const Icon(Icons.check_circle),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future _showDatePickerModal(BuildContext context) {
+    return openDialog(
+        context,
+        400,
+        400,
+        SfDateRangePicker(
+          selectionMode: DateRangePickerSelectionMode.range,
+          onSelectionChanged: _onSelectionChanged,
+        ),
+        () {});
+  }
+
+  Widget _buildDateField(String label, TextEditingController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 120,
+              child: Text(
+                label + ":",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Expanded(
+              child: TextFormField(
+                controller: controller,
+                keyboardType: TextInputType.datetime,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: "2023-01-31",
+                  contentPadding: EdgeInsets.symmetric(
+                      vertical: 10, horizontal: 12), // Ajusta la altura aquí
+                ),
+                validator: (value) {
+                  // Puedes agregar validaciones adicionales según tus necesidades
+                  if (value == null || value.isEmpty) {
+                    return "Este campo no puede estar vacío";
+                  }
+                  // Aquí podrías validar el formato de la fecha
+                  return null;
+                },
+              ),
             ),
           ],
-        );
-      },
+        ),
+      ],
     );
   }
 
   void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
     if (args.value is PickerDateRange) {
       final PickerDateRange dateRange = args.value;
+
       print('Fecha de inicio: ${dateRange.startDate}');
       print('Fecha de fin: ${dateRange.endDate}');
-      start = dateRange.startDate.toString();
-      end = dateRange.endDate.toString();
-      if (dateRange.endDate != null) {
-        Navigator.of(context).pop();
-        filterData();
-      }
+      _startDateController.text = dateRange.startDate.toString();
+      _endDateController.text = dateRange.endDate.toString();
+
+      // start = dateRange.startDate.toString();
+      // end = dateRange.endDate.toString();
+      // if (dateRange.endDate != null) {
+      //   Navigator.of(context).pop();
+      //  // filterData();
+      // }
     }
   }
 
@@ -322,40 +558,41 @@ class _MyWalletState extends State<MyWallet> {
       // ),
       DataColumn2(
         label: Text('Tipo Transacción.'),
-        size: ColumnSize.S,
+        fixedWidth: 200,
         onSort: (columnIndex, ascending) {
           // sortFunc3("fecha_entrega", changevalue);
         },
       ),
       DataColumn2(
         label: Text('Monto'),
-        size: ColumnSize.S,
+        fixedWidth: 200,
         onSort: (columnIndex, ascending) {
           // sortFunc3("numero_orden", changevalue);
         },
       ),
       DataColumn2(
         label: Text('Valor Anterior'),
-        size: ColumnSize.S,
+        fixedWidth: 200,
         onSort: (columnIndex, ascending) {
           // sortFunc3("numero_orden", changevalue);
         },
       ),
       DataColumn2(
         label: Text('Valor Actual'),
-        size: ColumnSize.S,
+        fixedWidth: 200,
         onSort: (columnIndex, ascending) {
           // sortFunc3("Marca de Tiempo", changevalue);
         },
       ),
       DataColumn2(
         label: Text('Marca de Tiempo'),
-        size: ColumnSize.S,
+        fixedWidth: 200,
         onSort: (columnIndex, ascending) {
           // sortFunc3("Marca de Tiempo", changevalue);
         },
       ),
       DataColumn2(
+        fixedWidth: 200,
         label: Text('Id Origen'),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
@@ -363,6 +600,7 @@ class _MyWalletState extends State<MyWallet> {
         },
       ),
       DataColumn2(
+        fixedWidth: 200,
         label: Text('Codigo'),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
@@ -370,6 +608,7 @@ class _MyWalletState extends State<MyWallet> {
         },
       ),
       DataColumn2(
+        fixedWidth: 200,
         label:
             SelectFilterNoId('Origen', 'origen', origenController, listOrigen),
         size: ColumnSize.S,
@@ -378,6 +617,7 @@ class _MyWalletState extends State<MyWallet> {
         },
       ),
       DataColumn2(
+        fixedWidth: 200,
         label: Text('Id Vendedor'),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
@@ -385,6 +625,7 @@ class _MyWalletState extends State<MyWallet> {
         },
       ),
       DataColumn2(
+        fixedWidth: 600,
         label: Text('Comentario'),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {

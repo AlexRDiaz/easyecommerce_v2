@@ -107,7 +107,7 @@ Future<dynamic> openDialog(
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(20.0))),
           contentPadding: EdgeInsets.only(top: 10.0),
-          content: Container(width: width, child: content),
+          content: Container(width: width, height: height, child: content),
         );
       }).then((value) {
     onDispose;
