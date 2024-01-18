@@ -505,6 +505,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
 
     return ExpansionTile(
       initiallyExpanded: true,
+      tilePadding: EdgeInsets.symmetric(horizontal: 20),
       title: Row(
         children: [
           icon,
