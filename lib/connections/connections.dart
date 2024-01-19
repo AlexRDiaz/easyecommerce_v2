@@ -6331,12 +6331,31 @@ class Connections {
     return decodeData['saldo'];
   }
 
-  getTransactionsBySeller() async {
-    var request = await http.get(
-      Uri.parse(
-          "$serverLaravel/api/transacciones/bySeller/${sharedPrefs!.getString("idComercialMasterSeller").toString()}"),
-      headers: {'Content-Type': 'application/json'},
-    );
+  getTransactionsBySeller(
+      List populate, List and, List or, currentPage, sizePage, search) async {
+    var request = await http.post(
+        Uri.parse("$serverLaravel/api/transacciones/get-transactions"),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          "start": "2023-01-01 11:36:30",
+          "end": "2024-01-31 11:36:30",
+          "page_size": 500,
+          "page_number": 1,
+          "user_id": 188,
+          "or": [
+            //  "id_origen"
+          ],
+          "not": [
+            /*
+        {
+            "status": "PEDIDO PROGRAMADO"
+        }
+        */
+          ],
+          "sort": "id:DESC",
+          "and": [],
+          "search": ""
+        }));
     var response = await request.body;
     var decodeData = json.decode(response);
 

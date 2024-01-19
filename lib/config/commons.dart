@@ -97,21 +97,46 @@ List<Map<String, dynamic>> pagesProvider = [
     "selected": false
   },
 ];
-Future<dynamic> openDialog(BuildContext context, width, content) {
+Future<dynamic> openDialog(
+    BuildContext context, width, height, content, onDispose) {
+  var myColor = Colors.amberAccent;
   return showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        backgroundColor: Colors.transparent, // Hace el fondo transparente
-        content: Container(
-          width: width,
-          decoration: BoxDecoration(
-            color: Colors.white, // Color del contenido del diálogo
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-          child: content,
-        ),
-      );
-    },
-  ).then((value) {});
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(20.0))),
+          contentPadding: EdgeInsets.only(top: 10.0),
+          content: Container(width: width, height: height, child: content),
+        );
+      }).then((value) {
+    onDispose;
+  });
+}
+
+var emojiSaludo = "\u{1F44B}"; // 👋
+var emojiCheck = "\u{2705}"; // ✅
+var emojiCruz = "\u{274C}"; // ❌
+var shoppingBagsEmoji = "\u{1F6CD}";
+var personComputerEmoji = "\u{1F4BB}";
+
+messageConfirmedDelivery(client, store, code, product, extraProduct) {
+  return """
+$emojiSaludo Un gusto Saludarle Estimad@ "$client"
+Lo Estamos saludando de la Tienda Virtual "$store" $shoppingBagsEmoji $personComputerEmoji
+Me confirma si recibió su pedido.
+
+*Con los siguientes datos:* 
+*N° Guía:* $code
+*Producto:* $product
+*Producto Extra:* $extraProduct
+
+Responda SI para registrar su recepción $emojiCheck.
+Responda NO para coordinar su entrega $emojiCruz.
+
+Quedamos atentos a su respuesta Muchas gracias.
+              
+*Saludos*
+*Tienda Virtual "$store"*
+""";
 }

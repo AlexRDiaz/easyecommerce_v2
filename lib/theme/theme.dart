@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 getThemeApp() {
   const Color cabeceraColor = Color(0xFF1A2B3C);
@@ -7,9 +8,7 @@ getThemeApp() {
   const Color textoSecundarioColor = Color(0xFFEFEFEF);
   const Color enlacesColor = Color(0xFFF39237);
   return ThemeData(
-      textTheme: TextTheme(
-        bodyLarge: TextStyle(fontFamily: 'YourFontFamily'),
-      ),
+      textTheme: GoogleFonts.robotoTextTheme(),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           foregroundColor: Colors.white,

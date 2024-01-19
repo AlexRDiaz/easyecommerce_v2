@@ -83,6 +83,8 @@ dependencies:
   flutter_spinkit: ^5.2.0
   pinput: ^3.0.1
   badges: ^3.1.2
+  photo_view: ^0.14.0
+  
 
 dev_dependencies:
   flutter_test:
