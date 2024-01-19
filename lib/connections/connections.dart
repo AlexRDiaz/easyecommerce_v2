@@ -4167,8 +4167,40 @@ class Connections {
     return decodeData;
   }
 
+  Future getOperatorsGeneralByIDD(id) async {
+    // String id = Get.parameters['id'].toString();
+    var request = await http.get(
+      Uri.parse(
+          "$server/api/users/$id?populate=roles_front&populate=operadore&populate=operadore.transportadora&populate=operadore.sub_ruta"),
+      headers: {'Content-Type': 'application/json'},
+    );
+    var response = await request.body;
+    var decodeData = json.decode(response);
+
+    return decodeData;
+  }
+
   Future updateOperatorGeneral(subroute, phone, cost) async {
     String id = Get.parameters['id_Operator'].toString();
+    var request = await http.put(Uri.parse("$server/api/operadores/$id"),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          "data": {
+            "sub_ruta": subroute,
+            "Telefono": phone,
+            "Costo_Operador": cost,
+          }
+        }));
+    var response = await request.body;
+    var decodeData = json.decode(response);
+    if (request.statusCode != 200) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+  Future updateOperatorGeneralD(subroute, phone, cost,id) async {
+    // String id = Get.parameters['id_Operator'].toString();
     var request = await http.put(Uri.parse("$server/api/operadores/$id"),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
@@ -4189,6 +4221,23 @@ class Connections {
 
   Future updateOperator(user, mail) async {
     String id = Get.parameters['id'].toString();
+    var request = await http.put(Uri.parse("$server/api/users/$id"),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          "username": user,
+          "email": mail,
+        }));
+    var response = await request.body;
+    var decodeData = json.decode(response);
+    if (request.statusCode != 200) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  Future updateOperatorD(user, mail, id) async {
+    // String id = Get.parameters['id'].toString();
     var request = await http.put(Uri.parse("$server/api/users/$id"),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
@@ -5058,6 +5107,21 @@ class Connections {
 
   Future updatePasswordById(password) async {
     String id = Get.parameters['id'].toString();
+
+    var request = await http.put(Uri.parse("$server/api/users/$id"),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({"password": password}));
+    var response = await request.body;
+    var decodeData = json.decode(response);
+
+    if (request.statusCode != 200) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+  Future updatePasswordByIdD(password,id) async {
+    // String id = Get.parameters['id'].toString();
 
     var request = await http.put(Uri.parse("$server/api/users/$id"),
         headers: {'Content-Type': 'application/json'},
@@ -7534,11 +7598,6 @@ class Connections {
       filtersAndAll.addAll(and);
       filtersAndAll.addAll(defaultAnd);
 
-      print(json.encode({
-        "start": dateStart,
-        "end": dateEnd,
-        "and": filtersAndAll,
-      }));
 
       var request = await http.post(
           Uri.parse(

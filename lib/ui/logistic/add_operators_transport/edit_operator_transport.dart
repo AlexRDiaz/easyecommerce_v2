@@ -6,6 +6,7 @@ import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/navigators.dart';
 import 'package:frontend/main.dart';
+import 'package:frontend/ui/logistic/add_operators_transport/controllers/controllers.dart';
 import 'package:frontend/ui/logistic/add_sellers/custom_filterchip_for_user.dart';
 import 'package:frontend/ui/transport/add_operators_transport/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/loading.dart';
@@ -14,15 +15,22 @@ import 'package:get/route_manager.dart';
 import 'package:frontend/helpers/server.dart';
 
 class EditOperatorLogistic extends StatefulWidget {
-  const EditOperatorLogistic({super.key});
+  final String idUserE;
+  final String idOperator;
+
+  const EditOperatorLogistic({
+    super.key,
+    required this.idUserE, 
+    required this.idOperator
+  });
 
   @override
   State<EditOperatorLogistic> createState() => _EditOperatorLogisticState();
 }
 
 class _EditOperatorLogisticState extends State<EditOperatorLogistic> {
-  AddOperatorsTransportControllers _controllers =
-      AddOperatorsTransportControllers();
+  AddOperatorsLogisticControllers _controllers =
+      AddOperatorsLogisticControllers();
   List<String> subRoutes = [];
   String? selectedValueRoute;
   TextEditingController _password = TextEditingController();
@@ -49,9 +57,10 @@ class _EditOperatorLogisticState extends State<EditOperatorLogistic> {
     // routesList = await Connections().getSubRoutes();
     // data['id_Transportadora']
 
-    var response = await Connections().getOperatorsGeneralByID();
+    // var response = await Connections().getOperatorsGeneralByID();
+    var response = await Connections().getOperatorsGeneralByIDD(widget.idUserE.toString());
     data = response;
-    print(data);
+    // print(data);
     idUser = data["id"];
     accessTemp = data['PERMISOS'];
     accessGeneralofRol = await Connections().getAccessofRolById(4);
@@ -95,7 +104,9 @@ class _EditOperatorLogisticState extends State<EditOperatorLogistic> {
         backgroundColor: Colors.white,
         leading: GestureDetector(
             onTap: () {
-              Navigators().pushNamedAndRemoveUntil(context, "/layout/logistic");
+              Navigator.pop(context);
+              // loadData();
+              // Navigators().pushNamedAndRemoveUntil(context, "/layout/logistic");
             },
             child: const Icon(Icons.arrow_back_ios, color: Colors.black)),
         centerTitle: true,
@@ -247,7 +258,9 @@ class _EditOperatorLogisticState extends State<EditOperatorLogistic> {
                                   btnOkOnPress: () {},
                                 ).show();
                               },
-                              subRoute: selectedValueRoute!.split('-')[1]);
+                              subRoute: selectedValueRoute!.split('-')[1],
+                              idOperator: widget.idOperator,
+                              idUser: widget.idUserE);
                         } else {
                           AwesomeDialog(
                             width: 500,
@@ -280,8 +293,9 @@ class _EditOperatorLogisticState extends State<EditOperatorLogistic> {
                   ElevatedButton(
                       onPressed: () async {
                         getLoadingModal(context, false);
-                        var response = await Connections().updatePasswordById(
-                          _password.text,
+                        // var response = await Connections().updatePasswordById(
+                        await Connections().updatePasswordByIdD(
+                          _password.text,widget.idUserE.toString()
                         );
                         Navigator.pop(context);
                         AwesomeDialog(

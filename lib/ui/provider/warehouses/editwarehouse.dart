@@ -372,7 +372,7 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                                         setState(() {
                                           _futureWarehouseData =
                                               _loadWarehouses();
-                                          SnackBarHelper.showOkSnackBar(
+                                          SnackBarHelper.showErrorSnackBar(
                                               context, "BODEGA INACTIVA.");
                                         });
                                       });
