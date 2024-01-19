@@ -211,7 +211,7 @@ class _AuditState extends State<Audit> {
           arrayFiltersAnd,
           defaultArrayFiltersAnd);
 
-      print(respvalues);
+      // print(respvalues);
 
       if (listtransportadores.length == 1) {
         var responsetransportadoras = await Connections().getTransportadoras();

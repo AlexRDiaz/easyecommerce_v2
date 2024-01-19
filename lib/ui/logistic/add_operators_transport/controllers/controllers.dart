@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/main.dart';
 
-class AddOperatorsTransportControllers {
+class AddOperatorsLogisticControllers {
   TextEditingController searchController = TextEditingController(text: "");
 
   TextEditingController userController = TextEditingController(text: "");
@@ -44,16 +44,28 @@ class AddOperatorsTransportControllers {
     }
   }
 
-  updateOperator({success, error, subRoute}) async {
-    var responseGeneralSeller = await Connections().updateOperatorGeneral(
+  updateOperator({success, error, subRoute,idOperator,idUser}) async {
+    // var responseGeneralSeller = await Connections().updateOperatorGeneral(
+    //   subRoute,
+    //   phoneEditController.text,
+    //   costOperatorEditController.text,
+    // );
+    var responseGeneralSeller = await Connections().updateOperatorGeneralD(
       subRoute,
       phoneEditController.text,
       costOperatorEditController.text,
+      idOperator
     );
-    var responseSeller = await Connections().updateOperator(
+    // var responseSeller = await Connections().updateOperator(
+    //   userEditController.text,
+    //   mailEditController.text,
+    // );
+    var responseSeller = await Connections().updateOperatorD(
       userEditController.text,
       mailEditController.text,
+      idUser
     );
+    
     if (responseSeller && responseGeneralSeller) {
       success();
     } else {

@@ -1,4 +1,8 @@
-class PedidoShopifyModel {
+import 'package:flutter/foundation.dart';
+
+class PedidoShopifyModel extends ChangeNotifier{
+  // int? cantidadPedidosCambiados;
+
   int? id;
   String? numeroOrden;
   String? direccionShipping;
@@ -54,6 +58,11 @@ class PedidoShopifyModel {
   // int? revisadoSeller;
   // String? sku;
 
+  // set _status(String value) {
+  //   status = value;
+  //   notifyListeners(); // Notificar a los oyentes cuando cambie el estado
+  // }
+
   PedidoShopifyModel({
     this.id,
     this.numeroOrden,
@@ -73,6 +82,7 @@ class PedidoShopifyModel {
     this.nameComercial,
     this.marcaTiempoEnvio,
     this.fechaEntrega,
+    // this.cantidadPedidosCambiados,
     // this.comentario,
     // this.tipoPago,
     // this.archivo,
@@ -131,6 +141,7 @@ class PedidoShopifyModel {
       nameComercial: json['name_comercial'],
       marcaTiempoEnvio: json['marca_tiempo_envio'],
       fechaEntrega: json['fecha_entrega'],
+      // cantidadPedidosCambiados: json['cantidad_pedidos_cambiados'] ?? 0,
       // comentario: json['comentario'],
       // tipoPago: json['tipo_pago'],
       // archivo: json['archivo'],
@@ -190,6 +201,7 @@ class PedidoShopifyModel {
       'name_comercial': nameComercial,
       'marca_tiempo_envio': marcaTiempoEnvio,
       'fecha_entrega': fechaEntrega,
+      // 'cantidad_pedidos_cambiados': cantidadPedidosCambiados,
       // 'comentario': this.comentario;
       // 'tipo_pago': this.tipoPago;
       // 'archivo': this.archivo;
