@@ -20,14 +20,14 @@ class DataTableModelPrincipal extends StatelessWidget {
     return DataTable2(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(4)),
-        border: Border.all(color: Colors.blueGrey),
+        borderRadius: BorderRadius.all(Radius.circular(6)),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
-            blurRadius: 4,
-            spreadRadius: 2,
-            offset: Offset(0, 2),
+            color: Colors.grey.withOpacity(0.5), // Color de la sombra
+            spreadRadius: 5, // Radio de dispersión de la sombra
+            blurRadius: 7, // Radio de desenfoque de la sombra
+            offset: Offset(
+                0, 3), // Desplazamiento de la sombra (horizontal, vertical)
           ),
         ],
       ),
@@ -45,7 +45,7 @@ class DataTableModelPrincipal extends StatelessWidget {
       dataTextStyle: const TextStyle(color: Colors.black),
       columnSpacing: 12,
       headingRowHeight: 80,
-      horizontalMargin: 12,
+      horizontalMargin: 32,
       minWidth: 3500,
       columns: columns,
       rows: rows,

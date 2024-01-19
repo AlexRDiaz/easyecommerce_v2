@@ -10,7 +10,10 @@ import 'package:frontend/ui/widgets/transport/data_table_model.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:mvc_pattern/mvc_pattern.dart';
+import 'package:number_paginator/number_paginator.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 
 class Transaction {
   final String title;
@@ -27,23 +30,91 @@ class MyWallet extends StatefulWidget {
 class _MyWalletState extends State<MyWallet> {
   MyWalletController walletController = MyWalletController();
   TextEditingController searchController = TextEditingController();
-  final _startDateController = TextEditingController();
-  final _endDateController = TextEditingController();
+  final _startDateController = TextEditingController(
+      text:
+          "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}");
+  final _endDateController = TextEditingController(
+      text:
+          "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}");
+  NumberPaginatorController paginatorController = NumberPaginatorController();
+  TextEditingController origenController = TextEditingController(text: "TODO");
 
+  int currentPage = 1;
+  int pageSize = 100;
+  int pageCount = 0;
   String saldo = '0';
   List data = [];
+  bool isLoading = false;
   String start = "";
   String end = "";
+
   List arrayFiltersAnd = [];
+  List arrayFiltersDefaultAnd = [
+    {
+      'equals/id_vendedor':
+          sharedPrefs!.getString("idComercialMasterSeller").toString()
+    },
+  ];
   List<String> listOrigen = [
     'TODO',
     'RECAUDO',
     'ENVIO',
     'REFERENCIADO',
     'DEVOLUCION',
-    'REEMBOLSO'
+    'REEMBOLSO',
   ];
-  TextEditingController origenController = TextEditingController(text: "TODO");
+
+  List<String> listTipo = [
+    'TODO',
+    'CREDIT',
+    'DEBIT',
+  ];
+
+  String? selectedValueOrigen;
+  String? selectedValueTipo;
+
+  List<DropdownMenuItem<String>> _addDividersAfterItems(List<String> items) {
+    final List<DropdownMenuItem<String>> menuItems = [];
+    for (final String item in items) {
+      menuItems.addAll(
+        [
+          DropdownMenuItem<String>(
+            value: item,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text(
+                item,
+                style: const TextStyle(
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          ),
+          //If it's last item, we will not add Divider after it.
+          if (item != items.last)
+            const DropdownMenuItem<String>(
+              enabled: false,
+              child: Divider(),
+            ),
+        ],
+      );
+    }
+    return menuItems;
+  }
+
+  List<double> _getCustomItemsHeights(array) {
+    final List<double> itemsHeights = [];
+    for (int i = 0; i < (array.length * 2) - 1; i++) {
+      if (i.isEven) {
+        itemsHeights.add(40);
+      }
+      //Dividers indexes will be the odd indexes
+      if (i.isOdd) {
+        itemsHeights.add(4);
+      }
+    }
+    return itemsHeights;
+  }
 
   // Saldo
 
@@ -54,21 +125,76 @@ class _MyWalletState extends State<MyWallet> {
   }
 
   loadData() async {
+    isLoading = true;
+    currentPage = 1;
     var res = await walletController.getSaldo();
     setState(() {
       saldo = res;
     });
 
     try {
-      var response =
-          await Connections().getTransactionsBySeller([], [], [], 1, 100, "");
+      var response = await Connections().getTransactionsBySeller(
+          _startDateController.text,
+          _endDateController.text,
+          [],
+          arrayFiltersAnd,
+          arrayFiltersDefaultAnd,
+          [],
+          currentPage,
+          pageSize,
+          searchController.text);
 
       setState(() {
         data = response["data"];
+        pageCount = response['last_page'];
+        paginatorController.navigateToPage(0);
+        isLoading = false;
       });
     } catch (e) {
       print(e);
     }
+  }
+
+  paginateData() async {
+    // paginatorController.navigateToPage(0);
+    try {
+      setState(() {
+        // search = false;
+      });
+
+      var response = await Connections().getTransactionsBySeller(
+          _startDateController.text,
+          _endDateController.text,
+          [],
+          arrayFiltersAnd,
+          arrayFiltersDefaultAnd,
+          [],
+          currentPage,
+          pageSize,
+          searchController.text);
+
+      setState(() {
+        data = [];
+        data = response['data'];
+
+        pageCount = response['last_page'];
+      });
+    } catch (e) {
+      _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
+    }
+  }
+
+  void _showErrorSnackBar(BuildContext context, String errorMessage) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          errorMessage,
+          style: TextStyle(color: Color.fromRGBO(7, 0, 0, 1)),
+        ),
+        backgroundColor: Color.fromARGB(255, 253, 101, 90),
+        duration: Duration(seconds: 4),
+      ),
+    );
   }
 
   filterData() async {
@@ -112,10 +238,11 @@ class _MyWalletState extends State<MyWallet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _leftWidget(width, heigth, context),
-                  Container(
+                  Expanded(
                     child: Column(
                       children: [
                         _searchBar(width, heigth, context),
+                        SizedBox(height: 10),
                         _dataTableTransactions(),
                       ],
                     ),
@@ -132,24 +259,38 @@ class _MyWalletState extends State<MyWallet> {
   Container _dataTableTransactions() {
     return Container(
       height: 700,
-      width: 1070,
       child: Expanded(
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: DataTableModelPrincipal(
-              columnWidth: 400,
-              columns: getColumns(),
-              rows: buildDataRows(data)),
+        child: DataTableModelPrincipal(
+            columnWidth: 400, columns: getColumns(), rows: buildDataRows(data)),
+      ),
+    );
+  }
+
+  NumberPaginator numberPaginator() {
+    return NumberPaginator(
+      config: NumberPaginatorUIConfig(
+        buttonUnselectedForegroundColor: const Color.fromARGB(255, 67, 67, 67),
+        buttonSelectedBackgroundColor: const Color.fromARGB(255, 67, 67, 67),
+        buttonShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5), // Customize the button shape
         ),
       ),
+      controller: paginatorController,
+      numberPages: pageCount > 0 ? pageCount : 1,
+      onPageChange: (index) async {
+        setState(() {
+          currentPage = index + 1;
+        });
+        if (!isLoading) {
+          await paginateData();
+        }
+      },
     );
   }
 
   Container _searchBar(double width, double heigth, BuildContext context) {
     return Container(
-      width: width * 0.55,
-      height: heigth * 0.075,
-      color: Colors.grey.withOpacity(0.3),
+      color: Colors.white,
       child: responsive(
           Row(
             children: [
@@ -159,9 +300,6 @@ class _MyWalletState extends State<MyWallet> {
                     text: "Buscar", controller: searchController),
               ),
 
-              SizedBox(width: 10),
-
-              SizedBox(width: 10),
               Container(
                 padding: const EdgeInsets.only(left: 15, right: 5),
                 child: Text(
@@ -170,6 +308,9 @@ class _MyWalletState extends State<MyWallet> {
                       fontWeight: FontWeight.bold, color: Colors.black),
                 ),
               ),
+              Expanded(child: numberPaginator()),
+              SizedBox(width: 10),
+
               Spacer(),
               TextButton(
                   onPressed: () => loadData(), child: Text("Actualizar")),
@@ -184,26 +325,26 @@ class _MyWalletState extends State<MyWallet> {
 
   Container _leftWidget(double width, double heigth, BuildContext context) {
     return Container(
-      width: width * 0.2,
-      height: heigth * 0.8,
-      padding: EdgeInsets.all(10),
+      width: width * 0.15,
+      height: heigth * 0.85,
+      padding: EdgeInsets.only(left: 10, right: 10),
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
-      child:
-          Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+      child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
         Container(
-          decoration: BoxDecoration(
-              color: Colors.white, borderRadius: BorderRadius.circular(15)),
+          decoration: BoxDecoration(boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5), // Color de la sombra
+              spreadRadius: 5, // Radio de dispersión de la sombra
+              blurRadius: 7, // Radio de desenfoque de la sombra
+              offset: Offset(
+                  0, 3), // Desplazamiento de la sombra (horizontal, vertical)
+            ),
+          ], color: Colors.white, borderRadius: BorderRadius.circular(15)),
           width: width * 0.2,
           height: heigth * 0.2,
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Padding(
-                padding: EdgeInsets.all(20),
-                child: Text(
-                  'Saldo de Cuenta',
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-                ),
-              ),
               Text(
                 '\$${formatNumber(double.parse(saldo))}',
                 style: TextStyle(
@@ -211,75 +352,96 @@ class _MyWalletState extends State<MyWallet> {
                     fontWeight: FontWeight.bold,
                     color: Colors.blueAccent),
               ),
+              Text(
+                'Saldo de Cuenta',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
             ],
           ),
         ),
-        Container(
-          padding: EdgeInsets.all(15),
-          decoration: BoxDecoration(
-              color: Colors.white, borderRadius: BorderRadius.circular(15)),
-          width: width * 0.2,
-          child: Column(
+        SizedBox(
+          height: 20,
+        ),
+        _dateButtons(width, context),
+        SizedBox(
+          height: 20,
+        ),
+        _optionButtons(width, heigth),
+      ]),
+    );
+  }
+
+  Container _dateButtons(double width, BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(15),
+      decoration: BoxDecoration(boxShadow: [
+        BoxShadow(
+          color: Colors.grey.withOpacity(0.5), // Color de la sombra
+          spreadRadius: 5, // Radio de dispersión de la sombra
+          blurRadius: 7, // Radio de desenfoque de la sombra
+          offset: Offset(
+              0, 3), // Desplazamiento de la sombra (horizontal, vertical)
+        ),
+      ], color: Colors.white, borderRadius: BorderRadius.circular(15)),
+      width: width * 0.2,
+      child: Column(
+        children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    width: width * 0.2,
-                    padding: EdgeInsets.only(bottom: 10),
-                    child: FilledButton.tonalIcon(
-                      onPressed: () {
-                        _showDatePickerModal(context);
-                      },
-                      style: ButtonStyle(
-                        shape: MaterialStateProperty.all<OutlinedBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                5), // Ajusta el valor según sea necesario
-                          ),
-                        ),
+              Container(
+                width: width * 0.2,
+                padding: EdgeInsets.only(bottom: 10),
+                child: FilledButton.tonalIcon(
+                  onPressed: () {
+                    _showDatePickerModal(context);
+                  },
+                  style: ButtonStyle(
+                    shape: MaterialStateProperty.all<OutlinedBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                            5), // Ajusta el valor según sea necesario
                       ),
-                      label: Text('Seleccionar'),
-                      icon: Icon(Icons.calendar_month_outlined),
                     ),
                   ),
-                  Container(
-                    padding: EdgeInsets.only(bottom: 10),
-                    width: width * 0.2,
-                    child: FilledButton.tonalIcon(
-                      style: ButtonStyle(
-                        shape: MaterialStateProperty.all<OutlinedBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                5), // Ajusta el valor según sea necesario
-                          ),
-                        ),
-                      ),
-                      onPressed: () {
-                        _showDatePickerModal(context);
-                      },
-                      label: Text('Consultar'),
-                      icon: Icon(Icons.search),
-                    ),
-                  ),
-                ],
+                  label: Text('Seleccionar'),
+                  icon: Icon(Icons.calendar_month_outlined),
+                ),
               ),
               Container(
-                width: 300,
-                child: Column(
-                  children: [
-                    _buildDateField("Fecha Inicio", _startDateController),
-                    SizedBox(height: 16),
-                    _buildDateField("Fecha Fin", _endDateController),
-                    SizedBox(height: 16),
-                  ],
+                padding: EdgeInsets.only(bottom: 10),
+                width: width * 0.2,
+                child: FilledButton.tonalIcon(
+                  style: ButtonStyle(
+                    shape: MaterialStateProperty.all<OutlinedBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                            5), // Ajusta el valor según sea necesario
+                      ),
+                    ),
+                  ),
+                  onPressed: () {
+                    loadData();
+                  },
+                  label: Text('Consultar'),
+                  icon: Icon(Icons.search),
                 ),
               ),
             ],
           ),
-        ),
-        _optionButtons(width),
-      ]),
+          Container(
+            width: 300,
+            child: Column(
+              children: [
+                _buildDateField("Fecha Inicio", _startDateController),
+                SizedBox(height: 16),
+                _buildDateField("Fecha Fin", _endDateController),
+                SizedBox(height: 16),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -289,68 +451,117 @@ class _MyWalletState extends State<MyWallet> {
     return formatter.format(number);
   }
 
-  Container _optionButtons(double width) {
+  Container _optionButtons(double width, double height) {
     return Container(
       padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(15)),
+      decoration: BoxDecoration(boxShadow: [
+        BoxShadow(
+          color: Colors.grey.withOpacity(0.5), // Color de la sombra
+          spreadRadius: 5, // Radio de dispersión de la sombra
+          blurRadius: 7, // Radio de desenfoque de la sombra
+          offset: Offset(
+              0, 3), // Desplazamiento de la sombra (horizontal, vertical)
+        ),
+      ], color: Colors.white, borderRadius: BorderRadius.circular(15)),
       width: width * 0.2,
+      height: height * 0.33,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
             width: 300,
-            child: FilledButton.tonalIcon(
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                  (Set<MaterialState> states) {
-                    if (states.contains(MaterialState.pressed)) {
-                      // Color cuando el botón está presionado
-                      return Color.fromARGB(255, 235, 251, 64);
-                    }
-                    // Color cuando el botón está en su estado normal
-                    return Color.fromARGB(255, 209, 184, 146);
-                  },
+            color: Color(0xFFE8DEF8),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton2<String>(
+                isExpanded: true,
+                hint: Text(
+                  'Seleccione Origen',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Theme.of(context).hintColor,
+                  ),
                 ),
-                // Otros estilos pueden ir aquí
-              ),
-              //  backgroundColor: Color.fromARGB(255, 196, 134, 207),
-              onPressed: () {},
-              label: const Text(
-                'Consultar',
-                style: TextStyle(
-                  fontSize: 16,
+                items: _addDividersAfterItems(listOrigen),
+                value: selectedValueOrigen,
+                onChanged: (String? value) {
+                  setState(() {
+                    selectedValueOrigen = value;
+                  });
+
+                  arrayFiltersAnd.removeWhere(
+                      (element) => element.containsKey("equals/origen"));
+                  if (value != '') {
+                    arrayFiltersAnd.add({"equals/origen": value});
+                  } else {
+                    arrayFiltersAnd.removeWhere(
+                        (element) => element.containsKey("equals/origen"));
+                  }
+                  loadData();
+                },
+                buttonStyleData: const ButtonStyleData(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  height: 40,
+                  width: 140,
+                ),
+                dropdownStyleData: const DropdownStyleData(
+                  maxHeight: 200,
+                ),
+                menuItemStyleData: MenuItemStyleData(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  customHeights: _getCustomItemsHeights(listOrigen),
+                ),
+                iconStyleData: const IconStyleData(
+                  openMenuIcon: Icon(Icons.arrow_drop_up),
                 ),
               ),
-              icon: const Icon(Icons.check_circle),
             ),
           ),
           Container(
             width: 300,
-            child: FilledButton.tonalIcon(
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                  (Set<MaterialState> states) {
-                    if (states.contains(MaterialState.pressed)) {
-                      // Color cuando el botón está presionado
-                      return Color.fromARGB(255, 235, 251, 64);
-                    }
-                    // Color cuando el botón está en su estado normal
-                    return Color.fromARGB(255, 209, 184, 146);
-                  },
+            color: Color(0xFFE8DEF8),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton2<String>(
+                isExpanded: true,
+                hint: Text(
+                  'Seleccione Tipo',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Theme.of(context).hintColor,
+                  ),
                 ),
-                // Otros estilos pueden ir aquí
-              ),
-              //  backgroundColor: Color.fromARGB(255, 196, 134, 207),
+                items: _addDividersAfterItems(listTipo),
+                value: selectedValueTipo,
+                onChanged: (String? value) {
+                  setState(() {
+                    selectedValueTipo = value;
+                  });
 
-              onPressed: () {},
-              label: const Text(
-                'Descargar reporte',
-                style: TextStyle(
-                  fontSize: 16,
+                  arrayFiltersAnd.removeWhere(
+                      (element) => element.containsKey("equals/tipo"));
+                  if (value != '') {
+                    arrayFiltersAnd.add({"equals/tipo": value});
+                  } else {
+                    arrayFiltersAnd.removeWhere(
+                        (element) => element.containsKey("equals/tipo"));
+                  }
+                  loadData();
+                },
+                buttonStyleData: const ButtonStyleData(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  height: 40,
+                  width: 140,
+                ),
+                dropdownStyleData: const DropdownStyleData(
+                  maxHeight: 200,
+                ),
+                menuItemStyleData: MenuItemStyleData(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  customHeights: _getCustomItemsHeights(listTipo),
+                ),
+                iconStyleData: const IconStyleData(
+                  openMenuIcon: Icon(Icons.arrow_drop_up),
                 ),
               ),
-              icon: const Icon(Icons.check_circle),
             ),
           ),
           Container(
@@ -409,7 +620,6 @@ class _MyWalletState extends State<MyWallet> {
                 label + ":",
                 style: TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
@@ -445,8 +655,10 @@ class _MyWalletState extends State<MyWallet> {
 
       print('Fecha de inicio: ${dateRange.startDate}');
       print('Fecha de fin: ${dateRange.endDate}');
-      _startDateController.text = dateRange.startDate.toString();
-      _endDateController.text = dateRange.endDate.toString();
+      _startDateController.text =
+          "${dateRange.startDate!.year}-${dateRange.startDate!.month}-${dateRange.startDate!.day}";
+      _endDateController.text =
+          "${dateRange.endDate!.year}-${dateRange.endDate!.month}-${dateRange.endDate!.day}";
 
       // start = dateRange.startDate.toString();
       // end = dateRange.endDate.toString();
@@ -468,7 +680,7 @@ class _MyWalletState extends State<MyWallet> {
       child: TextField(
         controller: controller,
         onSubmitted: (value) {
-          filterData();
+          loadData();
           //  paginatorController.navigateToPage(0);
         },
         style: const TextStyle(fontWeight: FontWeight.bold),
@@ -481,8 +693,6 @@ class _MyWalletState extends State<MyWallet> {
                     setState(() {
                       searchController.clear();
                     });
-
-                    Navigator.pop(context);
                   },
                   child: Icon(Icons.close))
               : null,
@@ -548,38 +758,30 @@ class _MyWalletState extends State<MyWallet> {
 
   List<DataColumn2> getColumns() {
     return [
-      // DataColumn2(
-      //   label: // Espacio entre iconos
-      //       Text('Id'),
-      //   size: ColumnSize.S,
-      //   onSort: (columnIndex, ascending) {
-      //     // sortFunc3("marca_tiempo_envio", changevalue);
-      //   },
-      // ),
       DataColumn2(
         label: Text('Tipo Transacción.'),
-        fixedWidth: 200,
+        fixedWidth: 100,
         onSort: (columnIndex, ascending) {
           // sortFunc3("fecha_entrega", changevalue);
         },
       ),
       DataColumn2(
         label: Text('Monto'),
-        fixedWidth: 200,
+        fixedWidth: 120,
         onSort: (columnIndex, ascending) {
           // sortFunc3("numero_orden", changevalue);
         },
       ),
       DataColumn2(
         label: Text('Valor Anterior'),
-        fixedWidth: 200,
+        fixedWidth: 160,
         onSort: (columnIndex, ascending) {
           // sortFunc3("numero_orden", changevalue);
         },
       ),
       DataColumn2(
         label: Text('Valor Actual'),
-        fixedWidth: 200,
+        fixedWidth: 130,
         onSort: (columnIndex, ascending) {
           // sortFunc3("Marca de Tiempo", changevalue);
         },
@@ -592,7 +794,7 @@ class _MyWalletState extends State<MyWallet> {
         },
       ),
       DataColumn2(
-        fixedWidth: 200,
+        fixedWidth: 110,
         label: Text('Id Origen'),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
@@ -600,7 +802,7 @@ class _MyWalletState extends State<MyWallet> {
         },
       ),
       DataColumn2(
-        fixedWidth: 200,
+        fixedWidth: 160,
         label: Text('Codigo'),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
@@ -608,9 +810,8 @@ class _MyWalletState extends State<MyWallet> {
         },
       ),
       DataColumn2(
-        fixedWidth: 200,
-        label:
-            SelectFilterNoId('Origen', 'origen', origenController, listOrigen),
+        fixedWidth: 100,
+        label: Text('Origen'),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
           // sortFunc3("direccion_shipping", changevalue);
@@ -618,14 +819,14 @@ class _MyWalletState extends State<MyWallet> {
       ),
       DataColumn2(
         fixedWidth: 200,
-        label: Text('Id Vendedor'),
+        label: Text('Vendedor'),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
           // sortFunc3("telefono_shipping", changevalue);
         },
       ),
       DataColumn2(
-        fixedWidth: 600,
+        fixedWidth: 250,
         label: Text('Comentario'),
         size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
@@ -637,8 +838,8 @@ class _MyWalletState extends State<MyWallet> {
 
   setColor(transaccion) {
     final color = transaccion == "credit"
-        ? Color.fromARGB(255, 202, 236, 162)
-        : Color.fromARGB(255, 236, 176, 175);
+        ? Color.fromARGB(255, 148, 230, 54)
+        : Color.fromARGB(255, 209, 13, 10);
     return color;
   }
 
@@ -646,16 +847,10 @@ class _MyWalletState extends State<MyWallet> {
     List<DataRow> rows = [];
     for (int index = 0; index < data.length; index++) {
       DataRow row = DataRow(
-        color: MaterialStateColor.resolveWith(
-            (states) => setColor(data[index]['tipo'])!),
         cells: [
-          // DataCell(InkWell(
-          //     child: Text(data[index]['id'].toString()),
-          //     onTap: () {
-          //       // OpenShowDialog(context, index);
-          //     })),
           DataCell(InkWell(
-              child: Text(data[index]['tipo'].toString()),
+              child: Text(data[index]['tipo'].toString(),
+                  style: TextStyle(color: setColor(data[index]['tipo']))),
               onTap: () {
                 // OpenShowDialog(context index);
               })),
@@ -700,7 +895,7 @@ class _MyWalletState extends State<MyWallet> {
                 // OpenShowDialog(context, index);
               })),
           DataCell(InkWell(
-              child: Text(data[index]['id_vendedor'].toString()),
+              child: Text(data[index]['user']['email'].toString()),
               onTap: () {
                 // OpenShowDialog(context, index);
               })),

@@ -760,8 +760,8 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
   _sellersTransport(BuildContext context) {
     return DropdownButtonHideUnderline(
       child: DropdownButton2<String>(
-        dropdownWidth: 500,
-        buttonWidth: 500,
+        // dropdownWidth: 500,
+        // buttonWidth: 500,
         isExpanded: true,
         hint: Text(
           'Transporte',
@@ -820,8 +820,9 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
   DropdownButtonHideUnderline _operators(BuildContext context) {
     return DropdownButtonHideUnderline(
       child: DropdownButton2<String>(
-        dropdownWidth: 500,
-        buttonWidth: 500,
+        // dropdownWidth: 500,
+        // buttonWidth: 500,
+
         isExpanded: true,
         hint: Text(
           'Operadores',
@@ -875,8 +876,8 @@ class _DashBoardLogisticState extends State<DashBoardLogistic> {
   DropdownButtonHideUnderline _sellers(BuildContext context) {
     return DropdownButtonHideUnderline(
       child: DropdownButton2<String>(
-        dropdownWidth: 500,
-        buttonWidth: 500,
+        // dropdownWidth: 500,
+        // buttonWidth: 500,
         isExpanded: true,
         hint: Text(
           'Vendedores',

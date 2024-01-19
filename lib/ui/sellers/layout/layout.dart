@@ -12,6 +12,7 @@ import 'package:frontend/ui/sellers/catalog/catalog.dart';
 import 'package:frontend/ui/sellers/dashboard/dashboard.dart';
 import 'package:frontend/ui/sellers/delivery_status/delivery_status.dart';
 import 'package:frontend/ui/sellers/guides_sent/table_orders_guides_sent.dart';
+import 'package:frontend/ui/sellers/layout/layout_mobile.dart';
 import 'package:frontend/ui/sellers/my_integrations/my_integrations.dart';
 import 'package:frontend/ui/sellers/my_seller_account/my_seller_account.dart';
 import 'package:frontend/ui/sellers/my_wallet/my_wallet.dart';
@@ -86,7 +87,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        return responsive(_buildWebLayout(), _buildPhoneLayout(), context);
+        return responsive(_buildWebLayout(), LayoutMobile(), context);
       },
     );
   }

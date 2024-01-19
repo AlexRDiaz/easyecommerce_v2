@@ -140,8 +140,8 @@ class _EditOperatorTransportState extends State<EditOperatorTransport> {
                   ),
                   DropdownButtonHideUnderline(
                     child: DropdownButton2<String>(
-                      dropdownWidth: 500,
-                      buttonWidth: 500,
+                      // dropdownWidth: 500,
+                      // buttonWidth: 500,
                       isExpanded: true,
                       hint: Text(
                         'Sub Ruta',

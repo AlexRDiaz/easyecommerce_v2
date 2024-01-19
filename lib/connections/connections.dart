@@ -6331,20 +6331,26 @@ class Connections {
     return decodeData['saldo'];
   }
 
-  getTransactionsBySeller(
-      List populate, List and, List or, currentPage, sizePage, search) async {
+  getTransactionsBySeller(start, end, List populate, List and, List defaultAnd,
+      List or, currentPage, sizePage, search) async {
+    List filtersAndAll = [];
+    filtersAndAll.addAll(and);
+    filtersAndAll.addAll(defaultAnd);
+
+    if (search != null && search != "") {
+      start = "2023-01-01";
+      end = "2123-01-01";
+    }
     var request = await http.post(
         Uri.parse("$serverLaravel/api/transacciones/get-transactions"),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          "start": "2023-01-01 11:36:30",
-          "end": "2024-01-31 11:36:30",
-          "page_size": 500,
-          "page_number": 1,
-          "user_id": 188,
-          "or": [
-            //  "id_origen"
-          ],
+          "start": start,
+          "end": end,
+          "page_size": sizePage,
+          "page_number": currentPage,
+          "user_id": sharedPrefs!.getString("idComercialMasterSeller"),
+          "or": ["id_origen", "codigo", "monto", "user.email"],
           "not": [
             /*
         {
@@ -6353,8 +6359,8 @@ class Connections {
         */
           ],
           "sort": "id:DESC",
-          "and": [],
-          "search": ""
+          "and": filtersAndAll,
+          "search": search
         }));
     var response = await request.body;
     var decodeData = json.decode(response);

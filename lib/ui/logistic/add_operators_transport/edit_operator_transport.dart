@@ -155,8 +155,8 @@ class _EditOperatorLogisticState extends State<EditOperatorLogistic> {
                   ),
                   DropdownButtonHideUnderline(
                     child: DropdownButton2<String>(
-                      dropdownWidth: 500,
-                      buttonWidth: 500,
+                      // dropdownWidth: 500,
+                      // buttonWidth: 500,
                       isExpanded: true,
                       hint: Text(
                         'Sub Ruta',
@@ -205,7 +205,6 @@ class _EditOperatorLogisticState extends State<EditOperatorLogistic> {
                             _controllers.costOperatorEditController.text !=
                                 "" &&
                             _controllers.userEditController.text != "") {
-
                           String phoneNumber =
                               _controllers.phoneEditController.text;
                           if (phoneNumber.startsWith("0")) {
