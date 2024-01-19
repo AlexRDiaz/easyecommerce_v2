@@ -703,7 +703,7 @@ class _TableOrdersGuidesSentStateTransport
                         DataCell(
                           Text(
                               nombresOperadores[data[index]['withdrawan_by']] ??
-                                  'No disponible'),
+                                  ' ... '),
                           onTap: () {
                             getInfoModal(index);
                           },

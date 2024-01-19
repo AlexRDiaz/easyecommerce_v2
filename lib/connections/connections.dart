@@ -7504,6 +7504,26 @@ class Connections {
     }
   }
 
+
+  paymentOrderInWarehouseProvider(id) async {
+    try {
+      String? generatedBy = sharedPrefs!.getString("id");
+
+      var response = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/transacciones/payment-order-in-warehouse-provider/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"generated_by": generatedBy}));
+      if (response.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+  
   sendWithdrawalAprovate(amount) async {
     try {
       var request = await http.post(
@@ -7733,7 +7753,7 @@ class Connections {
     }
   }
 
-  getOperatorName(idOperator) async {
+   getOperatorName(idOperator) async {
     try {
       var request = await http.get(
           Uri.parse("$serverLaravel/api/operators/by-id/${idOperator}"),
@@ -7745,7 +7765,7 @@ class Connections {
       if (request.statusCode != 200) {
         return 1;
       } else {
-        return 0;
+        return decodeData;
       }
     } catch (e) {
       return 2;

@@ -300,7 +300,7 @@ class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
                         await showDialog(
                             context: context,
                             builder: (context) {
-                              return ScannerPrinted();
+                              return ScannerPrinted(from:"transport" ,);
                             });
                         await loadData();
                       },
