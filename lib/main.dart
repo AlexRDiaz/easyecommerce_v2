@@ -39,7 +39,7 @@ void main() async {
 
   runApp(MultiProvider(
     providers: [
-      Provider<NotificationManager>.value(value: notificationManager!),
+      ChangeNotifierProvider(create: (_) => NotificationManager()),
       ListenableProvider<NavigationProviderLogistic>(
         create: (_) => NavigationProviderLogistic(),
       ),
@@ -118,38 +118,36 @@ class MyCustomScrollBehavior extends MaterialScrollBehavior {
 //       });
 //     }
 //   }
+class NotificationManager with ChangeNotifier {
+  List<Map<String, dynamic>> _notifications = [];
+  Timer? _timer;
 
-  class NotificationManager {
-  // Usa StreamController.broadcast para permitir múltiples suscriptores
-  StreamController<List<Map<String, dynamic>>> _notificationsController =
-      StreamController<List<Map<String, dynamic>>>.broadcast();
+  List<Map<String, dynamic>> get notifications => _notifications;
 
-  Stream<List<Map<String, dynamic>>> get notificationsStream =>
-      _notificationsController.stream;
+  NotificationManager() {
+    _loadNotifications();
+    _startAutoUpdate();
+  }
 
-  NotificationManager(
-      [StreamController<List<Map<String, dynamic>>>? controller]) {
-    if (controller != null) {
-      _notificationsController.addStream(controller.stream);
-    } else {
-      _loadNotifications(); // Carga inicial de notificaciones
-      Timer.periodic(const Duration(minutes: 1), (Timer t) {
-        _loadNotifications(); // Actualización periódica
-      });
-    }
+  void _startAutoUpdate() {
+    _timer = Timer.periodic(Duration(minutes: 1), (timer) {
+      _loadNotifications();
+    });
   }
 
   Future<void> _loadNotifications() async {
     try {
-      var res = await Connections()
-          .getCountNotificationsWarehousesWithdrawals(_notificationsController);
-      // print("akmain> $res");
+      var res = await Connections().getCountNotificationsWarehousesWithdrawals();
+      _notifications = res;
+      notifyListeners();
     } catch (e) {
       print("Error loading notifications: $e");
     }
   }
 
+  @override
   void dispose() {
-    _notificationsController.close();
+    _timer?.cancel();
+    super.dispose();
   }
 }

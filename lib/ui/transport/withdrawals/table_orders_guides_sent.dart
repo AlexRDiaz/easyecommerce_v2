@@ -14,6 +14,7 @@ import 'package:frontend/ui/logistic/guides_sent/controllers/controllers.dart';
 import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
 import 'package:frontend/ui/sellers/order_entry/controllers/controllers.dart';
 import 'package:frontend/ui/transport/withdrawals/controllers/controllers.dart';
+import 'package:frontend/ui/transport/withdrawals/customwidget.dart';
 import 'package:frontend/ui/widgets/filters_orders.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/routes.dart';
@@ -28,21 +29,19 @@ import 'package:printing/printing.dart';
 import 'package:intl/intl.dart';
 
 class TableOrdersGuidesSentTransport extends StatefulWidget {
+  final String idWarehouse;
 
-  final String dateSend;
-
-  const TableOrdersGuidesSentTransport({
-    super.key,
-    required this.dateSend
-  });
-
+  const TableOrdersGuidesSentTransport({super.key, required this.idWarehouse});
 
   @override
-  State<TableOrdersGuidesSentTransport> createState() => _TableOrdersGuidesSentStateTransport();
+  State<TableOrdersGuidesSentTransport> createState() =>
+      _TableOrdersGuidesSentStateTransport();
 }
 
-class _TableOrdersGuidesSentStateTransport extends State<TableOrdersGuidesSentTransport> {
-  PrintedGuidesTransportControllers _controllers = PrintedGuidesTransportControllers();
+class _TableOrdersGuidesSentStateTransport
+    extends State<TableOrdersGuidesSentTransport> {
+  PrintedGuidesTransportControllers _controllers =
+      PrintedGuidesTransportControllers();
   List data = [];
   List optionsCheckBox = [];
   int counterChecks = 0;
@@ -51,9 +50,12 @@ class _TableOrdersGuidesSentStateTransport extends State<TableOrdersGuidesSentTr
   List<DateTime?> _dates = [];
   List<String> transportator = [];
   String? selectedValueTransportator;
-  String date = "";
+  String date =
+      "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
+
   //Create an instance of ScreenshotController
   ScreenshotController screenshotController = ScreenshotController();
+   Map<int, String> nombresOperadores = {};
 
   List dataL = [];
   int currentPage = 1;
@@ -117,9 +119,11 @@ class _TableOrdersGuidesSentStateTransport extends State<TableOrdersGuidesSentTr
       getLoadingModal(context, false);
     });
     try {
+      await cargarNombresOperadores();
+
       var response = [];
       var responseL;
-      date = widget.dateSend.toString();
+      // date = widget.dateSend.toString();
       List transportatorList = [];
 
       setState(() {
@@ -135,7 +139,7 @@ class _TableOrdersGuidesSentStateTransport extends State<TableOrdersGuidesSentTr
           filtersAnd = [];
           filtersAnd.add({"/marca_tiempo_envio": date});
           responseL = await Connections()
-              .getOrdersForSentGuidesPrincipalLaravel(
+              .getOrdersForSentGuidesPrincipalLaravelD(
                   populate,
                   filtersAnd,
                   filtersDefaultAnd,
@@ -143,7 +147,9 @@ class _TableOrdersGuidesSentStateTransport extends State<TableOrdersGuidesSentTr
                   currentPage,
                   pageSize,
                   "",
-                  sortFieldDefaultValue, []);
+                  sortFieldDefaultValue,
+                  [],
+                  widget.idWarehouse);
 
           //  *
         } else {
@@ -158,12 +164,12 @@ class _TableOrdersGuidesSentStateTransport extends State<TableOrdersGuidesSentTr
           filtersAnd = [];
           filtersAnd.add({"/marca_tiempo_envio": date});
           filtersAnd.add({
-            "equals/transportadora.transportadora_id":
+            "equals/withdrawan_by":
                 selectedValueTransportator.toString().split('-')[1]
           });
 
           responseL = await Connections()
-              .getOrdersForSentGuidesPrincipalLaravel(
+              .getOrdersForSentGuidesPrincipalLaravelD(
                   populate,
                   filtersAnd,
                   filtersDefaultAnd,
@@ -171,7 +177,9 @@ class _TableOrdersGuidesSentStateTransport extends State<TableOrdersGuidesSentTr
                   currentPage,
                   pageSize,
                   "",
-                  sortFieldDefaultValue, []);
+                  sortFieldDefaultValue,
+                  [],
+                  widget.idWarehouse);
           //  *
         }
       } else {
@@ -182,7 +190,7 @@ class _TableOrdersGuidesSentStateTransport extends State<TableOrdersGuidesSentTr
         //         _controllers.searchController.text);
         //  *
         filtersAnd = [];
-        responseL = await Connections().getOrdersForSentGuidesPrincipalLaravel(
+        responseL = await Connections().getOrdersForSentGuidesPrincipalLaravelD(
             populate,
             filtersAnd,
             filtersDefaultAnd,
@@ -190,7 +198,9 @@ class _TableOrdersGuidesSentStateTransport extends State<TableOrdersGuidesSentTr
             currentPage,
             pageSize,
             _controllers.searchController.text,
-            sortFieldDefaultValue, []);
+            sortFieldDefaultValue,
+            [],
+            widget.idWarehouse);
         //  *
       }
 
@@ -232,12 +242,14 @@ class _TableOrdersGuidesSentStateTransport extends State<TableOrdersGuidesSentTr
       //     "qrLink": "",
       //   });
       // }
-      transportatorList = await Connections().getAllTransportators();
+      String idTrans = sharedPrefs!.getString("idTransportadora").toString();
+      var resptrans = await Connections().getOperatoresbyTransport(idTrans);
+      transportatorList = resptrans['operadores'];
+
       for (var i = 0; i < transportatorList.length; i++) {
         setState(() {
           if (transportatorList != null) {
-            transportator.add(
-                '${transportatorList[i]['attributes']['Nombre']}-${transportatorList[i]['id']}');
+            transportator.add('${transportatorList[i]}');
           }
         });
       }
@@ -247,6 +259,18 @@ class _TableOrdersGuidesSentStateTransport extends State<TableOrdersGuidesSentTr
       setState(() {});
     } catch (e) {
       print("error!: $e");
+    }
+  }
+
+  Future<void> cargarNombresOperadores() async {
+    for (var order in data) {
+      int operadorId = order['withdrawan_by'];
+      print(operadorId);
+      if (!nombresOperadores.containsKey(operadorId)) {
+        String nombreOperador =
+            await Connections().getOperatorName(operadorId.toString());
+        nombresOperadores[operadorId] = nombreOperador;
+      }
     }
   }
 
@@ -280,464 +304,471 @@ class _TableOrdersGuidesSentStateTransport extends State<TableOrdersGuidesSentTr
 
   @override
   Widget build(BuildContext context) {
-    return 
-      Container(
-        padding: const EdgeInsets.all(15),
-        width: double.infinity,
-        child: Column(
-          children: [
-             Container(
+    return Container(
+      padding: const EdgeInsets.all(15),
+      width: double.infinity,
+      child: Column(
+        children: [
+          Container(
+            color: Colors.transparent,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  // "Guías Enviadas ${widget.dateSend}",
+                  "Guías Enviadas",
+                  style: const TextStyle(color: Colors.black, fontSize: 18.0),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: GestureDetector(
+              onTap: () async {
+                // await loadData();
+                resetFilters();
+                await loadData();
+              },
+              child: Container(
                 color: Colors.transparent,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
+                    Icon(
+                      Icons.replay_outlined,
+                      color: Colors.green,
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
                     Text(
-                      "Guías Enviadas ${widget.dateSend}",
-                      style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 18.0),
+                      "Recargar Información",
+                      style: TextStyle(
+                          decoration: TextDecoration.underline,
+                          color: Colors.green),
+                    ),
+                    SizedBox(
+                      width: 10,
                     ),
                   ],
                 ),
               ),
-              const SizedBox(
-                height: 10,
-              ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: GestureDetector(
-                onTap: () async {
-                  // await loadData();
-                  resetFilters();
-                  await loadData();
-                },
-                child: Container(
-                  color: Colors.transparent,
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Icon(
-                        Icons.replay_outlined,
-                        color: Colors.green,
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Text(
-                        "Recargar Información",
-                        style: TextStyle(
-                            decoration: TextDecoration.underline,
-                            color: Colors.green),
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                    ],
-                  ),
+            ),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          Container(
+            width: double.infinity,
+            child: Row(
+              children: [
+                Expanded(
+                    child: counterChecks != 0
+                        ? _buttons()
+                        : _modelTextField(
+                            text: "Busqueda",
+                            controller: _controllers.searchController)),
+                const SizedBox(
+                  width: 10,
                 ),
-              ),
+              ],
             ),
-            const SizedBox(
-              height: 10,
-            ),
-            Container(
-              width: double.infinity,
-              child: Row(
-                children: [
-                  Expanded(
-                      child: counterChecks != 0
-                          ? _buttons()
-                          : _modelTextField(
-                              text: "Busqueda",
-                              controller: _controllers.searchController)),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            Align(
-                alignment: Alignment.centerLeft,
-                child: Text("Número de Ordenes: ${data.length}")),
-            const SizedBox(
-              height: 10,
-            ),
-            Expanded(
-              child: DataTable2(
-                headingTextStyle:
-                    TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-                dataTextStyle: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black),
-                columnSpacing: 12,
-                horizontalMargin: 12,
-                minWidth: 2500,
-                columns: [
-                  DataColumn2(
-                    label: const Text(''),
-                    size: ColumnSize.S,
-                  ),
-                  DataColumn2(
-                    label: const Text('Nombre Cliente'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      sortFunc("nombre_shipping", changevalue);
-                    },
-                  ),
-                  DataColumn2(
-                    label: const Text('Fecha'),
-                    size: ColumnSize.S,
-                    onSort: (columnIndex, ascending) {
-                      // sortFuncFecha();
-                    },
-                  ),
-                  DataColumn2(
-                    label: const Text('Fecha entrega'),
-                    size: ColumnSize.S,
-                    onSort: (columnIndex, ascending) {
-                      // sortFuncFecha();
-                      sortFunc("fecha_entrega", changevalue);
-                    },
-                  ),
-                  DataColumn2(
-                    label: const Text('Código'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFunc("NumeroOrden");
-                      sortFunc("numero_orden", changevalue);
-                    },
-                  ),
-                  DataColumn2(
-                    label: const Text('Ciudad'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFunc("CiudadShipping");
-                      sortFunc("ciudad_shipping", changevalue);
-                    },
-                  ),
-                  DataColumn2(
-                    label: const Text('Dirección'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFunc("DireccionShipping");
-                      sortFunc("direccion_shipping", changevalue);
-                    },
-                  ),
-                  DataColumn2(
-                    label: const Text('Teléfono Cliente'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFunc("TelefonoShipping");
-                      sortFunc("telefono_shipping", changevalue);
-                    },
-                  ),
-                  DataColumn2(
-                    label: const Text('Cantidad'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFunc("Cantidad_Total");
-                      sortFunc("cantidad_total", changevalue);
-                    },
-                  ),
-                  DataColumn2(
-                    label: const Text('Producto'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFunc("ProductoP");
-                      sortFunc("producto_p", changevalue);
-                    },
-                  ),
-                  DataColumn2(
-                    label: const Text('Producto Extra'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFunc("ProductoExtra");
-                      sortFunc("producto_extra", changevalue);
-                    },
-                  ),
-                  DataColumn2(
-                    label: const Text('Precio Total'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFunc("PrecioTotal");
-                      sortFunc("precio_total", changevalue);
-                    },
-                  ),
-                  DataColumn2(
-                    label: const Text('Transportadora'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFuncTransporte();
-                    },
-                  ),
-                  DataColumn2(
-                    label: const Text('Status'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFunc("Status");
-                      sortFunc("status", changevalue);
-                    },
-                  ),
-                  DataColumn2(
-                    label: const Text('Confirmado?'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFunc("Estado_Interno");
-                      sortFunc("estado_interno", changevalue);
-                    },
-                  ),
-                  DataColumn2(
-                    label: const Text('Estado Logistico'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFunc("Estado_Logistico");
-                      sortFunc("estado_logistico", changevalue);
-                    },
-                  ),
-                  DataColumn2(
-                    label: const Text('Observación'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFunc("Observacion");
-                      sortFunc("observacion", changevalue);
-                    },
-                  ),
-                  DataColumn2(
-                    label: const Text('Impreso por'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      sortFunc("printed_by", changevalue);
-                    },
-                  ),
-                  DataColumn2(
-                    label: const Text('Marca Envio'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFunc("Marca_Tiempo_Envio");
-                      sortFunc("marca_tiempo_envio", changevalue);
-                    },
-                  ),
-                  DataColumn2(
-                    label: const Text('Enviado por'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      sortFunc("sent_by", changevalue);
-                    },
-                  ),
-                  DataColumn2(
-                    label: const Text('Fecha hora Envio'),
-                    size: ColumnSize.L,
-                    onSort: (columnIndex, ascending) {
-                      sortFunc("sent_at", changevalue);
-                    },
-                  ),
-                ],
-                rows: List<DataRow>.generate(
-                  data.length,
-                  (index) {
-                    Color rowColor = Colors.white;
-                    if ((data[index]['sent_by'] != null &&
-                        data[index]['sent_by'].isNotEmpty)) {
-                      if (data[index]['sent_by']['roles_fronts'][0]['id'] !=
-                          1) {
-                        rowColor = Colors.lightBlue.shade50;
-                      }
-                    }
-                    return DataRow(
-                        color: MaterialStateProperty.resolveWith<Color>(
-                            (Set<MaterialState> states) {
-                          if (states.contains(MaterialState.selected)) {
-                            return Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withOpacity(0.08);
-                          }
-                          return rowColor;
-                        }),
-                        cells: [
-                          DataCell(Checkbox(
-                              value: data[index]['check'],
-                              onChanged: (value) {
-                                setState(() {
-                                  data[index]['check'] = value;
-                                });
-
-                                if (value!) {
-                                  optionsCheckBox.add({
-                                    "check": value,
-                                    "id": data[index]['id'].toString(),
-                                    "numPedido":
-                                        "${data[index]['users'] != null ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal'].toString()}-${data[index]['numero_orden']}"
-                                            .toString(),
-                                    "date": data[index]['pedido_fecha'][0]
-                                            ['fecha']
-                                        .toString(),
-                                    "city": data[index]['ciudad_shipping']
-                                        .toString(),
-                                    "product":
-                                        data[index]['producto_p'].toString(),
-                                    "extraProduct": data[index]
-                                            ['producto_extra']
-                                        .toString(),
-                                    "quantity": data[index]['cantidad_total']
-                                        .toString(),
-                                    "phone": data[index]['telefono_shipping']
-                                        .toString(),
-                                    "price":
-                                        data[index]['precio_total'].toString(),
-                                    "name": data[index]['nombre_shipping']
-                                        .toString(),
-                                    "transport":
-                                        data[index]['transportadora'] != null
-                                            ? data[index]['transportadora'][0]
-                                                    ['nombre']
-                                                .toString()
-                                            : '',
-                                    "address": data[index]['direccion_shipping']
-                                        .toString(),
-                                    "obervation":
-                                        data[index]['observacion'].toString(),
-                                    "qrLink": data[index]['users'][0]
-                                            ['vendedores'][0]['url_tienda']
-                                        .toString(),
-                                  });
-                                } else {
-                                  var m = data[index]['id'];
-                                  optionsCheckBox.removeWhere((option) =>
-                                      option['id'] ==
-                                      data[index]['id'].toString());
-                                }
-                                setState(() {
-                                  counterChecks = optionsCheckBox.length;
-                                });
-                              })),
-                          DataCell(
-                              Text(data[index]['nombre_shipping'].toString()),
-                              onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                              Text(data[index]['pedido_fecha'][0]['fecha']
-                                  .toString()), onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                              Text(data[index]['fecha_entrega'] ??
-                                  "".toString()), onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                              Text(
-                                  "${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden']}"
-                                      .toString()), onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                              Text(data[index]['ciudad_shipping'].toString()),
-                              onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                              Text(
-                                  data[index]['direccion_shipping'].toString()),
-                              onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                              Text(data[index]['telefono_shipping'].toString()),
-                              onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                              Text(data[index]['cantidad_total'].toString()),
-                              onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(Text(data[index]['producto_p'].toString()),
-                              onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                              Text(data[index]['producto_extra'] == null ||
-                                      data[index]['producto_extra'] == "null"
-                                  ? ""
-                                  : data[index]['producto_extra'].toString()),
-                              onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(Text(data[index]['precio_total'].toString()),
-                              onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                            Text(data[index]['transportadora'] != null &&
-                                    data[index]['transportadora'].isNotEmpty
-                                ? data[index]['transportadora'][0]['nombre']
-                                    .toString()
-                                : ''),
-                          ),
-                          DataCell(Text(data[index]['status'].toString()),
-                              onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                              Text(data[index]['estado_interno'].toString()),
-                              onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                              Text(data[index]['estado_logistico'].toString()),
-                              onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                              Text(data[index]['observacion'] == null ||
-                                      data[index]['observacion'] == "null"
-                                  ? ""
-                                  : data[index]['observacion'].toString()),
-                              onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                              Text(data[index]['printed_by'] != null &&
-                                      data[index]['printed_by'].isNotEmpty
-                                  ? "${data[index]['printed_by']['username'].toString()}-${data[index]['printed_by']['id'].toString()}"
-                                  : ''), onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                              Text(
-                                  data[index]['marca_tiempo_envio'].toString()),
-                              onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                              Text(data[index]['sent_by'] != null &&
-                                      data[index]['sent_by'].isNotEmpty
-                                  ? "${data[index]['sent_by']['username'].toString()}-${data[index]['sent_by']['id'].toString()}"
-                                  : ''), onTap: () {
-                            getInfoModal(index);
-                          }),
-                          DataCell(
-                              Text(data[index]['sent_at'] != null
-                                  ? "${formatDate(data[index]['sent_at'])}"
-                                  : ''), onTap: () {
-                            getInfoModal(index);
-                          }),
-                        ]);
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          Align(
+              alignment: Alignment.centerLeft,
+              child: Text("Número de Ordenes: ${data.length}")),
+          const SizedBox(
+            height: 10,
+          ),
+          Expanded(
+            child: DataTable2(
+              headingTextStyle:
+                  TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+              dataTextStyle: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black),
+              columnSpacing: 12,
+              horizontalMargin: 12,
+              minWidth: 2500,
+              columns: [
+                DataColumn2(
+                  label: const Text(''),
+                  size: ColumnSize.S,
+                ),
+                DataColumn2(
+                  label: const Text('Nombre Cliente'),
+                  size: ColumnSize.M,
+                  onSort: (columnIndex, ascending) {
+                    sortFunc("nombre_shipping", changevalue);
                   },
                 ),
+                DataColumn2(
+                  label: const Text('Fecha'),
+                  size: ColumnSize.S,
+                  onSort: (columnIndex, ascending) {
+                    // sortFuncFecha();
+                  },
+                ),
+                DataColumn2(
+                  label: const Text('Fecha entrega'),
+                  size: ColumnSize.S,
+                  onSort: (columnIndex, ascending) {
+                    // sortFuncFecha();
+                    sortFunc("fecha_entrega", changevalue);
+                  },
+                ),
+                DataColumn2(
+                  label: const Text('Código'),
+                  size: ColumnSize.M,
+                  onSort: (columnIndex, ascending) {
+                    // sortFunc("NumeroOrden");
+                    sortFunc("numero_orden", changevalue);
+                  },
+                ),
+                DataColumn2(
+                  label: const Text('Ciudad'),
+                  size: ColumnSize.M,
+                  onSort: (columnIndex, ascending) {
+                    // sortFunc("CiudadShipping");
+                    sortFunc("ciudad_shipping", changevalue);
+                  },
+                ),
+                DataColumn2(
+                  label: const Text('Dirección'),
+                  size: ColumnSize.M,
+                  onSort: (columnIndex, ascending) {
+                    // sortFunc("DireccionShipping");
+                    sortFunc("direccion_shipping", changevalue);
+                  },
+                ),
+                DataColumn2(
+                  label: const Text('Teléfono Cliente'),
+                  size: ColumnSize.M,
+                  onSort: (columnIndex, ascending) {
+                    // sortFunc("TelefonoShipping");
+                    sortFunc("telefono_shipping", changevalue);
+                  },
+                ),
+                DataColumn2(
+                  label: const Text('Cantidad'),
+                  size: ColumnSize.M,
+                  onSort: (columnIndex, ascending) {
+                    // sortFunc("Cantidad_Total");
+                    sortFunc("cantidad_total", changevalue);
+                  },
+                ),
+                DataColumn2(
+                  label: const Text('Producto'),
+                  size: ColumnSize.M,
+                  onSort: (columnIndex, ascending) {
+                    // sortFunc("ProductoP");
+                    sortFunc("producto_p", changevalue);
+                  },
+                ),
+                DataColumn2(
+                  label: const Text('Producto Extra'),
+                  size: ColumnSize.M,
+                  onSort: (columnIndex, ascending) {
+                    // sortFunc("ProductoExtra");
+                    sortFunc("producto_extra", changevalue);
+                  },
+                ),
+                DataColumn2(
+                  label: const Text('Precio Total'),
+                  size: ColumnSize.M,
+                  onSort: (columnIndex, ascending) {
+                    // sortFunc("PrecioTotal");
+                    sortFunc("precio_total", changevalue);
+                  },
+                ),
+                DataColumn2(
+                  label: const Text('Retirado Por'),
+                  size: ColumnSize.M,
+                  onSort: (columnIndex, ascending) {
+                    // sortFuncTransporte();
+                  },
+                ),
+                DataColumn2(
+                  label: const Text('Transportadora'),
+                  size: ColumnSize.M,
+                  onSort: (columnIndex, ascending) {
+                    // sortFuncTransporte();
+                  },
+                ),
+                DataColumn2(
+                  label: const Text('Status'),
+                  size: ColumnSize.M,
+                  onSort: (columnIndex, ascending) {
+                    // sortFunc("Status");
+                    sortFunc("status", changevalue);
+                  },
+                ),
+                DataColumn2(
+                  label: const Text('Confirmado?'),
+                  size: ColumnSize.M,
+                  onSort: (columnIndex, ascending) {
+                    // sortFunc("Estado_Interno");
+                    sortFunc("estado_interno", changevalue);
+                  },
+                ),
+                DataColumn2(
+                  label: const Text('Estado Logistico'),
+                  size: ColumnSize.M,
+                  onSort: (columnIndex, ascending) {
+                    // sortFunc("Estado_Logistico");
+                    sortFunc("estado_logistico", changevalue);
+                  },
+                ),
+                DataColumn2(
+                  label: const Text('Observación'),
+                  size: ColumnSize.M,
+                  onSort: (columnIndex, ascending) {
+                    // sortFunc("Observacion");
+                    sortFunc("observacion", changevalue);
+                  },
+                ),
+                DataColumn2(
+                  label: const Text('Impreso por'),
+                  size: ColumnSize.M,
+                  onSort: (columnIndex, ascending) {
+                    sortFunc("printed_by", changevalue);
+                  },
+                ),
+                DataColumn2(
+                  label: const Text('Marca Envio'),
+                  size: ColumnSize.M,
+                  onSort: (columnIndex, ascending) {
+                    // sortFunc("Marca_Tiempo_Envio");
+                    sortFunc("marca_tiempo_envio", changevalue);
+                  },
+                ),
+                DataColumn2(
+                  label: const Text('Enviado por'),
+                  size: ColumnSize.M,
+                  onSort: (columnIndex, ascending) {
+                    sortFunc("sent_by", changevalue);
+                  },
+                ),
+                DataColumn2(
+                  label: const Text('Fecha hora Envio'),
+                  size: ColumnSize.L,
+                  onSort: (columnIndex, ascending) {
+                    sortFunc("sent_at", changevalue);
+                  },
+                ),
+              ],
+              rows: List<DataRow>.generate(
+                data.length,
+                (index) {
+                  Color rowColor = Colors.white;
+                  if ((data[index]['sent_by'] != null &&
+                      data[index]['sent_by'].isNotEmpty)) {
+                    if (data[index]['sent_by']['roles_fronts'][0]['id'] != 1) {
+                      rowColor = Colors.lightBlue.shade50;
+                    }
+                  }
+                  return DataRow(
+                      color: MaterialStateProperty.resolveWith<Color>(
+                          (Set<MaterialState> states) {
+                        if (states.contains(MaterialState.selected)) {
+                          return Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withOpacity(0.08);
+                        }
+                        return rowColor;
+                      }),
+                      cells: [
+                        DataCell(Checkbox(
+                            value: data[index]['check'],
+                            onChanged: (value) {
+                              setState(() {
+                                data[index]['check'] = value;
+                              });
+
+                              if (value!) {
+                                optionsCheckBox.add({
+                                  "check": value,
+                                  "id": data[index]['id'].toString(),
+                                  "numPedido":
+                                      "${data[index]['users'] != null ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal'].toString()}-${data[index]['numero_orden']}"
+                                          .toString(),
+                                  "date": data[index]['pedido_fecha'][0]
+                                          ['fecha']
+                                      .toString(),
+                                  "city":
+                                      data[index]['ciudad_shipping'].toString(),
+                                  "product":
+                                      data[index]['producto_p'].toString(),
+                                  "extraProduct":
+                                      data[index]['producto_extra'].toString(),
+                                  "quantity":
+                                      data[index]['cantidad_total'].toString(),
+                                  "phone": data[index]['telefono_shipping']
+                                      .toString(),
+                                  "price":
+                                      data[index]['precio_total'].toString(),
+                                  "name":
+                                      data[index]['nombre_shipping'].toString(),
+                                  "transport":
+                                      data[index]['transportadora'] != null
+                                          ? data[index]['transportadora'][0]
+                                                  ['nombre']
+                                              .toString()
+                                          : '',
+                                  "address": data[index]['direccion_shipping']
+                                      .toString(),
+                                  "obervation":
+                                      data[index]['observacion'].toString(),
+                                  "qrLink": data[index]['users'][0]
+                                          ['vendedores'][0]['url_tienda']
+                                      .toString(),
+                                });
+                              } else {
+                                var m = data[index]['id'];
+                                optionsCheckBox.removeWhere((option) =>
+                                    option['id'] ==
+                                    data[index]['id'].toString());
+                              }
+                              setState(() {
+                                counterChecks = optionsCheckBox.length;
+                              });
+                            })),
+                        DataCell(
+                            Text(data[index]['nombre_shipping'].toString()),
+                            onTap: () {
+                          getInfoModal(index);
+                        }),
+                        DataCell(
+                            Text(data[index]['pedido_fecha'][0]['fecha']
+                                .toString()), onTap: () {
+                          getInfoModal(index);
+                        }),
+                        DataCell(
+                            Text(data[index]['fecha_entrega'] ?? "".toString()),
+                            onTap: () {
+                          getInfoModal(index);
+                        }),
+                        DataCell(
+                            Text(
+                                "${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden']}"
+                                    .toString()), onTap: () {
+                          getInfoModal(index);
+                        }),
+                        DataCell(
+                            Text(data[index]['ciudad_shipping'].toString()),
+                            onTap: () {
+                          getInfoModal(index);
+                        }),
+                        DataCell(
+                            Text(data[index]['direccion_shipping'].toString()),
+                            onTap: () {
+                          getInfoModal(index);
+                        }),
+                        DataCell(
+                            Text(data[index]['telefono_shipping'].toString()),
+                            onTap: () {
+                          getInfoModal(index);
+                        }),
+                        DataCell(Text(data[index]['cantidad_total'].toString()),
+                            onTap: () {
+                          getInfoModal(index);
+                        }),
+                        DataCell(Text(data[index]['producto_p'].toString()),
+                            onTap: () {
+                          getInfoModal(index);
+                        }),
+                        DataCell(
+                            Text(data[index]['producto_extra'] == null ||
+                                    data[index]['producto_extra'] == "null"
+                                ? ""
+                                : data[index]['producto_extra'].toString()),
+                            onTap: () {
+                          getInfoModal(index);
+                        }),
+                        DataCell(Text(data[index]['precio_total'].toString()),
+                            onTap: () {
+                          getInfoModal(index);
+                        }),
+                        DataCell(
+                          Text(
+                              nombresOperadores[data[index]['withdrawan_by']] ??
+                                  'No disponible'),
+                          onTap: () {
+                            getInfoModal(index);
+                          },
+                        ),
+                        DataCell(
+                          Text(data[index]['transportadora'] != null &&
+                                  data[index]['transportadora'].isNotEmpty
+                              ? data[index]['transportadora'][0]['nombre']
+                                  .toString()
+                              : ''),
+                        ),
+                        DataCell(Text(data[index]['status'].toString()),
+                            onTap: () {
+                          getInfoModal(index);
+                        }),
+                        DataCell(Text(data[index]['estado_interno'].toString()),
+                            onTap: () {
+                          getInfoModal(index);
+                        }),
+                        DataCell(
+                            Text(data[index]['estado_logistico'].toString()),
+                            onTap: () {
+                          getInfoModal(index);
+                        }),
+                        DataCell(
+                            Text(data[index]['observacion'] == null ||
+                                    data[index]['observacion'] == "null"
+                                ? ""
+                                : data[index]['observacion'].toString()),
+                            onTap: () {
+                          getInfoModal(index);
+                        }),
+                        DataCell(
+                            Text(data[index]['printed_by'] != null &&
+                                    data[index]['printed_by'].isNotEmpty
+                                ? "${data[index]['printed_by']['username'].toString()}-${data[index]['printed_by']['id'].toString()}"
+                                : ''), onTap: () {
+                          getInfoModal(index);
+                        }),
+                        DataCell(
+                            Text(data[index]['marca_tiempo_envio'].toString()),
+                            onTap: () {
+                          getInfoModal(index);
+                        }),
+                        DataCell(
+                            Text(data[index]['sent_by'] != null &&
+                                    data[index]['sent_by'].isNotEmpty
+                                ? "${data[index]['sent_by']['username'].toString()}-${data[index]['sent_by']['id'].toString()}"
+                                : ''), onTap: () {
+                          getInfoModal(index);
+                        }),
+                        DataCell(
+                            Text(data[index]['sent_at'] != null
+                                ? "${formatDate(data[index]['sent_at'])}"
+                                : ''), onTap: () {
+                          getInfoModal(index);
+                        }),
+                      ]);
+                },
               ),
             ),
-          ],
-        ),
-      );
+          ),
+        ],
+      ),
+    );
   }
 
   formatDate(dateStringFromDatabase) {
@@ -861,53 +892,55 @@ class _TableOrdersGuidesSentStateTransport extends State<TableOrdersGuidesSentTr
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // SizedBox(
-          //   height: 10,
-          // ),
-          // TextButton(
-          //     onPressed: () async {
-          //       var results = await showCalendarDatePicker2Dialog(
-          //         context: context,
-          //         config: CalendarDatePicker2WithActionButtonsConfig(
-          //           dayTextStyle: TextStyle(fontWeight: FontWeight.bold),
-          //           yearTextStyle: TextStyle(fontWeight: FontWeight.bold),
-          //           selectedYearTextStyle:
-          //               TextStyle(fontWeight: FontWeight.bold),
-          //           weekdayLabelTextStyle:
-          //               TextStyle(fontWeight: FontWeight.bold),
-          //         ),
-          //         dialogSize: const Size(325, 400),
-          //         value: _dates,
-          //         borderRadius: BorderRadius.circular(15),
-          //       );
-          //       setState(() {
-          //         if (results != null) {
-          //           String fechaOriginal = results![0]
-          //               .toString()
-          //               .split(" ")[0]
-          //               .split('-')
-          //               .reversed
-          //               .join('-')
-          //               .replaceAll("-", "/");
-          //           List<String> componentes = fechaOriginal.split('/');
+          SizedBox(
+            height: 10,
+          ),
+          TextButton(
+              onPressed: () async {
+                _mostrarVentanaEmergente(context);
+                // print(date);
+                //       var results = await showCalendarDatePicker2Dialog(
+                //         context: context,
+                //         config: CalendarDatePicker2WithActionButtonsConfig(
+                //           dayTextStyle: TextStyle(fontWeight: FontWeight.bold),
+                //           yearTextStyle: TextStyle(fontWeight: FontWeight.bold),
+                //           selectedYearTextStyle:
+                //               TextStyle(fontWeight: FontWeight.bold),
+                //           weekdayLabelTextStyle:
+                //               TextStyle(fontWeight: FontWeight.bold),
+                //         ),
+                //         dialogSize: const Size(325, 400),
+                //         value: _dates,
+                //         borderRadius: BorderRadius.circular(15),
+                //       );
+                //       setState(() {
+                //         if (results != null) {
+                //           String fechaOriginal = results![0]
+                //               .toString()
+                //               .split(" ")[0]
+                //               .split('-')
+                //               .reversed
+                //               .join('-')
+                //               .replaceAll("-", "/");
+                //           List<String> componentes = fechaOriginal.split('/');
 
-          //           String dia = int.parse(componentes[0]).toString();
-          //           String mes = int.parse(componentes[1]).toString();
-          //           String anio = componentes[2];
+                //           String dia = int.parse(componentes[0]).toString();
+                //           String mes = int.parse(componentes[1]).toString();
+                //           String anio = componentes[2];
 
-          //           String nuevaFecha = "$dia/$mes/$anio";
-          //           setState(() {
-          //             date = nuevaFecha;
-          //           });
-          //           _controllers.searchController.clear();
-          //         }
-          //       });
-          //       await loadData();
-          //     },
-          //     child: Text(
-          //       "SELECCIONAR FECHA: $date",
-          //       style: TextStyle(fontWeight: FontWeight.bold),
-          //     )),
+                //           String nuevaFecha = "$dia/$mes/$anio";
+                //           setState(() {
+                //             date = nuevaFecha;
+                //           });
+                //           _controllers.searchController.clear();
+                //         }
+                //       });
+                //       await loadData();
+              },
+              child: Text(
+                "SELECCIONAR FECHA: $date",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              )),
           SizedBox(
             height: 10,
           ),
@@ -915,7 +948,7 @@ class _TableOrdersGuidesSentStateTransport extends State<TableOrdersGuidesSentTr
             child: DropdownButton2<String>(
               isExpanded: true,
               hint: Text(
-                'TRANSPORTADORA',
+                'OPERADORES',
                 style: TextStyle(
                     fontSize: 14,
                     color: Theme.of(context).hintColor,
@@ -1340,5 +1373,33 @@ class _TableOrdersGuidesSentStateTransport extends State<TableOrdersGuidesSentTr
                   ['Nombre']
               .toString()));
     }
+  }
+
+  void _mostrarVentanaEmergente(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Container(
+            width: 800,
+            height: 300,
+            child: CalendarWidget(
+                onDateSelected: (selectedDate) {
+                  setState(() {
+                    // Aquí actualizas 'date' con la fecha seleccionada
+                    String formattedDate =
+                        DateFormat('d/M/yyyy').format(selectedDate);
+                    date = formattedDate;
+                    print('Fecha seleccionada: $formattedDate');
+                  });
+                  // Llama a loadData aquí si necesitas recargar datos con la nueva fecha
+                  loadData();
+                  Navigator.pop(context);
+                },
+                idWarehouse: widget.idWarehouse),
+          ),
+        );
+      },
+    );
   }
 }

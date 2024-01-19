@@ -6415,6 +6415,47 @@ class Connections {
     }
   }
 
+  Future getOrdersForSentGuidesPrincipalLaravelD(
+      List populate,
+      List and,
+      List defaultAnd,
+      List or,
+      currentPage,
+      sizePage,
+      search,
+      sortFiled,
+      List not,
+      idWarehouse) async {
+    List filtersAndAll = [];
+    filtersAndAll.addAll(and);
+    filtersAndAll.addAll(defaultAnd);
+    try {
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/send-guides/printgD"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "populate": populate,
+                "or": or,
+                "and": filtersAndAll,
+                "page_size": sizePage,
+                "page_number": currentPage,
+                "search": search,
+                "sort": sortFiled,
+                "not": not,
+                "idWarehouse": idWarehouse
+              }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
   getUserPedidos(id) async {
     try {
       var response = await http.get(
@@ -7545,8 +7586,9 @@ class Connections {
   }
 
   getCountNotificationsWarehousesWithdrawals(
-      StreamController<List<Map<String, dynamic>>>
-          notificationsController) async {
+      // StreamController<List<Map<String, dynamic>>>
+      // notificationsController
+      ) async {
     String idTransport = sharedPrefs!.getString("idTransportadora").toString();
     try {
       var request =
@@ -7563,8 +7605,68 @@ class Connections {
         List<Map<String, dynamic>> notificationsList =
             List<Map<String, dynamic>>.from(
                 decodeData['ordersCountByWarehouse']);
-        notificationsController.add(notificationsList);
+        // notificationsController.add(notificationsList);
         return notificationsList;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  getValuesDropdown(monthYear, idWarehouse) async {
+    // String idTransport = sharedPrefs!.getString("idTransportadora").toString();
+    try {
+      var request = await http.post(Uri.parse("$serverLaravel/api/valuesdrop"),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json
+              .encode({"monthYear": monthYear, "idWarehouse": idWarehouse}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      List<Map<String, dynamic>> notificationsList =
+          List<Map<String, dynamic>>.from(decodeData);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return notificationsList;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  addWithdrawanBy(idOrder, idOperator) async {
+    try {
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/register-withdrawan-by"),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode({"idOrder": idOrder, "idOperator": idOperator}));
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  getOperatorName(idOperator) async {
+    try {
+      var request = await http.get(
+          Uri.parse("$serverLaravel/api/operators/by-id/${idOperator}"),
+          headers: {
+            'Content-Type': 'application/json',
+          });
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return decodeData;
       }
     } catch (e) {
       return 2;

@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/config/colors.dart';
-import 'package:frontend/ui/transport/withdrawals/table_orders_guides_sent.dart';
+import 'package:frontend/connections/connections.dart';
 import 'package:intl/intl.dart';
-import 'package:table_calendar/table_calendar.dart';
+// import 'package:frontend/ui/transport/withdrawals/table_orders_guides_sent.dart';
 
 class CalendarWidget extends StatefulWidget {
-  final String warehouseName;
+  final Function(DateTime) onDateSelected;
+  final String idWarehouse;
 
-  const CalendarWidget({Key? key, required this.warehouseName})
+  const CalendarWidget(
+      {Key? key, required this.onDateSelected, required this.idWarehouse})
       : super(key: key);
 
   @override
@@ -15,129 +17,179 @@ class CalendarWidget extends StatefulWidget {
 }
 
 class _CalendarWidgetState extends State<CalendarWidget> {
-  DateTime _selectedDate = DateTime.now();
-  CalendarFormat _calendarFormat = CalendarFormat.month;
-  RangeSelectionMode _rangeSelectionMode = RangeSelectionMode.toggledOff;
+  bool _isLoading = false;
+  late int _selectedYear;
+  late String _selectedMonth;
+  String _selectedDay =
+      '1'; // Asignar un valor predeterminado válido para _selectedDay
+  List<int> _years = [];
+  List<String> _months = [];
+  List<String> _days = [];
+
+  List<Map<String, dynamic>> respValues = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Inicializa los años y los meses.
+    _years = List.generate(11, (index) => DateTime.now().year - index);
+    _months = List.generate(
+        12, (index) => DateFormat('MMMM', 'es').format(DateTime(0, index + 1)));
+
+    _selectedYear = _years.first;
+    _selectedMonth = DateFormat('MMMM', 'es').format(DateTime.now());
+
+    // Obtén el número del mes a partir del nombre del mes seleccionado.
+    int monthNumber = _months.indexOf(_selectedMonth) + 1;
+    _updateDays(_selectedYear, monthNumber);
+
+    // Llama a loadData con el número del mes y el año.
+  }
+
+  loadData(String monthYear) async {
+    setState(() {
+      _isLoading = true; // Inicia la carga
+    });
+
+    var respvlaues =
+        await Connections().getValuesDropdown(monthYear, widget.idWarehouse);
+    // print(respvlaues);
+
+    if (mounted) {
+      setState(() {
+        respValues = respvlaues;
+        _updateDays(_selectedYear, _months.indexOf(_selectedMonth) + 1);
+        _isLoading = false; // Finaliza la carga
+      });
+    }
+  }
+
+  void _updateDays(int year, int month) {
+    int dayCount = DateUtils.getDaysInMonth(year, month);
+    _days = List<String>.generate(dayCount, (index) {
+      int dayNumber = dayCount - index;
+      String fecha = "$dayNumber/$month/$year";
+
+      // Buscar la cantidad correspondiente en respValues
+      var foundItem = respValues.firstWhere(
+        (item) => item['fecha'] == fecha,
+        orElse: () => {'cantidad': 0},
+      );
+
+      return '$dayNumber (${foundItem['cantidad']})';
+    });
+
+    // Establece el último día del mes como día seleccionado.
+    _selectedDay = _days.first.split(' ')[0];
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Container(
-          padding: EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(16.0),
-              topRight: Radius.circular(16.0),
-            ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  'Historial Retiros ${widget.warehouseName}',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18.0,
-                  ),
-                ),
-              ),
-              IconButton(
-                icon: Icon(Icons.close, color: Colors.white),
-                onPressed: () {
-                  Navigator.of(context)
-                      .pop(); // Cierra el diálogo al presionar el botón de cerrar
-                },
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: MediaQuery.of(context).size.height -
-                    56, // Altura del AppBar
-              ),
-              child: TableCalendar(
-                locale: 'es',
-                firstDay: DateTime(2020),
-                lastDay: DateTime(2030),
-                focusedDay: DateTime.now(),
-                calendarFormat: _calendarFormat,
-                rangeSelectionMode: _rangeSelectionMode,
-                headerStyle: HeaderStyle(
-                  formatButtonVisible: false,
-                ),
-                onDaySelected: (date, focusedDay) {
-                  // Formatear la fecha a "d/M/yyyy"
-                  String formattedDate = DateFormat('d/M/yyyy').format(date);
-
-                  print('Fecha seleccionada: $formattedDate');
-                  setState(() {
-                    _selectedDate = date;
-                  });
-                  _mostrarVentanaEmergenteGuiasEnviadas(context,formattedDate);
-                },
-                onPageChanged: (focusedDay) {
-                  // Handle page change
-                },
-                calendarBuilders: CalendarBuilders(
-                  selectedBuilder: (context, date, focusedDay) {
-                    return buildCell(date, focusedDay, Colors.blue);
-                  },
-                  todayBuilder: (context, date, focusedDay) {
-                    return buildCell(
-                        date, focusedDay, ColorsSystem().colorSelectMenu);
-                  },
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget buildCell(DateTime date, DateTime focusedDay, Color color) {
     return Container(
-      margin: const EdgeInsets.all(4.0),
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-      ),
-      child: Center(
-        child: Text(
-          date.day.toString(),
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+      padding: EdgeInsets.all(10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Align(
+            alignment: Alignment.topRight,
+            child: IconButton(
+              icon: Icon(Icons.close),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
           ),
-        ),
-      ),
-    );
-  }
-
-  void _mostrarVentanaEmergenteGuiasEnviadas(BuildContext context,String dateSend) {
-    double width =
-        MediaQuery.of(context).size.width * 0.8; // 80% del ancho de la pantalla
-    double height =
-        MediaQuery.of(context).size.height * 0.8; // 60% del alto de la pantalla
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: Container(
-            width: width,
-            height: height,
-            child: TableOrdersGuidesSentTransport(dateSend: dateSend),
+          // ... tu UI anterior ...
+          Text("Año", style: TextStyle(fontWeight: FontWeight.bold)),
+          DropdownButton<int>(
+            value: _selectedYear,
+            items: _years.map<DropdownMenuItem<int>>((int value) {
+              return DropdownMenuItem<int>(
+                value: value,
+                child: Text(value.toString()),
+              );
+            }).toList(),
+            onChanged: (int? newValue) {
+              if (newValue != null) {
+                setState(() {
+                  _selectedYear = newValue;
+                  _updateDays(
+                      _selectedYear, _months.indexOf(_selectedMonth) + 1);
+                });
+              }
+            },
           ),
-        );
-      },
+          Text("Mes", style: TextStyle(fontWeight: FontWeight.bold)),
+          DropdownButton<String>(
+            value: _selectedMonth,
+            items: _months.map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+            onChanged: (String? newValue) {
+              if (newValue != null) {
+                setState(() {
+                  _selectedMonth = newValue;
+                });
+
+                // Obtén el número del mes a partir del nombre del mes seleccionado y actualiza los días.
+                int monthNumber = _months.indexOf(newValue) + 1;
+                String formattedMonthYear = "$monthNumber/${_selectedYear}";
+
+                // Llama a loadData con el nuevo mes y año.
+                loadData(formattedMonthYear);
+              }
+            },
+          ),
+          Text("Día", style: TextStyle(fontWeight: FontWeight.bold)),
+          _isLoading
+              ? Text('Cargando...')
+              : DropdownButton<String>(
+                  value: _selectedDay,
+                  items: _days.map<DropdownMenuItem<String>>((String value) {
+                    String dayNumber = value.split(' ')[0];
+                    String count = value.split(' ')[1];
+
+                    return DropdownMenuItem<String>(
+                      value: dayNumber,
+                      child: RichText(
+                        text: TextSpan(
+                          style: TextStyle(
+                            color: Colors.black,
+                          ), // Estilo predeterminado
+                          children: <TextSpan>[
+                            TextSpan(text: "$dayNumber "), // Texto normal
+                            TextSpan(
+                              text: count, // Texto entre paréntesis
+                              style: TextStyle(
+                                  color: ColorsSystem()
+                                      .colorSelectMenu), // Estilo azul para el conteo
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      setState(() {
+                        _selectedDay = newValue;
+                      });
+                      int day = int.parse(newValue);
+                      int month = _months.indexOf(_selectedMonth) + 1;
+                      widget
+                          .onDateSelected(DateTime(_selectedYear, month, day));
+                    }
+                  },
+                ),
+
+          // ... más de tu UI si es necesario ...
+        ],
+      ),
     );
   }
 }

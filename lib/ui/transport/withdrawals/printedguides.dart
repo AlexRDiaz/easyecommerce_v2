@@ -1,7 +1,9 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/navigators.dart';
@@ -14,6 +16,7 @@ import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_sna
 import 'package:frontend/ui/transport/withdrawals/controllers/controllers.dart';
 import 'package:frontend/ui/transport/withdrawals/customwidget.dart';
 import 'package:frontend/ui/transport/withdrawals/printedguides_info.dart';
+import 'package:frontend/ui/transport/withdrawals/table_orders_guides_sent.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/logistic/scanner_printed.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -30,18 +33,16 @@ class PrintedGuidesLogistic extends StatefulWidget {
   final String idWarehouse;
   final String warehouseName;
 
-  const PrintedGuidesLogistic({
-    super.key, 
-    required this.idWarehouse,
-    required this.warehouseName
-    });
+  const PrintedGuidesLogistic(
+      {super.key, required this.idWarehouse, required this.warehouseName});
 
   @override
   State<PrintedGuidesLogistic> createState() => _PrintedGuidesState();
 }
 
 class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
-  PrintedGuidesTransportControllers _controllers = PrintedGuidesTransportControllers();
+  PrintedGuidesTransportControllers _controllers =
+      PrintedGuidesTransportControllers();
   ScreenshotController screenshotController = ScreenshotController();
 
   String? _barcode;
@@ -49,8 +50,10 @@ class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
   List optionsCheckBox = [];
   List data = [];
   bool sort = false;
+  List<dynamic> operators = [];
   List dataTemporal = [];
   bool selectAll = false;
+  int selectedOperatorId = 0;
   List filtersOrCont = [
     // 'fecha_entrega',
     "name_comercial",
@@ -67,11 +70,10 @@ class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
     "estado_logistico"
   ];
   var arrayfiltersDefaultAnd = [
-    
     // {
     //   'id_comercial': sharedPrefs!.getString("idComercialMasterSeller").toString(),
     // },
-    
+
     {"estado_interno": "CONFIRMADO"},
     {"estado_logistico": "IMPRESO"}
   ];
@@ -101,18 +103,19 @@ class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
     // response =
     //     await Connections().getOrdersForPrintedGuides(_controllers.search.text);
 
+    String idTrans = sharedPrefs!.getString("idTransportadora").toString();
+    var dataOperators = await Connections().getOperatoresbyTransport(idTrans);
+    operators = dataOperators['operadores'];
+
     var responseLaravel = await Connections().getOrdersForPrintGuidesLaravelD(
-      filtersOrCont,
-      arrayfiltersDefaultAnd,
-      arrayFiltersAnd,
-      currentPage,
-      pageSize,
-      sortFieldDefaultValue.toString(),
-      _controllers.search.text,
-      widget.idWarehouse
-    );
-
-
+        filtersOrCont,
+        arrayfiltersDefaultAnd,
+        arrayFiltersAnd,
+        currentPage,
+        pageSize,
+        sortFieldDefaultValue.toString(),
+        _controllers.search.text,
+        widget.idWarehouse);
 
     // data = response;
     data = responseLaravel['data'];
@@ -164,457 +167,464 @@ class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
 
   @override
   Widget build(BuildContext context) {
-    return 
-      // floatingActionButton: FloatingActionButton(onPressed: () {
-      //   enviarMensajeWhatsApp('593992107483', '¡Hola! ¿Cómo estás?');
-      // }),
-      Container(
-        padding: const EdgeInsets.all(15),
-        width: double.infinity,
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            children: [
-              Container(
-                color: Colors.transparent,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Historial Retiros ${widget.warehouseName}",
-                      style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 18.0),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: GestureDetector(
-                  onTap: () async {
-                    optionsCheckBox = [];
-                    _controllers.search.clear();
-                    selectAll = false;
-                    resetFilters();
-                    await loadData();
-                  },
-                  child: 
-                  Container(
-                    color: Colors.transparent,
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Icon(
-                          Icons.replay_outlined,
-                          color: Colors.green,
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Text(
-                          "Recargar Información",
-                          style: TextStyle(
-                              decoration: TextDecoration.underline,
-                              color: Colors.green),
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Container(
-                width: double.infinity,
-                child: Row(
-                  children: [
-                    Expanded(
-                        child: counterChecks != 0
-                            ? _buttons()
-                            : _modelTextField(
-                                text: "Busqueda",
-                                controller: _controllers.search)),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return
+        // floatingActionButton: FloatingActionButton(onPressed: () {
+        //   enviarMensajeWhatsApp('593992107483', '¡Hola! ¿Cómo estás?');
+        // }),
+        Container(
+      padding: const EdgeInsets.all(15),
+      width: double.infinity,
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          children: [
+            Container(
+              color: Colors.transparent,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    "Contador: ${data.length}",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: ElevatedButton(
-                        onPressed: () {
-                          _mostrarVentanaEmergente(context, widget.warehouseName);
-                        },
-                        child: const Text(
-                          "GUIAS ENVIADAS",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        )),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: ElevatedButton(
-                        onPressed: () async {
-                          await showDialog(
-                              context: context,
-                              builder: (context) {
-                                return ScannerPrinted();
-                              });
-                          await loadData();
-                        },
-                        child: const Text(
-                          "SCANNER",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        )),
+                    "Historial Retiros ${widget.warehouseName}",
+                    style: const TextStyle(color: Colors.black, fontSize: 18.0),
                   ),
                 ],
               ),
-              const SizedBox(
-                height: 10,
-              ),
-              Expanded(
-                child: DataTable2(
-                    headingTextStyle: TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.black),
-                    dataTextStyle: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black),
-                    columnSpacing: 12,
-                    horizontalMargin: 12,
-                    minWidth: 2500,
-                    columns: [
-                      DataColumn2(
-                        label: Row(
-                          children: [
-                            Checkbox(
-                              value: selectAll,
-                              onChanged: (bool? value) {
-                                setState(() {
-                                  selectAll = value ?? false;
-                                  addAllValues();
-                                });
-                              },
-                            ),
-                            const Text('Todo'),
-                          ],
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Align(
+              alignment: Alignment.topLeft,
+              child: ElevatedButton(
+                  onPressed: () {
+                    // _mostrarVentanaEmergente(context, widget.warehouseName);
+                    _mostrarVentanaEmergenteGuiasEnviadas(
+                        context, widget.idWarehouse);
+                  },
+                  child: Container(
+                    width: 140.0,
+                    child: const Row(
+                      children: [
+                        Icon(Icons.send_and_archive),
+                        SizedBox(
+                          width: 2.0,
                         ),
-                        size: ColumnSize.S,
+                        Text(
+                          "GUIAS ENVIADAS",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )
+                      ],
+                    ),
+                  )),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: GestureDetector(
+                onTap: () async {
+                  optionsCheckBox = [];
+                  _controllers.search.clear();
+                  selectAll = false;
+                  resetFilters();
+                  await loadData();
+                },
+                child: Container(
+                  color: Colors.transparent,
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Icon(
+                        Icons.replay_outlined,
+                        color: Colors.green,
                       ),
-                      DataColumn2(
-                        label: const Text('Código'),
-                        size: ColumnSize.M,
-                        onSort: (columnIndex, ascending) {
-                          sortFunc("numero_orden", changevalue);
-                        },
+                      SizedBox(
+                        width: 10,
                       ),
-                      DataColumn2(
-                        label: const Text('Ciudad'),
-                        size: ColumnSize.M,
-                        onSort: (columnIndex, ascending) {
-                          sortFunc("ciudad_shipping", changevalue);
-                        },
+                      Text(
+                        "Recargar Información",
+                        style: TextStyle(
+                            decoration: TextDecoration.underline,
+                            color: Colors.green),
                       ),
-                      DataColumn2(
-                        label: const Text('Nombre Cliente'),
-                        size: ColumnSize.M,
-                        onSort: (columnIndex, ascending) {
-                          // sortFunc("NombreShipping");
-                          sortFunc("nombre_shipping", changevalue);
-                        },
-                      ),
-                      DataColumn2(
-                        label: const Text('Dirección'),
-                        size: ColumnSize.M,
-                        onSort: (columnIndex, ascending) {
-                          // sortFunc("DireccionShipping");
-                          sortFunc("direccion_shipping", changevalue);
-                        },
-                      ),
-                      DataColumn2(
-                        label: const Text('Cantidad'),
-                        size: ColumnSize.M,
-                        onSort: (columnIndex, ascending) {
-                          // sortFunc("Cantidad_Total");
-                          sortFunc("cantidad_total", changevalue);
-                        },
-                      ),
-                      DataColumn2(
-                        label: const Text('Producto'),
-                        size: ColumnSize.M,
-                        onSort: (columnIndex, ascending) {
-                          // sortFunc("ProductoP");
-                          sortFunc("producto_p", changevalue);
-                        },
-                      ),
-                      DataColumn2(
-                        label: const Text('Producto Extra'),
-                        size: ColumnSize.M,
-                        onSort: (columnIndex, ascending) {
-                          // sortFunc("ProductoExtra");
-                          sortFunc("producto_extra", changevalue);
-                        },
-                      ),
-                      DataColumn2(
-                        label: const Text('Precio Total'),
-                        size: ColumnSize.M,
-                        onSort: (columnIndex, ascending) {
-                          // sortFunc("PrecioTotal");
-                          sortFunc("precio_total", changevalue);
-                        },
-                      ),
-                      DataColumn2(
-                        label: const Text('Estado'),
-                        size: ColumnSize.M,
-                        onSort: (columnIndex, ascending) {
-                          // sortFunc("Status");
-                          sortFunc("estado_interno", changevalue);
-                        },
-                      ),
-                      DataColumn2(
-                        label: const Text('Estado Logistico'),
-                        size: ColumnSize.M,
-                        onSort: (columnIndex, ascending) {
-                          // sortFunc("Estado_Logistico");
-                          sortFunc("estado_logistico", changevalue);
-                        },
-                      ),
-                      DataColumn2(
-                        label: const Text('Transportadora'),
-                        size: ColumnSize.M,
-                        onSort: (columnIndex, ascending) {
-                          // sortFuncTransporte();
-                        },
-                      ),
-                      DataColumn2(
-                        label: const Text('Impreso por'),
-                        size: ColumnSize.M,
-                        onSort: (columnIndex, ascending) {
-                          sortFunc("printed_by", changevalue);
-                        },
-                      ),
-                      DataColumn2(
-                        label: const Text('Fecha Impresion'),
-                        size: ColumnSize.M,
-                        onSort: (columnIndex, ascending) {
-                          sortFunc("printed_at", changevalue);
-                        },
+                      SizedBox(
+                        width: 10,
                       ),
                     ],
-                    rows: List<DataRow>.generate(data.length, (index) {
-                      Color rowColor = Colors.white;
-                      if ((data[index]['printed_by'] != null &&
-                          data[index]['printed_by'].isNotEmpty)) {
-                        if (data[index]['printed_by']['roles_fronts'][0]
-                                ['id'] !=
-                            1) {
-                          rowColor = Colors.lightBlue.shade50;
-                        }
-                      }
-                      return DataRow(
-                          color: MaterialStateProperty.resolveWith<Color>(
-                              (Set<MaterialState> states) {
-                            if (states.contains(MaterialState.selected)) {
-                              return Theme.of(context)
-                                  .colorScheme
-                                  .primary
-                                  .withOpacity(0.08);
-                            }
-                            return rowColor;
-                          }),
-                          cells: [
-                            DataCell(Checkbox(
-                                value: optionsCheckBox[index]['check'],
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectAll = false;
-                                    if (value!) {
-                                      optionsCheckBox[index]['check'] = value;
-                                      optionsCheckBox[index]['id'] =
-                                          data[index]['id'].toString();
-                                      optionsCheckBox[index]['numPedido'] =
-                                          "${data[index]['users'] != null ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal'].toString()}-${data[index]['numero_orden']}"
-                                              .toString();
-                                      optionsCheckBox[index]['date'] =
-                                          data[index]['pedido_fecha'][0]
-                                                  ['fecha']
-                                              .toString();
-                                      optionsCheckBox[index]['city'] =
-                                          data[index]['ciudad_shipping']
-                                              .toString();
-                                      optionsCheckBox[index]['product'] =
-                                          data[index]['producto_p'].toString();
-                                      optionsCheckBox[index]['extraProduct'] =
-                                          data[index]['producto_extra']
-                                              .toString();
-                                      optionsCheckBox[index]['quantity'] =
-                                          data[index]['cantidad_total']
-                                              .toString();
-                                      optionsCheckBox[index]['phone'] =
-                                          data[index]['telefono_shipping']
-                                              .toString();
-                                      optionsCheckBox[index]['price'] =
-                                          data[index]['precio_total']
-                                              .toString();
-                                      optionsCheckBox[index]['name'] =
-                                          data[index]['nombre_shipping']
-                                              .toString();
-                                      optionsCheckBox[index]['transport'] =
-                                          "${data[index]['transportadora'] != null ? data[index]['transportadora'][0]['nombre'].toString() : ''}";
-                                      optionsCheckBox[index]['address'] =
-                                          data[index]['direccion_shipping']
-                                              .toString();
-                                      optionsCheckBox[index]['obervation'] =
-                                          data[index]['observacion'].toString();
-                                      optionsCheckBox[index]['qrLink'] =
-                                          data[index]['users'][0]['vendedores']
-                                                  [0]['url_tienda']
-                                              .toString();
-
-                                      counterChecks += 1;
-                                    } else {
-                                      optionsCheckBox[index]['check'] = value;
-                                      optionsCheckBox[index]['id'] = '';
-                                      counterChecks -= 1;
-                                    }
-                                  });
-                                })),
-                            DataCell(
-                                Text(
-                                    // "${data[index]['attributes']['Name_Comercial'].toString()}-${data[index]['attributes']['NumeroOrden']}"
-                                    "${data[index]["users"][0]["vendedores"][0]["nombre_comercial"].toString()}-${data[index]['numero_orden']}"
-                                        .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                // data[index]['attributes']
-                                //       ['CiudadShipping']
-                                Text(data[index]['ciudad_shipping'].toString()),
-                                onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                // Text(data[index]['attributes']
-                                //         ['NombreShipping']
-                                Text(data[index]['nombre_shipping'].toString()),
-                                onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                // Text(data[index]['attributes']
-                                //         ['DireccionShipping']
-                                Text(data[index]['direccion_shipping']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                // Text(data[index]['attributes']
-                                //         ['Cantidad_Total']
-                                Text(data[index]['cantidad_total'].toString()),
-                                onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                // Text(data[index]['attributes']['ProductoP']
-                                Text(data[index]['producto_p'].toString()),
-                                onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                // Text(data[index]['attributes']
-                                //         ['ProductoExtra']
-                                //     .toString()),
-                                Text(data[index]['producto_extra'] == null ||
-                                        data[index]['producto_extra'] == "null"
-                                    ? ""
-                                    : data[index]['producto_extra'].toString()),
-                                onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                // Text(data[index]['attributes']['PrecioTotal']
-                                //     .toString()),
-                                Text(data[index]['precio_total'].toString()),
-                                onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                // Text(data[index]['attributes']
-                                //         ['Estado_Interno']
-                                //     .toString()), onTap: () {
-                                Text(data[index]['estado_interno'].toString()),
-                                onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                // Text(data[index]['attributes']
-                                //         ['Estado_Logistico']
-                                //     .toString()), onTap: () {
-                                Text(
-                                    data[index]['estado_logistico'].toString()),
-                                onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                // Text(
-                                //     "${data[index]['attributes']['transportadora']['data'] != null ? data[index]['attributes']['transportadora']['data']['attributes']['Nombre'].toString() : ''}"),
-                                // onTap: () {
-                                Text(data[index]['transportadora'] != null &&
-                                        data[index]['transportadora'].isNotEmpty
-                                    ? data[index]['transportadora'][0]['nombre']
-                                        .toString()
-                                    : ''), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['printed_by'] != null &&
-                                        data[index]['printed_by'].isNotEmpty
-                                    ? "${data[index]['printed_by']['username'].toString()}-${data[index]['printed_by']['id'].toString()}"
-                                    : ''), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['printed_at'] != null
-                                    ? "${formatDate(data[index]['printed_at'])}"
-                                    : ''), onTap: () {
-                              info(context, index);
-                            }),
-                          ]);
-                    })),
+                  ),
+                ),
               ),
-            ],
-          ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Container(
+              width: double.infinity,
+              child: Row(
+                children: [
+                  Expanded(
+                      child: counterChecks != 0
+                          ? _buttons()
+                          : _modelTextField(
+                              text: "Busqueda",
+                              controller: _controllers.search)),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Contador: ${data.length}",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: ElevatedButton(
+                      onPressed: () async {
+                        await showDialog(
+                            context: context,
+                            builder: (context) {
+                              return ScannerPrinted();
+                            });
+                        await loadData();
+                      },
+                      child: const Text(
+                        "SCANNER",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      )),
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Expanded(
+              child: DataTable2(
+                  headingTextStyle: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.black),
+                  dataTextStyle: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black),
+                  columnSpacing: 12,
+                  horizontalMargin: 12,
+                  minWidth: 2500,
+                  columns: [
+                    DataColumn2(
+                      label: Row(
+                        children: [
+                          Checkbox(
+                            value: selectAll,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                selectAll = value ?? false;
+                                addAllValues();
+                              });
+                            },
+                          ),
+                          const Text('Todo'),
+                        ],
+                      ),
+                      size: ColumnSize.S,
+                    ),
+                    DataColumn2(
+                      label: const Text('Código'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        sortFunc("numero_orden", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: const Text('Ciudad'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        sortFunc("ciudad_shipping", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: const Text('Nombre Cliente'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        // sortFunc("NombreShipping");
+                        sortFunc("nombre_shipping", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: const Text('Dirección'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        // sortFunc("DireccionShipping");
+                        sortFunc("direccion_shipping", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: const Text('Cantidad'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        // sortFunc("Cantidad_Total");
+                        sortFunc("cantidad_total", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: const Text('Producto'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        // sortFunc("ProductoP");
+                        sortFunc("producto_p", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: const Text('Producto Extra'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        // sortFunc("ProductoExtra");
+                        sortFunc("producto_extra", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: const Text('Precio Total'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        // sortFunc("PrecioTotal");
+                        sortFunc("precio_total", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: const Text('Estado'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        // sortFunc("Status");
+                        sortFunc("estado_interno", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: const Text('Estado Logistico'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        // sortFunc("Estado_Logistico");
+                        sortFunc("estado_logistico", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: const Text('Transportadora'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        // sortFuncTransporte();
+                      },
+                    ),
+                    DataColumn2(
+                      label: const Text('Impreso por'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        sortFunc("printed_by", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: const Text('Fecha Impresion'),
+                      size: ColumnSize.M,
+                      onSort: (columnIndex, ascending) {
+                        sortFunc("printed_at", changevalue);
+                      },
+                    ),
+                  ],
+                  rows: List<DataRow>.generate(data.length, (index) {
+                    Color rowColor = Colors.white;
+                    if ((data[index]['printed_by'] != null &&
+                        data[index]['printed_by'].isNotEmpty)) {
+                      if (data[index]['printed_by']['roles_fronts'][0]['id'] !=
+                          1) {
+                        rowColor = Colors.lightBlue.shade50;
+                      }
+                    }
+                    return DataRow(
+                        color: MaterialStateProperty.resolveWith<Color>(
+                            (Set<MaterialState> states) {
+                          if (states.contains(MaterialState.selected)) {
+                            return Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withOpacity(0.08);
+                          }
+                          return rowColor;
+                        }),
+                        cells: [
+                          DataCell(Checkbox(
+                              value: optionsCheckBox[index]['check'],
+                              onChanged: (value) {
+                                setState(() {
+                                  selectAll = false;
+                                  if (value!) {
+                                    optionsCheckBox[index]['check'] = value;
+                                    optionsCheckBox[index]['id'] =
+                                        data[index]['id'].toString();
+                                    optionsCheckBox[index]['numPedido'] =
+                                        "${data[index]['users'] != null ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal'].toString()}-${data[index]['numero_orden']}"
+                                            .toString();
+                                    optionsCheckBox[index]['date'] = data[index]
+                                            ['pedido_fecha'][0]['fecha']
+                                        .toString();
+                                    optionsCheckBox[index]['city'] = data[index]
+                                            ['ciudad_shipping']
+                                        .toString();
+                                    optionsCheckBox[index]['product'] =
+                                        data[index]['producto_p'].toString();
+                                    optionsCheckBox[index]['extraProduct'] =
+                                        data[index]['producto_extra']
+                                            .toString();
+                                    optionsCheckBox[index]['quantity'] =
+                                        data[index]['cantidad_total']
+                                            .toString();
+                                    optionsCheckBox[index]['phone'] =
+                                        data[index]['telefono_shipping']
+                                            .toString();
+                                    optionsCheckBox[index]['price'] =
+                                        data[index]['precio_total'].toString();
+                                    optionsCheckBox[index]['name'] = data[index]
+                                            ['nombre_shipping']
+                                        .toString();
+                                    optionsCheckBox[index]['transport'] =
+                                        "${data[index]['transportadora'] != null ? data[index]['transportadora'][0]['nombre'].toString() : ''}";
+                                    optionsCheckBox[index]['address'] =
+                                        data[index]['direccion_shipping']
+                                            .toString();
+                                    optionsCheckBox[index]['obervation'] =
+                                        data[index]['observacion'].toString();
+                                    optionsCheckBox[index]['qrLink'] =
+                                        data[index]['users'][0]['vendedores'][0]
+                                                ['url_tienda']
+                                            .toString();
+
+                                    counterChecks += 1;
+                                  } else {
+                                    optionsCheckBox[index]['check'] = value;
+                                    optionsCheckBox[index]['id'] = '';
+                                    counterChecks -= 1;
+                                  }
+                                });
+                              })),
+                          DataCell(
+                              Text(
+                                  // "${data[index]['attributes']['Name_Comercial'].toString()}-${data[index]['attributes']['NumeroOrden']}"
+                                  "${data[index]["users"][0]["vendedores"][0]["nombre_comercial"].toString()}-${data[index]['numero_orden']}"
+                                      .toString()), onTap: () {
+                            info(context, index);
+                          }),
+                          DataCell(
+                              // data[index]['attributes']
+                              //       ['CiudadShipping']
+                              Text(data[index]['ciudad_shipping'].toString()),
+                              onTap: () {
+                            info(context, index);
+                          }),
+                          DataCell(
+                              // Text(data[index]['attributes']
+                              //         ['NombreShipping']
+                              Text(data[index]['nombre_shipping'].toString()),
+                              onTap: () {
+                            info(context, index);
+                          }),
+                          DataCell(
+                              // Text(data[index]['attributes']
+                              //         ['DireccionShipping']
+                              Text(
+                                  data[index]['direccion_shipping'].toString()),
+                              onTap: () {
+                            info(context, index);
+                          }),
+                          DataCell(
+                              // Text(data[index]['attributes']
+                              //         ['Cantidad_Total']
+                              Text(data[index]['cantidad_total'].toString()),
+                              onTap: () {
+                            info(context, index);
+                          }),
+                          DataCell(
+                              // Text(data[index]['attributes']['ProductoP']
+                              Text(data[index]['producto_p'].toString()),
+                              onTap: () {
+                            info(context, index);
+                          }),
+                          DataCell(
+                              // Text(data[index]['attributes']
+                              //         ['ProductoExtra']
+                              //     .toString()),
+                              Text(data[index]['producto_extra'] == null ||
+                                      data[index]['producto_extra'] == "null"
+                                  ? ""
+                                  : data[index]['producto_extra'].toString()),
+                              onTap: () {
+                            info(context, index);
+                          }),
+                          DataCell(
+                              // Text(data[index]['attributes']['PrecioTotal']
+                              //     .toString()),
+                              Text(data[index]['precio_total'].toString()),
+                              onTap: () {
+                            info(context, index);
+                          }),
+                          DataCell(
+                              // Text(data[index]['attributes']
+                              //         ['Estado_Interno']
+                              //     .toString()), onTap: () {
+                              Text(data[index]['estado_interno'].toString()),
+                              onTap: () {
+                            info(context, index);
+                          }),
+                          DataCell(
+                              // Text(data[index]['attributes']
+                              //         ['Estado_Logistico']
+                              //     .toString()), onTap: () {
+                              Text(data[index]['estado_logistico'].toString()),
+                              onTap: () {
+                            info(context, index);
+                          }),
+                          DataCell(
+                              // Text(
+                              //     "${data[index]['attributes']['transportadora']['data'] != null ? data[index]['attributes']['transportadora']['data']['attributes']['Nombre'].toString() : ''}"),
+                              // onTap: () {
+                              Text(data[index]['transportadora'] != null &&
+                                      data[index]['transportadora'].isNotEmpty
+                                  ? data[index]['transportadora'][0]['nombre']
+                                      .toString()
+                                  : ''), onTap: () {
+                            info(context, index);
+                          }),
+                          DataCell(
+                              Text(data[index]['printed_by'] != null &&
+                                      data[index]['printed_by'].isNotEmpty
+                                  ? "${data[index]['printed_by']['username'].toString()}-${data[index]['printed_by']['id'].toString()}"
+                                  : ''), onTap: () {
+                            info(context, index);
+                          }),
+                          DataCell(
+                              Text(data[index]['printed_at'] != null
+                                  ? "${formatDate(data[index]['printed_at'])}"
+                                  : ''), onTap: () {
+                            info(context, index);
+                          }),
+                        ]);
+                  })),
+            ),
+          ],
         ),
-      );
+      ),
+    );
   }
 
   formatDate(dateStringFromDatabase) {
@@ -747,179 +757,201 @@ class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
 
   Container _buttons() {
     return Container(
-      margin: EdgeInsets.all(5.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
+      margin: const EdgeInsets.all(5.0),
+      child: Column(
         children: [
-          ElevatedButton(
-              onPressed: () async {
-                const double point = 1.0;
-                const double inch = 72.0;
-                const double cm = inch / 2.54;
-                const double mm = inch / 25.4;
-
-                getLoadingModal(context, false);
-                final doc = pw.Document();
-
-                for (var i = 0; i < optionsCheckBox.length; i++) {
-                  if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
-                      optionsCheckBox[i]['id'].toString() != '' &&
-                      optionsCheckBox[i]['check'] == true) {
-                    final capturedImage =
-                        await screenshotController.captureFromWidget(Container(
-                            child: ModelGuide(
-                      address: optionsCheckBox[i]['address'],
-                      city: optionsCheckBox[i]['city'],
-                      date: optionsCheckBox[i]['date'],
-                      extraProduct: optionsCheckBox[i]['extraProduct'],
-                      idForBarcode: optionsCheckBox[i]['id'],
-                      name: optionsCheckBox[i]['name'],
-                      numPedido: optionsCheckBox[i]['numPedido'],
-                      observation: optionsCheckBox[i]['obervation'],
-                      phone: optionsCheckBox[i]['phone'],
-                      price: optionsCheckBox[i]['price'],
-                      product: optionsCheckBox[i]['product'],
-                      qrLink: optionsCheckBox[i]['qrLink'],
-                      quantity: optionsCheckBox[i]['quantity'],
-                      transport: optionsCheckBox[i]['transport'],
-                    )));
-
-                    doc.addPage(pw.Page(
-                      pageFormat: PdfPageFormat(21.0 * cm, 21.0 * cm,
-                          marginAll: 0.1 * cm),
-                      build: (pw.Context context) {
-                        return pw.Row(
-                          children: [
-                            pw.Image(pw.MemoryImage(capturedImage),
-                                fit: pw.BoxFit.contain)
-                          ],
-                        );
-                      },
-                    ));
-                  }
-                }
-                Navigator.pop(context);
-                await Printing.layoutPdf(
-                    onLayout: (PdfPageFormat format) async => await doc.save());
-                setState(() {});
-              },
-              child: const Text(
-                "IMPRIMIR",
-                style: TextStyle(fontWeight: FontWeight.bold),
+          Container(
+              padding: const EdgeInsets.all(5.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Seleccione Un Operador: ',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(
+                    width: 3.0,
+                  ),
+                  MyWidget(
+                    operadores: operators,
+                    onOperadorSelected: (String id) {
+                      // print("Operador seleccionado: $id");
+                      selectedOperatorId = int.parse(id);
+                    },
+                  )
+                ],
               )),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                  onPressed: () async {
+                    const double point = 1.0;
+                    const double inch = 72.0;
+                    const double cm = inch / 2.54;
+                    const double mm = inch / 25.4;
 
-          const SizedBox(
-            width: 20,
-          ),
-          // ElevatedButton(
-          //     onPressed: () async {
-          //       getLoadingModal(context, false);
+                    getLoadingModal(context, false);
+                    final doc = pw.Document();
 
-          //       for (var i = 0; i < optionsCheckBox.length; i++) {
-          //         if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
-          //             optionsCheckBox[i]['id'].toString() != '' &&
-          //             optionsCheckBox[i]['check'] == true) {
-          //           var response = await Connections()
-          //               .updateOrderInteralStatusLogistic(
-          //                   "NO DESEA", optionsCheckBox[i]['id'].toString());
-          //         }
-          //       }
-          //       Navigator.pop(context);
+                    for (var i = 0; i < optionsCheckBox.length; i++) {
+                      if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
+                          optionsCheckBox[i]['id'].toString() != '' &&
+                          optionsCheckBox[i]['check'] == true) {
+                        final capturedImage = await screenshotController
+                            .captureFromWidget(Container(
+                                child: ModelGuide(
+                          address: optionsCheckBox[i]['address'],
+                          city: optionsCheckBox[i]['city'],
+                          date: optionsCheckBox[i]['date'],
+                          extraProduct: optionsCheckBox[i]['extraProduct'],
+                          idForBarcode: optionsCheckBox[i]['id'],
+                          name: optionsCheckBox[i]['name'],
+                          numPedido: optionsCheckBox[i]['numPedido'],
+                          observation: optionsCheckBox[i]['obervation'],
+                          phone: optionsCheckBox[i]['phone'],
+                          price: optionsCheckBox[i]['price'],
+                          product: optionsCheckBox[i]['product'],
+                          qrLink: optionsCheckBox[i]['qrLink'],
+                          quantity: optionsCheckBox[i]['quantity'],
+                          transport: optionsCheckBox[i]['transport'],
+                        )));
 
-          //       setState(() {});
-
-          //       await loadData();
-          //     },
-          //     child: const Text(
-          //       "NO DESEA",
-          //       style: TextStyle(fontWeight: FontWeight.bold),
-          //     )),
-          SizedBox(
-            width: 20,
-          ),
-          ElevatedButton(
-              onPressed: () async {
-                getLoadingModal(context, false);
-                var responsereduceStock;
-
-                for (var i = 0; i < optionsCheckBox.length; i++) {
-                  if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
-                      optionsCheckBox[i]['id'].toString() != '' &&
-                      optionsCheckBox[i]['check'] == true) {
-                    // var response = await Connections()
-                    //     .updateOrderLogisticStatusPrint(
-                    //         "ENVIADO", optionsCheckBox[i]['id'].toString());
-
-                    //new
-                    responsereduceStock = await Connections()
-                        .updateProductVariantStock(
-                            optionsCheckBox[i]['sku'],
-                            optionsCheckBox[i]['cantidad_total'],
-                            0,
-                            optionsCheckBox[i]['id_comercial']);
-
-                    if (responsereduceStock == 0) {
-                      var responseL = await Connections().updateOrderWithTime(
-                          optionsCheckBox[i]['id'].toString(),
-                          "estado_logistico:ENVIADO",
-                          idUser,
-                          "",
-                          "");
+                        doc.addPage(pw.Page(
+                          pageFormat: PdfPageFormat(21.0 * cm, 21.0 * cm,
+                              marginAll: 0.1 * cm),
+                          build: (pw.Context context) {
+                            return pw.Row(
+                              children: [
+                                pw.Image(pw.MemoryImage(capturedImage),
+                                    fit: pw.BoxFit.contain)
+                              ],
+                            );
+                          },
+                        ));
+                      }
                     }
-                     if (responsereduceStock == "No Dispone de Stock en la Reserva") {
-                      var emojiSaludo = "\u{1F44B}"; // 👋
-                      var _url = Uri.parse(
-                                        "https://api.whatsapp.com/send?phone=+593${data[i]['users'][0]['vendedores'][0]['telefono_1'].toString()}&text=Hola,${emojiSaludo} ${data[i]['users'][0]['vendedores'][0]['nombre_comercial'].toString()} tu pedido con el id ${data[i]['numero_orden']} no tiene Stock en tu reserva de Producto. Deseas Recargar el Stock o Eliminar la reserva ? ");
-                                    if (!await launchUrl(_url)) {
-                                      throw Exception('Could not launch $_url');
-                                    }
+                    Navigator.pop(context);
+                    await Printing.layoutPdf(
+                        onLayout: (PdfPageFormat format) async =>
+                            await doc.save());
+                    setState(() {});
+                  },
+                  child: const Text(
+                    "IMPRIMIR",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  )),
 
+              const SizedBox(
+                width: 20,
+              ),
+              // ElevatedButton(
+              //     onPressed: () async {
+              //       getLoadingModal(context, false);
+
+              //       for (var i = 0; i < optionsCheckBox.length; i++) {
+              //         if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
+              //             optionsCheckBox[i]['id'].toString() != '' &&
+              //             optionsCheckBox[i]['check'] == true) {
+              //           var response = await Connections()
+              //               .updateOrderInteralStatusLogistic(
+              //                   "NO DESEA", optionsCheckBox[i]['id'].toString());
+              //         }
+              //       }
+              //       Navigator.pop(context);
+
+              //       setState(() {});
+
+              //       await loadData();
+              //     },
+              //     child: const Text(
+              //       "NO DESEA",
+              //       style: TextStyle(fontWeight: FontWeight.bold),
+              //     )),
+              SizedBox(
+                width: 20,
+              ),
+              ElevatedButton(
+                  onPressed: () async {
+                      // getLoadingModal(context, false);
+                    // print(selectedOperatorId);
+                    if (selectedOperatorId != 0) {
+                      // getLoadingModal(context, false);
+                      for (var i = 0; i < optionsCheckBox.length; i++) {
+                        if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
+                            optionsCheckBox[i]['id'].toString() != '' &&
+                            optionsCheckBox[i]['check'] == true) {
+                          // var response = await Connections()
+                          //     .updateOrderLogisticStatusPrint(
+                          //         "ENVIADO", optionsCheckBox[i]['id'].toString());
+
+                          //new
+                          var responsewith = await Connections()
+                              .addWithdrawanBy(
+                                  optionsCheckBox[i]['id'].toString(),
+                                  selectedOperatorId);
+
+                          var responseL = await Connections()
+                              .updateOrderWithTime(
+                                  optionsCheckBox[i]['id'].toString(),
+                                  "estado_logistico:ENVIADO",
+                                  idUser,
+                                  "",
+                                  "");
+                        }
+                      }
+                        // Navigator.pop(context);
+                        await loadData();
+                    } else {
+                      AwesomeDialog(
+                        width: 500,
+                        context: context,
+                        dialogType: DialogType.warning,
+                        animType: AnimType.rightSlide,
+                        title: 'Error',
+                        desc: 'Debe Seleccionar un Operador Previamente',
+                        btnCancel: Container(),
+                        btnOkText: "Aceptar",
+                        btnOkColor: colors.colorGreen,
+                        btnCancelOnPress: () {},
+                        btnOkOnPress: () {},
+                      ).show();
                     }
-                  }
-                }
-                Navigator.pop(context);
+                  },
+                  child: const Text(
+                    "MARCAR ENVIADO",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  )),
+              SizedBox(
+                width: 20,
+              ),
+              ElevatedButton(
+                  onPressed: () async {
+                    getLoadingModal(context, false);
 
-                setState(() {});
+                    for (var i = 0; i < optionsCheckBox.length; i++) {
+                      if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
+                          optionsCheckBox[i]['id'].toString() != '' &&
+                          optionsCheckBox[i]['check'] == true) {
+                        var response = await Connections().updatenueva(
+                            optionsCheckBox[i]['id'],
+                            {"estado_interno": "RECHAZADO"});
+                      }
+                    }
+                    Navigator.pop(context);
 
-                await loadData();
-                if (responsereduceStock ==
-                    "No Dispone de Stock en la Reserva") {
-                  // ignore: use_build_context_synchronously
-                  SnackBarHelper.showErrorSnackBar(
-                      context, "$responsereduceStock");
-                }
-              },
-              child: const Text(
-                "MARCAR ENVIADO",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              )),
-          SizedBox(
-            width: 20,
+                    setState(() {});
+
+                    await loadData();
+                  },
+                  child: const Text(
+                    "RECHAZADO",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  )),
+            ],
           ),
-          ElevatedButton(
-              onPressed: () async {
-                getLoadingModal(context, false);
-
-                for (var i = 0; i < optionsCheckBox.length; i++) {
-                  if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
-                      optionsCheckBox[i]['id'].toString() != '' &&
-                      optionsCheckBox[i]['check'] == true) {
-                    var response = await Connections().updatenueva(
-                        optionsCheckBox[i]['id'],
-                        {"estado_interno": "RECHAZADO"});
-                  }
-                }
-                Navigator.pop(context);
-
-                setState(() {});
-
-                await loadData();
-              },
-              child: const Text(
-                "RECHAZADO",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              )),
         ],
       ),
     );
@@ -1062,15 +1094,36 @@ class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
     }
     // print("tamanio a imprimir"+optionsCheckBox.length.toString());
   }
-   void _mostrarVentanaEmergente(BuildContext context, String warehouseName) {
+
+  //  void _mostrarVentanaEmergente(BuildContext context, String warehouseName) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         content: Container(
+  //           width: 800,
+  //           height: 500,
+  //           child: CalendarWidget(warehouseName: warehouseName),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
+  void _mostrarVentanaEmergenteGuiasEnviadas(
+      BuildContext context, idWarehouse) {
+    double width =
+        MediaQuery.of(context).size.width * 0.8; // 80% del ancho de la pantalla
+    double height =
+        MediaQuery.of(context).size.height * 0.8; // 60% del alto de la pantalla
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           content: Container(
-            width: 800,
-            height: 500,
-            child: CalendarWidget(warehouseName: warehouseName),
+            width: width,
+            height: height,
+            child: TableOrdersGuidesSentTransport(idWarehouse: idWarehouse),
           ),
         );
       },
@@ -1082,4 +1135,83 @@ void enviarMensajeWhatsApp(String numeroTelefono, String mensaje) {
   final url =
       'https://wa.me/$numeroTelefono?text=${Uri.encodeComponent(mensaje)}';
   js.context.callMethod('open', [url]);
+}
+
+class MyWidget extends StatefulWidget {
+  final List<dynamic> operadores;
+  final Function(String) onOperadorSelected;
+
+  const MyWidget(
+      {Key? key, required this.operadores, required this.onOperadorSelected})
+      : super(key: key);
+
+  @override
+  _MyWidgetState createState() => _MyWidgetState();
+}
+
+class _MyWidgetState extends State<MyWidget> {
+  late String selectedOperador;
+  late Map<String, String> operadoresMap;
+
+  @override
+  void initState() {
+    super.initState();
+    operadoresMap = {};
+    for (var operador in widget.operadores) {
+      var parts = operador.split('-');
+      if (parts.length == 2) {
+        operadoresMap[parts[1]] =
+            parts[0]; // Guarda ID como clave y nombre como valor
+      }
+    }
+    if (operadoresMap.isNotEmpty) {
+      selectedOperador =
+          operadoresMap.keys.first; // Selecciona el primer ID por defecto
+    }
+  }
+
+  @override
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(2.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          DecoratedBox(
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey), // Contorno gris
+              borderRadius: BorderRadius.circular(5.0), // Bordes redondeados
+            ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 2.0),
+              child: DropdownButton<String>(
+                value: selectedOperador,
+                items: operadoresMap.entries.map((entry) {
+                  return DropdownMenuItem<String>(
+                    value: entry.key,
+                    child: Row(children: [
+                      Icon(Icons.person),
+                      SizedBox(
+                        width: 2,
+                      ),
+                      Text(entry.value)
+                    ]), // Muestra el nombre
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selectedOperador = newValue!;
+                  });
+                  widget.onOperadorSelected(newValue!);
+                },
+                underline: Container(), // Elimina la línea subrayada
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

@@ -195,51 +195,51 @@ class _PrintedGuideInfoTransportState extends State<PrintedGuideInfoTransport> {
           //       "NO DESEA",
           //       style: TextStyle(fontWeight: FontWeight.bold),
           //     )),
-          SizedBox(
-            width: 20,
-          ),
-          ElevatedButton(
-              onPressed: () async {
-                getLoadingModal(context, false);
+          // SizedBox(
+          //   width: 20,
+          // ),
+          // ElevatedButton(
+          //     onPressed: () async {
+          //       getLoadingModal(context, false);
 
-                var responsereduceStock = await Connections()
-                    .updateProductVariantStock(data['sku'],
-                        data['cantidad_total'], 0, data['id_comercial']);
+          //       var responsereduceStock = await Connections()
+          //           .updateProductVariantStock(data['sku'],
+          //               data['cantidad_total'], 0, data['id_comercial']);
 
-                if (responsereduceStock == 0) {
-                  var responseL = await Connections().updateOrderWithTime(
-                      widget.id.toString(),
-                      "estado_logistico:ENVIADO",
-                      idUser,
-                      "",
-                      "");
-                }
-                if (responsereduceStock ==
-                    "No Dispone de Stock en la Reserva") {
-                  var emojiSaludo = "\u{1F44B}"; // 👋
-                  var _url = Uri.parse(
-                      "https://api.whatsapp.com/send?phone=+593${data['users'][0]['vendedores'][0]['telefono_1'].toString()}&text=Hola,${emojiSaludo} ${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()} tu pedido con el id ${data['numero_orden']} no tiene Stock en tu reserva de Producto. Deseas Recargar el Stock o Eliminar la reserva ? ");
-                  if (!await launchUrl(_url)) {
-                    throw Exception('Could not launch $_url');
-                  }
-                }
+          //       if (responsereduceStock == 0) {
+          //         var responseL = await Connections().updateOrderWithTime(
+          //             widget.id.toString(),
+          //             "estado_logistico:ENVIADO",
+          //             idUser,
+          //             "",
+          //             "");
+          //       }
+          //       if (responsereduceStock ==
+          //           "No Dispone de Stock en la Reserva") {
+          //         var emojiSaludo = "\u{1F44B}"; // 👋
+          //         var _url = Uri.parse(
+          //             "https://api.whatsapp.com/send?phone=+593${data['users'][0]['vendedores'][0]['telefono_1'].toString()}&text=Hola,${emojiSaludo} ${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()} tu pedido con el id ${data['numero_orden']} no tiene Stock en tu reserva de Producto. Deseas Recargar el Stock o Eliminar la reserva ? ");
+          //         if (!await launchUrl(_url)) {
+          //           throw Exception('Could not launch $_url');
+          //         }
+          //       }
 
-                Navigator.pop(context);
+          //       Navigator.pop(context);
 
-                setState(() {});
+          //       setState(() {});
 
-                await loadData();
-                if (responsereduceStock ==
-                    "No Dispone de Stock en la Reserva") {
-                  // ignore: use_build_context_synchronously
-                  SnackBarHelper.showErrorSnackBar(
-                      context, "$responsereduceStock");
-                }
-              },
-              child: Text(
-                "MARCAR ENVIADO",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              )),
+          //       await loadData();
+          //       if (responsereduceStock ==
+          //           "No Dispone de Stock en la Reserva") {
+          //         // ignore: use_build_context_synchronously
+          //         SnackBarHelper.showErrorSnackBar(
+          //             context, "$responsereduceStock");
+          //       }
+          //     },
+          //     child: Text(
+          //       "MARCAR ENVIADO",
+          //       style: TextStyle(fontWeight: FontWeight.bold),
+          //     )),
           SizedBox(
             width: 20,
           ),

@@ -31,7 +31,7 @@ class Withdrawals extends StatefulWidget {
 
 class _WithdrawalsState extends State<Withdrawals> {
   // late StreamController<List<Map<String, dynamic>>> _notificationsController;
-  late Stream<List<Map<String, dynamic>>> notificationsStream;
+  // late Stream<List<Map<String, dynamic>>> notificationsStream;
   TextEditingController _search = TextEditingController();
   List allData = [];
   List data = [];
@@ -64,7 +64,7 @@ class _WithdrawalsState extends State<Withdrawals> {
   //   super.didChangeDependencies();
   // }
 
-  NotificationManager? notificationManager;
+  // NotificationManager? notificationManager;
 
   @override
   void initState() {
@@ -75,7 +75,7 @@ class _WithdrawalsState extends State<Withdrawals> {
         Provider.of<NotificationManager>(context, listen: false);
 
     // Obtén el Stream desde la instancia de NotificationManager
-    notificationsStream = notificationManager!.notificationsStream;
+    // notificationsStream = notificationManager!.notificationsStream;
 
     loadData();
   }
@@ -87,7 +87,7 @@ class _WithdrawalsState extends State<Withdrawals> {
   // }
   @override
   void dispose() {
-    notificationManager?.dispose();
+    // notificationManager?.dispose();
     super.dispose();
   }
 
@@ -177,85 +177,84 @@ class _WithdrawalsState extends State<Withdrawals> {
       child:
           //  responsive(
           Column(children: [
-        StreamBuilder<List<Map<String, dynamic>>>(
-            stream: notificationsStream,
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else {
-                // List<Map<String, dynamic>> notifications =
-                notifications = snapshot.data ?? [];
-                return Expanded(
-                  child: DataTable2(
-                      scrollController: _scrollController,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(4)),
-                        border: Border.all(color: Colors.blueGrey),
-                      ),
-                      headingRowHeight: 63,
-                      headingTextStyle: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                      dataTextStyle: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                      columnSpacing: 2,
-                      horizontalMargin: 2,
-                      minWidth:
-                          800, // Ajusta el ancho mínimo según tus necesidades
-                      columns: [
-                        DataColumn2(
-                          label: Text("Bodega"),
-                          size: ColumnSize.S,
-                          onSort: (columnIndex, ascending) {},
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Consumer<NotificationManager>(
+              builder: (context, notificationManager, child) {
+                      List<Map<String, dynamic>> notifications = notificationManager.notifications;
+                    return 
+                    DataTable2(
+                        scrollController: _scrollController,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(4)),
+                          border: Border.all(color: Colors.blueGrey),
                         ),
-                        DataColumn2(
-                          label: Text("Ciudad"),
-                          size: ColumnSize.S,
-                          onSort: (columnIndex, ascending) {},
+                        headingRowHeight: 63,
+                        headingTextStyle: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
                         ),
-                        DataColumn2(
-                          label: Text("Dirección"),
-                          size: ColumnSize.S,
-                          onSort: (columnIndex, ascending) {},
+                        dataTextStyle: const TextStyle(
+                          fontSize: 12,
+                          // fontWeight: FontWeight.bold,
+                          color: Colors.black,
                         ),
-                        DataColumn2(
-                          label: Text("Referencia"),
-                          size: ColumnSize.S,
-                          onSort: (columnIndex, ascending) {},
-                        ),
-                        DataColumn2(
-                          label: Text("Teléfono"),
-                          size: ColumnSize.S,
-                          onSort: (columnIndex, ascending) {},
-                        ),
-                        DataColumn2(
-                          label: Text("Días de Recolección"),
-                          size: ColumnSize.L,
-                          onSort: (columnIndex, ascending) {},
-                        ),
-                        DataColumn2(
-                          label: Text("Horario de Recolección"),
-                          size: ColumnSize.S,
-                          onSort: (columnIndex, ascending) {},
-                        ),
-                      ],
-                      rows: List<DataRow>.generate(data.length, (index) {
-                        final color = Colors.blue[50];
-
-                        return DataRow(
-                            color: MaterialStateColor.resolveWith(
-                                (states) => color!),
-                            cells: getRows(index));
-                      })),
-                );
-              }
-            })
+                        columnSpacing: 2,
+                        horizontalMargin: 2,
+                        minWidth:
+                            800, // Ajusta el ancho mínimo según tus necesidades
+                        columns: [
+                          DataColumn2(
+                            label: Text("Bodega"),
+                            size: ColumnSize.S,
+                            onSort: (columnIndex, ascending) {},
+                          ),
+                          DataColumn2(
+                            label: Text("Ciudad"),
+                            size: ColumnSize.S,
+                            onSort: (columnIndex, ascending) {},
+                          ),
+                          DataColumn2(
+                            label: Text("Dirección"),
+                            size: ColumnSize.S,
+                            onSort: (columnIndex, ascending) {},
+                          ),
+                          DataColumn2(
+                            label: Text("Referencia"),
+                            size: ColumnSize.S,
+                            onSort: (columnIndex, ascending) {},
+                          ),
+                          DataColumn2(
+                            label: Text("Teléfono"),
+                            size: ColumnSize.S,
+                            onSort: (columnIndex, ascending) {},
+                          ),
+                          DataColumn2(
+                            label: Text("Días de Recolección"),
+                            size: ColumnSize.L,
+                            onSort: (columnIndex, ascending) {},
+                          ),
+                          DataColumn2(
+                            label: Text("Horario de Recolección"),
+                            size: ColumnSize.S,
+                            onSort: (columnIndex, ascending) {},
+                          ),
+                        ],
+                        rows: List<DataRow>.generate(data.length, (index) {
+                          final color = Colors.blue[50];
+                    
+                          return DataRow(
+                              color: MaterialStateColor.resolveWith(
+                                  (states) => color!),
+                              cells: getRows(index, notifications),);
+                        }));
+                  }
+                ),
+          ),
+        )
       ]),
       // Column(children: []),
       // context)
@@ -297,7 +296,7 @@ class _WithdrawalsState extends State<Withdrawals> {
     );
   }
 
-  List<DataCell> getRows(index) {
+  List<DataCell> getRows(int index, List<Map<String, dynamic>> notifications) {
     // print('Notifications: $notifications');
     // if (notifications != null && notifications.length > index) {
     Color rowColor = Colors.black;
@@ -309,7 +308,7 @@ class _WithdrawalsState extends State<Withdrawals> {
     return [
       DataCell(
           CustomRowWithNotification(
-            count: notifications[index]['count'].toString(),
+            count: notifications.isNotEmpty ? notifications[index]['count'].toString() : "0",
             branchName: data[index]['branch_name'].toString(),
           ), onTap: () {
         // info(context, index);
@@ -328,8 +327,8 @@ class _WithdrawalsState extends State<Withdrawals> {
             ),
           ), onTap: () {
         // info(context, index);
-        _mostrarVentanaEmergente(
-            context, data[index]['branch_name'].toString());
+        // _mostrarVentanaEmergente(
+        //     context, data[index]['branch_name'].toString());
       }),
       DataCell(
           Text(
@@ -348,8 +347,8 @@ class _WithdrawalsState extends State<Withdrawals> {
             ),
           ), onTap: () {
         // info(context, index);
-        _mostrarVentanaEmergente(
-            context, data[index]['branch_name'].toString());
+        // _mostrarVentanaEmergente(
+        //     context, data[index]['branch_name'].toString());
       }),
       DataCell(
           Text(
@@ -371,8 +370,8 @@ class _WithdrawalsState extends State<Withdrawals> {
             ],
           ), onTap: () {
         // info(context, index);
-        _mostrarVentanaEmergente(
-            context, data[index]['branch_name'].toString());
+        // _mostrarVentanaEmergente(
+        //     context, data[index]['branch_name'].toString());
       }),
       DataCell(
           Text(
@@ -382,8 +381,8 @@ class _WithdrawalsState extends State<Withdrawals> {
             ),
           ), onTap: () {
         // info(context, index);
-        _mostrarVentanaEmergente(
-            context, data[index]['branch_name'].toString());
+        // _mostrarVentanaEmergente(
+        //     context, data[index]['branch_name'].toString());
       }),
     ];
     // } else {
@@ -593,20 +592,20 @@ class _WithdrawalsState extends State<Withdrawals> {
         });
   }
 
-  void _mostrarVentanaEmergente(BuildContext context, String warehouseName) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: Container(
-            width: 800,
-            height: 500,
-            child: CalendarWidget(warehouseName: warehouseName),
-          ),
-        );
-      },
-    );
-  }
+  // void _mostrarVentanaEmergente(BuildContext context, String warehouseName) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         content: Container(
+  //           width: 800,
+  //           height: 500,
+  //           child: CalendarWidget(warehouseName: warehouseName),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   void _mostrarVentanaEmergenteGuiasImpresas(
       BuildContext context, String idWarehouse, String warehouseName) {
@@ -646,7 +645,8 @@ class CustomRowWithNotification extends StatelessWidget {
           children: [
             Icon(
               Icons.warehouse,
-              size: 30.0, // ajusta el tamaño del icono según sea necesario
+              size: 30.0,
+              color: ColorsSystem().colorBlack, // ajusta el tamaño del icono según sea necesario
             ),
             if (count != "0")
               Positioned(
@@ -656,7 +656,7 @@ class CustomRowWithNotification extends StatelessWidget {
                   padding: EdgeInsets.all(4.0),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Color.fromARGB(255, 9, 182, 240),
+                    color: Color.fromARGB(255, 6, 71, 249),
                   ),
                   child: Text(
                     count.toString(),
