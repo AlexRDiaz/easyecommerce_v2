@@ -17,6 +17,7 @@ import 'package:frontend/ui/widgets/filters_orders.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/routes.dart';
 import 'package:frontend/ui/widgets/routes/routes_v2.dart';
+import 'package:frontend/ui/widgets/sellers/scanner_sent.dart';
 import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/main.dart';
@@ -523,6 +524,7 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                       if (data[index]['sent_by']['roles_fronts'][0]['id'] !=
                           1) {
                         rowColor = Colors.lightBlue.shade50;
+                        //Color(0xFFD2E4EF)
                       }
                     }
                     return DataRow(
@@ -610,8 +612,12 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                           }),
                           DataCell(
                               Text(
-                                  "${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden']}"
-                                      .toString()), onTap: () {
+                                "${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden']}"
+                                    .toString(),
+                                style: TextStyle(
+                                    color: GetColor(
+                                        (data[index]['revisado_seller']))!),
+                              ), onTap: () {
                             getInfoModal(index);
                           }),
                           DataCell(
@@ -723,6 +729,16 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
     dateTime = dateTime.toUtc().add(offset);
     String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
     return formattedDate;
+  }
+
+  Color? GetColor(state) {
+    var color;
+    if (state == 1 || state == 2) {
+      color = 0xFF26BC5F;
+    } else {
+      color = 0xFF000000;
+    }
+    return Color(color);
   }
 
   Container _buttons() {
@@ -947,27 +963,53 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
           ),
           Row(
             children: [
-              const SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () {
-                  generateExcelFileWithData(data);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 58, 163, 81),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      IconData(0xf6df, fontFamily: 'MaterialIcons'),
-                      size: 24,
-                      color: Colors.white,
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      generateExcelFileWithData(data);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 58, 163, 81),
                     ),
-                    Text(
-                      "Descargar reporte",
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          IconData(0xf6df, fontFamily: 'MaterialIcons'),
+                          size: 24,
+                          color: Colors.white,
+                        ),
+                        Text(
+                          "Descargar reporte",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      await showDialog(
+                        context: context,
+                        builder: (context) {
+                          return ScannerSent(
+                            from: "logistic",
+                          );
+                        },
+                      );
+                      await loadData();
+                    },
+                    child: const Text(
+                      "SCANNER",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                  ],
+                  ),
                 ),
               ),
             ],

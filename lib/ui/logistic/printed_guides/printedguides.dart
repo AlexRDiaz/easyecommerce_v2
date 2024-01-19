@@ -64,7 +64,8 @@ class _PrintedGuidesState extends State<PrintedGuides> {
     },
     */
     {"estado_interno": "CONFIRMADO"},
-    {"estado_logistico": "IMPRESO"}
+    {"estado_logistico": "IMPRESO"},
+    {"status": "PEDIDO PROGRAMADO"}
   ];
   List arrayFiltersAnd = [];
 
@@ -243,7 +244,9 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                           await showDialog(
                               context: context,
                               builder: (context) {
-                                return ScannerPrinted();
+                                return ScannerPrinted(
+                                  from: "logistic",
+                                );
                               });
                           await loadData();
                         },
@@ -824,14 +827,14 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                           "",
                           "");
                     }
-                     if (responsereduceStock == "No Dispone de Stock en la Reserva") {
+                    if (responsereduceStock ==
+                        "No Dispone de Stock en la Reserva") {
                       var emojiSaludo = "\u{1F44B}"; // 👋
                       var _url = Uri.parse(
-                                        "https://api.whatsapp.com/send?phone=+593${data[i]['users'][0]['vendedores'][0]['telefono_1'].toString()}&text=Hola,${emojiSaludo} ${data[i]['users'][0]['vendedores'][0]['nombre_comercial'].toString()} tu pedido con el id ${data[i]['numero_orden']} no tiene Stock en tu reserva de Producto. Deseas Recargar el Stock o Eliminar la reserva ? ");
-                                    if (!await launchUrl(_url)) {
-                                      throw Exception('Could not launch $_url');
-                                    }
-
+                          "https://api.whatsapp.com/send?phone=+593${data[i]['users'][0]['vendedores'][0]['telefono_1'].toString()}&text=Hola,${emojiSaludo} ${data[i]['users'][0]['vendedores'][0]['nombre_comercial'].toString()} tu pedido con el id ${data[i]['numero_orden']} no tiene Stock en tu reserva de Producto. Deseas Recargar el Stock o Eliminar la reserva ? ");
+                      if (!await launchUrl(_url)) {
+                        throw Exception('Could not launch $_url');
+                      }
                     }
                   }
                 }

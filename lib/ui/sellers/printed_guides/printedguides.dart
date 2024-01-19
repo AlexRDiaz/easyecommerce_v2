@@ -53,7 +53,8 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
           sharedPrefs!.getString("idComercialMasterSeller").toString(),
     },
     {"estado_interno": "CONFIRMADO"},
-    {"estado_logistico": "IMPRESO"}
+    {"estado_logistico": "IMPRESO"},
+    {"status": "PEDIDO PROGRAMADO"}
   ];
 
   List filtersOrCont = [
@@ -239,7 +240,9 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                           await showDialog(
                               context: context,
                               builder: (context) {
-                                return ScannerPrinted();
+                                return ScannerPrinted(
+                                  from: "seller",
+                                );
                               });
                           counterChecks = 0;
                           getOldValue(true);
@@ -705,14 +708,14 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                     //         data[i]['id_comercial']);
 
                     // if (responsereduceStock == 0) {
-                      var responseL = await Connections().updateOrderWithTime(
-                          optionsCheckBox[i]['id'].toString(),
-                          "estado_logistico:ENVIADO",
-                          idUser,
-                          "",
-                          "");
-                    }
+                    var responseL = await Connections().updateOrderWithTime(
+                        optionsCheckBox[i]['id'].toString(),
+                        "estado_logistico:ENVIADO",
+                        idUser,
+                        "",
+                        "");
                   }
+                }
                 // }
                 Navigator.pop(context);
 

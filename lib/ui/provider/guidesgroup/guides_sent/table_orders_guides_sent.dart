@@ -924,7 +924,9 @@ class _TableOrdersGuidesSentStateProvider
                     await showDialog(
                         context: context,
                         builder: (context) {
-                          return ScannerSent();
+                          return ScannerSent(
+                            from: "provider",
+                          );
                         });
                     await loadData();
                   },

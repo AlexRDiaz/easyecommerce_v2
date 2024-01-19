@@ -886,51 +886,57 @@ class _TableOrdersGuidesSentStateSeller
           ),
           Row(
             children: [
-              const SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () {
-                  print("data");
-                  // print(data);
-                  // generatePDFFileWithData(data);
-                  generateExcelFileWithData(data);
-                  // print("general");
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 58, 163, 81),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      IconData(0xf6df, fontFamily: 'MaterialIcons'),
-                      size: 24,
-                      color: Colors.white,
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child:
+                      // const SizedBox(width: 10),
+                      ElevatedButton(
+                    onPressed: () {
+                      print("data");
+                      // print(data);
+                      // generatePDFFileWithData(data);
+                      generateExcelFileWithData(data);
+                      // print("general");
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 58, 163, 81),
                     ),
-                    Text(
-                      "Descargar reporte",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          IconData(0xf6df, fontFamily: 'MaterialIcons'),
+                          size: 24,
+                          color: Colors.white,
+                        ),
+                        Text(
+                          "Descargar reporte",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Container(
-                child: ElevatedButton(
-                  onPressed: () async {
-                    await showDialog(
-                        context: context,
-                        builder: (context) {
-                          return ScannerSent();
-                        });
-                    await loadData();
-                  },
-                  child: const Text(
-                    "SCANNER",
-                    style: TextStyle(fontWeight: FontWeight.bold),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      await showDialog(
+                          context: context,
+                          builder: (context) {
+                            return ScannerSent(
+                              from: "seller",
+                            );
+                          });
+                      await loadData();
+                    },
+                    child: const Text(
+                      "SCANNER",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
               ),
@@ -1000,7 +1006,7 @@ class _TableOrdersGuidesSentStateSeller
   Color? GetColor(state) {
     var color;
     // if (state == true) {
-    if (state == 1) {
+    if (state == 1 || state == 2) {
       color = 0xFF26BC5F;
     } else {
       color = 0xFF000000;
