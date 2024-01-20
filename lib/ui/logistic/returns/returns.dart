@@ -112,11 +112,15 @@ class _ReturnsState extends State<Returns> {
   ];
 
   List arrayFiltersDefaultOr = [
-    {"status": "NOVEDAD"},
-    {"status": "NO ENTREGADO"}
+    {
+      "status": ["NOVEDAD", "NO ENTREGADO"]
+    }
+    // {"status": "NOVEDAD"},
+    // {"status": "NO ENTREGADO"}
   ];
   List arrayFiltersNotEq = [
-    {"estado_devolucion": "EN BODEGA"}
+    {"estado_devolucion": "EN BODEGA"},
+    // {"estado_devolucion": "EN BODEGA PROVEEDOR"}
   ];
   //estado_interno:confirmado y estado_logistico: enviado
 
@@ -151,6 +155,16 @@ class _ReturnsState extends State<Returns> {
   TextEditingController estadoDevolucionController =
       TextEditingController(text: "TODO");
   bool changevalue = false;
+  List populate = [
+    "operadore.up_users",
+    "transportadora",
+    "users.vendedores",
+    "novedades",
+    "pedidoFecha",
+    "ruta",
+    "subRuta",
+    "receivedBy"
+  ];
 
   @override
   void didChangeDependencies() {
@@ -193,6 +207,7 @@ class _ReturnsState extends State<Returns> {
 
     // data = response[0]['data'];
     var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
+        populate,
         filtersOrCont,
         arrayFiltersDefaultOr,
         arrayfiltersDefaultAnd,
@@ -267,6 +282,7 @@ class _ReturnsState extends State<Returns> {
     //     filtersDefaultAnd, []);
     // data = response[0]['data'];
     var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
+        populate,
         filtersOrCont,
         arrayFiltersDefaultOr,
         arrayfiltersDefaultAnd,

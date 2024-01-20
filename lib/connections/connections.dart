@@ -979,7 +979,9 @@ class Connections {
     ];
   }
 
+  //  *
   Future getOrdersSellersFilterLaravel(
+      populate,
       arrayFiltersOrCont,
       arrayFiltersDefaultOr,
       arrayfiltersDefaultAnd,
@@ -1006,10 +1008,11 @@ class Connections {
       var requestlaravel = await http.post(Uri.parse(urlnew),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
+            "populate": populate,
             "page_size": sizePage,
             "page_number": currentPage,
             "or": arrayFiltersOrCont,
-            "ordefault": arrayFiltersDefaultOr,
+            "or_multiple": arrayFiltersDefaultOr,
             "not": not,
             "sort": sort,
             "and": filtersAndAll,

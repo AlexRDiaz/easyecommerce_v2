@@ -112,8 +112,14 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
   ];
 
   List arrayFiltersDefaultOr = [
-    {"status": "NOVEDAD"},
-    {"status": "NO ENTREGADO"},
+    {
+      "status": ["NOVEDAD", "NO ENTREGADO"]
+    },
+    {
+      "estado_devolucion": ["EN BODEGA", "EN BODEGA PROVEEDOR"]
+    }
+    // {"status": "NOVEDAD"},
+    // {"status": "NO ENTREGADO"},
     // {"estado_devolucion": "EN BODEGA"},
     // {"estado_devolucion": "EN BODEGA PROVEEDOR"},
   ];
@@ -121,7 +127,7 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
   var arrayfiltersDefaultAnd = [
     {"estado_interno": "CONFIRMADO"},
     {"estado_logistico": "ENVIADO"},
-    {"estado_devolucion": "EN BODEGA"},
+    // {"estado_devolucion": "EN BODEGA"},
     //estado_interno:confirmado y estado_logistico: enviado
   ];
 
@@ -145,14 +151,14 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
   ];
   TextEditingController estadoDevolucionController =
       TextEditingController(text: "TODO");
-  // List<String> listEstadoDevolucion = [
-  //   'TODO',
-  //   'PENDIENTE',
-  //   'ENTREGADO EN OFICINA',
-  //   'DEVOLUCION EN RUTA',
-  //   'EN BODEGA',
-  //   'EN BODEGA PROVEEDOR',
-  // ];
+  List<String> listEstadoDevolucion = [
+    'TODO',
+    // 'PENDIENTE',
+    // 'ENTREGADO EN OFICINA',
+    // 'DEVOLUCION EN RUTA',
+    'EN BODEGA',
+    'EN BODEGA PROVEEDOR',
+  ];
 
   List<String> listTransportadoras = ['TODO'];
   List<String> listOperators = ['TODO'];
@@ -160,6 +166,17 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
       TextEditingController(text: "TODO");
   TextEditingController operadorController =
       TextEditingController(text: "TODO");
+
+  List populate = [
+    "operadore.up_users",
+    "transportadora",
+    "users.vendedores",
+    "novedades",
+    "pedidoFecha",
+    "ruta",
+    "subRuta",
+    "receivedBy"
+  ];
 
   getOldValue(Arrayrestoration) {
     if (Arrayrestoration) {
@@ -175,6 +192,7 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
     transportadorasController.text = 'TODO';
     operadorController.text = 'TODO';
     statusController.text = "TODO";
+    estadoDevolucionController.text = "TODO";
     arrayFiltersAnd = [];
     _controllers.searchController.text = "";
   }
@@ -229,6 +247,7 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
     });
 
     var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
+        populate,
         filtersOrCont,
         arrayFiltersDefaultOr,
         arrayfiltersDefaultAnd,
@@ -307,6 +326,7 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
     // print("actual pagina valor" + currentPage.toString());
 
     var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
+        populate,
         filtersOrCont,
         arrayFiltersDefaultOr,
         arrayfiltersDefaultAnd,
@@ -481,6 +501,7 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
                       const SizedBox(
                         width: 5,
                       ),
+                      /*
                       Container(
                         padding: EdgeInsets.only(left: 10, right: 10),
                         height: 50.0,
@@ -554,9 +575,11 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
                                   "No Desea",
                                   style: TextStyle(fontWeight: FontWeight.bold),
                                 )),
+                                
                           ],
                         ),
                       ),
+                      */
                       Expanded(
                           child: NumberPaginator(
                         config: NumberPaginatorUIConfig(
@@ -611,6 +634,7 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
                           ],
                         ),
                       ),
+                      /*
                       Container(
                         padding: EdgeInsets.only(left: 10, right: 10),
                         height: 50.0,
@@ -698,6 +722,7 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
                           ],
                         ),
                       ),
+                      */
                       Container(
                           child: NumberPaginator(
                         config: NumberPaginatorUIConfig(
@@ -745,10 +770,10 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
                   horizontalMargin: 12,
                   minWidth: 3500,
                   columns: [
-                    const DataColumn2(
-                      label: Text(''),
-                      size: ColumnSize.S,
-                    ),
+                    // const DataColumn2(
+                    //   label: Text(''),
+                    //   size: ColumnSize.S,
+                    // ),
                     // DataColumn2(label: Text('Transportadora')),
                     DataColumn2(
                       label: SelectFilter(
@@ -789,24 +814,24 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
                         sortFunc("status", changevalue);
                       },
                     ),
-                    DataColumn2(
-                      label: const Text('Estado Devolución'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("estado_devolucion", changevalue);
-                      },
-                    ),
                     // DataColumn2(
-                    //   label: SelectFilterStatus(
-                    //       'Estado Devolución',
-                    //       'estado_devolucion',
-                    //       estadoDevolucionController,
-                    //       listEstadoDevolucion),
-                    //   size: ColumnSize.L,
+                    //   label: const Text('Estado Devolución'),
+                    //   size: ColumnSize.M,
                     //   onSort: (columnIndex, ascending) {
                     //     sortFunc("estado_devolucion", changevalue);
                     //   },
                     // ),
+                    DataColumn2(
+                      label: SelectFilterStatus(
+                          'Estado Devolución',
+                          'estado_devolucion',
+                          estadoDevolucionController,
+                          listEstadoDevolucion),
+                      size: ColumnSize.L,
+                      onSort: (columnIndex, ascending) {
+                        sortFunc("estado_devolucion", changevalue);
+                      },
+                    ),
                     DataColumn2(
                       label: const Text('Fecha de Entrega'),
                       size: ColumnSize.M,
@@ -912,6 +937,7 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
                     Color rowColor = Colors.black;
 
                     return DataRow(cells: [
+                      /*
                       DataCell(ElevatedButton(
                           onPressed:
                               // data[index]['attributes']
@@ -959,6 +985,7 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 10),
                           ))),
+                      */
                       DataCell(
                         Text(data[index]['transportadora'] != null &&
                                 data[index]['transportadora'].isNotEmpty

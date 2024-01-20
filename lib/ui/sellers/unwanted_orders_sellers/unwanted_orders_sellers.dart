@@ -28,8 +28,11 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
       UnwantedOrdersSellersControllers();
 
   List arrayFiltersDefaultOr = [
-    {"estado_interno": "RECHAZADO"},
-    {"estado_interno": "NO DESEA"}
+    {
+      "estado_interno": ["RECHAZADO", "NO DESEA"]
+    }
+    // {"estado_interno": "RECHAZADO"},
+    // {"estado_interno": "NO DESEA"}
   ];
 
   var arrayfiltersDefaultAnd = [
@@ -68,7 +71,7 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
     'EN BODEGA PROVEEDOR',
   ];
   NumberPaginatorController paginatorController = NumberPaginatorController();
-  List populate = ['users', 'pedido_fecha'];
+  // List populate = ['users', 'pedido_fecha'];
   List arrayFiltersAnd = [];
 
   List filtersOrCont = [
@@ -86,6 +89,16 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
     "estado_devolucion",
     "fecha_confirmacion",
     'comentario',
+  ];
+  List populate = [
+    "operadore.up_users",
+    "transportadora",
+    "users.vendedores",
+    "novedades",
+    "pedidoFecha",
+    "ruta",
+    "subRuta",
+    "receivedBy"
   ];
 
   //
@@ -126,6 +139,7 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
         data.clear();
       });
       var response = await Connections().getOrdersSellersFilterLaravel(
+          populate,
           filtersOrCont,
           arrayFiltersDefaultOr,
           arrayfiltersDefaultAnd,
@@ -191,6 +205,7 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
       //     filtersDefaultAnd, []);
 
       var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
+          populate,
           filtersOrCont,
           arrayFiltersDefaultOr,
           arrayfiltersDefaultAnd,
@@ -903,7 +918,10 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                         }),
                         DataCell(
                             Text(
-                              data[index]['producto_extra'].toString(),
+                              data[index]['producto_extra'] == null ||
+                                      data[index]['producto_extra'] == "null"
+                                  ? ""
+                                  : data[index]['producto_extra'].toString(),
                               style: TextStyle(
                                 color: rowColor,
                               ),
@@ -939,7 +957,12 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                         }),
                         DataCell(
                             Text(
-                              data[index]['estado_devolucion'].toString(),
+                              data[index]['estado_devolucion'] == null ||
+                                      data[index]['estado_devolucion']
+                                              .toString() ==
+                                          "null"
+                                  ? ""
+                                  : data[index]['estado_devolucion'].toString(),
                               style: TextStyle(
                                 color: rowColor,
                               ),
@@ -947,7 +970,10 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                             onTap: () {}),
                         DataCell(
                           Text(
-                            data[index]['comentario']?.toString() ?? "",
+                            data[index]['comentario'] == null ||
+                                    data[index]['comentario'] == "null"
+                                ? ""
+                                : data[index]['comentario'].toString(),
                             style: TextStyle(
                               color: rowColor,
                             ),

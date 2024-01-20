@@ -36,15 +36,15 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
   bool isFirst = true;
 
   NumberPaginatorController paginatorController = NumberPaginatorController();
-  List populate = [
-    'users',
-    'pedido_fecha',
-    'ruta',
-    'transportadora',
-    'users.vendedores',
-    'operadore',
-    'operadore.user'
-  ];
+  // List populate = [
+  //   'users',
+  //   'pedido_fecha',
+  //   'ruta',
+  //   'transportadora',
+  //   'users.vendedores',
+  //   'operadore',
+  //   'operadore.user'
+  // ];
   List filtersAnd = [];
   List filtersDefaultOr = [
     {
@@ -78,8 +78,22 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
   ];
 
   List arrayFiltersDefaultOr = [
-    {"status": "NOVEDAD"},
-    {"status": "NO ENTREGADO"}
+    {
+      "status": ["NOVEDAD", "NO ENTREGADO"]
+    }
+    // {"status": "NOVEDAD"},
+    // {"status": "NO ENTREGADO"}
+  ];
+
+  List populate = [
+    "operadore.up_users",
+    "transportadora",
+    "users.vendedores",
+    "novedades",
+    "pedidoFecha",
+    "ruta",
+    "subRuta",
+    "receivedBy"
   ];
 
   var sortFieldDefaultValue = "id:DESC";
@@ -212,6 +226,7 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
       //     filtersDefaultAnd, []);
 
       var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
+          populate,
           filtersOrCont,
           arrayFiltersDefaultOr,
           arrayfiltersDefaultAnd,
@@ -279,6 +294,7 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
       //     filtersDefaultAnd, []);
 
       var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
+          populate,
           filtersOrCont,
           arrayFiltersDefaultOr,
           arrayfiltersDefaultAnd,
@@ -646,7 +662,10 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                       cells: [
                         DataCell(
                             Text(
-                              data[index]['fecha_entrega'].toString(),
+                              data[index]['fecha_entrega'] == null ||
+                                      data[index]['fecha_entrega'] == "null"
+                                  ? ""
+                                  : data[index]['fecha_entrega'].toString(),
                               style: TextStyle(
                                 color: rowColor,
                               ),
@@ -749,7 +768,10 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                         }),
                         DataCell(
                             Text(
-                              data[index]['estado_devolucion'].toString(),
+                              data[index]['estado_devolucion'] == null ||
+                                      data[index]['estado_devolucion'] == "null"
+                                  ? ""
+                                  : data[index]['estado_devolucion'].toString(),
                               style: TextStyle(
                                 color: rowColor,
                               ),
@@ -770,7 +792,12 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                         }),
                         DataCell(
                             Text(
-                              data[index]['fecha_confirmacion'].toString(),
+                              data[index]['fecha_confirmacion'] == null ||
+                                      data[index]['fecha_confirmacion'] ==
+                                          "null"
+                                  ? ""
+                                  : data[index]['fecha_confirmacion']
+                                      .toString(),
                               style: TextStyle(
                                 color: rowColor,
                               ),

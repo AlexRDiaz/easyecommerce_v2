@@ -551,8 +551,10 @@ class _ApproveProductsState extends State<ApproveProducts> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(0.0),
             ),
-            contentPadding: EdgeInsets.all(10),
+            contentPadding: EdgeInsets.all(0),
             content: Container(
+              padding: EdgeInsets.all(0),
+              // color: Colors.amber,
               width: MediaQuery.of(context).size.width * 0.90,
               child: ProductInfo(
                 product: product,

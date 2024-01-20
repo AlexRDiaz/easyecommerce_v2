@@ -163,8 +163,11 @@ class _ReturnsTransportState extends State<ReturnsTransport> {
   ];
 
   List arrayFiltersDefaultOr = [
-    {"status": "NOVEDAD"},
-    {"status": "NO ENTREGADO"}
+    {
+      "status": ["NOVEDAD", "NO ENTREGADO"]
+    }
+    // {"status": "NOVEDAD"},
+    // {"status": "NO ENTREGADO"}
   ];
 
   var arrayfiltersDefaultAnd = [
@@ -180,6 +183,16 @@ class _ReturnsTransportState extends State<ReturnsTransport> {
   bool changevalue = false;
 
   var idUser = sharedPrefs!.getString("id");
+  List populate = [
+    "operadore.up_users",
+    "transportadora",
+    "users.vendedores",
+    "novedades",
+    "pedidoFecha",
+    "ruta",
+    "subRuta",
+    "receivedBy"
+  ];
 
   getOldValue(Arrayrestoration) {
     if (Arrayrestoration) {
@@ -232,6 +245,7 @@ class _ReturnsTransportState extends State<ReturnsTransport> {
     // data = response[0]['data'];
 
     var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
+        populate,
         filtersOrCont,
         arrayFiltersDefaultOr,
         arrayfiltersDefaultAnd,
@@ -285,6 +299,7 @@ class _ReturnsTransportState extends State<ReturnsTransport> {
     //     arrayUniqueFilters);
     // data = response[0]['data'];
     var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
+        populate,
         filtersOrCont,
         arrayFiltersDefaultOr,
         arrayfiltersDefaultAnd,

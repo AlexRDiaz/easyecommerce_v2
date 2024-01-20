@@ -1077,503 +1077,525 @@ class _ProductsViewState extends State<ProductsView> {
                       ),
                       Expanded(
                         flex: 4,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
+                        child: Container(
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height * 0.85,
+                            child: ListView(
                               children: [
-                                SizedBox(
-                                  width: 100,
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        "ID:",
-                                        style: customTextStyleTitle,
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Text(
-                                        "${product.productId}",
-                                        style: customTextStyleText,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "Creado:",
-                                            style: customTextStyleTitle,
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            "${UIUtils.formatDate(product.createdAt)}",
-                                            style: customTextStyleText,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "Aprobado:",
-                                            style: customTextStyleTitle,
-                                          ),
-                                          const SizedBox(width: 10),
-                                          product.approved == 1
-                                              ? const Icon(
-                                                  Icons.check_circle_rounded,
-                                                  color: Colors.green)
-                                              : product.approved == 2
-                                                  ? const Icon(
-                                                      Icons
-                                                          .hourglass_bottom_sharp,
-                                                      color: Colors.indigo)
-                                                  : const Icon(
-                                                      Icons.cancel_rounded,
-                                                      color: Colors.red)
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text("Producto:",
-                                              style: customTextStyleTitle),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            RichText(
-                              text: TextSpan(
-                                children: <TextSpan>[
-                                  TextSpan(
-                                    text: product.productName,
-                                    style: GoogleFonts.dmSans(
-                                      fontSize: 18,
-                                      color: Colors.black,
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "Nombre para mostrar en la guia de envio:",
-                                            style: customTextStyleTitle,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 5),
-                            RichText(
-                              text: TextSpan(
-                                children: <TextSpan>[
-                                  TextSpan(
-                                    text: guideName,
-                                    style: customTextStyleText,
-                                  )
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "Descripción:",
-                                            style: customTextStyleTitle,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Html(
-                                        data: description,
-                                        style: {
-                                          'p': Style(
-                                            fontSize: FontSize(16),
-                                            color: Colors.grey[800],
-                                            margin: Margins.only(bottom: 0),
-                                          ),
-                                          'li': Style(
-                                            margin: Margins.only(bottom: 0),
-                                          ),
-                                          'ol': Style(
-                                            margin: Margins.only(bottom: 0),
-                                          ),
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "SKU:",
-                                            style: customTextStyleTitle,
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            sku,
-                                            style: customTextStyleText,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Visibility(
-                              visible: product.isvariable == 1,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
                                       children: [
-                                        Row(
-                                          children: [
-                                            Text(
-                                              "SKU Variables:",
-                                              style: customTextStyleTitle,
-                                            ),
-                                          ],
+                                        SizedBox(
+                                          width: 100,
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                "ID:",
+                                                style: customTextStyleTitle,
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Text(
+                                                "${product.productId}",
+                                                style: customTextStyleText,
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                        const SizedBox(height: 5),
-                                        Text(
-                                          variablesSKU,
-                                          style: customTextStyleText,
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "Creado:",
+                                                    style: customTextStyleTitle,
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  Text(
+                                                    "${UIUtils.formatDate(product.createdAt)}",
+                                                    style: customTextStyleText,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "Aprobado:",
+                                                    style: customTextStyleTitle,
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  product.approved == 1
+                                                      ? const Icon(
+                                                          Icons
+                                                              .check_circle_rounded,
+                                                          color: Colors.green)
+                                                      : product.approved == 2
+                                                          ? const Icon(
+                                                              Icons
+                                                                  .hourglass_bottom_sharp,
+                                                              color:
+                                                                  Colors.indigo)
+                                                          : const Icon(
+                                                              Icons
+                                                                  .cancel_rounded,
+                                                              color: Colors.red)
+                                                ],
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                  const SizedBox(height: 10),
-                                ],
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "Precio Bodega:",
-                                            style: customTextStyleTitle,
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            "\$${product.price}",
-                                            style: customTextStyleText,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "Precio Sugerido:",
-                                            style: customTextStyleTitle,
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            priceSuggested.isNotEmpty ||
-                                                    priceSuggested != ""
-                                                ? '\$$priceSuggested'
-                                                : '',
-                                            style: customTextStyleText,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "Tipo:",
-                                            style: customTextStyleTitle,
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            type,
-                                            style: customTextStyleText,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "Stock general:",
-                                            style: customTextStyleTitle,
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            "${product.stock}",
-                                            style: customTextStyleText,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Visibility(
-                              visible: reservesText != "",
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                    const SizedBox(height: 10),
+                                    Row(
                                       children: [
-                                        Row(
-                                          children: [
-                                            Text(
-                                              "Reservas:",
-                                              style: customTextStyleTitle,
-                                            ),
-                                          ],
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text("Producto:",
+                                                      style:
+                                                          customTextStyleTitle),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Visibility(
-                              visible: reservesText != "",
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Text(
-                                              reservesText,
-                                              style: customTextStyleText,
+                                    RichText(
+                                      text: TextSpan(
+                                        children: <TextSpan>[
+                                          TextSpan(
+                                            text: product.productName,
+                                            style: GoogleFonts.dmSans(
+                                              fontSize: 18,
+                                              color: Colors.black,
                                             ),
-                                          ],
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "Nombre para mostrar en la guia de envio:",
+                                                    style: customTextStyleTitle,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Visibility(
-                              visible: product.isvariable == 1,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                    const SizedBox(height: 5),
+                                    RichText(
+                                      text: TextSpan(
+                                        children: <TextSpan>[
+                                          TextSpan(
+                                            text: guideName,
+                                            style: customTextStyleText,
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Row(
                                       children: [
-                                        Row(
-                                          children: [
-                                            Text(
-                                              "Variables:",
-                                              style: customTextStyleTitle,
-                                            ),
-                                          ],
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "Descripción:",
+                                                    style: customTextStyleTitle,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                        const SizedBox(height: 5),
-                                        Text(
-                                          variablesText,
-                                          style: customTextStyleText,
-                                        ),
-                                        const SizedBox(height: 10),
                                       ],
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "Categorias:",
-                                            style: customTextStyleTitle,
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Html(
+                                                data: description,
+                                                style: {
+                                                  'p': Style(
+                                                    fontSize: FontSize(16),
+                                                    color: Colors.grey[800],
+                                                    margin:
+                                                        Margins.only(bottom: 0),
+                                                  ),
+                                                  'li': Style(
+                                                    margin:
+                                                        Margins.only(bottom: 0),
+                                                  ),
+                                                  'ol': Style(
+                                                    margin:
+                                                        Margins.only(bottom: 0),
+                                                  ),
+                                                },
+                                              ),
+                                            ],
                                           ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            categoriesText,
-                                            style: customTextStyleText,
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "SKU:",
+                                                    style: customTextStyleTitle,
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  Text(
+                                                    sku,
+                                                    style: customTextStyleText,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Visibility(
+                                      visible: product.isvariable == 1,
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      "SKU Variables:",
+                                                      style:
+                                                          customTextStyleTitle,
+                                                    ),
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 5),
+                                                Text(
+                                                  variablesSKU,
+                                                  style: customTextStyleText,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                        ],
+                                      ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "Precio Bodega:",
+                                                    style: customTextStyleTitle,
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  Text(
+                                                    "\$${product.price}",
+                                                    style: customTextStyleText,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "Precio Sugerido:",
+                                                    style: customTextStyleTitle,
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  Text(
+                                                    priceSuggested.isNotEmpty ||
+                                                            priceSuggested != ""
+                                                        ? '\$$priceSuggested'
+                                                        : '',
+                                                    style: customTextStyleText,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "Tipo:",
+                                                    style: customTextStyleTitle,
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  Text(
+                                                    type,
+                                                    style: customTextStyleText,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "Stock general:",
+                                                    style: customTextStyleTitle,
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  Text(
+                                                    "${product.stock}",
+                                                    style: customTextStyleText,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Visibility(
+                                      visible: reservesText != "",
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      "Reservas:",
+                                                      style:
+                                                          customTextStyleTitle,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ],
                                       ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
+                                    ),
+                                    Visibility(
+                                      visible: reservesText != "",
+                                      child: Row(
                                         children: [
-                                          Text(
-                                            "Bodega:",
-                                            style: customTextStyleTitle,
-                                          ),
-                                          SizedBox(width: 10),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            product.warehouse!.branchName
-                                                .toString(),
-                                            style: customTextStyleText,
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      reservesText,
+                                                      style:
+                                                          customTextStyleText,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ],
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                    Visibility(
+                                      visible: product.isvariable == 1,
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      "Variables:",
+                                                      style:
+                                                          customTextStyleTitle,
+                                                    ),
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 5),
+                                                Text(
+                                                  variablesText,
+                                                  style: customTextStyleText,
+                                                ),
+                                                const SizedBox(height: 10),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "Categorias:",
+                                                    style: customTextStyleTitle,
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  Text(
+                                                    categoriesText,
+                                                    style: customTextStyleText,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "Bodega:",
+                                                    style: customTextStyleTitle,
+                                                  ),
+                                                  SizedBox(width: 10),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    product
+                                                        .warehouse!.branchName
+                                                        .toString(),
+                                                    style: customTextStyleText,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 30),
+                                  ],
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 30),
-                          ],
+                          ),
                         ),
                       ),
                     ],
