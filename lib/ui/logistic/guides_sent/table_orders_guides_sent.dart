@@ -973,7 +973,7 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 58, 163, 81),
                     ),
-                    child: Row(
+                    child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(

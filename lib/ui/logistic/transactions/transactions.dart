@@ -559,6 +559,7 @@ class _TransactionsState extends State<Transactions> {
     'TODO',
     'RECAUDO',
     'ENVIO',
+    'RETIRO',
     'REFERENCIADO',
     'DEVOLUCION',
     'REEMBOLSO',

@@ -6,6 +6,7 @@ import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/sellers/my_wallet/controllers/my_wallet_controller.dart';
+import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:frontend/ui/widgets/transport/data_table_model.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -30,9 +31,7 @@ class MyWallet extends StatefulWidget {
 class _MyWalletState extends State<MyWallet> {
   MyWalletController walletController = MyWalletController();
   TextEditingController searchController = TextEditingController();
-  final _startDateController = TextEditingController(
-      text:
-          "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}");
+  final _startDateController = TextEditingController(text: "2023-01-01");
   final _endDateController = TextEditingController(
       text:
           "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}");
@@ -125,10 +124,11 @@ class _MyWalletState extends State<MyWallet> {
   }
 
   loadData() async {
-    isLoading = true;
     currentPage = 1;
     var res = await walletController.getSaldo();
     setState(() {
+      isLoading = true;
+
       saldo = res;
     });
 
@@ -220,50 +220,95 @@ class _MyWalletState extends State<MyWallet> {
     double heigth = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
 
-    return Scaffold(
-      body: Center(
-        child: Container(
-          padding: EdgeInsets.only(left: width * 0.01, right: width * 0.01),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.all(20),
-                child: Text(
-                  'Mi Billetera',
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-                ),
-              ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _leftWidget(width, heigth, context),
-                  Expanded(
-                    child: Column(
-                      children: [
-                        _searchBar(width, heigth, context),
-                        SizedBox(height: 10),
-                        _dataTableTransactions(),
-                      ],
-                    ),
+    return CustomProgressModal(
+      isLoading: isLoading,
+      content: Scaffold(
+        body: Center(
+          child: Container(
+            padding: EdgeInsets.only(left: width * 0.01, right: width * 0.01),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Text(
+                    'Mi Billetera',
+                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                   ),
-                ],
-              )
-            ],
+                ),
+                responsive(webMainContainer(width, heigth, context),
+                    mobileMainContainer(width, heigth, context), context)
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Container _dataTableTransactions() {
-    return Container(
-      height: 700,
-      child: Expanded(
-        child: DataTableModelPrincipal(
-            columnWidth: 400, columns: getColumns(), rows: buildDataRows(data)),
+  Row webMainContainer(double width, double heigth, BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _leftWidgetWeb(width, heigth, context),
+        Expanded(
+          child: Column(
+            children: [
+              _searchBar(width, heigth, context),
+              SizedBox(height: 10),
+              _dataTableTransactions(heigth),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  mobileMainContainer(double width, double heigth, BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          _leftWidgetMobile(width, heigth, context),
+          Divider(),
+          _searchBar(width, heigth, context),
+          _dataTableTransactionsMobile(heigth),
+        ],
       ),
     );
+  }
+
+  Container _dataTableTransactions(height) {
+    return Container(
+      height: height * 0.7,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        color: Colors.white,
+      ),
+      child: data.length > 0
+          ? Expanded(
+              child: DataTableModelPrincipal(
+                  columnWidth: 400,
+                  columns: getColumns(),
+                  rows: buildDataRows(data)),
+            )
+          : Center(
+              child: Text("Sin datos"),
+            ),
+    );
+  }
+
+  _dataTableTransactionsMobile(height) {
+    return data.length > 0
+        ? Container(
+            height: height * 0.52,
+            child: DataTableModelPrincipal(
+                columnWidth: 400,
+                columns: getColumns(),
+                rows: buildDataRows(data)),
+          )
+        : Center(
+            child: Text("Sin datos"),
+          );
   }
 
   NumberPaginator numberPaginator() {
@@ -288,13 +333,18 @@ class _MyWalletState extends State<MyWallet> {
     );
   }
 
-  Container _searchBar(double width, double heigth, BuildContext context) {
+  _searchBar(double width, double heigth, BuildContext context) {
     return Container(
-      color: Colors.white,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.white,
+      ),
       child: responsive(
           Row(
             children: [
               Container(
+                decoration:
+                    BoxDecoration(borderRadius: BorderRadius.circular(15)),
                 width: MediaQuery.of(context).size.width * 0.2,
                 child: _modelTextField(
                     text: "Buscar", controller: searchController),
@@ -308,28 +358,44 @@ class _MyWalletState extends State<MyWallet> {
                       fontWeight: FontWeight.bold, color: Colors.black),
                 ),
               ),
-              Expanded(child: numberPaginator()),
-              SizedBox(width: 10),
-
+              IconButton(
+                  onPressed: () => loadData(),
+                  icon: Icon(Icons.replay_outlined)),
               Spacer(),
-              TextButton(
-                  onPressed: () => loadData(), child: Text("Actualizar")),
+              Container(width: width * 0.3, child: numberPaginator()),
 
               //   Expanded(child: numberPaginator()),
             ],
           ),
-          Container(),
+          Row(
+            children: [
+              Container(
+                decoration:
+                    BoxDecoration(borderRadius: BorderRadius.circular(15)),
+                width: MediaQuery.of(context).size.width * 0.2,
+                child: _modelTextField(
+                    text: "Buscar", controller: searchController),
+              ),
+
+              IconButton(
+                  onPressed: () => loadData(),
+                  icon: Icon(Icons.replay_outlined)),
+              Expanded(child: numberPaginator()),
+
+              //   Expanded(child: numberPaginator()),
+            ],
+          ),
           context),
     );
   }
 
-  Container _leftWidget(double width, double heigth, BuildContext context) {
+  Container _leftWidgetWeb(double width, double heigth, BuildContext context) {
     return Container(
       width: width * 0.15,
-      height: heigth * 0.85,
-      padding: EdgeInsets.only(left: 10, right: 10),
+      padding: EdgeInsets.only(left: 10, right: 20),
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
-      child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
+      child:
+          Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Container(
           decoration: BoxDecoration(boxShadow: [
             BoxShadow(
@@ -341,20 +407,19 @@ class _MyWalletState extends State<MyWallet> {
             ),
           ], color: Colors.white, borderRadius: BorderRadius.circular(15)),
           width: width * 0.2,
-          height: heigth * 0.2,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
                 '\$${formatNumber(double.parse(saldo))}',
                 style: TextStyle(
-                    fontSize: 36,
+                    fontSize: 34,
                     fontWeight: FontWeight.bold,
                     color: Colors.blueAccent),
               ),
               Text(
                 'Saldo de Cuenta',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -368,6 +433,142 @@ class _MyWalletState extends State<MyWallet> {
         ),
         _optionButtons(width, heigth),
       ]),
+    );
+  }
+
+  Container _leftWidgetMobile(
+      double width, double heigth, BuildContext context) {
+    return Container(
+      height: heigth * 0.15,
+      decoration: BoxDecoration(color: Colors.white),
+      child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+        _saldoDeCuentaMobile(width),
+        Container(
+          width: 1, // Ancho de la línea divisoria
+          height: double.infinity, // Altura igual a la altura disponible
+          color: Colors.grey, // Color de la línea divisoria
+        ),
+        _dateButtonsMobile(width, context),
+        Container(
+          width: 1, // Ancho de la línea divisoria
+          height: double.infinity, // Altura igual a la altura disponible
+          color: Colors.grey, // Color de la línea divisoria
+        ),
+        _optionButtonsMobile(width, heigth),
+      ]),
+    );
+  }
+
+  Container _dateButtonsMobile(double width, BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(10),
+      width: width * 0.34,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: EdgeInsets.only(bottom: 10),
+                child: FilledButton.tonal(
+                  onPressed: () {
+                    _showDatePickerModal(context);
+                  },
+                  style: ButtonStyle(
+                    shape: MaterialStateProperty.all<OutlinedBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                            5), // Ajusta el valor según sea necesario
+                      ),
+                    ),
+                  ),
+                  child: Icon(Icons.calendar_month_outlined),
+                ),
+              ),
+              SizedBox(width: 5),
+              Container(
+                padding: EdgeInsets.only(bottom: 10),
+                child: FilledButton.tonal(
+                  style: ButtonStyle(
+                    shape: MaterialStateProperty.all<OutlinedBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                            5), // Ajusta el valor según sea necesario
+                      ),
+                    ),
+                  ),
+                  onPressed: () {
+                    loadData();
+                  },
+                  child: Icon(Icons.search),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 5),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildDateFieldMobile("Desde", _startDateController),
+              SizedBox(width: 5),
+              _buildDateFieldMobile("Hasta", _endDateController),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Container _saldoDeCuenta(double width) {
+    return Container(
+      decoration: BoxDecoration(boxShadow: [
+        BoxShadow(
+          color: Colors.grey.withOpacity(0.5), // Color de la sombra
+          spreadRadius: 5, // Radio de dispersión de la sombra
+          blurRadius: 7, // Radio de desenfoque de la sombra
+          offset: Offset(
+              0, 3), // Desplazamiento de la sombra (horizontal, vertical)
+        ),
+      ], color: Colors.white, borderRadius: BorderRadius.circular(15)),
+      width: width * 0.3,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            '\$${formatNumber(double.parse(saldo))}',
+            style: TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+                color: Colors.blueAccent),
+          ),
+          Text(
+            'Saldo de Cuenta',
+            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Container _saldoDeCuentaMobile(double width) {
+    return Container(
+      width: width * 0.3,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            '\$${formatNumber(double.parse(saldo))}',
+            style: TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+                color: Colors.blueAccent),
+          ),
+          Text(
+            'Saldo de Cuenta',
+            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
     );
   }
 
@@ -434,9 +635,9 @@ class _MyWalletState extends State<MyWallet> {
             child: Column(
               children: [
                 _buildDateField("Fecha Inicio", _startDateController),
-                SizedBox(height: 16),
+                SizedBox(height: 10),
                 _buildDateField("Fecha Fin", _endDateController),
-                SizedBox(height: 16),
+                SizedBox(height: 10),
               ],
             ),
           ),
@@ -453,7 +654,7 @@ class _MyWalletState extends State<MyWallet> {
 
   Container _optionButtons(double width, double height) {
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: EdgeInsets.all(10),
       decoration: BoxDecoration(boxShadow: [
         BoxShadow(
           color: Colors.grey.withOpacity(0.5), // Color de la sombra
@@ -463,8 +664,8 @@ class _MyWalletState extends State<MyWallet> {
               0, 3), // Desplazamiento de la sombra (horizontal, vertical)
         ),
       ], color: Colors.white, borderRadius: BorderRadius.circular(15)),
-      width: width * 0.2,
-      height: height * 0.33,
+      width: width * 0.3,
+      height: height * 0.28,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -475,7 +676,7 @@ class _MyWalletState extends State<MyWallet> {
               child: DropdownButton2<String>(
                 isExpanded: true,
                 hint: Text(
-                  'Seleccione Origen',
+                  'Origen',
                   style: TextStyle(
                     fontSize: 14,
                     color: Theme.of(context).hintColor,
@@ -523,7 +724,7 @@ class _MyWalletState extends State<MyWallet> {
               child: DropdownButton2<String>(
                 isExpanded: true,
                 hint: Text(
-                  'Seleccione Tipo',
+                  'Tipo',
                   style: TextStyle(
                     fontSize: 14,
                     color: Theme.of(context).hintColor,
@@ -565,30 +766,129 @@ class _MyWalletState extends State<MyWallet> {
             ),
           ),
           Container(
-            width: 300,
             child: FilledButton.tonalIcon(
+              onPressed: () {
+                _showDatePickerModal(context);
+              },
               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                  (Set<MaterialState> states) {
-                    if (states.contains(MaterialState.pressed)) {
-                      // Color cuando el botón está presionado
-                      return Color.fromARGB(255, 235, 251, 64);
-                    }
-                    // Color cuando el botón está en su estado normal
-                    return Color.fromARGB(255, 209, 184, 146);
-                  },
-                ),
-                // Otros estilos pueden ir aquí
-              ),
-              //  backgroundColor: Color.fromARGB(255, 196, 134, 207),
-              onPressed: () {},
-              label: const Text(
-                'Últimos registros',
-                style: TextStyle(
-                  fontSize: 16,
+                shape: MaterialStateProperty.all<OutlinedBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                        5), // Ajusta el valor según sea necesario
+                  ),
                 ),
               ),
-              icon: const Icon(Icons.check_circle),
+              label: Text("Generar reporte"),
+              icon: Icon(Icons.calendar_month_outlined),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Container _optionButtonsMobile(double width, double height) {
+    return Container(
+      padding: EdgeInsets.all(10),
+      width: width * 0.3,
+      height: height * 0.28,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+            width: 300,
+            color: Color(0xFFE8DEF8),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton2<String>(
+                isExpanded: true,
+                hint: Text(
+                  'Origen',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Theme.of(context).hintColor,
+                  ),
+                ),
+                items: _addDividersAfterItems(listOrigen),
+                value: selectedValueOrigen,
+                onChanged: (String? value) {
+                  setState(() {
+                    selectedValueOrigen = value;
+                  });
+
+                  arrayFiltersAnd.removeWhere(
+                      (element) => element.containsKey("equals/origen"));
+                  if (value != '') {
+                    arrayFiltersAnd.add({"equals/origen": value});
+                  } else {
+                    arrayFiltersAnd.removeWhere(
+                        (element) => element.containsKey("equals/origen"));
+                  }
+                  loadData();
+                },
+                buttonStyleData: const ButtonStyleData(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  height: 40,
+                  width: 140,
+                ),
+                dropdownStyleData: const DropdownStyleData(
+                  maxHeight: 200,
+                ),
+                menuItemStyleData: MenuItemStyleData(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  customHeights: _getCustomItemsHeights(listOrigen),
+                ),
+                iconStyleData: const IconStyleData(
+                  openMenuIcon: Icon(Icons.arrow_drop_up),
+                ),
+              ),
+            ),
+          ),
+          Container(
+            width: 300,
+            color: Color(0xFFE8DEF8),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton2<String>(
+                isExpanded: true,
+                hint: Text(
+                  'Tipo',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Theme.of(context).hintColor,
+                  ),
+                ),
+                items: _addDividersAfterItems(listTipo),
+                value: selectedValueTipo,
+                onChanged: (String? value) {
+                  setState(() {
+                    selectedValueTipo = value;
+                  });
+
+                  arrayFiltersAnd.removeWhere(
+                      (element) => element.containsKey("equals/tipo"));
+                  if (value != '') {
+                    arrayFiltersAnd.add({"equals/tipo": value});
+                  } else {
+                    arrayFiltersAnd.removeWhere(
+                        (element) => element.containsKey("equals/tipo"));
+                  }
+                  loadData();
+                },
+                buttonStyleData: const ButtonStyleData(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  height: 40,
+                  width: 140,
+                ),
+                dropdownStyleData: const DropdownStyleData(
+                  maxHeight: 200,
+                ),
+                menuItemStyleData: MenuItemStyleData(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  customHeights: _getCustomItemsHeights(listTipo),
+                ),
+                iconStyleData: const IconStyleData(
+                  openMenuIcon: Icon(Icons.arrow_drop_up),
+                ),
+              ),
             ),
           ),
         ],
@@ -615,12 +915,9 @@ class _MyWalletState extends State<MyWallet> {
         Row(
           children: [
             Container(
-              width: 120,
+              width: 50,
               child: Text(
                 label + ":",
-                style: TextStyle(
-                  fontSize: 16,
-                ),
               ),
             ),
             Expanded(
@@ -628,10 +925,15 @@ class _MyWalletState extends State<MyWallet> {
                 controller: controller,
                 keyboardType: TextInputType.datetime,
                 decoration: InputDecoration(
+                  isDense: true,
                   border: OutlineInputBorder(),
                   hintText: "2023-01-31",
                   contentPadding: EdgeInsets.symmetric(
                       vertical: 10, horizontal: 12), // Ajusta la altura aquí
+                ),
+                style: TextStyle(
+                  fontSize:
+                      12, // Ajusta el tamaño del texto según tus necesidades
                 ),
                 validator: (value) {
                   // Puedes agregar validaciones adicionales según tus necesidades
@@ -646,6 +948,35 @@ class _MyWalletState extends State<MyWallet> {
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildDateFieldMobile(String label, TextEditingController controller) {
+    return Container(
+      width: 72,
+      child: TextFormField(
+        controller: controller,
+        keyboardType: TextInputType.datetime,
+        decoration: InputDecoration(
+          label: Text(label),
+          isDense: true,
+          border: OutlineInputBorder(),
+          hintText: "2023-01-31",
+          contentPadding: EdgeInsets.symmetric(
+              vertical: 9, horizontal: 10), // Ajusta la altura aquí
+        ),
+        style: TextStyle(
+          fontSize: 11, // Ajusta el tamaño del texto según tus necesidades
+        ),
+        validator: (value) {
+          // Puedes agregar validaciones adicionales según tus necesidades
+          if (value == null || value.isEmpty) {
+            return "Este campo no puede estar vacío";
+          }
+          // Aquí podrías validar el formato de la fecha
+          return null;
+        },
+      ),
     );
   }
 
@@ -674,7 +1005,7 @@ class _MyWalletState extends State<MyWallet> {
       width: double.infinity,
       margin: EdgeInsets.all(3),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.0),
+        borderRadius: BorderRadius.circular(15.0),
         color: Color.fromARGB(255, 245, 244, 244),
       ),
       child: TextField(
@@ -697,9 +1028,9 @@ class _MyWalletState extends State<MyWallet> {
                   child: Icon(Icons.close))
               : null,
           hintText: text,
-          border: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey),
-          ),
+          border: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey),
+              borderRadius: BorderRadius.circular(15)),
           focusColor: Colors.black,
           iconColor: Colors.black,
         ),
@@ -767,14 +1098,14 @@ class _MyWalletState extends State<MyWallet> {
       ),
       DataColumn2(
         label: Text('Monto'),
-        fixedWidth: 120,
+        fixedWidth: 110,
         onSort: (columnIndex, ascending) {
           // sortFunc3("numero_orden", changevalue);
         },
       ),
       DataColumn2(
         label: Text('Valor Anterior'),
-        fixedWidth: 160,
+        fixedWidth: 130,
         onSort: (columnIndex, ascending) {
           // sortFunc3("numero_orden", changevalue);
         },

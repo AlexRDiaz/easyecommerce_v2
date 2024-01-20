@@ -59,10 +59,7 @@ class _LayoutMobileState extends State<LayoutMobile> {
         "Reporte de Ventas",
         SalesReport(),
       ),
-      // getOption(
-      //   "Mi Cuenta Vendedor",
-      //   MySellerAccount(),
-      // ),
+
       getOption(
         "Agregar Usuarios Vendedores",
         AddSellerUser(),

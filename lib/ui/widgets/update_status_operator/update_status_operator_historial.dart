@@ -4,6 +4,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:frontend/config/commons.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
@@ -55,6 +56,9 @@ class _UpdateStatusOperatorHistorialState
   TextEditingController _controllerModalText = TextEditingController();
   XFile? imageSelect = null;
   var dataL = {};
+  List listToRollback = [];
+  String responseTransactionRollback = "";
+  bool enableBoxTransaction = false;
 
   final TextEditingController _statusController =
       TextEditingController(text: "NOVEDAD RESUELTA");
@@ -1087,6 +1091,29 @@ class _UpdateStatusOperatorHistorialState
     );
   }
 
+  void getlistToRollback() async {
+    listToRollback = [];
+    var listRollback = await Connections().getListToRollback(widget.id);
+    if (listRollback != 1 || listToRollback != 2) {
+      setState(() {
+        for (var element in listRollback) {
+          listToRollback.add(element);
+        }
+        if (listToRollback.isEmpty) {
+          setState(() {
+            responseTransactionRollback =
+                "No existe ninguna transaccion valida para este id";
+            enableBoxTransaction = false;
+          });
+        } else {
+          setState(() {
+            enableBoxTransaction = true;
+          });
+        }
+      });
+    }
+  }
+
   Container _PedidoProgramado() {
     return Container(
       child: Column(
@@ -1111,38 +1138,92 @@ class _UpdateStatusOperatorHistorialState
           ),
           ElevatedButton(
               onPressed: () async {
-                getLoadingModal(context, false);
+                //  getLoadingModal(context, false);
 
-                // await Connections().updateOrderStatusOperatorGeneralHistorial(
-                //     "PEDIDO PROGRAMADO", _controllerModalText.text, widget.id);
+                listToRollback =
+                    await Connections().getListToRollback(widget.id);
+                if (listToRollback.isNotEmpty) {
+                  // ignore: use_build_context_synchronously
+                  openDialog(
+                      context,
+                      500,
+                      500,
+                      Container(
+                          child: Column(
+                        children: [
+                          Text("Estas transacciones se restaurarán"),
+                          Container(
+                            height: 200,
+                            child: ListView.builder(
+                              itemCount: listToRollback.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return ListTile(
+                                  title: Text(listToRollback[index]["tipo"]
+                                          .toString() +
+                                      " / " +
+                                      listToRollback[index]["codigo"]
+                                          .toString() +
+                                      " / " +
+                                      listToRollback[index]["codigo"]
+                                          .toString() +
+                                      " / " +
+                                      listToRollback[index]["monto"]
+                                          .toString() +
+                                      " / " +
+                                      listToRollback[index]["comentario"]
+                                          .toString()),
+                                  onTap: () {},
+                                );
+                              },
+                            ),
+                          ),
+                          Container(
+                            width: 300,
+                            height: 200,
+                            child: ListView(children: [
+                              Text("Se reestablecerán los siguientes valores"),
+                              Text(""),
+                              Text("costo_devolucion"),
+                              Text("costo_envio"),
+                              Text("costo_transportadora"),
+                              Text(""),
+                              Text("Se asignarán los siguientes estados"),
+                              Text("estado_devolucion=PENDIENTE"),
+                              Text("estado_interno=PENDIENTE"),
+                              Text("estado_logistico=PENDIENTE"),
+                              Text("estado_pagado=PENDIENTE"),
+                            ]),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          FilledButton.tonal(
+                            onPressed: () async {
+                              List ids = [];
+                              for (var transaction in listToRollback) {
+                                ids.add(transaction["id"]);
+                              }
+                              var res = await Connections()
+                                  .rollbackTransaction([ids], widget.id);
 
-                //upt for the above and status_last_modified_by and by
-                await Connections().updateOrderWithTime(
-                    widget.id.toString(),
-                    "status:PEDIDO PROGRAMADO",
-                    idUser,
-                    "",
-                    {"comentario": _controllerModalText.text, "archivo": ""});
-
-                // * if it exists, delete transaccion_pedidos_transportadora
-                // var datares =
-                //     await Connections().getOrderByIDHistoryLaravel(widget.id);
-                // var today = DateTime.now().toString().split(' ')[0];
-                // var getTransaccion = await Connections()
-                //     .getTraccionPedidoTransportadora(
-                //         widget.id, datares['transportadora'][0]['id'], today);
-                // if (getTransaccion != null) {
-                //   var deleteTransacc = await Connections()
-                //       .deleteTraccionPedidoTransportadora(
-                //           getTransaccion[0]['id']);
-                // }
-
+                              requestResetOrders(res);
+                            },
+                            child: Text("Continuar"),
+                          )
+                        ],
+                      )),
+                      () {});
+                } else {
+                  var res =
+                      await Connections().rollbackTransaction([], widget.id);
+                  requestResetOrders(res);
+                }
                 setState(() {
                   _controllerModalText.clear();
                 });
 
-                Navigator.pop(context);
-                Navigator.pop(context);
+                // Navigator.pop(context);
+                // Navigator.pop(context);
               },
               child: Text(
                 "Guardar",
@@ -1164,6 +1245,89 @@ class _UpdateStatusOperatorHistorialState
         ],
       ),
     );
+  }
+
+  Future confirmRestartOrder() {
+    return AwesomeDialog(
+      width: 500,
+      context: context,
+      dialogType: DialogType.error,
+      animType: AnimType.rightSlide,
+      title: 'Esta seguro de restaurar el pedido?',
+      desc: '',
+      btnOkText: "Aceptar",
+      btnOkColor: Colors.yellowAccent,
+      btnCancelOnPress: () {},
+      btnOkOnPress: () async {
+        // getLoadingModal(context, false);
+        // var response = await Connections()
+        //     .updateAccountBlock(
+        //         data[index]['id'].toString());
+
+        // Navigator.pop(context);
+        // await loadData();
+      },
+    ).show();
+  }
+
+  Future requestResetOrders(val) {
+    if (val != 1 && val != 2) {
+      return AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.success,
+        animType: AnimType.rightSlide,
+        title: 'Orden restaurada',
+        desc: '',
+        btnOkText: "Aceptar",
+        btnOkColor: Colors.yellowAccent,
+        btnCancelOnPress: () {
+          Navigator.pop(context);
+        },
+        btnOkOnPress: () async {
+          Navigator.pop(context);
+        },
+      ).show();
+    } else {
+      return AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.rightSlide,
+        title: 'Error al restaurar la orden',
+        desc: '',
+        btnOkText: "Aceptar",
+        btnOkColor: Colors.yellowAccent,
+        btnCancelOnPress: () {
+          Navigator.pop(context);
+        },
+        btnOkOnPress: () async {
+          Navigator.pop(context);
+        },
+      ).show();
+    }
+  }
+
+  void getListenedRollback() async {
+    var result = await Connections().getListToRollback(widget.id);
+    if (result != 1 || listToRollback != 2) {
+      for (var element in result) {
+        listToRollback.add(element);
+      }
+
+      if (listToRollback.isEmpty) {
+        setState(() {
+          responseTransactionRollback =
+              "No existe ninguna transaccion valida para este id";
+          enableBoxTransaction = false;
+        });
+      } else {
+        setState(() {
+          listToRollback = listToRollback;
+          enableBoxTransaction = true;
+        });
+      }
+    }
   }
 
   Container _EnOficina() {

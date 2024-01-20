@@ -25,6 +25,7 @@ import 'package:frontend/ui/sellers/transport_stats/transport_stats.dart';
 import 'package:frontend/ui/sellers/unwanted_orders_sellers/unwanted_orders_sellers.dart';
 import 'package:frontend/ui/sellers/update_password/update_password.dart';
 import 'package:frontend/ui/sellers/wallet_sellers/wallet_sellers.dart';
+import 'package:frontend/ui/widgets/logistic/layout/navbar_drawer.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -87,7 +88,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        return responsive(_buildWebLayout(), LayoutMobile(), context);
+        return responsive(_buildWebLayout(), _buildPhoneLayout(), context);
       },
     );
   }
@@ -109,6 +110,8 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
               icon: Icon(Icons.menu),
               onPressed: () {
                 setState(() {
+                  _key.currentState!.openDrawer();
+
                   isSidebarOpen = !isSidebarOpen;
                   sharedPrefs!.setBool("sidebarOpen", isSidebarOpen);
                 });
@@ -121,88 +124,102 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
           ],
         ),
       ),
-      body: Stack(
-        children: [
-          AnimatedPositioned(
-            duration: Duration(milliseconds: 300),
-            top: 0,
-            bottom: 0,
-            left: isSidebarOpen ? 260 : 0,
-            right: 0,
-            child: currentView["view"],
-          ),
-          AnimatedPositioned(
-            duration: Duration(milliseconds: 300),
-            top: 0,
-            bottom: 0,
-            left: isSidebarOpen ? 0 : -260,
-            child: Container(
-              color: colorDrawer,
-              width: 250,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(10),
-                      child: Image.asset(images.logoEasyEcommercce,
-                          fit: BoxFit.fill),
+      drawer: Drawer(
+        backgroundColor: Colors.white,
+        child: Material(
+          elevation: 5,
+          child: Container(
+            color: Colors.white,
+            height: double.infinity,
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Center(
+                      //  width: width * 0.11,
+
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                            left: 40, right: 40, top: 20, bottom: 20),
+                        child: Image.asset(images.logoEasyEcommercce,
+                            fit: BoxFit.fill),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  Expanded(
-                    child: ListView(
-                      children: [
-                        _buildMenuItemSimple('DashBoard', 'DashBoard',
-                            Icon(Icons.home_outlined, color: colorlabels)),
-                        _buildMenuItemSimple(
-                            'Agregar vendedor',
-                            'Agregar Usuarios Vendedores',
-                            Icon(Icons.person_add, color: colorlabels)),
-                        _buildMenuItemSimple(
-                            'Ingreso de pedidos',
-                            'Ingreso de Pedidos',
-                            Icon(Icons.shopping_cart, color: colorlabels)),
-                        _buildMenuItemSimple(
-                            'Estado de entregas',
-                            'Estado Entregas Pedidos',
-                            Icon(Icons.local_shipping, color: colorlabels)),
-                        _buildMenuItemSimple(
-                            'Pedidos no deseados',
-                            'Pedidos No Deseados',
-                            Icon(Icons.delete, color: colorlabels)),
-                        _buildMenuItemSimple('Devoluciones', 'Devoluciones',
-                            Icon(Icons.assignment_return, color: colorlabels)),
-                        _buildMenuItemSimple(
-                            'Catálogo de Productos',
-                            'Catálogo de Productos',
-                            Icon(Icons.shopping_bag_rounded,
-                                color: colorlabels)),
-                        _buildMenuItemSimple('Billetera', 'Billetera',
-                            Icon(Icons.wallet, color: colorlabels)),
-                        _buildMenuItemSimple('Mi bileltera', 'Mi Billetera',
-                            Icon(Icons.wallet, color: colorlabels)),
-                        _buildMenuItemSimple(
-                            "Retiros en efectivo",
-                            'Retiros en Efectivo',
-                            Icon(Icons.account_balance, color: colorlabels)),
-                        _buildMenuItemSimple('Imprimir guías', 'Imprimir Guías',
-                            Icon(Icons.print_outlined, color: colorlabels)),
-                        _buildMenuItemSimple('Guías impresas', 'Guías Impresas',
-                            Icon(Icons.picture_as_pdf, color: colorlabels)),
-                        _buildMenuItemSimple('Guías enviadas', 'Guías Enviadas',
-                            Icon(Icons.send, color: colorlabels)),
-                        _buildMenuItemSimple(
-                            'Mis integraciones',
-                            'Mis integraciones',
-                            Icon(Icons.settings, color: colorlabels)),
-                      ],
+                    // Separación entre el encabezado y el menú
+                    Divider(),
+                    _buildMenu(
+                        'Crear', Icon(Icons.person, color: colorlabels), [
+                      _buildMenuItem(
+                          'Agregar vendedor',
+                          'Agregar Usuarios Vendedores',
+                          Icon(Icons.person_add, color: colorlabels)),
+                    ]),
+                    Divider(
+                      endIndent: 10,
+                      indent: 10,
                     ),
-                  )
-                ],
+                    _buildMenu(
+                        'Reportes', Icon(Icons.report, color: colorlabels), [
+                      _buildMenuItem('Ingreso de pedidos', 'Ingreso de Pedidos',
+                          Icon(Icons.shopping_cart, color: colorlabels)),
+                      _buildMenuItem('DashBoard', 'DashBoard',
+                          Icon(Icons.dashboard_customize, color: colorlabels)),
+                      _buildMenuItem(
+                          'Estado de entregas',
+                          'Estado Entregas Pedidos',
+                          Icon(Icons.local_shipping, color: colorlabels)),
+                      _buildMenuItem(
+                          'Pedidos no deseados',
+                          'Pedidos No Deseados',
+                          Icon(Icons.delete, color: colorlabels)),
+                      _buildMenuItem('Devoluciones', 'Devoluciones',
+                          Icon(Icons.assignment_return, color: colorlabels)),
+                      _buildMenuItem(
+                          'Catálogo de Productos',
+                          'Catálogo de Productos',
+                          Icon(Icons.shopping_bag_rounded, color: colorlabels)),
+                    ]),
+                    Divider(
+                      endIndent: 10,
+                      indent: 10,
+                    ),
+                    _buildMenu(
+                        'Movimientos', Icon(Icons.paid, color: colorlabels), [
+                      _buildMenuItem('Billetera', 'Billetera',
+                          Icon(Icons.wallet, color: colorlabels)),
+                      _buildMenuItem('Mi bileltera', 'Mi Billetera',
+                          Icon(Icons.wallet, color: colorlabels)),
+                      _buildMenuItem(
+                          "Retiros en efectivo",
+                          'Retiros en Efectivo',
+                          Icon(Icons.account_balance, color: colorlabels)),
+                    ]),
+                    Divider(
+                      endIndent: 10,
+                      indent: 10,
+                    ),
+                    _buildMenu(
+                        'Imprimir', Icon(Icons.print, color: colorlabels), [
+                      _buildMenuItem('Imprimir guías', 'Imprimir Guías',
+                          Icon(Icons.print_outlined, color: colorlabels)),
+                      _buildMenuItem('Guías impresas', 'Guías Impresas',
+                          Icon(Icons.picture_as_pdf, color: colorlabels)),
+                      _buildMenuItem('Guías enviadas', 'Guías Enviadas',
+                          Icon(Icons.send, color: colorlabels)),
+                      _buildMenuItem('Mis integraciones', 'Mis integraciones',
+                          Icon(Icons.settings, color: colorlabels)),
+                    ])
+                  ],
+                ),
               ),
             ),
           ),
+        ),
+      ),
+      body: Stack(
+        children: [
+          currentView["view"],
         ],
       ),
     );
@@ -376,14 +393,14 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                     //  width: width * 0.11,
 
                     child: Padding(
-                      padding: EdgeInsets.all(10),
+                      padding: EdgeInsets.only(
+                          left: 40, right: 40, top: 20, bottom: 20),
                       child: Image.asset(images.logoEasyEcommercce,
                           fit: BoxFit.fill),
                     ),
                   ),
-                  SizedBox(
-                      height: 20), // Separación entre el encabezado y el menú
-
+                  // Separación entre el encabezado y el menú
+                  Divider(),
                   Expanded(
                     child: ListView(
                       children: [
@@ -394,6 +411,10 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                               'Agregar Usuarios Vendedores',
                               Icon(Icons.person_add, color: colorlabels)),
                         ]),
+                        Divider(
+                          endIndent: 10,
+                          indent: 10,
+                        ),
                         _buildMenu('Reportes',
                             Icon(Icons.report, color: colorlabels), [
                           _buildMenuItem(
@@ -424,6 +445,10 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                               Icon(Icons.shopping_bag_rounded,
                                   color: colorlabels)),
                         ]),
+                        Divider(
+                          endIndent: 10,
+                          indent: 10,
+                        ),
                         _buildMenu('Movimientos',
                             Icon(Icons.paid, color: colorlabels), [
                           _buildMenuItem('Billetera', 'Billetera',
@@ -435,6 +460,10 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                               'Retiros en Efectivo',
                               Icon(Icons.account_balance, color: colorlabels)),
                         ]),
+                        Divider(
+                          endIndent: 10,
+                          indent: 10,
+                        ),
                         _buildMenu(
                             'Imprimir', Icon(Icons.print, color: colorlabels), [
                           _buildMenuItem('Imprimir guías', 'Imprimir Guías',
@@ -506,7 +535,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
 
     return ExpansionTile(
       initiallyExpanded: true,
-      tilePadding: EdgeInsets.symmetric(horizontal: 20),
+      shape: const Border(),
       title: Row(
         children: [
           icon,

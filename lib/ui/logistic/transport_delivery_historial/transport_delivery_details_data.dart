@@ -257,124 +257,88 @@ class _TransportDeliveryHistoryDetailsDataState
                       )),
 
                   ElevatedButton(
-                      onPressed: () async {
-                        showDialog(
-                            context: (context),
-                            builder: (context) {
-                              return AlertDialog(
-                                content: Container(
-                                  width: 500,
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Align(
-                                        alignment: Alignment.centerRight,
-                                        child: GestureDetector(
-                                            onTap: () {
-                                              Navigator.pop(context);
-                                            },
-                                            child: Icon(Icons.close)),
-                                      ),
-                                      SizedBox(
-                                        height: 10,
-                                      ),
-                                      // ElevatedButton(
-                                      //   onPressed: () async {
-                                      //     getLoadingModal(context, false);
-                                      //     var response = await Connections()
-                                      //         .updateOrderReturnAll(
-                                      //             widget.data['id']);
-
-                                      //     Navigator.pop(context);
-                                      //     showCustomModal(response, context);
-                                      //     await Future.delayed(
-                                      //         const Duration(seconds: 3), () {
-                                      //       Navigator.pop(context);
-                                      //     });
-                                      //     await loadData();
-                                      //   },
-                                      //   child: SizedBox(
-                                      //     width: double.infinity,
-                                      //     height: 50,
-                                      //     child: Center(
-                                      //       child: Text(
-                                      //         "Pendiente",
-                                      //         style: TextStyle(
-                                      //             fontWeight: FontWeight.bold),
-                                      //       ),
-                                      //     ),
-                                      //   ),
-                                      // ),
-                                      // SizedBox(
-                                      //   height: 20,
-                                      // ),
-                                      ElevatedButton(
-                                        onPressed: () async {
-                                          //  getLoadingModal(context, false);
-                                          paymentLogisticByReturnStatus(
-                                              widget.data['id'],
-                                              "ENTREGADO EN OFICINA");
-                                          // var response = await Connections()
-                                          //     .updateOrderReturnOperator(
-                                          //         widget.data['id']);
-                                          // Navigator.pop(context);
-
-                                          // showCustomModal(response, context);
-                                          // await Future.delayed(
-                                          //     const Duration(seconds: 3), () {
-                                          //   Navigator.pop(context);
-                                          // });
-                                          //    await loadData();
-                                        },
-                                        child: SizedBox(
-                                          width: double.infinity,
-                                          height: 50,
-                                          child: Center(
-                                            child: Text(
-                                              "En oficina",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold),
+                      onPressed: widget.data['status'] != "ENTREGADO"
+                          ? () async {
+                              showDialog(
+                                  context: (context),
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      content: Container(
+                                        width: 500,
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Align(
+                                              alignment: Alignment.centerRight,
+                                              child: GestureDetector(
+                                                  onTap: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: Icon(Icons.close)),
                                             ),
-                                          ),
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () async {
+                                                //  getLoadingModal(context, false);
+                                                paymentLogisticByReturnStatus(
+                                                    widget.data['id'],
+                                                    "ENTREGADO EN OFICINA");
+                                              },
+                                              child: SizedBox(
+                                                width: double.infinity,
+                                                height: 50,
+                                                child: Center(
+                                                  child: Text(
+                                                    "En oficina",
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              height: 20,
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () async {
+                                                //     getLoadingModal(context, false);
+                                                paymentLogisticByReturnStatus(
+                                                    widget.data['id'],
+                                                    "EN BODEGA");
+                                                // var response = await Connections()
+                                                //     .updateOrderReturnLogistic(
+                                                //         widget.data['id']);
+
+                                                // Navigator.pop(context);
+                                                // showCustomModal(response, context);
+                                                // await Future.delayed(
+                                                //     const Duration(seconds: 3), () {
+                                                //   Navigator.pop(context);
+                                                // });
+                                              },
+                                              child: SizedBox(
+                                                width: double.infinity,
+                                                height: 50,
+                                                child: Center(
+                                                  child: Text(
+                                                    "En Bodega",
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                      SizedBox(
-                                        height: 20,
-                                      ),
-                                      ElevatedButton(
-                                        onPressed: () async {
-                                          //     getLoadingModal(context, false);
-                                          paymentLogisticByReturnStatus(
-                                              widget.data['id'], "EN BODEGA");
-                                          // var response = await Connections()
-                                          //     .updateOrderReturnLogistic(
-                                          //         widget.data['id']);
-
-                                          // Navigator.pop(context);
-                                          // showCustomModal(response, context);
-                                          // await Future.delayed(
-                                          //     const Duration(seconds: 3), () {
-                                          //   Navigator.pop(context);
-                                          // });
-                                        },
-                                        child: SizedBox(
-                                          width: double.infinity,
-                                          height: 50,
-                                          child: Center(
-                                            child: Text(
-                                              "En Bodega",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            });
-                      },
+                                    );
+                                  });
+                            }
+                          : null,
                       child: Text(
                         "Devolución",
                         style: TextStyle(fontWeight: FontWeight.bold),
