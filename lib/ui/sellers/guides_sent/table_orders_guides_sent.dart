@@ -900,16 +900,12 @@ class _TableOrdersGuidesSentStateSeller
                       // print("general");
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 58, 163, 81),
+                      backgroundColor: Colors.green,
                     ),
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          IconData(0xf6df, fontFamily: 'MaterialIcons'),
-                          size: 24,
-                          color: Colors.white,
-                        ),
+                        Icon(Icons.download),
                         Text(
                           "Descargar reporte",
                           style: TextStyle(fontWeight: FontWeight.bold),
