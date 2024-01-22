@@ -285,12 +285,10 @@ class _MyWalletState extends State<MyWallet> {
         color: Colors.white,
       ),
       child: data.length > 0
-          ? Expanded(
-              child: DataTableModelPrincipal(
-                  columnWidth: 400,
-                  columns: getColumns(),
-                  rows: buildDataRows(data)),
-            )
+          ? DataTableModelPrincipal(
+              columnWidth: 400,
+              columns: getColumns(),
+              rows: buildDataRows(data))
           : Center(
               child: Text("Sin datos"),
             ),
