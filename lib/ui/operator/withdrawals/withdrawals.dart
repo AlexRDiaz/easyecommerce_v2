@@ -3,6 +3,8 @@ import 'dart:convert';
 
 import 'package:frontend/config/colors.dart';
 import 'package:frontend/models/pedido_shopify_model.dart';
+import 'package:frontend/ui/operator/withdrawals/printedguides.dart';
+import 'package:frontend/ui/operator/withdrawals/table_orders_guides_sent.dart';
 import 'package:frontend/ui/transport/withdrawals/customwidget.dart';
 import 'package:frontend/ui/transport/withdrawals/printedguides.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -22,14 +24,14 @@ import 'package:table_calendar/table_calendar.dart';
 import '../../widgets/loading.dart';
 import 'package:screenshot/screenshot.dart';
 
-class Withdrawals extends StatefulWidget {
-  const Withdrawals({super.key});
+class WithdrawalsOperator extends StatefulWidget {
+  const WithdrawalsOperator({super.key});
 
   @override
-  State<Withdrawals> createState() => _WithdrawalsState();
+  State<WithdrawalsOperator> createState() => _WithdrawalsOperatorState();
 }
 
-class _WithdrawalsState extends State<Withdrawals> {
+class _WithdrawalsOperatorState extends State<WithdrawalsOperator> {
   // late StreamController<List<Map<String, dynamic>>> _notificationsController;
   // late Stream<List<Map<String, dynamic>>> notificationsStream;
   TextEditingController _search = TextEditingController();
@@ -54,6 +56,7 @@ class _WithdrawalsState extends State<Withdrawals> {
   int totalRegistros = 0;
   int generalValuetotal = 0;
   late List<Map<String, dynamic>> notifications;
+  // List<Map<String, dynamic>> notifications = [];
 
   // NumberPaginatorController paginatorController = NumberPaginatorController();
 
@@ -71,8 +74,8 @@ class _WithdrawalsState extends State<Withdrawals> {
     super.initState();
 
     // Obtén la instancia de NotificationManager utilizando Provider
-    notificationManager =
-        Provider.of<NotificationManager>(context, listen: false);
+    notificationManagerOperator =
+        Provider.of<NotificationManagerOperator>(context, listen: false);
 
     // Obtén el Stream desde la instancia de NotificationManager
     // notificationsStream = notificationManager!.notificationsStream;
@@ -102,8 +105,11 @@ class _WithdrawalsState extends State<Withdrawals> {
       setState(() {
         search = false;
       });
-      var response = await Connections().getApprovedWarehouses();
-
+      var response = await Connections().getWarehousesforOperators();
+      await Provider.of<NotificationManagerOperator>(
+                                  context,
+                                  listen: false)
+                              .updateNotifications();
       setState(() {
         data = [];
         data = response;
@@ -171,142 +177,155 @@ class _WithdrawalsState extends State<Withdrawals> {
     return Scaffold(
         // body: CalendarWidget(),
         body: Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(15),
-      color: Colors.grey[200],
-      child:
-          //  responsive(
-          Column(children: [
-        Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: GestureDetector(
-              onTap: () async {
-                getLoadingModal(context, false);
-
-                // Actualiza las notificaciones
-                await Provider.of<NotificationManager>(context, listen: false)
-                    .updateNotifications();
-
-                // Cierra el diálogo de carga
-                Navigator.of(context).pop();
-              },
-              child: Container(
-                color: Colors.transparent,
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.end,
+            width: double.infinity,
+            padding: EdgeInsets.all(15),
+            color: Colors.grey[200],
+            child:
+                //  responsive(
+                Column(children: [
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Icon(
-                      Icons.replay_outlined,
-                      color: Colors.green,
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      "Recargar Información",
-                      style: TextStyle(
-                          decoration: TextDecoration.underline,
-                          color: Colors.green),
-                    ),
-                    SizedBox(
-                      width: 10,
+                    ElevatedButton(
+                        style: ButtonStyle(
+                            backgroundColor: MaterialStateColor.resolveWith(
+                                (states) =>
+                                    ColorsSystem().colorPrincipalBrand)),
+                        onPressed: () {
+                          _mostrarVentanaEmergenteGuiasEnviadas(context);
+                        },
+                        child: const Text("Historial Retiros")),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: GestureDetector(
+                        onTap: () async {
+                          getLoadingModal(context, false);
+
+                          // // Actualiza las notificaciones
+                          await loadData();
+                          await Provider.of<NotificationManagerOperator>(
+                                  context,
+                                  listen: false)
+                              .updateNotifications();
+                          // await loadData();
+
+                          // Cierra el diálogo de carga
+                          Navigator.of(context).pop();
+                        },
+                        child: Container(
+                          color: Colors.transparent,
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Icon(
+                                Icons.replay_outlined,
+                                color: Colors.green,
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text(
+                                "Recargar Información",
+                                style: TextStyle(
+                                    decoration: TextDecoration.underline,
+                                    color: Colors.green),
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
-            ),
-          ),
-        ),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Consumer<NotificationManager>(
-                builder: (context, notificationManager, child) {
-              List<Map<String, dynamic>> notifications =
-                  notificationManager.notifications;
-              return DataTable2(
-                  scrollController: _scrollController,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: const BorderRadius.all(Radius.circular(4)),
-                    border: Border.all(color: Colors.blueGrey),
-                  ),
-                  headingRowHeight: 63,
-                  headingTextStyle: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                  dataTextStyle: const TextStyle(
-                    fontSize: 12,
-                    // fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                  columnSpacing: 2,
-                  horizontalMargin: 2,
-                  minWidth: 800, // Ajusta el ancho mínimo según tus necesidades
-                  columns: [
-                    DataColumn2(
-                      label: Text("Bodega"),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {},
-                    ),
-                    DataColumn2(
-                      label: Text("Ciudad"),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {},
-                    ),
-                    DataColumn2(
-                      label: Text("Dirección"),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {},
-                    ),
-                    DataColumn2(
-                      label: Text("Referencia"),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {},
-                    ),
-                    DataColumn2(
-                      label: Text("Teléfono"),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {},
-                    ),
-                    DataColumn2(
-                      label: Text("Días de Recolección"),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {},
-                    ),
-                    DataColumn2(
-                      label: Text("Horario de Recolección"),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {},
-                    ),
-                  ],
-                  rows: List<DataRow>.generate(data.length, (index) {
-                    final color = Colors.blue[50];
+              Expanded(
+                  child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Consumer<NotificationManagerOperator>(
+                          builder: (context, NotificationManagerOperator, child) {
+                        List<Map<String, dynamic>> notifications =
+                            notificationManagerOperator!.notifications;
+                        return DataTable2(
+                            scrollController: _scrollController,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(4)),
+                              border: Border.all(color: Colors.blueGrey),
+                            ),
+                            headingRowHeight: 63,
+                            headingTextStyle: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                            dataTextStyle: const TextStyle(
+                              fontSize: 12,
+                              // fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                            columnSpacing: 2,
+                            horizontalMargin: 2,
+                            minWidth:
+                                800, // Ajusta el ancho mínimo según tus necesidades
+                            columns: [
+                              DataColumn2(
+                                label: Text("Bodega"),
+                                size: ColumnSize.S,
+                                onSort: (columnIndex, ascending) {},
+                              ),
+                              DataColumn2(
+                                label: Text("Ciudad"),
+                                size: ColumnSize.S,
+                                onSort: (columnIndex, ascending) {},
+                              ),
+                              DataColumn2(
+                                label: Text("Dirección"),
+                                size: ColumnSize.S,
+                                onSort: (columnIndex, ascending) {},
+                              ),
+                              DataColumn2(
+                                label: Text("Referencia"),
+                                size: ColumnSize.S,
+                                onSort: (columnIndex, ascending) {},
+                              ),
+                              DataColumn2(
+                                label: Text("Teléfono"),
+                                size: ColumnSize.S,
+                                onSort: (columnIndex, ascending) {},
+                              ),
+                              DataColumn2(
+                                label: Text("Retirado Por"),
+                                size: ColumnSize.S,
+                                onSort: (columnIndex, ascending) {},
+                              ),
+                              DataColumn2(
+                                label: Text("Días de Recolección"),
+                                size: ColumnSize.S,
+                                onSort: (columnIndex, ascending) {},
+                              ),
+                              DataColumn2(
+                                label: Text("Horario de Recolección"),
+                                size: ColumnSize.S,
+                                onSort: (columnIndex, ascending) {},
+                              ),
+                            ],
+                            rows: List<DataRow>.generate(data.length, (index) {
+                              final color = Colors.blue[50];
 
-                    return DataRow(
-                      color: MaterialStateColor.resolveWith((states) => color!),
-                      cells: getRows(index, notifications),
-                    );
-                  }));
-            }),
-          ),
-        )
-      ]),
-      // Column(children: []),
-      // context)
-      // Center(
-      //   child: ElevatedButton(
-      //     onPressed: () {
-      //       _mostrarVentanaEmergente(context);
-      //     },
-      //     child: Text('Mostrar Calendario'),
-      //   ),
-      // ),
-    ));
+                              return DataRow(
+                                color: MaterialStateColor.resolveWith(
+                                    (states) => color!),
+                                cells: getRows(index, notifications),
+                              );
+                            }));
+                      })))
+            ])));
   }
 
   // @override
@@ -395,6 +414,17 @@ class _WithdrawalsState extends State<Withdrawals> {
       DataCell(
           Text(
             data[index]['customer_service_phone'].toString(),
+            style: TextStyle(
+              color: rowColor,
+            ),
+          ), onTap: () {
+        // info(context, index);
+        // _mostrarVentanaEmergente(
+        //     context, data[index]['branch_name'].toString());
+      }),
+      DataCell(
+          Text(
+            data[index]['operatorNameWithdrawal'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
@@ -663,8 +693,28 @@ class _WithdrawalsState extends State<Withdrawals> {
           content: Container(
             width: width,
             height: height,
-            child: PrintedGuidesLogistic(
+            child: PrintedGuidesOperator(
                 idWarehouse: idWarehouse, warehouseName: warehouseName),
+          ),
+        );
+      },
+    );
+  }
+void _mostrarVentanaEmergenteGuiasEnviadas(
+      BuildContext context) {
+    double width =
+        MediaQuery.of(context).size.width * 0.8; // 80% del ancho de la pantalla
+    double height =
+        MediaQuery.of(context).size.height * 0.8; // 60% del alto de la pantalla
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Container(
+            width: width,
+            height: height,
+            child: TableOrdersGuidesSentOperator(),
           ),
         );
       },

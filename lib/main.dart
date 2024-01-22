@@ -29,6 +29,8 @@ import 'package:frontend/connections/connections.dart';
 
 SharedPreferences? sharedPrefs;
 NotificationManager? notificationManager;
+NotificationManagerOperator? notificationManagerOperator; 
+
 void main() async {
   await initializeDateFormatting('es');
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,10 +38,12 @@ void main() async {
   setPathUrlStrategy();
 
   notificationManager = NotificationManager();
+  notificationManagerOperator = NotificationManagerOperator();
 
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => NotificationManager()),
+      ChangeNotifierProvider(create: (_) => NotificationManagerOperator()),
       ListenableProvider<NavigationProviderLogistic>(
         create: (_) => NavigationProviderLogistic(),
       ),
@@ -83,12 +87,6 @@ void main() async {
               )),
     ),
   ));
-  // Dispose of NotificationManager when the app is closed
-
-  // // Llamado antes de que la aplicación se cierre
-  // WidgetsBinding.instance?.addPostFrameCallback((_) {
-  //   notificationManager.dispose();
-  // });
 }
 
 class MyCustomScrollBehavior extends MaterialScrollBehavior {
@@ -100,24 +98,6 @@ class MyCustomScrollBehavior extends MaterialScrollBehavior {
       };
 }
 
-// class NotificationManager {
-//   StreamController<List<Map<String, dynamic>>>  _notificationsController =
-//       StreamController<List<Map<String, dynamic>>>();
-
-//   Stream<List<Map<String, dynamic>>> get notificationsStream =>
-//       _notificationsController.stream;
-
-//   NotificationManager(
-//       [StreamController<List<Map<String, dynamic>>>? controller]) {
-//     if (controller != null) {
-//       _notificationsController.addStream(controller.stream);
-//     } else {
-//       _loadNotifications(); // Carga inicial de notificaciones
-//       Timer.periodic(const Duration(minutes: 1), (Timer t) {
-//         _loadNotifications(); // Actualización periódica
-//       });
-//     }
-//   }
 class NotificationManager with ChangeNotifier {
   List<Map<String, dynamic>> _notifications = [];
   Timer? _timer;
@@ -135,6 +115,10 @@ class NotificationManager with ChangeNotifier {
     });
   }
 
+   Future<void> updateNotifications() async {
+        await _loadNotifications();
+    }
+
   Future<void> _loadNotifications() async {
     try {
       var res = await Connections().getCountNotificationsWarehousesWithdrawals();
@@ -151,3 +135,44 @@ class NotificationManager with ChangeNotifier {
     super.dispose();
   }
 }
+
+
+class NotificationManagerOperator with ChangeNotifier {
+  List<Map<String, dynamic>> _notifications = [];
+  Timer? _timer;
+
+  List<Map<String, dynamic>> get notifications => _notifications;
+
+  NotificationManagerOperator() {
+    _loadNotifications();
+    _startAutoUpdate();
+  }
+
+  void _startAutoUpdate() {
+    _timer = Timer.periodic(Duration(minutes: 1), (timer) {
+      _loadNotifications();
+    });
+  }
+
+   Future<void> updateNotifications() async {
+        await _loadNotifications();
+    }
+
+  Future<void> _loadNotifications() async {
+    try {
+      var res = await Connections().getOrdersCountByWarehouseByOrders();
+      _notifications = res;
+      notifyListeners();
+    } catch (e) {
+      print("Error loading notifications: $e");
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+}
+
+

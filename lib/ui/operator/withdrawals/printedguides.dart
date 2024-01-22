@@ -13,12 +13,14 @@ import 'package:frontend/ui/logistic/printed_guides/controllers/controllers.dart
 import 'package:flutter_barcode_listener/flutter_barcode_listener.dart';
 import 'package:frontend/ui/logistic/printed_guides/printedguides_info.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
+import 'package:frontend/ui/operator/withdrawals/printedguides_info.dart';
 import 'package:frontend/ui/transport/withdrawals/controllers/controllers.dart';
 import 'package:frontend/ui/transport/withdrawals/customwidget.dart';
 import 'package:frontend/ui/transport/withdrawals/printedguides_info.dart';
 import 'package:frontend/ui/transport/withdrawals/table_orders_guides_sent.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/logistic/scanner_printed.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:pdf/pdf.dart';
@@ -29,18 +31,18 @@ import 'package:universal_html/html.dart' as html;
 import 'dart:js' as js;
 import 'package:intl/intl.dart';
 
-class PrintedGuidesLogistic extends StatefulWidget {
+class PrintedGuidesOperator extends StatefulWidget {
   final String idWarehouse;
   final String warehouseName;
 
-  const PrintedGuidesLogistic(
+  const PrintedGuidesOperator(
       {super.key, required this.idWarehouse, required this.warehouseName});
 
   @override
-  State<PrintedGuidesLogistic> createState() => _PrintedGuidesState();
+  State<PrintedGuidesOperator> createState() => _PrintedGuidesOperatorState();
 }
 
-class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
+class _PrintedGuidesOperatorState extends State<PrintedGuidesOperator> {
   PrintedGuidesTransportControllers _controllers =
       PrintedGuidesTransportControllers();
   ScreenshotController screenshotController = ScreenshotController();
@@ -75,7 +77,8 @@ class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
     // },
 
     {"estado_interno": "CONFIRMADO"},
-    {"estado_logistico": "IMPRESO"}
+    {"estado_logistico": "ENVIADO"},
+    {"retirement_status": "PEDIDO ASIGNADO"},
   ];
   List arrayFiltersAnd = [];
 
@@ -103,11 +106,12 @@ class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
     // response =
     //     await Connections().getOrdersForPrintedGuides(_controllers.search.text);
 
-    String idTrans = sharedPrefs!.getString("idTransportadora").toString();
-    var dataOperators = await Connections().getOperatoresbyTransport(idTrans);
-    operators = dataOperators['operadores'];
+    String idOpe = "O-${sharedPrefs!.getString("idOperadore").toString()}";
+    // String idTrans = sharedPrefs!.getString("idTransportadora").toString();
+    // var dataOperators = await Connections().getOperatoresbyTransport(19);
+    // operators = dataOperators['operadores'];
 
-    var responseLaravel = await Connections().getOrdersForPrintGuidesLaravelD(
+    var responseLaravel = await Connections().getOrdersForPrintGuidesLaravelO(
         filtersOrCont,
         arrayfiltersDefaultAnd,
         arrayFiltersAnd,
@@ -115,7 +119,8 @@ class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
         pageSize,
         sortFieldDefaultValue.toString(),
         _controllers.search.text,
-        widget.idWarehouse);
+        widget.idWarehouse,
+        idOpe);
 
     // data = response;
     data = responseLaravel['data'];
@@ -185,7 +190,7 @@ class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    "Historial Retiros ${widget.warehouseName}",
+                    "Retiros Asignados ${widget.warehouseName}",
                     style: const TextStyle(color: Colors.black, fontSize: 18.0),
                   ),
                 ],
@@ -194,33 +199,33 @@ class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
             const SizedBox(
               height: 10,
             ),
-            Align(
-              alignment: Alignment.topLeft,
-              child: ElevatedButton(
-                  onPressed: () {
-                    // _mostrarVentanaEmergente(context, widget.warehouseName);
-                    _mostrarVentanaEmergenteGuiasEnviadas(
-                        context, widget.idWarehouse);
-                  },
-                  child: Container(
-                    width: 140.0,
-                    child: const Row(
-                      children: [
-                        Icon(Icons.send_and_archive),
-                        SizedBox(
-                          width: 2.0,
-                        ),
-                        Text(
-                          "GUIAS ENVIADAS",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        )
-                      ],
-                    ),
-                  )),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
+            // Align(
+            //   alignment: Alignment.topLeft,
+            //   child: ElevatedButton(
+            //       onPressed: () {
+            //         // _mostrarVentanaEmergente(context, widget.warehouseName);
+            //         _mostrarVentanaEmergenteGuiasEnviadas(
+            //             context, widget.idWarehouse);
+            //       },
+            //       child: Container(
+            //         width: 140.0,
+            //         child: const Row(
+            //           children: [
+            //             Icon(Icons.send_and_archive),
+            //             SizedBox(
+            //               width: 2.0,
+            //             ),
+            //             Text(
+            //               "GUIAS ENVIADAS",
+            //               style: TextStyle(fontWeight: FontWeight.bold),
+            //             )
+            //           ],
+            //         ),
+            //       )),
+            // ),
+            // const SizedBox(
+            //   height: 10,
+            // ),
             Align(
               alignment: Alignment.centerRight,
               child: GestureDetector(
@@ -743,8 +748,8 @@ class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
             borderRadius: BorderRadius.circular(10.0),
           ),
           focusedBorder: OutlineInputBorder(
-            borderSide:
-                BorderSide(width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
+            borderSide: const BorderSide(
+                width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
             borderRadius: BorderRadius.circular(10.0),
           ),
           focusColor: Colors.black,
@@ -759,28 +764,29 @@ class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
       margin: const EdgeInsets.all(5.0),
       child: Column(
         children: [
-          Container(
-              padding: const EdgeInsets.all(5.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Seleccione Un Operador: ',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(
-                    width: 3.0,
-                  ),
-                  MyWidget(
-                    operadores: operators,
-                    onOperadorSelected: (String id) {
-                      // print("Operador seleccionado: $id");
-                      selectedOperatorId = int.parse(id);
-                    },
-                  )
-                ],
-              )),
+          // Container(
+          // padding: const EdgeInsets.all(5.0),
+          // child:
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.center,
+          //   crossAxisAlignment: CrossAxisAlignment.center,
+          //   children: [
+          //     const Text(
+          //       'Seleccione Un Operador: ',
+          //       style: TextStyle(fontWeight: FontWeight.bold),
+          //     ),
+          //     const SizedBox(
+          //       width: 3.0,
+          //     ),
+          //     MyWidget(
+          //       operadores: operators,
+          //       onOperadorSelected: (String id) {
+          //         // print("Operador seleccionado: $id");
+          //         selectedOperatorId = int.parse(id);
+          //       },
+          //     )
+          //   ],
+          // )),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -874,45 +880,60 @@ class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
               ),
               ElevatedButton(
                   onPressed: () async {
-                    // getLoadingModal(context, false);
-                    // print(selectedOperatorId);
-                    if (selectedOperatorId != 0) {
-                      getLoadingModal(context, false);
+                    getLoadingModal(context, false);
 
-                      for (var i = 0; i < optionsCheckBox.length; i++) {
-                        if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
-                            optionsCheckBox[i]['id'].toString() != '' &&
-                            optionsCheckBox[i]['check'] == true) {
-                          await Connections().addWithdrawanBy(
-                              optionsCheckBox[i]['id'].toString(),
-                              "O-$selectedOperatorId");
-
-                          await Connections().updateOrderWithTime(
-                              optionsCheckBox[i]['id'].toString(),
-                              "estado_logistico:ENVIADO",
-                              idUser,
-                              "",
-                              "");
-                        }
+                    for (var i = 0; i < optionsCheckBox.length; i++) {
+                      if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
+                          optionsCheckBox[i]['id'].toString() != '' &&
+                          optionsCheckBox[i]['check'] == true) {
+                        await Connections().endRetirement(
+                          optionsCheckBox[i]['id'].toString(),
+                          // "O-$selectedOperatorId"
+                        );
+                        // await Provider.of<NotificationManagerOperator>(context,
+                        //         listen: false)
+                        //     .updateNotifications();
+                        await Connections().updateOrderWithTime(
+                            optionsCheckBox[i]['id'].toString(),
+                            "estado_logistico:IMPRESO",
+                            idUser,
+                            "",
+                            "");
                       }
-                      Navigator.pop(context);
-                      setState(() {});
-                      await loadData();
-                    } else {
-                      AwesomeDialog(
-                        width: 500,
-                        context: context,
-                        dialogType: DialogType.warning,
-                        animType: AnimType.rightSlide,
-                        title: 'Error',
-                        desc: 'Debe Seleccionar un Operador Previamente',
-                        btnCancel: Container(),
-                        btnOkText: "Aceptar",
-                        btnOkColor: colors.colorGreen,
-                        btnCancelOnPress: () {},
-                        btnOkOnPress: () {},
-                      ).show();
                     }
+
+                    Navigator.pop(context);
+                    setState(() {});
+                    await loadData();
+                  },
+                  child: Text("FINALIZAR RETIRO"),
+                  style: const ButtonStyle(
+                      backgroundColor: MaterialStatePropertyAll(Colors.red))),
+              SizedBox(
+                width: 20,
+              ),
+              ElevatedButton(
+                  onPressed: () async {
+                    getLoadingModal(context, false);
+
+                    for (var i = 0; i < optionsCheckBox.length; i++) {
+                      if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
+                          optionsCheckBox[i]['id'].toString() != '' &&
+                          optionsCheckBox[i]['check'] == true) {
+                        await Connections().updateRetirementStatus(
+                            optionsCheckBox[i]['id'].toString(),
+                            "O-$selectedOperatorId");
+                        await Connections().updateOrderWithTime(
+                            optionsCheckBox[i]['id'].toString(),
+                            "estado_logistico:ENVIADO",
+                            idUser,
+                            "",
+                            "");
+                      }
+                    }
+                    Navigator.pop(context);
+                    setState(() {});
+                    await loadData();
                   },
                   child: const Text(
                     "MARCAR ENVIADO",
@@ -1026,7 +1047,7 @@ class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
                     ),
                   ),
                   Expanded(
-                      child: PrintedGuideInfoTransport(
+                      child: PrintedGuideInfoOperator(
                     id: data[index]['id'].toString(),
                   ))
                 ],

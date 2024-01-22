@@ -28,18 +28,17 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:intl/intl.dart';
 
-class TableOrdersGuidesSentTransport extends StatefulWidget {
-  final String idWarehouse;
+class TableOrdersGuidesSentOperator extends StatefulWidget {
 
-  const TableOrdersGuidesSentTransport({super.key, required this.idWarehouse});
+  const TableOrdersGuidesSentOperator({super.key});
 
   @override
-  State<TableOrdersGuidesSentTransport> createState() =>
-      _TableOrdersGuidesSentStateTransport();
+  State<TableOrdersGuidesSentOperator> createState() =>
+      _TableOrdersGuidesSentStateOperator();
 }
 
-class _TableOrdersGuidesSentStateTransport
-    extends State<TableOrdersGuidesSentTransport> {
+class _TableOrdersGuidesSentStateOperator
+    extends State<TableOrdersGuidesSentOperator> {
   PrintedGuidesTransportControllers _controllers =
       PrintedGuidesTransportControllers();
   List data = [];
@@ -63,7 +62,8 @@ class _TableOrdersGuidesSentStateTransport
   var filtersDefaultAnd = [
     {"/estado_interno": "CONFIRMADO"},
     {"/estado_logistico": "ENVIADO"},
-    {"/retirement_status": "PEDIDO ASIGNADO"},
+    {"/retirement_status": "PEDIDO RETIRADO"},
+    {"equals/withdrawan_by": "O-${sharedPrefs!.getString("idOperadore").toString()}"}
   ];
 
   List filtersOrCont = [
@@ -140,7 +140,7 @@ class _TableOrdersGuidesSentStateTransport
           filtersAnd = [];
           filtersAnd.add({"/marca_tiempo_envio": date});
           responseL = await Connections()
-              .getOrdersForSentGuidesPrincipalLaravelD(
+              .getOrdersForSentGuidesPrincipalLaravel(
                   populate,
                   filtersAnd,
                   filtersDefaultAnd,
@@ -150,7 +150,7 @@ class _TableOrdersGuidesSentStateTransport
                   "",
                   sortFieldDefaultValue,
                   [],
-                  widget.idWarehouse);
+                  );
 
           //  *
         } else {
@@ -171,7 +171,7 @@ class _TableOrdersGuidesSentStateTransport
           });
 
           responseL = await Connections()
-              .getOrdersForSentGuidesPrincipalLaravelD(
+              .getOrdersForSentGuidesPrincipalLaravel(
                   populate,
                   filtersAnd,
                   filtersDefaultAnd,
@@ -181,7 +181,7 @@ class _TableOrdersGuidesSentStateTransport
                   "",
                   sortFieldDefaultValue,
                   [],
-                  widget.idWarehouse);
+                  );
           //  *
         }
       } else {
@@ -192,7 +192,7 @@ class _TableOrdersGuidesSentStateTransport
         //         _controllers.searchController.text);
         //  *
         filtersAnd = [];
-        responseL = await Connections().getOrdersForSentGuidesPrincipalLaravelD(
+        responseL = await Connections().getOrdersForSentGuidesPrincipalLaravel(
             populate,
             filtersAnd,
             filtersDefaultAnd,
@@ -202,7 +202,7 @@ class _TableOrdersGuidesSentStateTransport
             _controllers.searchController.text,
             sortFieldDefaultValue,
             [],
-            widget.idWarehouse);
+            );
         //  *
       }
 
@@ -319,7 +319,7 @@ class _TableOrdersGuidesSentStateTransport
               children: [
                 Text(
                   // "Guías Enviadas ${widget.dateSend}",
-                  "Guías Enviadas",
+                  "Hisotiral Pedidos",
                   style: const TextStyle(color: Colors.black, fontSize: 18.0),
                 ),
               ],
@@ -910,7 +910,7 @@ class _TableOrdersGuidesSentStateTransport
           ),
           TextButton(
               onPressed: () async {
-                _mostrarVentanaEmergente(context);
+                // _mostrarVentanaEmergente(context);
                 // print(date);
                 //       var results = await showCalendarDatePicker2Dialog(
                 //         context: context,
@@ -1388,31 +1388,31 @@ class _TableOrdersGuidesSentStateTransport
     }
   }
 
-  void _mostrarVentanaEmergente(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: Container(
-            width: 800,
-            height: 300,
-            child: CalendarWidget(
-                onDateSelected: (selectedDate) {
-                  setState(() {
-                    // Aquí actualizas 'date' con la fecha seleccionada
-                    String formattedDate =
-                        DateFormat('d/M/yyyy').format(selectedDate);
-                    date = formattedDate;
-                    print('Fecha seleccionada: $formattedDate');
-                  });
-                  // Llama a loadData aquí si necesitas recargar datos con la nueva fecha
-                  loadData();
-                  Navigator.pop(context);
-                },
-                idWarehouse: widget.idWarehouse),
-          ),
-        );
-      },
-    );
-  }
+  // void _mostrarVentanaEmergente(BuildContext context) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         content: Container(
+  //           width: 800,
+  //           height: 300,
+  //           child: CalendarWidget(
+  //               onDateSelected: (selectedDate) {
+  //                 setState(() {
+  //                   // Aquí actualizas 'date' con la fecha seleccionada
+  //                   String formattedDate =
+  //                       DateFormat('d/M/yyyy').format(selectedDate);
+  //                   date = formattedDate;
+  //                   print('Fecha seleccionada: $formattedDate');
+  //                 });
+  //                 // Llama a loadData aquí si necesitas recargar datos con la nueva fecha
+  //                 loadData();
+  //                 Navigator.pop(context);
+  //               },
+  //               idWarehouse: widget.idWarehouse),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 }

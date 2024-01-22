@@ -4199,7 +4199,8 @@ class Connections {
       return true;
     }
   }
-  Future updateOperatorGeneralD(subroute, phone, cost,id) async {
+
+  Future updateOperatorGeneralD(subroute, phone, cost, id) async {
     // String id = Get.parameters['id_Operator'].toString();
     var request = await http.put(Uri.parse("$server/api/operadores/$id"),
         headers: {'Content-Type': 'application/json'},
@@ -5120,7 +5121,8 @@ class Connections {
       return true;
     }
   }
-  Future updatePasswordByIdD(password,id) async {
+
+  Future updatePasswordByIdD(password, id) async {
     // String id = Get.parameters['id'].toString();
 
     var request = await http.put(Uri.parse("$server/api/users/$id"),
@@ -5903,6 +5905,42 @@ class Connections {
             "sort": sortFiled,
             "not": [],
             "idw": idWarehouse
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+
+
+
+ Future getOrdersForPrintGuidesLaravelO(List or, List defaultAnd, List and,
+      currentPage, sizePage, sortFiled, search, idWarehouse,idWithdrawan) async {
+    List filtersAndAll = [];
+    filtersAndAll.addAll(and);
+    filtersAndAll.addAll(defaultAnd);
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/pedidos-shopifies-prtgdO"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "or": or,
+            "and": filtersAndAll,
+            "page_size": sizePage,
+            "page_number": currentPage,
+            "search": search,
+            "sort": sortFiled,
+            "not": [],
+            "idw": idWarehouse,
+            "idWithdrawan":idWithdrawan
           }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -7504,7 +7542,6 @@ class Connections {
     }
   }
 
-
   paymentOrderInWarehouseProvider(id) async {
     try {
       String? generatedBy = sharedPrefs!.getString("id");
@@ -7523,7 +7560,7 @@ class Connections {
       return 2;
     }
   }
-  
+
   sendWithdrawalAprovate(amount) async {
     try {
       var request = await http.post(
@@ -7637,7 +7674,6 @@ class Connections {
       filtersAndAll.addAll(and);
       filtersAndAll.addAll(defaultAnd);
 
-
       var request = await http.post(
           Uri.parse(
               "$serverLaravel/api/logistic/values/getByDateRangeValuesAudit"),
@@ -7648,7 +7684,6 @@ class Connections {
             "start": dateStart,
             "end": dateEnd,
             "and": filtersAndAll,
-        
           }));
       var response = await request.body;
       decodeData = json.decode(response);
@@ -7672,6 +7707,27 @@ class Connections {
                 'Content-Type': 'application/json',
               },
               body: json.encode({"idTransportadora": idTransport}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return decodeData['warehouses'];
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  getWarehousesforOperators() async {
+    String idOperator = "O-${sharedPrefs!.getString("idOperadore").toString()}";
+    try {
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/warehouses/foroperators"),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode({"withdrawan_by": idOperator}));
       var response = await request.body;
       var decodeData = json.decode(response);
       if (request.statusCode != 200) {
@@ -7712,6 +7768,34 @@ class Connections {
     }
   }
 
+  getOrdersCountByWarehouseByOrders(
+      // StreamController<List<Map<String, dynamic>>>
+      // notificationsController
+      ) async {
+    String idOperator = "O-${sharedPrefs!.getString("idOperadore").toString()}";
+    try {
+      var request =
+          await http.post(Uri.parse("$serverLaravel/api/values-test-operators"),
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: json.encode({"withdrawan_by": idOperator}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        List<Map<String, dynamic>> notificationsList =
+            List<Map<String, dynamic>>.from(
+                decodeData['ordersCountByWarehouse']);
+        // notificationsController.add(notificationsList);
+        return notificationsList;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
   getValuesDropdown(monthYear, idWarehouse) async {
     // String idTransport = sharedPrefs!.getString("idTransportadora").toString();
     try {
@@ -7736,13 +7820,14 @@ class Connections {
   }
 
   addWithdrawanBy(idOrder, idOperator) async {
+    print(json.encode({"idOrder": idOrder, "id": idOperator}));
     try {
       var request = await http.post(
           Uri.parse("$serverLaravel/api/register-withdrawan-by"),
           headers: {
             'Content-Type': 'application/json',
           },
-          body: json.encode({"idOrder": idOrder, "idOperator": idOperator}));
+          body: json.encode({"idOrder": idOrder, "id": idOperator}));
       if (request.statusCode != 200) {
         return 1;
       } else {
@@ -7752,8 +7837,51 @@ class Connections {
       return 2;
     }
   }
+  
+  updateRetirementStatus(idOrder, idOperator) async {
+    print(json.encode({"idOrder": idOrder, "id": idOperator}));
+    try {
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/update-retirement-status"),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode({"idOrder": idOrder, "id": idOperator}));
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+  
+  
+    endRetirement(idOrder) async {
+    print(json.encode({"idOrder": idOrder}));
+    try {
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/end-retirement"),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode({"idOrder": idOrder}));
+      if (request.statusCode != 200) {
+        return request;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+  
+  
+  
 
-   getOperatorName(idOperator) async {
+  getOperatorName(idOperator) async {
+    print("con> $idOperator");
     try {
       var request = await http.get(
           Uri.parse("$serverLaravel/api/operators/by-id/${idOperator}"),
