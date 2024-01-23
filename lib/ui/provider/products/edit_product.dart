@@ -158,7 +158,7 @@ class _EditProductState extends State<EditProduct> {
     ProductModel product = ProductModel.fromJson(newData);
     codigo = product.productId.toString();
     _nameController.text = product.productName.toString();
-    createdAt = formatDate(product.createdAt.toString());
+    createdAt = UIUtils.formatDate(product.createdAt.toString());
     approved = product.approved!;
     _stockController.text = product.stock.toString();
     stockOriginal = int.parse(product.stock.toString());
@@ -2398,14 +2398,6 @@ class _EditProductState extends State<EditProduct> {
         ],
       ),
     );
-  }
-
-  formatDate(dateStringFromDatabase) {
-    DateTime dateTime = DateTime.parse(dateStringFromDatabase);
-    Duration offset = const Duration(hours: -5);
-    dateTime = dateTime.toUtc().add(offset);
-    String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
-    return formattedDate;
   }
 }
 

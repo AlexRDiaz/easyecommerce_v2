@@ -1758,7 +1758,7 @@ class _ProductsViewState extends State<ProductsView> {
                                     ),
                                   ),
                                   DataCell(
-                                    Text(formatDate(
+                                    Text(UIUtils.formatDate(
                                         dataHistory[index]['date'].toString())),
                                   ),
                                   DataCell(
@@ -1792,14 +1792,6 @@ class _ProductsViewState extends State<ProductsView> {
         );
       },
     );
-  }
-
-  formatDate(dateStringFromDatabase) {
-    DateTime dateTime = DateTime.parse(dateStringFromDatabase);
-    Duration offset = const Duration(hours: -7);
-    dateTime = dateTime.toUtc().add(offset);
-    String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
-    return formattedDate;
   }
 
   _modelTextField({text, controller}) {

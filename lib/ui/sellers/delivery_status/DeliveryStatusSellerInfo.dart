@@ -7,6 +7,7 @@ import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/operator/orders_operator/controllers/controllers.dart';
+import 'package:frontend/ui/utils/utils.dart';
 
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:intl/intl.dart';
@@ -102,8 +103,9 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                             _buildRow(
                                 'Marca Tiempo de Estado Entrega',
                                 data['status_last_modified_at'] != null
-                                    ? formatDate(data['status_last_modified_at']
-                                        .toString())
+                                    ? UIUtils.formatDate(
+                                        data['status_last_modified_at']
+                                            .toString())
                                     : "",
                                 context),
                             _buildRow(
@@ -506,14 +508,6 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
             ),
           );
         });
-  }
-
-  formatDate(dateStringFromDatabase) {
-    DateTime dateTime = DateTime.parse(dateStringFromDatabase);
-    Duration offset = const Duration(hours: -7);
-    dateTime = dateTime.toUtc().add(offset);
-    String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
-    return formattedDate;
   }
 
   // Métodos auxiliares

@@ -8,6 +8,7 @@ import 'package:frontend/main.dart';
 // import 'package:frontend/helpers/server.dart';
 import 'package:frontend/ui/operator/orders_operator/controllers/controllers.dart';
 import 'package:frontend/ui/operator/orders_operator/info_novedades.dart';
+import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 // import 'package:frontend/ui/widgets/update_status_operator/update_status_operator.dart';
 import 'package:intl/intl.dart';
@@ -271,7 +272,7 @@ class _DeliveryStatusSellerInfo extends State<DeliveryStatusSellerInfo> {
                         _modelText(
                             "Marca Tiempo de Estado Entrega",
                             data['status_last_modified_at'] != null
-                                ? formatDate(
+                                ? UIUtils.formatDate(
                                     data['status_last_modified_at'].toString())
                                 : ""),
                         _modelText("Código",
@@ -471,14 +472,6 @@ class _DeliveryStatusSellerInfo extends State<DeliveryStatusSellerInfo> {
         ),
       ],
     );
-  }
-
-  formatDate(dateStringFromDatabase) {
-    DateTime dateTime = DateTime.parse(dateStringFromDatabase);
-    Duration offset = const Duration(hours: -7);
-    dateTime = dateTime.toUtc().add(offset);
-    String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
-    return formattedDate;
   }
 
   _modelTextField({text, controller}) {

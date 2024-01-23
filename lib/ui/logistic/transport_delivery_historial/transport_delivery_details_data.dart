@@ -701,7 +701,7 @@ class _TransportDeliveryHistoryDetailsDataState
                         ),
                       ),
                       Text(
-                        "${data['status_last_modified_at'] != null ? formatDate(data['status_last_modified_at'].toString()) : ""}",
+                        "${data['status_last_modified_at'] != null ? UIUtils.formatDate(data['status_last_modified_at'].toString()) : ""}",
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey[800],
@@ -786,14 +786,6 @@ class _TransportDeliveryHistoryDetailsDataState
         ),
       ),
     );
-  }
-
-  formatDate(dateStringFromDatabase) {
-    DateTime dateTime = DateTime.parse(dateStringFromDatabase);
-    Duration offset = const Duration(hours: -7);
-    dateTime = dateTime.toUtc().add(offset);
-    String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
-    return formattedDate;
   }
 
   Container confirmadoOptions(BuildContext context) {

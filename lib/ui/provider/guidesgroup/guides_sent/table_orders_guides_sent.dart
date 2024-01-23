@@ -15,6 +15,7 @@ import 'package:frontend/ui/provider/guidesgroup/guides_sent/controllers/control
 import 'package:frontend/ui/sellers/guides_sent/controllers/controllers.dart';
 import 'package:frontend/ui/sellers/order_entry/controllers/controllers.dart';
 import 'package:frontend/ui/transport/my_orders_prv/scanner_orders_prv.dart';
+import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/filters_orders.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/logistic/scanner_printed.dart';
@@ -646,7 +647,7 @@ class _TableOrdersGuidesSentStateProvider
                             }),
                             DataCell(
                                 Text(data[index]['sent_at'] != null
-                                    ? "${formatDate(data[index]['sent_at'].toString())}"
+                                    ? "${UIUtils.formatDate(data[index]['sent_at'].toString())}"
                                     : ''), onTap: () {
                               getInfoModal(index);
                             }),
@@ -656,14 +657,6 @@ class _TableOrdersGuidesSentStateProvider
         ),
       ),
     );
-  }
-
-  formatDate(dateStringFromDatabase) {
-    DateTime dateTime = DateTime.parse(dateStringFromDatabase);
-    Duration offset = const Duration(hours: -7);
-    dateTime = dateTime.toUtc().add(offset);
-    String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
-    return formattedDate;
   }
 
   Container _buttons() {

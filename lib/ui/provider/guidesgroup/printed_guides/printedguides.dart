@@ -15,6 +15,7 @@ import 'package:frontend/ui/provider/guidesgroup/printed_guides/controllers/cont
 import 'package:frontend/ui/provider/guidesgroup/printed_guides/printedguides_info.dart';
 import 'package:frontend/ui/sellers/printed_guides/controllers/controllers.dart';
 import 'package:frontend/ui/sellers/printed_guides/printedguides_info.dart';
+import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/logistic/scanner_printed.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -519,7 +520,8 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
                               }),
                               DataCell(
                                   Text(data[index]['printed_at'] != null
-                                      ? formatDate(data[index]['printed_at'])
+                                      ? UIUtils.formatDate(
+                                          data[index]['printed_at'])
                                       : ''), onTap: () {
                                 info(context, index);
                               }),
@@ -530,14 +532,6 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
         ),
       ),
     );
-  }
-
-  formatDate(dateStringFromDatabase) {
-    DateTime dateTime = DateTime.parse(dateStringFromDatabase);
-    Duration offset = const Duration(hours: -7);
-    dateTime = dateTime.toUtc().add(offset);
-    String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
-    return formattedDate;
   }
 
   _modelTextField({text, controller}) {
@@ -712,14 +706,14 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
                           "",
                           "");
                     }
-                    if (responsereduceStock == "No Dispone de Stock en la Reserva") {
+                    if (responsereduceStock ==
+                        "No Dispone de Stock en la Reserva") {
                       var emojiSaludo = "\u{1F44B}"; // 👋
                       var _url = Uri.parse(
-                                        "https://api.whatsapp.com/send?phone=+593${data[i]['users'][0]['vendedores'][0]['telefono_1'].toString()}&text=Hola,${emojiSaludo} ${data[i]['users'][0]['vendedores'][0]['nombre_comercial'].toString()} tu pedido con el id ${data[i]['numero_orden']} no tiene Stock en tu reserva de Producto. Deseas Recargar el Stock o Eliminar la reserva ? ");
-                                    if (!await launchUrl(_url)) {
-                                      throw Exception('Could not launch $_url');
-                                    }
-
+                          "https://api.whatsapp.com/send?phone=+593${data[i]['users'][0]['vendedores'][0]['telefono_1'].toString()}&text=Hola,${emojiSaludo} ${data[i]['users'][0]['vendedores'][0]['nombre_comercial'].toString()} tu pedido con el id ${data[i]['numero_orden']} no tiene Stock en tu reserva de Producto. Deseas Recargar el Stock o Eliminar la reserva ? ");
+                      if (!await launchUrl(_url)) {
+                        throw Exception('Could not launch $_url');
+                      }
                     }
                   }
                 }

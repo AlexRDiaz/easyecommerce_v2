@@ -71,14 +71,6 @@ class _AuditDataInfo extends State<AuditDataInfo> {
     return (value ?? defaultValue).toString();
   }
 
-  String formatDate(dateStringFromDatabase) {
-    DateTime dateTime = DateTime.parse(dateStringFromDatabase);
-    Duration offset = const Duration(hours: -5);
-    dateTime = dateTime.toUtc().add(offset);
-    String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
-    return formattedDate;
-  }
-
   @override
   Widget build(BuildContext context) {
     String transportadoraNombre =

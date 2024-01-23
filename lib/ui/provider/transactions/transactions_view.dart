@@ -367,14 +367,6 @@ class _TransactionsViewState extends State<TransactionsView> {
     );
   }
 
-  formatDate(dateStringFromDatabase) {
-    DateTime dateTime = DateTime.parse(dateStringFromDatabase);
-    Duration offset = const Duration(hours: -7);
-    dateTime = dateTime.toUtc().add(offset);
-    String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
-    return formattedDate;
-  }
-
   Future<dynamic> withdrawalInputDialog(BuildContext context) {
     return showDialog(
       context: context,

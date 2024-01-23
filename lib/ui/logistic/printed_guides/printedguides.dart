@@ -11,6 +11,7 @@ import 'package:frontend/ui/logistic/printed_guides/controllers/controllers.dart
 import 'package:flutter_barcode_listener/flutter_barcode_listener.dart';
 import 'package:frontend/ui/logistic/printed_guides/printedguides_info.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
+import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/logistic/scanner_printed.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -563,7 +564,7 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                             }),
                             DataCell(
                                 Text(data[index]['printed_at'] != null
-                                    ? "${formatDate(data[index]['printed_at'])}"
+                                    ? "${UIUtils.formatDate(data[index]['printed_at'])}"
                                     : ''), onTap: () {
                               info(context, index);
                             }),
@@ -575,14 +576,6 @@ class _PrintedGuidesState extends State<PrintedGuides> {
         ),
       ),
     );
-  }
-
-  formatDate(dateStringFromDatabase) {
-    DateTime dateTime = DateTime.parse(dateStringFromDatabase);
-    Duration offset = const Duration(hours: -7);
-    dateTime = dateTime.toUtc().add(offset);
-    String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
-    return formattedDate;
   }
 
   _modelTextField({text, controller}) {

@@ -13,6 +13,7 @@ import 'package:frontend/providers/filters_orders/filters_orders.dart';
 import 'package:frontend/ui/logistic/guides_sent/controllers/controllers.dart';
 import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
 import 'package:frontend/ui/sellers/order_entry/controllers/controllers.dart';
+import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/filters_orders.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/routes.dart';
@@ -708,7 +709,7 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                           }),
                           DataCell(
                               Text(data[index]['sent_at'] != null
-                                  ? "${formatDate(data[index]['sent_at'])}"
+                                  ? "${UIUtils.formatDate(data[index]['sent_at'])}"
                                   : ''), onTap: () {
                             getInfoModal(index);
                           }),
@@ -721,14 +722,6 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
         ),
       ),
     );
-  }
-
-  formatDate(dateStringFromDatabase) {
-    DateTime dateTime = DateTime.parse(dateStringFromDatabase);
-    Duration offset = const Duration(hours: -7);
-    dateTime = dateTime.toUtc().add(offset);
-    String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
-    return formattedDate;
   }
 
   Color? GetColor(state) {

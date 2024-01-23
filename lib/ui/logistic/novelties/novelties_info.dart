@@ -7,6 +7,7 @@ import 'package:frontend/helpers/navigators.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/operator/orders_operator/controllers/controllers.dart';
+import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -71,14 +72,6 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
     return (value ?? defaultValue).toString();
   }
 
-  String formatDate(dateStringFromDatabase) {
-    DateTime dateTime = DateTime.parse(dateStringFromDatabase);
-    Duration offset = const Duration(hours: -5);
-    dateTime = dateTime.toUtc().add(offset);
-    String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
-    return formattedDate;
-  }
-
   @override
   Widget build(BuildContext context) {
     String transportadoraNombre =
@@ -136,7 +129,7 @@ class _NoveltiesInfo extends State<NoveltiesInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Marca Tiempo Entrega: ${data['status_last_modified_at'].toString() != "null" ? formatDate(safeValue(data['status_last_modified_at'].toString())) : ""}",
+                          "  Marca Tiempo Entrega: ${data['status_last_modified_at'].toString() != "null" ? UIUtils.formatDate(safeValue(data['status_last_modified_at'].toString())) : ""}",
                           style: TextStyle(
                               fontWeight: FontWeight.normal, fontSize: 18),
                         ),

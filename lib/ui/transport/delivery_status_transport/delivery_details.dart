@@ -4,6 +4,7 @@ import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/navigators.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/ui/operator/orders_operator/controllers/controllers.dart';
+import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/sub_routes.dart';
 import 'package:frontend/ui/widgets/update_status_operator/update_status_operator_historial.dart';
@@ -186,7 +187,7 @@ class _TransportProDeliveryHistoryDetails
                               height: 20,
                             ),
                             Text(
-                              "  Marca Tiempo de Estado Entrega: ${data['status_last_modified_at'] != null ? formatDate(data['status_last_modified_at'].toString()) : ""}",
+                              "  Marca Tiempo de Estado Entrega: ${data['status_last_modified_at'] != null ? UIUtils.formatDate(data['status_last_modified_at'].toString()) : ""}",
                               style: TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 18),
                             ),
@@ -530,14 +531,6 @@ class _TransportProDeliveryHistoryDetails
             ),
           ),
         )));
-  }
-
-  formatDate(dateStringFromDatabase) {
-    DateTime dateTime = DateTime.parse(dateStringFromDatabase);
-    Duration offset = const Duration(hours: -7);
-    dateTime = dateTime.toUtc().add(offset);
-    String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
-    return formattedDate;
   }
 
   _modelTextField({text, controller}) {
