@@ -197,7 +197,11 @@ class _UpdateStatusOperatorHistorialState
       case "EN RUTA":
         return _EnRuta();
       case "PEDIDO PROGRAMADO":
-        return _PedidoProgramado();
+        if (widget.rolidinvoke == 1) {
+          return _PedidoProgramadoLogistic();
+        } else {
+          return _PedidoProgramado();
+        }
       case "EN OFICINA":
         return _EnOficina();
       case "NOVEDAD RESUELTA":
@@ -1115,6 +1119,85 @@ class _UpdateStatusOperatorHistorialState
   }
 
   Container _PedidoProgramado() {
+    return Container(
+      child: Column(
+        children: [
+          SizedBox(
+            height: 10,
+          ),
+          Text("Comentario",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+          SizedBox(
+            height: 10,
+          ),
+          Container(
+            width: double.infinity,
+            child: TextField(
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+              controller: _controllerModalText,
+            ),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          ElevatedButton(
+              onPressed: () async {
+                getLoadingModal(context, false);
+
+                // await Connections().updateOrderStatusOperatorGeneralHistorial(
+                //     "PEDIDO PROGRAMADO", _controllerModalText.text, widget.id);
+
+                //upt for the above and status_last_modified_by and by
+                await Connections().updateOrderWithTime(
+                    widget.id.toString(),
+                    "status:PEDIDO PROGRAMADO",
+                    idUser,
+                    "",
+                    {"comentario": _controllerModalText.text, "archivo": ""});
+
+                // * if it exists, delete transaccion_pedidos_transportadora
+                // var datares =
+                //     await Connections().getOrderByIDHistoryLaravel(widget.id);
+                // var today = DateTime.now().toString().split(' ')[0];
+                // var getTransaccion = await Connections()
+                //     .getTraccionPedidoTransportadora(
+                //         widget.id, datares['transportadora'][0]['id'], today);
+                // if (getTransaccion != null) {
+                //   var deleteTransacc = await Connections()
+                //       .deleteTraccionPedidoTransportadora(
+                //           getTransaccion[0]['id']);
+                // }
+
+                setState(() {
+                  _controllerModalText.clear();
+                });
+
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+              child: Text(
+                "Guardar",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+              )),
+          SizedBox(
+            height: 20,
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text(
+              "Salir",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+          )
+        ],
+      ),
+    );
+  }
+
+  Container _PedidoProgramadoLogistic() {
     return Container(
       child: Column(
         children: [
