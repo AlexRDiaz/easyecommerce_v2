@@ -36,26 +36,38 @@ class _ScannerOrdersPrvState extends State<ScannerOrdersPrv> {
                 onBarcodeScanned: (barcode) async {
                   if (!visible) return;
                   getLoadingModal(context, false);
+                  // barcode = "174474";
 
-                  var responseOrder = await Connections().getOrderByID(barcode);
-                  var m = responseOrder['attributes']['sub_ruta'];
-                  if (responseOrder['attributes']['sub_ruta']['data'] != null) {
+                  // var responseOrder = await Connections().getOrderByID(barcode);
+                  var responseOrder =
+                      await Connections().getOrderByIDHistoryLaravel(barcode);
+
+                  List m = responseOrder['sub_ruta'];
+                  if (m.isNotEmpty) {
+                    // var response = await Connections()
+                    //     .updateReviewStatus(barcode.toString());
+
                     var response = await Connections()
-                        .updateReviewStatus(barcode.toString());
+                        .updatenueva(barcode.toString(), {'revisado': 1});
 
                     setState(() {
+                      // _barcode =
+                      //     "${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']}";
                       _barcode =
-                          "${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']}";
-                      _operador = responseOrder['attributes']['operadore']
-                              ['data']['attributes']['user']['data']
-                          ['attributes']['username'];
+                          "${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']}";
+
+                      _operador = responseOrder['operadore'][0]['up_users'][0]
+                          ['username'];
 
                       message = "SE MARCÓ COMO REVISADO";
                     });
                   } else {
                     setState(() {
+                      // _barcode =
+                      //     "${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']}";
                       _barcode =
-                          "${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']}";
+                          "${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']}";
+
                       _operador = "OPERADOR Y SUB-RUTA NO ASIGNADOS";
                       message = "NO SE MARCÓ COMO REVISADO";
                     });
