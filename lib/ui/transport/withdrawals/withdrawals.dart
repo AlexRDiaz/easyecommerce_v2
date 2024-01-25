@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:frontend/config/colors.dart';
 import 'package:frontend/models/pedido_shopify_model.dart';
 import 'package:frontend/ui/transport/withdrawals/customwidget.dart';
@@ -55,6 +56,11 @@ class _WithdrawalsState extends State<Withdrawals> {
   int generalValuetotal = 0;
   late List<Map<String, dynamic>> notifications;
 
+  List<String> transportator = [];
+  String? selectedValueTransportator;
+
+  bool selectAll = false;
+
   // NumberPaginatorController paginatorController = NumberPaginatorController();
 
   // @override
@@ -94,6 +100,7 @@ class _WithdrawalsState extends State<Withdrawals> {
   loadData() async {
     isLoading = true;
     currentPage = 1;
+    List transportatorList = [];
     try {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         getLoadingModal(context, false);
@@ -109,6 +116,30 @@ class _WithdrawalsState extends State<Withdrawals> {
         data = response;
       });
 
+      if (optionsCheckBox.isEmpty) {
+        for (var i = 0; i < data.length; i++) {
+          optionsCheckBox.add({
+            "check": false,
+            "warehouse_id": "",
+          });
+        }
+      }
+
+      setState(() {
+        transportator = [];
+      });
+
+      String idTrans = sharedPrefs!.getString("idTransportadora").toString();
+      var resptrans = await Connections().getOperatoresbyTransport(idTrans);
+      transportatorList = resptrans['operadores'];
+
+      for (var i = 0; i < transportatorList.length; i++) {
+        setState(() {
+          if (transportatorList != null) {
+            transportator.add('${transportatorList[i]}');
+          }
+        });
+      }
       Future.delayed(const Duration(milliseconds: 500), () {
         Navigator.pop(context);
       });
@@ -177,49 +208,120 @@ class _WithdrawalsState extends State<Withdrawals> {
       child:
           //  responsive(
           Column(children: [
-        Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: GestureDetector(
-              onTap: () async {
-                getLoadingModal(context, false);
-
-                // Actualiza las notificaciones
-                await Provider.of<NotificationManager>(context, listen: false)
-                    .updateNotifications();
-
-                // Cierra el diálogo de carga
-                Navigator.of(context).pop();
+        // Padding(
+        // padding: const EdgeInsets.all(20.0),
+        // child:
+        // Row(
+        // children: [
+        Container(
+          width: MediaQuery.of(context).size.width * 0.3,
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton2<String>(
+              isExpanded: true,
+              hint: Text(
+                'OPERADORES',
+                style: TextStyle(
+                    fontSize: 14,
+                    color: Theme.of(context).hintColor,
+                    fontWeight: FontWeight.bold),
+              ),
+              items: transportator
+                  .map((item) => DropdownMenuItem(
+                        value: item,
+                        child: Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                item.split('-')[0],
+                                style: const TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            GestureDetector(
+                                onTap: () async {
+                                  setState(() {
+                                    selectedValueTransportator = null;
+                                  });
+                                  // resetFilters();
+                                  await loadData();
+                                },
+                                child: Icon(Icons.close))
+                          ],
+                        ),
+                      ))
+                  .toList(),
+              value: selectedValueTransportator,
+              onChanged: (value) async {
+                // filtersAnd = [];
+                // _controllers.searchController.clear();
+                setState(() {
+                  selectedValueTransportator = value as String;
+                });
+                await loadData();
               },
-              child: Container(
-                color: Colors.transparent,
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Icon(
-                      Icons.replay_outlined,
-                      color: Colors.green,
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      "Recargar Información",
-                      style: TextStyle(
-                          decoration: TextDecoration.underline,
-                          color: Colors.green),
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                  ],
-                ),
+
+              //This to clear the search value when you close the menu
+              onMenuStateChange: (isOpen) {
+                if (!isOpen) {}
+              },
+            ),
+          ),
+        ),
+        ElevatedButton(
+            onPressed: () {
+              mostrarDialogoModificacion(context);
+            },
+            child: Text("ASIGNAR OPERADOR",
+            style: TextStyle(color: ColorsSystem().textoClaro),),
+            style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(ColorsSystem().textoAzulElectrico))),
+
+        Align(
+          alignment: Alignment.centerRight,
+          child: GestureDetector(
+            onTap: () async {
+              getLoadingModal(context, false);
+
+              // Actualiza las notificaciones
+              await loadData();
+              await Provider.of<NotificationManager>(context, listen: false)
+                  .updateNotifications();
+
+              // Cierra el diálogo de carga
+              Navigator.of(context).pop();
+            },
+            child: Container(
+              color: Colors.transparent,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Icon(
+                    Icons.replay_outlined,
+                    color: ColorsSystem().textoClaro,
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Text(
+                    "Recargar Información",
+                    style: TextStyle(
+                        decoration: TextDecoration.underline,
+                        color: ColorsSystem().textoClaro),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                ],
               ),
             ),
           ),
         ),
+        // ],
+        // ),
+        // ),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(20.0),
@@ -235,9 +337,9 @@ class _WithdrawalsState extends State<Withdrawals> {
                     border: Border.all(color: Colors.blueGrey),
                   ),
                   headingRowHeight: 63,
-                  headingTextStyle: const TextStyle(
+                  headingTextStyle: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    color: ColorsSystem().textoAzulElectrico,
                   ),
                   dataTextStyle: const TextStyle(
                     fontSize: 12,
@@ -249,8 +351,25 @@ class _WithdrawalsState extends State<Withdrawals> {
                   minWidth: 800, // Ajusta el ancho mínimo según tus necesidades
                   columns: [
                     DataColumn2(
-                      label: Text("Bodega"),
+                      label: Row(
+                        children: [
+                          Checkbox(
+                            value: selectAll,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                selectAll = value ?? false;
+                                addAllValues();
+                              });
+                            },
+                          ),
+                          const Text('Todo'),
+                        ],
+                      ),
                       size: ColumnSize.S,
+                    ),
+                    DataColumn2(
+                      label: Text("Bodega"),
+                      size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {},
                     ),
                     DataColumn2(
@@ -270,6 +389,11 @@ class _WithdrawalsState extends State<Withdrawals> {
                     ),
                     DataColumn2(
                       label: Text("Teléfono"),
+                      size: ColumnSize.S,
+                      onSort: (columnIndex, ascending) {},
+                    ),
+                    DataColumn2(
+                      label: Text("Operador Asignado"),
                       size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {},
                     ),
@@ -346,6 +470,21 @@ class _WithdrawalsState extends State<Withdrawals> {
       }
     }
     return [
+      DataCell(Checkbox(
+          value: optionsCheckBox[index]['check'],
+          onChanged: (value) {
+            setState(() {
+              selectAll = false;
+              if (value!) {
+                optionsCheckBox[index]['check'] = value;
+                optionsCheckBox[index]['warehouse_id'] =
+                    data[index]['warehouse_id'].toString();
+              } else {
+                optionsCheckBox[index]['check'] = value;
+                optionsCheckBox[index]['warehouse_id'] = '';
+              }
+            });
+          })),
       DataCell(
           CustomRowWithNotification(
             count: notifications.isNotEmpty
@@ -395,6 +534,17 @@ class _WithdrawalsState extends State<Withdrawals> {
       DataCell(
           Text(
             data[index]['customer_service_phone'].toString(),
+            style: TextStyle(
+              color: rowColor,
+            ),
+          ), onTap: () {
+        // info(context, index);
+        // _mostrarVentanaEmergente(
+        //     context, data[index]['branch_name'].toString());
+      }),
+      DataCell(
+          Text(
+            notifications[index]['first_username'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
@@ -670,6 +820,96 @@ class _WithdrawalsState extends State<Withdrawals> {
       },
     );
   }
+
+  void addAllValues() {
+    if (selectAll == true) {
+      for (var i = 0; i < data.length; i++) {
+        setState(() {
+          if (optionsCheckBox[i]['check'] != true) {
+            optionsCheckBox[i]['check'] = true;
+            optionsCheckBox[i]['warehouse_id'] =
+                data[i]['warehouse_id'].toString();
+          }
+        });
+      }
+    } else {
+      deleteValues();
+    }
+  }
+
+  deleteValues() {
+    for (var i = 0; i < optionsCheckBox.length; i++) {
+      optionsCheckBox[i]['check'] = false;
+      optionsCheckBox[i]['warehouse_id'] = '';
+    }
+  }
+
+  Future<void> mostrarDialogoModificacion(BuildContext context) async {
+    // Obtener la lista de pedidos de forma asíncrona
+
+    // List<String> listaPedidos = await obtenerPedidos();
+    List<dynamic> listaPedidos = [];
+
+    // Mostrar el cuadro de diálogo
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirmación'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Se modificarán los siguientes pedidos:'),
+                for (var pedido in listaPedidos) Text(pedido['id'].toString()),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            ElevatedButton(
+              child: Text('Cancelar'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Cierra el diálogo
+              },
+            ),
+            ElevatedButton(
+              child: Text('Aceptar'),
+              onPressed: () async {
+                // Aquí puedes poner la lógica para manejar la aceptación
+                getLoadingModal(context, false);
+                // print(optionsCheckBox);
+                for (var i = 0; i < optionsCheckBox.length; i++) {
+                  if (optionsCheckBox[i]['warehouse_id'].toString().isNotEmpty &&
+                      optionsCheckBox[i]['warehouse_id'].toString() != '' &&
+                      optionsCheckBox[i]['warehouse_id'].toString() != 'null' &&
+                      optionsCheckBox[i]['check'] == true) {
+
+                    var responseLaravel = await Connections()
+                        .getOrdersForPrintGuidesLaravelD([], [
+                      {"estado_interno": "CONFIRMADO"},
+                      {"estado_logistico": "IMPRESO"}
+                    ], [], 1, 1300, "id:DESC", "",
+                            optionsCheckBox[i]['warehouse_id'].toString());
+
+                    listaPedidos = responseLaravel['data'];
+                  }
+                }
+
+                for (var i = 0; i < listaPedidos.length; i++) {
+                  var pedidoId = listaPedidos[i]['id'].toString();
+                  await Connections().addWithdrawanBy(
+                      pedidoId, "O-${selectedValueTransportator!.split('-')[1]}");
+                }
+
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+                // loadData(); // Cierra el diálogo
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
 
 class CustomRowWithNotification extends StatelessWidget {
@@ -701,7 +941,8 @@ class CustomRowWithNotification extends StatelessWidget {
                     padding: EdgeInsets.all(4.0),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Color.fromARGB(255, 6, 71, 249),
+                      // color: Color.fromARGB(255, 6, 71, 249),
+                      color: ColorsSystem().textoAzulElectrico,
                     ),
                     child: Text(
                       count.toString(),

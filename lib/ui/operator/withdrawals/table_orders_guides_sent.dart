@@ -164,11 +164,13 @@ class _TableOrdersGuidesSentStateOperator
           //  *
           filtersAnd = [];
           filtersAnd.add({"/marca_tiempo_envio": date});
-          filtersAnd.add({
-            "/withdrawan_by":
-                "O-${selectedValueTransportator.toString().split('-')[1]}"
+          // filtersAnd.add(
+          // {
+            // "/withdrawan_by":
+                // "O-${selectedValueTransportator.toString().split('-')[1]}"
                 // selectedValueTransportator.toString().split('-')[1]
-          });
+          // }
+          // );
 
           responseL = await Connections()
               .getOrdersForSentGuidesPrincipalLaravel(
@@ -244,17 +246,17 @@ class _TableOrdersGuidesSentStateOperator
       //     "qrLink": "",
       //   });
       // }
-      String idTrans = sharedPrefs!.getString("idTransportadora").toString();
-      var resptrans = await Connections().getOperatoresbyTransport(idTrans);
-      transportatorList = resptrans['operadores'];
+      // String idTrans = sharedPrefs!.getString("idTransportadora").toString();
+      // var resptrans = await Connections().getOperatoresbyTransport(idTrans);
+      // transportatorList = resptrans['operadores'];
 
-      for (var i = 0; i < transportatorList.length; i++) {
-        setState(() {
-          if (transportatorList != null) {
-            transportator.add('${transportatorList[i]}');
-          }
-        });
-      }
+      // for (var i = 0; i < transportatorList.length; i++) {
+      //   setState(() {
+      //     if (transportatorList != null) {
+      //       transportator.add('${transportatorList[i]}');
+      //     }
+      //   });
+      // }
       Future.delayed(Duration(milliseconds: 500), () {
         Navigator.pop(context);
       });
@@ -287,7 +289,7 @@ class _TableOrdersGuidesSentStateOperator
   void resetFilters() {
     getOldValue(true);
     filtersAnd = [];
-    selectedValueTransportator = null;
+    // selectedValueTransportator = null;
     _controllers.searchController.text = "";
   }
 
@@ -397,7 +399,6 @@ class _TableOrdersGuidesSentStateOperator
                   TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
               dataTextStyle: TextStyle(
                   fontSize: 12,
-                  fontWeight: FontWeight.bold,
                   color: Colors.black),
               columnSpacing: 12,
               horizontalMargin: 12,
@@ -493,13 +494,13 @@ class _TableOrdersGuidesSentStateOperator
                     sortFunc("precio_total", changevalue);
                   },
                 ),
-                DataColumn2(
-                  label: const Text('Retirado Por'),
-                  size: ColumnSize.M,
-                  onSort: (columnIndex, ascending) {
-                    // sortFuncTransporte();
-                  },
-                ),
+                // DataColumn2(
+                //   label: const Text('Retirado Por'),
+                //   size: ColumnSize.M,
+                //   onSort: (columnIndex, ascending) {
+                //     // sortFuncTransporte();
+                //   },
+                // ),
                 DataColumn2(
                   label: const Text('Estado Retiro'),
                   size: ColumnSize.M,
@@ -709,14 +710,14 @@ class _TableOrdersGuidesSentStateOperator
                             onTap: () {
                           getInfoModal(index);
                         }),
-                        DataCell(
-                          Text(
-                              nombresOperadores[data[index]['withdrawan_by']] ??
-                                  ' ... '),
-                          onTap: () {
-                            getInfoModal(index);
-                          },
-                        ),
+                        // DataCell(
+                        //   Text(
+                        //       nombresOperadores[data[index]['withdrawan_by']] ??
+                        //           ' ... '),
+                        //   onTap: () {
+                        //     getInfoModal(index);
+                        //   },
+                        // ),
                          DataCell(Text(data[index]['retirement_status'].toString()),
                             onTap: () {
                           getInfoModal(index);
@@ -910,45 +911,7 @@ class _TableOrdersGuidesSentStateOperator
           ),
           TextButton(
               onPressed: () async {
-                // _mostrarVentanaEmergente(context);
-                // print(date);
-                //       var results = await showCalendarDatePicker2Dialog(
-                //         context: context,
-                //         config: CalendarDatePicker2WithActionButtonsConfig(
-                //           dayTextStyle: TextStyle(fontWeight: FontWeight.bold),
-                //           yearTextStyle: TextStyle(fontWeight: FontWeight.bold),
-                //           selectedYearTextStyle:
-                //               TextStyle(fontWeight: FontWeight.bold),
-                //           weekdayLabelTextStyle:
-                //               TextStyle(fontWeight: FontWeight.bold),
-                //         ),
-                //         dialogSize: const Size(325, 400),
-                //         value: _dates,
-                //         borderRadius: BorderRadius.circular(15),
-                //       );
-                //       setState(() {
-                //         if (results != null) {
-                //           String fechaOriginal = results![0]
-                //               .toString()
-                //               .split(" ")[0]
-                //               .split('-')
-                //               .reversed
-                //               .join('-')
-                //               .replaceAll("-", "/");
-                //           List<String> componentes = fechaOriginal.split('/');
-
-                //           String dia = int.parse(componentes[0]).toString();
-                //           String mes = int.parse(componentes[1]).toString();
-                //           String anio = componentes[2];
-
-                //           String nuevaFecha = "$dia/$mes/$anio";
-                //           setState(() {
-                //             date = nuevaFecha;
-                //           });
-                //           _controllers.searchController.clear();
-                //         }
-                //       });
-                //       await loadData();
+                _mostrarVentanaEmergente(context);
               },
               child: Text(
                 "SELECCIONAR FECHA: $date",
@@ -957,60 +920,62 @@ class _TableOrdersGuidesSentStateOperator
           SizedBox(
             height: 10,
           ),
-          DropdownButtonHideUnderline(
-            child: DropdownButton2<String>(
-              isExpanded: true,
-              hint: Text(
-                'OPERADORES',
-                style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(context).hintColor,
-                    fontWeight: FontWeight.bold),
-              ),
-              items: transportator
-                  .map((item) => DropdownMenuItem(
-                        value: item,
-                        child: Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                item.split('-')[0],
-                                style: const TextStyle(
-                                    fontSize: 14, fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            GestureDetector(
-                                onTap: () async {
-                                  setState(() {
-                                    selectedValueTransportator = null;
-                                  });
-                                  resetFilters();
-                                  await loadData();
-                                },
-                                child: Icon(Icons.close))
-                          ],
-                        ),
-                      ))
-                  .toList(),
-              value: selectedValueTransportator,
-              onChanged: (value) async {
-                filtersAnd = [];
-                _controllers.searchController.clear();
-                setState(() {
-                  selectedValueTransportator = value as String;
-                });
-                await loadData();
-              },
+          // DropdownButtonHideUnderline(
+          //   child: DropdownButton2<String>(
+          //     isExpanded: true,
+          //     hint: Text(
+          //       'OPERADORES',
+          //       style: TextStyle(
+          //           fontSize: 14,
+          //           color: Theme.of(context).hintColor,
+          //           fontWeight: FontWeight.bold),
+          //     ),
+          //     items: transportator
+          //         .map((item) => DropdownMenuItem(
+          //               value: item,
+          //               child: Row(
+          //                 children: [
+          //                   Flexible(
+          //                     child: Text(
+          //                       item.split('-')[0],
+          //                       style: const TextStyle(
+          //                           fontSize: 14, fontWeight: FontWeight.bold),
+          //                     ),
+          //                   ),
+          //                   SizedBox(
+          //                     width: 5,
+          //                   ),
+          //                   GestureDetector(
+          //                       onTap: () async {
+          //                         setState(() {
+          //                           selectedValueTransportator = null;
+          //                         });
+          //                         resetFilters();
+          //                         await loadData();
+          //                       },
+          //                       child: Icon(Icons.close))
+          //                 ],
+          //               ),
+          //             ))
+          //         .toList(),
+          //     value: selectedValueTransportator,
+          //     onChanged: (value) async {
+          //       filtersAnd = [];
+          //       _controllers.searchController.clear();
+          //       setState(() {
+          //         selectedValueTransportator = value as String;
+          //       });
+          //       await loadData();
+          //     },
 
-              //This to clear the search value when you close the menu
-              onMenuStateChange: (isOpen) {
-                if (!isOpen) {}
-              },
-            ),
-          ),
+          //     //This to clear the search value when you close the menu
+          //     onMenuStateChange: (isOpen) {
+          //       if (!isOpen) {}
+          //     },
+          //   ),
+          // ),
+          
+          
           const SizedBox(
             height: 5,
           ),
@@ -1388,31 +1353,31 @@ class _TableOrdersGuidesSentStateOperator
     }
   }
 
-  // void _mostrarVentanaEmergente(BuildContext context) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         content: Container(
-  //           width: 800,
-  //           height: 300,
-  //           child: CalendarWidget(
-  //               onDateSelected: (selectedDate) {
-  //                 setState(() {
-  //                   // Aquí actualizas 'date' con la fecha seleccionada
-  //                   String formattedDate =
-  //                       DateFormat('d/M/yyyy').format(selectedDate);
-  //                   date = formattedDate;
-  //                   print('Fecha seleccionada: $formattedDate');
-  //                 });
-  //                 // Llama a loadData aquí si necesitas recargar datos con la nueva fecha
-  //                 loadData();
-  //                 Navigator.pop(context);
-  //               },
-  //               idWarehouse: widget.idWarehouse),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
+  void _mostrarVentanaEmergente(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Container(
+            width: 800,
+            height: 300,
+            child: CalendarWidget(
+                onDateSelected: (selectedDate) {
+                  setState(() {
+                    // Aquí actualizas 'date' con la fecha seleccionada
+                    String formattedDate =
+                        DateFormat('d/M/yyyy').format(selectedDate);
+                    date = formattedDate;
+                    print('Fecha seleccionada: $formattedDate');
+                  });
+                  // Llama a loadData aquí si necesitas recargar datos con la nueva fecha
+                  loadData();
+                  Navigator.pop(context);
+                },
+                idWarehouse: "O-${sharedPrefs!.getString("idOperadore").toString()}"),
+          ),
+        );
+      },
+    );
+  }
 }

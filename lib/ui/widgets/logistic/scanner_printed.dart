@@ -97,19 +97,22 @@ class _ScannerPrintedState extends State<ScannerPrinted> {
                           idUser,
                           "",
                           "");
-                      var responsewith = await Connections().addWithdrawanBy(
-                          responseOrder['id'].toString(),
-                          "T-${sharedPrefs!.getString("idTransportadora").toString()}");
+                      var responsewith = await Connections().updateRetirementStatus(
+                          responseOrder['id'].toString());
+                          // responseOrder['withdrawan_by'].toString()
+                          // "T-${sharedPrefs!.getString("idTransportadora").toString()}");
+
                     } else if (widget.from == "operator_printedguides") {
+
                       responseL = await Connections().updateOrderWithTime(
                           barcode.toString(),
                           "estado_logistico:ENVIADO",
                           idUser,
                           "",
                           "");
-                      var responsewith = await Connections().addWithdrawanBy(
-                          responseOrder['id'].toString(),
-                          "O-${sharedPrefs!.getString("idOperadore").toString()}");
+                      var responsewith = await Connections().updateRetirementStatus(
+                          responseOrder['id'].toString());
+
                     } else {
                       //provider?
                       responseL = await Connections().updateOrderWithTime(

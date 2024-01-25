@@ -6,5 +6,6 @@ class ColorsSystem {
   Color colorSelectMenu = Color.fromARGB(255, 22, 138, 232);
   Color colorRedPassword = Color.fromRGBO(243, 77, 68, 1);
   Color colorPrincipalBrand = Color.fromARGB(234, 13, 33, 54);
-   
+  Color textoAzulElectrico = Color(0xff130280);
+  Color textoClaro = Color(0xff00A5FF);
 }

@@ -77,7 +77,7 @@ class _PrintedGuidesOperatorState extends State<PrintedGuidesOperator> {
     // },
 
     {"estado_interno": "CONFIRMADO"},
-    {"estado_logistico": "ENVIADO"},
+    // {"estado_logistico": "IMPRESO"},
     {"retirement_status": "PEDIDO ASIGNADO"},
   ];
   List arrayFiltersAnd = [];
@@ -306,7 +306,7 @@ class _PrintedGuidesOperatorState extends State<PrintedGuidesOperator> {
                             context: context,
                             builder: (context) {
                               return const ScannerPrinted(
-                                from: "transport_printedguides",
+                                from: "operator_printedguides",
                               );
                             });
                         await loadData();
@@ -652,69 +652,7 @@ class _PrintedGuidesOperatorState extends State<PrintedGuidesOperator> {
           getOldValue(true);
           loadData();
 
-          // getLoadingModal(context, false);
-
-          // setState(() {
-          //   data = dataTemporal;
-          // });
-          // if (value.isEmpty) {
-          //   setState(() {
-          //     data = dataTemporal;
-          //   });
-          // } else {
-          //   var dataTemp = data
-          //       .where((objeto) =>
-          //           objeto['attributes']['NumeroOrden'].toString().toLowerCase().contains(value.toLowerCase()) ||
-          //           objeto['attributes']['CiudadShipping']
-          //               .toString()
-          //               .toLowerCase()
-          //               .contains(value.toLowerCase()) ||
-          //           objeto['attributes']['NombreShipping']
-          //               .toString()
-          //               .toLowerCase()
-          //               .contains(value.toLowerCase()) ||
-          //           objeto['attributes']['DireccionShipping']
-          //               .toString()
-          //               .toLowerCase()
-          //               .contains(value.toLowerCase()) ||
-          //           objeto['attributes']['Cantidad_Total']
-          //               .toString()
-          //               .toLowerCase()
-          //               .contains(value.toLowerCase()) ||
-          //           objeto['attributes']['ProductoP']
-          //               .toString()
-          //               .toLowerCase()
-          //               .contains(value.toLowerCase()) ||
-          //           objeto['attributes']['ProductoExtra']
-          //               .toString()
-          //               .toLowerCase()
-          //               .contains(value.toLowerCase()) ||
-          //           objeto['attributes']['PrecioTotal']
-          //               .toString()
-          //               .toLowerCase()
-          //               .contains(value.toLowerCase()) ||
-          //           objeto['attributes']['Estado_Interno']
-          //               .toString()
-          //               .toLowerCase()
-          //               .contains(value.toLowerCase()) ||
-          //           objeto['attributes']['Estado_Logistico']
-          //               .toString()
-          //               .toLowerCase()
-          //               .contains(value.toLowerCase()) ||
-          //           (objeto['attributes']['transportadora']['data'] != null
-          //                   ? objeto['attributes']['transportadora']['data']['attributes']['Nombre'].toString()
-          //                   : '')
-          //               .toString()
-          //               .toLowerCase()
-          //               .contains(value.toLowerCase()))
-          //       .toList();
-          //   setState(() {
-          //     data = dataTemp;
-          //   });
-          // }
-          // Navigator.pop(context);
-
-          // loadData();
+          
         },
         onChanged: (value) {},
         style: TextStyle(fontWeight: FontWeight.bold),
@@ -791,93 +729,11 @@ class _PrintedGuidesOperatorState extends State<PrintedGuidesOperator> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              ElevatedButton(
-                  onPressed: () async {
-                    const double point = 1.0;
-                    const double inch = 72.0;
-                    const double cm = inch / 2.54;
-                    const double mm = inch / 25.4;
-
-                    getLoadingModal(context, false);
-                    final doc = pw.Document();
-
-                    for (var i = 0; i < optionsCheckBox.length; i++) {
-                      if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
-                          optionsCheckBox[i]['id'].toString() != '' &&
-                          optionsCheckBox[i]['check'] == true) {
-                        final capturedImage = await screenshotController
-                            .captureFromWidget(Container(
-                                child: ModelGuide(
-                          address: optionsCheckBox[i]['address'],
-                          city: optionsCheckBox[i]['city'],
-                          date: optionsCheckBox[i]['date'],
-                          extraProduct: optionsCheckBox[i]['extraProduct'],
-                          idForBarcode: optionsCheckBox[i]['id'],
-                          name: optionsCheckBox[i]['name'],
-                          numPedido: optionsCheckBox[i]['numPedido'],
-                          observation: optionsCheckBox[i]['obervation'],
-                          phone: optionsCheckBox[i]['phone'],
-                          price: optionsCheckBox[i]['price'],
-                          product: optionsCheckBox[i]['product'],
-                          qrLink: optionsCheckBox[i]['qrLink'],
-                          quantity: optionsCheckBox[i]['quantity'],
-                          transport: optionsCheckBox[i]['transport'],
-                        )));
-
-                        doc.addPage(pw.Page(
-                          pageFormat: PdfPageFormat(21.0 * cm, 21.0 * cm,
-                              marginAll: 0.1 * cm),
-                          build: (pw.Context context) {
-                            return pw.Row(
-                              children: [
-                                pw.Image(pw.MemoryImage(capturedImage),
-                                    fit: pw.BoxFit.contain)
-                              ],
-                            );
-                          },
-                        ));
-                      }
-                    }
-                    Navigator.pop(context);
-                    await Printing.layoutPdf(
-                        onLayout: (PdfPageFormat format) async =>
-                            await doc.save());
-                    setState(() {});
-                  },
-                  child: const Text(
-                    "IMPRIMIR",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  )),
-
+            
               const SizedBox(
                 width: 20,
               ),
-              // ElevatedButton(
-              //     onPressed: () async {
-              //       getLoadingModal(context, false);
 
-              //       for (var i = 0; i < optionsCheckBox.length; i++) {
-              //         if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
-              //             optionsCheckBox[i]['id'].toString() != '' &&
-              //             optionsCheckBox[i]['check'] == true) {
-              //           var response = await Connections()
-              //               .updateOrderInteralStatusLogistic(
-              //                   "NO DESEA", optionsCheckBox[i]['id'].toString());
-              //         }
-              //       }
-              //       Navigator.pop(context);
-
-              //       setState(() {});
-
-              //       await loadData();
-              //     },
-              //     child: const Text(
-              //       "NO DESEA",
-              //       style: TextStyle(fontWeight: FontWeight.bold),
-              //     )),
-              SizedBox(
-                width: 20,
-              ),
               ElevatedButton(
                   onPressed: () async {
                     getLoadingModal(context, false);
@@ -886,6 +742,8 @@ class _PrintedGuidesOperatorState extends State<PrintedGuidesOperator> {
                       if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
                           optionsCheckBox[i]['id'].toString() != '' &&
                           optionsCheckBox[i]['check'] == true) {
+
+                            
                         await Connections().endRetirement(
                           optionsCheckBox[i]['id'].toString(),
                           // "O-$selectedOperatorId"
@@ -922,7 +780,7 @@ class _PrintedGuidesOperatorState extends State<PrintedGuidesOperator> {
                           optionsCheckBox[i]['check'] == true) {
                         await Connections().updateRetirementStatus(
                             optionsCheckBox[i]['id'].toString(),
-                            "O-$selectedOperatorId");
+                            );
                         await Connections().updateOrderWithTime(
                             optionsCheckBox[i]['id'].toString(),
                             "estado_logistico:ENVIADO",
@@ -939,32 +797,32 @@ class _PrintedGuidesOperatorState extends State<PrintedGuidesOperator> {
                     "MARCAR ENVIADO",
                     style: TextStyle(fontWeight: FontWeight.bold),
                   )),
-              SizedBox(
-                width: 20,
-              ),
-              ElevatedButton(
-                  onPressed: () async {
-                    getLoadingModal(context, false);
+              // SizedBox(
+                // width: 20,
+              // ),
+              // ElevatedButton(
+              //     onPressed: () async {
+              //       getLoadingModal(context, false);
 
-                    for (var i = 0; i < optionsCheckBox.length; i++) {
-                      if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
-                          optionsCheckBox[i]['id'].toString() != '' &&
-                          optionsCheckBox[i]['check'] == true) {
-                        var response = await Connections().updatenueva(
-                            optionsCheckBox[i]['id'],
-                            {"estado_interno": "RECHAZADO"});
-                      }
-                    }
-                    Navigator.pop(context);
+              //       for (var i = 0; i < optionsCheckBox.length; i++) {
+              //         if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
+              //             optionsCheckBox[i]['id'].toString() != '' &&
+              //             optionsCheckBox[i]['check'] == true) {
+              //           var response = await Connections().updatenueva(
+              //               optionsCheckBox[i]['id'],
+              //               {"estado_interno": "RECHAZADO"});
+              //         }
+              //       }
+              //       Navigator.pop(context);
 
-                    setState(() {});
+              //       setState(() {});
 
-                    await loadData();
-                  },
-                  child: const Text(
-                    "RECHAZADO",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  )),
+              //       await loadData();
+              //     },
+              //     child: const Text(
+              //       "RECHAZADO",
+              //       style: TextStyle(fontWeight: FontWeight.bold),
+              //     )),
             ],
           ),
         ],

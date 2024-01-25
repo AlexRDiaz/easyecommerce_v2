@@ -62,7 +62,7 @@ class _TableOrdersGuidesSentStateTransport
   int pageSize = 1300;
   var filtersDefaultAnd = [
     {"/estado_interno": "CONFIRMADO"},
-    {"/estado_logistico": "ENVIADO"},
+    // {"/estado_logistico": "ENVIADO"},
     {"/retirement_status": "PEDIDO ASIGNADO"},
   ];
 

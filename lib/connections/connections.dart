@@ -5892,6 +5892,16 @@ class Connections {
     List filtersAndAll = [];
     filtersAndAll.addAll(and);
     filtersAndAll.addAll(defaultAnd);
+    print(json.encode({
+            "or": or,
+            "and": filtersAndAll,
+            "page_size": sizePage,
+            "page_number": currentPage,
+            "search": search,
+            "sort": sortFiled,
+            "not": [],
+            "idw": idWarehouse
+          }));
     try {
       var response = await http.post(
           Uri.parse("$serverLaravel/api/pedidos-shopifies-prtgdD"),
@@ -7819,6 +7829,30 @@ class Connections {
     }
   }
 
+
+  getValuesDropdownOp(monthYear, idWarehouse) async {
+    // String idTransport = sharedPrefs!.getString("idTransportadora").toString();
+    try {
+      var request = await http.post(Uri.parse("$serverLaravel/api/valuesdrop-op"),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json
+              .encode({"monthYear": monthYear, "WithdrawanBy": idWarehouse}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      List<Map<String, dynamic>> notificationsList =
+          List<Map<String, dynamic>>.from(decodeData);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return notificationsList;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
   addWithdrawanBy(idOrder, idOperator) async {
     print(json.encode({"idOrder": idOrder, "id": idOperator}));
     try {
@@ -7838,15 +7872,15 @@ class Connections {
     }
   }
   
-  updateRetirementStatus(idOrder, idOperator) async {
-    print(json.encode({"idOrder": idOrder, "id": idOperator}));
+  updateRetirementStatus(idOrder) async {
+    print(json.encode({"idOrder": idOrder}));
     try {
       var request = await http.post(
           Uri.parse("$serverLaravel/api/update-retirement-status"),
           headers: {
             'Content-Type': 'application/json',
           },
-          body: json.encode({"idOrder": idOrder, "id": idOperator}));
+          body: json.encode({"idOrder": idOrder}));
       if (request.statusCode != 200) {
         return 1;
       } else {

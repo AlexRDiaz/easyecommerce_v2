@@ -185,7 +185,7 @@ class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    "Historial Retiros ${widget.warehouseName}",
+                    "Pedidos Asignados ${widget.warehouseName}",
                     style: const TextStyle(color: Colors.black, fontSize: 18.0),
                   ),
                 ],
@@ -203,7 +203,7 @@ class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
                         context, widget.idWarehouse);
                   },
                   child: Container(
-                    width: 140.0,
+                    width: 180.0,
                     child: const Row(
                       children: [
                         Icon(Icons.send_and_archive),
@@ -211,7 +211,7 @@ class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
                           width: 2.0,
                         ),
                         Text(
-                          "GUIAS ENVIADAS",
+                          "Historial Guias Enviadas",
                           style: TextStyle(fontWeight: FontWeight.bold),
                         )
                       ],
@@ -307,9 +307,10 @@ class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
                         await loadData();
                       },
                       child: const Text(
-                        "SCANNER",
+                        "SCANNER MARCAR A RETIRADOS",
                         style: TextStyle(fontWeight: FontWeight.bold),
-                      )),
+                      ),
+                      style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(Colors.red))),
                 ),
               ],
             ),
@@ -887,12 +888,12 @@ class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
                               optionsCheckBox[i]['id'].toString(),
                               "O-$selectedOperatorId");
 
-                          await Connections().updateOrderWithTime(
-                              optionsCheckBox[i]['id'].toString(),
-                              "estado_logistico:ENVIADO",
-                              idUser,
-                              "",
-                              "");
+                          // await Connections().updateOrderWithTime(
+                          //     optionsCheckBox[i]['id'].toString(),
+                          //     "estado_logistico:ENVIADO",
+                          //     idUser,
+                          //     "",
+                          //     "");
                         }
                       }
                       Navigator.pop(context);
@@ -915,7 +916,7 @@ class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
                     }
                   },
                   child: const Text(
-                    "MARCAR ENVIADO",
+                    "MARCAR COMO PEDIDO RETIRADO",
                     style: TextStyle(fontWeight: FontWeight.bold),
                   )),
               SizedBox(
