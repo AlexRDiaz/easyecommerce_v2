@@ -59,7 +59,7 @@ class _ScannerStateSent extends State<ScannerSent> {
                             barcode.toString(), {'revisado_seller': 1});
                         setState(() {
                           _barcode =
-                              "${responseOrder['name_comercial']}-${responseOrder['numero_orden']}";
+                              "${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']}";
                         });
                       } else {
                         setState(() {
@@ -74,7 +74,7 @@ class _ScannerStateSent extends State<ScannerSent> {
                           barcode.toString(), {'revisado_seller': 2});
                       setState(() {
                         _barcode =
-                            "${responseOrder['name_comercial']}-${responseOrder['numero_orden']}";
+                            "${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']}";
                       });
                     } else {
                       //provider?
@@ -82,7 +82,7 @@ class _ScannerStateSent extends State<ScannerSent> {
                           barcode.toString(), {'revisado_seller': 1});
                       setState(() {
                         _barcode =
-                            "${responseOrder['name_comercial']}-${responseOrder['numero_orden']}";
+                            "${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']}";
                       });
                     }
                     if (response == 0) {
