@@ -599,7 +599,7 @@ class _ProofPaymentState2 extends State<ProofPayment2> {
                                             text:
                                                 "${getByDay2(index + 1)[0]["status"]?.toString() ?? "No existe"}",
                                             style: TextStyle(
-                                              fontWeight: FontWeight.bold,
+                                              // fontWeight: FontWeight.bold,
                                               color: generateColor(
                                                   getByDay2(index + 1)[0]
                                                               ["status"]
@@ -615,8 +615,8 @@ class _ProofPaymentState2 extends State<ProofPayment2> {
                                               text:
                                                   "Valores Recibidos: \$${getByDay2(index + 1)[0]["daily_proceeds"].toString()}",
                                               style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                                  // fontWeight: FontWeight.bold,
+                                                  ),
                                             ),
                                           const TextSpan(text: "\n"),
                                           if (getByDay2(index + 1)[0]
@@ -626,8 +626,8 @@ class _ProofPaymentState2 extends State<ProofPayment2> {
                                               text:
                                                   "Costo Entrega: \$${getByDay2(index + 1)[0]["daily_shipping_cost"].toString()}",
                                               style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                                  // fontWeight: FontWeight.bold,
+                                                  ),
                                             ),
                                           const TextSpan(text: "\n"),
                                           if (getByDay2(index + 1)[0]
@@ -636,10 +636,9 @@ class _ProofPaymentState2 extends State<ProofPayment2> {
                                             TextSpan(
                                               text:
                                                   "Total: \$${getByDay2(index + 1)[0]["daily_total"].toString()}",
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                color: Color.fromARGB(
-                                                    255, 7, 1, 181),
+                                              style: TextStyle(
+                                                // fontWeight: FontWeight.bold,
+                                                color: Colors.indigo[600],
                                               ),
                                             ),
                                         ],

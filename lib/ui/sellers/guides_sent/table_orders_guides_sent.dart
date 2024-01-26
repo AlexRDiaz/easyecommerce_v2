@@ -49,7 +49,7 @@ class _TableOrdersGuidesSentStateSeller
   Uint8List? _imageFile = null;
   bool sort = false;
   List<DateTime?> _dates = [];
-  List<String> transportator = [];
+  List<String> carriersToSelect = [];
   String? selectedValueTransportator;
   String date =
       "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
@@ -121,10 +121,10 @@ class _TableOrdersGuidesSentStateSeller
 
     var responseL;
 
-    List transportatorList = [];
+    List carriersList = [];
 
     setState(() {
-      transportator = [];
+      carriersToSelect = [];
     });
 
     if (_controllers.searchController.text.isEmpty) {
@@ -214,15 +214,27 @@ class _TableOrdersGuidesSentStateSeller
     //     "qrLink": "",
     //   });
     // }
-    var responsetransportadoras = await Connections().getTransportadoras();
-    transportatorList = responsetransportadoras['transportadoras'];
-    for (var i = 0; i < transportatorList.length; i++) {
+    // var responsetransportadoras = await Connections().getTransportadoras();
+    // transportatorList = responsetransportadoras['transportadoras'];
+    // for (var i = 0; i < transportatorList.length; i++) {
+    //   setState(() {
+    //     if (transportatorList != null) {
+    //       transportator.add('${transportatorList[i]}');
+    //     }
+    //   });
+    // }
+
+    var getCarriersResponse = await Connections().getTransportadoras();
+    carriersList = getCarriersResponse['transportadoras'];
+
+    if (carriersList != null) {
       setState(() {
-        if (transportatorList != null) {
-          transportator.add('${transportatorList[i]}');
+        for (var carrier in carriersList) {
+          carriersToSelect.add('$carrier');
         }
       });
     }
+
     Future.delayed(Duration(milliseconds: 500), () {
       Navigator.pop(context);
     });
@@ -820,58 +832,64 @@ class _TableOrdersGuidesSentStateSeller
           const SizedBox(
             height: 10,
           ),
-          DropdownButtonHideUnderline(
-            child: DropdownButton2<String>(
-              isExpanded: true,
-              hint: Text(
-                'TRANSPORTADORA',
-                style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(context).hintColor,
-                    fontWeight: FontWeight.bold),
-              ),
-              items: transportator
-                  .map((item) => DropdownMenuItem(
-                        value: item,
-                        child: Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                item.split('-')[0],
-                                style: const TextStyle(
-                                    fontSize: 14, fontWeight: FontWeight.bold),
+          SizedBox(
+            width: MediaQuery.of(context).size.width > 600
+                ? MediaQuery.of(context).size.width * 0.5
+                : MediaQuery.of(context).size.width * 0.9,
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton2<String>(
+                isExpanded: true,
+                hint: Text(
+                  'TRANSPORTADORA',
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).hintColor,
+                      fontWeight: FontWeight.bold),
+                ),
+                items: carriersToSelect
+                    .map((item) => DropdownMenuItem(
+                          value: item,
+                          child: Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  item.split('-')[0],
+                                  style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold),
+                                ),
                               ),
-                            ),
-                            const SizedBox(
-                              width: 5,
-                            ),
-                            GestureDetector(
-                                onTap: () async {
-                                  setState(() {
-                                    selectedValueTransportator = null;
-                                  });
-                                  resetFilters();
-                                  await loadData();
-                                },
-                                child: const Icon(Icons.close))
-                          ],
-                        ),
-                      ))
-                  .toList(),
-              value: selectedValueTransportator,
-              onChanged: (value) async {
-                filtersAnd = [];
-                _controllers.searchController.clear();
-                setState(() {
-                  selectedValueTransportator = value as String;
-                });
-                await loadData();
-              },
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              GestureDetector(
+                                  onTap: () async {
+                                    setState(() {
+                                      selectedValueTransportator = null;
+                                    });
+                                    resetFilters();
+                                    await loadData();
+                                  },
+                                  child: const Icon(Icons.close))
+                            ],
+                          ),
+                        ))
+                    .toList(),
+                value: selectedValueTransportator,
+                onChanged: (value) async {
+                  filtersAnd = [];
+                  _controllers.searchController.clear();
+                  setState(() {
+                    selectedValueTransportator = value as String;
+                  });
+                  await loadData();
+                },
 
-              //This to clear the search value when you close the menu
-              onMenuStateChange: (isOpen) {
-                if (!isOpen) {}
-              },
+                //This to clear the search value when you close the menu
+                onMenuStateChange: (isOpen) {
+                  if (!isOpen) {}
+                },
+              ),
             ),
           ),
           const SizedBox(
