@@ -7,10 +7,11 @@ import 'package:intl/intl.dart';
 class CalendarWidget extends StatefulWidget {
   final Function(DateTime) onDateSelected;
   final String idWarehouse;
-
-  const CalendarWidget(
-      {Key? key, required this.onDateSelected, required this.idWarehouse})
-      : super(key: key);
+  const CalendarWidget({
+    Key? key,
+    required this.onDateSelected,
+    required this.idWarehouse,
+  }) : super(key: key);
 
   @override
   _CalendarWidgetState createState() => _CalendarWidgetState();

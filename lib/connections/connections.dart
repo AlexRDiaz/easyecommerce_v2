@@ -5893,15 +5893,15 @@ class Connections {
     filtersAndAll.addAll(and);
     filtersAndAll.addAll(defaultAnd);
     print(json.encode({
-            "or": or,
-            "and": filtersAndAll,
-            "page_size": sizePage,
-            "page_number": currentPage,
-            "search": search,
-            "sort": sortFiled,
-            "not": [],
-            "idw": idWarehouse
-          }));
+      "or": or,
+      "and": filtersAndAll,
+      "page_size": sizePage,
+      "page_number": currentPage,
+      "search": search,
+      "sort": sortFiled,
+      "not": [],
+      "idw": idWarehouse
+    }));
     try {
       var response = await http.post(
           Uri.parse("$serverLaravel/api/pedidos-shopifies-prtgdD"),
@@ -5929,11 +5929,16 @@ class Connections {
     }
   }
 
-
-
-
- Future getOrdersForPrintGuidesLaravelO(List or, List defaultAnd, List and,
-      currentPage, sizePage, sortFiled, search, idWarehouse,idWithdrawan) async {
+  Future getOrdersForPrintGuidesLaravelO(
+      List or,
+      List defaultAnd,
+      List and,
+      currentPage,
+      sizePage,
+      sortFiled,
+      search,
+      idWarehouse,
+      idWithdrawan) async {
     List filtersAndAll = [];
     filtersAndAll.addAll(and);
     filtersAndAll.addAll(defaultAnd);
@@ -5950,7 +5955,7 @@ class Connections {
             "sort": sortFiled,
             "not": [],
             "idw": idWarehouse,
-            "idWithdrawan":idWithdrawan
+            "idWithdrawan": idWithdrawan
           }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -6547,16 +6552,17 @@ class Connections {
   }
 
   Future getOrdersForSentGuidesPrincipalLaravelD(
-      List populate,
-      List and,
-      List defaultAnd,
-      List or,
-      currentPage,
-      sizePage,
-      search,
-      sortFiled,
-      List not,
-      idWarehouse) async {
+    List populate,
+    List and,
+    List defaultAnd,
+    List or,
+    currentPage,
+    sizePage,
+    search,
+    sortFiled,
+    List not,
+    // idWarehouse
+  ) async {
     List filtersAndAll = [];
     filtersAndAll.addAll(and);
     filtersAndAll.addAll(defaultAnd);
@@ -6572,8 +6578,7 @@ class Connections {
                 "page_number": currentPage,
                 "search": search,
                 "sort": sortFiled,
-                "not": not,
-                "idWarehouse": idWarehouse
+                "not": not
               }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -7829,11 +7834,11 @@ class Connections {
     }
   }
 
-
   getValuesDropdownOp(monthYear, idWarehouse) async {
     // String idTransport = sharedPrefs!.getString("idTransportadora").toString();
     try {
-      var request = await http.post(Uri.parse("$serverLaravel/api/valuesdrop-op"),
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/valuesdrop-op"),
           headers: {
             'Content-Type': 'application/json',
           },
@@ -7854,7 +7859,6 @@ class Connections {
   }
 
   addWithdrawanBy(idOrder, idOperator) async {
-    print(json.encode({"idOrder": idOrder, "id": idOperator}));
     try {
       var request = await http.post(
           Uri.parse("$serverLaravel/api/register-withdrawan-by"),
@@ -7871,7 +7875,7 @@ class Connections {
       return 2;
     }
   }
-  
+
   updateRetirementStatus(idOrder) async {
     print(json.encode({"idOrder": idOrder}));
     try {
@@ -7890,17 +7894,16 @@ class Connections {
       return 2;
     }
   }
-  
-  
-    endRetirement(idOrder) async {
+
+  endRetirement(idOrder) async {
     print(json.encode({"idOrder": idOrder}));
     try {
-      var request = await http.post(
-          Uri.parse("$serverLaravel/api/end-retirement"),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: json.encode({"idOrder": idOrder}));
+      var request =
+          await http.post(Uri.parse("$serverLaravel/api/end-retirement"),
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: json.encode({"idOrder": idOrder}));
       if (request.statusCode != 200) {
         return request;
       } else {
@@ -7910,9 +7913,6 @@ class Connections {
       return 2;
     }
   }
-  
-  
-  
 
   getOperatorName(idOperator) async {
     print("con> $idOperator");

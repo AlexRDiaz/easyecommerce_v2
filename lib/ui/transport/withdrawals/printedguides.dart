@@ -194,30 +194,30 @@ class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
             const SizedBox(
               height: 10,
             ),
-            Align(
-              alignment: Alignment.topLeft,
-              child: ElevatedButton(
-                  onPressed: () {
-                    // _mostrarVentanaEmergente(context, widget.warehouseName);
-                    _mostrarVentanaEmergenteGuiasEnviadas(
-                        context, widget.idWarehouse);
-                  },
-                  child: Container(
-                    width: 180.0,
-                    child: const Row(
-                      children: [
-                        Icon(Icons.send_and_archive),
-                        SizedBox(
-                          width: 2.0,
-                        ),
-                        Text(
-                          "Historial Guias Enviadas",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        )
-                      ],
-                    ),
-                  )),
-            ),
+            // Align(
+            //   alignment: Alignment.topLeft,
+            //   child: ElevatedButton(
+            //       onPressed: () {
+            //         // _mostrarVentanaEmergente(context, widget.warehouseName);
+            //         _mostrarVentanaEmergenteGuiasEnviadas(
+            //             context, widget.idWarehouse);
+            //       },
+            //       child: Container(
+            //         width: 180.0,
+            //         child: const Row(
+            //           children: [
+            //             Icon(Icons.send_and_archive),
+            //             SizedBox(
+            //               width: 2.0,
+            //             ),
+            //             Text(
+            //               "Historial Guias Enviadas",
+            //               style: TextStyle(fontWeight: FontWeight.bold),
+            //             )
+            //           ],
+            //         ),
+            //       )),
+            // ),
             const SizedBox(
               height: 10,
             ),
@@ -296,21 +296,22 @@ class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: ElevatedButton(
-                      onPressed: () async {
-                        await showDialog(
-                            context: context,
-                            builder: (context) {
-                              return const ScannerPrinted(
-                                from: "transport_printedguides",
-                              );
-                            });
-                        await loadData();
-                      },
-                      child: const Text(
-                        "SCANNER MARCAR A RETIRADOS",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(Colors.red))),
+                    onPressed: () async {
+                      await showDialog(
+                          context: context,
+                          builder: (context) {
+                            return const ScannerPrinted(
+                              from: "transport_printedguides",
+                            );
+                          });
+                      await loadData();
+                    },
+                    child: const Text(
+                      "SCANNER",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    // style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(Colors.red))
+                  ),
                 ),
               ],
             ),
@@ -1118,7 +1119,7 @@ class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
           content: Container(
             width: width,
             height: height,
-            child: TableOrdersGuidesSentTransport(idWarehouse: idWarehouse),
+            child: TableOrdersGuidesSentTransport(),
           ),
         );
       },

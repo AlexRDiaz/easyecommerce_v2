@@ -14,6 +14,7 @@ import 'package:flutter_barcode_listener/flutter_barcode_listener.dart';
 import 'package:frontend/ui/logistic/printed_guides/printedguides_info.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/operator/withdrawals/printedguides_info.dart';
+import 'package:frontend/ui/operator/withdrawals/table_orders_guides_sent.dart';
 import 'package:frontend/ui/transport/withdrawals/controllers/controllers.dart';
 import 'package:frontend/ui/transport/withdrawals/customwidget.dart';
 import 'package:frontend/ui/transport/withdrawals/printedguides_info.dart';
@@ -651,8 +652,6 @@ class _PrintedGuidesOperatorState extends State<PrintedGuidesOperator> {
         onSubmitted: (value) async {
           getOldValue(true);
           loadData();
-
-          
         },
         onChanged: (value) {},
         style: TextStyle(fontWeight: FontWeight.bold),
@@ -729,7 +728,6 @@ class _PrintedGuidesOperatorState extends State<PrintedGuidesOperator> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-            
               const SizedBox(
                 width: 20,
               ),
@@ -742,8 +740,6 @@ class _PrintedGuidesOperatorState extends State<PrintedGuidesOperator> {
                       if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
                           optionsCheckBox[i]['id'].toString() != '' &&
                           optionsCheckBox[i]['check'] == true) {
-
-                            
                         await Connections().endRetirement(
                           optionsCheckBox[i]['id'].toString(),
                           // "O-$selectedOperatorId"
@@ -779,8 +775,8 @@ class _PrintedGuidesOperatorState extends State<PrintedGuidesOperator> {
                           optionsCheckBox[i]['id'].toString() != '' &&
                           optionsCheckBox[i]['check'] == true) {
                         await Connections().updateRetirementStatus(
-                            optionsCheckBox[i]['id'].toString(),
-                            );
+                          optionsCheckBox[i]['id'].toString(),
+                        );
                         await Connections().updateOrderWithTime(
                             optionsCheckBox[i]['id'].toString(),
                             "estado_logistico:ENVIADO",
@@ -798,7 +794,7 @@ class _PrintedGuidesOperatorState extends State<PrintedGuidesOperator> {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   )),
               // SizedBox(
-                // width: 20,
+              // width: 20,
               // ),
               // ElevatedButton(
               //     onPressed: () async {
@@ -996,7 +992,7 @@ class _PrintedGuidesOperatorState extends State<PrintedGuidesOperator> {
           content: Container(
             width: width,
             height: height,
-            child: TableOrdersGuidesSentTransport(idWarehouse: idWarehouse),
+            child: TableOrdersGuidesSentOperator(),
           ),
         );
       },

@@ -29,7 +29,6 @@ import 'package:printing/printing.dart';
 import 'package:intl/intl.dart';
 
 class TableOrdersGuidesSentOperator extends StatefulWidget {
-
   const TableOrdersGuidesSentOperator({super.key});
 
   @override
@@ -54,7 +53,7 @@ class _TableOrdersGuidesSentStateOperator
 
   //Create an instance of ScreenshotController
   ScreenshotController screenshotController = ScreenshotController();
-   Map<String, String> nombresOperadores = {};
+  Map<String, String> nombresOperadores = {};
 
   List dataL = [];
   int currentPage = 1;
@@ -63,7 +62,10 @@ class _TableOrdersGuidesSentStateOperator
     {"/estado_interno": "CONFIRMADO"},
     {"/estado_logistico": "ENVIADO"},
     {"/retirement_status": "PEDIDO RETIRADO"},
-    {"equals/withdrawan_by": "O-${sharedPrefs!.getString("idOperadore").toString()}"}
+    {
+      "equals/withdrawan_by":
+          "O-${sharedPrefs!.getString("idOperadore").toString()}"
+    }
   ];
 
   List filtersOrCont = [
@@ -139,18 +141,18 @@ class _TableOrdersGuidesSentStateOperator
           //  *
           filtersAnd = [];
           filtersAnd.add({"/marca_tiempo_envio": date});
-          responseL = await Connections()
-              .getOrdersForSentGuidesPrincipalLaravel(
-                  populate,
-                  filtersAnd,
-                  filtersDefaultAnd,
-                  filtersOrCont,
-                  currentPage,
-                  pageSize,
-                  "",
-                  sortFieldDefaultValue,
-                  [],
-                  );
+          responseL =
+              await Connections().getOrdersForSentGuidesPrincipalLaravel(
+            populate,
+            filtersAnd,
+            filtersDefaultAnd,
+            filtersOrCont,
+            currentPage,
+            pageSize,
+            "",
+            sortFieldDefaultValue,
+            [],
+          );
 
           //  *
         } else {
@@ -166,24 +168,24 @@ class _TableOrdersGuidesSentStateOperator
           filtersAnd.add({"/marca_tiempo_envio": date});
           // filtersAnd.add(
           // {
-            // "/withdrawan_by":
-                // "O-${selectedValueTransportator.toString().split('-')[1]}"
-                // selectedValueTransportator.toString().split('-')[1]
+          // "/withdrawan_by":
+          // "O-${selectedValueTransportator.toString().split('-')[1]}"
+          // selectedValueTransportator.toString().split('-')[1]
           // }
           // );
 
-          responseL = await Connections()
-              .getOrdersForSentGuidesPrincipalLaravel(
-                  populate,
-                  filtersAnd,
-                  filtersDefaultAnd,
-                  filtersOrCont,
-                  currentPage,
-                  pageSize,
-                  "",
-                  sortFieldDefaultValue,
-                  [],
-                  );
+          responseL =
+              await Connections().getOrdersForSentGuidesPrincipalLaravel(
+            populate,
+            filtersAnd,
+            filtersDefaultAnd,
+            filtersOrCont,
+            currentPage,
+            pageSize,
+            "",
+            sortFieldDefaultValue,
+            [],
+          );
           //  *
         }
       } else {
@@ -195,16 +197,16 @@ class _TableOrdersGuidesSentStateOperator
         //  *
         filtersAnd = [];
         responseL = await Connections().getOrdersForSentGuidesPrincipalLaravel(
-            populate,
-            filtersAnd,
-            filtersDefaultAnd,
-            filtersOrCont,
-            currentPage,
-            pageSize,
-            _controllers.searchController.text,
-            sortFieldDefaultValue,
-            [],
-            );
+          populate,
+          filtersAnd,
+          filtersDefaultAnd,
+          filtersOrCont,
+          currentPage,
+          pageSize,
+          _controllers.searchController.text,
+          sortFieldDefaultValue,
+          [],
+        );
         //  *
       }
 
@@ -397,9 +399,7 @@ class _TableOrdersGuidesSentStateOperator
             child: DataTable2(
               headingTextStyle:
                   TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-              dataTextStyle: TextStyle(
-                  fontSize: 12,
-                  color: Colors.black),
+              dataTextStyle: TextStyle(fontSize: 12, color: Colors.black),
               columnSpacing: 12,
               horizontalMargin: 12,
               minWidth: 2500,
@@ -718,7 +718,8 @@ class _TableOrdersGuidesSentStateOperator
                         //     getInfoModal(index);
                         //   },
                         // ),
-                         DataCell(Text(data[index]['retirement_status'].toString()),
+                        DataCell(
+                            Text(data[index]['retirement_status'].toString()),
                             onTap: () {
                           getInfoModal(index);
                         }),
@@ -974,8 +975,7 @@ class _TableOrdersGuidesSentStateOperator
           //     },
           //   ),
           // ),
-          
-          
+
           const SizedBox(
             height: 5,
           ),
@@ -1374,7 +1374,8 @@ class _TableOrdersGuidesSentStateOperator
                   loadData();
                   Navigator.pop(context);
                 },
-                idWarehouse: "O-${sharedPrefs!.getString("idOperadore").toString()}"),
+                idWarehouse:
+                    "O-${sharedPrefs!.getString("idOperadore").toString()}"),
           ),
         );
       },

@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -29,9 +30,7 @@ import 'package:printing/printing.dart';
 import 'package:intl/intl.dart';
 
 class TableOrdersGuidesSentTransport extends StatefulWidget {
-  final String idWarehouse;
-
-  const TableOrdersGuidesSentTransport({super.key, required this.idWarehouse});
+  const TableOrdersGuidesSentTransport({super.key});
 
   @override
   State<TableOrdersGuidesSentTransport> createState() =>
@@ -55,15 +54,15 @@ class _TableOrdersGuidesSentStateTransport
 
   //Create an instance of ScreenshotController
   ScreenshotController screenshotController = ScreenshotController();
-   Map<String, String> nombresOperadores = {};
+  Map<String, String> nombresOperadores = {};
 
   List dataL = [];
   int currentPage = 1;
   int pageSize = 1300;
   var filtersDefaultAnd = [
     {"/estado_interno": "CONFIRMADO"},
-    // {"/estado_logistico": "ENVIADO"},
-    {"/retirement_status": "PEDIDO ASIGNADO"},
+    {"/estado_logistico": "ENVIADO"},
+    {"/retirement_status": "PEDIDO RETIRADO"},
   ];
 
   List filtersOrCont = [
@@ -94,6 +93,7 @@ class _TableOrdersGuidesSentStateTransport
     "ruta",
     "sentBy",
     "printedBy",
+    "product.warehouse.provider"
   ];
   var idUser = sharedPrefs!.getString("id");
 
@@ -139,18 +139,18 @@ class _TableOrdersGuidesSentStateTransport
           //  *
           filtersAnd = [];
           filtersAnd.add({"/marca_tiempo_envio": date});
-          responseL = await Connections()
-              .getOrdersForSentGuidesPrincipalLaravelD(
-                  populate,
-                  filtersAnd,
-                  filtersDefaultAnd,
-                  filtersOrCont,
-                  currentPage,
-                  pageSize,
-                  "",
-                  sortFieldDefaultValue,
-                  [],
-                  widget.idWarehouse);
+          responseL =
+              await Connections().getOrdersForSentGuidesPrincipalLaravelD(
+            populate,
+            filtersAnd,
+            filtersDefaultAnd,
+            filtersOrCont,
+            currentPage,
+            pageSize,
+            "",
+            sortFieldDefaultValue,
+            [],
+          );
 
           //  *
         } else {
@@ -164,24 +164,24 @@ class _TableOrdersGuidesSentStateTransport
           //  *
           filtersAnd = [];
           filtersAnd.add({"/marca_tiempo_envio": date});
-          filtersAnd.add({
-            "/withdrawan_by":
-                "O-${selectedValueTransportator.toString().split('-')[1]}"
-                // selectedValueTransportator.toString().split('-')[1]
-          });
+          // filtersAnd.add({
+          //   "/withdrawan_by":
+          //       "O-${selectedValueTransportator.toString().split('-')[1]}"
+          //   // selectedValueTransportator.toString().split('-')[1]
+          // });
 
-          responseL = await Connections()
-              .getOrdersForSentGuidesPrincipalLaravelD(
-                  populate,
-                  filtersAnd,
-                  filtersDefaultAnd,
-                  filtersOrCont,
-                  currentPage,
-                  pageSize,
-                  "",
-                  sortFieldDefaultValue,
-                  [],
-                  widget.idWarehouse);
+          responseL =
+              await Connections().getOrdersForSentGuidesPrincipalLaravelD(
+            populate,
+            filtersAnd,
+            filtersDefaultAnd,
+            filtersOrCont,
+            currentPage,
+            pageSize,
+            "",
+            sortFieldDefaultValue,
+            [],
+          );
           //  *
         }
       } else {
@@ -200,9 +200,7 @@ class _TableOrdersGuidesSentStateTransport
             currentPage,
             pageSize,
             _controllers.searchController.text,
-            sortFieldDefaultValue,
-            [],
-            widget.idWarehouse);
+            sortFieldDefaultValue, []);
         //  *
       }
 
@@ -319,7 +317,7 @@ class _TableOrdersGuidesSentStateTransport
               children: [
                 Text(
                   // "Guías Enviadas ${widget.dateSend}",
-                  "Guías Enviadas",
+                  "Historial Retiros",
                   style: const TextStyle(color: Colors.black, fontSize: 18.0),
                 ),
               ],
@@ -407,6 +405,7 @@ class _TableOrdersGuidesSentStateTransport
                   label: const Text(''),
                   size: ColumnSize.S,
                 ),
+                DataColumn2(label: Text('Bodega'), size: ColumnSize.S),
                 DataColumn2(
                   label: const Text('Nombre Cliente'),
                   size: ColumnSize.M,
@@ -654,6 +653,13 @@ class _TableOrdersGuidesSentStateTransport
                               });
                             })),
                         DataCell(
+                            // Text(data[index]['product']['wahouse'][0]['branch_name'].toString()),
+                            Text(data[index]['product']['warehouse']
+                                    ['branch_name']
+                                .toString()), onTap: () {
+                          getInfoModal(index);
+                        }),
+                        DataCell(
                             Text(data[index]['nombre_shipping'].toString()),
                             onTap: () {
                           getInfoModal(index);
@@ -717,7 +723,8 @@ class _TableOrdersGuidesSentStateTransport
                             getInfoModal(index);
                           },
                         ),
-                         DataCell(Text(data[index]['retirement_status'].toString()),
+                        DataCell(
+                            Text(data[index]['retirement_status'].toString()),
                             onTap: () {
                           getInfoModal(index);
                         }),
@@ -862,15 +869,6 @@ class _TableOrdersGuidesSentStateTransport
           ),
           ElevatedButton(
               onPressed: () async {
-                // for (var i = 0; i < optionsCheckBox.length; i++) {
-                //   if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
-                //       optionsCheckBox[i]['id'].toString() != '' &&
-                //       optionsCheckBox[i]['check'] == true) {
-                //     var response = await Connections()
-                //         .updateOrderInteralStatusInOrderPrinted(
-                //             "PENDIENTE", optionsCheckBox[i]['id'].toString());
-                //   }
-                // }
                 await showDialog(
                     context: context,
                     builder: (context) {
@@ -908,52 +906,6 @@ class _TableOrdersGuidesSentStateTransport
           SizedBox(
             height: 10,
           ),
-          TextButton(
-              onPressed: () async {
-                _mostrarVentanaEmergente(context);
-                // print(date);
-                //       var results = await showCalendarDatePicker2Dialog(
-                //         context: context,
-                //         config: CalendarDatePicker2WithActionButtonsConfig(
-                //           dayTextStyle: TextStyle(fontWeight: FontWeight.bold),
-                //           yearTextStyle: TextStyle(fontWeight: FontWeight.bold),
-                //           selectedYearTextStyle:
-                //               TextStyle(fontWeight: FontWeight.bold),
-                //           weekdayLabelTextStyle:
-                //               TextStyle(fontWeight: FontWeight.bold),
-                //         ),
-                //         dialogSize: const Size(325, 400),
-                //         value: _dates,
-                //         borderRadius: BorderRadius.circular(15),
-                //       );
-                //       setState(() {
-                //         if (results != null) {
-                //           String fechaOriginal = results![0]
-                //               .toString()
-                //               .split(" ")[0]
-                //               .split('-')
-                //               .reversed
-                //               .join('-')
-                //               .replaceAll("-", "/");
-                //           List<String> componentes = fechaOriginal.split('/');
-
-                //           String dia = int.parse(componentes[0]).toString();
-                //           String mes = int.parse(componentes[1]).toString();
-                //           String anio = componentes[2];
-
-                //           String nuevaFecha = "$dia/$mes/$anio";
-                //           setState(() {
-                //             date = nuevaFecha;
-                //           });
-                //           _controllers.searchController.clear();
-                //         }
-                //       });
-                //       await loadData();
-              },
-              child: Text(
-                "SELECCIONAR FECHA: $date",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              )),
           SizedBox(
             height: 10,
           ),
@@ -988,7 +940,7 @@ class _TableOrdersGuidesSentStateTransport
                                     selectedValueTransportator = null;
                                   });
                                   resetFilters();
-                                  await loadData();
+                                  // await loadData();
                                 },
                                 child: Icon(Icons.close))
                           ],
@@ -1004,13 +956,19 @@ class _TableOrdersGuidesSentStateTransport
                 });
                 await loadData();
               },
-
-              //This to clear the search value when you close the menu
               onMenuStateChange: (isOpen) {
                 if (!isOpen) {}
               },
             ),
           ),
+          TextButton(
+              onPressed: () async {
+                _mostrarVentanaEmergente(context);
+              },
+              child: Text(
+                "SELECCIONAR FECHA: $date",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              )),
           const SizedBox(
             height: 5,
           ),
@@ -1389,30 +1347,47 @@ class _TableOrdersGuidesSentStateTransport
   }
 
   void _mostrarVentanaEmergente(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: Container(
-            width: 800,
-            height: 300,
-            child: CalendarWidget(
-                onDateSelected: (selectedDate) {
-                  setState(() {
-                    // Aquí actualizas 'date' con la fecha seleccionada
-                    String formattedDate =
-                        DateFormat('d/M/yyyy').format(selectedDate);
-                    date = formattedDate;
-                    print('Fecha seleccionada: $formattedDate');
-                  });
-                  // Llama a loadData aquí si necesitas recargar datos con la nueva fecha
-                  loadData();
-                  Navigator.pop(context);
-                },
-                idWarehouse: widget.idWarehouse),
-          ),
-        );
-      },
-    );
+    if (selectedValueTransportator == null) {
+      AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.rightSlide,
+        title: 'Error!',
+        desc: 'Debe Seleccionar un Operador previamente.',
+        btnCancel: Container(),
+        btnOkText: "Aceptar",
+        btnOkColor: colors.colorGreen,
+        btnCancelOnPress: () {},
+        btnOkOnPress: () {},
+      ).show();
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Container(
+              width: 800,
+              height: 300,
+              child: CalendarWidget(
+                  onDateSelected: (selectedDate) {
+                    setState(() {
+                      // Actualiza 'date' con la fecha seleccionada
+                      String formattedDate =
+                          DateFormat('d/M/yyyy').format(selectedDate);
+                      date = formattedDate;
+                      print('Fecha seleccionada: $formattedDate');
+                    });
+                    // Llama a loadData aquí si necesitas recargar datos con la nueva fecha
+                    loadData();
+                    Navigator.pop(context);
+                  },
+                  idWarehouse:
+                      "O-${selectedValueTransportator!.split('-')[1]}"),
+            ),
+          );
+        },
+      );
+    }
   }
 }

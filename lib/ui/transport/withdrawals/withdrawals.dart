@@ -6,6 +6,7 @@ import 'package:frontend/config/colors.dart';
 import 'package:frontend/models/pedido_shopify_model.dart';
 import 'package:frontend/ui/transport/withdrawals/customwidget.dart';
 import 'package:frontend/ui/transport/withdrawals/printedguides.dart';
+import 'package:frontend/ui/transport/withdrawals/table_orders_guides_sent.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
@@ -211,114 +212,169 @@ class _WithdrawalsState extends State<Withdrawals> {
         // Padding(
         // padding: const EdgeInsets.all(20.0),
         // child:
-        // Row(
-        // children: [
-        Container(
-          width: MediaQuery.of(context).size.width * 0.3,
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton2<String>(
-              isExpanded: true,
-              hint: Text(
-                'OPERADORES',
-                style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(context).hintColor,
-                    fontWeight: FontWeight.bold),
+        Padding(
+          padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+          child: Row(children: [
+            Container(
+              width: MediaQuery.of(context).size.width * 0.2,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(10),
               ),
-              items: transportator
-                  .map((item) => DropdownMenuItem(
-                        value: item,
-                        child: Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                item.split('-')[0],
-                                style: const TextStyle(
-                                    fontSize: 14, fontWeight: FontWeight.bold),
+              child: DropdownButtonHideUnderline(
+                child: ButtonTheme(
+                  alignedDropdown:
+                      true, // Asegúrate de que el contenido del botón esté alineado
+                  child: DropdownButton2<String>(
+                    isExpanded: true,
+                    hint: Text(
+                      'Operadores',
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(context).hintColor,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    items: transportator
+                        .map((item) => DropdownMenuItem(
+                              value: item,
+                              child: Row(
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      item.split('-')[0],
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                  SizedBox(width: 5),
+                                  GestureDetector(
+                                      onTap: () async {
+                                        setState(() {
+                                          selectedValueTransportator = null;
+                                        });
+                                        await loadData();
+                                      },
+                                      child: Icon(Icons.close))
+                                ],
                               ),
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            GestureDetector(
-                                onTap: () async {
-                                  setState(() {
-                                    selectedValueTransportator = null;
-                                  });
-                                  // resetFilters();
-                                  await loadData();
-                                },
-                                child: Icon(Icons.close))
-                          ],
-                        ),
-                      ))
-                  .toList(),
-              value: selectedValueTransportator,
-              onChanged: (value) async {
-                // filtersAnd = [];
-                // _controllers.searchController.clear();
-                setState(() {
-                  selectedValueTransportator = value as String;
-                });
-                await loadData();
-              },
-
-              //This to clear the search value when you close the menu
-              onMenuStateChange: (isOpen) {
-                if (!isOpen) {}
-              },
-            ),
-          ),
-        ),
-        ElevatedButton(
-            onPressed: () {
-              mostrarDialogoModificacion(context);
-            },
-            child: Text("ASIGNAR OPERADOR",
-            style: TextStyle(color: ColorsSystem().textoClaro),),
-            style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(ColorsSystem().textoAzulElectrico))),
-
-        Align(
-          alignment: Alignment.centerRight,
-          child: GestureDetector(
-            onTap: () async {
-              getLoadingModal(context, false);
-
-              // Actualiza las notificaciones
-              await loadData();
-              await Provider.of<NotificationManager>(context, listen: false)
-                  .updateNotifications();
-
-              // Cierra el diálogo de carga
-              Navigator.of(context).pop();
-            },
-            child: Container(
-              color: Colors.transparent,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Icon(
-                    Icons.replay_outlined,
-                    color: ColorsSystem().textoClaro,
+                            ))
+                        .toList(),
+                    value: selectedValueTransportator,
+                    onChanged: (value) async {
+                      setState(() {
+                        selectedValueTransportator = value as String;
+                      });
+                      await loadData();
+                    },
+                    onMenuStateChange: (isOpen) {
+                      if (!isOpen) {}
+                    },
                   ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Text(
-                    "Recargar Información",
-                    style: TextStyle(
-                        decoration: TextDecoration.underline,
-                        color: ColorsSystem().textoClaro),
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                ],
+                ),
               ),
             ),
+            SizedBox(width: 10),
+            ElevatedButton(
+              onPressed: () {
+                bool hayCheckTrue =
+                    optionsCheckBox.any((element) => element['check'] == true);
+
+                if (hayCheckTrue) {
+                  mostrarDialogoModificacion(context);
+                } else {
+                  AwesomeDialog(
+                    width: 500,
+                    context: context,
+                    dialogType: DialogType.error,
+                    animType: AnimType.rightSlide,
+                    title: 'Credenciales Incorrectas',
+                    desc: 'Debe selecionar u Operador Previamente',
+                    btnCancel: Container(),
+                    btnOkText: "Aceptar",
+                    btnOkColor: Colors.green,
+                    btnCancelOnPress: () {},
+                    btnOkOnPress: () {},
+                  ).show();
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                child: Text(
+                  "Asignar Operador",
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+              style: ButtonStyle(
+                backgroundColor:
+                    MaterialStatePropertyAll(ColorsSystem().textoAzulElectrico),
+                // Ajustar la altura del botón aquí si es necesario
+                padding: MaterialStatePropertyAll(
+                    EdgeInsets.symmetric(vertical: 20)),
+              ),
+            ),
+          ]),
+        ),
+        SizedBox(height: 10.0),
+        Padding(
+          padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ElevatedButton(
+                  style: ButtonStyle(
+                      backgroundColor: MaterialStateColor.resolveWith(
+                          (states) => ColorsSystem().colorPrincipalBrand)),
+                  onPressed: () {
+                    _mostrarVentanaEmergenteGuiasEnviadas(context);
+                  },
+                  child: const Text("Historial Retiros")),
+              Align(
+                alignment: Alignment.centerRight,
+                child: GestureDetector(
+                  onTap: () async {
+                    getLoadingModal(context, false);
+
+                    // Actualiza las notificaciones
+                    await loadData();
+                    await Provider.of<NotificationManager>(context,
+                            listen: false)
+                        .updateNotifications();
+
+                    // Cierra el diálogo de carga
+                    Navigator.of(context).pop();
+                  },
+                  child: Container(
+                    color: Colors.transparent,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Icon(
+                          Icons.replay_outlined,
+                          color: ColorsSystem().textoClaro,
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          "Recargar Información",
+                          style: TextStyle(
+                              decoration: TextDecoration.underline,
+                              color: ColorsSystem().textoClaro),
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
+
         // ],
         // ),
         // ),
@@ -784,20 +840,25 @@ class _WithdrawalsState extends State<Withdrawals> {
         });
   }
 
-  // void _mostrarVentanaEmergente(BuildContext context, String warehouseName) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         content: Container(
-  //           width: 800,
-  //           height: 500,
-  //           child: CalendarWidget(warehouseName: warehouseName),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
+  void _mostrarVentanaEmergenteGuiasEnviadas(BuildContext context) {
+    double width =
+        MediaQuery.of(context).size.width * 0.8; // 80% del ancho de la pantalla
+    double height =
+        MediaQuery.of(context).size.height * 0.8; // 60% del alto de la pantalla
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Container(
+            width: width,
+            height: height,
+            child: TableOrdersGuidesSentTransport(),
+          ),
+        );
+      },
+    );
+  }
 
   void _mostrarVentanaEmergenteGuiasImpresas(
       BuildContext context, String idWarehouse, String warehouseName) {
@@ -845,12 +906,8 @@ class _WithdrawalsState extends State<Withdrawals> {
   }
 
   Future<void> mostrarDialogoModificacion(BuildContext context) async {
-    // Obtener la lista de pedidos de forma asíncrona
-
-    // List<String> listaPedidos = await obtenerPedidos();
     List<dynamic> listaPedidos = [];
 
-    // Mostrar el cuadro de diálogo
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -859,7 +916,8 @@ class _WithdrawalsState extends State<Withdrawals> {
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('Se modificarán los siguientes pedidos:'),
+                Text(
+                    'Se modificarán todos los pedidos de las Bodegas Seleccionadas.'),
                 for (var pedido in listaPedidos) Text(pedido['id'].toString()),
               ],
             ),
@@ -878,11 +936,12 @@ class _WithdrawalsState extends State<Withdrawals> {
                 getLoadingModal(context, false);
                 // print(optionsCheckBox);
                 for (var i = 0; i < optionsCheckBox.length; i++) {
-                  if (optionsCheckBox[i]['warehouse_id'].toString().isNotEmpty &&
+                  if (optionsCheckBox[i]['warehouse_id']
+                          .toString()
+                          .isNotEmpty &&
                       optionsCheckBox[i]['warehouse_id'].toString() != '' &&
                       optionsCheckBox[i]['warehouse_id'].toString() != 'null' &&
                       optionsCheckBox[i]['check'] == true) {
-
                     var responseLaravel = await Connections()
                         .getOrdersForPrintGuidesLaravelD([], [
                       {"estado_interno": "CONFIRMADO"},
@@ -890,14 +949,15 @@ class _WithdrawalsState extends State<Withdrawals> {
                     ], [], 1, 1300, "id:DESC", "",
                             optionsCheckBox[i]['warehouse_id'].toString());
 
-                    listaPedidos = responseLaravel['data'];
+                    // Aquí agregamos los pedidos de responseLaravel a listaPedidos
+                    listaPedidos.addAll(responseLaravel['data']);
                   }
                 }
 
                 for (var i = 0; i < listaPedidos.length; i++) {
                   var pedidoId = listaPedidos[i]['id'].toString();
-                  await Connections().addWithdrawanBy(
-                      pedidoId, "O-${selectedValueTransportator!.split('-')[1]}");
+                  await Connections().addWithdrawanBy(pedidoId,
+                      "O-${selectedValueTransportator!.split('-')[1]}");
                 }
 
                 Navigator.of(context).pop();

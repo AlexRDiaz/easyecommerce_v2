@@ -106,10 +106,8 @@ class _WithdrawalsOperatorState extends State<WithdrawalsOperator> {
         search = false;
       });
       var response = await Connections().getWarehousesforOperators();
-      await Provider.of<NotificationManagerOperator>(
-                                  context,
-                                  listen: false)
-                              .updateNotifications();
+      await Provider.of<NotificationManagerOperator>(context, listen: false)
+          .updateNotifications();
       setState(() {
         data = [];
         data = response;
@@ -247,8 +245,8 @@ class _WithdrawalsOperatorState extends State<WithdrawalsOperator> {
               Expanded(
                   child: Padding(
                       padding: const EdgeInsets.all(20.0),
-                      child: Consumer<NotificationManagerOperator>(
-                          builder: (context, NotificationManagerOperator, child) {
+                      child: Consumer<NotificationManagerOperator>(builder:
+                          (context, NotificationManagerOperator, child) {
                         List<Map<String, dynamic>> notifications =
                             notificationManagerOperator!.notifications;
                         return DataTable2(
@@ -700,8 +698,8 @@ class _WithdrawalsOperatorState extends State<WithdrawalsOperator> {
       },
     );
   }
-void _mostrarVentanaEmergenteGuiasEnviadas(
-      BuildContext context) {
+
+  void _mostrarVentanaEmergenteGuiasEnviadas(BuildContext context) {
     double width =
         MediaQuery.of(context).size.width * 0.8; // 80% del ancho de la pantalla
     double height =
