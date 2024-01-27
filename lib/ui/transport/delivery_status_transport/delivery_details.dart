@@ -124,39 +124,47 @@ class _TransportProDeliveryHistoryDetails
                                             width: 20,
                                           ),
                                           ElevatedButton(
-                                              onPressed: () async {
-                                                var response = await Connections()
-                                                    .getSellersByIdMasterOnly(
-                                                        "${data['id_comercial'].toString()}");
+                                              onPressed:
+                                                  data['operadore'].isNotEmpty
+                                                      ? () async {
+                                                          var response =
+                                                              await Connections()
+                                                                  .getSellersByIdMasterOnly(
+                                                                      "${data['id_comercial'].toString()}");
 
-                                                await showDialog(
-                                                    context: context,
-                                                    builder: (context) {
-                                                      return UpdateStatusOperatorHistorial(
-                                                        numberTienda: response[
-                                                                    'vendedores']
-                                                                [0]['Telefono2']
-                                                            .toString(),
-                                                        codigo:
-                                                            "${data['users'] != null && data['users'].toString() != "[]" ? data['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data['numero_orden']}",
-                                                        numberCliente:
-                                                            "${data['telefono_shipping']}",
-                                                        id: widget.id,
-                                                        novedades:
-                                                            data['novedades'],
-                                                        currentStatus: data[
-                                                                        'status'] ==
-                                                                    "NOVEDAD" ||
-                                                                data['status'] ==
-                                                                    "REAGENDADO"
-                                                            ? ""
-                                                            : data['status'],
-                                                        dataL: widget.data!,
-                                                      );
-                                                    });
+                                                          await showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return UpdateStatusOperatorHistorial(
+                                                                  numberTienda: response['vendedores']
+                                                                              [
+                                                                              0]
+                                                                          [
+                                                                          'Telefono2']
+                                                                      .toString(),
+                                                                  codigo:
+                                                                      "${data['users'] != null && data['users'].toString() != "[]" ? data['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data['numero_orden']}",
+                                                                  numberCliente:
+                                                                      "${data['telefono_shipping']}",
+                                                                  id: widget.id,
+                                                                  novedades: data[
+                                                                      'novedades'],
+                                                                  currentStatus: data['status'] ==
+                                                                              "NOVEDAD" ||
+                                                                          data['status'] ==
+                                                                              "REAGENDADO"
+                                                                      ? ""
+                                                                      : data[
+                                                                          'status'],
+                                                                  dataL: widget
+                                                                      .data!,
+                                                                );
+                                                              });
 
-                                                await loadData();
-                                              },
+                                                          await loadData();
+                                                        }
+                                                      : null,
                                               child: Text(
                                                 "Estado de Entrega",
                                                 style: TextStyle(

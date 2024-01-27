@@ -9,6 +9,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:frontend/config/commons.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/navigators.dart';
@@ -17,6 +18,7 @@ import 'package:frontend/main.dart';
 import 'package:frontend/ui/transport/my_orders_prv/controllers/controllers.dart';
 import 'package:frontend/ui/transport/payment_vouchers_transport/create_report_transport.dart';
 import 'package:frontend/ui/transport/payment_vouchers_transport/info_payment_voucher.dart';
+import 'package:frontend/ui/transport/payment_vouchers_transport/orders_day_view.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/sub_routes.dart';
 import 'package:image_picker/image_picker.dart';
@@ -560,7 +562,7 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
                                           }
 
                                           //delete later
-                                          print("selecteds: $selectedChecks");
+                                          // print("selecteds: $selectedChecks");
                                         },
                                       ),
                                     ],
@@ -577,7 +579,7 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
                                                     ?.toString() ??
                                                 "No existe",
                                             style: TextStyle(
-                                              fontWeight: FontWeight.bold,
+                                              // fontWeight: FontWeight.bold,
                                               color: generateColor(
                                                   getByDay2(index + 1)[0]
                                                               ["status"]
@@ -593,8 +595,8 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
                                               text:
                                                   "Valores Recibidos: \$${getByDay2(index + 1)[0]["daily_proceeds"].toString()}",
                                               style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                                  // fontWeight: FontWeight.bold,
+                                                  ),
                                             ),
                                           const TextSpan(text: "\n"),
                                           if (getByDay2(index + 1)[0]
@@ -604,8 +606,8 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
                                               text:
                                                   "Costo Entrega: \$${getByDay2(index + 1)[0]["daily_shipping_cost"].toString()}",
                                               style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                                  // fontWeight: FontWeight.bold,
+                                                  ),
                                             ),
                                           const TextSpan(text: "\n"),
                                           if (getByDay2(index + 1)[0]
@@ -615,7 +617,7 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
                                               text:
                                                   "Total: \$${getByDay2(index + 1)[0]["daily_total"].toString()}",
                                               style: TextStyle(
-                                                fontWeight: FontWeight.bold,
+                                                // fontWeight: FontWeight.bold,
                                                 color: Colors.indigo[600],
                                               ),
                                             ),
@@ -701,6 +703,31 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
       // print("No existen datos con este filtro");
     }
   }
+
+  /*
+  getOrdersPerDay(transportadora, selectedIds, from) async {
+    var dataDay;
+    List<String> dayDates = [];
+    for (var element in selectedIds) {
+      dataDay = getInfoDay(element["id"]);
+      if (dataDay != null && dataDay.isNotEmpty) {
+        dayDates.add(dataDay[0]['fecha']);
+      }
+    }
+    var orders = await Connections()
+        .getTransaccionesOrdersByTransportadorasDates(transportadora, dayDates);
+    if (from == "download") {
+      if (dataDay != null && orders.isNotEmpty) {
+        getReport.generateExcelFileWithData(orders);
+      } else {
+        // print("No existen datos con este filtro");
+      }
+    } else {
+      print("show info guides per day");
+      showInfoGuidesDay(context, orders);
+    }
+  }
+  */
 
   updateOrdersPerDay(transportadora, fecha, statusR, comment) async {
     var dataDay = fecha;
@@ -798,6 +825,44 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
                   Text("Costo Entrega: \$$costoEntrega"),
                   Text("Total: \$$total"),
                   Text("Estado Pago Logistica: $status"),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () async {
+                          //
+
+                          // List<Map<dynamic, dynamic>> selectedId = [
+                          //   {"id": id}
+                          // ];
+                          // getOrdersPerDay(idTransp, selectedId, "info");
+                          Navigator.pop(context);
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => OrdersDayView(
+                                      chozenDate: fechaSelect,
+                                      // carrierId: idTransp,
+                                      dailyProceeds: valoresRecibidos,
+                                      dailyShippingCost: costoEntrega,
+                                      dailyTotal: total,
+                                    )),
+                          );
+                        },
+                        child: const Text(
+                          "Detalles de Guías",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            //  fontSize: 16
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                   const Divider(),
                   const Text(
                     "Comprobante:",
@@ -991,5 +1056,232 @@ class _PaymentVouchersTransportState2 extends State<PaymentVouchersTransport2> {
         btnOkOnPress: () {},
       ).show();
     }
+  }
+
+  Future<dynamic> showInfoGuidesDay(BuildContext context, dataDay) {
+    double screenWith = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+    print(dataDay);
+    var ordersDay = dataDay['data'];
+
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(0.0))),
+            contentPadding: EdgeInsets.only(top: 10.0),
+            content: Container(
+              width: screenWith * 0.8,
+              height: screenHeight * 0.9,
+              child: Column(
+                children: [
+                  Center(
+                    child: Container(
+                      margin: EdgeInsets.only(bottom: 20, top: 10),
+                      child: const Text(
+                        "DETALLES DE GUÍAS",
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  const Divider(),
+                  Row(
+                      // mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        const SizedBox(
+                          width: 20,
+                        ),
+                        const Text("Registros: "),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Text(ordersDay.length.toString())
+                      ]),
+                  Container(
+                    padding: EdgeInsets.all(20),
+                    height: MediaQuery.of(context).size.height * 0.75,
+                    child: DataTable2(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                      ),
+                      headingRowHeight: 63,
+                      showBottomBorder: true,
+                      dividerThickness: 1,
+                      dataRowColor: MaterialStateColor.resolveWith((states) {
+                        return Colors.white;
+                      }),
+                      headingTextStyle: Theme.of(context).textTheme.bodyMedium,
+                      dataTextStyle: Theme.of(context).textTheme.bodySmall,
+                      columnSpacing: 12,
+                      horizontalMargin: 12,
+                      minWidth: 2500,
+                      columns: const [
+                        DataColumn2(
+                          label: Text("Fecha Envio"),
+                          size: ColumnSize.S,
+                        ),
+                        DataColumn2(
+                          label: Text('Fecha Entrega'),
+                          size: ColumnSize.S,
+                        ),
+                        DataColumn2(
+                          label: Text('Código'),
+                          size: ColumnSize.M,
+                        ),
+                        DataColumn2(
+                          label: Text('Nombre Cliente'),
+                          size: ColumnSize.M,
+                        ),
+                        DataColumn2(
+                          label: Text('Ciudad'),
+                          size: ColumnSize.M,
+                        ),
+                        DataColumn2(
+                          label: Text('Dirección'),
+                          size: ColumnSize.M,
+                        ),
+                        DataColumn2(
+                          label: Text('Teléfono Cliente'),
+                          size: ColumnSize.M,
+                        ),
+                        DataColumn2(
+                          label: Text('Cantidad'),
+                          size: ColumnSize.S,
+                        ),
+                        DataColumn2(
+                          label: Text('Producto'),
+                          size: ColumnSize.L,
+                        ),
+                        DataColumn2(
+                          label: Text('Producto Extra'),
+                          size: ColumnSize.M,
+                        ),
+                        DataColumn2(
+                          label: Text('Precio Total'),
+                          size: ColumnSize.S,
+                        ),
+                        DataColumn2(
+                          label: Text('Status'),
+                          size: ColumnSize.M,
+                        ),
+                        DataColumn2(
+                          label: Text('Operador'),
+                          size: ColumnSize.L,
+                        ),
+                        DataColumn2(
+                          label: Text('Estado Devolución'),
+                          size: ColumnSize.M,
+                        ),
+                        DataColumn2(
+                          label: Text('Est. Pago Operador'),
+                          size: ColumnSize.M,
+                        ),
+                        DataColumn2(
+                          label: Text('Est. Pago Logistica'),
+                          size: ColumnSize.M,
+                        ),
+                      ],
+                      border: const TableBorder(
+                        top: BorderSide(color: Colors.grey),
+                        horizontalInside: BorderSide(color: Colors.grey),
+                        verticalInside: BorderSide(color: Colors.grey),
+                      ),
+                      rows: List<DataRow>.generate(
+                        ordersDay.isNotEmpty ? ordersDay.length : [].length,
+                        (index) => DataRow(
+                          cells: [
+                            DataCell(
+                              Text(ordersDay[index]["pedidos_shopify"]
+                                      ['marca_tiempo_envio']
+                                  .toString()),
+                            ),
+                            DataCell(
+                              Text(
+                                  ordersDay[index]['fecha_entrega'].toString()),
+                            ),
+                            DataCell(
+                              Text(
+                                  '${ordersDay[index]["pedidos_shopify"]["name_comercial"] != null && ordersDay[index]["pedidos_shopify"]["name_comercial"].isNotEmpty ? ordersDay[index]["pedidos_shopify"]["name_comercial"] : "NaN"}-${ordersDay[index]["pedidos_shopify"]['numero_orden'].toString()}'),
+                            ),
+                            DataCell(
+                              Text(ordersDay[index]["pedidos_shopify"]
+                                      ['nombre_shipping']
+                                  .toString()),
+                            ),
+                            DataCell(
+                              Text(ordersDay[index]["pedidos_shopify"]
+                                      ['ciudad_shipping']
+                                  .toString()),
+                            ),
+                            DataCell(
+                              Text(ordersDay[index]["pedidos_shopify"]
+                                      ['direccion_shipping']
+                                  .toString()),
+                            ),
+                            DataCell(
+                              Text(ordersDay[index]["pedidos_shopify"]
+                                      ['telefono_shipping']
+                                  .toString()),
+                            ),
+                            DataCell(
+                              Text(ordersDay[index]["pedidos_shopify"]
+                                      ['cantidad_total']
+                                  .toString()),
+                            ),
+                            DataCell(
+                              Text(ordersDay[index]["pedidos_shopify"]
+                                      ['producto_p']
+                                  .toString()),
+                            ),
+                            DataCell(
+                              Text(ordersDay[index]["pedidos_shopify"]
+                                      ['producto_extra']
+                                  .toString()),
+                            ),
+                            DataCell(
+                              Text(ordersDay[index]["pedidos_shopify"]
+                                      ['precio_total']
+                                  .toString()),
+                            ),
+                            DataCell(
+                              Text(ordersDay[index]["pedidos_shopify"]['status']
+                                  .toString()),
+                            ),
+                            DataCell(
+                              Text(""),
+                              //operador
+                              // Text(ordersDay["operadore"]["up_users"][0]
+                              //         ["username"]
+                              //     .toString()),
+                            ),
+                            DataCell(
+                              Text(ordersDay[index]["pedidos_shopify"]
+                                      ['estado_devolucion']
+                                  .toString()),
+                            ),
+                            DataCell(
+                              Text(ordersDay[index]["pedidos_shopify"]
+                                      ['estado_pagado']
+                                  .toString()),
+                            ),
+                            DataCell(
+                              Text(ordersDay[index]["pedidos_shopify"]
+                                      ['estado_pago_logistica']
+                                  .toString()),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }).then((value) {
+      () {};
+    });
   }
 }

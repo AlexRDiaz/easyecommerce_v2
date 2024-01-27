@@ -6294,6 +6294,35 @@ class Connections {
     }
   }
 
+  //  *
+  getOrdersPerDayByCarrier(idCarrier, fechaEntrega, populate, page_size,
+      current_page, and, sort, search) async {
+    try {
+      var response = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/transaccionespedidotransportadora/ordersperday"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "id_transportadora": idCarrier,
+            "fecha_entrega": fechaEntrega,
+            "populate": populate,
+            "page_size": page_size,
+            "page_number": current_page,
+            "and": and,
+            "sort": sort,
+            "search": search
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
   //TEST
 
   Future getOrdersTest1() async {

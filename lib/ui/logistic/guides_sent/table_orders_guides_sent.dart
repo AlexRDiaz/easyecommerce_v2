@@ -43,7 +43,7 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
   Uint8List? _imageFile = null;
   bool sort = false;
   List<DateTime?> _dates = [];
-  List<String> transportator = [];
+  List<String> carriersToSelect = [];
   String? selectedValueTransportator;
   String date =
       "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
@@ -114,10 +114,10 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
       var response = [];
       var responseL;
 
-      List transportatorList = [];
+      List carriersList = [];
 
       setState(() {
-        transportator = [];
+        carriersToSelect = [];
       });
 
       if (_controllers.searchController.text.isEmpty) {
@@ -224,15 +224,29 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
       //     "qrLink": "",
       //   });
       // }
-      transportatorList = await Connections().getAllTransportators();
-      for (var i = 0; i < transportatorList.length; i++) {
+      // transportatorList = await Connections().getAllTransportators();
+      // print(transportatorList);
+
+      // for (var i = 0; i < transportatorList.length; i++) {
+      //   setState(() {
+      //     if (transportatorList != null) {
+      //       transportator.add(
+      //           '${transportatorList[i]['attributes']['Nombre']}-${transportatorList[i]['id']}');
+      //     }
+      //   });
+      // }
+
+      var getCarriersResponse = await Connections().getTransportadoras();
+      carriersList = getCarriersResponse['transportadoras'];
+
+      if (carriersList != null) {
         setState(() {
-          if (transportatorList != null) {
-            transportator.add(
-                '${transportatorList[i]['attributes']['Nombre']}-${transportatorList[i]['id']}');
+          for (var carrier in carriersList) {
+            carriersToSelect.add('$carrier');
           }
         });
       }
+
       Future.delayed(Duration(milliseconds: 500), () {
         Navigator.pop(context);
       });
@@ -360,6 +374,13 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                   DataColumn2(
                     label: const Text(''),
                     size: ColumnSize.S,
+                  ),
+                  DataColumn2(
+                    label: const Text('Id'),
+                    size: ColumnSize.M,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc("id", changevalue);
+                    },
                   ),
                   DataColumn2(
                     label: const Text('Nombre Cliente'),
@@ -596,6 +617,10 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                                   counterChecks = optionsCheckBox.length;
                                 });
                               })),
+                          DataCell(Text(data[index]['id'].toString()),
+                              onTap: () {
+                            getInfoModal(index);
+                          }),
                           DataCell(
                               Text(data[index]['nombre_shipping'].toString()),
                               onTap: () {
@@ -897,58 +922,64 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
           SizedBox(
             height: 10,
           ),
-          DropdownButtonHideUnderline(
-            child: DropdownButton2<String>(
-              isExpanded: true,
-              hint: Text(
-                'TRANSPORTADORA',
-                style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(context).hintColor,
-                    fontWeight: FontWeight.bold),
-              ),
-              items: transportator
-                  .map((item) => DropdownMenuItem(
-                        value: item,
-                        child: Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                item.split('-')[0],
-                                style: const TextStyle(
-                                    fontSize: 14, fontWeight: FontWeight.bold),
+          SizedBox(
+            width: MediaQuery.of(context).size.width > 600
+                ? MediaQuery.of(context).size.width * 0.5
+                : MediaQuery.of(context).size.width * 0.9,
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton2<String>(
+                isExpanded: true,
+                hint: Text(
+                  'TRANSPORTADORA',
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).hintColor,
+                      fontWeight: FontWeight.bold),
+                ),
+                items: carriersToSelect
+                    .map((item) => DropdownMenuItem(
+                          value: item,
+                          child: Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  item.split('-')[0],
+                                  style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold),
+                                ),
                               ),
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            GestureDetector(
-                                onTap: () async {
-                                  setState(() {
-                                    selectedValueTransportator = null;
-                                  });
-                                  resetFilters();
-                                  await loadData();
-                                },
-                                child: Icon(Icons.close))
-                          ],
-                        ),
-                      ))
-                  .toList(),
-              value: selectedValueTransportator,
-              onChanged: (value) async {
-                filtersAnd = [];
-                _controllers.searchController.clear();
-                setState(() {
-                  selectedValueTransportator = value as String;
-                });
-                await loadData();
-              },
+                              SizedBox(
+                                width: 5,
+                              ),
+                              GestureDetector(
+                                  onTap: () async {
+                                    setState(() {
+                                      selectedValueTransportator = null;
+                                    });
+                                    resetFilters();
+                                    await loadData();
+                                  },
+                                  child: Icon(Icons.close))
+                            ],
+                          ),
+                        ))
+                    .toList(),
+                value: selectedValueTransportator,
+                onChanged: (value) async {
+                  filtersAnd = [];
+                  _controllers.searchController.clear();
+                  setState(() {
+                    selectedValueTransportator = value as String;
+                  });
+                  await loadData();
+                },
 
-              //This to clear the search value when you close the menu
-              onMenuStateChange: (isOpen) {
-                if (!isOpen) {}
-              },
+                //This to clear the search value when you close the menu
+                onMenuStateChange: (isOpen) {
+                  if (!isOpen) {}
+                },
+              ),
             ),
           ),
           const SizedBox(
@@ -1104,6 +1135,9 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 7, rowIndex: 0))
           .value = 'Cantidad';
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 8, rowIndex: 0))
+          .value = 'Id';
 
       for (int rowIndex = 0; rowIndex < sortedData.length; rowIndex++) {
         final data = sortedData[rowIndex];
@@ -1147,6 +1181,10 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 7, rowIndex: rowIndex + 1))
             .value = data["cantidad_total"];
+        sheet
+            .cell(CellIndex.indexByColumnRow(
+                columnIndex: 8, rowIndex: rowIndex + 1))
+            .value = data["id"];
 
         numItem++;
         //
