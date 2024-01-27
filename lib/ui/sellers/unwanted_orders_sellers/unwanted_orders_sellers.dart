@@ -830,21 +830,10 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                           children: [
                             GestureDetector(
                               onTap: () async {
-                                // var response = await Connections()
-                                //     // .updateOrderInteralStatus("CONFIRMADO",
-                                //     .updateOrderInteralStatusLaravel2(
-                                //         "CONFIRMADO", data[index]['id']);
                                 setState(() {});
                                 await showDialog(
                                     context: context,
                                     builder: (context) {
-                                      // return RoutesModal(
-                                      //     idOrder: data[index]['id'].toString(),
-                                      //     someOrders: false,
-                                      //     phoneClient: "",
-                                      //     codigo: "");
-
-                                      // * laravel version
                                       return RoutesModalv2(
                                           idOrder: data[index]['id'].toString(),
                                           someOrders: false,

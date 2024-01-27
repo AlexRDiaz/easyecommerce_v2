@@ -61,39 +61,16 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
   var arrayDateRanges = [];
   var sortFieldDefaultValue = "marca_tiempo_envio:DESC";
   bool changevalue = false;
+  String selectedDateFilter = "FECHA ENTREGA";
 
   var getReport = CreateReportDeliveryStatutsTransport();
 
-  // {
-  //   "filter": 'transportadora',
-  //   'value': sharedPrefs!.getString("idTransportadora").toString()
-  // }
-
+  List<String> listDateFilter = [
+    'FECHA ENVIO',
+    'FECHA ENTREGA',
+  ];
   List<String> listOperators = ['TODO'];
 
-  // List<String> listOperators = [
-  //   'TODO',
-  //   'Omar',
-  //   'Wellintong',
-  //   'Eduardo',
-  //   'Patricio',
-  //   'Jeison',
-  //   'Raul',
-  //   'Julio',
-  //   'Byron',
-  //   'Javier',
-  //   'Fernando',
-  //   'Guido',
-  //   'Kevin',
-  //   'Nestor',
-  //   'Milton Simbaña',
-  //   'Noe Ordoñez',
-  //   'Paul',
-  //   'jose',
-  //   'Ivan Ibarra',
-  //   'Fernando Laina',
-  //   'Jhonny Ati'
-  // ];
   List populate = [
     'transportadora.operadores.user',
     'pedido_fecha',
@@ -189,6 +166,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
 
       var response = await Connections()
           .getOrdersForSellerStateSearchForDateTransporterLaravel(
+              selectedDateFilter,
               populate,
               arrayFiltersAnd,
               arrayFiltersDefaultAnd,
@@ -200,9 +178,14 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
               sortFieldDefaultValue.toString());
 
       var responseValues = await Connections().getValuesTrasporter(
-          populate, arrayFiltersAnd, arrayFiltersDefaultAnd, arrayFiltersOr);
+          selectedDateFilter,
+          populate,
+          arrayFiltersAnd,
+          arrayFiltersDefaultAnd,
+          arrayFiltersOr);
 
       var responseCounters = await Connections().getOrdersCountersTransport(
+        selectedDateFilter,
         populate,
         arrayFiltersAnd,
         arrayFiltersDefaultAnd,
@@ -283,6 +266,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
 
       var response = await Connections()
           .getOrdersForSellerStateSearchForDateTransporterLaravel(
+              selectedDateFilter,
               populate,
               arrayFiltersAnd,
               arrayFiltersDefaultAnd,
@@ -1203,6 +1187,29 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
           ),
           Row(
             children: [
+              Container(
+                //  height: 50,
+                width: 230,
+                child: DropdownButtonFormField<String>(
+                  isExpanded: true,
+                  value: selectedDateFilter,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedDateFilter = newValue ?? "";
+                    });
+                  },
+                  decoration: InputDecoration(
+                      border: UnderlineInputBorder(
+                          borderRadius: BorderRadius.circular(10))),
+                  items: listDateFilter
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value, style: TextStyle(fontSize: 15)),
+                    );
+                  }).toList(),
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.only(
                     right: 8.0), // Agrega el espaciado izquierdo
@@ -1272,6 +1279,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                     try {
                       var response = await Connections()
                           .getOrdersForSellerStateSearchForDateTransporterLaravel(
+                              selectedDateFilter,
                               populate,
                               arrayFiltersAnd,
                               arrayFiltersDefaultAnd,

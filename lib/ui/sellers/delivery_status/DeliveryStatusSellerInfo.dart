@@ -335,7 +335,8 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            data['status'] != "NOVEDAD RESUELTA"
+            data['status'] != "NOVEDAD RESUELTA" &&
+                    data['estado_devolucion'] == "PENDIENTE"
                 ? Container(
                     width: whidth * 0.15,
                     child: FilledButton.tonalIcon(

@@ -4,27 +4,19 @@ import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:data_table_2/data_table_2.dart';
-import 'package:flutter_animated_icons/icons8.dart';
-import 'package:flutter_animated_icons/lottiefiles.dart';
 import 'package:frontend/config/commons.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/sellers/delivery_status/DeliveryStatusSellerInfo.dart';
-//import 'package:frontend/ui/sellers/delivery_status/info_delivery.dart';
 import 'package:frontend/ui/sellers/delivery_status/create_report.dart';
-import 'package:frontend/ui/sellers/delivery_status/info_delivery.dart';
 import 'package:frontend/ui/transport/delivery_status_transport/Opcion.dart';
 import 'package:frontend/ui/widgets/OptionsWidget.dart';
 import 'package:frontend/ui/transport/delivery_status_transport/delivery_details.dart';
-import 'package:frontend/ui/transport/delivery_status_transport/scanner_delivery_status_transport.dart';
 import 'package:frontend/ui/transport/my_orders_prv/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/box_values.dart';
-import 'package:frontend/ui/widgets/box_values_transport.dart';
 import 'package:frontend/ui/widgets/loading.dart';
-import 'package:frontend/ui/widgets/transport/data_table_model.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -110,6 +102,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       TextEditingController(text: "");
   bool changevalue = false;
 
+  String selectedDateFilter = "FECHA ENTREGA";
+
   var arrayfiltersDefaultAnd = [
     {
       'id_comercial':
@@ -172,6 +166,10 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     'PENDIENTE',
     'NO DESEA',
   ];
+  List<String> listDateFilter = [
+    'FECHA ENVIO',
+    'FECHA ENTREGA',
+  ];
 
   List<String> listEstadoLogistico = [
     'TODO',
@@ -224,7 +222,11 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       });
 
       var responseCounters = await Connections().getOrdersCountersSeller(
-          populate, arrayfiltersDefaultAnd, [], arrayFiltersNotEq);
+          populate,
+          arrayfiltersDefaultAnd,
+          [],
+          arrayFiltersNotEq,
+          selectedDateFilter);
 
       // var responseValues = await Connections().getValuesSeller(populate, [
       //   {
@@ -236,11 +238,12 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       //   }
       // ]);
 
-      var responseValues =
-          await Connections().getValuesSellerLaravel(arrayfiltersDefaultAnd);
+      var responseValues = await Connections()
+          .getValuesSellerLaravel(arrayfiltersDefaultAnd, selectedDateFilter);
 
       var responseLaravel = await Connections()
           .getOrdersForSellerStateSearchForDateSellerLaravel(
+              selectedDateFilter,
               _controllers.searchController.text,
               filtersOrCont,
               arrayfiltersDefaultAnd,
@@ -314,6 +317,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       });
       var response = await Connections()
           .getOrdersForSellerStateSearchForDateSellerLaravel(
+              selectedDateFilter,
               _controllers.searchController.text,
               filtersOrCont,
               arrayfiltersDefaultAnd,
@@ -843,6 +847,15 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                           },
                         ),
                         DataColumn2(
+                          label: InputFilter(
+                              'Fecha Envío', marcaTiController, 'sent_at'),
+                          //label: Text('Fecha Ingreso'),
+                          size: ColumnSize.S,
+                          onSort: (columnIndex, ascending) {
+                            // sortFuncDate("Marca_T_I");
+                          },
+                        ),
+                        DataColumn2(
                           label: const Text('N. intentos'),
                           size: ColumnSize.S,
                           onSort: (columnIndex, ascending) {},
@@ -1037,6 +1050,10 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                               showInfo(context, index);
                             }),
                             DataCell(Text(data[index]['marca_t_i'].toString()),
+                                onTap: () {
+                              showInfo(context, index);
+                            }),
+                            DataCell(Text(data[index]['sent_at'].toString()),
                                 onTap: () {
                               showInfo(context, index);
                             }),
@@ -1429,6 +1446,30 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
         children: [
           Column(
             children: [
+              Container(
+                //  height: 50,
+                width: 230,
+                child: DropdownButtonFormField<String>(
+                  isExpanded: true,
+                  value: selectedDateFilter,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedDateFilter = newValue ?? "";
+                    });
+                  },
+                  decoration: InputDecoration(
+                      border: UnderlineInputBorder(
+                          borderRadius: BorderRadius.circular(10))),
+                  items: listDateFilter
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value, style: TextStyle(fontSize: 15)),
+                    );
+                  }).toList(),
+                ),
+              ),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [

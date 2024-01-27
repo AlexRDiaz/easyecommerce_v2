@@ -1605,7 +1605,8 @@ class Connections {
     return decodeData['data'];
   }
 
-  getValuesTrasporter(List populate, List and, List defaultAnd, List or) async {
+  getValuesTrasporter(
+      dateFilter, List populate, List and, List defaultAnd, List or) async {
     print('start: ${sharedPrefs!.getString("dateDesdeTransportadora")}');
     print('end: ${sharedPrefs!.getString("dateHastaTransportadora")}');
 
@@ -1621,6 +1622,7 @@ class Connections {
           'Content-Type': 'application/json',
         },
         body: json.encode({
+          "date_filter": dateFilter,
           "start": sharedPrefs!.getString("dateDesdeTransportadora"),
           "end": sharedPrefs!.getString("dateHastaTransportadora"),
           "or": or,
@@ -3274,7 +3276,7 @@ class Connections {
   }
 
   getOrdersCountersTransport(
-      List populate, List and, List defaultAnd, List or) async {
+      dateFilter, List populate, List and, List defaultAnd, List or) async {
     print('start: ${sharedPrefs!.getString("dateDesdeTransportadora")}');
     print('end: ${sharedPrefs!.getString("dateHastaTransportadora")}');
 
@@ -3289,6 +3291,7 @@ class Connections {
           'Content-Type': 'application/json',
         },
         body: json.encode({
+          "date_filter": dateFilter,
           "start": sharedPrefs!.getString("dateDesdeTransportadora"),
           "end": sharedPrefs!.getString("dateHastaTransportadora"),
           "or": or,
@@ -3302,7 +3305,7 @@ class Connections {
   }
 
   getOrdersCountersSeller(
-      List populate, List and, List or, arrayFiltersNotEq) async {
+      List populate, List and, List or, arrayFiltersNotEq, dateFilter) async {
     print('start: ${sharedPrefs!.getString("dateDesdeVendedor")}');
     print('end: ${sharedPrefs!.getString("dateDesdeVendedor")}');
 
@@ -3312,6 +3315,7 @@ class Connections {
           'Content-Type': 'application/json',
         },
         body: json.encode({
+          "date_filter": dateFilter,
           "start": sharedPrefs!.getString("dateDesdeVendedor"),
           "end": sharedPrefs!.getString("dateHastaVendedor"),
           "or": or,
@@ -3379,6 +3383,7 @@ class Connections {
   }
 
   getOrdersForSellerStateSearchForDateSellerLaravel(
+      dateFilter,
       code,
       arrayFiltersOrCont,
       arrayfiltersDefaultAnd,
@@ -3404,6 +3409,7 @@ class Connections {
       var requestlaravel = await http.post(Uri.parse(urlnew),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
+            "date_filter": dateFilter,
             "start": sharedPrefs!.getString("dateDesdeVendedor"),
             "end": sharedPrefs!.getString("dateHastaVendedor"),
             "page_size": sizePage,
@@ -3712,6 +3718,7 @@ class Connections {
   }
 
   getOrdersForSellerStateSearchForDateTransporterLaravel(
+      dateFilter,
       List populate,
       List and,
       List defaultAnd,
@@ -3730,6 +3737,7 @@ class Connections {
           Uri.parse("$serverLaravel/api/pedidos-shopify/filter"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
+            "date_filter": dateFilter,
             "start": sharedPrefs!.getString("dateDesdeTransportadora"),
             "end": sharedPrefs!.getString("dateHastaTransportadora"),
             "or": or,
@@ -5177,9 +5185,10 @@ class Connections {
     }
   }
 
-  getValuesSellerLaravel(arrayfiltersDefaultAnd) async {
+  getValuesSellerLaravel(arrayfiltersDefaultAnd, dateFilter) async {
     try {
       print(json.encode({
+        "date_filter": dateFilter,
         "start": sharedPrefs!.getString("dateDesdeVendedor"),
         "end": sharedPrefs!.getString("dateHastaVendedor"),
         "or": [],
@@ -5194,6 +5203,7 @@ class Connections {
             'Content-Type': 'application/json',
           },
           body: json.encode({
+            "date_filter": dateFilter,
             "start": sharedPrefs!.getString("dateDesdeVendedor"),
             "end": sharedPrefs!.getString("dateHastaVendedor"),
             "or": [],
@@ -5329,32 +5339,32 @@ class Connections {
     }
   }
 
-  Future updateOrderInteralStatusLaravel2(text, id) async {
-    //al parecer hay otro
-    // print('id: $id, $text');
-    try {
-      var request =
-          await http.put(Uri.parse("$serverLaravel/api/pedidos-shopify/$id"),
-              headers: {'Content-Type': 'application/json'},
-              body: json.encode({
-                "estado_interno": text,
-                "name_comercial":
-                    sharedPrefs!.getString("NameComercialSeller").toString(),
-                "fecha_confirmacion":
-                    "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
-              }));
-      var response = await request.body;
-      var decodeData = json.decode(response);
+  // Future updateOrderInteralStatusLaravel2(text, id) async {
+  //   //al parecer hay otro
+  //   // print('id: $id, $text');
+  //   try {
+  //     var request =
+  //         await http.put(Uri.parse("$serverLaravel/api/pedidos-shopify/$id"),
+  //             headers: {'Content-Type': 'application/json'},
+  //             body: json.encode({
+  //               "estado_interno": text,
+  //               "name_comercial":
+  //                   sharedPrefs!.getString("NameComercialSeller").toString(),
+  //               "fecha_confirmacion":
+  //                   "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
+  //             }));
+  //     var response = await request.body;
+  //     var decodeData = json.decode(response);
 
-      if (request.statusCode != 200) {
-        return false;
-      } else {
-        return true;
-      }
-    } catch (e) {
-      print(e);
-    }
-  }
+  //     if (request.statusCode != 200) {
+  //       return false;
+  //     } else {
+  //       return true;
+  //     }
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  // }
 
   Future getRoutesLaravel() async {
     try {

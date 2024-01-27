@@ -37,6 +37,7 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
   // String dateHasta = "";
   String startDate = "";
   String endDate = "";
+  String selectedDateFilter = "FECHA ENTREGA";
 
   String idTransport = "";
 
@@ -60,7 +61,7 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
   // double utilidades = 0;
 
 // ! usando
-  List newdata =[];
+  List newdata = [];
   double totalValoresRecibidosLaravel = 0;
   double costoDeEntregasLaravel = 0;
   double devolucionesLaravel = 0;
@@ -219,6 +220,10 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
           sharedPrefs!.getString("idComercialMasterSeller").toString()
     }
   ];
+  List<String> listDateFilter = [
+    'FECHA ENVIO',
+    'FECHA ENTREGA',
+  ];
 
   List populate = [
     "pedido_fecha",
@@ -258,30 +263,29 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
       });
     }
 
-
-
     // counters
-    var responseCounters = await Connections()
-        .getOrdersCountersSeller(populate, arrayFiltersDefaultAnd, [], []);
-    
+    var responseCounters = await Connections().getOrdersCountersSeller(
+        populate, arrayFiltersDefaultAnd, [], [], selectedDateFilter);
+
     pageSize = responseCounters['TOTAL'];
-    
+
     // data table
     var responseLaravel = await Connections()
-          .getOrdersForSellerStateSearchForDateSellerLaravel(
-              "",
-              [],
-              arrayFiltersDefaultAnd,
-              [],
-              currentPage,
-              pageSize,
-              "",
-              [],
-              "marca_tiempo_envio:DESC");
+        .getOrdersForSellerStateSearchForDateSellerLaravel(
+            selectedDateFilter,
+            "",
+            [],
+            arrayFiltersDefaultAnd,
+            [],
+            currentPage,
+            pageSize,
+            "",
+            [],
+            "marca_tiempo_envio:DESC");
 
     // caltulated values
-    var responseValues =
-        await Connections().getValuesSellerLaravel(arrayFiltersDefaultAnd);
+    var responseValues = await Connections()
+        .getValuesSellerLaravel(arrayFiltersDefaultAnd, selectedDateFilter);
 
     var response =
         await Connections().getOrdersDashboard(populate, arrayFiltersAnd);
@@ -481,8 +485,6 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
                 )),
               ],
             ),
-            
-
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.all(8),
@@ -731,6 +733,29 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          Container(
+            //  height: 50,
+            width: 230,
+            child: DropdownButtonFormField<String>(
+              isExpanded: true,
+              value: selectedDateFilter,
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedDateFilter = newValue ?? "";
+                });
+              },
+              decoration: InputDecoration(
+                  border: UnderlineInputBorder(
+                      borderRadius: BorderRadius.circular(10))),
+              items:
+                  listDateFilter.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value, style: TextStyle(fontSize: 15)),
+                );
+              }).toList(),
+            ),
+          ),
           TextButton(
               onPressed: () async {
                 var results = await showCalendarDatePicker2Dialog(
