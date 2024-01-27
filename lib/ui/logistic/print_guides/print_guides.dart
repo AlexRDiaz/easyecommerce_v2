@@ -7,6 +7,7 @@ import 'package:flutter/src/widgets/framework.dart';
 
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/main.dart';
+import 'package:frontend/models/pedido_shopify_model.dart';
 import 'package:frontend/providers/filters_orders/filters_orders.dart';
 import 'package:frontend/ui/logistic/print_guides/controllers/controllers.dart';
 import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
@@ -529,9 +530,11 @@ class _PrintGuidesState extends State<PrintGuides> {
                     //         "IMPRESO", optionsCheckBox[i]['id'].toString());
 
                     //new
+
+
                     var responseL = await Connections().updateOrderWithTime(
                         optionsCheckBox[i]['id'].toString(),
-                        "estado_logistico:IMPRESO",
+                        "estado_logistico:IMPRESO",    
                         idUser,
                         "",
                         "");

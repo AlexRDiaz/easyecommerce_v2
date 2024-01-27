@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:frontend/middlewares/navigation_middlewares.dart';
+import 'package:frontend/models/pedido_shopify_model.dart';
 import 'package:frontend/providers/filters_orders/filters_orders.dart';
 import 'package:frontend/providers/logistic/navigation_provider.dart';
 import 'package:frontend/providers/operator/navigation_provider.dart';
@@ -21,15 +24,26 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_strategy/url_strategy.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:frontend/connections/connections.dart';
 
 SharedPreferences? sharedPrefs;
+NotificationManager? notificationManager;
+NotificationManagerOperator? notificationManagerOperator; 
 
 void main() async {
+  await initializeDateFormatting('es');
   WidgetsFlutterBinding.ensureInitialized();
   sharedPrefs = await SharedPreferences.getInstance();
   setPathUrlStrategy();
+
+  notificationManager = NotificationManager();
+  notificationManagerOperator = NotificationManagerOperator();
+
   runApp(MultiProvider(
     providers: [
+      ChangeNotifierProvider(create: (_) => NotificationManager()),
+      ChangeNotifierProvider(create: (_) => NotificationManagerOperator()),
       ListenableProvider<NavigationProviderLogistic>(
         create: (_) => NavigationProviderLogistic(),
       ),
@@ -83,3 +97,82 @@ class MyCustomScrollBehavior extends MaterialScrollBehavior {
         PointerDeviceKind.mouse,
       };
 }
+
+class NotificationManager with ChangeNotifier {
+  List<Map<String, dynamic>> _notifications = [];
+  Timer? _timer;
+
+  List<Map<String, dynamic>> get notifications => _notifications;
+
+  NotificationManager() {
+    _loadNotifications();
+    _startAutoUpdate();
+  }
+
+  void _startAutoUpdate() {
+    _timer = Timer.periodic(Duration(minutes: 1), (timer) {
+      _loadNotifications();
+    });
+  }
+
+   Future<void> updateNotifications() async {
+        await _loadNotifications();
+    }
+
+  Future<void> _loadNotifications() async {
+    try {
+      var res = await Connections().getCountNotificationsWarehousesWithdrawals();
+      _notifications = res;
+      notifyListeners();
+    } catch (e) {
+      print("Error loading notifications: $e");
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+}
+
+
+class NotificationManagerOperator with ChangeNotifier {
+  List<Map<String, dynamic>> _notifications = [];
+  Timer? _timer;
+
+  List<Map<String, dynamic>> get notifications => _notifications;
+
+  NotificationManagerOperator() {
+    _loadNotifications();
+    _startAutoUpdate();
+  }
+
+  void _startAutoUpdate() {
+    _timer = Timer.periodic(Duration(minutes: 1), (timer) {
+      _loadNotifications();
+    });
+  }
+
+   Future<void> updateNotifications() async {
+        await _loadNotifications();
+    }
+
+  Future<void> _loadNotifications() async {
+    try {
+      var res = await Connections().getOrdersCountByWarehouseByOrders();
+      _notifications = res;
+      notifyListeners();
+    } catch (e) {
+      print("Error loading notifications: $e");
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+}
+
+

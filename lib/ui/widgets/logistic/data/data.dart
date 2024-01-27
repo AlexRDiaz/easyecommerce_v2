@@ -83,6 +83,7 @@ List optionsTransport = [
   {"name": "Estado de Entregas", "icon": Icons.traffic_outlined},
   {"name": "Agregar Operadores", "icon": Icons.add_box_outlined},
   {"name": "Mi Cuenta Transportador", "icon": Icons.account_balance_outlined},
+  {"name": "Retiros Transporte", "icon": Icons.local_shipping_outlined},
   {"name": "Comprobantes de Pago", "icon": Icons.all_inbox_outlined},
   {"name": "Comprobantes de Pago2", "icon": Icons.all_inbox_outlined},
   {
@@ -100,6 +101,7 @@ List optionsOperator = [
   {"name": "Mi Cuenta", "icon": Icons.person_4_outlined},
   {"name": "Pedidos Operador", "icon": Icons.send_outlined},
   {"name": "Estado de Entregas", "icon": Icons.emoji_transportation},
+  {"name": "Retiros Operador", "icon": Icons.local_shipping_outlined},
   {"name": "Valores Recibidos", "icon": Icons.monetization_on_outlined},
   {"name": "Devoluciones", "icon": Icons.list_alt_outlined},
   {"name": "Novedades Resueltas", "icon": Icons.done_all},

@@ -9,6 +9,8 @@ import 'package:frontend/ui/operator/resolved_novelties/resolved_novelties.dart'
 import 'package:frontend/ui/operator/returns/returns.dart';
 import 'package:frontend/ui/operator/state_orders/state_orders.dart';
 import 'package:frontend/ui/operator/update_password_operator/update_password_operator.dart';
+import 'package:frontend/ui/operator/withdrawals/withdrawals.dart';
+import 'package:frontend/ui/provider/transactions/withdrawal.dart';
 
 import 'package:frontend/ui/welcome/welcome.dart';
 import 'package:frontend/ui/widgets/logistic/layout/navbar_drawer.dart';
@@ -36,6 +38,7 @@ class _LayoutOperatorPageState extends State<LayoutOperatorPage> {
     MyOperatorAccount(),
     OrdersOperator(),
     StateOrdersOperator(),
+    WithdrawalsOperator(),
     ReceivedValues(),
     ReturnsOperator(),
     ResolvedNovelties(idRolInvokeClass: 4),
