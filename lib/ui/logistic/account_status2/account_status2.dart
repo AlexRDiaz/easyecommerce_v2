@@ -3,6 +3,7 @@ import 'package:frontend/config/colors.dart';
 import 'dart:math';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
+import 'package:frontend/main.dart';
 
 class AccountStatus2 extends StatefulWidget {
   const AccountStatus2({Key? key}) : super(key: key);
@@ -47,6 +48,7 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
   List<String> listvendedores = ['TODO'];
   TextEditingController searchController = TextEditingController();
   var arrayfiltersDefaultAnd = [];
+  String selectedDateFilter = "FECHA ENTREGA";
 
   @override
   void initState() {
@@ -543,8 +545,13 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
       var resltNewWalletValueSeller;
 
       if (idSeller != 0) {
+
+          // Cambiar el valor
+        await sharedPrefs!.setString("dateDesdeVendedor", "1/1/2021");
+        await sharedPrefs!.setString("dateHastaVendedor", "1/1/2200");
+
         responseValues = await Connections()
-            .getValuesSellerLaravelc2(arrayfiltersDefaultAnd);
+            .getValuesSellerLaravel(arrayfiltersDefaultAnd,selectedDateFilter);
         retvalTotal = await Connections().getOrdenesRetiroCount(idSeller);
         resltNewWalletValueSeller = await Connections().getSaldoPorId(idSeller);
       }

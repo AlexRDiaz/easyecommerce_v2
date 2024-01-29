@@ -205,7 +205,7 @@ class _AddOperatorsTransportLogisticState
                             'operadores.sub_rutas.rutas.ruta_id',
                             routesController,
                             listRoutes),
-                        size: ColumnSize.S,
+                        size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
                           // sortFuncCostOperator();
                         },

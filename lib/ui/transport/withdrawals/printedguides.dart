@@ -787,63 +787,63 @@ class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              ElevatedButton(
-                  onPressed: () async {
-                    const double point = 1.0;
-                    const double inch = 72.0;
-                    const double cm = inch / 2.54;
-                    const double mm = inch / 25.4;
+              // ElevatedButton(
+              //     onPressed: () async {
+              //       const double point = 1.0;
+              //       const double inch = 72.0;
+              //       const double cm = inch / 2.54;
+              //       const double mm = inch / 25.4;
 
-                    getLoadingModal(context, false);
-                    final doc = pw.Document();
+              //       getLoadingModal(context, false);
+              //       final doc = pw.Document();
 
-                    for (var i = 0; i < optionsCheckBox.length; i++) {
-                      if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
-                          optionsCheckBox[i]['id'].toString() != '' &&
-                          optionsCheckBox[i]['check'] == true) {
-                        final capturedImage = await screenshotController
-                            .captureFromWidget(Container(
-                                child: ModelGuide(
-                          address: optionsCheckBox[i]['address'],
-                          city: optionsCheckBox[i]['city'],
-                          date: optionsCheckBox[i]['date'],
-                          extraProduct: optionsCheckBox[i]['extraProduct'],
-                          idForBarcode: optionsCheckBox[i]['id'],
-                          name: optionsCheckBox[i]['name'],
-                          numPedido: optionsCheckBox[i]['numPedido'],
-                          observation: optionsCheckBox[i]['obervation'],
-                          phone: optionsCheckBox[i]['phone'],
-                          price: optionsCheckBox[i]['price'],
-                          product: optionsCheckBox[i]['product'],
-                          qrLink: optionsCheckBox[i]['qrLink'],
-                          quantity: optionsCheckBox[i]['quantity'],
-                          transport: optionsCheckBox[i]['transport'],
-                        )));
+              //       for (var i = 0; i < optionsCheckBox.length; i++) {
+              //         if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
+              //             optionsCheckBox[i]['id'].toString() != '' &&
+              //             optionsCheckBox[i]['check'] == true) {
+              //           final capturedImage = await screenshotController
+              //               .captureFromWidget(Container(
+              //                   child: ModelGuide(
+              //             address: optionsCheckBox[i]['address'],
+              //             city: optionsCheckBox[i]['city'],
+              //             date: optionsCheckBox[i]['date'],
+              //             extraProduct: optionsCheckBox[i]['extraProduct'],
+              //             idForBarcode: optionsCheckBox[i]['id'],
+              //             name: optionsCheckBox[i]['name'],
+              //             numPedido: optionsCheckBox[i]['numPedido'],
+              //             observation: optionsCheckBox[i]['obervation'],
+              //             phone: optionsCheckBox[i]['phone'],
+              //             price: optionsCheckBox[i]['price'],
+              //             product: optionsCheckBox[i]['product'],
+              //             qrLink: optionsCheckBox[i]['qrLink'],
+              //             quantity: optionsCheckBox[i]['quantity'],
+              //             transport: optionsCheckBox[i]['transport'],
+              //           )));
 
-                        doc.addPage(pw.Page(
-                          pageFormat: PdfPageFormat(21.0 * cm, 21.0 * cm,
-                              marginAll: 0.1 * cm),
-                          build: (pw.Context context) {
-                            return pw.Row(
-                              children: [
-                                pw.Image(pw.MemoryImage(capturedImage),
-                                    fit: pw.BoxFit.contain)
-                              ],
-                            );
-                          },
-                        ));
-                      }
-                    }
-                    Navigator.pop(context);
-                    await Printing.layoutPdf(
-                        onLayout: (PdfPageFormat format) async =>
-                            await doc.save());
-                    setState(() {});
-                  },
-                  child: const Text(
-                    "IMPRIMIR",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  )),
+              //           doc.addPage(pw.Page(
+              //             pageFormat: PdfPageFormat(21.0 * cm, 21.0 * cm,
+              //                 marginAll: 0.1 * cm),
+              //             build: (pw.Context context) {
+              //               return pw.Row(
+              //                 children: [
+              //                   pw.Image(pw.MemoryImage(capturedImage),
+              //                       fit: pw.BoxFit.contain)
+              //                 ],
+              //               );
+              //             },
+              //           ));
+              //         }
+              //       }
+              //       Navigator.pop(context);
+              //       await Printing.layoutPdf(
+              //           onLayout: (PdfPageFormat format) async =>
+              //               await doc.save());
+              //       setState(() {});
+              //     },
+              //     child: const Text(
+              //       "IMPRIMIR",
+              //       style: TextStyle(fontWeight: FontWeight.bold),
+              //     )),
 
               const SizedBox(
                 width: 20,
@@ -917,35 +917,35 @@ class _PrintedGuidesState extends State<PrintedGuidesLogistic> {
                     }
                   },
                   child: const Text(
-                    "MARCAR COMO PEDIDO RETIRADO",
+                    "MARCAR COMO PEDIDO ENVIADO-RETIRADO",
                     style: TextStyle(fontWeight: FontWeight.bold),
                   )),
-              SizedBox(
-                width: 20,
-              ),
-              ElevatedButton(
-                  onPressed: () async {
-                    getLoadingModal(context, false);
+              // SizedBox(
+              //   width: 20,
+              // ),
+              // ElevatedButton(
+              //     onPressed: () async {
+              //       getLoadingModal(context, false);
 
-                    for (var i = 0; i < optionsCheckBox.length; i++) {
-                      if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
-                          optionsCheckBox[i]['id'].toString() != '' &&
-                          optionsCheckBox[i]['check'] == true) {
-                        var response = await Connections().updatenueva(
-                            optionsCheckBox[i]['id'],
-                            {"estado_interno": "RECHAZADO"});
-                      }
-                    }
-                    Navigator.pop(context);
+              //       for (var i = 0; i < optionsCheckBox.length; i++) {
+              //         if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
+              //             optionsCheckBox[i]['id'].toString() != '' &&
+              //             optionsCheckBox[i]['check'] == true) {
+              //           var response = await Connections().updatenueva(
+              //               optionsCheckBox[i]['id'],
+              //               {"estado_interno": "RECHAZADO"});
+              //         }
+              //       }
+              //       Navigator.pop(context);
 
-                    setState(() {});
+              //       setState(() {});
 
-                    await loadData();
-                  },
-                  child: const Text(
-                    "RECHAZADO",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  )),
+              //       await loadData();
+              //     },
+              //     child: const Text(
+              //       "RECHAZADO",
+              //       style: TextStyle(fontWeight: FontWeight.bold),
+              //     )),
             ],
           ),
         ],

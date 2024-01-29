@@ -369,11 +369,14 @@ class _TableOrdersGuidesSentStateTransport
             child: Row(
               children: [
                 Expanded(
-                    child: counterChecks != 0
-                        ? _buttons()
-                        : _modelTextField(
-                            text: "Busqueda",
-                            controller: _controllers.searchController)),
+                    // child: counterChecks != 0
+                    //     ? _buttons()
+                    //     : _modelTextField(
+                    //         text: "Busqueda",
+                    //         controller: _controllers.searchController)),
+                    child: _modelTextField(
+                        text: "Busqueda",
+                        controller: _controllers.searchController)),
                 const SizedBox(
                   width: 10,
                 ),
@@ -395,22 +398,29 @@ class _TableOrdersGuidesSentStateTransport
                   TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
               dataTextStyle: TextStyle(
                   fontSize: 12,
-                  fontWeight: FontWeight.bold,
                   color: Colors.black),
               columnSpacing: 12,
               horizontalMargin: 12,
               minWidth: 2500,
               columns: [
-                DataColumn2(
-                  label: const Text(''),
-                  size: ColumnSize.S,
-                ),
+                // DataColumn2(
+                //   label: const Text(''),
+                //   size: ColumnSize.S,
+                // ),
                 DataColumn2(label: Text('Bodega'), size: ColumnSize.S),
+                DataColumn2(
+                  label: const Text('Código'),
+                  size: ColumnSize.M,
+                  onSort: (columnIndex, ascending) {
+                    // sortFunc("NumeroOrden");
+                    // sortFunc("numero_orden", changevalue);
+                  },
+                ),
                 DataColumn2(
                   label: const Text('Nombre Cliente'),
                   size: ColumnSize.M,
                   onSort: (columnIndex, ascending) {
-                    sortFunc("nombre_shipping", changevalue);
+                    // sortFunc("nombre_shipping", changevalue);
                   },
                 ),
                 DataColumn2(
@@ -425,15 +435,7 @@ class _TableOrdersGuidesSentStateTransport
                   size: ColumnSize.S,
                   onSort: (columnIndex, ascending) {
                     // sortFuncFecha();
-                    sortFunc("fecha_entrega", changevalue);
-                  },
-                ),
-                DataColumn2(
-                  label: const Text('Código'),
-                  size: ColumnSize.M,
-                  onSort: (columnIndex, ascending) {
-                    // sortFunc("NumeroOrden");
-                    sortFunc("numero_orden", changevalue);
+                    // sortFunc("fecha_entrega", changevalue);
                   },
                 ),
                 DataColumn2(
@@ -441,7 +443,7 @@ class _TableOrdersGuidesSentStateTransport
                   size: ColumnSize.M,
                   onSort: (columnIndex, ascending) {
                     // sortFunc("CiudadShipping");
-                    sortFunc("ciudad_shipping", changevalue);
+                    // sortFunc("ciudad_shipping", changevalue);
                   },
                 ),
                 DataColumn2(
@@ -449,7 +451,7 @@ class _TableOrdersGuidesSentStateTransport
                   size: ColumnSize.M,
                   onSort: (columnIndex, ascending) {
                     // sortFunc("DireccionShipping");
-                    sortFunc("direccion_shipping", changevalue);
+                    // sortFunc("direccion_shipping", changevalue);
                   },
                 ),
                 DataColumn2(
@@ -457,7 +459,7 @@ class _TableOrdersGuidesSentStateTransport
                   size: ColumnSize.M,
                   onSort: (columnIndex, ascending) {
                     // sortFunc("TelefonoShipping");
-                    sortFunc("telefono_shipping", changevalue);
+                    // sortFunc("telefono_shipping", changevalue);
                   },
                 ),
                 DataColumn2(
@@ -465,7 +467,7 @@ class _TableOrdersGuidesSentStateTransport
                   size: ColumnSize.M,
                   onSort: (columnIndex, ascending) {
                     // sortFunc("Cantidad_Total");
-                    sortFunc("cantidad_total", changevalue);
+                    // sortFunc("cantidad_total", changevalue);
                   },
                 ),
                 DataColumn2(
@@ -473,7 +475,7 @@ class _TableOrdersGuidesSentStateTransport
                   size: ColumnSize.M,
                   onSort: (columnIndex, ascending) {
                     // sortFunc("ProductoP");
-                    sortFunc("producto_p", changevalue);
+                    // sortFunc("producto_p", changevalue);
                   },
                 ),
                 DataColumn2(
@@ -481,7 +483,7 @@ class _TableOrdersGuidesSentStateTransport
                   size: ColumnSize.M,
                   onSort: (columnIndex, ascending) {
                     // sortFunc("ProductoExtra");
-                    sortFunc("producto_extra", changevalue);
+                    // sortFunc("producto_extra", changevalue);
                   },
                 ),
                 DataColumn2(
@@ -489,7 +491,7 @@ class _TableOrdersGuidesSentStateTransport
                   size: ColumnSize.M,
                   onSort: (columnIndex, ascending) {
                     // sortFunc("PrecioTotal");
-                    sortFunc("precio_total", changevalue);
+                    // sortFunc("precio_total", changevalue);
                   },
                 ),
                 DataColumn2(
@@ -518,7 +520,7 @@ class _TableOrdersGuidesSentStateTransport
                   size: ColumnSize.M,
                   onSort: (columnIndex, ascending) {
                     // sortFunc("Status");
-                    sortFunc("status", changevalue);
+                    // sortFunc("status", changevalue);
                   },
                 ),
                 DataColumn2(
@@ -526,7 +528,7 @@ class _TableOrdersGuidesSentStateTransport
                   size: ColumnSize.M,
                   onSort: (columnIndex, ascending) {
                     // sortFunc("Estado_Interno");
-                    sortFunc("estado_interno", changevalue);
+                    // sortFunc("estado_interno", changevalue);
                   },
                 ),
                 DataColumn2(
@@ -534,7 +536,7 @@ class _TableOrdersGuidesSentStateTransport
                   size: ColumnSize.M,
                   onSort: (columnIndex, ascending) {
                     // sortFunc("Estado_Logistico");
-                    sortFunc("estado_logistico", changevalue);
+                    // sortFunc("estado_logistico", changevalue);
                   },
                 ),
                 DataColumn2(
@@ -542,14 +544,14 @@ class _TableOrdersGuidesSentStateTransport
                   size: ColumnSize.M,
                   onSort: (columnIndex, ascending) {
                     // sortFunc("Observacion");
-                    sortFunc("observacion", changevalue);
+                    // sortFunc("observacion", changevalue);
                   },
                 ),
                 DataColumn2(
                   label: const Text('Impreso por'),
                   size: ColumnSize.M,
                   onSort: (columnIndex, ascending) {
-                    sortFunc("printed_by", changevalue);
+                    // sortFunc("printed_by", changevalue);
                   },
                 ),
                 DataColumn2(
@@ -557,21 +559,21 @@ class _TableOrdersGuidesSentStateTransport
                   size: ColumnSize.M,
                   onSort: (columnIndex, ascending) {
                     // sortFunc("Marca_Tiempo_Envio");
-                    sortFunc("marca_tiempo_envio", changevalue);
+                    // sortFunc("marca_tiempo_envio", changevalue);
                   },
                 ),
                 DataColumn2(
                   label: const Text('Enviado por'),
                   size: ColumnSize.M,
                   onSort: (columnIndex, ascending) {
-                    sortFunc("sent_by", changevalue);
+                    // sortFunc("sent_by", changevalue);
                   },
                 ),
                 DataColumn2(
                   label: const Text('Fecha hora Envio'),
                   size: ColumnSize.L,
                   onSort: (columnIndex, ascending) {
-                    sortFunc("sent_at", changevalue);
+                    // sortFunc("sent_at", changevalue);
                   },
                 ),
               ],
@@ -597,66 +599,73 @@ class _TableOrdersGuidesSentStateTransport
                         return rowColor;
                       }),
                       cells: [
-                        DataCell(Checkbox(
-                            value: data[index]['check'],
-                            onChanged: (value) {
-                              setState(() {
-                                data[index]['check'] = value;
-                              });
+                        // DataCell(Checkbox(
+                        //     value: data[index]['check'],
+                        //     onChanged: (value) {
+                        //       setState(() {
+                        //         data[index]['check'] = value;
+                        //       });
 
-                              if (value!) {
-                                optionsCheckBox.add({
-                                  "check": value,
-                                  "id": data[index]['id'].toString(),
-                                  "numPedido":
-                                      "${data[index]['users'] != null ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal'].toString()}-${data[index]['numero_orden']}"
-                                          .toString(),
-                                  "date": data[index]['pedido_fecha'][0]
-                                          ['fecha']
-                                      .toString(),
-                                  "city":
-                                      data[index]['ciudad_shipping'].toString(),
-                                  "product":
-                                      data[index]['producto_p'].toString(),
-                                  "extraProduct":
-                                      data[index]['producto_extra'].toString(),
-                                  "quantity":
-                                      data[index]['cantidad_total'].toString(),
-                                  "phone": data[index]['telefono_shipping']
-                                      .toString(),
-                                  "price":
-                                      data[index]['precio_total'].toString(),
-                                  "name":
-                                      data[index]['nombre_shipping'].toString(),
-                                  "transport":
-                                      data[index]['transportadora'] != null
-                                          ? data[index]['transportadora'][0]
-                                                  ['nombre']
-                                              .toString()
-                                          : '',
-                                  "address": data[index]['direccion_shipping']
-                                      .toString(),
-                                  "obervation":
-                                      data[index]['observacion'].toString(),
-                                  "qrLink": data[index]['users'][0]
-                                          ['vendedores'][0]['url_tienda']
-                                      .toString(),
-                                });
-                              } else {
-                                var m = data[index]['id'];
-                                optionsCheckBox.removeWhere((option) =>
-                                    option['id'] ==
-                                    data[index]['id'].toString());
-                              }
-                              setState(() {
-                                counterChecks = optionsCheckBox.length;
-                              });
-                            })),
+                        //       if (value!) {
+                        //         optionsCheckBox.add({
+                        //           "check": value,
+                        //           "id": data[index]['id'].toString(),
+                        //           "numPedido":
+                        //               "${data[index]['users'] != null ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal'].toString()}-${data[index]['numero_orden']}"
+                        //                   .toString(),
+                        //           "date": data[index]['pedido_fecha'][0]
+                        //                   ['fecha']
+                        //               .toString(),
+                        //           "city":
+                        //               data[index]['ciudad_shipping'].toString(),
+                        //           "product":
+                        //               data[index]['producto_p'].toString(),
+                        //           "extraProduct":
+                        //               data[index]['producto_extra'].toString(),
+                        //           "quantity":
+                        //               data[index]['cantidad_total'].toString(),
+                        //           "phone": data[index]['telefono_shipping']
+                        //               .toString(),
+                        //           "price":
+                        //               data[index]['precio_total'].toString(),
+                        //           "name":
+                        //               data[index]['nombre_shipping'].toString(),
+                        //           "transport":
+                        //               data[index]['transportadora'] != null
+                        //                   ? data[index]['transportadora'][0]
+                        //                           ['nombre']
+                        //                       .toString()
+                        //                   : '',
+                        //           "address": data[index]['direccion_shipping']
+                        //               .toString(),
+                        //           "obervation":
+                        //               data[index]['observacion'].toString(),
+                        //           "qrLink": data[index]['users'][0]
+                        //                   ['vendedores'][0]['url_tienda']
+                        //               .toString(),
+                        //         });
+                        //       } else {
+                        //         var m = data[index]['id'];
+                        //         optionsCheckBox.removeWhere((option) =>
+                        //             option['id'] ==
+                        //             data[index]['id'].toString());
+                        //       }
+                        //       setState(() {
+                        //         counterChecks = optionsCheckBox.length;
+                        //       });
+                        //     })),
+                        
                         DataCell(
                             // Text(data[index]['product']['wahouse'][0]['branch_name'].toString()),
                             Text(data[index]['product']['warehouse']
                                     ['branch_name']
                                 .toString()), onTap: () {
+                          getInfoModal(index);
+                        }),
+                        DataCell(
+                            Text(
+                                "${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden']}"
+                                    .toString()), onTap: () {
                           getInfoModal(index);
                         }),
                         DataCell(
@@ -672,12 +681,6 @@ class _TableOrdersGuidesSentStateTransport
                         DataCell(
                             Text(data[index]['fecha_entrega'] ?? "".toString()),
                             onTap: () {
-                          getInfoModal(index);
-                        }),
-                        DataCell(
-                            Text(
-                                "${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden']}"
-                                    .toString()), onTap: () {
                           getInfoModal(index);
                         }),
                         DataCell(
@@ -799,102 +802,42 @@ class _TableOrdersGuidesSentStateTransport
     return formattedDate;
   }
 
-  Container _buttons() {
-    return Container(
-      margin: EdgeInsets.all(5.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          ElevatedButton(
-              onPressed: () async {
-                const double point = 1.0;
-                const double inch = 72.0;
-                const double cm = inch / 2.54;
-                const double mm = inch / 25.4;
-                getLoadingModal(context, false);
-                final doc = pw.Document();
+  // Container _buttons() {
+  //   return Container(
+  //     margin: EdgeInsets.all(5.0),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.center,
+  //       crossAxisAlignment: CrossAxisAlignment.center,
+  //       children: [
 
-                for (var i = 0; i < optionsCheckBox.length; i++) {
-                  if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
-                      optionsCheckBox[i]['id'].toString() != '' &&
-                      optionsCheckBox[i]['check'] == true) {
-                    final capturedImage =
-                        await screenshotController.captureFromWidget(Container(
-                            child: ModelGuide(
-                      address: optionsCheckBox[i]['address'],
-                      city: optionsCheckBox[i]['city'],
-                      date: optionsCheckBox[i]['date'],
-                      extraProduct: optionsCheckBox[i]['extraProduct'],
-                      idForBarcode: optionsCheckBox[i]['id'],
-                      name: optionsCheckBox[i]['name'],
-                      numPedido: optionsCheckBox[i]['numPedido'],
-                      observation: optionsCheckBox[i]['obervation'],
-                      phone: optionsCheckBox[i]['phone'],
-                      price: optionsCheckBox[i]['price'],
-                      product: optionsCheckBox[i]['product'],
-                      qrLink: optionsCheckBox[i]['qrLink'],
-                      quantity: optionsCheckBox[i]['quantity'],
-                      transport: optionsCheckBox[i]['transport'],
-                    )));
+  //         ElevatedButton(
+  //             onPressed: () async {
+  //               await showDialog(
+  //                   context: context,
+  //                   builder: (context) {
+  //                     return RoutesModalv2(
+  //                         idOrder: optionsCheckBox,
+  //                         someOrders: true,
+  //                         phoneClient: "",
+  //                         codigo: "",
+  //                         origin: "sent");
+  //                   });
 
-                    doc.addPage(pw.Page(
-                      pageFormat: PdfPageFormat(21.0 * cm, 21.0 * cm,
-                          marginAll: 0.1 * cm),
-                      build: (pw.Context context) {
-                        return pw.Row(
-                          children: [
-                            pw.Image(pw.MemoryImage(capturedImage),
-                                fit: pw.BoxFit.contain)
-                          ],
-                        );
-                      },
-                    ));
-                  }
-                }
-                Navigator.pop(context);
-                await Printing.layoutPdf(
-                    onLayout: (PdfPageFormat format) async => await doc.save());
-                _controllers.searchController.clear();
-                setState(() {});
-
-                // loadData();
-              },
-              child: Text(
-                "IMPRIMIR",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              )),
-          SizedBox(
-            width: 20,
-          ),
-          ElevatedButton(
-              onPressed: () async {
-                await showDialog(
-                    context: context,
-                    builder: (context) {
-                      return RoutesModalv2(
-                          idOrder: optionsCheckBox,
-                          someOrders: true,
-                          phoneClient: "",
-                          codigo: "",
-                          origin: "sent");
-                    });
-
-                // setState(() {});
-                // loadData();
-                setState(() {});
-                optionsCheckBox = [];
-                getOldValue(true);
-                await loadData();
-              },
-              child: Text(
-                "Ruta",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              )),
-        ],
-      ),
-    );
-  }
+  //               // setState(() {});
+  //               // loadData();
+  //               setState(() {});
+  //               optionsCheckBox = [];
+  //               getOldValue(true);
+  //               await loadData();
+  //             },
+  //             child: Text(
+  //               "Ruta",
+  //               style: TextStyle(fontWeight: FontWeight.bold),
+  //             )),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   _modelTextField({text, controller}) {
     return Container(
@@ -906,60 +849,66 @@ class _TableOrdersGuidesSentStateTransport
           SizedBox(
             height: 10,
           ),
-          SizedBox(
-            height: 10,
-          ),
-          DropdownButtonHideUnderline(
-            child: DropdownButton2<String>(
-              isExpanded: true,
-              hint: Text(
-                'OPERADORES',
-                style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(context).hintColor,
-                    fontWeight: FontWeight.bold),
-              ),
-              items: transportator
-                  .map((item) => DropdownMenuItem(
-                        value: item,
-                        child: Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                item.split('-')[0],
-                                style: const TextStyle(
-                                    fontSize: 14, fontWeight: FontWeight.bold),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Container(
+                width: MediaQuery.of(context).size.width * 0.2,
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton2<String>(
+                    isExpanded: true,
+                    hint: Text(
+                      'OPERADORES',
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(context).hintColor,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    items: transportator
+                        .map((item) => DropdownMenuItem(
+                              value: item,
+                              child: Row(
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      item.split('-')[0],
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 5,
+                                  ),
+                                  GestureDetector(
+                                      onTap: () async {
+                                        setState(() {
+                                          selectedValueTransportator = null;
+                                        });
+                                        resetFilters();
+                                        // await loadData();
+                                      },
+                                      child: Icon(Icons.close))
+                                ],
                               ),
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            GestureDetector(
-                                onTap: () async {
-                                  setState(() {
-                                    selectedValueTransportator = null;
-                                  });
-                                  resetFilters();
-                                  // await loadData();
-                                },
-                                child: Icon(Icons.close))
-                          ],
-                        ),
-                      ))
-                  .toList(),
-              value: selectedValueTransportator,
-              onChanged: (value) async {
-                filtersAnd = [];
-                _controllers.searchController.clear();
-                setState(() {
-                  selectedValueTransportator = value as String;
-                });
-                await loadData();
-              },
-              onMenuStateChange: (isOpen) {
-                if (!isOpen) {}
-              },
-            ),
+                            ))
+                        .toList(),
+                    value: selectedValueTransportator,
+                    onChanged: (value) async {
+                      filtersAnd = [];
+                      _controllers.searchController.clear();
+                      setState(() {
+                        selectedValueTransportator = value as String;
+                      });
+                      await loadData();
+                    },
+                    onMenuStateChange: (isOpen) {
+                      if (!isOpen) {}
+                    },
+                  ),
+                ),
+              ),
+            ],
           ),
           TextButton(
               onPressed: () async {
