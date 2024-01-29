@@ -164,41 +164,49 @@ class _EditOperatorLogisticState extends State<EditOperatorLogistic> {
                   const SizedBox(
                     height: 10,
                   ),
-                  DropdownButtonHideUnderline(
-                    child: DropdownButton2<String>(
-                      // dropdownWidth: 500,
-                      // buttonWidth: 500,
-                      isExpanded: true,
-                      hint: Text(
-                        'Sub Ruta',
-                        style: TextStyle(
-                            fontSize: 14,
-                            color: Theme.of(context).hintColor,
-                            fontWeight: FontWeight.bold),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 500,
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton2<String>(
+                            // dropdownWidth: 500,
+                            // buttonWidth: 500,
+                            isExpanded: true,
+                            hint: Text(
+                              'Sub Ruta',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Theme.of(context).hintColor,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            items: subRoutes
+                                .map((item) => DropdownMenuItem(
+                                      value: item,
+                                      child: Text(
+                                        item.split('-')[0],
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ))
+                                .toList(),
+                            value: selectedValueRoute,
+                            onChanged: (value) async {
+                              setState(() {
+                                selectedValueRoute = value as String;
+                              });
+                            },
+                        
+                            //This to clear the search value when you close the menu
+                            onMenuStateChange: (isOpen) {
+                              if (!isOpen) {}
+                            },
+                          ),
+                        ),
                       ),
-                      items: subRoutes
-                          .map((item) => DropdownMenuItem(
-                                value: item,
-                                child: Text(
-                                  item.split('-')[0],
-                                  style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ))
-                          .toList(),
-                      value: selectedValueRoute,
-                      onChanged: (value) async {
-                        setState(() {
-                          selectedValueRoute = value as String;
-                        });
-                      },
-
-                      //This to clear the search value when you close the menu
-                      onMenuStateChange: (isOpen) {
-                        if (!isOpen) {}
-                      },
-                    ),
+                    ],
                   ),
                   const SizedBox(
                     height: 20,

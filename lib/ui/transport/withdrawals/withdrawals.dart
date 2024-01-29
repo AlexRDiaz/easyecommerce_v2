@@ -253,7 +253,7 @@ class _WithdrawalsState extends State<Withdrawals> {
                                         setState(() {
                                           selectedValueTransportator = null;
                                         });
-                                        await loadData();
+                                        // await loadData();
                                       },
                                       child: Icon(Icons.close))
                                 ],
@@ -265,7 +265,7 @@ class _WithdrawalsState extends State<Withdrawals> {
                       setState(() {
                         selectedValueTransportator = value as String;
                       });
-                      await loadData();
+                      // await loadData();
                     },
                     onMenuStateChange: (isOpen) {
                       if (!isOpen) {}
@@ -280,7 +280,7 @@ class _WithdrawalsState extends State<Withdrawals> {
                 bool hayCheckTrue =
                     optionsCheckBox.any((element) => element['check'] == true);
 
-                if (hayCheckTrue) {
+                if (hayCheckTrue && selectedValueTransportator != null) {
                   mostrarDialogoModificacion(context);
                 } else {
                   AwesomeDialog(
@@ -288,8 +288,8 @@ class _WithdrawalsState extends State<Withdrawals> {
                     context: context,
                     dialogType: DialogType.error,
                     animType: AnimType.rightSlide,
-                    title: 'Credenciales Incorrectas',
-                    desc: 'Debe selecionar u Operador Previamente',
+                    title: 'Error',
+                    desc: 'Debe selecionar Bodega/as  y Operador Previamente',
                     btnCancel: Container(),
                     btnOkText: "Aceptar",
                     btnOkColor: Colors.green,
@@ -912,7 +912,7 @@ class _WithdrawalsState extends State<Withdrawals> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirmación'),
+          title: Center(child: Text('Confirmación')),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
@@ -923,48 +923,77 @@ class _WithdrawalsState extends State<Withdrawals> {
             ),
           ),
           actions: <Widget>[
-            ElevatedButton(
-              child: Text('Cancelar'),
-              onPressed: () {
-                Navigator.of(context).pop(); // Cierra el diálogo
-              },
-            ),
-            ElevatedButton(
-              child: Text('Aceptar'),
-              onPressed: () async {
-                // Aquí puedes poner la lógica para manejar la aceptación
-                getLoadingModal(context, false);
-                // print(optionsCheckBox);
-                for (var i = 0; i < optionsCheckBox.length; i++) {
-                  if (optionsCheckBox[i]['warehouse_id']
-                          .toString()
-                          .isNotEmpty &&
-                      optionsCheckBox[i]['warehouse_id'].toString() != '' &&
-                      optionsCheckBox[i]['warehouse_id'].toString() != 'null' &&
-                      optionsCheckBox[i]['check'] == true) {
-                    var responseLaravel = await Connections()
-                        .getOrdersForPrintGuidesLaravelD([], [
-                      {"estado_interno": "CONFIRMADO"},
-                      {"estado_logistico": "IMPRESO"}
-                    ], [], 1, 1300, "id:DESC", "",
-                            optionsCheckBox[i]['warehouse_id'].toString());
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton.icon(
+                  icon: Icon(Icons.close, color: Colors.white),
+                  label: Text('Cancelar'),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Cierra el diálogo
+                  },
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.red, // Color del texto
+                    shadowColor: Colors.black, // Color de la sombra
+                    elevation: 5, // Elevación de la sombra
+                  ),
+                ),
+                ElevatedButton.icon(
+                  icon: Icon(Icons.check, color: Colors.white),
+                  label: Text('Aceptar'),
+                  onPressed: () async {
+                    // Aquí implementas la lógica para manejar la aceptación
+                    // Supongo que tienes una función llamada getLoadingModal
+                    getLoadingModal(context, false);
 
-                    // Aquí agregamos los pedidos de responseLaravel a listaPedidos
-                    listaPedidos.addAll(responseLaravel['data']);
-                  }
-                }
+                    for (var i = 0; i < optionsCheckBox.length; i++) {
+                      if (optionsCheckBox[i]['warehouse_id']
+                              .toString()
+                              .isNotEmpty &&
+                          optionsCheckBox[i]['warehouse_id'].toString() != '' &&
+                          optionsCheckBox[i]['warehouse_id'].toString() !=
+                              'null' &&
+                          optionsCheckBox[i]['check'] == true) {
+                        var responseLaravel =
+                            await Connections().getOrdersForPrintGuidesLaravelD(
+                                [], // Asume que tienes los parámetros correctos aquí
+                                [
+                              {"estado_interno": "CONFIRMADO"},
+                              {"estado_logistico": "IMPRESO"}
+                            ],
+                                [],
+                                1,
+                                1300,
+                                "id:DESC",
+                                "",
+                                optionsCheckBox[i]['warehouse_id'].toString());
 
-                for (var i = 0; i < listaPedidos.length; i++) {
-                  var pedidoId = listaPedidos[i]['id'].toString();
-                  await Connections().addWithdrawanBy(pedidoId,
-                      "O-${selectedValueTransportator!.split('-')[1]}");
-                }
+                        // Aquí agregamos los pedidos de responseLaravel a listaPedidos
+                        listaPedidos.addAll(responseLaravel['data']);
+                      }
+                    }
 
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
-                // loadData(); // Cierra el diálogo
-              },
-            ),
+                    for (var i = 0; i < listaPedidos.length; i++) {
+                      var pedidoId = listaPedidos[i]['id'].toString();
+                      await Connections().addWithdrawanBy(pedidoId,
+                          "O-${selectedValueTransportator!.split('-')[1]}");
+                    }
+
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                    // Suponiendo que tienes una función loadData para recargar datos
+                    // loadData(); // Cierra el diálogo
+                  },
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.green, // Color del texto
+                    shadowColor: Colors.black, // Color de la sombra
+                    elevation: 5, // Elevación de la sombra
+                  ),
+                ),
+              ],
+            )
           ],
         );
       },

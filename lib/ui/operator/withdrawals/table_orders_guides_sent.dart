@@ -801,100 +801,100 @@ class _TableOrdersGuidesSentStateOperator
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          ElevatedButton(
-              onPressed: () async {
-                const double point = 1.0;
-                const double inch = 72.0;
-                const double cm = inch / 2.54;
-                const double mm = inch / 25.4;
-                getLoadingModal(context, false);
-                final doc = pw.Document();
+          // ElevatedButton(
+          //     onPressed: () async {
+          //       const double point = 1.0;
+          //       const double inch = 72.0;
+          //       const double cm = inch / 2.54;
+          //       const double mm = inch / 25.4;
+          //       getLoadingModal(context, false);
+          //       final doc = pw.Document();
 
-                for (var i = 0; i < optionsCheckBox.length; i++) {
-                  if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
-                      optionsCheckBox[i]['id'].toString() != '' &&
-                      optionsCheckBox[i]['check'] == true) {
-                    final capturedImage =
-                        await screenshotController.captureFromWidget(Container(
-                            child: ModelGuide(
-                      address: optionsCheckBox[i]['address'],
-                      city: optionsCheckBox[i]['city'],
-                      date: optionsCheckBox[i]['date'],
-                      extraProduct: optionsCheckBox[i]['extraProduct'],
-                      idForBarcode: optionsCheckBox[i]['id'],
-                      name: optionsCheckBox[i]['name'],
-                      numPedido: optionsCheckBox[i]['numPedido'],
-                      observation: optionsCheckBox[i]['obervation'],
-                      phone: optionsCheckBox[i]['phone'],
-                      price: optionsCheckBox[i]['price'],
-                      product: optionsCheckBox[i]['product'],
-                      qrLink: optionsCheckBox[i]['qrLink'],
-                      quantity: optionsCheckBox[i]['quantity'],
-                      transport: optionsCheckBox[i]['transport'],
-                    )));
+          //       for (var i = 0; i < optionsCheckBox.length; i++) {
+          //         if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
+          //             optionsCheckBox[i]['id'].toString() != '' &&
+          //             optionsCheckBox[i]['check'] == true) {
+          //           final capturedImage =
+          //               await screenshotController.captureFromWidget(Container(
+          //                   child: ModelGuide(
+          //             address: optionsCheckBox[i]['address'],
+          //             city: optionsCheckBox[i]['city'],
+          //             date: optionsCheckBox[i]['date'],
+          //             extraProduct: optionsCheckBox[i]['extraProduct'],
+          //             idForBarcode: optionsCheckBox[i]['id'],
+          //             name: optionsCheckBox[i]['name'],
+          //             numPedido: optionsCheckBox[i]['numPedido'],
+          //             observation: optionsCheckBox[i]['obervation'],
+          //             phone: optionsCheckBox[i]['phone'],
+          //             price: optionsCheckBox[i]['price'],
+          //             product: optionsCheckBox[i]['product'],
+          //             qrLink: optionsCheckBox[i]['qrLink'],
+          //             quantity: optionsCheckBox[i]['quantity'],
+          //             transport: optionsCheckBox[i]['transport'],
+          //           )));
 
-                    doc.addPage(pw.Page(
-                      pageFormat: PdfPageFormat(21.0 * cm, 21.0 * cm,
-                          marginAll: 0.1 * cm),
-                      build: (pw.Context context) {
-                        return pw.Row(
-                          children: [
-                            pw.Image(pw.MemoryImage(capturedImage),
-                                fit: pw.BoxFit.contain)
-                          ],
-                        );
-                      },
-                    ));
-                  }
-                }
-                Navigator.pop(context);
-                await Printing.layoutPdf(
-                    onLayout: (PdfPageFormat format) async => await doc.save());
-                _controllers.searchController.clear();
-                setState(() {});
+          //           doc.addPage(pw.Page(
+          //             pageFormat: PdfPageFormat(21.0 * cm, 21.0 * cm,
+          //                 marginAll: 0.1 * cm),
+          //             build: (pw.Context context) {
+          //               return pw.Row(
+          //                 children: [
+          //                   pw.Image(pw.MemoryImage(capturedImage),
+          //                       fit: pw.BoxFit.contain)
+          //                 ],
+          //               );
+          //             },
+          //           ));
+          //         }
+          //       }
+          //       Navigator.pop(context);
+          //       await Printing.layoutPdf(
+          //           onLayout: (PdfPageFormat format) async => await doc.save());
+          //       _controllers.searchController.clear();
+          //       setState(() {});
 
-                // loadData();
-              },
-              child: Text(
-                "IMPRIMIR",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              )),
-          SizedBox(
-            width: 20,
-          ),
-          ElevatedButton(
-              onPressed: () async {
-                // for (var i = 0; i < optionsCheckBox.length; i++) {
-                //   if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
-                //       optionsCheckBox[i]['id'].toString() != '' &&
-                //       optionsCheckBox[i]['check'] == true) {
-                //     var response = await Connections()
-                //         .updateOrderInteralStatusInOrderPrinted(
-                //             "PENDIENTE", optionsCheckBox[i]['id'].toString());
-                //   }
-                // }
-                await showDialog(
-                    context: context,
-                    builder: (context) {
-                      return RoutesModalv2(
-                          idOrder: optionsCheckBox,
-                          someOrders: true,
-                          phoneClient: "",
-                          codigo: "",
-                          origin: "sent");
-                    });
+          //       // loadData();
+          //     },
+          //     child: Text(
+          //       "IMPRIMIR",
+          //       style: TextStyle(fontWeight: FontWeight.bold),
+          //     )),
+          // SizedBox(
+          //   width: 20,
+          // ),
+          // ElevatedButton(
+          //     onPressed: () async {
+          //       // for (var i = 0; i < optionsCheckBox.length; i++) {
+          //       //   if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
+          //       //       optionsCheckBox[i]['id'].toString() != '' &&
+          //       //       optionsCheckBox[i]['check'] == true) {
+          //       //     var response = await Connections()
+          //       //         .updateOrderInteralStatusInOrderPrinted(
+          //       //             "PENDIENTE", optionsCheckBox[i]['id'].toString());
+          //       //   }
+          //       // }
+          //       await showDialog(
+          //           context: context,
+          //           builder: (context) {
+          //             return RoutesModalv2(
+          //                 idOrder: optionsCheckBox,
+          //                 someOrders: true,
+          //                 phoneClient: "",
+          //                 codigo: "",
+          //                 origin: "sent");
+          //           });
 
-                // setState(() {});
-                // loadData();
-                setState(() {});
-                optionsCheckBox = [];
-                getOldValue(true);
-                await loadData();
-              },
-              child: Text(
-                "Ruta",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              )),
+          //       // setState(() {});
+          //       // loadData();
+          //       setState(() {});
+          //       optionsCheckBox = [];
+          //       getOldValue(true);
+          //       await loadData();
+          //     },
+          //     child: Text(
+          //       "Ruta",
+          //       style: TextStyle(fontWeight: FontWeight.bold),
+          //     )),
         ],
       ),
     );
