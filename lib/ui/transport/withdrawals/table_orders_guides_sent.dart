@@ -16,7 +16,6 @@ import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
 import 'package:frontend/ui/sellers/order_entry/controllers/controllers.dart';
 import 'package:frontend/ui/transport/withdrawals/controllers/controllers.dart';
 import 'package:frontend/ui/transport/withdrawals/customwidget.dart';
-import 'package:frontend/ui/transport/withdrawals/normalwidget.dart';
 import 'package:frontend/ui/widgets/filters_orders.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/routes.dart';

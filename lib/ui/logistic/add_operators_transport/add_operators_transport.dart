@@ -65,7 +65,7 @@ class _AddOperatorsTransportLogisticState
     super.didChangeDependencies();
   }
 
-  Future<void> loadData() async {
+  loadData() async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
@@ -256,24 +256,12 @@ class _AddOperatorsTransportLogisticState
                                   ],
                                 ),
                                 onTap: () async {
-                                  // Navegar a la pantalla de edición y esperar a que se cierre
-                                  await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            EditOperatorLogistic(
-                                              idUserE:
-                                                  data[index]['id'].toString(),
-                                              idOperator: data[index]
-                                                      ['operadores'][0]['id']
-                                                  .toString(),
-                                            )),
-                                  );
-
-                                  // Recargar los datos después de regresar
-                                  await loadData();
-                                  setState(
-                                      () {}); // Actualizar el estado para reflejar los cambios
+                                  _mostrarVentanaModal(
+                                      context,
+                                      data[index]['id'].toString(),
+                                      data[index]['operadores'][0]['id']
+                                          .toString());
+                                  // await loadData();
                                 },
                               ),
                               DataCell(
@@ -939,8 +927,6 @@ class _AddOperatorsTransportLogisticState
       context: context,
       builder: (BuildContext context) {
         return EditOperatorLogistic(
-          // idUserE:    data[index]['id'].toString(),
-          // idOperator: data[index]['operadores'][0]['id'].toString(),
           idUserE: idUserE,
           idOperator: idOperator,
         );
