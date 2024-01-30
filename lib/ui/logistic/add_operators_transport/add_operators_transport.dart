@@ -65,7 +65,7 @@ class _AddOperatorsTransportLogisticState
     super.didChangeDependencies();
   }
 
-  loadData() async {
+  Future<void> loadData() async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
@@ -256,19 +256,24 @@ class _AddOperatorsTransportLogisticState
                                   ],
                                 ),
                                 onTap: () async {
+                                  // Navegar a la pantalla de edición y esperar a que se cierre
                                   await Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          EditOperatorLogistic(
-                                        idUserE: data[index]['id'].toString(),
-                                        idOperator: data[index]['operadores'][0]
-                                                ['id']
-                                            .toString(),
-                                      ),
-                                    ),
+                                        builder: (context) =>
+                                            EditOperatorLogistic(
+                                              idUserE:
+                                                  data[index]['id'].toString(),
+                                              idOperator: data[index]
+                                                      ['operadores'][0]['id']
+                                                  .toString(),
+                                            )),
                                   );
-                                  loadData();
+
+                                  // Recargar los datos después de regresar
+                                  await loadData();
+                                  setState(
+                                      () {}); // Actualizar el estado para reflejar los cambios
                                 },
                               ),
                               DataCell(
@@ -929,12 +934,15 @@ class _AddOperatorsTransportLogisticState
     return const Icon(Icons.close, color: Colors.orange);
   }
 
-  void _mostrarVentanaModal(BuildContext context, Widget contenidoModal) {
+  void _mostrarVentanaModal(BuildContext context, idUserE, idOperator) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          child: contenidoModal,
+        return EditOperatorLogistic(
+          // idUserE:    data[index]['id'].toString(),
+          // idOperator: data[index]['operadores'][0]['id'].toString(),
+          idUserE: idUserE,
+          idOperator: idOperator,
         );
       },
     );

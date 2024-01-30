@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
+import 'package:frontend/ui/widgets/loading.dart';
 
 class AccountStatus2 extends StatefulWidget {
   const AccountStatus2({Key? key}) : super(key: key);
@@ -547,9 +548,10 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
       if (idSeller != 0) {
 
           // Cambiar el valor
-        await sharedPrefs!.setString("dateDesdeVendedor", "1/1/2021");
-        await sharedPrefs!.setString("dateHastaVendedor", "1/1/2200");
-
+        String hoy = "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
+        await sharedPrefs!.setString("dateDesdeVendedor", "1/1/2023");
+        await sharedPrefs!.setString("dateHastaVendedor", hoy);
+        getLoadingModal(context, false);
         responseValues = await Connections()
             .getValuesSellerLaravel(arrayfiltersDefaultAnd,selectedDateFilter);
         retvalTotal = await Connections().getOrdenesRetiroCount(idSeller);
@@ -572,6 +574,7 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
 
         calculateValues();
       });
+    Navigator.pop(context);
     } catch (e) {
       print(e);
     }
