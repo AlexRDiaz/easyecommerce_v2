@@ -322,7 +322,7 @@ class _OrdersDayViewState extends State<OrdersDayView> {
       child: ordersDay.length > 0
           ? DataTableModelPrincipal(
               columnWidth: 200,
-              columns: getColumns(ordersDay),
+              columns: getColumns(),
               rows: buildDataRows(ordersDay))
           : const Center(
               child: Text("Sin datos"),
@@ -347,7 +347,7 @@ class _OrdersDayViewState extends State<OrdersDayView> {
             height: height * 0.70,
             child: DataTableModelPrincipal(
                 columnWidth: 400,
-                columns: getColumns(ordersDay),
+                columns: getColumns(),
                 rows: buildDataRows(ordersDay)),
           )
         : const Center(
@@ -355,7 +355,7 @@ class _OrdersDayViewState extends State<OrdersDayView> {
           );
   }
 
-  List<DataColumn2> getColumns(ordersDay) {
+  List<DataColumn2> getColumns() {
     return [
       const DataColumn2(
         label: Text("Fecha Envio"),
