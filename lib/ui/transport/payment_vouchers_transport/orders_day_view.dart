@@ -1,9 +1,14 @@
+import 'dart:math';
+
+import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/transport/payment_vouchers_transport/payment_vouchers_transport_new.dart';
+import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:frontend/ui/widgets/transport/data_table_model.dart';
 
 class OrdersDayView extends StatefulWidget {
@@ -48,6 +53,10 @@ class _OrdersDayViewState extends State<OrdersDayView> {
     'NO ENTREGADO',
   ];
   bool changevalue = false;
+  int total = 0;
+  int totalC = 0;
+
+  double totalOperatorCost = 0;
 
   @override
   void initState() {
@@ -58,11 +67,8 @@ class _OrdersDayViewState extends State<OrdersDayView> {
 
   loadData() async {
     currentPage = 1;
-    // var res = await walletController.getSaldo();
     setState(() {
       isLoading = true;
-
-      //  saldo = res;
     });
 
     try {
@@ -86,17 +92,37 @@ class _OrdersDayViewState extends State<OrdersDayView> {
           arrayFiltersAnd,
           sortFieldDefaultValue,
           searchController.text);
-      // print(response);
-      setState(() {
-        ordersDay = response["data"]["data"];
-        pageCount = response["data"]['last_page'];
-        // paginatorController.navigateToPage(0);
-        dailyProceedsC = response['total_proceeds'];
-        dailyShippingCostC = response['shipping_total'];
-        dailyTotalC = response['total_day'];
 
+      if (response == 1) {
+        setState(() {
+          ordersDay = [];
+          isLoading = false;
+          totalOperatorCost = 0;
+        });
+      } else {
+        setState(() {
+          ordersDay = response["data"]["data"];
+          pageCount = response["data"]['last_page'];
+          total = response["data"]['total'];
+          // paginatorController.navigateToPage(0);
+          dailyProceedsC =
+              double.parse((response['total_proceeds']).toStringAsFixed(2));
+          dailyShippingCostC =
+              double.parse((response['shipping_total']).toStringAsFixed(2));
+          dailyTotalC =
+              double.parse((response['total_day']).toStringAsFixed(2));
+
+          //  ****
+          String costOperador = ordersDay[0]["operadore"] == null
+              ? ""
+              : ordersDay[0]['operadore']['costo_operador'].toString();
+          // print('${ordersDay[0]['operadore']['up_users'][0]['username']}');
+          double cost = double.parse(costOperador);
+          double costPerOperator = total * cost;
+          totalOperatorCost = costPerOperator;
+        });
         isLoading = false;
-      });
+      }
     } catch (e) {
       print(e);
     }
@@ -116,117 +142,155 @@ class _OrdersDayViewState extends State<OrdersDayView> {
   Widget build(BuildContext context) {
     double heigth = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
-    return Scaffold(
-      body: Row(
-        children: <Widget>[
-          Expanded(
-            child: Container(
-              // color: Colors.grey[300],
-              color: Colors.white,
-              child: Center(
-                child: Container(
-                  // margin: const EdgeInsets.all(6.0),
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(children: [
-                    Row(
+
+    return CustomProgressModal(
+      isLoading: isLoading,
+      content: Scaffold(
+        body: Row(
+          children: <Widget>[
+            Expanded(
+              child: Container(
+                // color: Colors.grey[300],
+                color: Colors.white,
+                child: Center(
+                  child: Container(
+                    // margin: const EdgeInsets.all(6.0),
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
                       children: [
-                        Expanded(
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: IconButton(
-                              onPressed: () async {
-                                // Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(
-                                //     builder: (context) =>
-                                //         PaymentVouchersTransport2(),
-                                //   ),
-                                // );
-                                Navigator.pop(context);
-                              },
-                              icon: Icon(
-                                Icons.arrow_circle_left,
-                                size: 35,
-                                color: Colors.indigo[900],
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: IconButton(
+                                  onPressed: () async {
+                                    Navigator.pop(context);
+                                  },
+                                  icon: Icon(
+                                    Icons.arrow_circle_left,
+                                    size: 35,
+                                    color: Colors.indigo[900],
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Align(
-                            alignment: Alignment.centerRight,
-                            child: IconButton(
-                              onPressed: () async {
-                                resetFilters();
-                                loadData();
-                              },
-                              icon: Icon(
-                                Icons.autorenew_rounded,
-                                size: 35,
-                                color: Colors.indigo[900],
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerRight,
+                                child: IconButton(
+                                  onPressed: () async {
+                                    resetFilters();
+                                    loadData();
+                                  },
+                                  icon: Icon(
+                                    Icons.autorenew_rounded,
+                                    size: 35,
+                                    color: Colors.indigo[900],
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "DETALLES DE GUÍAS",
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.indigo[800]),
-                        ),
-                      ],
-                    ),
-                    const Divider(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text("Valores Recibidos: \$${dailyProceedsC}"),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text("Costo Entrega: \$${dailyShippingCostC}"),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text("Total: \$${dailyTotalC}"),
-                        // Text("Estado Pago Logistica: $status"),
-                      ],
-                    ),
-                    const Divider(),
-                    Row(
-                      // mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        const Text("Registros: "),
                         const SizedBox(
-                          width: 10,
+                          height: 10,
                         ),
-                        Text(ordersDay.length.toString())
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              "Fecha:",
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF031749)),
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              widget.chozenDate,
+                              style: const TextStyle(
+                                  fontSize: 16, color: Color(0xFF031749)),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "DETALLES DE GUÍAS",
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.indigo[800]),
+                            ),
+                          ],
+                        ),
+                        const Divider(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text("Valores Recibidos: \$${dailyProceedsC}"),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text("Costo Entrega: \$${dailyShippingCostC}"),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text("Total: \$${dailyTotalC}"),
+                          ],
+                        ),
+                        const Divider(),
+                        Row(
+                          // mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            const Text("Registros: "),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Text(total.toString()),
+                            const SizedBox(
+                              width: 20,
+                            ),
+                            Visibility(
+                                visible: operadorController.text != "TODO" &&
+                                    totalOperatorCost != 0,
+                                child: const Text("Costo Operador: ")),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Visibility(
+                                visible: operadorController.text != "TODO" &&
+                                    totalOperatorCost != 0,
+                                child:
+                                    Text('\$ ${totalOperatorCost.toString()}')),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        responsive(
+                            webMainContainer(width, heigth, context),
+                            mobileMainContainer(width, heigth, context),
+                            context),
                       ],
                     ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    responsive(webMainContainer(width, heigth, context),
-                        mobileMainContainer(width, heigth, context), context)
-                  ]),
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -250,7 +314,7 @@ class _OrdersDayViewState extends State<OrdersDayView> {
 
   Container _dataTableOrders(height) {
     return Container(
-      height: height * 0.65,
+      height: height * 0.60,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
         color: Colors.white,
@@ -260,7 +324,7 @@ class _OrdersDayViewState extends State<OrdersDayView> {
               columnWidth: 200,
               columns: getColumns(),
               rows: buildDataRows(ordersDay))
-          : Center(
+          : const Center(
               child: Text("Sin datos"),
             ),
     );
@@ -286,7 +350,7 @@ class _OrdersDayViewState extends State<OrdersDayView> {
                 columns: getColumns(),
                 rows: buildDataRows(ordersDay)),
           )
-        : Center(
+        : const Center(
             child: Text("Sin datos"),
           );
   }
@@ -359,6 +423,10 @@ class _OrdersDayViewState extends State<OrdersDayView> {
         size: ColumnSize.L,
         // onSort: (columnIndex, ascending) {},
       ),
+      // const DataColumn2(
+      //   label: Text('Costo Operador'),
+      //   size: ColumnSize.S,
+      // ),
       const DataColumn2(
         label: Text('Estado Devolución'),
         size: ColumnSize.M,
@@ -448,13 +516,16 @@ class _OrdersDayViewState extends State<OrdersDayView> {
             Text(ordersDay[index]["pedidos_shopify"]['status'].toString()),
           ),
           DataCell(
-            // Text(""),
-            //operador
             Text(ordersDay[index]["operadore"] == null
                 ? ""
                 : ordersDay[index]['operadore']['up_users'][0]['username']
                     .toString()),
           ),
+          // DataCell(
+          //   Text(ordersDay[index]["operadore"] == null
+          //       ? ""
+          //       : ordersDay[index]['operadore']['costo_operador'].toString()),
+          // ),
           DataCell(
             Text(ordersDay[index]["pedidos_shopify"]['estado_devolucion']
                 .toString()),
@@ -483,10 +554,10 @@ class _OrdersDayViewState extends State<OrdersDayView> {
         Text(title),
         Expanded(
           child: Container(
-            margin: EdgeInsets.only(bottom: 4.5, top: 4.5),
+            margin: const EdgeInsets.only(bottom: 4.5, top: 4.5),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(5.0),
-              border: Border.all(color: Color.fromRGBO(6, 6, 6, 1)),
+              border: Border.all(color: Colors.black),
             ),
             height: 50,
             child: DropdownButtonFormField<String>(
