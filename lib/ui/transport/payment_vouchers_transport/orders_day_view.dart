@@ -468,6 +468,7 @@ class _OrdersDayViewState extends State<OrdersDayView> {
             //     '${ordersDay[index]["pedidos_shopify"]["name_comercial"] != null && ordersDay[index]["pedidos_shopify"]["name_comercial"].isNotEmpty ? ordersDay[index]["pedidos_shopify"]["name_comercial"] : "NaN"}-${ordersDay[index]["pedidos_shopify"]['numero_orden'].toString()}'),
             InkWell(
               child: Text(
+                  //  '${ordersDay[index]["pedidos_shopify"]['users'] != null && ordersDay[index]["pedidos_shopify"]['users'].isNotEmpty ? ordersDay[index]["pedidos_shopify"]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${ordersDay[index]["pedidos_shopify"]['numero_orden'].toString()}',
                   '${ordersDay[index]["pedidos_shopify"]["name_comercial"] != null && ordersDay[index]["pedidos_shopify"]["name_comercial"].isNotEmpty ? ordersDay[index]["pedidos_shopify"]["name_comercial"] : "NaN"}-${ordersDay[index]["pedidos_shopify"]['numero_orden'].toString()}',
                   style: TextStyle(
                       color: setColor(ordersDay[index]["pedidos_shopify"]
