@@ -43,7 +43,7 @@ class _ScannerDeliveryStatusTransportState
                         "${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']}";
                   });
                   Navigator.pop(context);
-                  widget.function(barcode);
+                  widget.function(responseOrder);
                 },
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -83,35 +83,5 @@ class _ScannerDeliveryStatusTransportState
         ),
       ),
     );
-  }
-
-  Future<dynamic> OpenShowDialog(BuildContext context, String id) {
-    return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            content: Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              child: Column(
-                children: [
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      child: Icon(Icons.close),
-                    ),
-                  ),
-                  Expanded(
-                      child: TransportProDeliveryHistoryDetails(
-                    id: id,
-                  ))
-                ],
-              ),
-            ),
-          );
-        });
   }
 }

@@ -11,7 +11,7 @@ import 'package:frontend/main.dart';
 import 'package:frontend/ui/widgets/routes/routes_v2.dart';
 
 class OrderInfo extends StatefulWidget {
-  final String id;
+  final Map order;
   final int index;
   final String codigo;
   final Function(BuildContext, int) sumarNumero;
@@ -19,7 +19,7 @@ class OrderInfo extends StatefulWidget {
 
   const OrderInfo(
       {super.key,
-      required this.id,
+      required this.order,
       required this.index,
       required this.sumarNumero,
       required this.codigo,
@@ -53,12 +53,20 @@ class _OrderInfoState extends State<OrderInfo> {
   }
 
   loadData() async {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getLoadingModal(context, false);
+    data = widget.order;
+    _controllers.editControllers(widget.order);
+    setState(() {
+      estadoEntrega = data['status'].toString();
+      estadoLogistic = data['estado_logistico'].toString();
     });
 
-    var response = await Connections()
-        .getOrdersByIdLaravel(int.parse(widget.id));
+    setState(() {
+      loading = false;
+    });
+  }
+
+  updateData() async {
+    var response = await Connections().getOrdersByIdLaravel(widget.order['id']);
     data = response;
     //print(data);
     _controllers.editControllers(response);
@@ -67,11 +75,8 @@ class _OrderInfoState extends State<OrderInfo> {
       estadoLogistic = data['estado_logistico'].toString();
     });
 
-    Future.delayed(Duration(milliseconds: 500), () {
-      Navigator.pop(context);
-      setState(() {
-        loading = false;
-      });
+    setState(() {
+      loading = false;
     });
   }
 
@@ -110,14 +115,11 @@ class _OrderInfoState extends State<OrderInfo> {
                                     onPressed: () async {
                                       var response = await Connections()
                                           .updateOrderInteralStatusLaravel(
-                                              "NO DESEA", widget.id);
+                                              "NO DESEA", widget.order["id"]);
 
-                                      //  Navigator.pop(context);
                                       widget.sumarNumero(context, widget.index);
 
                                       setState(() {});
-                                      //loadData();
-                                      //Navigator.pop(context);
                                     },
                                     child: const Text(
                                       "No Desea",
@@ -132,31 +134,16 @@ class _OrderInfoState extends State<OrderInfo> {
                                   await showDialog(
                                       context: context,
                                       builder: (context) {
-                                        // return RoutesModal(
-                                        //   idOrder: widget.id,
-                                        //   someOrders: false,
-                                        //   phoneClient: data['telefono_shipping']
-                                        //       .toString(),
-                                        //   codigo: widget.codigo,
-                                        // );
-
-                                        // * laravel version
                                         return RoutesModalv2(
-                                            idOrder: widget.id,
-                                            someOrders: false,
-                                            phoneClient:
-                                                data['telefono_shipping']
-                                                    .toString(),
-                                            codigo: widget.codigo,
-                                            origin: "",
-                                            // origin: "order_entry",
-                                            // skuProduct: data['sku'].toString(),
-                                            // quantity:
-                                                // data['cantidad_total'].toString()
-                                                );
-                                        //
+                                          idOrder: widget.order["id"],
+                                          someOrders: false,
+                                          phoneClient: data['telefono_shipping']
+                                              .toString(),
+                                          codigo: widget.codigo,
+                                          origin: "",
+                                        );
                                       });
-                                  loadData();
+                                  updateData();
                                 },
                                 child: Text(
                                   "Confirmar",
@@ -170,7 +157,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                   if (formKey.currentState!.validate()) {
                                     getLoadingModal(context, false);
                                     await _controllers.updateInfo(
-                                        id: widget.id,
+                                        id: widget.order["id"],
                                         success: () async {
                                           Navigator.pop(context);
                                           AwesomeDialog(
@@ -186,7 +173,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                             btnCancelOnPress: () {},
                                             btnOkOnPress: () {},
                                           ).show();
-                                          await loadData();
+                                          await updateData();
                                         },
                                         error: () {
                                           Navigator.pop(context);

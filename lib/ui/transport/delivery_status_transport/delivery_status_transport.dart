@@ -4,6 +4,7 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
+import 'package:frontend/config/commons.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
@@ -44,7 +45,6 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
   int enRuta = 0;
   int programado = 0;
   int novedadResuelta = 0;
-
   double totalValoresRecibidos = 0;
   double costoTransportadora = 0;
   bool isFirst = true;
@@ -312,25 +312,6 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
     );
   }
 
-  // int updateTotalPages(int totalRegistros, int registrosPorPagina) {
-  //   final int totalPaginas = totalRegistros ~/ registrosPorPagina;
-  //   final int registrosRestantes = totalRegistros % registrosPorPagina;
-
-  //   return registrosRestantes > 0
-  //       ? totalPaginas + 1
-  //       : totalPaginas == 0
-  //           ? 1
-  //           : totalPaginas;
-  // }
-
-  // String getCurrentDate() {
-  //   DateTime now = DateTime.now();
-  //   String formattedDate =
-  //       "${now.day}/${now.month}/20${now.year.toString().substring(2)}";
-
-  //   return formattedDate;
-  // }
-
   @override
   Widget build(BuildContext context) {
     // String operatorVal = transporterOperator;
@@ -388,21 +369,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
     Column InputFilter(String title, filter, var controller) {
       return Column(
         children: [
-          // Expanded(child:  Container(
-          //   margin: EdgeInsets.only(top: 8),
-          //    child:
-          // Row(
-          // children: [
           Text(title),
-
-          // Flecha hacia abajo verde
-          //            SizedBox(width: 4), // Espacio entre el icono y el texto
-          //  SizedBox(width: 4), // Espacio entre el texto y el icono
-          //  Icon(Icons.arrow_upward, size: 12, color: Colors.red), // Flecha hacia arriba roja
-          //  ],
-          //  ),
-          //  ),
-          // ),
 
           Expanded(
               child: TextField(
@@ -1009,38 +976,62 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
   }
 
   Future<dynamic> OpenShowDialog(BuildContext context, int index) {
-    return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            content: Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              child: Column(
-                children: [
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      child: Icon(Icons.close),
-                    ),
-                  ),
-                  Expanded(
-                      child: TransportProDeliveryHistoryDetails(
-                          id: data[index]['id'].toString(),
-                          comment: data[index]['comentario'].toString(),
-                          function: paginateData,
-                          data: data))
-                ],
+    if (MediaQuery.of(context).size.width > 930) {
+      return openDialog(
+          context,
+          MediaQuery.of(context).size.width * 0.5,
+          MediaQuery.of(context).size.height * 0.9,
+          Column(
+            children: [
+              Align(
+                alignment: Alignment.centerRight,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Icon(Icons.close),
+                ),
               ),
-            ),
-          );
-        });
+              Expanded(
+                  child: TransportProDeliveryHistoryDetails(
+                      id: data[index]['id'].toString(),
+                      order: data[index],
+                      comment: data[index]['comentario'].toString(),
+                      function: paginateData,
+                      data: data))
+            ],
+          ),
+          () {});
+    } else {
+      return openDialog(
+          context,
+          MediaQuery.of(context).size.width * 0.8,
+          MediaQuery.of(context).size.height * 0.9,
+          Column(
+            children: [
+              Align(
+                alignment: Alignment.centerRight,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Icon(Icons.close),
+                ),
+              ),
+              Expanded(
+                  child: TransportProDeliveryHistoryDetails(
+                      id: data[index]['id'].toString(),
+                      order: data[index],
+                      comment: data[index]['comentario'].toString(),
+                      function: paginateData,
+                      data: data))
+            ],
+          ),
+          () {});
+    }
   }
 
-  Future<dynamic> OpenScannerShowDialog(BuildContext context, String id) {
+  Future<dynamic> OpenScannerShowDialog(BuildContext context, Map order) {
     return showDialog(
         context: context,
         builder: (context) {
@@ -1061,7 +1052,8 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                   ),
                   Expanded(
                       child: TransportProDeliveryHistoryDetails(
-                    id: id,
+                    id: order['id'],
+                    order: order,
                     data: data,
                   ))
                 ],

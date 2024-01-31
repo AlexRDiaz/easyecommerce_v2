@@ -4,6 +4,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/main.dart';
+import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/create_sub_route.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -19,18 +20,18 @@ class RoutesModalv2 extends StatefulWidget {
   // final String? type;
   // final String? idComercial;
 
-  const RoutesModalv2(
-      {super.key,
-      required this.idOrder,
-      required this.someOrders,
-      required this.phoneClient,
-      required this.codigo,
-      required this.origin,
-      // this.skuProduct,
-      // this.quantity,
-      // this.type,
-      // this.idComercial
-      });
+  const RoutesModalv2({
+    super.key,
+    required this.idOrder,
+    required this.someOrders,
+    required this.phoneClient,
+    required this.codigo,
+    required this.origin,
+    // this.skuProduct,
+    // this.quantity,
+    // this.type,
+    // this.idComercial
+  });
 
   @override
   State<RoutesModalv2> createState() => _RoutesModalStatev2();
@@ -42,6 +43,7 @@ class _RoutesModalStatev2 extends State<RoutesModalv2> {
   List<String> transports = [];
   String? selectedValueRoute;
   String? selectedValueTransport;
+  bool isLoading = false;
 
   @override
   void didChangeDependencies() {
@@ -50,12 +52,10 @@ class _RoutesModalStatev2 extends State<RoutesModalv2> {
   }
 
   loadData() async {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getLoadingModal(context, false);
-    });
     var routesList = [];
     setState(() {
       transports = [];
+      isLoading = true;
     });
 
     routesList = await Connections().getRoutesLaravel();
@@ -69,19 +69,16 @@ class _RoutesModalStatev2 extends State<RoutesModalv2> {
       });
     }
 
-    Future.delayed(Duration(milliseconds: 500), () {
-      Navigator.pop(context);
+    setState(() {
+      isLoading = false;
     });
-    setState(() {});
   }
 
   getTransports() async {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getLoadingModal(context, false);
-    });
     var transportList = [];
 
     setState(() {
+      isLoading = true;
       transports = [];
     });
 
@@ -89,170 +86,133 @@ class _RoutesModalStatev2 extends State<RoutesModalv2> {
         selectedValueRoute.toString().split("-")[1]);
 
     for (var i = 0; i < transportList.length; i++) {
-      setState(() {
-        transports
-            .add('${transportList[i]['nombre']}-${transportList[i]['id']}');
-      });
+      transports.add('${transportList[i]['nombre']}-${transportList[i]['id']}');
     }
 
-    Future.delayed(Duration(milliseconds: 500), () {
-      Navigator.pop(context);
+    setState(() {
+      isLoading = false;
     });
-    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      content: Container(
-        width: 400,
-        height: MediaQuery.of(context).size.height * 0.6,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Seleccione las opciones:',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            DropdownButtonHideUnderline(
-              child: DropdownButton2<String>(
-                isExpanded: true,
-                hint: Text(
-                  'Ciudad',
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).hintColor,
-                      fontWeight: FontWeight.bold),
+    return CustomProgressModal(
+      isLoading: isLoading,
+      content: AlertDialog(
+        content: Container(
+          width: 400,
+          height: MediaQuery.of(context).size.height * 0.6,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Seleccione las opciones:',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
                 ),
-                items: routes
-                    .map((item) => DropdownMenuItem(
-                          value: item,
-                          child: Text(
-                            item.split('-')[0],
-                            style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.bold),
-                          ),
-                        ))
-                    .toList(),
-                value: selectedValueRoute,
-                onChanged: (value) async {
-                  setState(() {
-                    selectedValueRoute = value as String;
-                    transports.clear();
-                    selectedValueTransport = null;
-                  });
-                  await getTransports();
-                },
-
-                //This to clear the search value when you close the menu
-                onMenuStateChange: (isOpen) {
-                  if (!isOpen) {
-                    textEditingController.clear();
-                  }
-                },
               ),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            DropdownButtonHideUnderline(
-              child: DropdownButton2<String>(
-                isExpanded: true,
-                hint: Text(
-                  'Transportadora',
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).hintColor,
-                      fontWeight: FontWeight.bold),
+              const SizedBox(
+                height: 20,
+              ),
+              DropdownButtonHideUnderline(
+                child: DropdownButton2<String>(
+                  isExpanded: true,
+                  hint: Text(
+                    'Ciudad',
+                    style: TextStyle(
+                        fontSize: 14,
+                        color: Theme.of(context).hintColor,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  items: routes
+                      .map((item) => DropdownMenuItem(
+                            value: item,
+                            child: Text(
+                              item.split('-')[0],
+                              style: const TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.bold),
+                            ),
+                          ))
+                      .toList(),
+                  value: selectedValueRoute,
+                  onChanged: (value) async {
+                    setState(() {
+                      selectedValueRoute = value as String;
+                      transports.clear();
+                      selectedValueTransport = null;
+                    });
+                    await getTransports();
+                  },
+
+                  //This to clear the search value when you close the menu
+                  onMenuStateChange: (isOpen) {
+                    if (!isOpen) {
+                      textEditingController.clear();
+                    }
+                  },
                 ),
-                items: transports
-                    .map((item) => DropdownMenuItem(
-                          value: item,
-                          child: Text(
-                            item.split('-')[0],
-                            style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.bold),
-                          ),
-                        ))
-                    .toList(),
-                value: selectedValueTransport,
-                onChanged: selectedValueRoute == null
-                    ? null
-                    : (value) {
-                        setState(() {
-                          selectedValueTransport = value as String;
-                        });
-                      },
-
-                //This to clear the search value when you close the menu
-                onMenuStateChange: (isOpen) {
-                  if (!isOpen) {
-                    textEditingController.clear();
-                  }
-                },
               ),
-            ),
-            const SizedBox(
-              height: 30,
-            ),
-            ElevatedButton(
-              onPressed: selectedValueRoute == null ||
-                      selectedValueTransport == null
-                  ? null
-                  : () async {
-                      if (widget.someOrders == false) {
-                        // print("if just one");
-                        var response = await Connections()
-                            .updateOrderRouteAndTransportLaravel(
-                                selectedValueRoute.toString().split("-")[1],
-                                selectedValueTransport.toString().split("-")[1],
-                                widget.idOrder);
-
-                        var response2 = await Connections()
-                            .updatenueva(widget.idOrder.toString(), {
-                          "estado_interno": "CONFIRMADO",
-                          "name_comercial": sharedPrefs!
-                              .getString("NameComercialSeller")
-                              .toString(),
-                          "fecha_confirmacion":
-                              "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
-                        });
-
-                        var response3 = await Connections().updateOrderWithTime(
-                            widget.idOrder.toString(),
-                            "estado_interno:CONFIRMADO",
-                            sharedPrefs!.getString("id"),
-                            "",
-                            "");
-
-                        //for guides sent
-                        if (widget.origin == "sent") {
-                          var response3 = await Connections()
-                              .updatenueva(widget.idOrder.toString(), {
-                            "estado_logistico": "PENDIENTE",
-                            "printed_by": null,
-                            "marca_tiempo_envio": null,
-                            'revisado': 0
+              const SizedBox(
+                height: 10,
+              ),
+              DropdownButtonHideUnderline(
+                child: DropdownButton2<String>(
+                  isExpanded: true,
+                  hint: Text(
+                    'Transportadora',
+                    style: TextStyle(
+                        fontSize: 14,
+                        color: Theme.of(context).hintColor,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  items: transports
+                      .map((item) => DropdownMenuItem(
+                            value: item,
+                            child: Text(
+                              item.split('-')[0],
+                              style: const TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.bold),
+                            ),
+                          ))
+                      .toList(),
+                  value: selectedValueTransport,
+                  onChanged: selectedValueRoute == null
+                      ? null
+                      : (value) {
+                          setState(() {
+                            selectedValueTransport = value as String;
                           });
-                        }
-                      } else {
-                        for (var i = 0; i < widget.idOrder.length; i++) {
+                        },
+
+                  //This to clear the search value when you close the menu
+                  onMenuStateChange: (isOpen) {
+                    if (!isOpen) {
+                      textEditingController.clear();
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+              ElevatedButton(
+                onPressed: selectedValueRoute == null ||
+                        selectedValueTransport == null
+                    ? null
+                    : () async {
+                        if (widget.someOrders == false) {
+                          // print("if just one");
                           var response = await Connections()
                               .updateOrderRouteAndTransportLaravel(
                                   selectedValueRoute.toString().split("-")[1],
                                   selectedValueTransport
                                       .toString()
                                       .split("-")[1],
-                                  widget.idOrder[i]['id']);
+                                  widget.idOrder);
 
                           var response2 = await Connections()
-                              .updatenueva(widget.idOrder[i]['id'].toString(), {
+                              .updatenueva(widget.idOrder.toString(), {
                             "estado_interno": "CONFIRMADO",
                             "name_comercial": sharedPrefs!
                                 .getString("NameComercialSeller")
@@ -271,54 +231,93 @@ class _RoutesModalStatev2 extends State<RoutesModalv2> {
 
                           //for guides sent
                           if (widget.origin == "sent") {
-                            var response3 = await Connections().updatenueva(
-                                widget.idOrder[i]['id'].toString(), {
+                            var response3 = await Connections()
+                                .updatenueva(widget.idOrder.toString(), {
                               "estado_logistico": "PENDIENTE",
-                              "printed_at": null,
                               "printed_by": null,
                               "marca_tiempo_envio": null,
-                              "revisado": 0,
-                              // "fecha_entrega": null,
-                              // "sent_at": null,
-                              // "sent_by": null,
+                              'revisado': 0
                             });
                           }
+                        } else {
+                          for (var i = 0; i < widget.idOrder.length; i++) {
+                            var response = await Connections()
+                                .updateOrderRouteAndTransportLaravel(
+                                    selectedValueRoute.toString().split("-")[1],
+                                    selectedValueTransport
+                                        .toString()
+                                        .split("-")[1],
+                                    widget.idOrder[i]['id']);
+
+                            var response2 = await Connections().updatenueva(
+                                widget.idOrder[i]['id'].toString(), {
+                              "estado_interno": "CONFIRMADO",
+                              "name_comercial": sharedPrefs!
+                                  .getString("NameComercialSeller")
+                                  .toString(),
+                              "fecha_confirmacion":
+                                  "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}"
+                            });
+
+                            var response3 = await Connections()
+                                .updateOrderWithTime(
+                                    widget.idOrder.toString(),
+                                    "estado_interno:CONFIRMADO",
+                                    sharedPrefs!.getString("id"),
+                                    "",
+                                    "");
+
+                            //for guides sent
+                            if (widget.origin == "sent") {
+                              var response3 = await Connections().updatenueva(
+                                  widget.idOrder[i]['id'].toString(), {
+                                "estado_logistico": "PENDIENTE",
+                                "printed_at": null,
+                                "printed_by": null,
+                                "marca_tiempo_envio": null,
+                                "revisado": 0,
+                                // "fecha_entrega": null,
+                                // "sent_at": null,
+                                // "sent_by": null,
+                              });
+                            }
+                          }
                         }
-                      }
-                      if (widget.phoneClient != "") {
-                        sendMessage(widget.phoneClient, widget.codigo);
-                      }
+                        if (widget.phoneClient != "") {
+                          sendMessage(widget.phoneClient, widget.codigo);
+                        }
 
-                      // if (widget.origin == "order_entry") {
-                      //   var responsereduceStock = await Connections()
-                      //       .updateProductVariantStock(
-                      //           widget.skuProduct, 
-                      //           widget.quantity,
-                      //           widget.type,
-                      //           widget.idComercial);
+                        // if (widget.origin == "order_entry") {
+                        //   var responsereduceStock = await Connections()
+                        //       .updateProductVariantStock(
+                        //           widget.skuProduct,
+                        //           widget.quantity,
+                        //           widget.type,
+                        //           widget.idComercial);
 
-                      //   if (responsereduceStock == 0) {
-                      //     print(true);
-                      //   } else {
-                      //     print(false);
-                      //   }
-                      // }
+                        //   if (responsereduceStock == 0) {
+                        //     print(true);
+                        //   } else {
+                        //     print(false);
+                        //   }
+                        // }
 
-                      setState(() {});
-                      Navigator.pop(context);
-                    },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.all(16.0),
-                backgroundColor: const Color(0xFF4688B1),
-                elevation: 5,
-                shadowColor: const Color.fromARGB(255, 97, 162, 203),
-              ),
-              child: const Text(
-                "ACEPTAR",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            )
-          ],
+                        setState(() {});
+                        Navigator.pop(context);
+                      },
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.all(16.0),
+                  backgroundColor: const Color(0xFF4688B1),
+                  elevation: 5,
+                  shadowColor: const Color.fromARGB(255, 97, 162, 203),
+                ),
+                child: const Text(
+                  "ACEPTAR",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

@@ -46,6 +46,8 @@ class _NoveltiesLState extends State<NoveltiesL> {
   bool enabledBusqueda = true;
   int totalRegistros = 0;
 
+  TextEditingController _comentarioController = TextEditingController();
+
   var getReport = CreateReportNovelties();
 
   var sortFieldDefaultValue = "marca_t_i:DESC";
@@ -358,156 +360,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
                   SizedBox(
                     height: 10,
                   ),
-                  Expanded(
-                      child: DataTable2(
-                          scrollController: _scrollController,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(4)),
-                            border: Border.all(color: Colors.blueGrey),
-                          ),
-                          headingRowHeight: 63,
-                          headingTextStyle: const TextStyle(
-                              fontWeight: FontWeight.bold, color: Colors.black),
-                          dataTextStyle: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black),
-                          columnSpacing: 5,
-                          horizontalMargin: 5,
-                          minWidth: 2500,
-                          columns: [
-                            DataColumn2(
-                              label: Text("Fecha Entrega"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-
-                            DataColumn2(
-                              label: const Text('Código'),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text(''),
-                              size: ColumnSize.S,
-                            ),
-                            DataColumn2(
-                              label: Text("Ciudad"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text("Nombre Cliente"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text("Teléfono Cliente"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text("Dirección"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text("Cantidad"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text("Producto"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text("Producto Extra"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text("Precio Total"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text("Observación"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text("Comentario"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: SelectFilterNoId('Status', 'equals/status',
-                                  statusController, listStatus),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: SelectFilter(
-                                  'Vendedor',
-                                  'equals/id_comercial',
-                                  vendedorController,
-                                  listvendedores),
-                              size: ColumnSize.S,
-                              // numeric: true,
-                              onSort: (columnIndex, ascending) {
-                                // sortFunc("Name_Comercial");
-                              },
-                            ),
-                            DataColumn2(
-                              label: SelectFilter(
-                                  'Transportadora',
-                                  'equals/transportadora.transportadora_id',
-                                  transportadorasController,
-                                  listtransportadores),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {
-                                // sortFunc("Estado_Interno");
-                              },
-                            ),
-                            DataColumn2(
-                              label: Text("Operador"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text("Estado Devolución"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: const Text('Fecha Marcar TI'),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {
-                                // sortFunc("Fecha");
-                              },
-                            ),
-                            DataColumn2(
-                              label: const Text('Numero Intentos'),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {
-                                // sortFunc("Fecha");
-                              },
-                            ),
-                            // data['novedades'][index]['try']
-                          ],
-                          rows: List<DataRow>.generate(data.length, (index) {
-                            final color = index % 2 == 0
-                                ? Colors.grey[400]
-                                : Colors.white;
-
-                            return DataRow(
-                                color: MaterialStateColor.resolveWith(
-                                    (states) => color!),
-                                cells: getRows(index));
-                          }))),
+                  dataTableNovelties(),
                 ],
               ),
               Column(
@@ -579,427 +432,160 @@ class _NoveltiesLState extends State<NoveltiesL> {
                   SizedBox(
                     height: 10,
                   ),
-                  Expanded(
-                      child: DataTable2(
-                          scrollController: _scrollController,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(4)),
-                            border: Border.all(color: Colors.blueGrey),
-                          ),
-                          headingRowHeight: 63,
-                          headingTextStyle: const TextStyle(
-                              fontWeight: FontWeight.bold, color: Colors.black),
-                          dataTextStyle: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black),
-                          columnSpacing: 5,
-                          horizontalMargin: 5,
-                          minWidth: 2500,
-                          columns: [
-                            DataColumn2(
-                              label: Text("Fecha Entrega"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-
-                            DataColumn2(
-                              label: const Text('Código'),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text(''),
-                              size: ColumnSize.S,
-                            ),
-                            DataColumn2(
-                              label: Text("Ciudad"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text("Nombre Cliente"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text("Teléfono Cliente"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text("Dirección"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text("Cantidad"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text("Producto"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text("Producto Extra"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text("Precio Total"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text("Observación"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text("Comentario"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: SelectFilterNoId('Status', 'equals/status',
-                                  statusController, listStatus),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: SelectFilter(
-                                  'Vendedor',
-                                  'equals/id_comercial',
-                                  vendedorController,
-                                  listvendedores),
-                              size: ColumnSize.S,
-                              // numeric: true,
-                              onSort: (columnIndex, ascending) {
-                                // sortFunc("Name_Comercial");
-                              },
-                            ),
-                            DataColumn2(
-                              label: SelectFilter(
-                                  'Transportadora',
-                                  'equals/transportadora.transportadora_id',
-                                  transportadorasController,
-                                  listtransportadores),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {
-                                // sortFunc("Estado_Interno");
-                              },
-                            ),
-                            DataColumn2(
-                              label: Text("Operador"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: Text("Estado Devolución"),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {},
-                            ),
-                            DataColumn2(
-                              label: const Text('Fecha Marcar TI'),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {
-                                // sortFunc("Fecha");
-                              },
-                            ),
-                            DataColumn2(
-                              label: const Text('Numero Intentos'),
-                              size: ColumnSize.S,
-                              onSort: (columnIndex, ascending) {
-                                // sortFunc("Fecha");
-                              },
-                            ),
-                            // data['novedades'][index]['try']
-                          ],
-                          rows: List<DataRow>.generate(data.length, (index) {
-                            final color = index % 2 == 0
-                                ? Colors.grey[400]
-                                : Colors.white;
-
-                            return DataRow(
-                                color: MaterialStateColor.resolveWith(
-                                    (states) => color!),
-                                cells: getRows(index));
-                          }))),
+                  dataTableNovelties()
                 ],
               ),
-              context)
-
-          // Column(
-          //   children: [
-          //     _dates(context),
-          //     SizedBox(
-          //       height: 10,
-          //     ),
-          //     Container(
-          //         width: double.infinity,
-          //         color: Colors.white,
-          //         padding: EdgeInsets.only(top: 5, bottom: 5),
-          //         child: SizedBox(
-          //           child: responsive(
-          //               Row(
-          //                 children: [
-          //                   Expanded(
-          //                     child: _modelTextField(
-          //                         text: "Buscar",
-          //                         controller: _controllers.searchController),
-          //                   ),
-          //                   Expanded(
-          //                     child: Row(
-          //                       children: [
-          //                         Container(
-          //                           padding:
-          //                               const EdgeInsets.only(left: 15, right: 5),
-          //                           child: Text(
-          //                             "Registros: ${total}",
-          //                             style: const TextStyle(
-          //                                 fontWeight: FontWeight.bold,
-          //                                 color: Colors.black),
-          //                           ),
-          //                         ),
-          //                       ],
-          //                     ),
-          //                   ),
-          //                   Expanded(child: numberPaginator()),
-          //                 ],
-          //               ),
-          //               Column(
-          //                 children: [
-          //                   Container(
-          //                     child: _modelTextField(
-          //                         text: "Buscar",
-          //                         controller: _controllers.searchController),
-          //                   ),
-          //                   Row(
-          //                     children: [
-          //                       Container(
-          //                         padding:
-          //                             const EdgeInsets.only(left: 15, right: 5),
-          //                         child: Text(
-          //                           "Registros: ${total}",
-          //                           style: const TextStyle(
-          //                               fontWeight: FontWeight.bold,
-          //                               color: Colors.black),
-          //                         ),
-          //                       ),
-          //                     ],
-          //                   ),
-          //                   numberPaginator(),
-          //                 ],
-          //               ),
-          //               context),
-          //         )),
-          //     SizedBox(
-          //       height: 10,
-          //     ),
-          //     Expanded(
-          //         child: DataTable2(
-          //             scrollController: _scrollController,
-          //             decoration: BoxDecoration(
-          //               color: Colors.white,
-          //               borderRadius: const BorderRadius.all(Radius.circular(4)),
-          //               border: Border.all(color: Colors.blueGrey),
-          //             ),
-          //             headingRowHeight: 63,
-          //             headingTextStyle: const TextStyle(
-          //                 fontWeight: FontWeight.bold, color: Colors.black),
-          //             dataTextStyle: const TextStyle(
-          //                 fontSize: 12,
-          //                 fontWeight: FontWeight.bold,
-          //                 color: Colors.black),
-          //             columnSpacing: 5,
-          //             horizontalMargin: 5,
-          //             minWidth: 2500,
-          //             columns: [
-          //               DataColumn2(
-          //                 label: Text("Fecha Entrega"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-
-          //               DataColumn2(
-          //                 label: const Text('Código'),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Ciudad"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Nombre Cliente"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Teléfono Cliente"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Dirección"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Cantidad"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Producto"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Producto Extra"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Precio Total"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Observación"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Comentario"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: SelectFilterNoId('Status', 'equals/status',
-          //                     statusController, listStatus),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: SelectFilter('Vendedor', 'equals/id_comercial',
-          //                     vendedorController, listvendedores),
-          //                 size: ColumnSize.S,
-          //                 // numeric: true,
-          //                 onSort: (columnIndex, ascending) {
-          //                   // sortFunc("Name_Comercial");
-          //                 },
-          //               ),
-          //               DataColumn2(
-          //                 label: SelectFilter(
-          //                     'Transportadora',
-          //                     'equals/transportadora.transportadora_id',
-          //                     transportadorasController,
-          //                     listtransportadores),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {
-          //                   // sortFunc("Estado_Interno");
-          //                 },
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Operador"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Estado Devolución"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: const Text('Fecha Marcar TI'),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {
-          //                   // sortFunc("Fecha");
-          //                 },
-          //               ),
-          //               DataColumn2(
-          //                 label: const Text('Numero Intentos'),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {
-          //                   // sortFunc("Fecha");
-          //                 },
-          //               ),
-          //               // data['novedades'][index]['try']
-          //             ],
-          //             rows: List<DataRow>.generate(data.length, (index) {
-          //               final color =
-          //                   index % 2 == 0 ? Colors.grey[400] : Colors.white;
-
-          //               return DataRow(
-          //                   color: MaterialStateColor.resolveWith(
-          //                       (states) => color!),
-          //                   cells: getRows(index));
-          //             }))),
-          //   ],
-          // ),
-          ),
+              context)),
     );
   }
 
-  Column InputFilter(String title, filter, var controller, key) {
-    return Column(
-      children: [
-        Text(title),
-        Expanded(
-            child: Container(
-          margin: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
-          child: TextField(
-            controller: controller,
-            onChanged: (value) {
-              if (value == '') {
-                {
-                  arrayFiltersAnd
-                      .removeWhere((element) => element.containsKey(key));
-                }
-              }
-            },
-            onSubmitted: (value) {
-              if (value != '') {
-                arrayFiltersAnd.add({key: value});
-              }
+  Expanded dataTableNovelties() {
+    return Expanded(
+        child: DataTable2(
+            scrollController: _scrollController,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: const BorderRadius.all(Radius.circular(4)),
+              border: Border.all(color: Colors.blueGrey),
+            ),
+            headingRowHeight: 63,
+            headingTextStyle: const TextStyle(
+                fontWeight: FontWeight.bold, color: Colors.black),
+            dataTextStyle: const TextStyle(
+                fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black),
+            columnSpacing: 5,
+            horizontalMargin: 5,
+            minWidth: 2500,
+            columns: [
+              DataColumn2(
+                label: Text("Fecha Entrega"),
+                size: ColumnSize.S,
+                onSort: (columnIndex, ascending) {},
+              ),
+              DataColumn2(
+                label: Text(""),
+                size: ColumnSize.S,
+                onSort: (columnIndex, ascending) {},
+              ),
 
-              loadData();
-            },
-            decoration: InputDecoration(
-                border: OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(5)),
-            )),
-          ),
-        ))
-      ],
-    );
-  }
+              DataColumn2(
+                label: const Text('Código'),
+                size: ColumnSize.S,
+                onSort: (columnIndex, ascending) {},
+              ),
+              DataColumn2(
+                label: Text(''),
+                size: ColumnSize.S,
+              ),
+              DataColumn2(
+                label: Text("Ciudad"),
+                size: ColumnSize.S,
+                onSort: (columnIndex, ascending) {},
+              ),
+              DataColumn2(
+                label: Text("Nombre Cliente"),
+                size: ColumnSize.S,
+                onSort: (columnIndex, ascending) {},
+              ),
+              DataColumn2(
+                label: Text("Teléfono Cliente"),
+                size: ColumnSize.S,
+                onSort: (columnIndex, ascending) {},
+              ),
+              DataColumn2(
+                label: Text("Dirección"),
+                size: ColumnSize.S,
+                onSort: (columnIndex, ascending) {},
+              ),
+              DataColumn2(
+                label: Text("Cantidad"),
+                size: ColumnSize.S,
+                onSort: (columnIndex, ascending) {},
+              ),
+              DataColumn2(
+                label: Text("Producto"),
+                size: ColumnSize.S,
+                onSort: (columnIndex, ascending) {},
+              ),
+              DataColumn2(
+                label: Text("Producto Extra"),
+                size: ColumnSize.S,
+                onSort: (columnIndex, ascending) {},
+              ),
+              DataColumn2(
+                label: Text("Precio Total"),
+                size: ColumnSize.S,
+                onSort: (columnIndex, ascending) {},
+              ),
+              DataColumn2(
+                label: Text("Observación"),
+                size: ColumnSize.S,
+                onSort: (columnIndex, ascending) {},
+              ),
+              DataColumn2(
+                label: Text("Comentario"),
+                size: ColumnSize.S,
+                onSort: (columnIndex, ascending) {},
+              ),
+              DataColumn2(
+                label: SelectFilterNoId(
+                    'Status', 'equals/status', statusController, listStatus),
+                size: ColumnSize.S,
+                onSort: (columnIndex, ascending) {},
+              ),
+              DataColumn2(
+                label: SelectFilter('Vendedor', 'equals/id_comercial',
+                    vendedorController, listvendedores),
+                size: ColumnSize.S,
+                // numeric: true,
+                onSort: (columnIndex, ascending) {
+                  // sortFunc("Name_Comercial");
+                },
+              ),
+              DataColumn2(
+                label: SelectFilter(
+                    'Transportadora',
+                    'equals/transportadora.transportadora_id',
+                    transportadorasController,
+                    listtransportadores),
+                size: ColumnSize.S,
+                onSort: (columnIndex, ascending) {
+                  // sortFunc("Estado_Interno");
+                },
+              ),
+              DataColumn2(
+                label: Text("Operador"),
+                size: ColumnSize.S,
+                onSort: (columnIndex, ascending) {},
+              ),
+              DataColumn2(
+                label: Text("Estado Devolución"),
+                size: ColumnSize.S,
+                onSort: (columnIndex, ascending) {},
+              ),
+              DataColumn2(
+                label: const Text('Fecha Marcar TI'),
+                size: ColumnSize.S,
+                onSort: (columnIndex, ascending) {
+                  // sortFunc("Fecha");
+                },
+              ),
+              DataColumn2(
+                label: const Text('Numero Intentos'),
+                size: ColumnSize.S,
+                onSort: (columnIndex, ascending) {
+                  // sortFunc("Fecha");
+                },
+              ),
+              // data['novedades'][index]['try']
+            ],
+            rows: List<DataRow>.generate(data.length, (index) {
+              final color = index % 2 == 0 ? Colors.grey[400] : Colors.white;
 
-  void reemplazarValor(Map<dynamic, dynamic> mapa, String nuevoValor) {
-    mapa.forEach((key, value) {
-      if (value is Map) {
-        reemplazarValor(value, nuevoValor);
-      } else if (key is String && value == 'valor') {
-        mapa[key] = nuevoValor;
-      }
-    });
-  }
-
-  getLengthArrayMap(List data) {
-    var arraylength = data.length;
-    return Text(
-      arraylength.toString(),
-      style: TextStyle(
-          color: arraylength > 3
-              ? Color.fromARGB(255, 185, 10, 10)
-              : Colors.black),
-    );
+              return DataRow(
+                  color: MaterialStateColor.resolveWith((states) => color!),
+                  cells: getRows(index));
+            })));
   }
 
   List<DataCell> getRows(index) {
@@ -1012,6 +598,9 @@ class _NoveltiesLState extends State<NoveltiesL> {
               color: rowColor,
             ),
           ), onTap: () {
+        info(context, index);
+      }),
+      DataCell(buttonsSloved(), onTap: () {
         info(context, index);
       }),
       DataCell(
@@ -1256,23 +845,167 @@ Quedamos atentos a su respuesta Muchas gracias.
       DataCell(getLengthArrayMap(data[index]['novedades']), onTap: () {
         info(context, index);
       }),
-      // DataCell(
-      //   Text(
-      //     data[index]['novedades'] != null &&
-      //             data[index]['novedades'].isNotEmpty
-      //         ? data[index]['novedades'][0]['try'].toString()
-      //         : '',
-      //     style: TextStyle(
-      //       color: GetColor(data[index]['status']!),
-      //     ),
-      //   ),
-      //   onTap: () {
-      //     info(context, index);
-      //   },
-      // ),
-
-      // data['novedades'][index]['try']
     ];
+  }
+
+  buttonsSloved() {
+    return Row(
+      children: [
+        IconButton(
+          icon: Icon(
+            Icons
+                .new_releases, // Puedes cambiar el icono según tus preferencias
+            color:
+                Colors.blue, // Puedes cambiar el color según tus preferencias
+          ),
+          onPressed: () {
+            // Agrega aquí la lógica que se ejecutará cuando se presione el IconButton
+            //   mostrarNovedad(context);
+          },
+          tooltip:
+              'Mostrar Novedad', // Tooltip opcional para proporcionar información sobre el botón
+        ),
+        IconButton(
+          icon: Icon(
+            Icons
+                .new_releases, // Puedes cambiar el icono según tus preferencias
+            color:
+                Colors.blue, // Puedes cambiar el color según tus preferencias
+          ),
+          onPressed: () {
+            _showResolveModal();
+          },
+          tooltip:
+              'Mostrar Novedad', // Tooltip opcional para proporcionar información sobre el botón
+        ),
+        IconButton(
+          icon: Icon(
+            Icons
+                .new_releases, // Puedes cambiar el icono según tus preferencias
+            color:
+                Colors.blue, // Puedes cambiar el color según tus preferencias
+          ),
+          onPressed: () {
+            // Agrega aquí la lógica que se ejecutará cuando se presione el IconButton
+            //   mostrarNovedad(context);
+          },
+          tooltip:
+              'Mostrar Novedad', // Tooltip opcional para proporcionar información sobre el botón
+        )
+      ],
+    );
+  }
+
+  void _showResolveModal() {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return Container(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    const Expanded(
+                      child: Text('Comentario:',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      flex: 3,
+                      child: TextFormField(
+                        controller: _comentarioController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(Icons.cancel),
+                      label: const Text('Cancelar'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                      ),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () async {},
+                      icon: const Icon(Icons.check),
+                      label: const Text('Guardar'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
+  Column InputFilter(String title, filter, var controller, key) {
+    return Column(
+      children: [
+        Text(title),
+        Expanded(
+            child: Container(
+          margin: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
+          child: TextField(
+            controller: controller,
+            onChanged: (value) {
+              if (value == '') {
+                {
+                  arrayFiltersAnd
+                      .removeWhere((element) => element.containsKey(key));
+                }
+              }
+            },
+            onSubmitted: (value) {
+              if (value != '') {
+                arrayFiltersAnd.add({key: value});
+              }
+
+              loadData();
+            },
+            decoration: InputDecoration(
+                border: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(5)),
+            )),
+          ),
+        ))
+      ],
+    );
+  }
+
+  void reemplazarValor(Map<dynamic, dynamic> mapa, String nuevoValor) {
+    mapa.forEach((key, value) {
+      if (value is Map) {
+        reemplazarValor(value, nuevoValor);
+      } else if (key is String && value == 'valor') {
+        mapa[key] = nuevoValor;
+      }
+    });
+  }
+
+  getLengthArrayMap(List data) {
+    var arraylength = data.length;
+    return Text(
+      arraylength.toString(),
+      style: TextStyle(
+          color: arraylength > 3
+              ? Color.fromARGB(255, 185, 10, 10)
+              : Colors.black),
+    );
   }
 
   SizedBox _dates(BuildContext context) {

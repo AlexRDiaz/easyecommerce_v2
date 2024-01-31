@@ -308,41 +308,6 @@ class _UpdateStatusOperatorHistorialState
 
                       await paymentEntregado(datacostos, tipo, urlImg);
 
-                      //add transaccion_pedido
-                      // var today = DateTime.now().toString().split(' ')[0];
-                      // var getTransaccion = await Connections()
-                      //     .getTraccionPedidoTransportadora(widget.id,
-                      //         datacostos['transportadora'][0]['id'], today);
-                      // if (getTransaccion == null) {
-                      //   var idOper = "";
-                      //   if (datacostos.containsKey("operadore") &&
-                      //       datacostos["operadore"] is List &&
-                      //       datacostos["operadore"].isNotEmpty) {
-                      //     idOper = datacostos["operadore"][0]["id"].toString();
-                      //     print(idOper);
-                      //   } else {
-                      //     print("problemas con idOper");
-                      //   }
-                      //   try {
-                      //     var resTrans = await Connections()
-                      //         .createTransaccionPedidoTransportadora(
-                      //             widget.id,
-                      //             datacostos['transportadora'][0]['id'],
-                      //             idOper,
-                      //             "ENTREGADO",
-                      //             datacostos['precio_total'],
-                      //             datacostos['transportadora'][0]
-                      //                 ['costo_transportadora']);
-                      //   } catch (e) {
-                      //     print("error en createTPT");
-                      //   }
-                      // } else {
-                      //   var updateTransacc = await Connections()
-                      //       .updateTraccionPedidoTransportadora(
-                      //           getTransaccion[0]['id'].toString(),
-                      //           "ENTREGADO");
-                      // }
-
                       setState(() {
                         _controllerModalText.clear();
                         tipo = "";
@@ -351,6 +316,8 @@ class _UpdateStatusOperatorHistorialState
                         transferencia = false;
                         imageSelect = null;
                       });
+
+                      widget.function;
                     }
                   : deposito == true || efectivo == true
                       ? () async {
@@ -372,48 +339,6 @@ class _UpdateStatusOperatorHistorialState
                               .getOrderByIDHistoryLaravel(widget.id);
 
                           await paymentEntregado(datacostos, tipo, "");
-
-                          //add transaccion_pedido
-                          // var data = await Connections()
-                          //     .getOrderByIDHistoryLaravel(widget.id);
-
-                          // var today = DateTime.now().toString().split(' ')[0];
-                          // // today = '2023-10-12';
-                          // // print("today: $today");
-                          // var getTransaccion = await Connections()
-                          //     .getTraccionPedidoTransportadora(widget.id,
-                          //         data['transportadora'][0]['id'], today);
-                          // if (getTransaccion == null) {
-                          //   var idOper = "";
-                          //   if (datacostos.containsKey("operadore") &&
-                          //       datacostos["operadore"] is List &&
-                          //       datacostos["operadore"].isNotEmpty) {
-                          //     idOper =
-                          //         datacostos["operadore"][0]["id"].toString();
-                          //     print(idOper);
-                          //   } else {
-                          //     print("problemas con idOper");
-                          //     print(idOper);
-                          //   }
-                          //   try {
-                          //     var resTrans = await Connections()
-                          //         .createTransaccionPedidoTransportadora(
-                          //             widget.id,
-                          //             data['transportadora'][0]['id'],
-                          //             idOper,
-                          //             "ENTREGADO",
-                          //             data['precio_total'],
-                          //             data['transportadora'][0]
-                          //                 ['costo_transportadora']);
-                          //   } catch (e) {
-                          //     print("error en createTPT");
-                          //   }
-                          // } else {
-                          //   var updateTransacc = await Connections()
-                          //       .updateTraccionPedidoTransportadora(
-                          //           getTransaccion[0]['id'], "ENTREGADO");
-                          // }
-
                           if (mounted) {
                             setState(() {
                               _controllerModalText.clear();
@@ -424,6 +349,7 @@ class _UpdateStatusOperatorHistorialState
                               imageSelect = null;
                             });
                           }
+                          widget.function;
                         }
                       : null,
               child: Text(
@@ -678,50 +604,12 @@ class _UpdateStatusOperatorHistorialState
 
                       paymentNoEntregado(datane, _controllerModalText.text);
 
-                      // var today = DateTime.now().toString().split(' ')[0];
-                      // var getTransaccion = await Connections()
-                      //     .getTraccionPedidoTransportadora(widget.id,
-                      //         datane['transportadora'][0]['id'], today);
-
-                      // if (getTransaccion == null) {
-                      //   var idOper = "";
-                      //   if (datane.containsKey("operadore") &&
-                      //       datane["operadore"] is List &&
-                      //       datane["operadore"].isNotEmpty) {
-                      //     idOper = datane["operadore"][0]["id"].toString();
-                      //     print(idOper);
-                      //   } else {
-                      //     print("problemas con idOper");
-                      //   }
-                      //   try {
-                      //     var resTrans = await Connections()
-                      //         .createTransaccionPedidoTransportadora(
-                      //             widget.id,
-                      //             datane['transportadora'][0]['id'],
-                      //             idOper,
-                      //             "NO ENTREGADO",
-                      //             datane['precio_total'],
-                      //             datane['transportadora'][0]
-                      //                 ['costo_transportadora']);
-                      //   } catch (e) {
-                      //     print("error en createTPT $e");
-                      //   }
-                      // } else {
-                      //   try {
-                      //     var updateTransacc = await Connections()
-                      //         .updateTraccionPedidoTransportadora(
-                      //             getTransaccion[0]['id'], "NO ENTREGADO");
-                      //   } catch (e) {
-                      //     print(
-                      //         "error en updateTraccionPedidoTransportadora: $e");
-                      //   }
-                      // }
-
                       setState(() {
                         _controllerModalText.clear();
 
                         imageSelect = null;
                       });
+                      widget.function;
                     }
                   : null,
               child: Text(
@@ -854,6 +742,7 @@ class _UpdateStatusOperatorHistorialState
                         _controllerModalText.clear();
                         imageSelect = null;
                       });
+                      widget.function;
                     }
                   : null,
               child: Text(
@@ -971,19 +860,6 @@ class _UpdateStatusOperatorHistorialState
                             "${int.parse(date[2])}/${int.parse(date[1])}/${date[0]}"
                       });
 
-                      // * if it exists, delete transaccion_pedidos_transportadora
-                      // var datares = await Connections()
-                      //     .getOrderByIDHistoryLaravel(widget.id);
-                      // var today = DateTime.now().toString().split(' ')[0];
-                      // var getTransaccion = await Connections()
-                      //     .getTraccionPedidoTransportadora(widget.id,
-                      //         datares['transportadora'][0]['id'], today);
-                      // if (getTransaccion != null) {
-                      //   var deleteTransacc = await Connections()
-                      //       .deleteTraccionPedidoTransportadora(
-                      //           getTransaccion[0]['id']);
-                      // }
-
                       setState(() {
                         _controllerModalText.clear();
                         dateSelect = "";
@@ -992,6 +868,7 @@ class _UpdateStatusOperatorHistorialState
 
                       Navigator.pop(context);
                       Navigator.pop(context);
+                      widget.function;
                     }
                   : null,
               child: Text(
@@ -1042,10 +919,6 @@ class _UpdateStatusOperatorHistorialState
               onPressed: () async {
                 getLoadingModal(context, false);
 
-                // await Connections().updateOrderStatusOperatorGeneralHistorial(
-                //     "EN RUTA", _controllerModalText.text, widget.id);
-
-                //upt for the above and status_last_modified_by and by
                 await Connections().updateOrderWithTime(
                     widget.id.toString(),
                     "status:EN RUTA",
@@ -1053,25 +926,13 @@ class _UpdateStatusOperatorHistorialState
                     "",
                     {"comentario": _controllerModalText.text, "archivo": ""});
 
-                // * if it exists, delete transaccion_pedidos_transportadora
-                // var datares =
-                //     await Connections().getOrderByIDHistoryLaravel(widget.id);
-                // var today = DateTime.now().toString().split(' ')[0];
-                // var getTransaccion = await Connections()
-                //     .getTraccionPedidoTransportadora(
-                //         widget.id, datares['transportadora'][0]['id'], today);
-                // if (getTransaccion != null) {
-                //   var deleteTransacc = await Connections()
-                //       .deleteTraccionPedidoTransportadora(
-                //           getTransaccion[0]['id']);
-                // }
-
                 setState(() {
                   _controllerModalText.clear();
                 });
 
                 Navigator.pop(context);
                 Navigator.pop(context);
+                widget.function;
               },
               child: Text(
                 "Guardar",
@@ -1143,11 +1004,6 @@ class _UpdateStatusOperatorHistorialState
           ElevatedButton(
               onPressed: () async {
                 getLoadingModal(context, false);
-
-                // await Connections().updateOrderStatusOperatorGeneralHistorial(
-                //     "PEDIDO PROGRAMADO", _controllerModalText.text, widget.id);
-
-                //upt for the above and status_last_modified_by and by
                 await Connections().updateOrderWithTime(
                     widget.id.toString(),
                     "status:PEDIDO PROGRAMADO",
@@ -1155,25 +1011,13 @@ class _UpdateStatusOperatorHistorialState
                     "",
                     {"comentario": _controllerModalText.text, "archivo": ""});
 
-                // * if it exists, delete transaccion_pedidos_transportadora
-                // var datares =
-                //     await Connections().getOrderByIDHistoryLaravel(widget.id);
-                // var today = DateTime.now().toString().split(' ')[0];
-                // var getTransaccion = await Connections()
-                //     .getTraccionPedidoTransportadora(
-                //         widget.id, datares['transportadora'][0]['id'], today);
-                // if (getTransaccion != null) {
-                //   var deleteTransacc = await Connections()
-                //       .deleteTraccionPedidoTransportadora(
-                //           getTransaccion[0]['id']);
-                // }
-
                 setState(() {
                   _controllerModalText.clear();
                 });
 
                 Navigator.pop(context);
                 Navigator.pop(context);
+                widget.function;
               },
               child: Text(
                 "Guardar",
@@ -1346,6 +1190,7 @@ class _UpdateStatusOperatorHistorialState
                 setState(() {
                   _controllerModalText.clear();
                 });
+                widget.function;
 
                 // Navigator.pop(context);
                 // Navigator.pop(context);
@@ -1383,15 +1228,7 @@ class _UpdateStatusOperatorHistorialState
       btnOkText: "Aceptar",
       btnOkColor: Colors.yellowAccent,
       btnCancelOnPress: () {},
-      btnOkOnPress: () async {
-        // getLoadingModal(context, false);
-        // var response = await Connections()
-        //     .updateAccountBlock(
-        //         data[index]['id'].toString());
-
-        // Navigator.pop(context);
-        // await loadData();
-      },
+      btnOkOnPress: () async {},
     ).show();
   }
 

@@ -16,12 +16,12 @@ import 'package:photo_view/photo_view_gallery.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DeliveryStatusSellerInfo2 extends StatefulWidget {
-  final String id;
+  final Map order;
   final Function(dynamic) function;
   final List data;
   const DeliveryStatusSellerInfo2(
       {super.key,
-      required this.id,
+      required this.order,
       required this.function,
       required this.data});
 
@@ -45,25 +45,16 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
   }
 
   loadData() async {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getLoadingModal(context, false);
+    setState(() {
+      loading = true;
     });
-    // var response = await Connections().getOrdersByIDHistorial(widget.id);
-    var response =
-        await Connections().getOrdersByIdLaravel(int.parse(widget.id));
-    // var response = await Connections().getOrdersByIdLaravel(widget.id);
 
-    // ! ↓esta es la usada
-    data = response;
-    _controllers.editControllers2(response);
+    data = widget.order;
+    _controllers.editControllers2(widget.order);
 
-    Future.delayed(const Duration(milliseconds: 500), () {
-      Navigator.pop(context);
-      setState(() {
-        loading = false;
-      });
+    setState(() {
+      loading = false;
     });
-    setState(() {});
   }
 
   @override

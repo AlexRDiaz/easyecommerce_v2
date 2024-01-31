@@ -199,15 +199,6 @@ class _DeliveryStatusSellerInfo extends State<DeliveryStatusSellerInfo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        // floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
-        // floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
-        // floatingActionButton: data['status'] != "NOVEDAD RESUELTA"
-        //     ? FloatingActionButton.extended(
-        //         onPressed: _showResolveModal,
-        //         label: const Text('Resolver Novedad'),
-        //         icon: const Icon(Icons.check_circle),
-        //       )
-        //     : null,
         backgroundColor: Colors.white,
         appBar: AppBar(
           backgroundColor: ColorsSystem().colorBlack,
