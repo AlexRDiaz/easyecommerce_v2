@@ -624,7 +624,7 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
                       child: ElevatedButton(
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all(
-                            Colors.indigo[900],
+                            Color(0xFF031749),
                           ),
                         ),
                         onPressed: () async {
@@ -794,7 +794,7 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
                       child: ElevatedButton(
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all(
-                            Colors.indigo[900],
+                            Color(0xFF031749),
                           ),
                         ),
                         onPressed: () async {
@@ -1008,7 +1008,7 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
 
   Container _dataTableOrders(height) {
     return Container(
-      height: height * 0.53,
+      height: height * 0.5,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
         color: Colors.white,
