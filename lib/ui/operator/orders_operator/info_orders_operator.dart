@@ -127,7 +127,8 @@ class _InfoOrdersOperatorState extends State<InfoOrdersOperator> {
                           height: 20,
                         ),
                         Text(
-                          "  Código: ${data['attributes']['Name_Comercial'].toString()}-${data['attributes']['NumeroOrden'].toString()}",
+                          // "  Código: ${data['attributes']['Name_Comercial'].toString()}-${data['attributes']['NumeroOrden'].toString()}",
+                          "  Código: ${data['attributes']['users']['data'] != null ? data['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['attributes']['Nombre_Comercial'] : data['attributes']['Tienda_Temporal'].toString()}-${data['attributes']['NumeroOrden']}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),

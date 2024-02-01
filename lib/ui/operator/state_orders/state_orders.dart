@@ -385,6 +385,9 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
                       context),
                 ),
                 fechaFinFechaIni(),
+                const SizedBox(
+                  height: 10,
+                ),
                 responsive(
                     Container(
                         height: MediaQuery.of(context).size.height * 0.10,
@@ -393,7 +396,7 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
                             options: options,
                             currentValue: currentValue)),
                     Container(
-                        height: MediaQuery.of(context).size.height * 0.16,
+                        height: MediaQuery.of(context).size.height * 0.12,
                         child: OptionsWidget(
                             function: addFilter,
                             options: options,
@@ -617,12 +620,11 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(
-                          right: 8.0), // Agrega el espaciado izquierdo
+                      padding: const EdgeInsets.only(right: 8.0),
                       child: ElevatedButton(
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all(
-                            Color.fromARGB(255, 67, 67, 67),
+                            Colors.indigo[900],
                           ),
                         ),
                         onPressed: () async {
@@ -630,13 +632,13 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
                           // getOldValue(true);
                           loadData();
                         },
-                        child: Text('Filtrar'),
+                        child: const Text('Filtrar'),
                       ),
                     ),
                     ElevatedButton(
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(
-                          Color.fromARGB(255, 167, 7, 7),
+                          Colors.red,
                         ),
                       ),
                       onPressed: () async {
@@ -885,13 +887,10 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
                         }
                       },
                       child: const Row(
-                        // Usar un Row para combinar el icono y el texto
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons
-                              .insert_drive_file), // Agregar el icono de filtro aquí
-                          SizedBox(
-                              width: 8), // Espacio entre el icono y el texto
+                          Icon(Icons.insert_drive_file),
+                          SizedBox(width: 8),
                           Text('Reportes'),
                         ],
                       ),
@@ -996,7 +995,7 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
   _dataTableOrdersMobile(height) {
     return dataL.length > 0
         ? Container(
-            height: height * 0.45,
+            height: height * 0.48,
             child: DataTableModelPrincipal(
                 columnWidth: 400,
                 columns: getColumns(),
