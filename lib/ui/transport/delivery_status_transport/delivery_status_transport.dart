@@ -167,6 +167,8 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
       var response = await Connections()
           .getOrdersForSellerStateSearchForDateTransporterLaravel(
               selectedDateFilter,
+              sharedPrefs!.getString("dateDesdeTransportadora"),
+              sharedPrefs!.getString("dateHastaTransportadora"),
               populate,
               arrayFiltersAnd,
               arrayFiltersDefaultAnd,
@@ -179,6 +181,8 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
 
       var responseValues = await Connections().getValuesTrasporter(
           selectedDateFilter,
+          sharedPrefs!.getString("dateDesdeTransportadora"),
+          sharedPrefs!.getString("dateHastaTransportadora"),
           populate,
           arrayFiltersAnd,
           arrayFiltersDefaultAnd,
@@ -186,6 +190,8 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
 
       var responseCounters = await Connections().getOrdersCountersTransport(
         selectedDateFilter,
+        sharedPrefs!.getString("dateDesdeTransportadora"),
+        sharedPrefs!.getString("dateHastaTransportadora"),
         populate,
         arrayFiltersAnd,
         arrayFiltersDefaultAnd,
@@ -267,6 +273,8 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
       var response = await Connections()
           .getOrdersForSellerStateSearchForDateTransporterLaravel(
               selectedDateFilter,
+              sharedPrefs!.getString("dateDesdeTransportadora"),
+              sharedPrefs!.getString("dateHastaTransportadora"),
               populate,
               arrayFiltersAnd,
               arrayFiltersDefaultAnd,
@@ -1272,6 +1280,8 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                       var response = await Connections()
                           .getOrdersForSellerStateSearchForDateTransporterLaravel(
                               selectedDateFilter,
+                              sharedPrefs!.getString("dateDesdeTransportadora"),
+                              sharedPrefs!.getString("dateHastaTransportadora"),
                               populate,
                               arrayFiltersAnd,
                               arrayFiltersDefaultAnd,

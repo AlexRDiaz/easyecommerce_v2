@@ -1606,8 +1606,8 @@ class Connections {
     return decodeData['data'];
   }
 
-  getValuesTrasporter(
-      dateFilter, List populate, List and, List defaultAnd, List or) async {
+  getValuesTrasporter(dateFilter, dateStart, dateEnd, List populate, List and,
+      List defaultAnd, List or) async {
     print('start: ${sharedPrefs!.getString("dateDesdeTransportadora")}');
     print('end: ${sharedPrefs!.getString("dateHastaTransportadora")}');
 
@@ -1624,8 +1624,8 @@ class Connections {
         },
         body: json.encode({
           "date_filter": dateFilter,
-          "start": sharedPrefs!.getString("dateDesdeTransportadora"),
-          "end": sharedPrefs!.getString("dateHastaTransportadora"),
+          "start": dateStart,
+          "end": dateEnd,
           "or": or,
           "and": filtersAndAll,
           "not": []
@@ -3276,8 +3276,8 @@ class Connections {
     return decodeData['data'];
   }
 
-  getOrdersCountersTransport(
-      dateFilter, List populate, List and, List defaultAnd, List or) async {
+  getOrdersCountersTransport(dateFilter, dateStart, dateEnd, List populate,
+      List and, List defaultAnd, List or) async {
     print('start: ${sharedPrefs!.getString("dateDesdeTransportadora")}');
     print('end: ${sharedPrefs!.getString("dateHastaTransportadora")}');
 
@@ -3293,8 +3293,8 @@ class Connections {
         },
         body: json.encode({
           "date_filter": dateFilter,
-          "start": sharedPrefs!.getString("dateDesdeTransportadora"),
-          "end": sharedPrefs!.getString("dateHastaTransportadora"),
+          "start": dateStart,
+          "end": dateEnd,
           "or": or,
           "and": filtersAndAll,
           "not": []
@@ -3720,6 +3720,8 @@ class Connections {
 
   getOrdersForSellerStateSearchForDateTransporterLaravel(
       dateFilter,
+      dateStart,
+      dateEnd,
       List populate,
       List and,
       List defaultAnd,
@@ -3739,8 +3741,8 @@ class Connections {
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
             "date_filter": dateFilter,
-            "start": sharedPrefs!.getString("dateDesdeTransportadora"),
-            "end": sharedPrefs!.getString("dateHastaTransportadora"),
+            "start": dateStart,
+            "end": dateEnd,
             "or": or,
             "and": filtersAndAll,
             "page_size": sizePage,
@@ -5293,7 +5295,6 @@ class Connections {
   }
 
 // ! para estado de cuente2
-
 
 // ** Mi cuenta vendedor
   getPersonalInfoAccountLaravel() async {
