@@ -1426,7 +1426,8 @@ class Connections {
       search,
       sortField,
       String dateStart,
-      String dateEnd) async {
+      String dateEnd,
+      String dateFilter) async {
     int res = 0;
     try {
       print('start: ${sharedPrefs!.getString("dateDesdeLogistica")}');
@@ -1451,6 +1452,7 @@ class Connections {
             "page_size": sizePage,
             "page_number": currentPage,
             "search": search,
+            "date_filter" : dateFilter
           }));
 
       var decodeData = json.decode(request.body);
@@ -5294,7 +5296,6 @@ class Connections {
 
 // ! para estado de cuente2
 
-
 // ** Mi cuenta vendedor
   getPersonalInfoAccountLaravel() async {
     try {
@@ -7941,6 +7942,59 @@ class Connections {
           headers: {
             'Content-Type': 'application/json',
           });
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return decodeData;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  postGestinodNovelty(idOrder, String comment, idUser,noveltyState,
+      String dateStart) async {
+    try {
+      var request = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/pedidos-shopify/update-gestioned-novelty/${idOrder}"),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode({
+            "comment": comment,
+            "id_user": idUser,
+            "novelty_state": noveltyState,
+            "start": dateStart
+          }));
+
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return decodeData;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+
+  updateOrCreateGestionedNovelty(idOrder,property) async{
+    try {
+      var request = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/pedidos-shopify/update-prop-gestioned-novelty/${idOrder}"),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode({
+            "property": property,
+          }));
+
       var response = await request.body;
       var decodeData = json.decode(response);
       if (request.statusCode != 200) {
