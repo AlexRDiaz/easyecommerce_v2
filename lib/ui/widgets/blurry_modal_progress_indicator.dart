@@ -22,9 +22,9 @@ class _CustomProgressModalState extends State<CustomProgressModal> {
     return BlurryModalProgressHUD(
         inAsyncCall: widget.isLoading,
         blurEffectIntensity: 0,
-        progressIndicator: SpinKitFadingCircle(
-          color: Color.fromARGB(255, 33, 54, 243),
-          size: 90.0,
+        progressIndicator: const SpinKitFadingCircle(
+          color: Color(0xFF031749),
+          size: 60.0,
         ),
         dismissible: false,
         opacity: 0.4,
