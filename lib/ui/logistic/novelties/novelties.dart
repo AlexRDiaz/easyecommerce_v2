@@ -1453,167 +1453,23 @@ Quedamos atentos a su respuesta Muchas gracias.
       DataCell(getLengthArrayMap(data[index]['novedades']), onTap: () {
         info(context, index);
       }),
+      // DataCell(
+      //   Text(
+      //     data[index]['novedades'] != null &&
+      //             data[index]['novedades'].isNotEmpty
+      //         ? data[index]['novedades'][0]['try'].toString()
+      //         : '',
+      //     style: TextStyle(
+      //       color: GetColor(data[index]['status']!),
+      //     ),
+      //   ),
+      //   onTap: () {
+      //     info(context, index);
+      //   },
+      // ),
+
+      // data['novedades'][index]['try']
     ];
-  }
-
-  buttonsSloved() {
-    return Row(
-      children: [
-        IconButton(
-          icon: Icon(
-            Icons
-                .new_releases, // Puedes cambiar el icono según tus preferencias
-            color:
-                Colors.blue, // Puedes cambiar el color según tus preferencias
-          ),
-          onPressed: () {
-            // Agrega aquí la lógica que se ejecutará cuando se presione el IconButton
-            //   mostrarNovedad(context);
-          },
-          tooltip:
-              'Mostrar Novedad', // Tooltip opcional para proporcionar información sobre el botón
-        ),
-        IconButton(
-          icon: Icon(
-            Icons
-                .new_releases, // Puedes cambiar el icono según tus preferencias
-            color:
-                Colors.blue, // Puedes cambiar el color según tus preferencias
-          ),
-          onPressed: () {
-            _showResolveModal();
-          },
-          tooltip:
-              'Mostrar Novedad', // Tooltip opcional para proporcionar información sobre el botón
-        ),
-        IconButton(
-          icon: Icon(
-            Icons
-                .new_releases, // Puedes cambiar el icono según tus preferencias
-            color:
-                Colors.blue, // Puedes cambiar el color según tus preferencias
-          ),
-          onPressed: () {
-            // Agrega aquí la lógica que se ejecutará cuando se presione el IconButton
-            //   mostrarNovedad(context);
-          },
-          tooltip:
-              'Mostrar Novedad', // Tooltip opcional para proporcionar información sobre el botón
-        )
-      ],
-    );
-  }
-
-  void _showResolveModal() {
-    showModalBottomSheet(
-        context: context,
-        builder: (BuildContext context) {
-          return Container(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    const Expanded(
-                      child: Text('Comentario:',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      flex: 3,
-                      child: TextFormField(
-                        controller: _comentarioController,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(Icons.cancel),
-                      label: const Text('Cancelar'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent,
-                      ),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () async {},
-                      icon: const Icon(Icons.check),
-                      label: const Text('Guardar'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          );
-        });
-  }
-
-  Column InputFilter(String title, filter, var controller, key) {
-    return Column(
-      children: [
-        Text(title),
-        Expanded(
-            child: Container(
-          margin: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
-          child: TextField(
-            controller: controller,
-            onChanged: (value) {
-              if (value == '') {
-                {
-                  arrayFiltersAnd
-                      .removeWhere((element) => element.containsKey(key));
-                }
-              }
-            },
-            onSubmitted: (value) {
-              if (value != '') {
-                arrayFiltersAnd.add({key: value});
-              }
-
-              loadData();
-            },
-            decoration: InputDecoration(
-                border: OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(5)),
-            )),
-          ),
-        ))
-      ],
-    );
-  }
-
-  void reemplazarValor(Map<dynamic, dynamic> mapa, String nuevoValor) {
-    mapa.forEach((key, value) {
-      if (value is Map) {
-        reemplazarValor(value, nuevoValor);
-      } else if (key is String && value == 'valor') {
-        mapa[key] = nuevoValor;
-      }
-    });
-  }
-
-  getLengthArrayMap(List data) {
-    var arraylength = data.length;
-    return Text(
-      arraylength.toString(),
-      style: TextStyle(
-          color: arraylength > 3
-              ? Color.fromARGB(255, 185, 10, 10)
-              : Colors.black),
-    );
   }
 
   SizedBox _dates(BuildContext context) {
