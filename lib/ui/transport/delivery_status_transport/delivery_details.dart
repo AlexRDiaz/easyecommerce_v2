@@ -32,6 +32,9 @@ class _TransportProDeliveryHistoryDetails
   var data = {};
   bool loading = true;
   OrderInfoOperatorControllers _controllers = OrderInfoOperatorControllers();
+  String estadoLogistic = "";
+  String status = "";
+  String fecha_entrega = "";
 
   @override
   void didChangeDependencies() {
@@ -48,6 +51,11 @@ class _TransportProDeliveryHistoryDetails
     _controllers.editControllers(widget.order);
 
     setState(() {
+      fecha_entrega = data['fecha_entrega'].toString();
+      status = data['status'].toString();
+    });
+
+    setState(() {
       loading = false;
     });
   }
@@ -56,10 +64,14 @@ class _TransportProDeliveryHistoryDetails
     setState(() {
       loading = true;
     });
-
+    print("entro a getData");
     var response = await Connections().getOrderByIDHistoryLaravel(widget.id);
     _controllers.editControllers(response);
-
+    setState(() {
+      fecha_entrega = response['fecha_entrega'].toString();
+      status = response['status'].toString();
+      // estadoLogistic = response['estado_logistico'].toString();
+    });
     setState(() {
       loading = false;
     });
@@ -193,7 +205,7 @@ class _TransportProDeliveryHistoryDetails
                                 height: 20,
                               ),
                               Text(
-                                "  Fecha: ${data['marca_tiempo_envio'].toString().split(" ")[0]}",
+                                "  Fecha Envio: ${data['marca_tiempo_envio'].toString().split(" ")[0]}",
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 18),
                               ),
@@ -201,7 +213,7 @@ class _TransportProDeliveryHistoryDetails
                                 height: 20,
                               ),
                               Text(
-                                "  Fecha Entrega: ${data['fecha_entrega'].toString()}",
+                                "  Fecha Entrega: $fecha_entrega",
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 18),
                               ),
@@ -217,7 +229,8 @@ class _TransportProDeliveryHistoryDetails
                                 height: 20,
                               ),
                               Text(
-                                "  Modificado Estado Entrega por: ${data['status_last_modified_by'] != null && data['status_last_modified_by'] != null ? "${data['users'][0]['username'].toString()}-${data['status_last_modified_by'].toString()}" : ''}",
+                                // "  Modificado Estado Entrega por: ${data['status_last_modified_by'] != null && data['status_last_modified_by'] != null ? "${data['users'][0]['username'].toString()}-${data['status_last_modified_by'].toString()}" : ''}",
+                                "  Modificado Estado Entrega por: ${data['status_last_modified_by'] != null ? "${data['status_last_modified_by']['username'].toString()}-${data['status_last_modified_by']['id'].toString()}" : ""}",
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 18),
                               ),
@@ -368,7 +381,7 @@ class _TransportProDeliveryHistoryDetails
                                 height: 20,
                               ),
                               Text(
-                                "  Status: ${data['status'].toString()}",
+                                "  Status: $status",
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 18),
                               ),
@@ -447,11 +460,11 @@ class _TransportProDeliveryHistoryDetails
                               SizedBox(
                                 height: 20,
                               ),
-                              Text(
-                                "  Status: ${data['status'].toString()}",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
-                              ),
+                              // Text(
+                              //   "  Status: ${data['status'].toString()}",
+                              //   style: TextStyle(
+                              //       fontWeight: FontWeight.bold, fontSize: 18),
+                              // ),
                               SizedBox(
                                 height: 20,
                               ),

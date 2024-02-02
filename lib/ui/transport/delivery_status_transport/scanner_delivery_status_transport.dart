@@ -35,12 +35,18 @@ class _ScannerDeliveryStatusTransportState
               child: BarcodeKeyboardListener(
                 bufferDuration: Duration(milliseconds: 200),
                 onBarcodeScanned: (barcode) async {
-                  // barcode = '167448';
+                  // barcode = '507';
                   if (!visible) return;
-                  var responseOrder = await Connections().getOrderByID(barcode);
+                  // var responseOrder = await Connections().getOrderByID(barcode);
+
+                  var responseOrder =
+                      await Connections().getOrderByIDHistoryLaravel(barcode);
+
                   setState(() {
+                    // _barcode =
+                    //     "${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']}";
                     _barcode =
-                        "${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']}";
+                        "${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']}";
                   });
                   Navigator.pop(context);
                   widget.function(responseOrder);

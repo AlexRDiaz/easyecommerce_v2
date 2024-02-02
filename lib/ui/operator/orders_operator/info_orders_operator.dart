@@ -10,8 +10,14 @@ import 'package:frontend/ui/widgets/update_status_operator/update_status_operato
 class InfoOrdersOperator extends StatefulWidget {
   final String id;
   final Function function;
-  const InfoOrdersOperator(
-      {super.key, required this.id, required this.function});
+  final Map order;
+
+  const InfoOrdersOperator({
+    super.key,
+    required this.id,
+    required this.function,
+    required this.order,
+  });
 
   @override
   State<InfoOrdersOperator> createState() => _InfoOrdersOperatorState();
@@ -32,13 +38,16 @@ class _InfoOrdersOperatorState extends State<InfoOrdersOperator> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
-    var response = await Connections().getOrdersByIDOperator(widget.id);
+
+    var response = await Connections().getOrderByIDHistoryLaravel(widget.id);
     data = response;
 
     //
-    _controllers.editControllers(response);
+    // _controllers.editControllers(response);
+    _controllers.editControllers(data);
+
     setState(() {
-      _numerController.text = data['attributes']['TelefonoShipping'].toString();
+      _numerController.text = data['telefono_shipping'].toString();
     });
     Future.delayed(Duration(milliseconds: 500), () {
       Navigator.pop(context);
@@ -85,7 +94,9 @@ class _InfoOrdersOperatorState extends State<InfoOrdersOperator> {
                                 onPressed: () async {
                                   var response = await Connections()
                                       .getSellersByIdMasterOnly(
-                                          "${data['attributes']['IdComercial'].toString()}");
+                                          "${data['id_comercial'].toString()}");
+                                  // below need to change to laravel
+
                                   // ignore: use_build_context_synchronously
                                   await showDialog(
                                       context: context,
@@ -96,12 +107,11 @@ class _InfoOrdersOperatorState extends State<InfoOrdersOperator> {
                                                     [0]['Telefono2']
                                                 .toString(),
                                             codigo:
-                                                "${data['attributes']['users'] != null && data['attributes']['users'].toString() != "[]" ? data['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['attributes']['Nombre_Comercial'] : "NaN"}-${data['attributes']['NumeroOrden']}",
+                                                "${data['users'] != null && data['users'].toString() != "[]" ? data['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data['numero_orden']}",
                                             numberCliente:
-                                                "${data['attributes']['TelefonoShipping']}",
+                                                "${data['telefono_shipping']}",
                                             id: widget.id,
-                                            novedades: data['attributes']
-                                                ['novedades']['data'],
+                                            novedades: data['novedades'],
                                             currentStatus: '');
                                       });
 
@@ -119,7 +129,7 @@ class _InfoOrdersOperatorState extends State<InfoOrdersOperator> {
                           height: 20,
                         ),
                         Text(
-                          "  Fecha: ${data['attributes']['Marca_Tiempo_Envio'].toString().split(" ")[0]}",
+                          "  Fecha: ${data['marca_tiempo_envio'].toString().split(" ")[0]}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -128,7 +138,7 @@ class _InfoOrdersOperatorState extends State<InfoOrdersOperator> {
                         ),
                         Text(
                           // "  Código: ${data['attributes']['Name_Comercial'].toString()}-${data['attributes']['NumeroOrden'].toString()}",
-                          "  Código: ${data['attributes']['users']['data'] != null ? data['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['attributes']['Nombre_Comercial'] : data['attributes']['Tienda_Temporal'].toString()}-${data['attributes']['NumeroOrden']}",
+                          "  Código: ${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data['numero_orden'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -220,7 +230,7 @@ class _InfoOrdersOperatorState extends State<InfoOrdersOperator> {
                           height: 20,
                         ),
                         Text(
-                          "  Observación: ${data['attributes']['Observacion'].toString()}",
+                          "  Observación: ${data['observacion'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -228,7 +238,7 @@ class _InfoOrdersOperatorState extends State<InfoOrdersOperator> {
                           height: 20,
                         ),
                         Text(
-                          "  Comentario: ${data['attributes']['Comentario'].toString()}",
+                          "  Comentario: ${data['comentario'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -236,7 +246,7 @@ class _InfoOrdersOperatorState extends State<InfoOrdersOperator> {
                           height: 20,
                         ),
                         Text(
-                          "  Status: ${data['attributes']['Status'].toString()}",
+                          "  Status: ${data['status'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -252,8 +262,7 @@ class _InfoOrdersOperatorState extends State<InfoOrdersOperator> {
                           height: 500,
                           width: 500,
                           child: ListView.builder(
-                            itemCount:
-                                data['attributes']['novedades']['data'].length,
+                            itemCount: data['novedades'].length,
                             itemBuilder: (context, index) {
                               return ListTile(
                                 title: Container(
@@ -273,27 +282,21 @@ class _InfoOrdersOperatorState extends State<InfoOrdersOperator> {
                                             style: const TextStyle(
                                               color: Colors.white,
                                             ),
-                                            "Intento: ${data['attributes']['novedades']['data'][index]['attributes']['m_t_novedad']}"),
+                                            "Intento: ${data['novedades'][index]['m_t_novedad']}"),
                                         Text(
                                             style: const TextStyle(
                                               color: Colors.white,
                                             ),
-                                            "Intento: ${data['attributes']['novedades']['data'][index]['attributes']['try']}"),
+                                            "Intento: ${data['novedades'][index]['try']}"),
                                         Text(
                                             style: const TextStyle(
                                               color: Colors.white,
                                             ),
-                                            "Comentario: ${data['attributes']['novedades']['data'][index]['attributes']['comment']}"),
-                                        data['attributes']['novedades']['data']
-                                                                [index]
-                                                            ['attributes']
-                                                        ['url_image']
+                                            "Comentario: ${data['novedades'][index]['comment']}"),
+                                        data['novedades'][index]['url_image']
                                                     .toString()
                                                     .isEmpty ||
-                                                data['attributes']['novedades']
-                                                                        ['data']
-                                                                    [index]
-                                                                ['attributes']
+                                                data['novedades'][index]
                                                             ['url_image']
                                                         .toString() ==
                                                     "null"
@@ -301,7 +304,7 @@ class _InfoOrdersOperatorState extends State<InfoOrdersOperator> {
                                             : Container(
                                                 margin: EdgeInsets.all(30),
                                                 child: Image.network(
-                                                  "$generalServer${data['attributes']['novedades']['data'][index]['attributes']['url_image'].toString()}",
+                                                  "$generalServer${data['novedades'][index]['url_image'].toString()}",
                                                   fit: BoxFit.fill,
                                                 )),
                                       ],

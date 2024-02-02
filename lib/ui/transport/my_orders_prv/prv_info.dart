@@ -31,8 +31,11 @@ class _MyOrdersPRVInfoState extends State<MyOrdersPRVInfo> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
-    var response = await Connections().getOrdersByIDTransport(widget.id);
+    // var response = await Connections().getOrdersByIDTransport(widget.id);
     // data = response;
+    // data = response;
+    // _controllers.editControllers(response);
+    var response = await Connections().getOrderByIDHistoryLaravel(widget.id);
     data = response;
     _controllers.editControllers(response);
 
@@ -101,7 +104,7 @@ class _MyOrdersPRVInfoState extends State<MyOrdersPRVInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Código: ${data['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['attributes']['Nombre_Comercial'].toString()}-${data['attributes']['NumeroOrden'].toString()}",
+                          "  Código: ${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data['numero_orden'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -109,7 +112,8 @@ class _MyOrdersPRVInfoState extends State<MyOrdersPRVInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Fecha: ${data['attributes']['pedido_fecha']['data']['attributes']['Fecha'].toString()}",
+                          // "  Fecha: ${data['attributes']['pedido_fecha']['data']['attributes']['Fecha'].toString()}",
+                          "  Fecha Ingreso: ${data['marca_t_i'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -149,7 +153,7 @@ class _MyOrdersPRVInfoState extends State<MyOrdersPRVInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Sub Ruta: ${data['attributes']['sub_ruta']['data'] != null ? data['attributes']['sub_ruta']['data']['attributes']['Titulo'] : "".toString()}",
+                          "  Sub Ruta: ${data['sub_ruta'].toString() != "[]" ? data['sub_ruta'][0]['titulo'].toString() : ""}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -157,7 +161,7 @@ class _MyOrdersPRVInfoState extends State<MyOrdersPRVInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Operador: ${data['attributes']['operadore']['data'] != null ? data['attributes']['operadore']['data']['attributes']['user']['data']['attributes']['username'] : "".toString()}",
+                          "  Operador: ${data['operadore'].toString() != "[]" ? data['operadore'][0]['up_users'][0]['username'].toString() : ""}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -197,7 +201,7 @@ class _MyOrdersPRVInfoState extends State<MyOrdersPRVInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Status: ${data['attributes']['Status'].toString()}",
+                          "  Status: ${data['status'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -205,7 +209,7 @@ class _MyOrdersPRVInfoState extends State<MyOrdersPRVInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Confirmado?: ${data['attributes']['Estado_Interno'].toString()}",
+                          "  Confirmado?: ${data['estado_interno'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -213,7 +217,7 @@ class _MyOrdersPRVInfoState extends State<MyOrdersPRVInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Estado Logistico: ${data['attributes']['Estado_Logistico'].toString()}",
+                          "  Estado Logistico: ${data['estado_logistico'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),

@@ -72,14 +72,14 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
   List<String> listOperators = ['TODO'];
 
   List populate = [
-    'transportadora.operadores.user',
-    'pedido_fecha',
-    'sub_ruta',
-    'operadore',
-    'operadore.user',
-    'users',
-    'users.vendedores',
-    'novedades'
+    "operadore.up_users",
+    "transportadora",
+    "users.vendedores",
+    "novedades",
+    "pedidoFecha",
+    "ruta",
+    "subRuta",
+    "statusLastModifiedBy"
   ];
   List arrayFiltersAnd = [];
   List arrayFiltersDefaultAnd = [
@@ -180,6 +180,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
               sortFieldDefaultValue.toString());
 
       var responseValues = await Connections().getValuesTrasporter(
+          "carrier",
           selectedDateFilter,
           sharedPrefs!.getString("dateDesdeTransportadora"),
           sharedPrefs!.getString("dateHastaTransportadora"),
@@ -451,6 +452,11 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
               ),
               context),
         ),
+        fechaFinFechaIni(),
+        const SizedBox(
+          height: 10,
+        ),
+        /*
         Container(
           width: double.infinity,
           color: Colors.white,
@@ -513,6 +519,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
               ),
               context),
         ),
+        */
         responsive(
             Container(
                 height: MediaQuery.of(context).size.height * 0.10,
@@ -521,7 +528,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                     options: options,
                     currentValue: currentValue)),
             Container(
-                height: MediaQuery.of(context).size.height * 0.10,
+                height: MediaQuery.of(context).size.height * 0.12,
                 child: OptionsWidget(
                     function: addFilter,
                     options: options,
@@ -1022,6 +1029,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                 child: GestureDetector(
                   onTap: () {
                     Navigator.pop(context);
+                    paginateData;
                   },
                   child: Icon(Icons.close),
                 ),
@@ -1054,21 +1062,30 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                     child: GestureDetector(
                       onTap: () {
                         Navigator.pop(context);
+                        paginateData;
                       },
                       child: Icon(Icons.close),
                     ),
                   ),
                   Expanded(
-                      child: TransportProDeliveryHistoryDetails(
-                    id: order['id'],
-                    order: order,
-                    data: data,
-                  ))
+                    child: TransportProDeliveryHistoryDetails(
+                        id: order['id'].toString(),
+                        order: order,
+                        comment: order['comentario'].toString(),
+                        function: paginateData,
+                        data: data),
+                  )
+                  // Expanded(
+                  //     child: TransportProDeliveryHistoryDetails(
+                  //   id: order['id'],
+                  //   order: order,
+                  //   data: data,
+                  // ))
                 ],
               ),
             ),
           );
-        });
+        }).then((value) => loadData(context));
   }
 
   _modelTextField({text, controller}) {
@@ -1163,6 +1180,331 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
   }
 
   fechaFinFechaIni() {
+    return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+      responsive(
+          Row(
+            children: [
+              Text(_controllers.startDateController.text),
+              IconButton(
+                icon: const Icon(Icons.calendar_month),
+                onPressed: () async {
+                  _controllers.startDateController.text = await OpenCalendar();
+                  sharedPrefs!.setString("dateDesdeTransportadora",
+                      _controllers.startDateController.text);
+                },
+              ),
+              const Text(' - '),
+              Text(_controllers.endDateController.text),
+              IconButton(
+                icon: Icon(Icons.calendar_month),
+                onPressed: () async {
+                  _controllers.endDateController.text = await OpenCalendar();
+                  sharedPrefs!.setString("dateHastaTransportadora",
+                      _controllers.endDateController.text);
+                },
+              ),
+              Row(
+                children: [
+                  Container(
+                    //  height: 50,
+                    width: 230,
+                    child: DropdownButtonFormField<String>(
+                      isExpanded: true,
+                      value: selectedDateFilter,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          selectedDateFilter = newValue ?? "";
+                        });
+                      },
+                      decoration: InputDecoration(
+                          border: UnderlineInputBorder(
+                              borderRadius: BorderRadius.circular(10))),
+                      items: listDateFilter
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value, style: TextStyle(fontSize: 15)),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        right: 8.0), // Agrega el espaciado izquierdo
+                    child: ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(
+                          Color(0xFF031749),
+                        ),
+                      ),
+                      onPressed: () async {
+                        // await applyDateFilter();
+                        getOldValue(true);
+                        loadData(context);
+                      },
+                      child: Text('Filtrar'),
+                    ),
+                  ),
+                  ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(
+                        Colors.red,
+                      ),
+                    ),
+                    onPressed: () async {
+                      // await applyDateFilter();
+                      setState(() {
+                        limpiar();
+                        loadData(context);
+                        currentColor = const Color.fromARGB(255, 108, 108, 109);
+                      });
+                    },
+                    child: const Row(
+                      // Usar un Row para combinar el icono y el texto
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons
+                            .filter_alt), // Agregar el icono de filtro aquí
+                        SizedBox(width: 8), // Espacio entre el icono y el texto
+                        Text('Quitar Filtros'),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(
+                        Colors.green,
+                      ),
+                    ),
+                    onPressed: () async {
+                      if (total > 1999) {
+                        AwesomeDialog(
+                          width: 500,
+                          context: context,
+                          dialogType: DialogType.info,
+                          animType: AnimType.rightSlide,
+                          title:
+                              'El Número Total de Registros debe ser menor a 2.000',
+                          desc: '',
+                          btnOkText: "Aceptar",
+                          btnOkColor: Colors.green,
+                          btnOkOnPress: () async {},
+                        ).show();
+                      } else {
+                        getLoadingModal(context, true);
+                        try {
+                          var response = await Connections()
+                              .getOrdersForSellerStateSearchForDateTransporterLaravel(
+                                  selectedDateFilter,
+                                  sharedPrefs!
+                                      .getString("dateDesdeTransportadora"),
+                                  sharedPrefs!
+                                      .getString("dateHastaTransportadora"),
+                                  populate,
+                                  arrayFiltersAnd,
+                                  arrayFiltersDefaultAnd,
+                                  arrayFiltersOr,
+                                  currentPage,
+                                  1999,
+                                  _controllers.searchController.text,
+                                  // sortField.toString());
+                                  sortFieldDefaultValue.toString());
+
+                          await getReport
+                              .generateExcelFileWithData(response['data']);
+
+                          Navigator.of(context).pop();
+                        } catch (e) {
+                          Navigator.of(context).pop();
+                          _showErrorSnackBar(context,
+                              "Ha ocurrido un error al generar el reporte: $e");
+                        }
+                      }
+                    },
+                    child: const Row(
+                      // Usar un Row para combinar el icono y el texto
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons
+                            .insert_drive_file), // Agregar el icono de filtro aquí
+                        SizedBox(width: 8), // Espacio entre el icono y el texto
+                        Text('Reportes'),
+                      ],
+                    ),
+                  ),
+                ],
+              )
+            ],
+          ),
+          Column(
+            children: [
+              Row(
+                children: [
+                  Text(_controllers.startDateController.text),
+                  IconButton(
+                    icon: const Icon(Icons.calendar_month),
+                    onPressed: () async {
+                      _controllers.startDateController.text =
+                          await OpenCalendar();
+                      sharedPrefs!.setString("dateDesdeTransportadora",
+                          _controllers.startDateController.text);
+                    },
+                  ),
+                  const Text(' - '),
+                  Text(_controllers.endDateController.text),
+                  IconButton(
+                    icon: Icon(Icons.calendar_month),
+                    onPressed: () async {
+                      _controllers.endDateController.text =
+                          await OpenCalendar();
+                      sharedPrefs!.setString("dateHastaTransportadora",
+                          _controllers.endDateController.text);
+                    },
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Container(
+                    //  height: 50,
+                    width: 150,
+                    child: DropdownButtonFormField<String>(
+                      isExpanded: true,
+                      value: selectedDateFilter,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          selectedDateFilter = newValue ?? "";
+                        });
+                      },
+                      decoration: InputDecoration(
+                          border: UnderlineInputBorder(
+                              borderRadius: BorderRadius.circular(10))),
+                      items: listDateFilter
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value, style: TextStyle(fontSize: 15)),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ],
+              ),
+              Row(children: [
+                Padding(
+                  padding: const EdgeInsets.only(
+                      right: 8.0), // Agrega el espaciado izquierdo
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(
+                        Color(0xFF031749),
+                      ),
+                    ),
+                    onPressed: () async {
+                      // await applyDateFilter();
+                      getOldValue(true);
+                      loadData(context);
+                    },
+                    child: Text('Filtrar'),
+                  ),
+                ),
+                ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(
+                      Colors.red,
+                    ),
+                  ),
+                  onPressed: () async {
+                    // await applyDateFilter();
+                    setState(() {
+                      limpiar();
+                      loadData(context);
+                      currentColor = const Color.fromARGB(255, 108, 108, 109);
+                    });
+                  },
+                  child: const Row(
+                    // Usar un Row para combinar el icono y el texto
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.filter_alt), // Agregar el icono de filtro aquí
+                      SizedBox(width: 8), // Espacio entre el icono y el texto
+                      Text('Quitar Filtros'),
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(
+                      Colors.green,
+                    ),
+                  ),
+                  onPressed: () async {
+                    if (total > 1999) {
+                      AwesomeDialog(
+                        width: 500,
+                        context: context,
+                        dialogType: DialogType.info,
+                        animType: AnimType.rightSlide,
+                        title:
+                            'El Número Total de Registros debe ser menor a 2.000',
+                        desc: '',
+                        btnOkText: "Aceptar",
+                        btnOkColor: Colors.green,
+                        btnOkOnPress: () async {},
+                      ).show();
+                    } else {
+                      getLoadingModal(context, true);
+                      try {
+                        var response = await Connections()
+                            .getOrdersForSellerStateSearchForDateTransporterLaravel(
+                                selectedDateFilter,
+                                sharedPrefs!
+                                    .getString("dateDesdeTransportadora"),
+                                sharedPrefs!
+                                    .getString("dateHastaTransportadora"),
+                                populate,
+                                arrayFiltersAnd,
+                                arrayFiltersDefaultAnd,
+                                arrayFiltersOr,
+                                currentPage,
+                                1999,
+                                _controllers.searchController.text,
+                                // sortField.toString());
+                                sortFieldDefaultValue.toString());
+
+                        await getReport
+                            .generateExcelFileWithData(response['data']);
+
+                        Navigator.of(context).pop();
+                      } catch (e) {
+                        Navigator.of(context).pop();
+                        _showErrorSnackBar(context,
+                            "Ha ocurrido un error al generar el reporte: $e");
+                      }
+                    }
+                  },
+                  child: const Row(
+                    // Usar un Row para combinar el icono y el texto
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons
+                          .insert_drive_file), // Agregar el icono de filtro aquí
+                      SizedBox(width: 8), // Espacio entre el icono y el texto
+                      Text('Reportes'),
+                    ],
+                  ),
+                ),
+              ]),
+            ],
+          ),
+          context)
+    ]);
+    /*
     return [
       Row(
         children: [
@@ -1319,6 +1661,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
         ],
       ),
     ];
+    */
   }
 
   void limpiar() {

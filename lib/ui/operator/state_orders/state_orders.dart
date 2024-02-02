@@ -61,15 +61,15 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
     'FECHA ENTREGA',
   ];
   List populate = [
-    'transportadora.operadores.user',
-    'pedido_fecha',
-    'sub_ruta',
-    'operadore',
-    'operadore.user',
-    'users',
+    'operadore.up_users',
+    'transportadora',
     'users.vendedores',
-    'novedades'
+    'novedades',
+    'pedidoFecha',
+    'ruta',
+    'subRuta'
   ];
+  //        $pedidos = PedidosShopify::with(['operadore.up_users', 'transportadora', 'users.vendedores', 'novedades', 'pedidoFecha', 'ruta', 'subRuta'])
 
   List arrayFiltersAnd = [];
   List arrayFiltersDefaultAnd = [
@@ -139,12 +139,11 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
   }
 
   loadData() async {
-    setState(() {
-      isLoading = true;
-    });
-    var response = [];
-
     try {
+      setState(() {
+        isLoading = true;
+      });
+      var response = [];
       var responseL = await Connections()
           .getOrdersForSellerStateSearchForDateTransporterLaravel(
               selectedDateFilter,
@@ -160,6 +159,7 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
               sortFieldDefaultValue.toString());
 
       var responseValues = await Connections().getValuesTrasporter(
+          "operator",
           selectedDateFilter,
           startDateController.text,
           endDateController.text,
@@ -204,6 +204,8 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
     } catch (e) {
       isLoading = false;
       print("error!!!:  $e");
+      print(isLoading);
+      _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
     }
 
     // Future.delayed(Duration(milliseconds: 500), () {
@@ -1513,6 +1515,7 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
                     id: dataL[index]['id'].toString(),
                     comment: dataL[index]['comentario'].toString(),
                     data: dataL,
+                    order: dataL[index],
                   ))
                 ],
               ),

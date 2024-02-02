@@ -1606,8 +1606,8 @@ class Connections {
     return decodeData['data'];
   }
 
-  getValuesTrasporter(dateFilter, dateStart, dateEnd, List populate, List and,
-      List defaultAnd, List or) async {
+  getValuesTrasporter(from, dateFilter, dateStart, dateEnd, List populate,
+      List and, List defaultAnd, List or) async {
     print('start: ${sharedPrefs!.getString("dateDesdeTransportadora")}');
     print('end: ${sharedPrefs!.getString("dateHastaTransportadora")}');
 
@@ -1623,6 +1623,7 @@ class Connections {
           'Content-Type': 'application/json',
         },
         body: json.encode({
+          "from": from,
           "date_filter": dateFilter,
           "start": dateStart,
           "end": dateEnd,
@@ -3736,10 +3737,12 @@ class Connections {
     try {
       print('start: ${sharedPrefs!.getString("dateDesdeTransportadora")}');
       print('end: ${sharedPrefs!.getString("dateHastaTransportadora")}');
+
       var response = await http.post(
           Uri.parse("$serverLaravel/api/pedidos-shopify/filter"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
+            "populate": populate,
             "date_filter": dateFilter,
             "start": dateStart,
             "end": dateEnd,

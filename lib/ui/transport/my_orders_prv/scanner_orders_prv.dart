@@ -36,7 +36,7 @@ class _ScannerOrdersPrvState extends State<ScannerOrdersPrv> {
                 onBarcodeScanned: (barcode) async {
                   if (!visible) return;
                   getLoadingModal(context, false);
-                  // barcode = "174474";
+                  // barcode = "174248";
 
                   // var responseOrder = await Connections().getOrderByID(barcode);
                   var responseOrder =
