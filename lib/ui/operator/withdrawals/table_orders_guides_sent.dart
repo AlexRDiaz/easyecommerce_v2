@@ -1375,10 +1375,12 @@ class _TableOrdersGuidesSentStateOperator
                   Navigator.pop(context);
                 },
                 idWarehouse:
-                    "O-${sharedPrefs!.getString("idOperadore").toString()}"),
+                    "O-${sharedPrefs!.getString("idOperadore").toString()}",
+                    roleInvoke: "4"),
           ),
         );
       },
     );
   }
+
 }

@@ -18,11 +18,8 @@ class EditOperatorLogistic extends StatefulWidget {
   final String idUserE;
   final String idOperator;
 
-  const EditOperatorLogistic({
-    super.key,
-    required this.idUserE, 
-    required this.idOperator
-  });
+  const EditOperatorLogistic(
+      {super.key, required this.idUserE, required this.idOperator});
 
   @override
   State<EditOperatorLogistic> createState() => _EditOperatorLogisticState();
@@ -58,7 +55,8 @@ class _EditOperatorLogisticState extends State<EditOperatorLogistic> {
     // data['id_Transportadora']
 
     // var response = await Connections().getOperatorsGeneralByID();
-    var response = await Connections().getOperatorsGeneralByIDD(widget.idUserE.toString());
+    var response =
+        await Connections().getOperatorsGeneralByIDD(widget.idUserE.toString());
     data = response;
     // print(data);
     idUser = data["id"];
@@ -98,270 +96,250 @@ class _EditOperatorLogisticState extends State<EditOperatorLogistic> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        leading: GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-              // loadData();
-              // Navigators().pushNamedAndRemoveUntil(context, "/layout/logistic");
-            },
-            child: const Icon(Icons.arrow_back_ios, color: Colors.black)),
-        centerTitle: true,
-        title: const Text(
-          "Información",
-          style: TextStyle(
-              fontWeight: FontWeight.bold, color: Colors.black, fontSize: 20),
-        ),
-      ),
-      body: Container(
-        color: Colors.white,
-        width: double.infinity,
-        height: double.infinity,
-        child: Padding(
-          padding: const EdgeInsets.all(22.0),
-          child: ListView(
-            children: [
-              Column(
-                children: [
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Text(
-                    "Bloqueado: ${data["blocked"].toString()}",
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 17),
-                  ),
-                  const SizedBox(
-                    height: 30,
-                  ),
-                  _modelTextFieldComplete(
-                      "Usuario", _controllers.userEditController),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  TextButton(
-                      onPressed: () async {
-                        await showDialog(
-                            context: context,
-                            builder: (context) {
-                              return CreateSubRoutesModal(
-                                idTransport: data['operadore']['transportadora']
-                                        ['id']
-                                    .toString(),
-                              );
-                            });
-                        await loadData();
+    return AlertDialog(
+        content: Container(
+      // color: Colors.white,
+      width: MediaQuery.of(context).size.width * 0.4,
+      height: MediaQuery.of(context).size.width * 0.8,
+      child: Padding(
+        padding: const EdgeInsets.all(22.0),
+        child: ListView(
+          children: [
+            Column(
+              children: [
+                const SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  "Bloqueado: ${data["blocked"].toString()}",
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 17),
+                ),
+                const SizedBox(
+                  height: 30,
+                ),
+                _modelTextFieldComplete(
+                    "Usuario", _controllers.userEditController),
+                const SizedBox(
+                  height: 10,
+                ),
+                TextButton(
+                    onPressed: () async {
+                      await showDialog(
+                          context: context,
+                          builder: (context) {
+                            return CreateSubRoutesModal(
+                              idTransport: data['operadore']['transportadora']
+                                      ['id']
+                                  .toString(),
+                            );
+                          });
+                      await loadData();
 
-                        setState(() {});
-                      },
-                      child: const Text(
-                        "CREAR SUBRUTA",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      )),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 500,
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton2<String>(
-                            // dropdownWidth: 500,
-                            // buttonWidth: 500,
-                            isExpanded: true,
-                            hint: Text(
-                              'Sub Ruta',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  color: Theme.of(context).hintColor,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            items: subRoutes
-                                .map((item) => DropdownMenuItem(
-                                      value: item,
-                                      child: Text(
-                                        item.split('-')[0],
-                                        style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ))
-                                .toList(),
-                            value: selectedValueRoute,
-                            onChanged: (value) async {
-                              setState(() {
-                                selectedValueRoute = value as String;
-                              });
-                            },
-                        
-                            //This to clear the search value when you close the menu
-                            onMenuStateChange: (isOpen) {
-                              if (!isOpen) {}
-                            },
+                      setState(() {});
+                    },
+                    child: const Text(
+                      "CREAR SUBRUTA",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    )),
+                const SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 500,
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton2<String>(
+                          // dropdownWidth: 500,
+                          // buttonWidth: 500,
+                          isExpanded: true,
+                          hint: Text(
+                            'Sub Ruta',
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: Theme.of(context).hintColor,
+                                fontWeight: FontWeight.bold),
                           ),
+                          items: subRoutes
+                              .map((item) => DropdownMenuItem(
+                                    value: item,
+                                    child: Text(
+                                      item.split('-')[0],
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ))
+                              .toList(),
+                          value: selectedValueRoute,
+                          onChanged: (value) async {
+                            setState(() {
+                              selectedValueRoute = value as String;
+                            });
+                          },
+
+                          //This to clear the search value when you close the menu
+                          onMenuStateChange: (isOpen) {
+                            if (!isOpen) {}
+                          },
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  _modelTextFieldComplete(
-                      "Correo", _controllers.mailEditController),
-                  _modelTextFieldComplete(
-                      "Teléfono", _controllers.phoneEditController),
-                  _modelTextFieldComplete("Costo Operador",
-                      _controllers.costOperatorEditController),
-                  ElevatedButton(
-                      onPressed: () async {
-                        if (_controllers.mailEditController.text != "" &&
-                            _controllers.phoneEditController.text != "" &&
-                            _controllers.costOperatorEditController.text !=
-                                "" &&
-                            _controllers.userEditController.text != "") {
-                          String phoneNumber =
-                              _controllers.phoneEditController.text;
-                          if (phoneNumber.startsWith("0")) {
-                            phoneNumber = "+593" + phoneNumber.substring(1);
-                          }
-                          _controllers.phoneEditController.text = phoneNumber;
-
-                          getLoadingModal(context, false);
-                          await _controllers.updateOperator(
-                              success: () {
-                                Navigator.pop(context);
-                                AwesomeDialog(
-                                  width: 500,
-                                  context: context,
-                                  dialogType: DialogType.success,
-                                  animType: AnimType.rightSlide,
-                                  title: 'Completado',
-                                  desc: 'Actualización Completada',
-                                  btnCancel: Container(),
-                                  btnOkText: "Aceptar",
-                                  btnOkColor: colors.colorGreen,
-                                  btnCancelOnPress: () {},
-                                  btnOkOnPress: () {},
-                                ).show();
-                              },
-                              error: () {
-                                Navigator.pop(context);
-                                AwesomeDialog(
-                                  width: 500,
-                                  context: context,
-                                  dialogType: DialogType.error,
-                                  animType: AnimType.rightSlide,
-                                  title: 'Error',
-                                  desc: 'Revisa los Campos',
-                                  btnCancel: Container(),
-                                  btnOkText: "Aceptar",
-                                  btnOkColor: colors.colorGreen,
-                                  btnCancelOnPress: () {},
-                                  btnOkOnPress: () {},
-                                ).show();
-                              },
-                              subRoute: selectedValueRoute!.split('-')[1],
-                              idOperator: widget.idOperator,
-                              idUser: widget.idUserE);
-                        } else {
-                          AwesomeDialog(
-                            width: 500,
-                            context: context,
-                            dialogType: DialogType.error,
-                            animType: AnimType.rightSlide,
-                            title: 'Error en la Actualización',
-                            desc: 'Actualización Incompleta, Datos Incompletos',
-                            btnCancel: Container(),
-                            btnOkText: "Aceptar",
-                            btnOkColor: colors.colorGreen,
-                            btnCancelOnPress: () {},
-                            btnOkOnPress: () {},
-                          ).show();
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                _modelTextFieldComplete(
+                    "Correo", _controllers.mailEditController),
+                _modelTextFieldComplete(
+                    "Teléfono", _controllers.phoneEditController),
+                _modelTextFieldComplete(
+                    "Costo Operador", _controllers.costOperatorEditController),
+                ElevatedButton(
+                    onPressed: () async {
+                      if (_controllers.mailEditController.text != "" &&
+                          _controllers.phoneEditController.text != "" &&
+                          _controllers.costOperatorEditController.text != "" &&
+                          _controllers.userEditController.text != "") {
+                        String phoneNumber =
+                            _controllers.phoneEditController.text;
+                        if (phoneNumber.startsWith("0")) {
+                          phoneNumber = "+593" + phoneNumber.substring(1);
                         }
-                      },
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.colorGreen),
-                      child: const Text(
-                        "Actualizar Datos",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      )),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  _modelTextFieldComplete("Contraseña", _password),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  ElevatedButton(
-                      onPressed: () async {
+                        _controllers.phoneEditController.text = phoneNumber;
+
                         getLoadingModal(context, false);
-                        // var response = await Connections().updatePasswordById(
-                        await Connections().updatePasswordByIdD(
-                          _password.text,widget.idUserE.toString()
-                        );
-                        Navigator.pop(context);
+                        await _controllers.updateOperator(
+                            success: () {
+                              Navigator.pop(context);
+                              AwesomeDialog(
+                                width: 500,
+                                context: context,
+                                dialogType: DialogType.success,
+                                animType: AnimType.rightSlide,
+                                title: 'Completado',
+                                desc: 'Actualización Completada',
+                                btnCancel: Container(),
+                                btnOkText: "Aceptar",
+                                btnOkColor: colors.colorGreen,
+                                btnCancelOnPress: () {},
+                                btnOkOnPress: () {},
+                              ).show();
+                            },
+                            error: () {
+                              Navigator.pop(context);
+                              AwesomeDialog(
+                                width: 500,
+                                context: context,
+                                dialogType: DialogType.error,
+                                animType: AnimType.rightSlide,
+                                title: 'Error',
+                                desc: 'Revisa los Campos',
+                                btnCancel: Container(),
+                                btnOkText: "Aceptar",
+                                btnOkColor: colors.colorGreen,
+                                btnCancelOnPress: () {},
+                                btnOkOnPress: () {},
+                              ).show();
+                            },
+                            subRoute: selectedValueRoute!.split('-')[1],
+                            idOperator: widget.idOperator,
+                            idUser: widget.idUserE);
+                      } else {
                         AwesomeDialog(
                           width: 500,
                           context: context,
-                          dialogType: DialogType.success,
+                          dialogType: DialogType.error,
                           animType: AnimType.rightSlide,
-                          title: 'Completado',
-                          desc: 'Actualización Completada',
+                          title: 'Error en la Actualización',
+                          desc: 'Actualización Incompleta, Datos Incompletos',
                           btnCancel: Container(),
                           btnOkText: "Aceptar",
                           btnOkColor: colors.colorGreen,
                           btnCancelOnPress: () {},
                           btnOkOnPress: () {},
                         ).show();
-                      },
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.colorGreen),
-                      child: const Text(
-                        "Actualizar Contraseña",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      )),
-                  const SizedBox(
-                    height: 20,
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: colors.colorGreen),
+                    child: const Text(
+                      "Actualizar Datos",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    )),
+                const SizedBox(
+                  height: 20,
+                ),
+                _modelTextFieldComplete("Contraseña", _password),
+                const SizedBox(
+                  height: 10,
+                ),
+                ElevatedButton(
+                    onPressed: () async {
+                      getLoadingModal(context, false);
+                      // var response = await Connections().updatePasswordById(
+                      await Connections().updatePasswordByIdD(
+                          _password.text, widget.idUserE.toString());
+                      Navigator.pop(context);
+                      AwesomeDialog(
+                        width: 500,
+                        context: context,
+                        dialogType: DialogType.success,
+                        animType: AnimType.rightSlide,
+                        title: 'Completado',
+                        desc: 'Actualización Completada',
+                        btnCancel: Container(),
+                        btnOkText: "Aceptar",
+                        btnOkColor: colors.colorGreen,
+                        btnCancelOnPress: () {},
+                        btnOkOnPress: () {},
+                      ).show();
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: colors.colorGreen),
+                    child: const Text(
+                      "Actualizar Contraseña",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    )),
+                const SizedBox(
+                  height: 20,
+                ),
+                const Text(
+                  "Accesos",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                ),
+                Container(
+                  margin: const EdgeInsets.all(20.0),
+                  height: 500,
+                  width: 500,
+                  decoration: BoxDecoration(
+                      border: Border.all(
+                          width: 1.0,
+                          color: const Color.fromARGB(255, 224, 222, 222)),
+                      borderRadius: BorderRadius.circular(10.0)),
+                  child: Builder(
+                    builder: (context) {
+                      return CustomFilterChips(
+                        accessTemp: accessTemp,
+                        accessGeneralofRol: accessGeneralofRol,
+                        loadData: loadData,
+                        idUser: idUser.toString(),
+                      );
+                    },
                   ),
-                  const Text(
-                    "Accesos",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.all(20.0),
-                    height: 500,
-                    width: 500,
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                            width: 1.0,
-                            color: const Color.fromARGB(255, 224, 222, 222)),
-                        borderRadius: BorderRadius.circular(10.0)),
-                    child: Builder(
-                      builder: (context) {
-                        return CustomFilterChips(
-                          accessTemp: accessTemp,
-                          accessGeneralofRol: accessGeneralofRol,
-                          loadData: loadData,
-                          idUser: idUser.toString(),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 30,
-                  ),
-                ],
-              )
-            ],
-          ),
+                ),
+                const SizedBox(
+                  height: 30,
+                ),
+              ],
+            )
+          ],
         ),
       ),
-    );
+    ));
   }
 
   Column _modelTextFieldComplete(title, controller) {

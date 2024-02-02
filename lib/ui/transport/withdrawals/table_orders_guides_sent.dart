@@ -164,11 +164,11 @@ class _TableOrdersGuidesSentStateTransport
           //  *
           filtersAnd = [];
           filtersAnd.add({"/marca_tiempo_envio": date});
-          // filtersAnd.add({
-          //   "/withdrawan_by":
-          //       "O-${selectedValueTransportator.toString().split('-')[1]}"
-          //   // selectedValueTransportator.toString().split('-')[1]
-          // });
+          filtersAnd.add({
+            "/withdrawan_by":
+                "O-${selectedValueTransportator.toString().split('-')[1]}"
+            // selectedValueTransportator.toString().split('-')[1]
+          });
 
           responseL =
               await Connections().getOrdersForSentGuidesPrincipalLaravelD(
@@ -396,9 +396,7 @@ class _TableOrdersGuidesSentStateTransport
             child: DataTable2(
               headingTextStyle:
                   TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-              dataTextStyle: TextStyle(
-                  fontSize: 12,
-                  color: Colors.black),
+              dataTextStyle: TextStyle(fontSize: 12, color: Colors.black),
               columnSpacing: 12,
               horizontalMargin: 12,
               minWidth: 2500,
@@ -654,7 +652,7 @@ class _TableOrdersGuidesSentStateTransport
                         //         counterChecks = optionsCheckBox.length;
                         //       });
                         //     })),
-                        
+
                         DataCell(
                             // Text(data[index]['product']['wahouse'][0]['branch_name'].toString()),
                             Text(data[index]['product']['warehouse']
@@ -1296,47 +1294,33 @@ class _TableOrdersGuidesSentStateTransport
   }
 
   void _mostrarVentanaEmergente(BuildContext context) {
-    if (selectedValueTransportator == null) {
-      AwesomeDialog(
-        width: 500,
-        context: context,
-        dialogType: DialogType.error,
-        animType: AnimType.rightSlide,
-        title: 'Error!',
-        desc: 'Debe Seleccionar un Operador previamente.',
-        btnCancel: Container(),
-        btnOkText: "Aceptar",
-        btnOkColor: colors.colorGreen,
-        btnCancelOnPress: () {},
-        btnOkOnPress: () {},
-      ).show();
-    } else {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            content: Container(
-              width: 800,
-              height: 300,
-              child: CalendarWidget(
-                  onDateSelected: (selectedDate) {
-                    setState(() {
-                      // Actualiza 'date' con la fecha seleccionada
-                      String formattedDate =
-                          DateFormat('d/M/yyyy').format(selectedDate);
-                      date = formattedDate;
-                      print('Fecha seleccionada: $formattedDate');
-                    });
-                    // Llama a loadData aquí si necesitas recargar datos con la nueva fecha
-                    loadData();
-                    Navigator.pop(context);
-                  },
-                  idWarehouse:
-                      "O-${selectedValueTransportator!.split('-')[1]}"),
-            ),
-          );
-        },
-      );
-    }
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Container(
+            width: 800,
+            height: 300,
+            child: CalendarWidget(
+                onDateSelected: (selectedDate) {
+                  setState(() {
+                    // Aquí actualizas 'date' con la fecha seleccionada
+                    String formattedDate =
+                        DateFormat('d/M/yyyy').format(selectedDate);
+                    date = formattedDate;
+                    print('Fecha seleccionada: $formattedDate');
+                  });
+                  // Llama a loadData aquí si necesitas recargar datos con la nueva fecha
+                  loadData();
+                  Navigator.pop(context);
+                },
+                idWarehouse:"",
+                roleInvoke: "3"),
+          ),
+        );
+      },
+    );
   }
+
+
 }

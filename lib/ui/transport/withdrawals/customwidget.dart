@@ -7,10 +7,12 @@ import 'package:intl/intl.dart';
 class CalendarWidget extends StatefulWidget {
   final Function(DateTime) onDateSelected;
   final String idWarehouse;
+  final String roleInvoke;
   const CalendarWidget({
     Key? key,
     required this.onDateSelected,
     required this.idWarehouse,
+    required this.roleInvoke,
   }) : super(key: key);
 
   @override
@@ -51,9 +53,16 @@ class _CalendarWidgetState extends State<CalendarWidget> {
     setState(() {
       _isLoading = true; // Inicia la carga
     });
-
-    var respvlaues =
-        await Connections().getValuesDropdownOp(monthYear, widget.idWarehouse);
+    var respvlaues;
+    if (widget.roleInvoke == "4") {
+      respvlaues = await Connections()
+          .getValuesDropdownOp(monthYear, widget.idWarehouse);
+    } else {
+      respvlaues = await Connections()
+          .getValuesDropdown(monthYear, widget.idWarehouse);
+    }
+    // var respvlaues =
+    //     await Connections().getValuesDropdownOp(monthYear, widget.idWarehouse);
     // print(respvlaues);
 
     if (mounted) {

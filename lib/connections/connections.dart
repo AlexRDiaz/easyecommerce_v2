@@ -4128,14 +4128,18 @@ class Connections {
     print(json.encode(
         {"and": filtersAndAll, "or": filtersOr, "searchValue": searchValue}));
     try {
-      var response = await http.post(
-          Uri.parse("$serverLaravel/api/operadoresoftransport"),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({
-            "and": filtersAndAll,
-            "or": filtersOr,
-            "searchValue": searchValue
-          }));
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/operadoresoftransport"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "and": filtersAndAll,
+                "or": filtersOr,
+                "searchValue": searchValue,
+                "sort": {
+                  "field": "operadores.transportadoras.transportadora_id",
+                  "direction": "DESC"
+                }
+              })); 
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         // print(decodeData);
@@ -7843,8 +7847,7 @@ class Connections {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: json
-              .encode({"monthYear": monthYear, "idWarehouse": idWarehouse}));
+          body: json.encode({"monthYear": monthYear}));
       var response = await request.body;
       var decodeData = json.decode(response);
       List<Map<String, dynamic>> notificationsList =

@@ -256,19 +256,12 @@ class _AddOperatorsTransportLogisticState
                                   ],
                                 ),
                                 onTap: () async {
-                                  await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          EditOperatorLogistic(
-                                        idUserE: data[index]['id'].toString(),
-                                        idOperator: data[index]['operadores'][0]
-                                                ['id']
-                                            .toString(),
-                                      ),
-                                    ),
-                                  );
-                                  loadData();
+                                  _mostrarVentanaModal(
+                                      context,
+                                      data[index]['id'].toString(),
+                                      data[index]['operadores'][0]['id']
+                                          .toString());
+                                  // await loadData();
                                 },
                               ),
                               DataCell(
@@ -929,12 +922,13 @@ class _AddOperatorsTransportLogisticState
     return const Icon(Icons.close, color: Colors.orange);
   }
 
-  void _mostrarVentanaModal(BuildContext context, Widget contenidoModal) {
+  void _mostrarVentanaModal(BuildContext context, idUserE, idOperator) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          child: contenidoModal,
+        return EditOperatorLogistic(
+          idUserE: idUserE,
+          idOperator: idOperator,
         );
       },
     );
