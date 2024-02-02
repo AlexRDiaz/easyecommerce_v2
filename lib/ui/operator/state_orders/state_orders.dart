@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
@@ -275,6 +277,40 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
       costoTransportadora =
           double.parse(valuesTransporter['totalShippingCost'].toString());
     });
+  }
+
+  String getStateFromJson(String? jsonString, String claveAbuscar) {
+    // Verificar si jsonString es null
+    if (jsonString == null || jsonString.isEmpty) {
+      return ''; // Retorna una cadena vacía si el valor es null o está vacío
+    }
+
+    try {
+      Map<String, dynamic> jsonMap = json.decode(jsonString);
+      return jsonMap[claveAbuscar]?.toString() ?? '';
+    } catch (e) {
+      print('Error al decodificar JSON: $e');
+      return ''; // Manejar el error retornando una cadena vacía o un valor predeterminado
+    }
+  }
+
+  Color? GetColorofStateNovelti(stateNovelti) {
+    int color = 0xFF000000;
+
+    switch (stateNovelti) {
+      case "ok":
+        color = 0xFF66BB6A;
+        break;
+      case "gestioned":
+        color = 0xFFD6DC27;
+        break;
+      case "resolved":
+        color = 0xFFFF5722;
+        break;
+      default:
+        color = 0xFF000000;
+    }
+    return Color(color);
   }
 
   updateCounters() {
@@ -1058,6 +1094,13 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
       //   size: ColumnSize.M,
       // ),
       DataColumn2(
+        label: Text("Com. Novedades"),
+        size: ColumnSize.L,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("numero_orden", changevalue);
+        },
+      ),
+      DataColumn2(
         label: Text('Nombre Cliente'),
         size: ColumnSize.M,
         onSort: (columnIndex, ascending) {
@@ -1233,6 +1276,14 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
           //           : ""
           //       : ""),
           // ),
+          DataCell(InkWell(
+              child: Text(
+                getStateFromJson(
+                    dataL[index]['gestioned_novelty']?.toString(), 'comment'),
+              ),
+              onTap: () {
+                info(context, index);
+              })),
           DataCell(
             Text(dataL[index]['nombre_shipping'].toString()),
             onTap: () {
@@ -1252,7 +1303,12 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
             },
           ),
           DataCell(
-            Text(dataL[index]['telefono_shipping'].toString()),
+            Text(
+              dataL[index]['telefono_shipping'].toString(),
+              style: TextStyle(
+                  color: GetColorofStateNovelti(getStateFromJson(
+                      dataL[index]['gestioned_novelty']?.toString(), 'state'))),
+            ),
             onTap: () {
               info(context, index);
             },

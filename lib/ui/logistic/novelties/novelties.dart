@@ -712,7 +712,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
     }
 
     return DropdownButton<String>(
-      dropdownColor: ColorsSystem().colorPrincipalBrand,
+      dropdownColor: ColorsSystem().violetWidgets,
       value: valorActual,
       onChanged: (String? nuevoValor) async {
         if (nuevoValor != null) {
@@ -731,7 +731,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
             padding: const EdgeInsets.only(left: 10.0),
             child: Text(
               valor,
-              style: TextStyle(color: Colors.white, fontSize: 12.0),
+              style: TextStyle(color: GetColorDropStatus(valor), fontSize: 12.0,fontWeight: FontWeight.bold),
             ),
           ),
         );
@@ -1374,7 +1374,8 @@ Quedamos atentos a su respuesta Muchas gracias.
       DataCell(
           Container(
             decoration: BoxDecoration(
-                color: ColorsSystem().colorPrincipalBrand,
+                // color: const Color.fromARGB(255, 122, 53, 53),
+                color: ColorsSystem().violetWidgets,
                 border: Border.all(width: 2, color: Colors.grey),
                 borderRadius: BorderRadius.circular(5.0)),
             width: 130,
@@ -2356,6 +2357,37 @@ Quedamos atentos a su respuesta Muchas gracias.
 
       default:
         color = 0xFF000000;
+    }
+
+    return Color(color);
+  }
+
+
+  Color? GetColorDropStatus(state) {
+    int color = 0xFF000000;
+
+    switch (state) {
+      case "ENTREGADO":
+        color = 0xFF66BB6A;
+        break;
+      case "NOVEDAD":
+        color = 0xFFD6DC27;
+        break;
+      case "NO ENTREGADO":
+        color = 0xFFF32121;
+        break;
+      case "REAGENDADO":
+        color = 0xFFE320F1;
+        break;
+      case "EN RUTA":
+        color = 0xFF3341FF;
+        break;
+      case "EN OFICINA":
+        color = 0xFF000000;
+        break;
+
+      default:
+        color = 0xFF5D4D89;
     }
 
     return Color(color);
