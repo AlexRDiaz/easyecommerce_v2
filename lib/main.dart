@@ -28,8 +28,8 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:frontend/connections/connections.dart';
 
 SharedPreferences? sharedPrefs;
-NotificationManager? notificationManager;
-NotificationManagerOperator? notificationManagerOperator; 
+// NotificationManager? notificationManager;
+// NotificationManagerOperator? notificationManagerOperator; 
 
 void main() async {
   await initializeDateFormatting('es');
@@ -37,13 +37,13 @@ void main() async {
   sharedPrefs = await SharedPreferences.getInstance();
   setPathUrlStrategy();
 
-  notificationManager = NotificationManager();
-  notificationManagerOperator = NotificationManagerOperator();
+  // notificationManager = NotificationManager();
+  // notificationManagerOperator = NotificationManagerOperator();
 
   runApp(MultiProvider(
     providers: [
-      ChangeNotifierProvider(create: (_) => NotificationManager()),
-      ChangeNotifierProvider(create: (_) => NotificationManagerOperator()),
+      // ChangeNotifierProvider(create: (_) => NotificationManager()),
+      // ChangeNotifierProvider(create: (_) => NotificationManagerOperator()),
       ListenableProvider<NavigationProviderLogistic>(
         create: (_) => NavigationProviderLogistic(),
       ),
@@ -98,81 +98,81 @@ class MyCustomScrollBehavior extends MaterialScrollBehavior {
       };
 }
 
-class NotificationManager with ChangeNotifier {
-  List<Map<String, dynamic>> _notifications = [];
-  Timer? _timer;
+// class NotificationManager with ChangeNotifier {
+//   List<Map<String, dynamic>> _notifications = [];
+//   Timer? _timer;
 
-  List<Map<String, dynamic>> get notifications => _notifications;
+//   List<Map<String, dynamic>> get notifications => _notifications;
 
-  NotificationManager() {
-    _loadNotifications();
-    _startAutoUpdate();
-  }
+//   NotificationManager() {
+//     _loadNotifications();
+//     _startAutoUpdate();
+//   }
 
-  void _startAutoUpdate() {
-    _timer = Timer.periodic(Duration(minutes: 1), (timer) {
-      _loadNotifications();
-    });
-  }
+//   void _startAutoUpdate() {
+//     _timer = Timer.periodic(Duration(minutes: 1), (timer) {
+//       _loadNotifications();
+//     });
+//   }
 
-   Future<void> updateNotifications() async {
-        await _loadNotifications();
-    }
+//    Future<void> updateNotifications() async {
+//         await _loadNotifications();
+//     }
 
-  Future<void> _loadNotifications() async {
-    try {
-      var res = await Connections().getCountNotificationsWarehousesWithdrawals();
-      _notifications = res;
-      notifyListeners();
-    } catch (e) {
-      print("Error loading notifications: $e");
-    }
-  }
+//   Future<void> _loadNotifications() async {
+//     try {
+//       var res = await Connections().getCountNotificationsWarehousesWithdrawals();
+//       _notifications = res;
+//       notifyListeners();
+//     } catch (e) {
+//       print("Error loading notifications: $e");
+//     }
+//   }
 
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-}
+//   @override
+//   void dispose() {
+//     _timer?.cancel();
+//     super.dispose();
+//   }
+// }
 
 
-class NotificationManagerOperator with ChangeNotifier {
-  List<Map<String, dynamic>> _notifications = [];
-  Timer? _timer;
+// class NotificationManagerOperator with ChangeNotifier {
+//   List<Map<String, dynamic>> _notifications = [];
+//   Timer? _timer;
 
-  List<Map<String, dynamic>> get notifications => _notifications;
+//   List<Map<String, dynamic>> get notifications => _notifications;
 
-  NotificationManagerOperator() {
-    _loadNotifications();
-    _startAutoUpdate();
-  }
+//   NotificationManagerOperator() {
+//     _loadNotifications();
+//     _startAutoUpdate();
+//   }
 
-  void _startAutoUpdate() {
-    _timer = Timer.periodic(Duration(minutes: 1), (timer) {
-      _loadNotifications();
-    });
-  }
+//   void _startAutoUpdate() {
+//     _timer = Timer.periodic(Duration(minutes: 1), (timer) {
+//       _loadNotifications();
+//     });
+//   }
 
-   Future<void> updateNotifications() async {
-        await _loadNotifications();
-    }
+//    Future<void> updateNotifications() async {
+//         await _loadNotifications();
+//     }
 
-  Future<void> _loadNotifications() async {
-    try {
-      var res = await Connections().getOrdersCountByWarehouseByOrders();
-      _notifications = res;
-      notifyListeners();
-    } catch (e) {
-      print("Error loading notifications: $e");
-    }
-  }
+//   Future<void> _loadNotifications() async {
+//     try {
+//       var res = await Connections().getOrdersCountByWarehouseByOrders();
+//       _notifications = res;
+//       notifyListeners();
+//     } catch (e) {
+//       print("Error loading notifications: $e");
+//     }
+//   }
 
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-}
+//   @override
+//   void dispose() {
+//     _timer?.cancel();
+//     super.dispose();
+//   }
+// }
 
 
