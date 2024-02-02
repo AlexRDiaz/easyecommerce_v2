@@ -3385,6 +3385,7 @@ class Connections {
   }
 
   getOrdersForSellerStateSearchForDateSellerLaravel(
+      populate,
       dateFilter,
       code,
       arrayFiltersOrCont,
@@ -3411,6 +3412,7 @@ class Connections {
       var requestlaravel = await http.post(Uri.parse(urlnew),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
+            "populate": populate,
             "date_filter": dateFilter,
             "start": sharedPrefs!.getString("dateDesdeVendedor"),
             "end": sharedPrefs!.getString("dateHastaVendedor"),

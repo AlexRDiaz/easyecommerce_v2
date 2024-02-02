@@ -117,7 +117,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   List arrayFiltersNotEq = [
     //{'status': 'PEDIDO PROGRAMADO'}
   ];
-  List populate = [
+  List populateC = [
     'transportadora',
     'users',
     'users.vendedores',
@@ -196,6 +196,16 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   List selectedStatus = [];
   List selectedInternal = [];
   List<String> selectedChips = [];
+  List populate = [
+    'operadore.up_users',
+    'transportadora',
+    'users.vendedores',
+    'novedades',
+    'pedidoFecha',
+    'ruta',
+    'subRuta'
+  ];
+  //        $pedidos = PedidosShopify::with(['operadore.up_users', 'transportadora', 'users.vendedores', 'novedades', 'pedidoFecha', 'ruta', 'subRuta'])
 
   @override
   void didChangeDependencies() {
@@ -220,7 +230,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       });
 
       var responseCounters = await Connections().getOrdersCountersSeller(
-          populate,
+          populateC,
           arrayfiltersDefaultAnd,
           [],
           arrayFiltersNotEq,
@@ -231,6 +241,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
 
       var responseLaravel = await Connections()
           .getOrdersForSellerStateSearchForDateSellerLaravel(
+              populate,
               selectedDateFilter,
               _controllers.searchController.text,
               filtersOrCont,
@@ -299,6 +310,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       });
       var response = await Connections()
           .getOrdersForSellerStateSearchForDateSellerLaravel(
+              populate,
               selectedDateFilter,
               _controllers.searchController.text,
               filtersOrCont,

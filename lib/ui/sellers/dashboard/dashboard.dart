@@ -225,16 +225,25 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
     'FECHA ENTREGA',
   ];
 
+  // List populate = [
+  //   "pedido_fecha",
+  //   "transportadora",
+  //   "ruta",
+  //   "sub_ruta",
+  //   "operadore",
+  //   "operadore.user",
+  //   "users",
+  //   "users.vendedores",
+  //   "novedades"
+  // ];
   List populate = [
-    "pedido_fecha",
-    "transportadora",
-    "ruta",
-    "sub_ruta",
-    "operadore",
-    "operadore.user",
-    "users",
-    "users.vendedores",
-    "novedades"
+    'operadore.up_users',
+    'transportadora',
+    'users.vendedores',
+    'novedades',
+    'pedidoFecha',
+    'ruta',
+    'subRuta'
   ];
 
 // ! ********************************
@@ -272,6 +281,7 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
     // data table
     var responseLaravel = await Connections()
         .getOrdersForSellerStateSearchForDateSellerLaravel(
+            populate,
             selectedDateFilter,
             "",
             [],
