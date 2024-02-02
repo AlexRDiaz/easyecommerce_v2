@@ -1430,6 +1430,7 @@ class Connections {
       String dateFilter) async {
     int res = 0;
     try {
+
       print('start: ${sharedPrefs!.getString("dateDesdeLogistica")}');
       print('end: ${sharedPrefs!.getString("dateHastaLogistica")}');
 

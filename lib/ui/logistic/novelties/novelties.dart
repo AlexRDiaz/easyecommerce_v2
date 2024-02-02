@@ -13,6 +13,7 @@ import 'package:frontend/ui/logistic/novelties/novelties_info.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_details.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_details_data.dart';
 import 'package:frontend/ui/logistic/vendor_invoices/controllers/controllers.dart';
+import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -741,7 +742,6 @@ class _NoveltiesLState extends State<NoveltiesL> {
   DropdownButton<String> crearDropdownButtonFD(String selectedValue,
       List<String> dataList, Function(String?) onSelected) {
     return DropdownButton<String>(
-      dropdownColor: Colors.grey[800], // Puedes elegir el color que desees
       value: selectedValue,
       onChanged: (String? nuevoValor) {
         onSelected(nuevoValor);
@@ -750,13 +750,13 @@ class _NoveltiesLState extends State<NoveltiesL> {
         return DropdownMenuItem<String>(
           value: valor,
           child: Container(
-            decoration: BoxDecoration(
-                // Agrega estilos si es necesario
-                ),
-            padding: const EdgeInsets.all(8.0),
+            // decoration: BoxDecoration(
+            // Agrega estilos si es necesario
+            // ),
+            // padding: const EdgeInsets.all(8.0),
             child: Text(
               valor,
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: ColorsSystem().colorPrincipalBrand),
             ),
           ),
         );
@@ -1165,7 +1165,9 @@ class _NoveltiesLState extends State<NoveltiesL> {
               message: 'OK Novedad',
               child: InkWell(
                 onTap: () async {
-                  updateGestionedNovelty(context, index, 3, "Ok Novedad", "");
+                  await updateGestionedNovelty(
+                      context, index, 3, "Ok Novedad", "");
+                  await loadData();
                 },
                 child: Icon(Icons.check_circle_rounded, color: Colors.green),
               ),
@@ -1284,7 +1286,7 @@ Quedamos atentos a su respuesta Muchas gracias.
                     data[index]['gestioned_novelty']?.toString(), 'state')),
                 fontWeight: FontWeight.bold),
           ), onTap: () {
-        print(data[index]['gestioned_novelty']);
+        // print(data[index]['gestioned_novelty']);
       }),
       DataCell(
           Text(
@@ -1570,18 +1572,18 @@ Quedamos atentos a su respuesta Muchas gracias.
                 width: 10,
               ),
               crearDropdownButtonFD(
-  filterDate,
-  ['FECHA ENTREGA', 'MARCA TIEMPO ENVIO'], // Tu lista de opciones
-  (String? newValue) {
-    if (newValue != null) {
-      setState(() {
-        filterDate = newValue;
-        // Realiza la lógica que necesitas cuando el valor cambia
-      });
-    }
-  },
-),
- SizedBox(
+                filterDate,
+                ['FECHA ENTREGA', 'MARCA TIEMPO ENVIO'], // Tu lista de opciones
+                (String? newValue) {
+                  if (newValue != null) {
+                    setState(() {
+                      filterDate = newValue;
+                      // Realiza la lógica que necesitas cuando el valor cambia
+                    });
+                  }
+                },
+              ),
+              SizedBox(
                 width: 10,
               ),
               ElevatedButton(
@@ -1608,6 +1610,7 @@ Quedamos atentos a su respuesta Muchas gracias.
                   setState(() {
                     limpiar();
                     loadData();
+                    filterDate = "FECHA ENTREGA";
                   });
                 },
                 child: const Row(
@@ -1638,21 +1641,24 @@ Quedamos atentos a su respuesta Muchas gracias.
 
                   try {
                     // Suponiendo que tu función necesita parámetros como 'populate', 'defaultArrayFiltersAnd', etc.
-                    var response =
-                        await Connections().getOrdersForNoveltiesByDatesLaravel(
-                      populate,
-                      defaultArrayFiltersAnd,
-                      arrayFiltersAnd,
-                      arrayFiltersOr,
-                      not,
-                      1,
-                      100000,
-                      _controllers.searchController.text,
-                      sortFieldDefaultValue,
-                      sharedPrefs!.getString("dateDesdeLogistica").toString(),
-                      sharedPrefs!.getString("dateHastaLogistica").toString(),
-                      filterDate
-                    );
+                    var response = await Connections()
+                        .getOrdersForNoveltiesByDatesLaravel(
+                            populate,
+                            defaultArrayFiltersAnd,
+                            arrayFiltersAnd,
+                            arrayFiltersOr,
+                            not,
+                            1,
+                            100000,
+                            _controllers.searchController.text,
+                            sortFieldDefaultValue,
+                            sharedPrefs!
+                                .getString("dateDesdeLogistica")
+                                .toString(),
+                            sharedPrefs!
+                                .getString("dateHastaLogistica")
+                                .toString(),
+                            filterDate);
 
                     // Suponiendo que 'generateExcelFileWithData' toma la lista de datos como parámetro
                     await getReport.generateExcelFileWithData(response['data']);
@@ -1786,6 +1792,18 @@ Quedamos atentos a su respuesta Muchas gracias.
               SizedBox(
                 width: 10,
               ),
+              crearDropdownButtonFD(
+                filterDate,
+                ['FECHA ENTREGA', 'MARCA TIEMPO ENVIO'], // Tu lista de opciones
+                (String? newValue) {
+                  if (newValue != null) {
+                    setState(() {
+                      filterDate = newValue;
+                      // Realiza la lógica que necesitas cuando el valor cambia
+                    });
+                  }
+                },
+              ),
             ],
           ),
           Row(
@@ -1816,6 +1834,7 @@ Quedamos atentos a su respuesta Muchas gracias.
                     setState(() {
                       limpiar();
                       loadData();
+                      filterDate = "FECHA ENTREGA";
                     });
                   },
                   child: const Row(
@@ -1848,19 +1867,22 @@ Quedamos atentos a su respuesta Muchas gracias.
                       // Suponiendo que tu función necesita parámetros como 'populate', 'defaultArrayFiltersAnd', etc.
                       var response = await Connections()
                           .getOrdersForNoveltiesByDatesLaravel(
-                        populate,
-                        defaultArrayFiltersAnd,
-                        arrayFiltersAnd,
-                        arrayFiltersOr,
-                        not,
-                        1,
-                        100000,
-                        _controllers.searchController.text,
-                        sortFieldDefaultValue,
-                        sharedPrefs!.getString("dateDesdeLogistica").toString(),
-                        sharedPrefs!.getString("dateHastaLogistica").toString(),
-                        filterDate
-                      );
+                              populate,
+                              defaultArrayFiltersAnd,
+                              arrayFiltersAnd,
+                              arrayFiltersOr,
+                              not,
+                              1,
+                              100000,
+                              _controllers.searchController.text,
+                              sortFieldDefaultValue,
+                              sharedPrefs!
+                                  .getString("dateDesdeLogistica")
+                                  .toString(),
+                              sharedPrefs!
+                                  .getString("dateHastaLogistica")
+                                  .toString(),
+                              filterDate);
 
                       // Suponiendo que 'generateExcelFileWithData' toma la lista de datos como parámetro
                       await getReport
@@ -2055,7 +2077,7 @@ Quedamos atentos a su respuesta Muchas gracias.
     double width =
         MediaQuery.of(context).size.width * 0.3; // Ajustar según necesidad
     double height =
-        MediaQuery.of(context).size.height * 0.1; // Ajustar según necesidad
+        MediaQuery.of(context).size.height * 0.15; // Ajustar según necesidad
 
     showDialog(
       context: context,
@@ -2107,12 +2129,14 @@ Quedamos atentos a su respuesta Muchas gracias.
                           borderRadius: BorderRadius.circular(30),
                         ),
                       ),
-                      onPressed: () {
+                      onPressed: () async {
                         updateGestionedNovelty(context, index, noveltyState,
                             title, myController.text);
                         myController.clear();
-                        Navigator.pop(
-                            context); // Cierra el modal después de la acción
+                        Navigator.pop(context);
+                        // Navigator.pop(context);
+                        await loadData();
+                        // Navigator.pop(context); // Cierra el modal después de la acción
                       },
                     ),
                     ElevatedButton.icon(
@@ -2139,7 +2163,11 @@ Quedamos atentos a su respuesta Muchas gracias.
   }
 
   updateGestionedNovelty(context, index, noveltyState, title, comment) async {
-    getLoadingModal(context, false);
+    // getLoadingModal(context, false);
+    DateTime now = DateTime.now();
+    String formattedDate = DateFormat('d/M/yyyy HH:mm:ss').format(now);
+
+    print(formattedDate);
 
     if (noveltyState == 3) {
       comment =
@@ -2152,26 +2180,27 @@ Quedamos atentos a su respuesta Muchas gracias.
       comment,
       sharedPrefs!.getString("id"),
       noveltyState,
-      sharedPrefs!.getString("dateDesdeLogistica").toString(),
+      formattedDate,
     );
-    Navigator.pop(context);
 
-    if (resp['response'].toString() == "Novelty updated successfully") {
-      AwesomeDialog(
-        width: 500,
-        context: context,
-        dialogType: DialogType.success,
-        animType: AnimType.rightSlide,
-        title: title,
-        desc: 'Estado de Novedad actualizado a $title',
-        btnCancel: Container(),
-        btnOkText: "Aceptar",
-        btnOkColor: Colors.green,
-        btnCancelOnPress: () {},
-        btnOkOnPress: () {},
-      ).show();
-    }
-    await loadData();
+    // if (resp['response'].toString() == "Novelty updated successfully") {
+    //   AwesomeDialog(
+    //     width: 500,
+    //     context: context,
+    //     dialogType: DialogType.success,
+    //     animType: AnimType.rightSlide,
+    //     title: title,
+    //     desc: 'Estado de Novedad actualizado a $title',
+    //     btnCancel: Container(),
+    //     btnOkText: "Aceptar",
+    //     btnOkColor: Colors.green,
+    //     btnCancelOnPress: () {},
+    //     btnOkOnPress: () {},
+    //   ).show();
+    // }
+    // Navigator.pop(context);
+
+    // await loadData();
   }
 
   clearSelected() {
