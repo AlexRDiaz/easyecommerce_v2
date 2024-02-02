@@ -31,8 +31,9 @@ class _InfoReceivedValuesOperatorState
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
-    var response = await Connections().getOrdersByIDOperator(widget.id);
+    // var response = await Connections().getOrdersByIDOperator(widget.id);
     // data = response;
+    var response = await Connections().getOrderByIDHistoryLaravel(widget.id);
     data = response;
     _controllers.editControllers(response);
 
@@ -75,7 +76,7 @@ class _InfoReceivedValuesOperatorState
                           height: 20,
                         ),
                         Text(
-                          "  Fecha: ${data['attributes']['Marca_Tiempo_Envio'].toString().split(" ")[0]}",
+                          "  Fecha: ${data['marca_tiempo_envio'].toString().split(" ")[0]}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -83,7 +84,7 @@ class _InfoReceivedValuesOperatorState
                           height: 20,
                         ),
                         Text(
-                          "  Fecha Entrega: ${data['attributes']['Fecha_Entrega'].toString()}",
+                          "  Fecha Entrega: ${data['fecha_entrega'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -91,7 +92,7 @@ class _InfoReceivedValuesOperatorState
                           height: 20,
                         ),
                         Text(
-                          "  Código: ${data['attributes']['Name_Comercial'].toString()}-${data['attributes']['NumeroOrden'].toString()}",
+                          "  Código: ${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data['numero_orden'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -163,7 +164,7 @@ class _InfoReceivedValuesOperatorState
                           height: 20,
                         ),
                         Text(
-                          "  Observación: ${data['attributes']['Observacion'].toString()}",
+                          "  Observación: ${data['observacion'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -171,7 +172,7 @@ class _InfoReceivedValuesOperatorState
                           height: 20,
                         ),
                         Text(
-                          "  Comentario: ${data['attributes']['Comentario'].toString()}",
+                          "  Comentario: ${data['comentario'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -179,7 +180,7 @@ class _InfoReceivedValuesOperatorState
                           height: 20,
                         ),
                         Text(
-                          "  Status: ${data['attributes']['Status'].toString()}",
+                          "  Status: ${data['status'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -187,7 +188,7 @@ class _InfoReceivedValuesOperatorState
                           height: 20,
                         ),
                         Text(
-                          "  Tipo Pago: ${data['attributes']['TipoPago'].toString()}",
+                          "  Tipo Pago: ${data['tipo_pago'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -195,7 +196,7 @@ class _InfoReceivedValuesOperatorState
                           height: 20,
                         ),
                         Text(
-                          " MARCA DE TIEMPO DEVOLUCIÓN: ${data['attributes']['Marca_T_D'].toString()}",
+                          " MARCA DE TIEMPO DEVOLUCIÓN: ${data['marca_t_d'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -203,7 +204,7 @@ class _InfoReceivedValuesOperatorState
                           height: 20,
                         ),
                         Text(
-                          " MARCA DE TIEMPO DE INGRESO DE PEDIDO: ${data['attributes']['Marca_T_I'].toString()}",
+                          " MARCA DE TIEMPO DE INGRESO DE PEDIDO: ${data['marca_t_i'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -211,7 +212,7 @@ class _InfoReceivedValuesOperatorState
                           height: 20,
                         ),
                         Text(
-                          " ESTADO DE PAGO: ${data['attributes']['Estado_Pagado'].toString()}",
+                          " ESTADO DE PAGO: ${data['estado_pagado'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -226,15 +227,14 @@ class _InfoReceivedValuesOperatorState
                         SizedBox(
                           height: 20,
                         ),
-                        data['attributes']['Archivo'].toString().isEmpty ||
-                                data['attributes']['Archivo'].toString() ==
-                                    "null"
+                        data['archivo'].toString().isEmpty ||
+                                data['archivo'].toString() == "null"
                             ? Container()
                             : Container(
                                 width: 300,
                                 height: 400,
                                 child: Image.network(
-                                  "$generalServer${data['attributes']['Archivo'].toString()}",
+                                  "$generalServer${data['archivo'].toString()}",
                                   fit: BoxFit.fill,
                                 )),
                         SizedBox(

@@ -29,8 +29,10 @@ class _DeliveryStatusInfo extends State<DeliveryStatusInfo> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
-    var response = await Connections().getOrdersByIDLogistic(widget.id);
+    // var response = await Connections().getOrdersByIDLogistic(widget.id);
     // data = response;
+    var response = await Connections().getOrderByIDHistoryLaravel(widget.id);
+
     data = response;
     _controllers.editControllers(response);
 
@@ -73,7 +75,7 @@ class _DeliveryStatusInfo extends State<DeliveryStatusInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Código: ${data['attributes']['NumeroOrden'].toString()}",
+                          "  Código: ${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data['numero_orden'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -81,7 +83,7 @@ class _DeliveryStatusInfo extends State<DeliveryStatusInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Fecha Envio: ${data['attributes']['Marca_Tiempo_Envio'].toString()}",
+                          "  Fecha Envio: ${data['marca_tiempo_envio'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -153,7 +155,7 @@ class _DeliveryStatusInfo extends State<DeliveryStatusInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Observación: ${data['attributes']['Observacion'].toString()}",
+                          "  Observación: ${data['observacion'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -161,7 +163,7 @@ class _DeliveryStatusInfo extends State<DeliveryStatusInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Comentario: ${data['attributes']['Comentario'].toString()}",
+                          "  Comentario: ${data['comentario'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -169,7 +171,7 @@ class _DeliveryStatusInfo extends State<DeliveryStatusInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Status: ${data['attributes']['Status'].toString()}",
+                          "  Status: ${data['status'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -177,7 +179,7 @@ class _DeliveryStatusInfo extends State<DeliveryStatusInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Vendedor: ${data['attributes']['Tienda_Temporal'].toString()}",
+                          "  Vendedor: ${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -185,7 +187,7 @@ class _DeliveryStatusInfo extends State<DeliveryStatusInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Transportadora: ${data['attributes']['transportadora']['data']['attributes']['Nombre'].toString()}",
+                          "  Transportadora: ${data['transportadora'] != null && data['transportadora'].isNotEmpty ? data['transportadora'][0]['nombre'].toString() : ''}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -193,7 +195,7 @@ class _DeliveryStatusInfo extends State<DeliveryStatusInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Operador: ${data['attributes']['operadore']['data']['attributes']['user']['data']['attributes']['username'].toString()}",
+                          "  Operador: ${data['operadore'] != null && data['operadore'].isNotEmpty && data['operadore'][0]['up_users'] != null && data['operadore'][0]['up_users'].isNotEmpty ? data['operadore'][0]['up_users'][0]['username'] : 'No disponible'}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -201,7 +203,7 @@ class _DeliveryStatusInfo extends State<DeliveryStatusInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Estado Devolución: ${data['attributes']['Estado_Devolucion'].toString()}",
+                          "  Estado Devolución: ${data['estado_devolucion'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -209,7 +211,7 @@ class _DeliveryStatusInfo extends State<DeliveryStatusInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Costo Devolución: ${data['attributes']['users'] != null ? data['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['attributes']['CostoDevolucion'].toString() : ""}",
+                          "  Costo Devolución: ${data['users'] != null ? data['users'][0]['vendedores'][0]['costo_devolucion'].toString() : ""}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -217,7 +219,7 @@ class _DeliveryStatusInfo extends State<DeliveryStatusInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Fecha Entrega: ${data['attributes']['Fecha_Entrega'].toString()}",
+                          "  Fecha Entrega: ${data['fecha_entrega'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -225,7 +227,7 @@ class _DeliveryStatusInfo extends State<DeliveryStatusInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Estado Pago: ${data['attributes']['Estado_Pagado'].toString()}",
+                          "  Estado Pago: ${data['estado_pagado'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -240,15 +242,14 @@ class _DeliveryStatusInfo extends State<DeliveryStatusInfo> {
                         SizedBox(
                           height: 20,
                         ),
-                        data['attributes']['Archivo'].toString().isEmpty ||
-                                data['attributes']['Archivo'].toString() ==
-                                    "null"
+                        data['archivo'].toString().isEmpty ||
+                                data['archivo'].toString() == "null"
                             ? Container()
                             : Container(
                                 width: 300,
                                 height: 400,
                                 child: Image.network(
-                                  "$generalServer${data['attributes']['Archivo'].toString()}",
+                                  "$generalServer${data['archivo'].toString()}",
                                   fit: BoxFit.fill,
                                 )),
                         SizedBox(
