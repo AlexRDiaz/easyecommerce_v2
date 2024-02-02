@@ -1,5 +1,7 @@
 // ignore_for_file: unnecessary_null_comparison, use_build_context_synchronously
 
+import 'dart:convert';
+
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
@@ -635,6 +637,14 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                 OpenShowDialog(context, index);
               })),
           DataCell(InkWell(
+              child: Text(
+                getStateFromJson(
+                    data[index]['gestioned_novelty']?.toString(), 'comment'),
+              ),
+              onTap: () {
+                OpenShowDialog(context, index);
+              })),
+          DataCell(InkWell(
               child: Text(data[index]['nombre_shipping'].toString()),
               onTap: () {
                 OpenShowDialog(context, index);
@@ -653,7 +663,13 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                 OpenShowDialog(context, index);
               })),
           DataCell(InkWell(
-              child: Text(data[index]['telefono_shipping'].toString()),
+              child: Text(
+                data[index]['telefono_shipping'].toString(),
+                style: TextStyle(
+                    color: GetColorofStateNovelti(getStateFromJson(
+                        data[index]['gestioned_novelty']?.toString(),
+                        'state'))),
+              ),
               onTap: () {
                 OpenShowDialog(context, index);
               })),
@@ -796,6 +812,13 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
         size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
           sortFunc3("numero_orden", changevalue);
+        },
+      ),
+      DataColumn2(
+        label: Text("Com. Novedades"),
+        size: ColumnSize.L,
+        onSort: (columnIndex, ascending) {
+          // sortFunc3("numero_orden", changevalue);
         },
       ),
       DataColumn2(
@@ -1157,6 +1180,40 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
       }
       loadData(context);
     });
+  }
+
+  String getStateFromJson(String? jsonString, String claveAbuscar) {
+    // Verificar si jsonString es null
+    if (jsonString == null || jsonString.isEmpty) {
+      return ''; // Retorna una cadena vacía si el valor es null o está vacío
+    }
+
+    try {
+      Map<String, dynamic> jsonMap = json.decode(jsonString);
+      return jsonMap[claveAbuscar]?.toString() ?? '';
+    } catch (e) {
+      print('Error al decodificar JSON: $e');
+      return ''; // Manejar el error retornando una cadena vacía o un valor predeterminado
+    }
+  }
+
+  Color? GetColorofStateNovelti(stateNovelti) {
+    int color = 0xFF000000;
+
+    switch (stateNovelti) {
+      case "ok":
+        color = 0xFF66BB6A;
+        break;
+      case "gestioned":
+        color = 0xFFD6DC27;
+        break;
+      case "resolved":
+        color = 0xFFFF5722;
+        break;
+      default:
+        color = 0xFF000000;
+    }
+    return Color(color);
   }
 
   sortFuncOperator() {

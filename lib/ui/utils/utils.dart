@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UIUtils {
   /// return a color based on the status
@@ -70,5 +71,12 @@ class UIUtils {
     dateTime = dateTime.toUtc().add(offset);
     String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
     return formattedDate;
+  }
+
+  static Future<void> updateLogisticaDates() async {
+    final prefs = await SharedPreferences.getInstance();
+    String date = "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
+    await prefs.setString('dateDesdeLogistica', date);
+    await prefs.setString('dateHastaLogistica', date);
   }
 }

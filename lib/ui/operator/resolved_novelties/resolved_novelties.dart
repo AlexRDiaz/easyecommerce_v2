@@ -39,6 +39,7 @@ class _ResolvedNoveltiesState extends State<ResolvedNovelties> {
   int total = 0;
   bool enabledBusqueda = true;
   int totalRegistros = 0;
+  String filterDate = "FECHA ENTREGA";
 
   var sortFieldDefaultValue = "marca_t_i:DESC";
 
@@ -192,7 +193,8 @@ class _ResolvedNoveltiesState extends State<ResolvedNovelties> {
           _controllers.searchController.text,
           sortFieldDefaultValue.toString(),
           dateStart,
-          dateEnd);
+          dateEnd,
+          filterDate);
 
       if (listtransportadores.length == 1) {
         var responsetransportadoras = await Connections().getTransportadoras();
@@ -281,7 +283,8 @@ class _ResolvedNoveltiesState extends State<ResolvedNovelties> {
           _controllers.searchController.text,
           sortFieldDefaultValue.toString(),
           dateStart,
-          dateEnd);
+          dateEnd,
+          filterDate);
 
       setState(() {
         data = [];

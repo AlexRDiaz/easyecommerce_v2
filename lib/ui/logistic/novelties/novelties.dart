@@ -1,8 +1,31 @@
 import 'dart:convert';
 
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/config/colors.dart';
+import 'package:frontend/connections/connections.dart';
+import 'package:frontend/helpers/responsive.dart';
+import 'package:frontend/main.dart';
+import 'package:frontend/ui/logistic/novelties/generate_report_novelties.dart';
+import 'package:frontend/ui/logistic/novelties/novelties_info.dart';
+import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_details.dart';
+import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_details_data.dart';
+import 'package:frontend/ui/logistic/vendor_invoices/controllers/controllers.dart';
+import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
+import 'package:number_paginator/number_paginator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../../helpers/navigators.dart';
+import '../../widgets/loading.dart';
+import 'package:screenshot/screenshot.dart';
+
+import 'package:calendar_date_picker2/calendar_date_picker2.dart';
+import 'package:data_table_2/data_table_2.dart';
+import 'package:flutter/material.dart';
+import 'package:frontend/config/colors.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
@@ -46,7 +69,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
   bool enabledBusqueda = true;
   int totalRegistros = 0;
 
-  TextEditingController _comentarioController = TextEditingController();
+  String valorSeleccionado = 'ENTREGADO';
 
   var getReport = CreateReportNovelties();
 
@@ -54,6 +77,8 @@ class _NoveltiesLState extends State<NoveltiesL> {
 
   List<String> listvendedores = ['TODO'];
   List<String> listtransportadores = ['TODO'];
+
+  String filterDate = "FECHA ENTREGA";
 
   List<String> listStatus = [
     'TODO',
@@ -156,6 +181,30 @@ class _NoveltiesLState extends State<NoveltiesL> {
   TextEditingController transportadorasController =
       TextEditingController(text: "TODO");
 
+  TextEditingController myController = TextEditingController();
+
+  List<String> dataListOrderStatus = [
+    'Sin Asignar', // Opción predeterminada para valores null
+    'ENTREGADO',
+    'NO ENTREGADO',
+    'NOVEDAD',
+    'REAGENDADO',
+    'EN RUTA',
+    'EN OFICINA',
+  ];
+
+  List<String> opstionsDateFilter = [
+    'Sin Asignar', // Opción predeterminada para valores null
+    'FECHA ENTREGA',
+  ];
+
+  @override
+  void dispose() {
+    // Asegúrate de desechar el controlador cuando el widget sea descartado
+    myController.dispose();
+    super.dispose();
+  }
+
   @override
   void didChangeDependencies() {
     loadData();
@@ -185,7 +234,8 @@ class _NoveltiesLState extends State<NoveltiesL> {
           _controllers.searchController.text,
           sortFieldDefaultValue.toString(),
           sharedPrefs!.getString("dateDesdeLogistica").toString(),
-          sharedPrefs!.getString("dateHastaLogistica").toString());
+          sharedPrefs!.getString("dateHastaLogistica").toString(),
+          filterDate);
 
       if (listtransportadores.length == 1) {
         var responsetransportadoras = await Connections().getTransportadoras();
@@ -252,7 +302,8 @@ class _NoveltiesLState extends State<NoveltiesL> {
           _controllers.searchController.text,
           sortFieldDefaultValue.toString(),
           sharedPrefs!.getString("dateDesdeLogistica").toString(),
-          sharedPrefs!.getString("dateHastaLogistica").toString());
+          sharedPrefs!.getString("dateHastaLogistica").toString(),
+          filterDate);
 
       setState(() {
         data = [];
@@ -360,7 +411,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
                   SizedBox(
                     height: 10,
                   ),
-                  dataTableNovelties(),
+                  Expanded(child: DataT()),
                 ],
               ),
               Column(
@@ -432,165 +483,635 @@ class _NoveltiesLState extends State<NoveltiesL> {
                   SizedBox(
                     height: 10,
                   ),
-                  dataTableNovelties()
+                  Expanded(child: DataT()),
                 ],
               ),
-              context)),
+              context)
+
+          // Column(
+          //   children: [
+          //     _dates(context),
+          //     SizedBox(
+          //       height: 10,
+          //     ),
+          //     Container(
+          //         width: double.infinity,
+          //         color: Colors.white,
+          //         padding: EdgeInsets.only(top: 5, bottom: 5),
+          //         child: SizedBox(
+          //           child: responsive(
+          //               Row(
+          //                 children: [
+          //                   Expanded(
+          //                     child: _modelTextField(
+          //                         text: "Buscar",
+          //                         controller: _controllers.searchController),
+          //                   ),
+          //                   Expanded(
+          //                     child: Row(
+          //                       children: [
+          //                         Container(
+          //                           padding:
+          //                               const EdgeInsets.only(left: 15, right: 5),
+          //                           child: Text(
+          //                             "Registros: ${total}",
+          //                             style: const TextStyle(
+          //                                 fontWeight: FontWeight.bold,
+          //                                 color: Colors.black),
+          //                           ),
+          //                         ),
+          //                       ],
+          //                     ),
+          //                   ),
+          //                   Expanded(child: numberPaginator()),
+          //                 ],
+          //               ),
+          //               Column(
+          //                 children: [
+          //                   Container(
+          //                     child: _modelTextField(
+          //                         text: "Buscar",
+          //                         controller: _controllers.searchController),
+          //                   ),
+          //                   Row(
+          //                     children: [
+          //                       Container(
+          //                         padding:
+          //                             const EdgeInsets.only(left: 15, right: 5),
+          //                         child: Text(
+          //                           "Registros: ${total}",
+          //                           style: const TextStyle(
+          //                               fontWeight: FontWeight.bold,
+          //                               color: Colors.black),
+          //                         ),
+          //                       ),
+          //                     ],
+          //                   ),
+          //                   numberPaginator(),
+          //                 ],
+          //               ),
+          //               context),
+          //         )),
+          //     SizedBox(
+          //       height: 10,
+          //     ),
+          //     Expanded(
+          //         child: DataTable2(
+          //             scrollController: _scrollController,
+          //             decoration: BoxDecoration(
+          //               color: Colors.white,
+          //               borderRadius: const BorderRadius.all(Radius.circular(4)),
+          //               border: Border.all(color: Colors.blueGrey),
+          //             ),
+          //             headingRowHeight: 63,
+          //             headingTextStyle: const TextStyle(
+          //                 fontWeight: FontWeight.bold, color: Colors.black),
+          //             dataTextStyle: const TextStyle(
+          //                 fontSize: 12,
+          //                 fontWeight: FontWeight.bold,
+          //                 color: Colors.black),
+          //             columnSpacing: 5,
+          //             horizontalMargin: 5,
+          //             minWidth: 2500,
+          //             columns: [
+          //               DataColumn2(
+          //                 label: Text("Fecha Entrega"),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+
+          //               DataColumn2(
+          //                 label: const Text('Código'),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: Text("Ciudad"),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: Text("Nombre Cliente"),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: Text("Teléfono Cliente"),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: Text("Dirección"),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: Text("Cantidad"),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: Text("Producto"),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: Text("Producto Extra"),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: Text("Precio Total"),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: Text("Observación"),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: Text("Comentario"),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: SelectFilterNoId('Status', 'equals/status',
+          //                     statusController, listStatus),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: SelectFilter('Vendedor', 'equals/id_comercial',
+          //                     vendedorController, listvendedores),
+          //                 size: ColumnSize.S,
+          //                 // numeric: true,
+          //                 onSort: (columnIndex, ascending) {
+          //                   // sortFunc("Name_Comercial");
+          //                 },
+          //               ),
+          //               DataColumn2(
+          //                 label: SelectFilter(
+          //                     'Transportadora',
+          //                     'equals/transportadora.transportadora_id',
+          //                     transportadorasController,
+          //                     listtransportadores),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {
+          //                   // sortFunc("Estado_Interno");
+          //                 },
+          //               ),
+          //               DataColumn2(
+          //                 label: Text("Operador"),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: Text("Estado Devolución"),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {},
+          //               ),
+          //               DataColumn2(
+          //                 label: const Text('Fecha Marcar TI'),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {
+          //                   // sortFunc("Fecha");
+          //                 },
+          //               ),
+          //               DataColumn2(
+          //                 label: const Text('Numero Intentos'),
+          //                 size: ColumnSize.S,
+          //                 onSort: (columnIndex, ascending) {
+          //                   // sortFunc("Fecha");
+          //                 },
+          //               ),
+          //               // data['novedades'][index]['try']
+          //             ],
+          //             rows: List<DataRow>.generate(data.length, (index) {
+          //               final color =
+          //                   index % 2 == 0 ? Colors.grey[400] : Colors.white;
+
+          //               return DataRow(
+          //                   color: MaterialStateColor.resolveWith(
+          //                       (states) => color!),
+          //                   cells: getRows(index));
+          //             }))),
+          //   ],
+          // ),
+          ),
     );
   }
 
-  Expanded dataTableNovelties() {
-    return Expanded(
-        child: DataTable2(
-            scrollController: _scrollController,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: const BorderRadius.all(Radius.circular(4)),
-              border: Border.all(color: Colors.blueGrey),
+  DropdownButton crearDropdownButton(int index, List<String> dataList) {
+    // Verifica si el valor actual es null y establece un valor predeterminado
+    String valorActual = getStateFromJson(
+        data[index]['gestioned_novelty']?.toString(), 'novelty_status');
+
+    if (valorActual.isEmpty) {
+      valorActual = 'Sin Asignar';
+    }
+
+    return DropdownButton<String>(
+      dropdownColor: ColorsSystem().colorPrincipalBrand,
+      value: valorActual,
+      onChanged: (String? nuevoValor) async {
+        if (nuevoValor != null) {
+          setState(() {
+            valorActual = nuevoValor;
+          });
+          await Connections().updateOrCreateGestionedNovelty(
+              data[index]['id'].toString(), "novelty_status:$valorActual");
+          await loadData();
+        }
+      },
+      items: dataList.map<DropdownMenuItem<String>>((String valor) {
+        return DropdownMenuItem<String>(
+          value: valor,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 10.0),
+            child: Text(
+              valor,
+              style: TextStyle(color: Colors.white, fontSize: 12.0),
             ),
-            headingRowHeight: 63,
-            headingTextStyle: const TextStyle(
-                fontWeight: FontWeight.bold, color: Colors.black),
-            dataTextStyle: const TextStyle(
-                fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black),
-            columnSpacing: 5,
-            horizontalMargin: 5,
-            minWidth: 2500,
-            columns: [
-              DataColumn2(
-                label: Text("Fecha Entrega"),
-                size: ColumnSize.S,
-                onSort: (columnIndex, ascending) {},
-              ),
-              DataColumn2(
-                label: Text(""),
-                size: ColumnSize.S,
-                onSort: (columnIndex, ascending) {},
-              ),
+          ),
+        );
+      }).toList(),
+    );
+  }
 
-              DataColumn2(
-                label: const Text('Código'),
-                size: ColumnSize.S,
-                onSort: (columnIndex, ascending) {},
-              ),
-              DataColumn2(
-                label: Text(''),
-                size: ColumnSize.S,
-              ),
-              DataColumn2(
-                label: Text("Ciudad"),
-                size: ColumnSize.S,
-                onSort: (columnIndex, ascending) {},
-              ),
-              DataColumn2(
-                label: Text("Nombre Cliente"),
-                size: ColumnSize.S,
-                onSort: (columnIndex, ascending) {},
-              ),
-              DataColumn2(
-                label: Text("Teléfono Cliente"),
-                size: ColumnSize.S,
-                onSort: (columnIndex, ascending) {},
-              ),
-              DataColumn2(
-                label: Text("Dirección"),
-                size: ColumnSize.S,
-                onSort: (columnIndex, ascending) {},
-              ),
-              DataColumn2(
-                label: Text("Cantidad"),
-                size: ColumnSize.S,
-                onSort: (columnIndex, ascending) {},
-              ),
-              DataColumn2(
-                label: Text("Producto"),
-                size: ColumnSize.S,
-                onSort: (columnIndex, ascending) {},
-              ),
-              DataColumn2(
-                label: Text("Producto Extra"),
-                size: ColumnSize.S,
-                onSort: (columnIndex, ascending) {},
-              ),
-              DataColumn2(
-                label: Text("Precio Total"),
-                size: ColumnSize.S,
-                onSort: (columnIndex, ascending) {},
-              ),
-              DataColumn2(
-                label: Text("Observación"),
-                size: ColumnSize.S,
-                onSort: (columnIndex, ascending) {},
-              ),
-              DataColumn2(
-                label: Text("Comentario"),
-                size: ColumnSize.S,
-                onSort: (columnIndex, ascending) {},
-              ),
-              DataColumn2(
-                label: SelectFilterNoId(
-                    'Status', 'equals/status', statusController, listStatus),
-                size: ColumnSize.S,
-                onSort: (columnIndex, ascending) {},
-              ),
-              DataColumn2(
-                label: SelectFilter('Vendedor', 'equals/id_comercial',
-                    vendedorController, listvendedores),
-                size: ColumnSize.S,
-                // numeric: true,
-                onSort: (columnIndex, ascending) {
-                  // sortFunc("Name_Comercial");
-                },
-              ),
-              DataColumn2(
-                label: SelectFilter(
-                    'Transportadora',
-                    'equals/transportadora.transportadora_id',
-                    transportadorasController,
-                    listtransportadores),
-                size: ColumnSize.S,
-                onSort: (columnIndex, ascending) {
-                  // sortFunc("Estado_Interno");
-                },
-              ),
-              DataColumn2(
-                label: Text("Operador"),
-                size: ColumnSize.S,
-                onSort: (columnIndex, ascending) {},
-              ),
-              DataColumn2(
-                label: Text("Estado Devolución"),
-                size: ColumnSize.S,
-                onSort: (columnIndex, ascending) {},
-              ),
-              DataColumn2(
-                label: const Text('Fecha Marcar TI'),
-                size: ColumnSize.S,
-                onSort: (columnIndex, ascending) {
-                  // sortFunc("Fecha");
-                },
-              ),
-              DataColumn2(
-                label: const Text('Numero Intentos'),
-                size: ColumnSize.S,
-                onSort: (columnIndex, ascending) {
-                  // sortFunc("Fecha");
-                },
-              ),
-              // data['novedades'][index]['try']
-            ],
-            rows: List<DataRow>.generate(data.length, (index) {
-              final color = index % 2 == 0 ? Colors.grey[400] : Colors.white;
+  DropdownButton<String> crearDropdownButtonFD(String selectedValue,
+      List<String> dataList, Function(String?) onSelected) {
+    return DropdownButton<String>(
+      value: selectedValue,
+      onChanged: (String? nuevoValor) {
+        onSelected(nuevoValor);
+      },
+      items: dataList.map<DropdownMenuItem<String>>((String valor) {
+        return DropdownMenuItem<String>(
+          value: valor,
+          child: Container(
+            // decoration: BoxDecoration(
+            // Agrega estilos si es necesario
+            // ),
+            // padding: const EdgeInsets.all(8.0),
+            child: Text(
+              valor,
+              style: TextStyle(color: ColorsSystem().colorPrincipalBrand),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
 
-              return DataRow(
-                  color: MaterialStateColor.resolveWith((states) => color!),
-                  cells: getRows(index));
-            })));
+  void _handleCheckboxChanged(bool? newValue, int index) async {
+    var gestionedNovelty = data[index]['gestioned_novelty'];
+    if (gestionedNovelty is String) {
+      gestionedNovelty = json.decode(gestionedNovelty);
+    }
+
+    gestionedNovelty['verified'] = newValue ?? false;
+    data[index]['gestioned_novelty'] = gestionedNovelty;
+
+    await Connections().updateOrCreateGestionedNovelty(
+        data[index]['id'].toString(), "verified:$newValue");
+
+    loadData();
+  }
+
+  Checkbox checkboxPersonalizado(int index) {
+    bool valorActual = false;
+    String resp = getStateFromJson(
+        data[index]['gestioned_novelty']?.toString(), 'verified');
+    if (resp == "true") {
+      valorActual = true;
+    }
+
+    String uniqueKey =
+        data[index]['id'].toString(); // Asumiendo que 'id' es único
+
+    return Checkbox(
+      key: ValueKey(uniqueKey), // Utiliza el ID único como Key
+      value: valorActual,
+      onChanged: (newValue) {
+        _handleCheckboxChanged(newValue, index);
+      },
+    );
+  }
+
+  DataTable2 DataT() {
+    return DataTable2(
+        scrollController: _scrollController,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.all(Radius.circular(4)),
+          border: Border.all(color: Colors.blueGrey),
+        ),
+        headingRowHeight: 63,
+        headingTextStyle:
+            const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+        dataTextStyle: const TextStyle(fontSize: 12, color: Colors.black),
+        columnSpacing: 5,
+        horizontalMargin: 5,
+        minWidth: 2500,
+        columns: [
+          DataColumn2(
+            label: Text("Contactos Pedido"),
+            size: ColumnSize.L,
+            onSort: (columnIndex, ascending) {},
+          ),
+          DataColumn2(
+            label: Text("Fecha Entrega"),
+            size: ColumnSize.S,
+            onSort: (columnIndex, ascending) {},
+          ),
+          DataColumn2(
+            label: Text("Gestión Novedades"),
+            size: ColumnSize.L,
+            onSort: (columnIndex, ascending) {},
+          ),
+          DataColumn2(
+            label: const Text('Código'),
+            size: ColumnSize.S,
+            onSort: (columnIndex, ascending) {},
+          ),
+          DataColumn2(
+            label: Text(''),
+            size: ColumnSize.S,
+          ),
+          DataColumn2(
+            label: Text("Ciudad"),
+            size: ColumnSize.S,
+            onSort: (columnIndex, ascending) {},
+          ),
+          DataColumn2(
+            label: Text("Nombre Cliente"),
+            size: ColumnSize.S,
+            onSort: (columnIndex, ascending) {},
+          ),
+          DataColumn2(
+            label: Text("Teléfono Cliente"),
+            size: ColumnSize.S,
+            onSort: (columnIndex, ascending) {},
+          ),
+          DataColumn2(
+            label: Text("Dirección"),
+            size: ColumnSize.S,
+            onSort: (columnIndex, ascending) {},
+          ),
+          DataColumn2(
+            label: Text("Cantidad"),
+            size: ColumnSize.S,
+            onSort: (columnIndex, ascending) {},
+          ),
+          DataColumn2(
+            label: Text("Producto"),
+            size: ColumnSize.S,
+            onSort: (columnIndex, ascending) {},
+          ),
+          DataColumn2(
+            label: Text("Producto Extra"),
+            size: ColumnSize.S,
+            onSort: (columnIndex, ascending) {},
+          ),
+          DataColumn2(
+            label: Text("Precio Total"),
+            size: ColumnSize.S,
+            onSort: (columnIndex, ascending) {},
+          ),
+          DataColumn2(
+            label: Text("Observación"),
+            size: ColumnSize.S,
+            onSort: (columnIndex, ascending) {},
+          ),
+          DataColumn2(
+            label: Text("Comentario"),
+            size: ColumnSize.S,
+            onSort: (columnIndex, ascending) {},
+          ),
+          DataColumn2(
+            label: Text("Comentario Novedades"),
+            size: ColumnSize.L,
+            onSort: (columnIndex, ascending) {},
+          ),
+          DataColumn2(
+            label: Text("Marca Tiempo Gestión"),
+            size: ColumnSize.L,
+            onSort: (columnIndex, ascending) {},
+          ),
+          DataColumn2(
+            label: Text("Status Actual Guía"),
+            size: ColumnSize.L,
+            onSort: (columnIndex, ascending) {},
+          ),
+          DataColumn2(
+            label: Text("Pedido Verificado"),
+            size: ColumnSize.M,
+            onSort: (columnIndex, ascending) {},
+          ),
+          DataColumn2(
+            label: SelectFilterNoId(
+                'Status', 'equals/status', statusController, listStatus),
+            size: ColumnSize.S,
+            onSort: (columnIndex, ascending) {},
+          ),
+          DataColumn2(
+            label: SelectFilter('Vendedor', 'equals/id_comercial',
+                vendedorController, listvendedores),
+            size: ColumnSize.S,
+            // numeric: true,
+            onSort: (columnIndex, ascending) {
+              // sortFunc("Name_Comercial");
+            },
+          ),
+          DataColumn2(
+            label: SelectFilter(
+                'Transportadora',
+                'equals/transportadora.transportadora_id',
+                transportadorasController,
+                listtransportadores),
+            size: ColumnSize.S,
+            onSort: (columnIndex, ascending) {
+              // sortFunc("Estado_Interno");
+            },
+          ),
+          DataColumn2(
+            label: Text("Operador"),
+            size: ColumnSize.S,
+            onSort: (columnIndex, ascending) {},
+          ),
+          DataColumn2(
+            label: Text("Estado Devolución"),
+            size: ColumnSize.S,
+            onSort: (columnIndex, ascending) {},
+          ),
+          DataColumn2(
+            label: const Text('Fecha Marcar TI'),
+            size: ColumnSize.S,
+            onSort: (columnIndex, ascending) {
+              // sortFunc("Fecha");
+            },
+          ),
+          DataColumn2(
+            label: const Text('Numero Intentos'),
+            size: ColumnSize.S,
+            onSort: (columnIndex, ascending) {
+              // sortFunc("Fecha");
+            },
+          ),
+          // data['novedades'][index]['try']
+        ],
+        rows: List<DataRow>.generate(data.length, (index) {
+          final color = index % 2 == 0 ? Colors.grey[400] : Colors.white;
+
+          return DataRow(
+              color: MaterialStateColor.resolveWith((states) => color!),
+              cells: getRows(index));
+        }));
+  }
+
+  Column InputFilter(String title, filter, var controller, key) {
+    return Column(
+      children: [
+        Text(title),
+        Expanded(
+            child: Container(
+          margin: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
+          child: TextField(
+            controller: controller,
+            onChanged: (value) {
+              if (value == '') {
+                {
+                  arrayFiltersAnd
+                      .removeWhere((element) => element.containsKey(key));
+                }
+              }
+            },
+            onSubmitted: (value) {
+              if (value != '') {
+                arrayFiltersAnd.add({key: value});
+              }
+
+              loadData();
+            },
+            decoration: InputDecoration(
+                border: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(5)),
+            )),
+          ),
+        ))
+      ],
+    );
+  }
+
+  void reemplazarValor(Map<dynamic, dynamic> mapa, String nuevoValor) {
+    mapa.forEach((key, value) {
+      if (value is Map) {
+        reemplazarValor(value, nuevoValor);
+      } else if (key is String && value == 'valor') {
+        mapa[key] = nuevoValor;
+      }
+    });
+  }
+
+  getLengthArrayMap(List data) {
+    var arraylength = data.length;
+    return Text(
+      arraylength.toString(),
+      style: TextStyle(
+          color: arraylength > 3
+              ? Color.fromARGB(255, 185, 10, 10)
+              : Colors.black),
+    );
+  }
+
+  String getStateFromJson(String? jsonString, String claveAbuscar) {
+    // Verificar si jsonString es null
+    if (jsonString == null || jsonString.isEmpty) {
+      return ''; // Retorna una cadena vacía si el valor es null o está vacío
+    }
+
+    try {
+      Map<String, dynamic> jsonMap = json.decode(jsonString);
+      return jsonMap[claveAbuscar]?.toString() ?? '';
+    } catch (e) {
+      print('Error al decodificar JSON: $e');
+      return ''; // Manejar el error retornando una cadena vacía o un valor predeterminado
+    }
+  }
+
+  int gettryFromJson(String? jsonString, String claveAbuscar) {
+    // Verificar si jsonString es null
+    if (jsonString == null || jsonString.isEmpty) {
+      return 0; // Retorna una cadena vacía si el valor es null o está vacío
+    }
+
+    try {
+      Map<String, dynamic> jsonMap = json.decode(jsonString);
+      return int.parse(jsonMap[claveAbuscar]!.toString()) ?? 0;
+    } catch (e) {
+      print('Error al decodificar JSON: $e');
+      return 0; // Manejar el error retornando una cadena vacía o un valor predeterminado
+    }
   }
 
   List<DataCell> getRows(index) {
     Color rowColor = Colors.black;
     return [
+      DataCell(Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          Tooltip(
+            message: 'Transporte',
+            child: InkWell(
+              onTap: () {
+                sendWhatsAppMessage(
+                    context,
+                    data[index]['transportadora'] != null &&
+                            data[index]['transportadora'].toString() != "[]"
+                        ? data[index]['transportadora'][0]['telefono_1']
+                            .toString()
+                        : "",
+                    index);
+              },
+              child: Icon(Icons.local_shipping,
+                  color: ColorsSystem().colorPrincipalBrand),
+            ),
+          ),
+          Tooltip(
+            message: 'Tienda',
+            child: InkWell(
+              onTap: () {
+                sendWhatsAppMessage(
+                    context,
+                    data[index]['users'] != null &&
+                            data[index]['users'].isNotEmpty
+                        ? data[index]['users'][0]['vendedores'][0]['telefono_2']
+                        : "NaN",
+                    index);
+              },
+              child: Icon(Icons.shopping_bag,
+                  color: ColorsSystem().colorPrincipalBrand),
+            ),
+          ),
+          Tooltip(
+            message: 'Operador',
+            child: InkWell(
+              onTap: () {
+                sendWhatsAppMessage(
+                    context,
+                    data[index]['operadore'] != null &&
+                            data[index]['operadore'].toString() != "[]"
+                        ? data[index]['operadore'][0]['telefono'].toString()
+                        : "",
+                    index);
+              },
+              child: Icon(Icons.motorcycle,
+                  color: ColorsSystem().colorPrincipalBrand),
+            ),
+          ),
+        ],
+      )),
       DataCell(
           Text(
             data[index]['fecha_entrega'].toString(),
@@ -600,9 +1121,61 @@ class _NoveltiesLState extends State<NoveltiesL> {
           ), onTap: () {
         info(context, index);
       }),
-      DataCell(buttonsSloved(), onTap: () {
-        info(context, index);
-      }),
+      DataCell(Container(
+        padding: EdgeInsets.all(5.0),
+        decoration: BoxDecoration(
+            border: Border.all(
+                width: 1.0, color: ColorsSystem().colorPrincipalBrand),
+            borderRadius: BorderRadius.circular(5.0)),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            Tooltip(
+              message: 'Gestionar Novedad',
+              child: gettryFromJson(
+                          data[index]['gestioned_novelty']?.toString(),
+                          'try') ==
+                      5
+                  ? Icon(
+                      Icons.warning,
+                      color: Colors.grey, // Color para estado deshabilitado
+                    )
+                  : InkWell(
+                      onTap: () {
+                        _mostrarVentanaEmergenteGuiasImpresas(
+                            context, index, 1, "Novedad Gestionada");
+                      },
+                      child: Icon(
+                        Icons.warning,
+                        color: Colors.yellow,
+                      ),
+                    ),
+            ),
+            Tooltip(
+              message: 'Resolver Novedad',
+              child: InkWell(
+                onTap: () {
+                  _mostrarVentanaEmergenteGuiasImpresas(
+                      context, index, 2, "Novedad Resuelta");
+                },
+                child: Icon(Icons.timelapse_rounded, color: Colors.orange),
+              ),
+            ),
+            Tooltip(
+              message: 'OK Novedad',
+              child: InkWell(
+                onTap: () async {
+                  await updateGestionedNovelty(
+                      context, index, 3, "Ok Novedad", "");
+                  await loadData();
+                },
+                child: Icon(Icons.check_circle_rounded, color: Colors.green),
+              ),
+            ),
+          ],
+        ),
+      )),
+
       DataCell(
           Text(
             "${data[index]['users'] != null && data[index]['users'].toString() != "[]" ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal']}-${data[index]['numero_orden']}",
@@ -709,10 +1282,11 @@ Quedamos atentos a su respuesta Muchas gracias.
           Text(
             data[index]['telefono_shipping'].toString(),
             style: TextStyle(
-              color: rowColor,
-            ),
+                color: GetColorofStateNovelti(getStateFromJson(
+                    data[index]['gestioned_novelty']?.toString(), 'state')),
+                fontWeight: FontWeight.bold),
           ), onTap: () {
-        info(context, index);
+        // print(data[index]['gestioned_novelty']);
       }),
       DataCell(
           Text(
@@ -776,6 +1350,40 @@ Quedamos atentos a su respuesta Muchas gracias.
             ),
           ), onTap: () {
         info(context, index);
+      }),
+      DataCell(
+          Text(
+            getStateFromJson(
+                data[index]['gestioned_novelty']?.toString(), 'comment'),
+            style: TextStyle(
+              color: rowColor,
+            ),
+          ), onTap: () {
+        info(context, index);
+      }),
+      DataCell(
+          Text(
+            getStateFromJson(
+                data[index]['gestioned_novelty']?.toString(), 'm_t_g'),
+            style: TextStyle(
+              color: rowColor,
+            ),
+          ), onTap: () {
+        info(context, index);
+      }),
+      DataCell(
+          Container(
+            decoration: BoxDecoration(
+                color: ColorsSystem().colorPrincipalBrand,
+                border: Border.all(width: 2, color: Colors.grey),
+                borderRadius: BorderRadius.circular(5.0)),
+            width: 130,
+            child: crearDropdownButton(index, dataListOrderStatus),
+          ), onTap: () {
+        // info(context, index);
+      }),
+      DataCell(checkboxPersonalizado(index), onTap: () {
+        // info(context, index);
       }),
       DataCell(
           Text(
@@ -1107,6 +1715,21 @@ Quedamos atentos a su respuesta Muchas gracias.
               SizedBox(
                 width: 10,
               ),
+              crearDropdownButtonFD(
+                filterDate,
+                ['FECHA ENTREGA', 'MARCA TIEMPO ENVIO'], // Tu lista de opciones
+                (String? newValue) {
+                  if (newValue != null) {
+                    setState(() {
+                      filterDate = newValue;
+                      // Realiza la lógica que necesitas cuando el valor cambia
+                    });
+                  }
+                },
+              ),
+              SizedBox(
+                width: 10,
+              ),
               ElevatedButton(
                   onPressed: () async {
                     setState(() {
@@ -1131,6 +1754,7 @@ Quedamos atentos a su respuesta Muchas gracias.
                   setState(() {
                     limpiar();
                     loadData();
+                    filterDate = "FECHA ENTREGA";
                   });
                 },
                 child: const Row(
@@ -1161,20 +1785,24 @@ Quedamos atentos a su respuesta Muchas gracias.
 
                   try {
                     // Suponiendo que tu función necesita parámetros como 'populate', 'defaultArrayFiltersAnd', etc.
-                    var response =
-                        await Connections().getOrdersForNoveltiesByDatesLaravel(
-                      populate,
-                      defaultArrayFiltersAnd,
-                      arrayFiltersAnd,
-                      arrayFiltersOr,
-                      not,
-                      1,
-                      100000,
-                      _controllers.searchController.text,
-                      sortFieldDefaultValue,
-                      sharedPrefs!.getString("dateDesdeLogistica").toString(),
-                      sharedPrefs!.getString("dateHastaLogistica").toString(),
-                    );
+                    var response = await Connections()
+                        .getOrdersForNoveltiesByDatesLaravel(
+                            populate,
+                            defaultArrayFiltersAnd,
+                            arrayFiltersAnd,
+                            arrayFiltersOr,
+                            not,
+                            1,
+                            100000,
+                            _controllers.searchController.text,
+                            sortFieldDefaultValue,
+                            sharedPrefs!
+                                .getString("dateDesdeLogistica")
+                                .toString(),
+                            sharedPrefs!
+                                .getString("dateHastaLogistica")
+                                .toString(),
+                            filterDate);
 
                     // Suponiendo que 'generateExcelFileWithData' toma la lista de datos como parámetro
                     await getReport.generateExcelFileWithData(response['data']);
@@ -1308,6 +1936,18 @@ Quedamos atentos a su respuesta Muchas gracias.
               SizedBox(
                 width: 10,
               ),
+              crearDropdownButtonFD(
+                filterDate,
+                ['FECHA ENTREGA', 'MARCA TIEMPO ENVIO'], // Tu lista de opciones
+                (String? newValue) {
+                  if (newValue != null) {
+                    setState(() {
+                      filterDate = newValue;
+                      // Realiza la lógica que necesitas cuando el valor cambia
+                    });
+                  }
+                },
+              ),
             ],
           ),
           Row(
@@ -1338,6 +1978,7 @@ Quedamos atentos a su respuesta Muchas gracias.
                     setState(() {
                       limpiar();
                       loadData();
+                      filterDate = "FECHA ENTREGA";
                     });
                   },
                   child: const Row(
@@ -1370,18 +2011,22 @@ Quedamos atentos a su respuesta Muchas gracias.
                       // Suponiendo que tu función necesita parámetros como 'populate', 'defaultArrayFiltersAnd', etc.
                       var response = await Connections()
                           .getOrdersForNoveltiesByDatesLaravel(
-                        populate,
-                        defaultArrayFiltersAnd,
-                        arrayFiltersAnd,
-                        arrayFiltersOr,
-                        not,
-                        1,
-                        100000,
-                        _controllers.searchController.text,
-                        sortFieldDefaultValue,
-                        sharedPrefs!.getString("dateDesdeLogistica").toString(),
-                        sharedPrefs!.getString("dateHastaLogistica").toString(),
-                      );
+                              populate,
+                              defaultArrayFiltersAnd,
+                              arrayFiltersAnd,
+                              arrayFiltersOr,
+                              not,
+                              1,
+                              100000,
+                              _controllers.searchController.text,
+                              sortFieldDefaultValue,
+                              sharedPrefs!
+                                  .getString("dateDesdeLogistica")
+                                  .toString(),
+                              sharedPrefs!
+                                  .getString("dateHastaLogistica")
+                                  .toString(),
+                              filterDate);
 
                       // Suponiendo que 'generateExcelFileWithData' toma la lista de datos como parámetro
                       await getReport
@@ -1571,6 +2216,137 @@ Quedamos atentos a su respuesta Muchas gracias.
     );
   }
 
+  void _mostrarVentanaEmergenteGuiasImpresas(
+      BuildContext context, index, noveltyState, title) {
+    double width =
+        MediaQuery.of(context).size.width * 0.3; // Ajustar según necesidad
+    double height =
+        MediaQuery.of(context).size.height * 0.15; // Ajustar según necesidad
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20), // Bordes redondeados
+          ),
+          title: Row(
+            // Título más llamativo
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.edit_note,
+                  color:
+                      Theme.of(context).primaryColor), // Ícono representativo
+              SizedBox(width: 8),
+              Text(title,
+                  style: TextStyle(color: Theme.of(context).primaryColor)),
+            ],
+          ),
+          content: Container(
+            width: width,
+            height: height,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment
+                  .spaceBetween, // Añade espacio entre los elementos
+              children: [
+                TextField(
+                  controller: myController,
+                  minLines: 1, // Reduce el número de líneas
+                  maxLines: 3, // Permite expandirse hasta 3 líneas
+                  decoration: InputDecoration(
+                    labelText: 'Escribe tu comentario aquí',
+                    hintText: 'Ingresa detalles relevantes',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.comment, color: Colors.grey),
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton.icon(
+                      icon: Icon(Icons.check_circle),
+                      label: Text("Aceptar"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            Colors.green, // Color verde para aceptar
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      onPressed: () async {
+                        updateGestionedNovelty(context, index, noveltyState,
+                            title, myController.text);
+                        myController.clear();
+                        Navigator.pop(context);
+                        // Navigator.pop(context);
+                        await loadData();
+                        // Navigator.pop(context); // Cierra el modal después de la acción
+                      },
+                    ),
+                    ElevatedButton.icon(
+                      icon: Icon(Icons.cancel),
+                      label: Text("Cancelar"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red, // Color rojo para cancelar
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context); // Cierra el modal
+                      },
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  updateGestionedNovelty(context, index, noveltyState, title, comment) async {
+    // getLoadingModal(context, false);
+    DateTime now = DateTime.now();
+    String formattedDate = DateFormat('d/M/yyyy HH:mm:ss').format(now);
+
+    print(formattedDate);
+
+    if (noveltyState == 3) {
+      comment =
+          "Novedad Gestionada con exito UID: ${sharedPrefs!.getString("id")}";
+    } else {
+      comment = "$comment UID: ${sharedPrefs!.getString("id")}";
+    }
+    var resp = await Connections().postGestinodNovelty(
+      data[index]['id'],
+      comment,
+      sharedPrefs!.getString("id"),
+      noveltyState,
+      formattedDate,
+    );
+
+    // if (resp['response'].toString() == "Novelty updated successfully") {
+    //   AwesomeDialog(
+    //     width: 500,
+    //     context: context,
+    //     dialogType: DialogType.success,
+    //     animType: AnimType.rightSlide,
+    //     title: title,
+    //     desc: 'Estado de Novedad actualizado a $title',
+    //     btnCancel: Container(),
+    //     btnOkText: "Aceptar",
+    //     btnOkColor: Colors.green,
+    //     btnCancelOnPress: () {},
+    //     btnOkOnPress: () {},
+    //   ).show();
+    // }
+    // Navigator.pop(context);
+
+    // await loadData();
+  }
+
   clearSelected() {
     setState(() {
       optionsCheckBox = [];
@@ -1674,6 +2450,25 @@ Quedamos atentos a su respuesta Muchas gracias.
         });
   }
 
+  Color? GetColorofStateNovelti(stateNovelti) {
+    int color = 0xFF000000;
+
+    switch (stateNovelti) {
+      case "ok":
+        color = 0xFF66BB6A;
+        break;
+      case "gestioned":
+        color = 0xFFD6DC27;
+        break;
+      case "resolved":
+        color = 0xFFFF5722;
+        break;
+      default:
+        color = 0xFF000000;
+    }
+    return Color(color);
+  }
+
   Color? GetColor(state) {
     int color = 0xFF000000;
 
@@ -1708,5 +2503,22 @@ Quedamos atentos a su respuesta Muchas gracias.
     }
 
     return Color(color);
+  }
+
+  Future<void> sendWhatsAppMessage(
+      BuildContext context, String cellphone, int index) async {
+    String codigo =
+        "${data[index]['users'] != null && data[index]['users'].toString() != "[]" ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal']}-${data[index]['numero_orden']}";
+
+    if (cellphone != "" && cellphone.isNotEmpty) {
+      var whatsappUrl =
+          "https://api.whatsapp.com/send?phone=$cellphone&text=$codigo";
+
+      if (!await launchUrl(Uri.parse(whatsappUrl))) {
+        throw Exception('Could not launch $whatsappUrl');
+      }
+    } else {
+      _showErrorSnackBar(context, "El pedido no tiene un número asignado.");
+    }
   }
 }

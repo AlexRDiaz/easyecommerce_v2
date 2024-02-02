@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:data_table_2/data_table_2.dart';
@@ -9,15 +7,8 @@ import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/audit/audit_data_info.dart';
 import 'package:frontend/ui/logistic/audit/generate_report_audit_data.dart';
-import 'package:frontend/ui/logistic/novelties/generate_report_novelties.dart';
-import 'package:frontend/ui/logistic/novelties/novelties_info.dart';
-import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_details.dart';
-import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_details_data.dart';
-import 'package:frontend/ui/logistic/vendor_invoices/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/logistic/customwidgetvalues.dart';
-import 'package:lottie/lottie.dart';
 import 'package:number_paginator/number_paginator.dart';
-import '../../../helpers/navigators.dart';
 import '../../widgets/loading.dart';
 import 'package:screenshot/screenshot.dart';
 
@@ -174,6 +165,17 @@ class _AuditState extends State<Audit> {
   TextEditingController transportadorasController =
       TextEditingController(text: "TODO");
 
+
+  String filterDate = "FECHA ENTREGA";
+
+
+  @override
+  void dispose() {
+    // Asegúrate de desechar el controlador cuando el widget sea descartado
+    super.dispose();
+  }
+
+
   @override
   void didChangeDependencies() {
     loadData();
@@ -203,7 +205,9 @@ class _AuditState extends State<Audit> {
           searchController.text.toString(),
           sortFieldDefaultValue.toString(),
           sharedPrefs!.getString("dateDesdeLogistica").toString(),
-          sharedPrefs!.getString("dateHastaLogistica").toString());
+          sharedPrefs!.getString("dateHastaLogistica").toString(),
+          filterDate 
+          );
 
       respvalues = await Connections().getByDateRangeValuesAudit(
           sharedPrefs!.getString("dateDesdeLogistica").toString(),
@@ -278,7 +282,8 @@ class _AuditState extends State<Audit> {
           searchController.text.toString(),
           sortFieldDefaultValue.toString(),
           sharedPrefs!.getString("dateDesdeLogistica").toString(),
-          sharedPrefs!.getString("dateHastaLogistica").toString());
+          sharedPrefs!.getString("dateHastaLogistica").toString(),
+          filterDate );
 
       setState(() {
         data = [];
