@@ -297,10 +297,10 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
     var responseValues = await Connections()
         .getValuesSellerLaravel(arrayFiltersDefaultAnd, selectedDateFilter);
 
-    var response =
-        await Connections().getOrdersDashboard(populate, arrayFiltersAnd);
+    // var response =s
+    //     await Connections().getOrdersDashboard(populate, arrayFiltersAnd);
     setState(() {
-      data = response;
+      // data = response;
       newdata = responseLaravel['data'];
       valuesTransporter = responseValues['data'];
       // total = data.length;

@@ -1430,7 +1430,6 @@ class Connections {
       String dateFilter) async {
     int res = 0;
     try {
-
       print('start: ${sharedPrefs!.getString("dateDesdeLogistica")}');
       print('end: ${sharedPrefs!.getString("dateHastaLogistica")}');
 
@@ -1453,7 +1452,7 @@ class Connections {
             "page_size": sizePage,
             "page_number": currentPage,
             "search": search,
-            "date_filter" : dateFilter
+            "date_filter": dateFilter
           }));
 
       var decodeData = json.decode(request.body);
@@ -1721,7 +1720,7 @@ class Connections {
       fechaC,
       dateID) async {
     print(json.encode({
-      // "data": {
+// "data": {
       "NumeroOrden": numero.toString(),
       "DireccionShipping": direccion.toString(),
       "NombreShipping": nombre.toString(),
@@ -1739,7 +1738,7 @@ class Connections {
       "Marca_T_I": fecha.toString(),
       "Fecha_Confirmacion": fechaC.toString(),
       "Tienda_Temporal": sharedPrefs!.getString("NameComercialSeller"),
-      // ! este np va xq' ya lo hace en el backend -> "pedido_fecha": dateID
+// ! este np va xq' ya lo hace en el backend -> "pedido_fecha": dateID
       "pedido_fecha": dateID
       // }
     }));
@@ -1747,7 +1746,7 @@ class Connections {
         await http.post(Uri.parse("$serverLaravel/api/pedidos-shopifies"),
             headers: {'Content-Type': 'application/json'},
             body: json.encode({
-              // "data": {
+// "data": {
               "NumeroOrden": numero.toString(),
               "DireccionShipping": direccion.toString(),
               "NombreShipping": nombre.toString(),
@@ -1766,7 +1765,7 @@ class Connections {
               "Fecha_Confirmacion": fechaC.toString(),
               "Tienda_Temporal": sharedPrefs!.getString("NameComercialSeller"),
               "pedido_fecha": dateID
-              // ! este np va xq' ya lo hace en el backend -> "pedido_fecha": dateID
+// ! este np va xq' ya lo hace en el backend -> "pedido_fecha": dateID
               // }
             }));
     var response = await request.body;
@@ -4142,7 +4141,7 @@ class Connections {
                   "field": "operadores.transportadoras.transportadora_id",
                   "direction": "DESC"
                 }
-              })); 
+              }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         // print(decodeData);
@@ -5268,14 +5267,14 @@ class Connections {
 
   getValuesSellerLaravel(arrayfiltersDefaultAnd, dateFilter) async {
     try {
-      print(json.encode({
-        "date_filter": dateFilter,
-        "start": sharedPrefs!.getString("dateDesdeVendedor"),
-        "end": sharedPrefs!.getString("dateHastaVendedor"),
-        "or": [],
-        "and": arrayfiltersDefaultAnd,
-        "not": [],
-      }));
+      // print(json.encode({
+      //   "date_filter": dateFilter,
+      //   "start": sharedPrefs!.getString("dateDesdeVendedor"),
+      //   "end": sharedPrefs!.getString("dateHastaVendedor"),
+      //   "or": [],
+      //   "and": arrayfiltersDefaultAnd,
+      //   "not": [],
+      // }));
       int res = 0;
       var request = await http.post(
           Uri.parse(
@@ -7965,8 +7964,8 @@ class Connections {
     }
   }
 
-  postGestinodNovelty(idOrder, String comment, idUser,noveltyState,
-      String dateStart) async {
+  postGestinodNovelty(
+      idOrder, String comment, idUser, noveltyState, String dateStart) async {
     try {
       var request = await http.post(
           Uri.parse(
@@ -7993,8 +7992,7 @@ class Connections {
     }
   }
 
-
-  updateOrCreateGestionedNovelty(idOrder,property) async{
+  updateOrCreateGestionedNovelty(idOrder, property) async {
     try {
       var request = await http.post(
           Uri.parse(

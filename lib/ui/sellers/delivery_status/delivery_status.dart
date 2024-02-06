@@ -4,6 +4,7 @@ import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:data_table_2/data_table_2.dart';
+import 'package:flutter_animated_icons/icons8.dart';
 import 'package:frontend/config/commons.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
@@ -17,6 +18,7 @@ import 'package:frontend/ui/transport/delivery_status_transport/delivery_details
 import 'package:frontend/ui/transport/my_orders_prv/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:frontend/ui/widgets/box_values.dart';
+import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:intl/intl.dart';
 import 'package:number_paginator/number_paginator.dart';
@@ -347,8 +349,17 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     if (!isLoading) {
       await applyDateFilter();
     }
-    var responseAll = await Connections().getAllOrdersByDateRangeLaravel(
-        arrayfiltersDefaultAnd, status, internal);
+
+    List DefaultAnd = [
+      {
+        'id_comercial':
+            sharedPrefs!.getString("idComercialMasterSeller").toString()
+      },
+      // {'estado_interno': "CONFIRMADO"},
+      // {'estado_logistico': "ENVIADO"}
+    ];
+    var responseAll = await Connections()
+        .getAllOrdersByDateRangeLaravel(DefaultAnd, status, internal);
 
     allData = responseAll;
 
@@ -356,6 +367,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       getReport.generateExcelFileWithData(allData);
     } else {
       print("No existen datos con este filtro");
+      showSuccessModal(context,
+          "No existen datos con los filtros seleccionados.", Icons8.alert);
     }
 
     //
@@ -1662,6 +1675,15 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                         spacing: 10.0,
                         runSpacing: 10.0,
                         children: [
+                          Row(
+                            children: [
+                              Text(_controllers.startDateController.text),
+                              const Text(' - '),
+                              Text(_controllers.endDateController.text),
+                              const SizedBox(width: 10),
+                              const Text("Marca T.I.")
+                            ],
+                          ),
                           const SizedBox(height: 10),
                           const Text("Status"),
                           Row(
