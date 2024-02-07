@@ -2078,7 +2078,7 @@ Quedamos atentos a su respuesta Muchas gracias.
     double width =
         MediaQuery.of(context).size.width * 0.3; // Ajustar según necesidad
     double height =
-        MediaQuery.of(context).size.height * 0.15; // Ajustar según necesidad
+        MediaQuery.of(context).size.height * 0.18; // Ajustar según necesidad
 
     showDialog(
       context: context,
@@ -2109,7 +2109,7 @@ Quedamos atentos a su respuesta Muchas gracias.
                 TextField(
                   controller: myController,
                   minLines: 1, // Reduce el número de líneas
-                  maxLines: 3, // Permite expandirse hasta 3 líneas
+                  maxLines: 1, // Permite expandirse hasta 3 líneas
                   decoration: InputDecoration(
                     labelText: 'Escribe tu comentario aquí',
                     hintText: 'Ingresa detalles relevantes',
