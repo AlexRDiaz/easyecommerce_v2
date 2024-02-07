@@ -5,14 +5,14 @@ import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 
-class AddCarrierModal extends StatefulWidget {
-  const AddCarrierModal({super.key});
+class AddCarrierLaravelModal extends StatefulWidget {
+  const AddCarrierLaravelModal({super.key});
 
   @override
-  State<AddCarrierModal> createState() => _AddCarrierModalState();
+  State<AddCarrierLaravelModal> createState() => _AddCarrierModalLaravelState();
 }
 
-class _AddCarrierModalState extends State<AddCarrierModal> {
+class _AddCarrierModalLaravelState extends State<AddCarrierLaravelModal> {
   TextEditingController _usuario = TextEditingController();
   TextEditingController _correo = TextEditingController();
   TextEditingController _costo = TextEditingController();
@@ -36,11 +36,10 @@ class _AddCarrierModalState extends State<AddCarrierModal> {
       routes.clear();
     });
 
-    routesList = await Connections().getRoutes(); 
+    routesList = await Connections().getActiveRoutes();
     for (var i = 0; i < routesList.length; i++) {
       setState(() {
-        routes.add(
-            '${routesList[i]['attributes']['Titulo']}-${routesList[i]['id']}');
+        routes.add('${routesList[i]}');
       });
     }
     Future.delayed(Duration(milliseconds: 500), () {
@@ -200,24 +199,25 @@ class _AddCarrierModalState extends State<AddCarrierModal> {
                 ),
                 TextField(
                   controller: _telefono,
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                  decoration: InputDecoration(
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  decoration: const InputDecoration(
                       hintText: "Teléfono",
                       hintStyle: TextStyle(fontWeight: FontWeight.bold)),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 TextField(
                   controller: _telefono2,
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                  decoration: InputDecoration(
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  decoration: const InputDecoration(
                       hintText: "Teléfono 2",
                       hintStyle: TextStyle(fontWeight: FontWeight.bold)),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 30,
                 ),
+                // !! aqui hace todo el proceso de creacion
                 Align(
                   child: ElevatedButton(
                       onPressed: () async {
@@ -225,26 +225,52 @@ class _AddCarrierModalState extends State<AddCarrierModal> {
                         List listaFinal = selectedItems
                             .map((elemento) => elemento.split("-").last)
                             .toList();
-                        var responseCode =
-                            await Connections().generateCodeAccount(
-                          _correo.text,
-                        );
+                        //  ************** UNO *******************
+                        // var responseCode =
+                        //     await Connections().generateCodeAccount(
+                        //   _correo.text,
+                        // );
+
+                        //  ************** YA ESTA CON LARAVEL ↓ *******************
+
                         var accesofRol = await Connections()
                             .getAccessofSpecificRol("TRANSPORTADOR");
 
-                        var responseCreateGeneral = await Connections()
-                            .createTransporterGeneral(_usuario.text, listaFinal,
-                                _costo.text, _telefono.text, _telefono2.text);
-                        var response = await Connections().createTransporter(
+                        // ! ************** REESTRUCTURACION LARAVEL ↓ *******************
+                        Map<String, dynamic> roleParameters = {
+                          "nombre_transportadora": _usuario.text,
+                          "telefono1":  _telefono2.text,
+                          "telefono2":  _telefono.text, 
+                          "costo_transportadora": _costo.text,
+                          "rutas": listaFinal
+                        };
+
+                        await Connections().createUser(
+                            3,
                             _usuario.text,
                             _correo.text,
-                            responseCreateGeneral[1],
-                            responseCode.toString(),
-                            accesofRol);
+                            accesofRol,
+                            3,
+                            roleParameters);
+                        //  ************** TRES *******************
+
+                        // var responseCreateGeneral = await Connections()
+                        //     .createTransporterGeneral(_usuario.text, listaFinal,
+                        //         _costo.text, _telefono.text, _telefono2.text);
+
+                        //     //  ************** CUATRO *******************
+
+                        // var response = await Connections().createTransporter(
+                        //     _usuario.text,
+                        //     _correo.text,
+                        //     responseCreateGeneral[1],
+                        //     responseCode.toString(),
+                        //     accesofRol);
+
                         Navigator.pop(context);
                         Navigator.pop(context);
                       },
-                      child: Text(
+                      child: const Text(
                         "GUARDAR",
                         style: TextStyle(fontWeight: FontWeight.bold),
                       )),
@@ -272,16 +298,21 @@ class _AddRouteState extends State<AddRoute> {
     return AlertDialog(
       content: Container(
         width: 500,
-        height: MediaQuery.of(context).size.height,
+        height: MediaQuery.of(context).size.height * 0.4,
         child: ListView(
           children: [
             Align(
-              alignment: Alignment.centerRight,
-              child: GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: Icon(Icons.close)),
+              // alignment: Alignment.centerRight,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Icon(Icons.close)),
+                ],
+              ),
             ),
             SizedBox(
               height: 20,
@@ -295,21 +326,22 @@ class _AddRouteState extends State<AddRoute> {
             SizedBox(
               height: 20,
             ),
-            Text(
-              "Titulo",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            // Text(
+            //   "Titulo",
+            //   style: TextStyle(fontWeight: FontWeight.bold),
+            // ),
             SizedBox(
               height: 10,
             ),
-            TextField(
-              controller: _controller,
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            _modelTextField(
+                text: "Título",
+                controller: _controller,
+                icon: Icons.text_fields_outlined),
             SizedBox(
               height: 20,
             ),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
                     style: ElevatedButton.styleFrom(
@@ -319,7 +351,7 @@ class _AddRouteState extends State<AddRoute> {
                       await showDialog(
                           context: context,
                           builder: (context) {
-                            return AddCarrierModal();
+                            return AddCarrierLaravelModal();
                           });
                     },
                     child: Text(
@@ -330,16 +362,16 @@ class _AddRouteState extends State<AddRoute> {
                   width: 10,
                 ),
                 ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.greenAccent),
+                    style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.green),
                     onPressed: () async {
                       var response =
-                          await Connections().createRoute(_controller.text);
+                          await Connections().createRuta(_controller.text);
                       Navigator.pop(context);
                       await showDialog(
                           context: context,
                           builder: (context) {
-                            return AddCarrierModal();
+                            return AddCarrierLaravelModal();
                           });
                     },
                     child: Text(
@@ -349,6 +381,53 @@ class _AddRouteState extends State<AddRoute> {
               ],
             )
           ],
+        ),
+      ),
+    );
+  }
+
+  _modelTextField({text, controller, icon}) {
+    return Container(
+      height: 45,
+      width: MediaQuery.of(context).size.width * 0.5,
+      // padding: EdgeInsets.only(top: 15.0),
+      margin: EdgeInsets.only(top: 10.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10.0),
+        color: Color.fromARGB(255, 245, 244, 244),
+      ),
+      child: TextField(
+        controller: controller,
+        onSubmitted: (value) {
+          // paginateData();
+          // loadData();
+        },
+        style: TextStyle(fontWeight: FontWeight.bold),
+        decoration: InputDecoration(
+          fillColor: Colors.grey[500],
+          prefixIcon: Icon(icon),
+          suffixIcon: _controller.text.isNotEmpty
+              ? GestureDetector(
+                  onTap: () {
+                    getLoadingModal(context, false);
+                    setState(() {
+                      _controller.clear();
+                    });
+
+                    setState(() {
+                      // paginateData();
+                      // loadData();
+                    });
+                    Navigator.pop(context);
+                  },
+                  child: Icon(Icons.close))
+              : null,
+          hintText: text,
+          border: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.grey),
+          ),
+          focusColor: Colors.black,
+          iconColor: Colors.black,
         ),
       ),
     );

@@ -117,6 +117,7 @@ class _PrintedGuidesState extends State<PrintedGuides> {
     for (var i = 0; i < data.length; i++) {
       optionsCheckBox.add({
         "check": false,
+        "sku":"",
         "id": "",
         "numPedido": "",
         "date": "",
@@ -419,6 +420,7 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                                     selectAll = false;
                                     if (value!) {
                                       optionsCheckBox[index]['check'] = value;
+                                      optionsCheckBox[index]['sku'] = data[index]['sku'].toString();
                                       optionsCheckBox[index]['id'] =
                                           data[index]['id'].toString();
                                       optionsCheckBox[index]['numPedido'] =

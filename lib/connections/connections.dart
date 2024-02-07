@@ -1430,7 +1430,6 @@ class Connections {
       String dateFilter) async {
     int res = 0;
     try {
-
       print('start: ${sharedPrefs!.getString("dateDesdeLogistica")}');
       print('end: ${sharedPrefs!.getString("dateHastaLogistica")}');
 
@@ -1453,7 +1452,7 @@ class Connections {
             "page_size": sizePage,
             "page_number": currentPage,
             "search": search,
-            "date_filter" : dateFilter
+            "date_filter": dateFilter
           }));
 
       var decodeData = json.decode(request.body);
@@ -4142,7 +4141,7 @@ class Connections {
                   "field": "operadores.transportadoras.transportadora_id",
                   "direction": "DESC"
                 }
-              })); 
+              }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         // print(decodeData);
@@ -7965,8 +7964,8 @@ class Connections {
     }
   }
 
-  postGestinodNovelty(idOrder, String comment, idUser,noveltyState,
-      String dateStart) async {
+  postGestinodNovelty(
+      idOrder, String comment, idUser, noveltyState, String dateStart) async {
     try {
       var request = await http.post(
           Uri.parse(
@@ -7993,8 +7992,7 @@ class Connections {
     }
   }
 
-
-  updateOrCreateGestionedNovelty(idOrder,property) async{
+  updateOrCreateGestionedNovelty(idOrder, property) async {
     try {
       var request = await http.post(
           Uri.parse(
@@ -8017,4 +8015,149 @@ class Connections {
       return 2;
     }
   }
+
+  generalData(
+      int pageSize,
+      int pageNumber,
+      List arrayPopulate,
+      List arrayFiltersNot,
+      List arrayFiltersAnd,
+      List arrayFiltersOr,
+      String searchValue,
+      String model,
+      String dateFilter,
+      String dateStart,
+      String dateEnd) async {
+    try {
+      Map<String, dynamic> requestBody = {
+        "page_size": pageSize,
+        "page_number": pageNumber,
+        "search": searchValue,
+        "model": model,
+        "populate": arrayPopulate,
+        "and": arrayFiltersAnd,
+        "not": arrayFiltersNot,
+        "or": arrayFiltersOr,
+      };
+
+      if (dateFilter.isNotEmpty) {
+        requestBody['date_filter'] = dateFilter;
+      }
+      if (dateStart.isNotEmpty) {
+        requestBody['start'] = dateStart;
+      }
+      if (dateEnd.isNotEmpty) {
+        requestBody['end'] = dateEnd;
+      }
+
+      var request = await http.post(Uri.parse("$serverLaravel/api/generaldata"),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode(requestBody));
+
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return decodeData;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+
+  generalDataSpecific(
+      List arrayPopulate,
+      List arrayFiltersAnd,
+      String model) async {
+    try {
+      Map<String, dynamic> requestBody = {
+        "populate": arrayPopulate,
+        "and": arrayFiltersAnd,
+        "model": model
+      };
+
+      var request = await http.post(Uri.parse("$serverLaravel/api/generalspecific-data"),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode(requestBody));
+
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return decodeData;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+
+
+
+
+  createRuta(String titulo) async {
+    try {
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/rutas/create"),
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: json.encode({
+                "titulo": titulo,
+              }));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+  
+  createUser(userType ,user, mail, permisos, roles_front,Map<String,dynamic> RoleParameters) async {
+    try {
+      Map<String, dynamic> requestBody = {
+          "userType": userType,
+          "username": user,
+          "email": mail,
+          "roles_front": roles_front,
+          "password": "123456789",
+          "fecha_alta":
+              "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+          "role": "1",
+          "confirmed": true,
+          "estado": "VALIDADO",
+          "PERMISOS": permisos,
+      };
+
+    requestBody.addAll(RoleParameters);
+
+    var request = await http.post(Uri.parse("$serverLaravel/api/users/new-user"),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(requestBody));
+    var response = await request.body;
+    var decodeData = json.decode(response);
+    print(decodeData);
+
+    // if (request.statusCode != 201) {
+    //   return 1;
+    // } else {
+      return decodeData;
+    // }
+    } catch (e) {
+      return 0;
+    }
+  }
+
+
 }
