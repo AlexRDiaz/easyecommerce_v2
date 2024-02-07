@@ -885,6 +885,7 @@ class Connections {
           await http.post(Uri.parse("$serverLaravel/api/new-pedidos-shopifies"),
               headers: {'Content-Type': 'application/json'},
               body: json.encode({
+                "populate": populate,
                 "or": or,
                 "and": filtersAndAll,
                 "page_size": sizePage,
@@ -1705,75 +1706,70 @@ class Connections {
   }
 
   Future createOrderLaravel(
-      numero,
-      direccion,
       nombre,
-      telefono,
-      precio,
-      observacion,
       ciudad,
-      estado,
+      direccion,
+      telefono,
       productoP,
       productoE,
       cantidadT,
-      fecha,
-      fechaC,
-      dateID) async {
-    print(json.encode({
-// "data": {
-      "NumeroOrden": numero.toString(),
-      "DireccionShipping": direccion.toString(),
-      "NombreShipping": nombre.toString(),
-      "TelefonoShipping": telefono.toString(),
-      "PrecioTotal": precio.toString(),
-      "Observacion": observacion.toString(),
-      "CiudadShipping": ciudad.toString(),
-      "users": sharedPrefs!.getString("idComercialMasterSeller"),
-      "Estado_Interno": estado.toString(),
-      "IdComercial": sharedPrefs!.getString("idComercialMasterSeller"),
-      "ProductoP": productoP.toString(),
-      "ProductoExtra": productoE.toString(),
-      "Cantidad_Total": cantidadT.toString(),
-      "Name_Comercial": sharedPrefs!.getString("NameComercialSeller"),
-      "Marca_T_I": fecha.toString(),
-      "Fecha_Confirmacion": fechaC.toString(),
-      "Tienda_Temporal": sharedPrefs!.getString("NameComercialSeller"),
-// ! este np va xq' ya lo hace en el backend -> "pedido_fecha": dateID
-      "pedido_fecha": dateID
+      precio,
+      observacion,
+      rutaId,
+      transportadoraId) async {
+    String? generatedBy = sharedPrefs!.getString("id");
+    // print(json.encode({
+    //   "generatedBy": generatedBy,
+    //   "IdComercial": sharedPrefs!.getString("idComercialMasterSeller"),
+    //   "Name_Comercial": sharedPrefs!.getString("NameComercialSeller"),
+    //   "NombreShipping": nombre.toString(),
+    //   "CiudadShipping": ciudad.toString(),
+    //   "DireccionShipping": direccion.toString(),
+    //   "TelefonoShipping": telefono.toString(),
+    //   "ProductoP": productoP.toString(),
+    //   "ProductoExtra": productoE.toString(),
+    //   "Cantidad_Total": cantidadT.toString(),
+    //   "PrecioTotal": precio.toString(),
+    //   "Observacion": observacion.toString(),
+    //   "ruta": rutaId,
+    //   "transportadora": transportadoraId
+    // }));
+
+    try {
+      var request =
+          await http.post(Uri.parse("$serverLaravel/api/pedidos-shopifies"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "generatedBy": generatedBy,
+                "IdComercial":
+                    sharedPrefs!.getString("idComercialMasterSeller"),
+                "Name_Comercial": sharedPrefs!.getString("NameComercialSeller"),
+                "NombreShipping": nombre.toString(),
+                "CiudadShipping": ciudad.toString(),
+                "DireccionShipping": direccion.toString(),
+                "TelefonoShipping": telefono.toString(),
+                "ProductoP": productoP.toString(),
+                "ProductoExtra": productoE.toString(),
+                "Cantidad_Total": cantidadT.toString(),
+                "PrecioTotal": precio.toString(),
+                "Observacion": observacion.toString(),
+                "ruta": rutaId,
+                "transportadora": transportadoraId
+              }));
+      // if (request.statusCode != 200) {
+      //   return [false, ""];
+      // } else {
+      //   var response = await request.body;
+      //   var decodeData = json.decode(response);
+      //   return [true, decodeData['data']];
       // }
-    }));
-    var request =
-        await http.post(Uri.parse("$serverLaravel/api/pedidos-shopifies"),
-            headers: {'Content-Type': 'application/json'},
-            body: json.encode({
-// "data": {
-              "NumeroOrden": numero.toString(),
-              "DireccionShipping": direccion.toString(),
-              "NombreShipping": nombre.toString(),
-              "TelefonoShipping": telefono.toString(),
-              "PrecioTotal": precio.toString(),
-              "Observacion": observacion.toString(),
-              "CiudadShipping": ciudad.toString(),
-              "users": sharedPrefs!.getString("idComercialMasterSeller"),
-              "Estado_Interno": estado.toString(),
-              "IdComercial": sharedPrefs!.getString("idComercialMasterSeller"),
-              "ProductoP": productoP.toString(),
-              "ProductoExtra": productoE.toString(),
-              "Cantidad_Total": cantidadT.toString(),
-              "Name_Comercial": sharedPrefs!.getString("NameComercialSeller"),
-              "Marca_T_I": fecha.toString(),
-              "Fecha_Confirmacion": fechaC.toString(),
-              "Tienda_Temporal": sharedPrefs!.getString("NameComercialSeller"),
-              "pedido_fecha": dateID
-// ! este np va xq' ya lo hace en el backend -> "pedido_fecha": dateID
-              // }
-            }));
-    var response = await request.body;
-    var decodeData = json.decode(response);
-    if (request.statusCode != 200) {
-      return [false, ""];
-    } else {
-      return [true, decodeData['data']['id']];
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      print(e);
     }
   }
 

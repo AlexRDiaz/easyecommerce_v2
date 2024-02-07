@@ -26,7 +26,8 @@ class OrderEntryControllers extends ChangeNotifier {
 
   editControllers(data) {
     codigoEditController.text = data['numero_orden'].toString();
-    fechaEditController.text = data['pedido_fecha'][0]['fecha'].toString();
+    // fechaEditController.text = data['pedido_fecha'][0]['fecha'].toString();
+    fechaEditController.text = data['marca_t_i'].toString();
     ciudadEditController.text =
         (data['ciudad_shipping'] != null && data['ciudad_shipping'] != "null")
             ? data['ciudad_shipping'].toString()

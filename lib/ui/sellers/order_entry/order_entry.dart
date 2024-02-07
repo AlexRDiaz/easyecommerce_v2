@@ -97,7 +97,16 @@ class _OrderEntryState extends State<OrderEntry> {
   List arrayFiltersNot = [
     {'estado_interno': 'NO DESEA'},
   ];
-  List populate = ['users', 'pedido_fecha'];
+  // List populate = ['users', 'pedido_fecha'];
+  List populate = [
+    // 'operadore.up_users',
+    'transportadora',
+    'users.vendedores',
+    // 'novedades',
+    // 'pedidoFecha',
+    'ruta',
+    // 'subRuta'
+  ];
   List arrayFiltersAnd = [];
   List arrayFiltersOr = [
     'ciudad_shipping',
@@ -207,7 +216,7 @@ class _OrderEntryState extends State<OrderEntry> {
       // pageCount = response[0]['meta']['pagination']['pageCount'];
       // total = response[0]['meta']['pagination']['total'];
     });
-
+    print("paginadoo");
     await Future.delayed(Duration(milliseconds: 500), () {
       Navigator.pop(context);
     });
@@ -420,7 +429,8 @@ class _OrderEntryState extends State<OrderEntry> {
                                     await showDialog(
                                         context: (context),
                                         builder: (context) {
-                                          return const AddOrderSellers();
+                                          // return const AddOrderSellers();
+                                          return const AddOrderSellersLaravel();
                                         });
                                     await loadData();
                                   },
@@ -1030,7 +1040,8 @@ class _OrderEntryState extends State<OrderEntry> {
                                 },
                               ),
                               DataCell(
-                                  Text(data[index]['precio_total'].toString()),
+                                  Text(
+                                      '\$${data[index]['precio_total'].toString()}'),
                                   onTap: () {
                                 info(context, index);
                               }),

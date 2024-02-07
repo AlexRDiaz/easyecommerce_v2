@@ -370,6 +370,7 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                       const SizedBox(
                         width: 5,
                       ),
+                      /*
                       Container(
                         padding: EdgeInsets.only(left: 10, right: 10),
                         height: 50.0,
@@ -448,6 +449,7 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                           ],
                         ),
                       ),
+                      */
                       Expanded(
                           child: NumberPaginator(
                         config: NumberPaginatorUIConfig(
@@ -505,6 +507,7 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                           ],
                         ),
                       ),
+                      /*
                       Container(
                         padding: EdgeInsets.only(left: 10, right: 10),
                         height: 50.0,
@@ -592,6 +595,7 @@ class _UnwantedOrdersSellersState extends State<UnwantedOrdersSellers> {
                           ],
                         ),
                       ),
+                      */
                       Container(child: numberPaginator()),
                     ],
                   ),
