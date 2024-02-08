@@ -23,6 +23,7 @@ import 'package:frontend/ui/widgets/loading.dart';
 import 'package:number_paginator/number_paginator.dart';
 
 import 'package:frontend/ui/widgets/transport/data_table_model.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DeliveryStatusTransport extends StatefulWidget {
   const DeliveryStatusTransport({super.key});
@@ -636,6 +637,38 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
               onTap: () {
                 OpenShowDialog(context, index);
               })),
+          DataCell(Row(
+            children: [
+              GestureDetector(
+                onTap: () async {
+                  var _url = Uri.parse(
+                      """https://api.whatsapp.com/send?phone=${data[index]['telefono_shipping'].toString()}&text=Buen Día, servicio de mensajeria le saluda, para informarle que tenemos una entrega para su persona de ${data[index]['producto_p'].toString()}${data[index]['producto_extra'] != null && data[index]['producto_extra'].toString() != 'null' && data[index]['producto_extra'].toString() != '' ? ' y ${data[index]['producto_extra'].toString()}' : ''}. Por el valor de ${data[index]['precio_total'].toString()}...... Realizado su compra en la tienta ${data[index]['tienda_temporal'].toString()}. Me confirma su recepción el Día de Hoy.""");
+                  if (!await launchUrl(_url)) {
+                    throw Exception('Could not launch $_url');
+                  }
+                },
+                child: Icon(
+                  Icons.send,
+                  color: Colors.green,
+                ),
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              GestureDetector(
+                  onTap: () async {
+                    var _url = Uri(
+                        scheme: 'tel',
+                        path:
+                            '${data[index]['telefono_shipping'].toString()}');
+
+                    if (!await launchUrl(_url)) {
+                      throw Exception('Could not launch $_url');
+                    }
+                  },
+                  child: Icon(Icons.phone))
+            ],
+          )),
           DataCell(InkWell(
               child: Text(
                 getStateFromJson(
@@ -809,6 +842,13 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
       DataColumn2(
         label: InputFilter(
             'Código', 'numero_orden', _controllers.codigoController),
+        size: ColumnSize.L,
+        onSort: (columnIndex, ascending) {
+          sortFunc3("numero_orden", changevalue);
+        },
+      ),
+      DataColumn2(
+        label: Text(""),
         size: ColumnSize.L,
         onSort: (columnIndex, ascending) {
           sortFunc3("numero_orden", changevalue);

@@ -38,15 +38,25 @@ class _ScannerPrintedTransportState extends State<ScannerPrintedTransport> {
                   if (!visible) return;
                   getLoadingModal(context, false);
 
-                  var responseOrder = await Connections().getOrderByID(barcode);
-                  if (responseOrder['attributes']['Status'] == 'NO ENTREGADO' ||
-                      responseOrder['attributes']['Status'] == 'NOVEDAD') {
-                    if (responseOrder['attributes']['Estado_Devolucion'] ==
+                  // barcode = "196308";
+
+                  // var responseOrder = await Connections().getOrderByID(barcode);
+                  var responseOrder =
+                      await Connections().getOrderByIDHistoryLaravel(barcode);
+                  // if (responseOrder['attributes']['Status'] == 'NO ENTREGADO' ||
+                  //     responseOrder['attributes']['Status'] == 'NOVEDAD') {
+                  //   if (responseOrder['attributes']['Estado_Devolucion'] ==
+                  //           "DEVOLUCION EN RUTA" &&
+                  //       widget.status == "ENTREGADO EN OFICINA") {
+                  if (responseOrder['status'] == 'NO ENTREGADO' ||
+                      responseOrder['status'] == 'NOVEDAD') {
+                    if (responseOrder['estado_devolucion'] ==
                             "DEVOLUCION EN RUTA" &&
                         widget.status == "ENTREGADO EN OFICINA") {
                       setState(() {
                         _barcode =
-                            "El pedido ${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']} no se puede cambiar a entregado en oficina porque tiene estado "
+                            // "El pedido ${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']} no se puede cambiar a entregado en oficina porque tiene estado "
+                            "El pedido ${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']} no se puede cambiar a entregado en oficina porque tiene estado "
                             "DEVOLUCION EN RUTA";
                       });
                       Navigator.pop(context);
@@ -63,7 +73,7 @@ class _ScannerPrintedTransportState extends State<ScannerPrintedTransport> {
                             .updateOrderReturnTransportRestart(barcode);
                         setState(() {
                           _barcode =
-                              "${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']}";
+                              "${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']}";
                         });
                         Navigator.pop(context);
                       }
@@ -71,7 +81,7 @@ class _ScannerPrintedTransportState extends State<ScannerPrintedTransport> {
                   } else {
                     setState(() {
                       _barcode =
-                          "No se puede alterar el pedido con código ${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']}";
+                          "No se puede alterar el pedido con código ${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']}";
                     });
                     Navigator.pop(context);
                   }
@@ -142,7 +152,7 @@ class _ScannerPrintedTransportState extends State<ScannerPrintedTransport> {
         _resTransaction = resNovelty["res"];
 
         _barcode =
-            "${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']}";
+            "${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']}";
       });
     }
   }
