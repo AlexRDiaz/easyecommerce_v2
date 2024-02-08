@@ -11,10 +11,10 @@ import 'package:frontend/ui/logistic/add_sellers/custom_filterchip_for_user.dart
 import 'package:frontend/ui/widgets/loading.dart';
 
 class UpdateCarrierModalLaravel extends StatefulWidget {
-  // final String idP;
+  final String idP;
   final String idT;
 
-  const UpdateCarrierModalLaravel({super.key,  required this.idT});
+  const UpdateCarrierModalLaravel({super.key,  required this.idT,required this.idP});
 
   @override
   State<UpdateCarrierModalLaravel> createState() => _UpdateCarrierModalLaravelState();
@@ -40,9 +40,9 @@ class _UpdateCarrierModalLaravelState extends State<UpdateCarrierModalLaravel> {
   String model = "Transportadora";
 
   var sortFieldDefaultValue = "";
-  List populate = [
-    'rutas',
-    'transportadoras_users_permissions_user_links.up_user'
+  List <String>populate = [
+    "rutas",
+    "transportadoras_users_permissions_user_links.up_user"
   ];
   List arrayFiltersAnd = [];
   List dataL = [];
@@ -67,18 +67,22 @@ class _UpdateCarrierModalLaravelState extends State<UpdateCarrierModalLaravel> {
             '${routesList[i]}');
       });
     }
-    arrayFiltersAnd.add({
-      "equals/id": widget.idT
-    });
+    print(widget.idT);
+
+    arrayFiltersAnd.add({ "equals/id": widget.idT});
 
     var newResponse = await Connections().generalDataSpecific(populate,arrayFiltersAnd,model);
 
+    print(newResponse);
     setState(() {
       dataL = newResponse;
     });
+    print(dataL);
     // var response = await Connections().getPersonalInfoAccountByID(widget.idP);
     // var responseT =
     //     await Connections().getTransporterInfoAccountByID(widget.idT);
+
+
     idUser = dataL[0]['transportadoras_users_permissions_user_links'][0]['up_user']['id'].toString();
     _usuario.text = dataL[0]['transportadoras_users_permissions_user_links'][0]['up_user']['username'].toString();
     _correo.text = dataL[0]['transportadoras_users_permissions_user_links'][0]['up_user']['email'].toString();
@@ -292,11 +296,24 @@ class _UpdateCarrierModalLaravelState extends State<UpdateCarrierModalLaravel> {
                 Align(
                   child: ElevatedButton(
                       onPressed: () async {
-                        // getLoadingModal(context, false);
-                        // List listaFinal = selectedItems
-                        //     .map((elemento) => elemento.split("-").last)
-                        //     .toList();
+                        getLoadingModal(context, false);
+                        List listaFinal = selectedItems
+                            .map((elemento) => elemento.split("-").last)
+                            .toList();
+                              
+                              print("> ${widget.idP}");
 
+                              var respf = await Connections().updateTransport( 
+                                widget.idP,
+                                _usuario.text,
+                                _correo.text,
+                                _costo.text,
+                                _telefono.text,
+                                _telefono2.text,
+                                listaFinal 
+                                );
+
+                              print(respf);
                         // var responseCreateGeneral = await Connections()
                         //     .updateTransporterGeneral(
                         //         _usuario.text,
@@ -304,7 +321,8 @@ class _UpdateCarrierModalLaravelState extends State<UpdateCarrierModalLaravel> {
                         //         _costo.text,
                         //         _telefono.text,
                         //         _telefono2.text,
-                        //         widget.idT);
+                        //         widget.idT
+                        // );
                         // var response = await Connections().updateTransporter(
                         //     _usuario.text, _correo.text, widget.idP);
                         Navigator.pop(context);

@@ -8068,39 +8068,32 @@ class Connections {
     }
   }
 
-
-  generalDataSpecific(
-      List arrayPopulate,
-      List arrayFiltersAnd,
-      String model) async {
+  generalDataSpecific(List<String> arrayPopulate, arrayFiltersAnd, model) async {
     try {
-      Map<String, dynamic> requestBody = {
-        "populate": arrayPopulate,
-        "and": arrayFiltersAnd,
-        "model": model
-      };
-
-      var request = await http.post(Uri.parse("$serverLaravel/api/generalspecific-data"),
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/generalspecific-data"),
           headers: {
             'Content-Type': 'application/json',
           },
-          body: json.encode(requestBody));
+          body: json.encode({
+            "populate": arrayPopulate,
+            "and": arrayFiltersAnd,
+            "model": model
+          }));
 
       var response = await request.body;
+
+      print(response);
       var decodeData = json.decode(response);
-      if (request.statusCode != 200) {
-        return 1;
-      } else {
-        return decodeData;
-      }
+      // if (request.statusCode != 200) {
+      //   return 1;
+      // } else {
+      return decodeData;
+      // }
     } catch (e) {
       return 2;
     }
   }
-
-
-
-
 
   createRuta(String titulo) async {
     try {
@@ -8123,41 +8116,83 @@ class Connections {
       return 2;
     }
   }
-  
-  createUser(userType ,user, mail, permisos, roles_front,Map<String,dynamic> RoleParameters) async {
+
+  createUser(userType, user, mail, permisos, roles_front,
+      Map<String, dynamic> RoleParameters) async {
     try {
       Map<String, dynamic> requestBody = {
-          "userType": userType,
-          "username": user,
-          "email": mail,
-          "roles_front": roles_front,
-          "password": "123456789",
-          "fecha_alta":
-              "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
-          "role": "1",
-          "confirmed": true,
-          "estado": "VALIDADO",
-          "PERMISOS": permisos,
+        "userType": userType,
+        "username": user,
+        "email": mail,
+        "roles_front": roles_front,
+        "password": "123456789",
+        "fecha_alta":
+            "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+        "role": "1",
+        "confirmed": true,
+        "estado": "VALIDADO",
+        "PERMISOS": permisos,
       };
 
-    requestBody.addAll(RoleParameters);
+      requestBody.addAll(RoleParameters);
 
-    var request = await http.post(Uri.parse("$serverLaravel/api/users/new-user"),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(requestBody));
-    var response = await request.body;
-    var decodeData = json.decode(response);
-    print(decodeData);
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/users/new-user"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(requestBody));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      print(decodeData);
 
-    // if (request.statusCode != 201) {
-    //   return 1;
-    // } else {
+      // if (request.statusCode != 201) {
+      //   return 1;
+      // } else {
       return decodeData;
-    // }
+      // }
     } catch (e) {
       return 0;
     }
   }
 
+  updateTransport(id, username, email, transportPrice, telf1, telf2, routes) async {
+      print(json.encode({
+                  "username": username,
+                  "email": email,
+                  "costo_transportadora": transportPrice,
+                  "telefono_1": telf1,
+                  "telefono_2": telf2,
+                  "rutas": routes,
+              }));
+    try {
+    
+      var response =
+          await http.put(Uri.parse("$serverLaravel/api/users/transports/$id"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                  // "username": "test645",
+                  // "email": "test645@gmail.com",
+                  // "costo_transportadora": 10,
+                  // "telefono_1": "987654",
+                  // "telefono_2": "987654",
+                  // "rutas": ["2", "5"],
+                  // "password": "123456789",
 
+                  "username": username,
+                  "email": email,
+                  "costo_transportadora": transportPrice,
+                  "telefono_1": telf1,
+                  "telefono_2": telf2,
+                  "rutas": routes,
+              }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
 }

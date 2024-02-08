@@ -214,12 +214,16 @@ class _AddCarrierState extends State<AddCarrier> {
                         (index) => DataRow(cells: [
                               DataCell(Text(dataL[index]['nombre'].toString()),
                                   onTap: () async {
+
+                                print(dataL[index]['transportadoras_users_permissions_user_links'][0]['up_user']['id'].toString());
+                                print("-----------------");
                                 await showDialog(
                                     context: context,
                                     builder: (context) {
                                       return UpdateCarrierModalLaravel(
-                                        // idP: dataL[index]['transportadoras_users_permissions_user_links'][0]['up_user']['id'].toString(),
-                                        idT: dataL[index]['id'].toString(),
+                                        idT:  dataL[index]['id'].toString(),
+                                        idP:  dataL[index]['transportadoras_users_permissions_user_links'][0]['up_user']['id'].toString(),
+                                        // idT: dataL[index]['id'].toString(),
                                       );
                                     });
                                 loadData();
