@@ -38,7 +38,7 @@ class _ScannerPrintedTransportState extends State<ScannerPrintedTransport> {
                   if (!visible) return;
                   getLoadingModal(context, false);
 
-                  // barcode = "196308";
+                  // barcode = "196564";
 
                   // var responseOrder = await Connections().getOrderByID(barcode);
                   var responseOrder =
@@ -69,8 +69,18 @@ class _ScannerPrintedTransportState extends State<ScannerPrintedTransport> {
 
                         //-------------------------------------------------------------
                       } else {
-                        var resReiniciar = await Connections()
-                            .updateOrderReturnTransportRestart(barcode);
+                        // var resReiniciar = await Connections()
+                        //     .updateOrderReturnTransportRestart(barcode);
+
+                        var resReiniciarL =
+                            await Connections().updatenueva(barcode, {
+                          "estado_devolucion": "PENDIENTE",
+                          "do": "PENDIENTE",
+                          "dt": "PENDIENTE",
+                          "marca_t_d": "",
+                          "marca_t_d_t": "",
+                        });
+
                         setState(() {
                           _barcode =
                               "${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']}";

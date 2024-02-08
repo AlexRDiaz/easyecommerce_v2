@@ -35,6 +35,8 @@ class _OrderInfoState extends State<OrderInfo> {
   OrderEntryControllers _controllers = OrderEntryControllers();
   String estadoEntrega = "";
   String estadoLogistic = "";
+  String route = "";
+  String carrier = "";
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
@@ -58,6 +60,13 @@ class _OrderInfoState extends State<OrderInfo> {
     setState(() {
       estadoEntrega = data['status'].toString();
       estadoLogistic = data['estado_logistico'].toString();
+      route = data['ruta'] != null && data['ruta'].toString() != "[]"
+          ? data['ruta'][0]['titulo'].toString()
+          : "";
+      carrier = data['transportadora'] != null &&
+              data['transportadora'].toString() != "[]"
+          ? data['transportadora'][0]['nombre'].toString()
+          : "";
     });
 
     setState(() {
@@ -73,6 +82,13 @@ class _OrderInfoState extends State<OrderInfo> {
     setState(() {
       estadoEntrega = data['status'].toString();
       estadoLogistic = data['estado_logistico'].toString();
+      route = data['ruta'] != null && data['ruta'].toString() != "[]"
+          ? data['ruta'][0]['titulo'].toString()
+          : "";
+      carrier = data['transportadora'] != null &&
+              data['transportadora'].toString() != "[]"
+          ? data['transportadora'][0]['nombre'].toString()
+          : "";
     });
 
     setState(() {
@@ -345,7 +361,8 @@ class _OrderInfoState extends State<OrderInfo> {
                           height: 20,
                         ),
                         Text(
-                          "Ciudad: ${data['ruta'] != null && data['ruta'].isNotEmpty ? data['ruta'][0]['titulo'].toString() : ''}",
+                          // "Ciudad: ${data['ruta'] != null && data['ruta'].isNotEmpty ? data['ruta'][0]['titulo'].toString() : ''}",
+                          "  Ciudad: $route",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
@@ -355,7 +372,8 @@ class _OrderInfoState extends State<OrderInfo> {
                           height: 20,
                         ),
                         Text(
-                          "  Transportadora: ${data['transportadora'] != null && data['transportadora'].isNotEmpty ? data['transportadora'][0]['nombre'].toString() : ''}",
+                          // "  Transportadora: ${data['transportadora'] != null && data['transportadora'].isNotEmpty ? data['transportadora'][0]['nombre'].toString() : ''}",
+                          "  Transportadora: $carrier",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
