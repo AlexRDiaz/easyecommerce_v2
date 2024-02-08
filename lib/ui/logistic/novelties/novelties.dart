@@ -1872,9 +1872,9 @@ Quedamos atentos a su respuesta Muchas gracias.
 
 
     double width =
-        MediaQuery.of(context).size.width * 0.6; // Ajustar según necesidad
+        MediaQuery.of(context).size.width * 0.30; // Ajustar según necesidad
     double height =
-        MediaQuery.of(context).size.height * 0.35; // Ajustar según necesidad
+        MediaQuery.of(context).size.height * 0.20; // Ajustar según necesidad
 
     showDialog(
       context: context,
@@ -1899,11 +1899,11 @@ Quedamos atentos a su respuesta Muchas gracias.
             width: width,
             height: height,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment
-                  .spaceBetween, // Añade espacio entre los elementos
+              // mainAxisAlignment: MainAxisAlignment
+                  // .spaceBetween, // Añade espacio entre los elementos
               children: [
                 Container(
-                  margin: EdgeInsets.only(top: 30),
+                  margin: EdgeInsets.only(top: 15),
                   child: TextField(
                     controller: myController,
                     minLines: 4, // Reduce el número de líneas
@@ -1916,44 +1916,47 @@ Quedamos atentos a su respuesta Muchas gracias.
                     ),
                   ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton.icon(
-                      icon: Icon(Icons.check_circle),
-                      label: Text("Aceptar"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            Colors.green, // Color verde para aceptar
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
+                Container(
+                  margin: EdgeInsets.only(top: 20.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton.icon(
+                        icon: Icon(Icons.check_circle),
+                        label: Text("Aceptar"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              Colors.green, // Color verde para aceptar
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
                         ),
+                        onPressed: () async {
+                          updateGestionedNovelty(context, index, noveltyState,
+                              title, myController.text);
+                          Navigator.pop(context);
+                          // Navigator.pop(context);
+                          await loadData();
+                          // Navigator.pop(context); // Cierra el modal después de la acción
+                        },
                       ),
-                      onPressed: () async {
-                        updateGestionedNovelty(context, index, noveltyState,
-                            title, myController.text);
-                        Navigator.pop(context);
-                        // Navigator.pop(context);
-                        await loadData();
-                        // Navigator.pop(context); // Cierra el modal después de la acción
-                      },
-                    ),
-                    SizedBox(width: 3.0,),
-                    ElevatedButton.icon(
-                      icon: Icon(Icons.cancel),
-                      label: Text("Cancelar"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            Colors.red, // Color rojo para cancelar
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
+                      SizedBox(width: 3.0,),
+                      ElevatedButton.icon(
+                        icon: Icon(Icons.cancel),
+                        label: Text("Cancelar"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              Colors.red, // Color rojo para cancelar
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
                         ),
+                        onPressed: () {
+                          Navigator.pop(context); // Cierra el modal
+                        },
                       ),
-                      onPressed: () {
-                        Navigator.pop(context); // Cierra el modal
-                      },
-                    ),
-                  ],
+                    ],
+                  ),
                 )
               ],
             ),
