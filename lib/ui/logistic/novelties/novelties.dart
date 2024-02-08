@@ -487,217 +487,6 @@ class _NoveltiesLState extends State<NoveltiesL> {
                 ],
               ),
               context)
-
-          // Column(
-          //   children: [
-          //     _dates(context),
-          //     SizedBox(
-          //       height: 10,
-          //     ),
-          //     Container(
-          //         width: double.infinity,
-          //         color: Colors.white,
-          //         padding: EdgeInsets.only(top: 5, bottom: 5),
-          //         child: SizedBox(
-          //           child: responsive(
-          //               Row(
-          //                 children: [
-          //                   Expanded(
-          //                     child: _modelTextField(
-          //                         text: "Buscar",
-          //                         controller: _controllers.searchController),
-          //                   ),
-          //                   Expanded(
-          //                     child: Row(
-          //                       children: [
-          //                         Container(
-          //                           padding:
-          //                               const EdgeInsets.only(left: 15, right: 5),
-          //                           child: Text(
-          //                             "Registros: ${total}",
-          //                             style: const TextStyle(
-          //                                 fontWeight: FontWeight.bold,
-          //                                 color: Colors.black),
-          //                           ),
-          //                         ),
-          //                       ],
-          //                     ),
-          //                   ),
-          //                   Expanded(child: numberPaginator()),
-          //                 ],
-          //               ),
-          //               Column(
-          //                 children: [
-          //                   Container(
-          //                     child: _modelTextField(
-          //                         text: "Buscar",
-          //                         controller: _controllers.searchController),
-          //                   ),
-          //                   Row(
-          //                     children: [
-          //                       Container(
-          //                         padding:
-          //                             const EdgeInsets.only(left: 15, right: 5),
-          //                         child: Text(
-          //                           "Registros: ${total}",
-          //                           style: const TextStyle(
-          //                               fontWeight: FontWeight.bold,
-          //                               color: Colors.black),
-          //                         ),
-          //                       ),
-          //                     ],
-          //                   ),
-          //                   numberPaginator(),
-          //                 ],
-          //               ),
-          //               context),
-          //         )),
-          //     SizedBox(
-          //       height: 10,
-          //     ),
-          //     Expanded(
-          //         child: DataTable2(
-          //             scrollController: _scrollController,
-          //             decoration: BoxDecoration(
-          //               color: Colors.white,
-          //               borderRadius: const BorderRadius.all(Radius.circular(4)),
-          //               border: Border.all(color: Colors.blueGrey),
-          //             ),
-          //             headingRowHeight: 63,
-          //             headingTextStyle: const TextStyle(
-          //                 fontWeight: FontWeight.bold, color: Colors.black),
-          //             dataTextStyle: const TextStyle(
-          //                 fontSize: 12,
-          //                 fontWeight: FontWeight.bold,
-          //                 color: Colors.black),
-          //             columnSpacing: 5,
-          //             horizontalMargin: 5,
-          //             minWidth: 2500,
-          //             columns: [
-          //               DataColumn2(
-          //                 label: Text("Fecha Entrega"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-
-          //               DataColumn2(
-          //                 label: const Text('Código'),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Ciudad"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Nombre Cliente"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Teléfono Cliente"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Dirección"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Cantidad"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Producto"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Producto Extra"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Precio Total"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Observación"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Comentario"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: SelectFilterNoId('Status', 'equals/status',
-          //                     statusController, listStatus),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: SelectFilter('Vendedor', 'equals/id_comercial',
-          //                     vendedorController, listvendedores),
-          //                 size: ColumnSize.S,
-          //                 // numeric: true,
-          //                 onSort: (columnIndex, ascending) {
-          //                   // sortFunc("Name_Comercial");
-          //                 },
-          //               ),
-          //               DataColumn2(
-          //                 label: SelectFilter(
-          //                     'Transportadora',
-          //                     'equals/transportadora.transportadora_id',
-          //                     transportadorasController,
-          //                     listtransportadores),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {
-          //                   // sortFunc("Estado_Interno");
-          //                 },
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Operador"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Estado Devolución"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: const Text('Fecha Marcar TI'),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {
-          //                   // sortFunc("Fecha");
-          //                 },
-          //               ),
-          //               DataColumn2(
-          //                 label: const Text('Numero Intentos'),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {
-          //                   // sortFunc("Fecha");
-          //                 },
-          //               ),
-          //               // data['novedades'][index]['try']
-          //             ],
-          //             rows: List<DataRow>.generate(data.length, (index) {
-          //               final color =
-          //                   index % 2 == 0 ? Colors.grey[400] : Colors.white;
-
-          //               return DataRow(
-          //                   color: MaterialStateColor.resolveWith(
-          //                       (states) => color!),
-          //                   cells: getRows(index));
-          //             }))),
-          //   ],
-          // ),
           ),
     );
   }
@@ -731,7 +520,10 @@ class _NoveltiesLState extends State<NoveltiesL> {
             padding: const EdgeInsets.only(left: 10.0),
             child: Text(
               valor,
-              style: TextStyle(color: GetColorDropStatus(valor), fontSize: 12.0,fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  color: GetColorDropStatus(valor),
+                  fontSize: 12.0,
+                  fontWeight: FontWeight.bold),
             ),
           ),
         );
@@ -1144,6 +936,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
                       onTap: () {
                         _mostrarVentanaEmergenteGuiasImpresas(
                             context, index, 1, "Novedad Gestionada");
+                        myController.clear();
                       },
                       child: Icon(
                         Icons.warning,
@@ -1157,6 +950,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
                 onTap: () {
                   _mostrarVentanaEmergenteGuiasImpresas(
                       context, index, 2, "Novedad Resuelta");
+                  myController.clear();
                 },
                 child: Icon(Icons.timelapse_rounded, color: Colors.orange),
               ),
@@ -2075,10 +1869,12 @@ Quedamos atentos a su respuesta Muchas gracias.
 
   void _mostrarVentanaEmergenteGuiasImpresas(
       BuildContext context, index, noveltyState, title) {
+
+
     double width =
-        MediaQuery.of(context).size.width * 0.3; // Ajustar según necesidad
+        MediaQuery.of(context).size.width * 0.6; // Ajustar según necesidad
     double height =
-        MediaQuery.of(context).size.height * 0.18; // Ajustar según necesidad
+        MediaQuery.of(context).size.height * 0.35; // Ajustar según necesidad
 
     showDialog(
       context: context,
@@ -2106,15 +1902,18 @@ Quedamos atentos a su respuesta Muchas gracias.
               mainAxisAlignment: MainAxisAlignment
                   .spaceBetween, // Añade espacio entre los elementos
               children: [
-                TextField(
-                  controller: myController,
-                  minLines: 1, // Reduce el número de líneas
-                  maxLines: 1, // Permite expandirse hasta 3 líneas
-                  decoration: InputDecoration(
-                    labelText: 'Escribe tu comentario aquí',
-                    hintText: 'Ingresa detalles relevantes',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.comment, color: Colors.grey),
+                Container(
+                  margin: EdgeInsets.only(top: 30),
+                  child: TextField(
+                    controller: myController,
+                    minLines: 4, // Reduce el número de líneas
+                    maxLines: 4, // Permite expandirse hasta 3 líneas
+                    decoration: InputDecoration(
+                      labelText: 'Escribe tu comentario aquí',
+                      hintText: 'Ingresa detalles relevantes',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.comment, color: Colors.grey),
+                    ),
                   ),
                 ),
                 Row(
@@ -2133,18 +1932,19 @@ Quedamos atentos a su respuesta Muchas gracias.
                       onPressed: () async {
                         updateGestionedNovelty(context, index, noveltyState,
                             title, myController.text);
-                        myController.clear();
                         Navigator.pop(context);
                         // Navigator.pop(context);
                         await loadData();
                         // Navigator.pop(context); // Cierra el modal después de la acción
                       },
                     ),
+                    SizedBox(width: 3.0,),
                     ElevatedButton.icon(
                       icon: Icon(Icons.cancel),
                       label: Text("Cancelar"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red, // Color rojo para cancelar
+                        backgroundColor:
+                            Colors.red, // Color rojo para cancelar
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
@@ -2361,7 +2161,6 @@ Quedamos atentos a su respuesta Muchas gracias.
 
     return Color(color);
   }
-
 
   Color? GetColorDropStatus(state) {
     int color = 0xFF000000;

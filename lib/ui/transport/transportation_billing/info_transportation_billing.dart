@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:frontend/config/colors.dart';
 
 import 'package:frontend/connections/connections.dart';
-import 'package:frontend/helpers/navigators.dart';
 import 'package:frontend/helpers/server.dart';
-import 'package:frontend/ui/operator/orders_operator/controllers/controllers.dart';
+import 'package:frontend/ui/transport/transportation_billing/controllers/controller-backup.dart';
 import 'package:frontend/ui/widgets/loading.dart';
-import 'package:provider/provider.dart';
 
 class InfoTransportationBilling extends StatefulWidget {
   final String id;
@@ -20,7 +18,7 @@ class InfoTransportationBilling extends StatefulWidget {
 class _InfoTransportationBilling extends State<InfoTransportationBilling> {
   var data = {};
   bool loading = true;
-  OrderInfoOperatorControllers _controllers = OrderInfoOperatorControllers();
+  final OrderInfoOperatorBackupControllers _controllers = OrderInfoOperatorBackupControllers();
 
   @override
   void didChangeDependencies() {
