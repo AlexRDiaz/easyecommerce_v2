@@ -90,8 +90,9 @@ class _AddSellerUserState extends State<AddSellerUser> {
           ),
         ),
       ),
-      body: SizedBox(
+      body: Container(
         width: double.infinity,
+        padding: EdgeInsets.all(20),
         child: Column(
           children: [
             SizedBox(

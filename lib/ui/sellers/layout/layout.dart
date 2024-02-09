@@ -188,7 +188,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                         'Movimientos', Icon(Icons.paid, color: colorlabels), [
                       _buildMenuItem('Billetera', 'Billetera',
                           Icon(Icons.wallet, color: colorlabels)),
-                      _buildMenuItem('Mi bileltera', 'Mi Billetera',
+                      _buildMenuItem('Mi Billetera', 'Mi Billetera',
                           Icon(Icons.wallet, color: colorlabels)),
                       _buildMenuItem(
                           "Retiros en efectivo",
@@ -439,11 +439,11 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                               'Devoluciones',
                               Icon(Icons.assignment_return,
                                   color: colorlabels)),
-                          _buildMenuItem(
-                              'Catálogo de Productos',
-                              'Catálogo de Productos',
-                              Icon(Icons.shopping_bag_rounded,
-                                  color: colorlabels)),
+                          // _buildMenuItem(
+                          //     'Catálogo de Productos',
+                          //     'Catálogo de Productos',
+                          //     Icon(Icons.shopping_bag_rounded,
+                          //         color: colorlabels)),
                         ]),
                         Divider(
                           endIndent: 10,
@@ -453,7 +453,7 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                             Icon(Icons.paid, color: colorlabels), [
                           _buildMenuItem('Billetera', 'Billetera',
                               Icon(Icons.wallet, color: colorlabels)),
-                          _buildMenuItem('Mi bileltera', 'Mi Billetera',
+                          _buildMenuItem('Mi Billetera', 'Mi Billetera',
                               Icon(Icons.wallet, color: colorlabels)),
                           _buildMenuItem(
                               "Retiros en efectivo",
@@ -472,11 +472,30 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
                               Icon(Icons.picture_as_pdf, color: colorlabels)),
                           _buildMenuItem('Guías enviadas', 'Guías Enviadas',
                               Icon(Icons.send, color: colorlabels)),
-                          _buildMenuItem(
-                              'Mis integraciones',
-                              'Mis integraciones',
-                              Icon(Icons.settings, color: colorlabels)),
+                          // _buildMenuItem(
+                          //     'Mis integraciones',
+                          //     'Mis integraciones',
+                          //     Icon(Icons.settings, color: colorlabels)),
                         ]),
+                        Divider(
+                          endIndent: 10,
+                          indent: 10,
+                        ),
+                        _buildMenu(
+                            'Dropshipping',
+                            Icon(Icons.shopping_bag_rounded,
+                                color: colorlabels),
+                            [
+                              _buildMenuItem(
+                                  'Catálogo de Productos',
+                                  'Catálogo de Productos',
+                                  Icon(Icons.shopping_bag_outlined,
+                                      color: colorlabels)),
+                              _buildMenuItem(
+                                  'Mis integraciones',
+                                  'Mis integraciones',
+                                  Icon(Icons.settings, color: colorlabels)),
+                            ]),
                       ],
                     ),
                   )
