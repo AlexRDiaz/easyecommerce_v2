@@ -64,15 +64,17 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
     double heigth = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     return Scaffold(
+      /* Visibility later
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigators().pushNamed(
-            context,
-            '/layout/sellers/cash-withdrawal/new',
-          );
+          // Navigators().pushNamed(
+          //   context,
+          //   '/layout/sellers/cash-withdrawal/new',
+          // );
+          withdrawalInputDialog(context);
         },
         backgroundColor: colors.colorGreen,
-        child: Center(
+        child: const Center(
           child: Icon(
             Icons.add,
             color: Colors.white,
@@ -80,6 +82,7 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
           ),
         ),
       ),
+      */
       body: Container(
         width: double.infinity,
         padding: EdgeInsets.all(20),
@@ -104,6 +107,7 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
                 ),
               ],
             ),
+            /*
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -131,11 +135,12 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
                 ),
               ],
             ),
+            */
             Expanded(
               child: Column(
                 children: [
                   Container(
-                    height: heigth * 0.75,
+                    height: heigth * 0.80,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
                       color: Colors.white,

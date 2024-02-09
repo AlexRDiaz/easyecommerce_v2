@@ -7571,7 +7571,7 @@ class Connections {
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
             "monto": amount,
-            "email": "bugi2532@hotmail.com",
+            "email": "easyecommercetest@gmail.com",
             //sharedPrefs!.getString("email").toString(),
             "id_vendedor": "${sharedPrefs!.getString("idProviderUserMaster")}"
           }));
