@@ -13,6 +13,7 @@ import 'package:frontend/main.dart';
 import 'package:frontend/ui/sellers/delivery_status/DeliveryStatusSellerInfo.dart';
 import 'package:frontend/ui/sellers/delivery_status/create_report.dart';
 import 'package:frontend/ui/transport/delivery_status_transport/Opcion.dart';
+import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/OptionsWidget.dart';
 import 'package:frontend/ui/transport/delivery_status_transport/delivery_details.dart';
 import 'package:frontend/ui/transport/my_orders_prv/controllers/controllers.dart';
@@ -647,24 +648,22 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                       child: DataTable2(
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(4)),
+                          borderRadius: BorderRadius.all(Radius.circular(4)),
                           border: Border.all(color: Colors.blueGrey),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.grey.withOpacity(0.3),
-                              offset: const Offset(0, 2),
-                              blurRadius: 4, // Radio de desenfoque de la sombra
-                              spreadRadius: 2, // Extensión de la sombra
+                              blurRadius: 4,
+                              spreadRadius: 2,
+                              offset: Offset(0, 2),
                             ),
                           ],
                         ),
-                        headingRowHeight: 63,
-                        showBottomBorder: true,
-                        // dividerThickness: 1,
+                        dividerThickness: 1,
                         dataRowColor: MaterialStateColor.resolveWith((states) {
                           if (states.contains(MaterialState.selected)) {
-                            return Colors.blue.withOpacity(0.5);
+                            return Colors.blue.withOpacity(
+                                0.5); // Color para fila seleccionada
                           } else if (states.contains(MaterialState.hovered)) {
                             return const Color.fromARGB(255, 234, 241, 251);
                           }
@@ -674,6 +673,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                             Theme.of(context).textTheme.bodyMedium,
                         dataTextStyle: Theme.of(context).textTheme.bodySmall,
                         columnSpacing: 12,
+                        headingRowHeight: 80,
                         horizontalMargin: 12,
                         minWidth: 4500,
                         columns: [
@@ -682,8 +682,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                             fixedWidth: 100,
                           ),
                           DataColumn2(
-                            label: InputFilter('Fecha', fechaEntregaController,
-                                'fecha_entrega'),
+                            label: InputFilter('Fecha Entrega',
+                                fechaEntregaController, 'fecha_entrega'),
                             //label: Text('Fecha de Entrega'),
                             size: ColumnSize.S,
                             onSort: (columnIndex, ascending) {
@@ -873,7 +873,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                             size: ColumnSize.S,
                             onSort: (columnIndex, ascending) {},
                           ),
-                          DataColumn2(
+                          const DataColumn2(
                             label: Text('Transportadora'),
                             size: ColumnSize.M,
                           ),
@@ -1074,7 +1074,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                   onTap: () {
                                 showInfo(context, index);
                               }),
-                              DataCell(Text(data[index]['sent_at'].toString()),
+                              DataCell(
+                                  Text(UIUtils.formatDate(
+                                      data[index]['sent_at'].toString())),
                                   onTap: () {
                                 showInfo(context, index);
                               }),

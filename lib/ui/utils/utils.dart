@@ -67,15 +67,16 @@ class UIUtils {
 
   static String formatDate(dateStringFromDatabase) {
     DateTime dateTime = DateTime.parse(dateStringFromDatabase);
-    Duration offset = const Duration(hours: -8);
-    dateTime = dateTime.toUtc().add(offset);
+    // Duration offset = const Duration(hours: -8);
+    // dateTime = dateTime.toUtc().add(offset);
     String formattedDate = DateFormat("dd/MM/yyyy HH:mm").format(dateTime);
     return formattedDate;
   }
 
   static Future<void> updateLogisticaDates() async {
     final prefs = await SharedPreferences.getInstance();
-    String date = "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
+    String date =
+        "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
     await prefs.setString('dateDesdeLogistica', date);
     await prefs.setString('dateHastaLogistica', date);
   }

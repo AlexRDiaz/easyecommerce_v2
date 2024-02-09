@@ -125,7 +125,8 @@ class _OrderInfoState extends State<OrderInfo> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            estadoLogistic == "ENVIADO"
+                            estadoLogistic == "ENVIADO" ||
+                                    estadoLogistic == "IMPRESO"
                                 ? Container()
                                 : ElevatedButton(
                                     onPressed: () async {
@@ -229,7 +230,7 @@ class _OrderInfoState extends State<OrderInfo> {
                         ),
                         Text(
                           // "  Fecha: ${data['pedido_fecha'][0]['fecha'].toString()}",
-                          "  Fecha: ${data['pedido_fecha'] != null && data['pedido_fecha'].isNotEmpty ? data['pedido_fecha'][0]['fecha'].toString() : ""}",
+                          "  Fecha: ${data['marca_t_i'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -361,8 +362,7 @@ class _OrderInfoState extends State<OrderInfo> {
                           height: 20,
                         ),
                         Text(
-                          // "Ciudad: ${data['ruta'] != null && data['ruta'].isNotEmpty ? data['ruta'][0]['titulo'].toString() : ''}",
-                          "  Ciudad: $route",
+                          "  Ciudad: ${data['ruta'] != null && data['ruta'].isNotEmpty ? data['ruta'][0]['titulo'].toString() : ''}",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
