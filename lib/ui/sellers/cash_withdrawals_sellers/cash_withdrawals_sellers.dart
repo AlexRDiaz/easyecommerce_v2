@@ -4,8 +4,12 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/ui/provider/transactions/withdrawal.dart';
 import 'package:frontend/ui/sellers/cash_withdrawals_sellers/controllers/controllers.dart';
+import 'package:frontend/ui/sellers/cash_withdrawals_sellers/withdrawal_info_new.dart';
+import 'package:frontend/ui/sellers/cash_withdrawals_sellers/withdrawal_seller.dart';
 import 'package:frontend/ui/widgets/loading.dart';
+import 'package:frontend/ui/widgets/transport/data_table_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:frontend/helpers/server.dart';
 
@@ -57,16 +61,20 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
 
   @override
   Widget build(BuildContext context) {
+    double heigth = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
     return Scaffold(
+      /* Visibility later
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigators().pushNamed(
-            context,
-            '/layout/sellers/cash-withdrawal/new',
-          );
+          // Navigators().pushNamed(
+          //   context,
+          //   '/layout/sellers/cash-withdrawal/new',
+          // );
+          withdrawalInputDialog(context);
         },
         backgroundColor: colors.colorGreen,
-        child: Center(
+        child: const Center(
           child: Icon(
             Icons.add,
             color: Colors.white,
@@ -74,10 +82,105 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
           ),
         ),
       ),
+      */
       body: Container(
         width: double.infinity,
+        padding: EdgeInsets.all(20),
         child: Column(
           children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                      onPressed: () async {
+                        loadData();
+                      },
+                      icon: const Icon(
+                        Icons.autorenew_rounded,
+                        size: 35,
+                        color: Color(0xFF031749),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            /*
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      withdrawalInputDialog(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF274965),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "Solicitar Retiro",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            */
+            Expanded(
+              child: Column(
+                children: [
+                  Container(
+                    height: heigth * 0.80,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      color: Colors.white,
+                    ),
+                    child: data.length > 0
+                        ? DataTable2(
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                            ),
+                            dataRowColor:
+                                MaterialStateColor.resolveWith((states) {
+                              return Colors.white;
+                            }),
+                            dividerThickness: 1,
+                            headingTextStyle: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black),
+                            dataTextStyle: const TextStyle(color: Colors.black),
+                            columnSpacing: 12,
+                            headingRowHeight: 40,
+                            horizontalMargin: 32,
+                            minWidth: 900,
+                            dataRowHeight: 45,
+                            columns: getColumns(),
+                            rows: buildDataRows(data),
+                          )
+                        // ? DataTableModelPrincipal(
+                        //     columnWidth: 100,
+                        //     columns: getColumns(),
+                        //     rows: buildDataRows(data))
+                        : const Center(
+                            child: Text("Sin datos"),
+                          ),
+                  ),
+                ],
+              ),
+            ),
+            /*
             Expanded(
               child: DataTable2(
                   headingTextStyle: TextStyle(
@@ -141,8 +244,11 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
                                     '\$${data[index]['monto'].toString()}')),
                                 DataCell(
                                     Text(data[index]['estado'].toString())),
-                                DataCell(Text(data[index]['fecha_transferencia']
-                                    .toString())),
+                                DataCell(Text(
+                                    data[index]['fecha_transferencia'] == null
+                                        ? ""
+                                        : data[index]['fecha_transferencia']
+                                            .toString())),
                                 DataCell(TextButton(
                                   onPressed:
                                       data[index]['comprobante'].toString() !=
@@ -152,7 +258,7 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
                                                   "$generalServer${data[index]['comprobante'].toString()}"));
                                             }
                                           : null,
-                                  child: Text(
+                                  child: const Text(
                                     "VER COMPROBANTE",
                                     style:
                                         TextStyle(fontWeight: FontWeight.bold),
@@ -160,10 +266,91 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
                                 )),
                               ]))),
             ),
+          */
           ],
         ),
       ),
     );
+  }
+
+  List<DataColumn2> getColumns() {
+    return [
+      const DataColumn2(
+        label: Text("Fecha"),
+        size: ColumnSize.M,
+      ),
+      const DataColumn2(
+        label: Text('Monto a Retirar'),
+        size: ColumnSize.S,
+      ),
+      const DataColumn2(
+        label: Text('Estado del Pago'),
+        size: ColumnSize.M,
+      ),
+      const DataColumn2(
+        label: Text('Fecha y Hora Transferencia'),
+        size: ColumnSize.M,
+      ),
+      const DataColumn2(
+        label: Text('Comprobante'),
+        size: ColumnSize.M,
+      ),
+    ];
+  }
+
+  List<DataRow> buildDataRows(List data) {
+    data;
+
+    List<DataRow> rows = [];
+    for (int index = 0; index < data.length; index++) {
+      DataRow row = DataRow(
+        cells: [
+          DataCell(
+            Text(data[index]['fecha'].toString()),
+            onTap: () {
+              withdrawalInfo(context, data[index]);
+            },
+          ),
+          DataCell(
+            Text('\$${data[index]['monto'].toString()}'),
+            onTap: () {
+              withdrawalInfo(context, data[index]);
+            },
+          ),
+          DataCell(
+            Text(data[index]['estado'].toString()),
+            onTap: () {
+              withdrawalInfo(context, data[index]);
+            },
+          ),
+          DataCell(
+            Text(data[index]['fecha_transferencia'] == null
+                ? ""
+                : data[index]['fecha_transferencia'].toString()),
+            onTap: () {
+              withdrawalInfo(context, data[index]);
+            },
+          ),
+          DataCell(
+            TextButton(
+              onPressed: data[index]['comprobante'].toString() != "null"
+                  ? () {
+                      launchUrl(Uri.parse(
+                          "$generalServer${data[index]['comprobante'].toString()}"));
+                    }
+                  : null,
+              child: const Text(
+                "VER COMPROBANTE",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+        ],
+      );
+      rows.add(row);
+    }
+
+    return rows;
   }
 
   sortFunc(name) {
@@ -182,6 +369,78 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
           .toString()
           .compareTo(b['attributes'][name].toString()));
     }
+  }
+
+  Future<dynamic> withdrawalInputDialog(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(0.0),
+          ),
+          child: Stack(
+            children: [
+              Container(
+                width: MediaQuery.of(context).size.width * 0.27,
+                height: MediaQuery.of(context).size.height * 0.60,
+                child: WithdrawalSeller(),
+              ),
+              Positioned(
+                right: 0,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.of(context)
+                        .pop(); // Cierra el modal al tocar el botón de cierre
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(8.0),
+                    child: Icon(Icons.close),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    ).then((value) {});
+  }
+
+  Future<dynamic> withdrawalInfo(BuildContext context, data) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(0.0),
+          ),
+          child: Stack(
+            children: [
+              Container(
+                width: MediaQuery.of(context).size.width > 600
+                    ? MediaQuery.of(context).size.width * 0.65
+                    : MediaQuery.of(context).size.width * 0.95,
+                // screenWidth > 600 ? 16 : 12;
+                height: MediaQuery.of(context).size.height * 0.80,
+                child: SellerWithdrawalInfoNew(data: data),
+              ),
+              Positioned(
+                right: 0,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(8.0),
+                    child: Icon(Icons.close),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    ).then((value) {});
   }
 
   _modelTextField({text, controller}) {

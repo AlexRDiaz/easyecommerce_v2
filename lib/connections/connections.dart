@@ -7567,7 +7567,7 @@ class Connections {
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
             "monto": amount,
-            "email": "bugi2532@hotmail.com",
+            "email": "easyecommercetest@gmail.com",
             //sharedPrefs!.getString("email").toString(),
             "id_vendedor": "${sharedPrefs!.getString("idProviderUserMaster")}"
           }));
@@ -8006,6 +8006,59 @@ class Connections {
         return 1;
       } else {
         return decodeData;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  sendWithdrawalSeller(amount) async {
+    try {
+      String? idMaster =
+          sharedPrefs!.getString("idComercialMasterSeller").toString();
+      int? id = int.parse(idMaster);
+      var user = await getPersonalInfoAccountforConfirmOrder(id);
+      String emailMasterSeller = user['email'].toString();
+
+      var request = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/seller/ordenesretiro/withdrawal/generate-code"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "monto": amount,
+            "email": emailMasterSeller,
+            "user_id": sharedPrefs!.getString("idComercialMasterSeller")
+          }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return {"res": 1, "response": decodeData['response']};
+      } else {
+        return {"res": 0, "response": decodeData['code']};
+      }
+    } catch (e) {
+      return {"res": 1, "response": "error de conexion"};
+    }
+  }
+
+  sendWithdrawalAprovateSeller(amount) async {
+    try {
+      var idVendedor =
+          sharedPrefs!.getString("idComercialMasterSeller").toString();
+      var request = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/transacciones/withdrawal-provider-aproved/${sharedPrefs!.getString("idComercialMasterSeller")}"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(
+              {"monto": amount, "codigo": "2983", "id_vendedor": idVendedor}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
       }
     } catch (e) {
       return 2;

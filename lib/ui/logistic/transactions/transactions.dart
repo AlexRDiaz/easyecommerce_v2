@@ -1207,7 +1207,7 @@ class _TransactionsState extends State<Transactions> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 Padding(
-                  padding: EdgeInsets.all(20),
+                  padding: EdgeInsets.all(10),
                   child: Text(
                     'Mi Billetera',
                     style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
@@ -1324,7 +1324,6 @@ class _TransactionsState extends State<Transactions> {
                 child: _modelTextField(
                     text: "Buscar", controller: searchController),
               ),
-
               TextButton(
                   onPressed: () => RollbackInputDialog(context),
                   child: Text("Restaurar")),
@@ -1333,27 +1332,30 @@ class _TransactionsState extends State<Transactions> {
                   icon: Icon(Icons.replay_outlined)),
               Spacer(),
               Container(width: width * 0.3, child: numberPaginator()),
-
-              //   Expanded(child: numberPaginator()),
             ],
           ),
-          Row(
+          Column(
             children: [
-              Container(
-                decoration:
-                    BoxDecoration(borderRadius: BorderRadius.circular(15)),
-                width: MediaQuery.of(context).size.width * 0.2,
-                child: _modelTextField(
-                    text: "Buscar", controller: searchController),
+              Row(
+                children: [
+                  Container(
+                    decoration:
+                        BoxDecoration(borderRadius: BorderRadius.circular(15)),
+                    width: MediaQuery.of(context).size.width * 0.6,
+                    child: _modelTextField(
+                        text: "Buscar", controller: searchController),
+                  ),
+                  TextButton(
+                      onPressed: () => RollbackInputDialog(context),
+                      child: Text("Restaurar")),
+                  IconButton(
+                      onPressed: () => loadData(),
+                      icon: Icon(Icons.replay_outlined)),
+                ],
               ),
-              TextButton(
-                  onPressed: () => RollbackInputDialog(context),
-                  child: Text("Restaurar")),
-
-              IconButton(
-                  onPressed: () => loadData(),
-                  icon: Icon(Icons.replay_outlined)),
-              Expanded(child: numberPaginator()),
+              Row(children: [
+                Expanded(child: numberPaginator()),
+              ]),
 
               //   Expanded(child: numberPaginator()),
             ],
@@ -1402,7 +1404,7 @@ class _TransactionsState extends State<Transactions> {
               color: Colors.grey.withOpacity(0.5), // Color de la sombra
               spreadRadius: 5, // Radio de dispersión de la sombra
               blurRadius: 7, // Radio de desenfoque de la sombra
-              offset: Offset(
+              offset: const Offset(
                   0, 3), // Desplazamiento de la sombra (horizontal, vertical)
             ),
           ], color: Colors.white, borderRadius: BorderRadius.circular(15)),
@@ -1412,15 +1414,18 @@ class _TransactionsState extends State<Transactions> {
             children: [
               Text(
                 '\$${formatNumber(double.parse(saldo))}',
-                style: TextStyle(
+                style: const TextStyle(
                     fontSize: 34,
                     fontWeight: FontWeight.bold,
                     color: Colors.blueAccent),
               ),
-              Text(
-                'Saldo de Cuenta',
-                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-              ),
+              const Padding(
+                padding: EdgeInsets.only(left: 10, right: 20),
+                child: Text(
+                  'Saldo de Cuenta',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+              )
             ],
           ),
         ),
@@ -1437,32 +1442,39 @@ class _TransactionsState extends State<Transactions> {
   }
 
   Container _leftWidgetMobile(
-      double width, double heigth, BuildContext context) {
+      double width, double height, BuildContext context) {
     return Container(
-      height: heigth * 0.15,
+      height: height * 0.18,
       decoration: BoxDecoration(color: Colors.white),
-      child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-        _saldoDeCuentaMobile(width),
-        Container(
-          width: 1, // Ancho de la línea divisoria
-          height: double.infinity, // Altura igual a la altura disponible
-          color: Colors.grey, // Color de la línea divisoria
-        ),
-        _dateButtonsMobile(width, context),
-        Container(
-          width: 1, // Ancho de la línea divisoria
-          height: double.infinity, // Altura igual a la altura disponible
-          color: Colors.grey, // Color de la línea divisoria
-        ),
-        _optionButtonsMobile(width, heigth),
-      ]),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _saldoDeCuentaMobile(width),
+              Container(
+                width: 1, // Ancho de la línea divisoria
+                height: height * 0.08, // Altura de la línea divisoria
+                color: Colors.grey, // Color de la línea divisoria
+              ),
+              _dateButtonsMobile(width, context),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [_optionButtonsMobile(width, height)],
+          ),
+        ],
+      ),
     );
   }
 
   Container _dateButtonsMobile(double width, BuildContext context) {
     return Container(
       padding: EdgeInsets.all(10),
-      width: width * 0.34,
+      width: width * 0.60,
       child: Column(
         children: [
           Row(
@@ -1485,7 +1497,7 @@ class _TransactionsState extends State<Transactions> {
                   child: Icon(Icons.calendar_month_outlined),
                 ),
               ),
-              SizedBox(width: 5),
+              const SizedBox(width: 5),
               Container(
                 padding: EdgeInsets.only(bottom: 10),
                 child: FilledButton.tonal(
@@ -1505,12 +1517,12 @@ class _TransactionsState extends State<Transactions> {
               ),
             ],
           ),
-          SizedBox(height: 5),
+          const SizedBox(height: 5),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _buildDateFieldMobile("Desde", _startDateController),
-              SizedBox(width: 5),
+              const SizedBox(width: 5),
               _buildDateFieldMobile("Hasta", _endDateController),
             ],
           ),
@@ -1558,12 +1570,12 @@ class _TransactionsState extends State<Transactions> {
         children: [
           Text(
             '\$${formatNumber(double.parse(saldo))}',
-            style: TextStyle(
+            style: const TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.bold,
                 color: Colors.blueAccent),
           ),
-          Text(
+          const Text(
             'Saldo de Cuenta',
             style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
           ),
@@ -1692,11 +1704,14 @@ class _TransactionsState extends State<Transactions> {
                   arrayFiltersAnd.removeWhere(
                       (element) => element.containsKey("equals/origen"));
                   if (value != '') {
-                    arrayFiltersAnd.add({"equals/origen": value});
-                  } else {
-                    arrayFiltersAnd.removeWhere(
-                        (element) => element.containsKey("equals/origen"));
+                    if (value == "TODO") {
+                      arrayFiltersAnd.removeWhere(
+                          (element) => element.containsKey("equals/origen"));
+                    } else {
+                      arrayFiltersAnd.add({"equals/origen": value});
+                    }
                   }
+
                   loadData();
                 },
                 buttonStyleData: const ButtonStyleData(
@@ -1740,11 +1755,14 @@ class _TransactionsState extends State<Transactions> {
                   arrayFiltersAnd.removeWhere(
                       (element) => element.containsKey("equals/tipo"));
                   if (value != '') {
-                    arrayFiltersAnd.add({"equals/tipo": value});
-                  } else {
-                    arrayFiltersAnd.removeWhere(
-                        (element) => element.containsKey("equals/tipo"));
+                    if (value == "TODO") {
+                      arrayFiltersAnd.removeWhere(
+                          (element) => element.containsKey("equals/tipo"));
+                    } else {
+                      arrayFiltersAnd.add({"equals/tipo": value});
+                    }
                   }
+
                   loadData();
                 },
                 buttonStyleData: const ButtonStyleData(
@@ -1788,12 +1806,15 @@ class _TransactionsState extends State<Transactions> {
                   arrayFiltersAnd.removeWhere(
                       (element) => element.containsKey("equals/id_vendedor"));
                   if (value != '') {
-                    arrayFiltersAnd
-                        .add({"equals/id_vendedor": value!.split('-')[1]});
-                  } else {
-                    arrayFiltersAnd.removeWhere(
-                        (element) => element.containsKey("equals/id_vendedor"));
+                    if (value == "TODO") {
+                      arrayFiltersAnd.removeWhere((element) =>
+                          element.containsKey("equals/id_vendedor"));
+                    } else {
+                      arrayFiltersAnd
+                          .add({"equals/id_vendedor": value!.split('-')[1]});
+                    }
                   }
+
                   loadData();
                 },
                 buttonStyleData: const ButtonStyleData(
@@ -1821,14 +1842,14 @@ class _TransactionsState extends State<Transactions> {
 
   Container _optionButtonsMobile(double width, double height) {
     return Container(
-      padding: EdgeInsets.all(10),
-      width: width * 0.3,
-      height: height * 0.28,
-      child: Column(
+      // padding: EdgeInsets.all(10),
+      // width: width * 0.3,
+      // height: height * 0.28,
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
-            width: 300,
+            width: width * 0.25,
             color: Color(0xFFE8DEF8),
             child: DropdownButtonHideUnderline(
               child: DropdownButton2<String>(
@@ -1850,11 +1871,14 @@ class _TransactionsState extends State<Transactions> {
                   arrayFiltersAnd.removeWhere(
                       (element) => element.containsKey("equals/origen"));
                   if (value != '') {
-                    arrayFiltersAnd.add({"equals/origen": value});
-                  } else {
-                    arrayFiltersAnd.removeWhere(
-                        (element) => element.containsKey("equals/origen"));
+                    if (value == "TODO") {
+                      arrayFiltersAnd.removeWhere(
+                          (element) => element.containsKey("equals/origen"));
+                    } else {
+                      arrayFiltersAnd.add({"equals/origen": value});
+                    }
                   }
+
                   loadData();
                 },
                 buttonStyleData: const ButtonStyleData(
@@ -1875,8 +1899,9 @@ class _TransactionsState extends State<Transactions> {
               ),
             ),
           ),
+          const SizedBox(width: 10),
           Container(
-            width: 300,
+            width: width * 0.25,
             color: Color(0xFFE8DEF8),
             child: DropdownButtonHideUnderline(
               child: DropdownButton2<String>(
@@ -1898,11 +1923,14 @@ class _TransactionsState extends State<Transactions> {
                   arrayFiltersAnd.removeWhere(
                       (element) => element.containsKey("equals/tipo"));
                   if (value != '') {
-                    arrayFiltersAnd.add({"equals/tipo": value});
-                  } else {
-                    arrayFiltersAnd.removeWhere(
-                        (element) => element.containsKey("equals/tipo"));
+                    if (value == "TODO") {
+                      arrayFiltersAnd.removeWhere(
+                          (element) => element.containsKey("equals/tipo"));
+                    } else {
+                      arrayFiltersAnd.add({"equals/tipo": value});
+                    }
                   }
+
                   loadData();
                 },
                 buttonStyleData: const ButtonStyleData(
@@ -1923,8 +1951,9 @@ class _TransactionsState extends State<Transactions> {
               ),
             ),
           ),
+          const SizedBox(width: 10),
           Container(
-            width: 300,
+            width: width * 0.30,
             color: Color(0xFFE8DEF8),
             child: DropdownButtonHideUnderline(
               child: DropdownButton2<String>(
@@ -1946,12 +1975,15 @@ class _TransactionsState extends State<Transactions> {
                   arrayFiltersAnd.removeWhere(
                       (element) => element.containsKey("equals/id_vendedor"));
                   if (value != '') {
-                    arrayFiltersAnd
-                        .add({"equals/id_vendedor": value!.split('-')[1]});
-                  } else {
-                    arrayFiltersAnd.removeWhere(
-                        (element) => element.containsKey("equals/id_vendedor"));
+                    if (value == "TODO") {
+                      arrayFiltersAnd.removeWhere((element) =>
+                          element.containsKey("equals/id_vendedor"));
+                    } else {
+                      arrayFiltersAnd
+                          .add({"equals/id_vendedor": value!.split('-')[1]});
+                    }
                   }
+
                   loadData();
                 },
                 buttonStyleData: const ButtonStyleData(
@@ -2034,7 +2066,7 @@ class _TransactionsState extends State<Transactions> {
 
   Widget _buildDateFieldMobile(String label, TextEditingController controller) {
     return Container(
-      width: 72,
+      width: 100,
       child: TextFormField(
         controller: controller,
         keyboardType: TextInputType.datetime,
