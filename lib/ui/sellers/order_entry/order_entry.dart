@@ -123,6 +123,7 @@ class _OrderEntryState extends State<OrderEntry> {
 
   List<String> optEstadoConfirmado = ["TODO", 'PENDIENTE', 'CONFIRMADO'];
   List<String> optEstadoLogistico = ["TODO", 'PENDIENTE', 'IMPRESO', 'ENVIADO'];
+  bool noDeseaEnabled = true;
 
   @override
   void didChangeDependencies() {
@@ -347,7 +348,7 @@ class _OrderEntryState extends State<OrderEntry> {
                           child: Row(
                             children: [
                               ElevatedButton(
-                                  onPressed: counterChecks > 0
+                                  onPressed: counterChecks > 0 && noDeseaEnabled
                                       ? () async {
                                           showDialog(
                                             context: context,
@@ -830,6 +831,17 @@ class _OrderEntryState extends State<OrderEntry> {
                                                             pageSize)]
                                                     ['numero_orden'] =
                                                 data[index]['numero_orden'];
+                                            // print(data[index]
+                                            //         ['estado_logistico']
+                                            //     .toString());
+                                            if (data[index]['estado_logistico']
+                                                        .toString() ==
+                                                    "IMPRESO" ||
+                                                data[index]['estado_logistico']
+                                                        .toString() ==
+                                                    "ENVIADO") {
+                                              noDeseaEnabled = false;
+                                            }
 
                                             counterChecks += 1;
                                           } else {
@@ -943,8 +955,11 @@ class _OrderEntryState extends State<OrderEntry> {
                                                     color: Colors.white),
                                               ),
                                               data[index]['estado_logistico']
-                                                          .toString() ==
-                                                      "ENVIADO"
+                                                              .toString() ==
+                                                          "ENVIADO" ||
+                                                      data[index]['estado_logistico']
+                                                              .toString() ==
+                                                          "IMPRESO"
                                                   ? Container()
                                                   : TextButton(
                                                       style:

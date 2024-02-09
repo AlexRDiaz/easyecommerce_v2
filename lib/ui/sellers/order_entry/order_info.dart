@@ -109,7 +109,8 @@ class _OrderInfoState extends State<OrderInfo> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            estadoLogistic == "ENVIADO"
+                            estadoLogistic == "ENVIADO" ||
+                                    estadoLogistic == "IMPRESO"
                                 ? Container()
                                 : ElevatedButton(
                                     onPressed: () async {

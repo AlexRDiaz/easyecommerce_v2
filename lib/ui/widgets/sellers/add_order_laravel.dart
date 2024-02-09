@@ -104,6 +104,7 @@ class _AddOrderSellersLaravelState extends State<AddOrderSellersLaravel> {
       content: Container(
         width: 500,
         height: MediaQuery.of(context).size.height,
+        // color: Colors.white,
         child: Form(
           key: formKey,
           child: ListView(
@@ -339,9 +340,19 @@ class _AddOrderSellersLaravelState extends State<AddOrderSellersLaravel> {
                         onPressed: () {
                           Navigator.pop(context);
                         },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF0EEE8F4),
+                          // backgroundColor: Colors.transparent,
+                          side: const BorderSide(
+                              color: Color(0xFF031749),
+                              width: 2), // Borde del botón
+                        ),
                         child: const Text(
                           "CANCELAR",
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            color: Color(0xFF031749), // Color del texto
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                       const SizedBox(
@@ -424,6 +435,11 @@ class _AddOrderSellersLaravelState extends State<AddOrderSellersLaravel> {
 
                             //
                           },
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(
+                              Color(0xFF031749),
+                            ),
+                          ),
                           child: const Text(
                             "GUARDAR",
                             style: TextStyle(fontWeight: FontWeight.bold),
