@@ -114,11 +114,14 @@ class _WithdrawalSellerState extends State<WithdrawalSeller> {
               ),
             ),
           ),
-          Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: solicitarButton(context)),
-          const SizedBox(height: 20),
+          // Container(
+          //     width: double.infinity,
+          //     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          //     child: solicitarButton(context)),
+          Center(
+            child: solicitarButton(context),
+          ),
+          const SizedBox(height: 30),
         ],
       ),
     );
@@ -201,6 +204,7 @@ class _WithdrawalSellerState extends State<WithdrawalSeller> {
   SizedBox solicitarButton(BuildContext context) {
     return SizedBox(
       // Ancho deseado para el botón
+      width: 200,
       child: ElevatedButton(
         // onPressed: () => sendWithdrawal(),
         onPressed: () async {
@@ -226,10 +230,12 @@ class _WithdrawalSellerState extends State<WithdrawalSeller> {
         },
         style: ElevatedButton.styleFrom(
           foregroundColor: Colors.white,
-          backgroundColor: const Color.fromRGBO(0, 200, 83, 1),
+          // backgroundColor: const Color.fromRGBO(0, 200, 83, 1),
+          backgroundColor: Color(0xFF21CE99),
           padding:
               const EdgeInsets.only(top: 15, bottom: 15, left: 10, right: 10),
-          textStyle: const TextStyle(fontSize: 18),
+          // textStyle: const TextStyle(fontSize: 18),
+          textStyle: const TextStyle(color: Colors.black),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
@@ -252,7 +258,7 @@ class _WithdrawalSellerState extends State<WithdrawalSeller> {
                 : Container(),
             const SizedBox(width: 8),
             Text(
-              isLoading ? "Solicitando" : 'Solicitar',
+              isLoading ? "SOLICITANDO" : 'SOLICITAR',
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,

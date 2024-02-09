@@ -4,6 +4,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/ui/provider/transactions/withdrawal.dart';
 import 'package:frontend/ui/sellers/cash_withdrawals_sellers/controllers/controllers.dart';
 import 'package:frontend/ui/sellers/cash_withdrawals_sellers/withdrawal_info_new.dart';
@@ -29,6 +30,7 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
       SearchCashWithdrawalsSellersControllers();
   List data = [];
   bool sort = false;
+  int idUser = int.parse(sharedPrefs!.getString("id").toString());
 
   @override
   void didChangeDependencies() {
@@ -64,7 +66,24 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
     double heigth = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     return Scaffold(
-      /* Visibility later
+      //  Visibility later
+      floatingActionButton: Visibility(
+        visible: idUser == 2,
+        child: FloatingActionButton(
+          onPressed: () {
+            withdrawalInputDialog(context);
+          },
+          backgroundColor: colors.colorGreen,
+          child: const Center(
+            child: Icon(
+              Icons.add,
+              color: Colors.white,
+              size: 30,
+            ),
+          ),
+        ),
+      ),
+      /*
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // Navigators().pushNamed(
@@ -377,13 +396,13 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
       builder: (context) {
         return Dialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(0.0),
+            borderRadius: BorderRadius.circular(10),
           ),
           child: Stack(
             children: [
               Container(
                 width: MediaQuery.of(context).size.width * 0.27,
-                height: MediaQuery.of(context).size.height * 0.60,
+                height: MediaQuery.of(context).size.height * 0.45,
                 child: WithdrawalSeller(),
               ),
               Positioned(
