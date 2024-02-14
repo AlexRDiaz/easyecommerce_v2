@@ -2937,9 +2937,9 @@ class Connections {
     }
   }
 
-  Future withdrawalPut(code) async {
-    String id = Get.parameters['id'].toString();
-
+  Future withdrawalPut(id, code) async {
+    // String id = Get.parameters['id'].toString();
+    print(id);
     try {
       var request = await http.put(Uri.parse("$server/api/ordenes-retiros/$id"),
           headers: {'Content-Type': 'application/json'},
@@ -4511,7 +4511,7 @@ class Connections {
 
   Future updateWithdrawalRealizado(comprobante) async {
     String id = Get.parameters['id'].toString();
-
+    print("updateWithdrawalRealizado");
     var request = await http.put(Uri.parse("$server/api/ordenes-retiros/$id"),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
@@ -8058,6 +8058,33 @@ class Connections {
       if (request.statusCode != 200) {
         return 1;
       } else {
+        // print("decodeData");
+        // print(decodeData);
+        return [0, decodeData['solicitud']];
+        // return 0;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  //  *
+  updateRealizadoCalculateWithdrawal(idMaster, amount, status) async {
+    print("updateWithdrawalRealizado");
+    try {
+      var request = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/seller/ordenesretiro/updaterealizado/$idMaster"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"monto": amount, "status": status}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        // print("decodeData");
+        // print(decodeData);
         return 0;
       }
     } catch (e) {

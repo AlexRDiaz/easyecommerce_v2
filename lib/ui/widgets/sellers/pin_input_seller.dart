@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/main.dart';
 import 'package:pinput/pinput.dart';
 
 /// This is the basic usage of Pinput
@@ -194,8 +195,16 @@ class _PinInputSellerState extends State<PinInputSeller> {
   saveApplication() async {
     var response =
         await Connections().sendWithdrawalAprovateSeller(widget.amount);
+
+    var dataRes = response[1];
+    print("dataRes");
+    var idVendedor =
+        sharedPrefs!.getString("idComercialMasterSeller").toString();
+    var responseUR = await Connections().updateRealizadoCalculateWithdrawal(
+        idVendedor, dataRes["monto"], "APROBADO");
+
     // ignore: use_build_context_synchronously
-    if (response == 0) {
+    if (response[0] == 0) {
       AwesomeDialog(
         width: 500,
         context: context,

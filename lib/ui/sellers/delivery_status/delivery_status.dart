@@ -926,27 +926,32 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                 showInfo(context, index);
                               }),
                               DataCell(
-                                  Row(
-                                    children: [
-                                      Text(data[index]['fecha_entrega']
-                                          .toString()),
-                                      data[index]['status'] == 'NOVEDAD' &&
-                                              data[index]
-                                                      ['estado_devolucion'] ==
-                                                  'PENDIENTE'
-                                          ? IconButton(
-                                              icon:
-                                                  Icon(Icons.schedule_outlined),
-                                              onPressed: () async {
-                                                reSchedule(data[index]['id'],
-                                                    'REAGENDADO');
-                                              },
-                                            )
-                                          : Container(),
-                                    ],
-                                  ), onTap: () {
+                                  Text(data[index]['ciudad_shipping']
+                                      .toString()), onTap: () {
                                 showInfo(context, index);
                               }),
+                              // DataCell(
+                              //     Row(
+                              //       children: [
+                              //         Text(data[index]['fecha_entrega']
+                              //             .toString()),
+                              //         data[index]['status'] == 'NOVEDAD' &&
+                              //                 data[index]
+                              //                         ['estado_devolucion'] ==
+                              //                     'PENDIENTE'
+                              //             ? IconButton(
+                              //                 icon:
+                              //                     Icon(Icons.schedule_outlined),
+                              //                 onPressed: () async {
+                              //                   reSchedule(data[index]['id'],
+                              //                       'REAGENDADO');
+                              //                 },
+                              //               )
+                              //             : Container(),
+                              //       ],
+                              //     ), onTap: () {
+                              //   showInfo(context, index);
+                              // }),
                               DataCell(
                                   Text(
                                       style: TextStyle(
@@ -1074,10 +1079,15 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                   onTap: () {
                                 showInfo(context, index);
                               }),
+                              // DataCell(
+                              //     Text(UIUtils.formatDate(
+                              //         data[index]['sent_at'].toString())),
+                              //     onTap: () {
+                              //   showInfo(context, index);
+                              // }),
                               DataCell(
-                                  Text(UIUtils.formatDate(
-                                      data[index]['sent_at'].toString())),
-                                  onTap: () {
+                                  Text(data[index]['ciudad_shipping']
+                                      .toString()), onTap: () {
                                 showInfo(context, index);
                               }),
                               DataCell(

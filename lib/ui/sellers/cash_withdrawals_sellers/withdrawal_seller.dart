@@ -191,6 +191,11 @@ class _WithdrawalSellerState extends State<WithdrawalSeller> {
                       child: Icon(Icons.close),
                     ),
                   ),
+                  const Align(
+                    alignment: Alignment.topCenter,
+                    child: Text(
+                        "Ingrese el Código de validación que se envió al correo del vendedor principal."),
+                  ),
                   Expanded(
                       child:
                           PinInputSeller(code: code, amount: withdrawal.text))

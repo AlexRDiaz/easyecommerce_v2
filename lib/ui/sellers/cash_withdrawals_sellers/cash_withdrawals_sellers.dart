@@ -31,6 +31,7 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
   List data = [];
   bool sort = false;
   int idUser = int.parse(sharedPrefs!.getString("id").toString());
+  String totalDone = "0";
 
   @override
   void didChangeDependencies() {
@@ -49,6 +50,12 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
           .getWithdrawalSellers(_controllers.searchController.text);
 
       data = response;
+      var ultimoElemento = data.last;
+      setState(() {
+        totalDone = ultimoElemento['current_value'] == null
+            ? "0.0"
+            : ultimoElemento['current_value'];
+      });
 
       Future.delayed(Duration(milliseconds: 500), () {
         Navigator.pop(context);
@@ -67,6 +74,7 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
     double width = MediaQuery.of(context).size.width;
     return Scaffold(
       //  Visibility later
+      /*
       floatingActionButton: Visibility(
         visible: idUser == 2,
         child: FloatingActionButton(
@@ -83,14 +91,15 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
           ),
         ),
       ),
-      /*
+      */
+
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Navigators().pushNamed(
-          //   context,
-          //   '/layout/sellers/cash-withdrawal/new',
-          // );
-          withdrawalInputDialog(context);
+          Navigators().pushNamed(
+            context,
+            '/layout/sellers/cash-withdrawal/new',
+          );
+          // withdrawalInputDialog(context);
         },
         backgroundColor: colors.colorGreen,
         child: const Center(
@@ -101,7 +110,7 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
           ),
         ),
       ),
-      */
+
       body: Container(
         width: double.infinity,
         padding: EdgeInsets.all(20),
@@ -109,6 +118,11 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
           children: [
             Row(
               children: [
+                // Expanded(
+                //   child: Align(
+                //       alignment: Alignment.centerLeft,
+                //       child: Text("Total Realizados: \$$totalDone")),
+                // ),
                 Expanded(
                   child: Align(
                     alignment: Alignment.centerRight,

@@ -34,6 +34,7 @@ class _WithDrawalDetailsState extends State<WithdrawalDetails> {
   TextEditingController _codigoDeValidacion = TextEditingController();
   TextEditingController _codigoDeRetiro = TextEditingController();
   TextEditingController _fechaT = TextEditingController();
+  var idVendedor;
 
   @override
   void didChangeDependencies() {
@@ -53,6 +54,8 @@ class _WithDrawalDetailsState extends State<WithdrawalDetails> {
     _codigoDeValidacion.text = data['attributes']['CodigoGenerado'].toString();
     _codigoDeRetiro.text = data['attributes']['Codigo'].toString();
     _fechaT.text = data['attributes']['FechaTransferencia'].toString();
+    idVendedor =
+        data['attributes']['users_permissions_user']['data']["id"].toString();
 
     Future.delayed(Duration(milliseconds: 500), () {
       Navigator.pop(context);
@@ -381,6 +384,13 @@ class _WithDrawalDetailsState extends State<WithdrawalDetails> {
                                                               .debitWithdrawal(
                                                                   response[1]);
 
+                                                      // var responseUR =
+                                                      //     await Connections()
+                                                      //         .updateRealizadoCalculateWithdrawal(
+                                                      //             idVendedor,
+                                                      //             _monto.text,
+                                                      //             "REALIZADO");
+
                                                       if (res == 0) {
                                                         // ignore: use_build_context_synchronously
                                                         AwesomeDialog(
@@ -400,10 +410,10 @@ class _WithDrawalDetailsState extends State<WithdrawalDetails> {
                                                           btnOkColor:
                                                               colors.colorGreen,
                                                           btnOkOnPress: () {
-                                                            Navigator.pop(
-                                                                context);
-                                                            Navigator.pop(
-                                                                context);
+                                                            // Navigator.pop(
+                                                            //     context);
+                                                            // Navigator.pop(
+                                                            //     context);
                                                           },
                                                           onDismissCallback:
                                                               (type) {
@@ -470,7 +480,7 @@ class _WithDrawalDetailsState extends State<WithdrawalDetails> {
                                           });
                                     },
                                     child: const Text(
-                                      "Pagado",
+                                      "Pagado --",
                                       style: TextStyle(
                                         fontSize: 16,
                                         color: Colors.white,
