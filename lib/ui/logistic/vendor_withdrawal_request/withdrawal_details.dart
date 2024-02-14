@@ -402,8 +402,8 @@ class _WithDrawalDetailsState extends State<WithdrawalDetails> {
                                                           btnOkOnPress: () {
                                                             Navigator.pop(
                                                                 context);
-                                                            Navigator.pop(
-                                                                context);
+                                                            // Navigator.pop(
+                                                            //     context);
                                                           },
                                                           onDismissCallback:
                                                               (type) {

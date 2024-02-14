@@ -2937,8 +2937,8 @@ class Connections {
     }
   }
 
-  Future withdrawalPut(code) async {
-    String id = Get.parameters['id'].toString();
+  Future withdrawalPut(id, code) async {
+    // String id = Get.parameters['id'].toString();
 
     try {
       var request = await http.put(Uri.parse("$server/api/ordenes-retiros/$id"),

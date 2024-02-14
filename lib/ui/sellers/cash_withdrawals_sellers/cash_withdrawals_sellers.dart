@@ -67,6 +67,7 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
     double width = MediaQuery.of(context).size.width;
     return Scaffold(
       //  Visibility later
+      /*
       floatingActionButton: Visibility(
         visible: idUser == 2,
         child: FloatingActionButton(
@@ -83,14 +84,15 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
           ),
         ),
       ),
-      /*
+      */
+
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Navigators().pushNamed(
-          //   context,
-          //   '/layout/sellers/cash-withdrawal/new',
-          // );
-          withdrawalInputDialog(context);
+          Navigators().pushNamed(
+            context,
+            '/layout/sellers/cash-withdrawal/new',
+          );
+          // withdrawalInputDialog(context);
         },
         backgroundColor: colors.colorGreen,
         child: const Center(
@@ -101,7 +103,7 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
           ),
         ),
       ),
-      */
+
       body: Container(
         width: double.infinity,
         padding: EdgeInsets.all(20),

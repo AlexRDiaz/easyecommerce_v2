@@ -149,7 +149,8 @@ class _SellerWithdrawalInfoState extends State<SellerWithdrawalInfo> {
                                       data['attributes']['CodigoGenerado']) {
                                     getLoadingModal(context, false);
                                     var response = await Connections()
-                                        .withdrawalPut(_codeController.text);
+                                        .withdrawalPut(data['attributes']['id'],
+                                            _codeController.text);
                                     Navigator.pop(context);
 
                                     AwesomeDialog(

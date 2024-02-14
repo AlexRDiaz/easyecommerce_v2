@@ -461,7 +461,8 @@ class _UpdateStatusOperatorHistorialState
         datacostos['precio_total'],
         datacostos['users'][0]['vendedores'][0]['costo_envio'],
         datacostos['id'],
-        "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
+        // "${datacostos['name_comercial']}-${datacostos['numero_orden']}",
+        "${datacostos['users'] != null && datacostos['users'].isNotEmpty ? datacostos['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${datacostos['numero_orden']}",
         _controllerModalText.text,
         urlImage != "" ? urlImage[1] : "",
         tipo);
@@ -488,7 +489,8 @@ class _UpdateStatusOperatorHistorialState
         datane['users'][0]['vendedores'][0]['id_master'],
         datane['users'][0]['vendedores'][0]['costo_envio'],
         datane['id'],
-        "${datane['name_comercial']}-${datane['numero_orden']}",
+        // "${datane['name_comercial']}-${datane['numero_orden']}",
+        "${datane['users'] != null && datane['users'].isNotEmpty ? datane['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${datane['numero_orden']}",
         comentario,
         response[1]);
 
@@ -1603,7 +1605,8 @@ class _UpdateStatusOperatorHistorialState
       if (widget.rolidinvoke! == 3 || widget.rolidinvoke! == 1) {
         message =
             // "Buen Día, la guía con el código ${orderData['name_comercial']}-${orderData['numero_orden']} << de la tienda >> ${orderData['tienda_temporal']} << indica: ' $newComment ' .";
-            "Buen Día, la guía con el código ${orderData['name_comercial']}-${orderData['numero_orden']} indica que ' $newComment ' .";
+            // "Buen Día, la guía con el código ${orderData['name_comercial']}-${orderData['numero_orden']} indica que ' $newComment ' .";
+            "Buen Día, la guía con el código ${orderData['users'] != null && orderData['users'].isNotEmpty ? orderData['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${orderData['numero_orden']} indica que ' $newComment ' .";
         whatsappUrl =
             "https://api.whatsapp.com/send?phone=$phoneNumber&text=${Uri.encodeFull(message)}";
       } else if (widget.rolidinvoke! == 4) {
