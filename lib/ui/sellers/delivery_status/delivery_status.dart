@@ -1075,8 +1075,10 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                 showInfo(context, index);
                               }),
                               DataCell(
-                                  Text(UIUtils.formatDate(
-                                      data[index]['sent_at'].toString())),
+                                  Text(data[index]['sent_at'] == null
+                                      ? ""
+                                      : UIUtils.formatDate(
+                                          data[index]['sent_at'].toString())),
                                   onTap: () {
                                 showInfo(context, index);
                               }),
