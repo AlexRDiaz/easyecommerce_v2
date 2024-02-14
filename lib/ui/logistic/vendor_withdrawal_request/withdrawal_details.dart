@@ -400,8 +400,8 @@ class _WithDrawalDetailsState extends State<WithdrawalDetails> {
                                                           btnOkColor:
                                                               colors.colorGreen,
                                                           btnOkOnPress: () {
-                                                            Navigator.pop(
-                                                                context);
+                                                            // Navigator.pop(
+                                                            //     context);
                                                             // Navigator.pop(
                                                             //     context);
                                                           },
