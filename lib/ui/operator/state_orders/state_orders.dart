@@ -160,15 +160,15 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
               searchController.text,
               sortFieldDefaultValue.toString());
 
-      var responseValues = await Connections().getValuesTrasporter(
-          "operator",
-          selectedDateFilter,
-          startDateController.text,
-          endDateController.text,
-          populate,
-          arrayFiltersAnd,
-          arrayFiltersDefaultAndOp,
-          arrayFiltersOr);
+      // var responseValues = await Connections().getValuesTrasporter(
+      //     "operator",
+      //     selectedDateFilter,
+      //     startDateController.text,
+      //     endDateController.text,
+      //     populate,
+      //     arrayFiltersAnd,
+      //     arrayFiltersDefaultAndOp,
+      //     arrayFiltersOr);
 
       var responseCounters = await Connections().getOrdersCountersTransport(
         selectedDateFilter,
@@ -180,7 +180,7 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
         arrayFiltersOr,
       );
 
-      valuesTransporter = responseValues;
+      // valuesTransporter = responseValues;
 
       setState(() {
         dataL = [];
@@ -192,7 +192,7 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
             arrayFiltersAnd.length <= 1) {
           total = responseL['total'];
           dataCounters = responseCounters;
-          calculateValues();
+          // calculateValues();
         }
 
         // dataCounters = responseCounters;
@@ -398,6 +398,7 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
             padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
             child: Column(
               children: [
+                /*
                 Container(
                   width: double.infinity,
                   color: Colors.white,
@@ -422,10 +423,10 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
                       ),
                       context),
                 ),
+                */
+                const SizedBox(height: 10),
                 fechaFinFechaIni(),
-                const SizedBox(
-                  height: 10,
-                ),
+                const SizedBox(height: 10),
                 responsive(
                     Container(
                         height: MediaQuery.of(context).size.height * 0.10,
@@ -1033,7 +1034,7 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
   _dataTableOrdersMobile(height) {
     return dataL.length > 0
         ? Container(
-            height: height * 0.48,
+            height: height * 0.55,
             child: DataTableModelPrincipal(
                 columnWidth: 400,
                 columns: getColumns(),
@@ -1046,7 +1047,7 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
 
   Container _dataTableOrders(height) {
     return Container(
-      height: height * 0.5,
+      height: height * 0.6,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
         color: Colors.white,

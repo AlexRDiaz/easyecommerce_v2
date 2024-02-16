@@ -55,19 +55,25 @@ class _ModelGuideState extends State<ModelGuide> {
   Widget build(BuildContext context) {
     var Params = [
       {'param': 'Fecha', 'value': widget.date},
-      {'param': 'Código', 'value': widget.numPedido},
+      // {'param': 'Código', 'value': widget.numPedido},
       {'param': 'Nombre', 'value': widget.name},
       {'param': 'Teléfono', 'value': widget.phone},
       {'param': 'Cantidad', 'value': widget.quantity},
       {'param': 'Producto', 'value': widget.product},
-      {'param': 'Producto extra', 'value': widget.extraProduct},
+      {
+        'param': 'Producto extra',
+        'value': widget.extraProduct != "null" ? widget.extraProduct : ""
+      },
       {'param': 'Precio total', 'value': '\$${widget.price}'},
     ];
 
     var paramsDatosEnvio = [
       {'param': 'Transportadora', 'value': widget.transport},
       {'param': 'Dirección', 'value': widget.address},
-      {'param': 'Observación', 'value': widget.observation},
+      {
+        'param': 'Observación',
+        'value': widget.observation != "null" ? widget.observation : ""
+      },
     ];
 
     Expanded addParams() {
@@ -233,6 +239,34 @@ class _ModelGuideState extends State<ModelGuide> {
             Padding(
               padding: const EdgeInsets.only(top: 20),
               child: _Header(),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Column(
+                  children: [
+                    Text(
+                      "Código: ",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: size * 2.2,
+                          fontStyle: FontStyle.italic),
+                    ),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Text(
+                      widget.numPedido,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: size * 2.4,
+                          fontStyle: FontStyle.italic),
+                    ),
+                  ],
+                ),
+              ],
             ),
             addDataPackage(),
             Divider(

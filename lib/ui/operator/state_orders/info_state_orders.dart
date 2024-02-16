@@ -66,6 +66,9 @@ class _InfoStateOrdersOperatorState extends State<InfoStateOrdersOperator> {
 
   @override
   Widget build(BuildContext context) {
+    TextStyle customTextStyleText = TextStyle(
+        // fontWeight: FontWeight.bold,
+        fontSize: 18);
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -149,16 +152,14 @@ class _InfoStateOrdersOperatorState extends State<InfoStateOrdersOperator> {
                         ),
                         Text(
                           "  Fecha: ${data['marca_tiempo_envio'].toString().split(" ")[0]}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                          style: customTextStyleText,
                         ),
                         SizedBox(
                           height: 20,
                         ),
                         Text(
                           "  Fecha Entrega: ${data['fecha_entrega'].toString()}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                          style: customTextStyleText,
                         ),
                         SizedBox(
                           height: 20,
@@ -166,128 +167,112 @@ class _InfoStateOrdersOperatorState extends State<InfoStateOrdersOperator> {
                         Text(
                           // "  Código: ${data['attributes']['Name_Comercial'].toString()}-${data['attributes']['NumeroOrden'].toString()}",
                           "  Código: ${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data['numero_orden'].toString()}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                          style: customTextStyleText,
                         ),
                         SizedBox(
                           height: 20,
                         ),
                         Text(
                           "  Nombre Cliente: ${_controllers.nombreEditController.text}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                          style: customTextStyleText,
                         ),
                         SizedBox(
                           height: 20,
                         ),
                         Text(
                           "  Ciudad: ${_controllers.ciudadEditController.text}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                          style: customTextStyleText,
                         ),
                         SizedBox(
                           height: 20,
                         ),
                         Text(
                           "  DIRECCIÓN: ${_controllers.direccionEditController.text}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                          style: customTextStyleText,
                         ),
                         SizedBox(
                           height: 20,
                         ),
                         Text(
                           "  TELEFÓNO CLIENTE: ${_controllers.telefonoEditController.text}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                          style: customTextStyleText,
                         ),
                         SizedBox(
                           height: 20,
                         ),
                         Text(
                           "  Cantidad: ${_controllers.cantidadEditController.text}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                          style: customTextStyleText,
                         ),
                         SizedBox(
                           height: 20,
                         ),
                         Text(
                           "  Producto: ${_controllers.productoEditController.text}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                          style: customTextStyleText,
                         ),
                         SizedBox(
                           height: 20,
                         ),
                         Text(
                           "  Producto Extra: ${_controllers.productoExtraEditController.text}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                          style: customTextStyleText,
                         ),
                         SizedBox(
                           height: 20,
                         ),
                         Text(
                           "  Precio Total: ${_controllers.precioTotalEditController.text}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                          style: customTextStyleText,
                         ),
                         SizedBox(
                           height: 20,
                         ),
                         Text(
                           "  Observación: ${data['observacion'].toString()}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                          style: customTextStyleText,
                         ),
                         SizedBox(
                           height: 20,
                         ),
                         Text(
                           "  Comentario: ${data['comentario'].toString()}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                          style: customTextStyleText,
                         ),
                         SizedBox(
                           height: 20,
                         ),
                         Text(
                           "  Status: ${data['status'].toString()}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                          style: customTextStyleText,
                         ),
                         SizedBox(
                           height: 20,
                         ),
                         Text(
                           "  Tipo Pago: ${data['tipo_pago'] != null ? data['tipo_pago'].toString() : ""}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                          style: customTextStyleText,
                         ),
                         SizedBox(
                           height: 20,
                         ),
                         Text(
                           " MARCA DE TIEMPO DEVOLUCIÓN: ${data['marca_t_d'].toString()}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                          style: customTextStyleText,
                         ),
                         SizedBox(
                           height: 20,
                         ),
                         Text(
                           " MARCA DE TIEMPO DE INGRESO DE PEDIDO: ${data['marca_t_i'].toString()}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                          style: customTextStyleText,
                         ),
                         SizedBox(
                           height: 20,
                         ),
                         Text(
                           " ESTADO DE PAGO: ${data['estado_pagado'].toString()}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                          style: customTextStyleText,
                         ),
                         SizedBox(
                           height: 20,

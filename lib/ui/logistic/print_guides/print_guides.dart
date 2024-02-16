@@ -530,11 +530,9 @@ class _PrintGuidesState extends State<PrintGuides> {
                     //         "IMPRESO", optionsCheckBox[i]['id'].toString());
 
                     //new
-
-
                     var responseL = await Connections().updateOrderWithTime(
                         optionsCheckBox[i]['id'].toString(),
-                        "estado_logistico:IMPRESO",    
+                        "estado_logistico:IMPRESO",
                         idUser,
                         "",
                         "");

@@ -659,8 +659,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                   onTap: () async {
                     var _url = Uri(
                         scheme: 'tel',
-                        path:
-                            '${data[index]['telefono_shipping'].toString()}');
+                        path: '${data[index]['telefono_shipping'].toString()}');
 
                     if (!await launchUrl(_url)) {
                       throw Exception('Could not launch $_url');
@@ -717,7 +716,10 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                 OpenShowDialog(context, index);
               })),
           DataCell(InkWell(
-              child: Text(data[index]['producto_extra'].toString()),
+              child: Text(data[index]['producto_extra'] == null ||
+                      data[index]['producto_extra'].toString() == "null"
+                  ? ""
+                  : data[index]['producto_extra'].toString()),
               onTap: () {
                 OpenShowDialog(context, index);
               })),
@@ -727,12 +729,18 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                 OpenShowDialog(context, index);
               })),
           DataCell(InkWell(
-              child: Text(data[index]['observacion'].toString()),
+              child: Text(data[index]['observacion'] == null ||
+                      data[index]['observacion'].toString() == "null"
+                  ? ""
+                  : data[index]['observacion'].toString()),
               onTap: () {
                 OpenShowDialog(context, index);
               })),
           DataCell(InkWell(
-              child: Text(data[index]['comentario'].toString()),
+              child: Text(data[index]['comentario'] == null ||
+                      data[index]['comentario'].toString() == "null"
+                  ? ""
+                  : data[index]['comentario'].toString()),
               onTap: () {
                 OpenShowDialog(context, index);
               })),
@@ -745,7 +753,10 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                 OpenShowDialog(context, index);
               })),
           DataCell(InkWell(
-              child: Text(data[index]['tipo_pago'].toString()),
+              child: Text(data[index]['tipo_pago'] == null ||
+                      data[index]['tipo_pago'].toString() == "null"
+                  ? ""
+                  : data[index]['tipo_pago'].toString()),
               onTap: () {
                 OpenShowDialog(context, index);
               })),
@@ -781,17 +792,26 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                 OpenShowDialog(context, index);
               })),
           DataCell(InkWell(
-              child: Text(data[index]['marca_t_d'].toString()),
+              child: Text(data[index]['marca_t_d'] == null ||
+                      data[index]['marca_t_d'].toString() == "null"
+                  ? ""
+                  : data[index]['marca_t_d'].toString()),
               onTap: () {
                 OpenShowDialog(context, index);
               })),
           DataCell(InkWell(
-              child: Text(data[index]['marca_t_d_l'].toString()),
+              child: Text(data[index]['marca_t_d_l'] == null ||
+                      data[index]['marca_t_d_l'].toString() == "null"
+                  ? ""
+                  : data[index]['marca_t_d_l'].toString()),
               onTap: () {
                 OpenShowDialog(context, index);
               })),
           DataCell(InkWell(
-              child: Text(data[index]['marca_t_d_t'].toString()),
+              child: Text(data[index]['marca_t_d_t'] == null ||
+                      data[index]['marca_t_d_t'].toString() == "null"
+                  ? ""
+                  : data[index]['marca_t_d_t'].toString()),
               onTap: () {
                 OpenShowDialog(context, index);
               })),

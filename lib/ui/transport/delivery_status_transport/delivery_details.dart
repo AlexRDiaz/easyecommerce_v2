@@ -35,6 +35,12 @@ class _TransportProDeliveryHistoryDetails
   String estadoLogistic = "";
   String status = "";
   String fecha_entrega = "";
+  bool btnStatus = true;
+  bool btnRuta = true;
+  String subRuta = "";
+  String operador = "";
+  String lastStatusAt = "";
+  String lastStatusBy = "";
 
   @override
   void didChangeDependencies() {
@@ -53,6 +59,19 @@ class _TransportProDeliveryHistoryDetails
     setState(() {
       fecha_entrega = data['fecha_entrega'].toString();
       status = data['status'].toString();
+      //
+      subRuta = data['sub_ruta'].toString() != "[]"
+          ? data['sub_ruta'][0]['titulo'].toString()
+          : "";
+      operador = data['operadore'].toString() != "[]"
+          ? data['operadore'][0]['up_users'][0]['username'].toString()
+          : "";
+      lastStatusAt = data['status_last_modified_at'] != null
+          ? UIUtils.formatDate(data['status_last_modified_at'].toString())
+          : "";
+      lastStatusBy = data['status_last_modified_by'] != null
+          ? "${data['status_last_modified_by']['username'].toString()}-${data['status_last_modified_by']['id'].toString()}"
+          : "";
     });
 
     setState(() {
@@ -71,7 +90,26 @@ class _TransportProDeliveryHistoryDetails
       fecha_entrega = response['fecha_entrega'].toString();
       status = response['status'].toString();
       // estadoLogistic = response['estado_logistico'].toString();
+      subRuta = response['sub_ruta'].toString() != "[]"
+          ? response['sub_ruta'][0]['titulo'].toString()
+          : "";
+      operador = response['operadore'].toString() != "[]"
+          ? response['operadore'][0]['up_users'][0]['username'].toString()
+          : "";
+
+      lastStatusAt = response['status_last_modified_at'] != null
+          ? UIUtils.formatDate(response['status_last_modified_at'].toString())
+          : "";
+      lastStatusBy = response['status_last_modified_by'] != null
+          ? "${response['status_last_modified_by']['username'].toString()}-${response['status_last_modified_by']['id'].toString()}"
+          : "";
     });
+    if (response['status'].toString() == "ENTREGADO") {
+      setState(() {
+        btnStatus = false;
+        btnRuta = false;
+      });
+    }
     setState(() {
       loading = false;
     });
@@ -79,6 +117,10 @@ class _TransportProDeliveryHistoryDetails
 
   @override
   Widget build(BuildContext context) {
+    TextStyle customTextStyleText = TextStyle(
+        // fontWeight: FontWeight.bold,
+        fontSize: 18);
+
     return CustomProgressModal(
       isLoading: loading,
       content: Scaffold(
@@ -118,10 +160,11 @@ class _TransportProDeliveryHistoryDetails
                                   const SizedBox(
                                     width: 20,
                                   ),
-                                  data['estado_devolucion'].toString() !=
-                                              "PENDIENTE" ||
-                                          data['status'].toString() ==
-                                              "ENTREGADO"
+                                  (data['estado_devolucion'].toString() !=
+                                                  "PENDIENTE" ||
+                                              data['status'].toString() ==
+                                                  "ENTREGADO") ||
+                                          btnRuta == false
                                       ? Container()
                                       : Row(
                                           children: [
@@ -149,48 +192,48 @@ class _TransportProDeliveryHistoryDetails
                                               width: 20,
                                             ),
                                             ElevatedButton(
-                                                onPressed:
-                                                    !data['operadore'].isEmpty
-                                                        ? () async {
-                                                            var response =
-                                                                await Connections()
-                                                                    .getSellersByIdMasterOnly(
-                                                                        "${data['id_comercial'].toString()}");
+                                                onPressed: operador != "" &&
+                                                        btnStatus == true
+                                                    ? () async {
+                                                        var response =
+                                                            await Connections()
+                                                                .getSellersByIdMasterOnly(
+                                                                    "${data['id_comercial'].toString()}");
 
-                                                            await showDialog(
-                                                                context:
-                                                                    context,
-                                                                builder:
-                                                                    (context) {
-                                                                  return UpdateStatusOperatorHistorial(
-                                                                    function: widget
-                                                                        .function,
-                                                                    numberTienda:
-                                                                        response['vendedores'][0]['Telefono2']
-                                                                            .toString(),
-                                                                    codigo:
-                                                                        "${data['users'] != null && data['users'].toString() != "[]" ? data['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data['numero_orden']}",
-                                                                    numberCliente:
-                                                                        "${data['telefono_shipping']}",
-                                                                    id: widget
-                                                                        .id,
-                                                                    novedades: data[
-                                                                        'novedades'],
-                                                                    currentStatus: data['status'] ==
-                                                                                "NOVEDAD" ||
-                                                                            data['status'] ==
-                                                                                "REAGENDADO"
-                                                                        ? ""
-                                                                        : data[
-                                                                            'status'],
-                                                                    dataL: widget
-                                                                        .data!,
-                                                                  );
-                                                                });
+                                                        await showDialog(
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return UpdateStatusOperatorHistorial(
+                                                                function: widget
+                                                                    .function,
+                                                                numberTienda: response[
+                                                                            'vendedores'][0]
+                                                                        [
+                                                                        'Telefono2']
+                                                                    .toString(),
+                                                                codigo:
+                                                                    "${data['users'] != null && data['users'].toString() != "[]" ? data['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data['numero_orden']}",
+                                                                numberCliente:
+                                                                    "${data['telefono_shipping']}",
+                                                                id: widget.id,
+                                                                novedades: data[
+                                                                    'novedades'],
+                                                                currentStatus: data['status'] ==
+                                                                            "NOVEDAD" ||
+                                                                        data['status'] ==
+                                                                            "REAGENDADO"
+                                                                    ? ""
+                                                                    : data[
+                                                                        'status'],
+                                                                dataL: widget
+                                                                    .data!,
+                                                              );
+                                                            });
 
-                                                            await getData();
-                                                          }
-                                                        : null,
+                                                        setState(() {});
+                                                        await getData();
+                                                      }
+                                                    : null,
                                                 child: Text(
                                                   "Estado de Entrega",
                                                   style: TextStyle(
@@ -206,41 +249,37 @@ class _TransportProDeliveryHistoryDetails
                               ),
                               Text(
                                 "  Fecha Envio: ${data['marca_tiempo_envio'].toString().split(" ")[0]}",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
+                                style: customTextStyleText,
                               ),
                               SizedBox(
                                 height: 20,
                               ),
                               Text(
                                 "  Fecha Entrega: $fecha_entrega",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
+                                style: customTextStyleText,
                               ),
                               SizedBox(
                                 height: 20,
                               ),
                               Text(
-                                "  Marca Tiempo de Estado Entrega: ${data['status_last_modified_at'] != null ? UIUtils.formatDate(data['status_last_modified_at'].toString()) : ""}",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
+                                // "  Marca Tiempo de Estado Entrega: ${data['status_last_modified_at'] != null ? UIUtils.formatDate(data['status_last_modified_at'].toString()) : ""}",
+                                "  Marca Tiempo de Estado Entrega: $lastStatusAt",
+                                style: customTextStyleText,
                               ),
                               SizedBox(
                                 height: 20,
                               ),
                               Text(
                                 // "  Modificado Estado Entrega por: ${data['status_last_modified_by'] != null && data['status_last_modified_by'] != null ? "${data['users'][0]['username'].toString()}-${data['status_last_modified_by'].toString()}" : ''}",
-                                "  Modificado Estado Entrega por: ${data['status_last_modified_by'] != null ? "${data['status_last_modified_by']['username'].toString()}-${data['status_last_modified_by']['id'].toString()}" : ""}",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
+                                "  Modificado Estado Entrega por: $lastStatusBy",
+                                style: customTextStyleText,
                               ),
                               SizedBox(
                                 height: 20,
                               ),
                               Text(
                                 "  Código: ${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data['numero_orden'].toString()}",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
+                                style: customTextStyleText,
                               ),
                               SizedBox(
                                 height: 20,
@@ -274,32 +313,32 @@ class _TransportProDeliveryHistoryDetails
                               ),
                               Text(
                                 "  Nombre Cliente: ${data['nombre_shipping']}",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
+                                style: customTextStyleText,
                               ),
                               SizedBox(
                                 height: 20,
                               ),
                               Text(
                                 "  Ciudad: ${data['ciudad_shipping']}",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
+                                style: customTextStyleText,
                               ),
                               SizedBox(
                                 height: 20,
                               ),
-                              Text(
-                                "  DIRECCIÓN: ${data['direccion_shipping']}",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.43,
+                                child: Text(
+                                  "  DIRECCIÓN: ${data['direccion_shipping']}",
+                                  maxLines: null,
+                                  style: customTextStyleText,
+                                ),
                               ),
                               SizedBox(
                                 height: 20,
                               ),
                               Text(
                                 "  TELEFÓNO CLIENTE: ${data['telefono_shipping']}",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
+                                style: customTextStyleText,
                               ),
                               SizedBox(
                                 height: 20,
@@ -334,128 +373,130 @@ class _TransportProDeliveryHistoryDetails
                               ),
                               Text(
                                 "  Cantidad: ${data['cantidad_total'].toString()}",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
+                                style: customTextStyleText,
                               ),
                               SizedBox(
                                 height: 20,
                               ),
-                              Text(
-                                "  Producto: ${data['producto_p']}",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
+                              // Text(
+                              //   "  Producto: ${data['producto_p']}",
+                              //   style: TextStyle(
+                              //       fontWeight: FontWeight.bold, fontSize: 18),
+                              // ),
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.43,
+                                child: Text(
+                                  "  Producto: ${data['producto_p']}",
+                                  maxLines: null,
+                                  style: customTextStyleText,
+                                ),
                               ),
                               SizedBox(
                                 height: 20,
                               ),
-                              Text(
-                                "  Producto Extra: ${data['producto_extra']}",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
+                              // Text(
+                              //   "  Producto Extra: ${data['producto_extra'] == null || data['producto_extra'].toString() == "null" ? "" : data['producto_extra']}",
+                              //   style: customTextStyleText,
+                              // ),
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.43,
+                                child: Text(
+                                  "  Producto Extra: ${data['producto_extra'] == null || data['producto_extra'].toString() == "null" ? "" : data['producto_extra']}",
+                                  maxLines: null,
+                                  style: customTextStyleText,
+                                ),
                               ),
                               SizedBox(
                                 height: 20,
                               ),
                               Text(
                                 "  Precio Total: ${data['precio_total']}",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
+                                style: customTextStyleText,
                               ),
                               SizedBox(
                                 height: 20,
                               ),
                               Text(
-                                "  Observación: ${data['observacion'].toString()}",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
+                                "  Observación: ${data['observacion'] == null || data['observacion'].toString() == "null" ? "" : data['observacion'].toString()}",
+                                style: customTextStyleText,
                               ),
                               SizedBox(
                                 height: 20,
                               ),
                               Text(
-                                "  Comentario: ${data['comentario'].toString()}",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
+                                "  Comentario: ${data['comentario'] == null || data['comentario'].toString() == "null" ? "" : data['comentario'].toString()}",
+                                style: customTextStyleText,
                               ),
                               SizedBox(
                                 height: 20,
                               ),
                               Text(
                                 "  Status: $status",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
+                                style: customTextStyleText,
                               ),
                               SizedBox(
                                 height: 20,
                               ),
                               Text(
                                 "  Tipo de Pago: ${data['tipo_pago'] != null ? data['tipo_pago'].toString() : ""}",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
+                                style: customTextStyleText,
                               ),
                               SizedBox(
                                 height: 20,
                               ),
                               Text(
-                                "  Sub Ruta: ${data['sub_ruta'].toString() != "[]" ? data['sub_ruta'][0]['titulo'].toString() : ""}",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
+                                // "  Sub Ruta: ${data['sub_ruta'].toString() != "[]" ? data['sub_ruta'][0]['titulo'].toString() : ""}",
+                                "  Sub Ruta: $subRuta",
+                                style: customTextStyleText,
                               ),
                               SizedBox(
                                 height: 20,
                               ),
                               Text(
-                                "  Operador: ${data['operadore'].toString() != "[]" ? data['operadore'][0]['up_users'][0]['username'].toString() : ""}",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
+                                "  Operador: $operador",
+                                style: customTextStyleText,
                               ),
                               SizedBox(
                                 height: 20,
                               ),
                               Text(
                                 "  Estado Pago: ${data['estado_pagado'].toString()}",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
+                                style: customTextStyleText,
                               ),
                               SizedBox(
                                 height: 20,
                               ),
                               Text(
                                 "  Estado Devolución: ${data['estado_devolucion'].toString()}",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
+                                style: customTextStyleText,
                               ),
                               SizedBox(
                                 height: 20,
                               ),
                               Text(
                                 "  DO: ${data['do'].toString()}",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
+                                style: customTextStyleText,
                               ),
                               SizedBox(
                                 height: 20,
                               ),
                               Text(
                                 "  DL: ${data['dl'].toString()}",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
+                                style: customTextStyleText,
                               ),
                               SizedBox(
                                 height: 20,
                               ),
                               Text(
                                 "  Marca Tiempo Devo: ${data['marca_t_d'] != null ? data['marca_t_d'].toString() : ""}",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
+                                style: customTextStyleText,
                               ),
                               SizedBox(
                                 height: 20,
                               ),
                               Text(
                                 "  Marca Tiempo Ingreso: ${data['marca_t_i'].toString()}",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
+                                style: customTextStyleText,
                               ),
                               SizedBox(
                                 height: 20,
