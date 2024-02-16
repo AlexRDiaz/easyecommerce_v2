@@ -13,6 +13,7 @@ import 'package:frontend/ui/logistic/novelties/novelties_info.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_details.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_details_data.dart';
 import 'package:frontend/ui/logistic/vendor_invoices/controllers/controllers.dart';
+import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:number_paginator/number_paginator.dart';
@@ -213,16 +214,36 @@ class _NoveltiesLState extends State<NoveltiesL> {
   }
 
   Future loadData() async {
+    var idUser = sharedPrefs!.getString("id");
+
     isLoading = true;
     currentPage = 1;
     try {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        getLoadingModal(context, false);
+        // getLoadingModal(context, false);
       });
 
       setState(() {
         search = false;
       });
+
+      List supervidorsId = [];
+
+      supervidorsId = await Connections().getSupervisors();
+
+      print(supervidorsId);
+
+      for (var i = 0; i < supervidorsId.length; i++) {
+        if (idUser == supervidorsId[i]) {
+          arrayFiltersAnd
+              .add({"/transportadora.novelties_supervisor": idUser.toString()});
+        }
+      }
+
+      print(arrayFiltersAnd);
+
+      // arrayFiltersAnd.clear();
+
       var response = await Connections().getOrdersForNoveltiesByDatesLaravel(
           populate,
           defaultArrayFiltersAnd,
@@ -238,12 +259,16 @@ class _NoveltiesLState extends State<NoveltiesL> {
           filterDate);
 
       if (listtransportadores.length == 1) {
-        var responsetransportadoras = await Connections().getTransportadoras();
+        // var responsetransportadoras = await Connections().getTransportadoras();
+        var responsetransportadoras =
+            await Connections().getTransportadorasNovelties(idUser.toString());
         List<dynamic> transportadorasList =
             responsetransportadoras['transportadoras'];
         for (var transportadora in transportadorasList) {
           listtransportadores.add(transportadora);
         }
+
+        print("ak $listtransportadores");
       }
 
       if (listvendedores.length == 1) {
@@ -265,8 +290,10 @@ class _NoveltiesLState extends State<NoveltiesL> {
         paginatorController.navigateToPage(0);
       });
 
+      // print("--> $data");
+
       Future.delayed(const Duration(milliseconds: 500), () {
-        Navigator.pop(context);
+        // Navigator.pop(context);
       });
 
       setState(() {
@@ -276,7 +303,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
       setState(() {
         isLoading = false;
       });
-      Navigator.pop(context);
+      // Navigator.pop(context);
 
       _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
     }
@@ -285,7 +312,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
   paginateData() async {
     try {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        getLoadingModal(context, false);
+        // getLoadingModal(context, false);
       });
 
       setState(() {
@@ -311,10 +338,10 @@ class _NoveltiesLState extends State<NoveltiesL> {
       });
 
       Future.delayed(const Duration(milliseconds: 500), () {
-        Navigator.pop(context);
+        // Navigator.pop(context);
       });
     } catch (e) {
-      Navigator.pop(context);
+      // Navigator.pop(context);
 
       _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
     }
@@ -334,371 +361,391 @@ class _NoveltiesLState extends State<NoveltiesL> {
   }
 
   final VendorInvoicesControllers _controllers = VendorInvoicesControllers();
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(15),
-          color: Colors.grey[200],
+    double heigth = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
+
+    return CustomProgressModal(
+      isLoading: isLoading,
+      content: Scaffold(
+        body: Container(
+          // padding: EdgeInsets.only(left: width * 0.01, right: width * 0.01),
           child: responsive(
-              Column(
-                children: [
-                  _dates(context),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                      width: double.infinity,
-                      color: Colors.white,
-                      padding: EdgeInsets.only(top: 5, bottom: 5),
-                      child: SizedBox(
-                        child: responsive(
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _modelTextField(
-                                      text: "Buscar",
-                                      controller:
-                                          _controllers.searchController),
-                                ),
-                                Expanded(
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.only(
-                                            left: 15, right: 5),
-                                        child: Text(
-                                          "Registros: ${total}",
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Expanded(child: numberPaginator()),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                Container(
-                                  child: _modelTextField(
-                                      text: "Buscar",
-                                      controller:
-                                          _controllers.searchController),
-                                ),
-                                Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.only(
-                                          left: 15, right: 5),
-                                      child: Text(
-                                        "Registros: ${total}",
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                numberPaginator(),
-                              ],
-                            ),
-                            context),
-                      )),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Expanded(child: DataT()),
-                ],
-              ),
-              Column(
-                children: [
-                  _datesMovil(context),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                      width: double.infinity,
-                      color: Colors.white,
-                      padding: EdgeInsets.only(top: 5, bottom: 5),
-                      child: SizedBox(
-                        child: responsive(
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _modelTextField(
-                                      text: "Buscar",
-                                      controller:
-                                          _controllers.searchController),
-                                ),
-                                Expanded(
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.only(
-                                            left: 15, right: 5),
-                                        child: Text(
-                                          "Registros: ${total}",
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Expanded(child: numberPaginator()),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                Container(
-                                  child: _modelTextField(
-                                      text: "Buscar",
-                                      controller:
-                                          _controllers.searchController),
-                                ),
-                                Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.only(
-                                          left: 15, right: 5),
-                                      child: Text(
-                                        "Registros: ${total}",
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                numberPaginator(),
-                              ],
-                            ),
-                            context),
-                      )),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Expanded(child: DataT()),
-                ],
-              ),
-              context)
+              webContainer(context), movilContainer(context), context),
+        ),
+      ),
+    );
+  }
 
-          // Column(
-          //   children: [
-          //     _dates(context),
-          //     SizedBox(
-          //       height: 10,
-          //     ),
-          //     Container(
-          //         width: double.infinity,
-          //         color: Colors.white,
-          //         padding: EdgeInsets.only(top: 5, bottom: 5),
-          //         child: SizedBox(
-          //           child: responsive(
-          //               Row(
-          //                 children: [
-          //                   Expanded(
-          //                     child: _modelTextField(
-          //                         text: "Buscar",
-          //                         controller: _controllers.searchController),
-          //                   ),
-          //                   Expanded(
-          //                     child: Row(
-          //                       children: [
-          //                         Container(
-          //                           padding:
-          //                               const EdgeInsets.only(left: 15, right: 5),
-          //                           child: Text(
-          //                             "Registros: ${total}",
-          //                             style: const TextStyle(
-          //                                 fontWeight: FontWeight.bold,
-          //                                 color: Colors.black),
-          //                           ),
-          //                         ),
-          //                       ],
-          //                     ),
-          //                   ),
-          //                   Expanded(child: numberPaginator()),
-          //                 ],
-          //               ),
-          //               Column(
-          //                 children: [
-          //                   Container(
-          //                     child: _modelTextField(
-          //                         text: "Buscar",
-          //                         controller: _controllers.searchController),
-          //                   ),
-          //                   Row(
-          //                     children: [
-          //                       Container(
-          //                         padding:
-          //                             const EdgeInsets.only(left: 15, right: 5),
-          //                         child: Text(
-          //                           "Registros: ${total}",
-          //                           style: const TextStyle(
-          //                               fontWeight: FontWeight.bold,
-          //                               color: Colors.black),
-          //                         ),
-          //                       ),
-          //                     ],
-          //                   ),
-          //                   numberPaginator(),
-          //                 ],
-          //               ),
-          //               context),
-          //         )),
-          //     SizedBox(
-          //       height: 10,
-          //     ),
-          //     Expanded(
-          //         child: DataTable2(
-          //             scrollController: _scrollController,
-          //             decoration: BoxDecoration(
-          //               color: Colors.white,
-          //               borderRadius: const BorderRadius.all(Radius.circular(4)),
-          //               border: Border.all(color: Colors.blueGrey),
-          //             ),
-          //             headingRowHeight: 63,
-          //             headingTextStyle: const TextStyle(
-          //                 fontWeight: FontWeight.bold, color: Colors.black),
-          //             dataTextStyle: const TextStyle(
-          //                 fontSize: 12,
-          //                 fontWeight: FontWeight.bold,
-          //                 color: Colors.black),
-          //             columnSpacing: 5,
-          //             horizontalMargin: 5,
-          //             minWidth: 2500,
-          //             columns: [
-          //               DataColumn2(
-          //                 label: Text("Fecha Entrega"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
+  // Widget build(BuildContext context) {
+  //   return Scaffold(
+  //     body: Container(
+  //         width: double.infinity,
+  //         padding: EdgeInsets.all(15),
+  //         color: Colors.grey[200],
+  //         child: responsive(
+  //             // webContainer(context),
 
-          //               DataColumn2(
-          //                 label: const Text('Código'),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Ciudad"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Nombre Cliente"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Teléfono Cliente"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Dirección"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Cantidad"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Producto"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Producto Extra"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Precio Total"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Observación"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Comentario"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: SelectFilterNoId('Status', 'equals/status',
-          //                     statusController, listStatus),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: SelectFilter('Vendedor', 'equals/id_comercial',
-          //                     vendedorController, listvendedores),
-          //                 size: ColumnSize.S,
-          //                 // numeric: true,
-          //                 onSort: (columnIndex, ascending) {
-          //                   // sortFunc("Name_Comercial");
-          //                 },
-          //               ),
-          //               DataColumn2(
-          //                 label: SelectFilter(
-          //                     'Transportadora',
-          //                     'equals/transportadora.transportadora_id',
-          //                     transportadorasController,
-          //                     listtransportadores),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {
-          //                   // sortFunc("Estado_Interno");
-          //                 },
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Operador"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: Text("Estado Devolución"),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {},
-          //               ),
-          //               DataColumn2(
-          //                 label: const Text('Fecha Marcar TI'),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {
-          //                   // sortFunc("Fecha");
-          //                 },
-          //               ),
-          //               DataColumn2(
-          //                 label: const Text('Numero Intentos'),
-          //                 size: ColumnSize.S,
-          //                 onSort: (columnIndex, ascending) {
-          //                   // sortFunc("Fecha");
-          //                 },
-          //               ),
-          //               // data['novedades'][index]['try']
-          //             ],
-          //             rows: List<DataRow>.generate(data.length, (index) {
-          //               final color =
-          //                   index % 2 == 0 ? Colors.grey[400] : Colors.white;
+  //             // movilContainer(context),
+  //             context)
 
-          //               return DataRow(
-          //                   color: MaterialStateColor.resolveWith(
-          //                       (states) => color!),
-          //                   cells: getRows(index));
-          //             }))),
-          //   ],
-          // ),
-          ),
+  //         // Column(
+  //         //   children: [
+  //         //     _dates(context),
+  //         //     SizedBox(
+  //         //       height: 10,
+  //         //     ),
+  //         //     Container(
+  //         //         width: double.infinity,
+  //         //         color: Colors.white,
+  //         //         padding: EdgeInsets.only(top: 5, bottom: 5),
+  //         //         child: SizedBox(
+  //         //           child: responsive(
+  //         //               Row(
+  //         //                 children: [
+  //         //                   Expanded(
+  //         //                     child: _modelTextField(
+  //         //                         text: "Buscar",
+  //         //                         controller: _controllers.searchController),
+  //         //                   ),
+  //         //                   Expanded(
+  //         //                     child: Row(
+  //         //                       children: [
+  //         //                         Container(
+  //         //                           padding:
+  //         //                               const EdgeInsets.only(left: 15, right: 5),
+  //         //                           child: Text(
+  //         //                             "Registros: ${total}",
+  //         //                             style: const TextStyle(
+  //         //                                 fontWeight: FontWeight.bold,
+  //         //                                 color: Colors.black),
+  //         //                           ),
+  //         //                         ),
+  //         //                       ],
+  //         //                     ),
+  //         //                   ),
+  //         //                   Expanded(child: numberPaginator()),
+  //         //                 ],
+  //         //               ),
+  //         //               Column(
+  //         //                 children: [
+  //         //                   Container(
+  //         //                     child: _modelTextField(
+  //         //                         text: "Buscar",
+  //         //                         controller: _controllers.searchController),
+  //         //                   ),
+  //         //                   Row(
+  //         //                     children: [
+  //         //                       Container(
+  //         //                         padding:
+  //         //                             const EdgeInsets.only(left: 15, right: 5),
+  //         //                         child: Text(
+  //         //                           "Registros: ${total}",
+  //         //                           style: const TextStyle(
+  //         //                               fontWeight: FontWeight.bold,
+  //         //                               color: Colors.black),
+  //         //                         ),
+  //         //                       ),
+  //         //                     ],
+  //         //                   ),
+  //         //                   numberPaginator(),
+  //         //                 ],
+  //         //               ),
+  //         //               context),
+  //         //         )),
+  //         //     SizedBox(
+  //         //       height: 10,
+  //         //     ),
+  //         //     Expanded(
+  //         //         child: DataTable2(
+  //         //             scrollController: _scrollController,
+  //         //             decoration: BoxDecoration(
+  //         //               color: Colors.white,
+  //         //               borderRadius: const BorderRadius.all(Radius.circular(4)),
+  //         //               border: Border.all(color: Colors.blueGrey),
+  //         //             ),
+  //         //             headingRowHeight: 63,
+  //         //             headingTextStyle: const TextStyle(
+  //         //                 fontWeight: FontWeight.bold, color: Colors.black),
+  //         //             dataTextStyle: const TextStyle(
+  //         //                 fontSize: 12,
+  //         //                 fontWeight: FontWeight.bold,
+  //         //                 color: Colors.black),
+  //         //             columnSpacing: 5,
+  //         //             horizontalMargin: 5,
+  //         //             minWidth: 2500,
+  //         //             columns: [
+  //         //               DataColumn2(
+  //         //                 label: Text("Fecha Entrega"),
+  //         //                 size: ColumnSize.S,
+  //         //                 onSort: (columnIndex, ascending) {},
+  //         //               ),
+
+  //         //               DataColumn2(
+  //         //                 label: const Text('Código'),
+  //         //                 size: ColumnSize.S,
+  //         //                 onSort: (columnIndex, ascending) {},
+  //         //               ),
+  //         //               DataColumn2(
+  //         //                 label: Text("Ciudad"),
+  //         //                 size: ColumnSize.S,
+  //         //                 onSort: (columnIndex, ascending) {},
+  //         //               ),
+  //         //               DataColumn2(
+  //         //                 label: Text("Nombre Cliente"),
+  //         //                 size: ColumnSize.S,
+  //         //                 onSort: (columnIndex, ascending) {},
+  //         //               ),
+  //         //               DataColumn2(
+  //         //                 label: Text("Teléfono Cliente"),
+  //         //                 size: ColumnSize.S,
+  //         //                 onSort: (columnIndex, ascending) {},
+  //         //               ),
+  //         //               DataColumn2(
+  //         //                 label: Text("Dirección"),
+  //         //                 size: ColumnSize.S,
+  //         //                 onSort: (columnIndex, ascending) {},
+  //         //               ),
+  //         //               DataColumn2(
+  //         //                 label: Text("Cantidad"),
+  //         //                 size: ColumnSize.S,
+  //         //                 onSort: (columnIndex, ascending) {},
+  //         //               ),
+  //         //               DataColumn2(
+  //         //                 label: Text("Producto"),
+  //         //                 size: ColumnSize.S,
+  //         //                 onSort: (columnIndex, ascending) {},
+  //         //               ),
+  //         //               DataColumn2(
+  //         //                 label: Text("Producto Extra"),
+  //         //                 size: ColumnSize.S,
+  //         //                 onSort: (columnIndex, ascending) {},
+  //         //               ),
+  //         //               DataColumn2(
+  //         //                 label: Text("Precio Total"),
+  //         //                 size: ColumnSize.S,
+  //         //                 onSort: (columnIndex, ascending) {},
+  //         //               ),
+  //         //               DataColumn2(
+  //         //                 label: Text("Observación"),
+  //         //                 size: ColumnSize.S,
+  //         //                 onSort: (columnIndex, ascending) {},
+  //         //               ),
+  //         //               DataColumn2(
+  //         //                 label: Text("Comentario"),
+  //         //                 size: ColumnSize.S,
+  //         //                 onSort: (columnIndex, ascending) {},
+  //         //               ),
+  //         //               DataColumn2(
+  //         //                 label: SelectFilterNoId('Status', 'equals/status',
+  //         //                     statusController, listStatus),
+  //         //                 size: ColumnSize.S,
+  //         //                 onSort: (columnIndex, ascending) {},
+  //         //               ),
+  //         //               DataColumn2(
+  //         //                 label: SelectFilter('Vendedor', 'equals/id_comercial',
+  //         //                     vendedorController, listvendedores),
+  //         //                 size: ColumnSize.S,
+  //         //                 // numeric: true,
+  //         //                 onSort: (columnIndex, ascending) {
+  //         //                   // sortFunc("Name_Comercial");
+  //         //                 },
+  //         //               ),
+  //         //               DataColumn2(
+  //         //                 label: SelectFilter(
+  //         //                     'Transportadora',
+  //         //                     'equals/transportadora.transportadora_id',
+  //         //                     transportadorasController,
+  //         //                     listtransportadores),
+  //         //                 size: ColumnSize.S,
+  //         //                 onSort: (columnIndex, ascending) {
+  //         //                   // sortFunc("Estado_Interno");
+  //         //                 },
+  //         //               ),
+  //         //               DataColumn2(
+  //         //                 label: Text("Operador"),
+  //         //                 size: ColumnSize.S,
+  //         //                 onSort: (columnIndex, ascending) {},
+  //         //               ),
+  //         //               DataColumn2(
+  //         //                 label: Text("Estado Devolución"),
+  //         //                 size: ColumnSize.S,
+  //         //                 onSort: (columnIndex, ascending) {},
+  //         //               ),
+  //         //               DataColumn2(
+  //         //                 label: const Text('Fecha Marcar TI'),
+  //         //                 size: ColumnSize.S,
+  //         //                 onSort: (columnIndex, ascending) {
+  //         //                   // sortFunc("Fecha");
+  //         //                 },
+  //         //               ),
+  //         //               DataColumn2(
+  //         //                 label: const Text('Numero Intentos'),
+  //         //                 size: ColumnSize.S,
+  //         //                 onSort: (columnIndex, ascending) {
+  //         //                   // sortFunc("Fecha");
+  //         //                 },
+  //         //               ),
+  //         //               // data['novedades'][index]['try']
+  //         //             ],
+  //         //             rows: List<DataRow>.generate(data.length, (index) {
+  //         //               final color =
+  //         //                   index % 2 == 0 ? Colors.grey[400] : Colors.white;
+
+  //         //               return DataRow(
+  //         //                   color: MaterialStateColor.resolveWith(
+  //         //                       (states) => color!),
+  //         //                   cells: getRows(index));
+  //         //             }))),
+  //         //   ],
+  //         // ),
+  //         ),
+  //   );
+  // }
+
+  Column movilContainer(BuildContext context) {
+    return Column(
+      children: [
+        _datesMovil(context),
+        SizedBox(
+          height: 10,
+        ),
+        Container(
+            width: double.infinity,
+            color: Colors.white,
+            padding: EdgeInsets.only(top: 5, bottom: 5),
+            child: SizedBox(
+              child: responsive(
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _modelTextField(
+                            text: "Buscar",
+                            controller: _controllers.searchController),
+                      ),
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Container(
+                              padding:
+                                  const EdgeInsets.only(left: 15, right: 5),
+                              child: Text(
+                                "Registros: ${total}",
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(child: numberPaginator()),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Container(
+                        child: _modelTextField(
+                            text: "Buscar",
+                            controller: _controllers.searchController),
+                      ),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.only(left: 15, right: 5),
+                            child: Text(
+                              "Registros: ${total}",
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black),
+                            ),
+                          ),
+                        ],
+                      ),
+                      numberPaginator(),
+                    ],
+                  ),
+                  context),
+            )),
+        SizedBox(
+          height: 10,
+        ),
+        Expanded(child: DataT()),
+      ],
+    );
+  }
+
+  Column webContainer(BuildContext context) {
+    return Column(
+      children: [
+        _dates(context),
+        SizedBox(
+          height: 10,
+        ),
+        Container(
+            width: double.infinity,
+            color: Colors.white,
+            padding: EdgeInsets.only(top: 5, bottom: 5),
+            child: SizedBox(
+              child: responsive(
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _modelTextField(
+                            text: "Buscar",
+                            controller: _controllers.searchController),
+                      ),
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Container(
+                              padding:
+                                  const EdgeInsets.only(left: 15, right: 5),
+                              child: Text(
+                                "Registros: ${total}",
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(child: numberPaginator()),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Container(
+                        child: _modelTextField(
+                            text: "Buscar",
+                            controller: _controllers.searchController),
+                      ),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.only(left: 15, right: 5),
+                            child: Text(
+                              "Registros: ${total}",
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black),
+                            ),
+                          ),
+                        ],
+                      ),
+                      numberPaginator(),
+                    ],
+                  ),
+                  context),
+            )),
+        SizedBox(
+          height: 10,
+        ),
+        Expanded(child: DataT()),
+      ],
     );
   }
 
@@ -731,7 +778,10 @@ class _NoveltiesLState extends State<NoveltiesL> {
             padding: const EdgeInsets.only(left: 10.0),
             child: Text(
               valor,
-              style: TextStyle(color: GetColorDropStatus(valor), fontSize: 12.0,fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  color: GetColorDropStatus(valor),
+                  fontSize: 12.0,
+                  fontWeight: FontWeight.bold),
             ),
           ),
         );
@@ -912,13 +962,13 @@ class _NoveltiesLState extends State<NoveltiesL> {
           DataColumn2(
             label: SelectFilterNoId(
                 'Status', 'equals/status', statusController, listStatus),
-            size: ColumnSize.S,
+            size: ColumnSize.M,
             onSort: (columnIndex, ascending) {},
           ),
           DataColumn2(
             label: SelectFilter('Vendedor', 'equals/id_comercial',
                 vendedorController, listvendedores),
-            size: ColumnSize.S,
+            size: ColumnSize.M,
             // numeric: true,
             onSort: (columnIndex, ascending) {
               // sortFunc("Name_Comercial");
@@ -930,7 +980,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
                 'equals/transportadora.transportadora_id',
                 transportadorasController,
                 listtransportadores),
-            size: ColumnSize.S,
+            size: ColumnSize.M,
             onSort: (columnIndex, ascending) {
               // sortFunc("Estado_Interno");
             },
@@ -1637,8 +1687,8 @@ Quedamos atentos a su respuesta Muchas gracias.
                 ),
                 onPressed: () async {
                   // Mostrar indicador de carga antes de iniciar la descarga
-                  getLoadingModal(context,
-                      true); // Asumiendo que esta función muestra un modal de carga.
+                  // getLoadingModal(context,
+                      // true); // Asumiendo que esta función muestra un modal de carga.
 
                   try {
                     // Suponiendo que tu función necesita parámetros como 'populate', 'defaultArrayFiltersAnd', etc.
@@ -1665,10 +1715,10 @@ Quedamos atentos a su respuesta Muchas gracias.
                     await getReport.generateExcelFileWithData(response['data']);
 
                     // Si llegamos aquí, la operación fue exitosa y cerramos el modal de carga
-                    Navigator.of(context).pop();
+                    // Navigator.of(context).pop();
                   } catch (e) {
                     // Cerrar el modal de carga si hay un error
-                    Navigator.of(context).pop();
+                    // Navigator.of(context).pop();
 
                     // Mostrar un mensaje de error
                     _showErrorSnackBar(context,
@@ -1861,8 +1911,8 @@ Quedamos atentos a su respuesta Muchas gracias.
                   ),
                   onPressed: () async {
                     // Mostrar indicador de carga antes de iniciar la descarga
-                    getLoadingModal(context,
-                        true); // Asumiendo que esta función muestra un modal de carga.
+                    // getLoadingModal(context,
+                    //     true); // Asumiendo que esta función muestra un modal de carga.
 
                     try {
                       // Suponiendo que tu función necesita parámetros como 'populate', 'defaultArrayFiltersAnd', etc.
@@ -1890,10 +1940,10 @@ Quedamos atentos a su respuesta Muchas gracias.
                           .generateExcelFileWithData(response['data']);
 
                       // Si llegamos aquí, la operación fue exitosa y cerramos el modal de carga
-                      Navigator.of(context).pop();
+                      // Navigator.of(context).pop();
                     } catch (e) {
                       // Cerrar el modal de carga si hay un error
-                      Navigator.of(context).pop();
+                      // Navigator.of(context).pop();
 
                       // Mostrar un mensaje de error
                       _showErrorSnackBar(context,
@@ -1945,7 +1995,7 @@ Quedamos atentos a su respuesta Muchas gracias.
           suffixIcon: _controllers.searchController.text.isNotEmpty
               ? GestureDetector(
                   onTap: () {
-                    getLoadingModal(context, false);
+                    // getLoadingModal(context, false);
                     setState(() {
                       _controllers.searchController.clear();
                     });
@@ -1953,7 +2003,7 @@ Quedamos atentos a su respuesta Muchas gracias.
                     setState(() {
                       loadData();
                     });
-                    Navigator.pop(context);
+                    // Navigator.pop(context);
                   },
                   child: Icon(Icons.close))
               : null,
@@ -2361,7 +2411,6 @@ Quedamos atentos a su respuesta Muchas gracias.
 
     return Color(color);
   }
-
 
   Color? GetColorDropStatus(state) {
     int color = 0xFF000000;
