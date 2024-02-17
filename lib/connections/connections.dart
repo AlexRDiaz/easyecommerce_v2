@@ -3727,6 +3727,7 @@ class Connections {
       List and,
       List defaultAnd,
       List or,
+      List not,
       currentPage,
       sizePage,
       search,
@@ -3735,9 +3736,6 @@ class Connections {
     filtersAndAll.addAll(and);
     filtersAndAll.addAll(defaultAnd);
     try {
-      print('start: ${sharedPrefs!.getString("dateDesdeTransportadora")}');
-      print('end: ${sharedPrefs!.getString("dateHastaTransportadora")}');
-
       var response = await http.post(
           Uri.parse("$serverLaravel/api/pedidos-shopify/filter"),
           headers: {'Content-Type': 'application/json'},
@@ -3748,11 +3746,11 @@ class Connections {
             "end": dateEnd,
             "or": or,
             "and": filtersAndAll,
+            "not": not,
             "page_size": sizePage,
             "page_number": currentPage,
             "search": search,
             "sort": sortField,
-            "not": []
           }));
       print("sort -> $sortField");
       print("and -> $and");
