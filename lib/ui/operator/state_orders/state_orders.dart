@@ -202,11 +202,14 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
       });
       updateCounters();
 
-      isLoading = false;
+      setState(() {
+        isLoading = false;
+      });
     } catch (e) {
-      isLoading = false;
+      setState(() {
+        isLoading = false;
+      });
       print("error!!!:  $e");
-      print(isLoading);
       _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
     }
 

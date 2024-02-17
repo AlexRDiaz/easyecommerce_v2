@@ -5487,8 +5487,9 @@ class Connections {
       if (request.statusCode != 200) {
         return 1;
       } else {
-        var decodeData = json.decode(response);
-        return decodeData;
+        // var decodeData = json.decode(response);
+        // return decodeData;
+        return 0;
       }
     } catch (e) {
       2;
