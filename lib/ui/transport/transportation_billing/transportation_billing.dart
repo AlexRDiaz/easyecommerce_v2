@@ -1448,15 +1448,27 @@ class _TransportationBillingState extends State<TransportationBilling> {
           ),
           DataCell(
             Text(data[index]['direccion_shipping'].toString()),
+            onTap: () {
+              info(context, index);
+            },
           ),
           DataCell(
             Text(data[index]['telefono_shipping'].toString()),
+            onTap: () {
+              info(context, index);
+            },
           ),
           DataCell(
             Text(data[index]['cantidad_total'].toString()),
+            onTap: () {
+              info(context, index);
+            },
           ),
           DataCell(
             Text(data[index]['producto_p'].toString()),
+            onTap: () {
+              info(context, index);
+            },
           ),
           DataCell(
             Text(data[index]['producto_extra'] == null ||
@@ -1620,7 +1632,7 @@ class _TransportationBillingState extends State<TransportationBilling> {
       builder: (context) {
         return AlertDialog(
           content: Container(
-            width: MediaQuery.of(context).size.width,
+            width: MediaQuery.of(context).size.width * 0.6,
             height: MediaQuery.of(context).size.height,
             child: Column(
               children: [
@@ -1735,34 +1747,45 @@ class _TransportationBillingState extends State<TransportationBilling> {
   _modelTextField({text, controller}) {
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.all(3),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15.0),
-        color: Color.fromARGB(255, 245, 244, 244),
+        border: Border.all(
+          color: Colors.black,
+          width: 1.0,
+        ),
+        borderRadius: BorderRadius.circular(10.0),
       ),
       child: TextField(
         controller: controller,
         onSubmitted: (value) {
           loadData();
         },
+        onChanged: (value) {
+          setState(() {});
+        },
         style: const TextStyle(fontWeight: FontWeight.bold),
         decoration: InputDecoration(
-          fillColor: Colors.grey[500],
           prefixIcon: const Icon(Icons.search),
           suffixIcon: searchController.text.isNotEmpty
               ? GestureDetector(
-                  onTap: () {
+                  onTap: () async {
                     setState(() {
                       searchController.clear();
-                      loadData();
                     });
+                    await loadData();
                   },
-                  child: Icon(Icons.close))
+                  child: const Icon(Icons.close))
               : null,
           hintText: text,
-          border: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.grey),
-              borderRadius: BorderRadius.circular(15)),
+          enabledBorder: OutlineInputBorder(
+            borderSide: const BorderSide(
+                width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(
+                width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
+            borderRadius: BorderRadius.circular(10.0),
+          ),
           focusColor: Colors.black,
           iconColor: Colors.black,
         ),
