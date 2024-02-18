@@ -8191,7 +8191,7 @@ class Connections {
               }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
-        print(decodeData);
+        // print(decodeData);
         return decodeData;
       } else {
         return 1;
@@ -8236,7 +8236,7 @@ class Connections {
               }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
-        print(decodeData);
+        // print(decodeData);
         return decodeData;
       } else {
         return 1;
@@ -8254,7 +8254,7 @@ class Connections {
           body: json.encode({"id": id, "novelties_supervisor": idSupervisor}));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
-        print(decodeData);
+        // print(decodeData);
         return decodeData;
       } else {
         return 1;
@@ -8272,7 +8272,7 @@ class Connections {
       );
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
-        print(decodeData);
+        // print(decodeData);
         return decodeData['supervisors'];
       } else {
         return 1;

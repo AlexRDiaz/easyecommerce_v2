@@ -334,7 +334,7 @@ class _AddSellersState extends State<AddSellers> {
           ),
           DataColumn2(
             label: Text('Referido Por'),
-            size: ColumnSize.M,
+            size: ColumnSize.L,
             onSort: (columnIndex, ascending) {
               // sortFuncCosto();
             },
@@ -482,7 +482,7 @@ class _AddSellersState extends State<AddSellers> {
                         ),
                       ),
                       SizedBox(
-                        width: 10,
+                        width: 8,
                       ),
                       GestureDetector(
                         onTap: () async {
@@ -531,10 +531,6 @@ class _AddSellersState extends State<AddSellers> {
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            const Icon(
-                              Icons.attach_money,
-                              color: Colors.green,
-                            ),
                             Text(dataL[index]["up_user"]['vendedores'][0]
                                         ['referer_cost'] !=
                                     null
@@ -543,92 +539,91 @@ class _AddSellersState extends State<AddSellers> {
                                     .toString()
                                 : ""),
                             GestureDetector(
-                              child: Icon(
+                              child: const Icon(
                                 Icons.edit,
-                                // color: Colors.orange,
-                                color: Colors.grey,
+                                color: Colors.orange,
                               ),
                               onTap: () {
-                                // AwesomeDialog(
-                                //   body: Column(
-                                //     children: [
-                                //       Text("Actualizar Costo Referenciado",
-                                //           style: TextStyle(
-                                //               fontSize: 18,
-                                //               fontWeight: FontWeight.bold)),
-                                //       Text("Ingrese valores en el formato  decimal (ej: 0.50)"),
-                                //       Container(
-                                //         margin: EdgeInsets.all(15.0),
-                                //         child: TextField(
-                                //           controller:
-                                //               supervisorController, // Asume que ya tienes este controlador
-                                //           // keyboardType: TextInputType
-                                //           //     .number, // Muestra el teclado numérico
-                                //           // inputFormatters: [
-                                //           //   FilteringTextInputFormatter
-                                //           //       .digitsOnly
-                                //           // ],
-                                //           keyboardType:
-                                //               const TextInputType.numberWithOptions(
-                                //                   decimal:
-                                //                       true), // Permite números y punto decimal
-                                //           inputFormatters: [
-                                //             FilteringTextInputFormatter.allow(
-                                //                 RegExp(
-                                //                     r'^\d*\.?\d*')), // Expresión regular para números con o sin decimales
-                                //           ],
-                                //           decoration: InputDecoration(
-                                //             labelText: "Valor por Referenciado",
-                                //             labelStyle: const TextStyle(
-                                //                 color: Colors.grey),
-                                //             prefixIcon: Icon(Icons.attach_money,
-                                //                 color: ColorsSystem()
-                                //                     .colorSelectMenu),
-                                //             enabledBorder: OutlineInputBorder(
-                                //               borderSide: BorderSide(
-                                //                   color: ColorsSystem()
-                                //                       .colorSelectMenu),
-                                //               borderRadius:
-                                //                   BorderRadius.circular(15.0),
-                                //             ),
-                                //             focusedBorder: OutlineInputBorder(
-                                //               borderSide: BorderSide(
-                                //                   color: Colors.blue),
-                                //               borderRadius:
-                                //                   BorderRadius.circular(15.0),
-                                //             ),
-                                //             // Si deseas agregar un sufijo al campo de texto, puedes descomentar la siguiente línea
-                                //             // suffixIcon: Icon(Icons.check_circle, color: Colors.green),
-                                //           ),
-                                //         ),
-                                //       ),
-                                //     ],
-                                //   ),
-                                //   width: 500,
-                                //   context: context,
-                                //   dialogType: DialogType.info,
-                                //   animType: AnimType.rightSlide,
-                                //   btnOkText: "Aceptar",
-                                //   btnCancelText: "Cancelar",
-                                //   btnOkColor: Colors
-                                //       .green, // Asegúrate de que colors.colorGreen sea válido, aquí lo puse directamente como Colors.green
-                                //   btnCancelOnPress: () {
-                                //     supervisorController.clear();
-                                //   },
-                                //   btnOkOnPress: () async {
-                                //     String supervisorName =
-                                //         supervisorController.text;
-                                //     if(supervisorName != "" ){
-                                //     await Connections().updateRefererCost(
-                                //         dataL[index]['vendedor_id'].toString(),
-                                //         supervisorName);
-                                //     loadData();
-                                //     }else{
-                                //       _showErrorSnackBar(context, "Costo Referido Vacío, Ingrese un Valor.");
-                                //     }
-                                //   },
-                                // ).show();
-                                // supervisorController.clear();
+                                AwesomeDialog(
+                                  body: Column(
+                                    children: [
+                                      Text("Actualizar Costo Referenciado",
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold)),
+                                      Text("Ingrese valores en el formato  decimal (ej: 0.50)"),
+                                      Container(
+                                        margin: EdgeInsets.all(15.0),
+                                        child: TextField(
+                                          controller:
+                                              supervisorController, // Asume que ya tienes este controlador
+                                          // keyboardType: TextInputType
+                                          //     .number, // Muestra el teclado numérico
+                                          // inputFormatters: [
+                                          //   FilteringTextInputFormatter
+                                          //       .digitsOnly
+                                          // ],
+                                          keyboardType:
+                                              const TextInputType.numberWithOptions(
+                                                  decimal:
+                                                      true), // Permite números y punto decimal
+                                          inputFormatters: [
+                                            FilteringTextInputFormatter.allow(
+                                                RegExp(
+                                                    r'^\d*\.?\d*')), // Expresión regular para números con o sin decimales
+                                          ],
+                                          decoration: InputDecoration(
+                                            labelText: "Valor por Referenciado",
+                                            labelStyle: const TextStyle(
+                                                color: Colors.grey),
+                                            prefixIcon: Icon(Icons.attach_money,
+                                                color: ColorsSystem()
+                                                    .colorSelectMenu),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: ColorsSystem()
+                                                      .colorSelectMenu),
+                                              borderRadius:
+                                                  BorderRadius.circular(15.0),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors.blue),
+                                              borderRadius:
+                                                  BorderRadius.circular(15.0),
+                                            ),
+                                            // Si deseas agregar un sufijo al campo de texto, puedes descomentar la siguiente línea
+                                            // suffixIcon: Icon(Icons.check_circle, color: Colors.green),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  width: 500,
+                                  context: context,
+                                  dialogType: DialogType.info,
+                                  animType: AnimType.rightSlide,
+                                  btnOkText: "Aceptar",
+                                  btnCancelText: "Cancelar",
+                                  btnOkColor: Colors
+                                      .green, // Asegúrate de que colors.colorGreen sea válido, aquí lo puse directamente como Colors.green
+                                  btnCancelOnPress: () {
+                                    supervisorController.clear();
+                                  },
+                                  btnOkOnPress: () async {
+                                    String supervisorName =
+                                        supervisorController.text;
+                                    if(supervisorName != "" ){
+                                    await Connections().updateRefererCost(
+                                        dataL[index]['vendedor_id'].toString(),
+                                        supervisorName);
+                                    loadData();
+                                    }else{
+                                      _showErrorSnackBar(context, "Costo Referido Vacío, Ingrese un Valor.");
+                                    }
+                                  },
+                                ).show();
+                                supervisorController.clear();
                               },
                             )
                           ])

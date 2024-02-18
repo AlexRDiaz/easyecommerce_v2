@@ -67,7 +67,7 @@ class _UpdateCarrierModalLaravelState extends State<UpdateCarrierModalLaravel> {
     // WidgetsBinding.instance.addPostFrameCallback((_) {
     //   getLoadingModal(context, false);
     // });
-    print(widget.dataT);
+    // print(widget.dataT);
     setState(() {
       isLoading = true;
     });
@@ -99,7 +99,7 @@ class _UpdateCarrierModalLaravelState extends State<UpdateCarrierModalLaravel> {
       dataL = [widget.dataT];
     });
 
-    print(dataL);
+    // print(dataL);
     // var response = await Connections().getPersonalInfoAccountByID(widget.idP);
     // var responseT =
     //     await Connections().getTransporterInfoAccountByID(widget.idT);
@@ -108,7 +108,7 @@ class _UpdateCarrierModalLaravelState extends State<UpdateCarrierModalLaravel> {
             ['up_user']['id']
         .toString();
 
-    print(idUser);
+    // print(idUser);
 
     _usuario.text = dataL[0]['transportadoras_users_permissions_user_links'][0]
             ['up_user']['username']
@@ -127,12 +127,12 @@ class _UpdateCarrierModalLaravelState extends State<UpdateCarrierModalLaravel> {
 
     if (dataL[0]['rutas'] != null) {
       if (dataL[0]['rutas'][0].length != 0) {
-        print(dataL[0]['rutas'].length);
+        // print(dataL[0]['rutas'].length);
         for (var i = 0; i < dataL[0]['rutas'].length; i++) {
           // setState(() {
           selectedItems.add(
               "${dataL[0]['rutas'][i]['titulo'].toString()}-${dataL[0]['rutas'][i]['id'].toString()}");
-          print(selectedItems);
+          // print(selectedItems);
           // });
         }
       }

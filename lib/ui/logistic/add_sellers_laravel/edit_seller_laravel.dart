@@ -55,13 +55,13 @@ class _EditSellersLaravelState extends State<EditSellersLaravel> {
       });
       accessGeneralofRol = await Connections().getAccessofRolById(2);
       // data = response;
-      print(accessGeneralofRol);
+      // print(accessGeneralofRol);
 
       // setState(() {
       //   // dataL = [widget.dataT];
       // });
 
-      print(dataL);
+      // print(dataL);
 
       _controllers.updateControllersEdit(dataL);
 
@@ -180,7 +180,7 @@ class _EditSellersLaravelState extends State<EditSellersLaravel> {
               // getLoadingModal(context, false
               var response = await Connections().updatePassWordbyIdLaravel(idUser, "123456789");
 
-              print(response);
+              // print(response);
               // Navigator.pop(context);
               if (response["message"] == "Actualización de contraseña exitosa")  {
                 AwesomeDialog(
