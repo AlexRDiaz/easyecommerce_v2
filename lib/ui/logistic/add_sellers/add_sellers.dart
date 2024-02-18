@@ -13,14 +13,14 @@ import 'package:frontend/helpers/server.dart';
 import 'package:get/route_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class AddSellers extends StatefulWidget {
-  const AddSellers({super.key});
+class AddSellersStrappi extends StatefulWidget {
+  const AddSellersStrappi({super.key});
 
   @override
-  State<AddSellers> createState() => _AddSellersState();
+  State<AddSellersStrappi> createState() => _AddSellersStrappiState();
 }
 
-class _AddSellersState extends State<AddSellers> {
+class _AddSellersStrappiState extends State<AddSellersStrappi> {
   AddSellersControllers _controllers = AddSellersControllers();
   List data = [];
   List dataTemporal = [];

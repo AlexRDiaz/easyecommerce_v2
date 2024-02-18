@@ -10,17 +10,17 @@ import 'package:frontend/ui/logistic/add_carrier/controllers/controllers.dart';
 import 'package:frontend/ui/logistic/add_carrier/update_carrier_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'dart:ui_web';
 import '../../../helpers/navigators.dart';
 
-class AddCarrier extends StatefulWidget {
-  const AddCarrier({super.key});
+class AddCarrierStrappi extends StatefulWidget {
+  const AddCarrierStrappi({super.key});
 
   @override
-  State<AddCarrier> createState() => _AddCarrierState();
+  State<AddCarrierStrappi> createState() => _AddCarrierStrappiState();
 }
 
-class _AddCarrierState extends State<AddCarrier> {
+class _AddCarrierStrappiState extends State<AddCarrierStrappi> {
   AddCarriersControllers _controllers = AddCarriersControllers();
   List data = [];
   List dataTemporal = [];
@@ -38,7 +38,6 @@ class _AddCarrierState extends State<AddCarrier> {
     var response =
         await Connections().getAllTransport(_controllers.searchController.text);
     data = response;
-    dataTemporal = response;
 
     Future.delayed(Duration(milliseconds: 500), () {
       Navigator.pop(context);

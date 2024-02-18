@@ -8012,6 +8012,359 @@ class Connections {
     }
   }
 
+  generalData(
+      int pageSize,
+      int pageNumber,
+      List arrayPopulate,
+      List arrayFiltersNot,
+      List arrayFiltersAnd,
+      List arrayFiltersOr,
+      String searchValue,
+      String model,
+      String dateFilter,
+      String dateStart,
+      String dateEnd,
+      String sortField) async {
+    try {
+      Map<String, dynamic> requestBody = {
+        "page_size": pageSize,
+        "page_number": pageNumber,
+        "search": searchValue,
+        "model": model,
+        "populate": arrayPopulate,
+        "and": arrayFiltersAnd,
+        "not": arrayFiltersNot,
+        "or": arrayFiltersOr,
+        "sort": sortField
+      };
+
+      if (dateFilter.isNotEmpty) {
+        requestBody['date_filter'] = dateFilter;
+      }
+      if (dateStart.isNotEmpty) {
+        requestBody['start'] = dateStart;
+      }
+      if (dateEnd.isNotEmpty) {
+        requestBody['end'] = dateEnd;
+      }
+
+      var request = await http.post(Uri.parse("$serverLaravel/api/generaldata"),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode(requestBody));
+
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return decodeData;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  generalDataSpecific(
+      List<String> arrayPopulate, arrayFiltersAnd, model) async {
+    try {
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/generalspecific-data"),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode({
+            "populate": arrayPopulate,
+            "and": arrayFiltersAnd,
+            "model": model
+          }));
+
+      var response = await request.body;
+
+      print(response);
+      var decodeData = json.decode(response);
+      // if (request.statusCode != 200) {
+      //   return 1;
+      // } else {
+      return decodeData;
+      // }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  createRuta(String titulo) async {
+    try {
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/rutas/create"),
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: json.encode({
+                "titulo": titulo,
+              }));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  createUser(userType, user, mail, permisos, roles_front,
+      Map<String, dynamic> RoleParameters) async {
+    try {
+      Map<String, dynamic> requestBody = {
+        "userType": userType,
+        "username": user,
+        "email": mail,
+        "roles_front": roles_front,
+        "password": "123456789",
+        "fecha_alta":
+            "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+        "role": "1",
+        "confirmed": true,
+        "estado": "VALIDADO",
+        "PERMISOS": permisos,
+      };
+
+      requestBody.addAll(RoleParameters);
+
+      print(requestBody);
+
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/users/new-user"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(requestBody));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      // print(decodeData);
+
+      // if (request.statusCode != 201) {
+      //   return 1;
+      // } else {
+      return decodeData;
+      // }
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  updateTransport(
+      id, username, email, transportPrice, telf1, telf2, routes) async {
+    print(json.encode({
+      "username": username,
+      "email": email,
+      "costo_transportadora": transportPrice,
+      "telefono_1": telf1,
+      "telefono_2": telf2,
+      "rutas": routes,
+    }));
+    try {
+      var response =
+          await http.put(Uri.parse("$serverLaravel/api/users/transports/$id"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                // "username": "test645",
+                // "email": "test645@gmail.com",
+                // "costo_transportadora": 10,
+                // "telefono_1": "987654",
+                // "telefono_2": "987654",
+                // "rutas": ["2", "5"],
+                // "password": "123456789",
+
+                "username": username,
+                "email": email,
+                "costo_transportadora": transportPrice,
+                "telefono_1": telf1,
+                "telefono_2": telf2,
+                "rutas": routes,
+              }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  updateSellerLara(id, userName, email, comercialName, telf1, telf2, sentPrice,
+      returnPrice, urlShop) async {
+    print(json.encode({
+      "username": userName,
+      "email": email,
+      "nombre_comercial": comercialName,
+      'telefono_1': telf1,
+      'telefono_2': telf2,
+      'costo_envio': sentPrice,
+      'costo_devolucion': returnPrice,
+      'url_tienda': urlShop,
+    }));
+    try {
+      var response =
+          await http.put(Uri.parse("$serverLaravel/api/users/sellers/$id"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                // "username": "test645",
+                // "email": "test645@gmail.com",
+                // "costo_transportadora": 10,
+                // "telefono_1": "987654",
+                // "telefono_2": "987654",
+                // "rutas": ["2", "5"],
+                // "password": "123456789",
+                "username": userName,
+                "email": email,
+                "nombre_comercial": comercialName,
+                'telefono_1': telf1,
+                'telefono_2': telf2,
+                'costo_envio': sentPrice,
+                'costo_devolucion': returnPrice,
+                'url_tienda': urlShop,
+              }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  updateSupervisor(id, idSupervisor) async {
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/transportadoras/update-supervisor"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"id": id, "novelties_supervisor": idSupervisor}));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  getSupervisors() async {
+    try {
+      var response = await http.get(
+        Uri.parse("$serverLaravel/api/transportadoras/get-supervisors"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData['supervisors'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  getTransportadorasNovelties(idSupervisor) async {
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/transportadoras-novelties"),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode({"id-supervisor": idSupervisor}));
+      // var decodeData = json.decode(response);
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+  updatePassWordbyIdLaravel(idUser, password) async {
+    try {
+
+      print(idUser);
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/users/reset-password/$idUser"),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode({"password": password}));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
+  getPrincipalSellers() async {
+    try {
+      var response = await http.get(
+        Uri.parse("$serverLaravel/api/vendedores-principals"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  updateRefererCost(idSeller,newRefererCost) async {
+    try {
+
+      print("$idSeller -- $newRefererCost");
+      var request =
+          await http.put(Uri.parse("$serverLaravel/api/vendedores-cost/$idSeller"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "referer_cost": newRefererCost,
+              
+              }));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+
   sendWithdrawalSeller(amount) async {
     try {
       String? idMaster =
