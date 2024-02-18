@@ -5,6 +5,7 @@ import 'package:frontend/ui/operator/orders_operator/controllers/controllers.dar
 import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:frontend/ui/widgets/routes/sub_routes.dart';
+import 'package:frontend/ui/widgets/routes/sub_routes_new.dart';
 import 'package:frontend/ui/widgets/update_status_operator/update_status_operator_historial.dart';
 import 'package:frontend/config/colors.dart';
 
@@ -173,7 +174,11 @@ class _TransportProDeliveryHistoryDetails
                                                   await showDialog(
                                                       context: context,
                                                       builder: (context) {
-                                                        return SubRoutesModal(
+                                                        // return SubRoutesModal(
+                                                        //   idOrder: widget.id,
+                                                        //   someOrders: false,
+                                                        // );
+                                                        return SubRoutesModalNew(
                                                           idOrder: widget.id,
                                                           someOrders: false,
                                                         );
@@ -192,48 +197,53 @@ class _TransportProDeliveryHistoryDetails
                                               width: 20,
                                             ),
                                             ElevatedButton(
-                                                onPressed: operador != "" &&
-                                                        btnStatus == true
-                                                    ? () async {
-                                                        var response =
-                                                            await Connections()
-                                                                .getSellersByIdMasterOnly(
-                                                                    "${data['id_comercial'].toString()}");
+                                                onPressed:
+                                                    operador != "" &&
+                                                            btnStatus == true
+                                                        ? () async {
+                                                            // var response =
+                                                            //     await Connections()
+                                                            //         .getSellersByIdMasterOnly(
+                                                            //             "${data['id_comercial'].toString()}");
 
-                                                        await showDialog(
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return UpdateStatusOperatorHistorial(
-                                                                function: widget
-                                                                    .function,
-                                                                numberTienda: response[
-                                                                            'vendedores'][0]
-                                                                        [
-                                                                        'Telefono2']
-                                                                    .toString(),
-                                                                codigo:
-                                                                    "${data['users'] != null && data['users'].toString() != "[]" ? data['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data['numero_orden']}",
-                                                                numberCliente:
-                                                                    "${data['telefono_shipping']}",
-                                                                id: widget.id,
-                                                                novedades: data[
-                                                                    'novedades'],
-                                                                currentStatus: data['status'] ==
-                                                                            "NOVEDAD" ||
-                                                                        data['status'] ==
-                                                                            "REAGENDADO"
-                                                                    ? ""
-                                                                    : data[
-                                                                        'status'],
-                                                                dataL: widget
-                                                                    .data!,
-                                                              );
-                                                            });
+                                                            await showDialog(
+                                                                context:
+                                                                    context,
+                                                                builder:
+                                                                    (context) {
+                                                                  return UpdateStatusOperatorHistorial(
+                                                                    function: widget
+                                                                        .function,
+                                                                    // numberTienda:
+                                                                    //     response['vendedores'][0]['Telefono2']
+                                                                    //         .toString(),
+                                                                    numberTienda:
+                                                                        data['users'][0]['vendedores'][0]['telefono_2']
+                                                                            .toString(),
+                                                                    codigo:
+                                                                        "${data['users'] != null && data['users'].toString() != "[]" ? data['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data['numero_orden']}",
+                                                                    numberCliente:
+                                                                        "${data['telefono_shipping']}",
+                                                                    id: widget
+                                                                        .id,
+                                                                    novedades: data[
+                                                                        'novedades'],
+                                                                    currentStatus: data['status'] ==
+                                                                                "NOVEDAD" ||
+                                                                            data['status'] ==
+                                                                                "REAGENDADO"
+                                                                        ? ""
+                                                                        : data[
+                                                                            'status'],
+                                                                    dataL: widget
+                                                                        .data!,
+                                                                  );
+                                                                });
 
-                                                        setState(() {});
-                                                        await getData();
-                                                      }
-                                                    : null,
+                                                            setState(() {});
+                                                            await getData();
+                                                          }
+                                                        : null,
                                                 child: Text(
                                                   "Estado de Entrega",
                                                   style: TextStyle(

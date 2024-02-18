@@ -1082,9 +1082,9 @@ class _MyOrdersPRVTransportState extends State<MyOrdersPRVTransport> {
         onChanged: (value) {
           setState(() {});
         },
-        style: TextStyle(fontWeight: FontWeight.bold),
+        style: const TextStyle(fontWeight: FontWeight.bold),
         decoration: InputDecoration(
-          prefixIcon: Icon(Icons.search),
+          prefixIcon: const Icon(Icons.search),
           suffixIcon: _controllers.searchController.text.isNotEmpty
               ? GestureDetector(
                   onTap: () async {
@@ -1093,17 +1093,17 @@ class _MyOrdersPRVTransportState extends State<MyOrdersPRVTransport> {
                     });
                     await loadData();
                   },
-                  child: Icon(Icons.close))
+                  child: const Icon(Icons.close))
               : null,
           hintText: text,
           enabledBorder: OutlineInputBorder(
-            borderSide:
-                BorderSide(width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
+            borderSide: const BorderSide(
+                width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
             borderRadius: BorderRadius.circular(10.0),
           ),
           focusedBorder: OutlineInputBorder(
-            borderSide:
-                BorderSide(width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
+            borderSide: const BorderSide(
+                width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
             borderRadius: BorderRadius.circular(10.0),
           ),
           focusColor: Colors.black,
@@ -1284,91 +1284,94 @@ class _MyOrdersPRVTransportState extends State<MyOrdersPRVTransport> {
       buttonRigth = false;
     }
     return openDialog(
-        context,
-        MediaQuery.of(context).size.width * 0.5,
-        MediaQuery.of(context).size.height,
-        responsive(
-            Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              child: Column(
-                children: [
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      child: const Icon(Icons.close),
+            context,
+            MediaQuery.of(context).size.width * 0.5,
+            MediaQuery.of(context).size.height,
+            responsive(
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  child: Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Icon(Icons.close),
+                        ),
+                      ),
+                      Expanded(
+                          child: MyOrdersPRVInfoNew(
+                              order: dataL[index],
+                              index: index,
+                              sumarNumero: sumarNumero,
+                              data: dataL)),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Visibility(
+                            visible: buttonLeft,
+                            child: IconButton(
+                              iconSize: 60,
+                              onPressed: () => {PreviusInfo(index)},
+                              icon: Icon(Icons.arrow_circle_left),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 70,
+                          ),
+                          Visibility(
+                            visible: buttonRigth,
+                            child: IconButton(
+                              iconSize: 60,
+                              onPressed: () => {NextInfo(index)},
+                              icon: Icon(Icons.arrow_circle_right),
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+                GestureDetector(
+                  onPanUpdate: (details) {
+                    if (details.delta.dx < 0) {
+                      NextInfo(index);
+                    } else if (details.delta.dx > 0) {
+                      PreviusInfo(index);
+                    }
+                  },
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
+                    child: Column(
+                      children: [
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: Icon(Icons.close),
+                          ),
+                        ),
+                        Expanded(
+                            child: MyOrdersPRVInfoNew(
+                                order: dataL[index],
+                                index: index,
+                                sumarNumero: sumarNumero,
+                                data: dataL)),
+                      ],
                     ),
                   ),
-                  Expanded(
-                      child: MyOrdersPRVInfoNew(
-                          order: dataL[index],
-                          index: index,
-                          sumarNumero: sumarNumero,
-                          data: dataL)),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Visibility(
-                        visible: buttonLeft,
-                        child: IconButton(
-                          iconSize: 60,
-                          onPressed: () => {PreviusInfo(index)},
-                          icon: Icon(Icons.arrow_circle_left),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 70,
-                      ),
-                      Visibility(
-                        visible: buttonRigth,
-                        child: IconButton(
-                          iconSize: 60,
-                          onPressed: () => {NextInfo(index)},
-                          icon: Icon(Icons.arrow_circle_right),
-                        ),
-                      ),
-                    ],
-                  )
-                ],
-              ),
-            ),
-            GestureDetector(
-              onPanUpdate: (details) {
-                if (details.delta.dx < 0) {
-                  NextInfo(index);
-                } else if (details.delta.dx > 0) {
-                  PreviusInfo(index);
-                }
-              },
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                child: Column(
-                  children: [
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Icon(Icons.close),
-                      ),
-                    ),
-                    Expanded(
-                        child: MyOrdersPRVInfoNew(
-                            order: dataL[index],
-                            index: index,
-                            sumarNumero: sumarNumero,
-                            data: dataL)),
-                  ],
                 ),
-              ),
-            ),
-            context),
-        () {});
+                context),
+            () {})
+        .then((value) => setState(() {
+              loadData();
+            }));
   }
 
   Future<dynamic> info0(BuildContext context, int index) {

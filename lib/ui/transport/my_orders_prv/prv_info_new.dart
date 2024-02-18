@@ -3,6 +3,7 @@ import 'package:frontend/connections/connections.dart';
 
 import 'package:frontend/ui/operator/orders_operator/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
+import 'package:frontend/ui/widgets/rich_text.dart';
 import 'package:frontend/ui/widgets/routes/sub_routes_new.dart';
 
 class MyOrdersPRVInfoNew extends StatefulWidget {
@@ -76,10 +77,10 @@ class _MyOrdersPRVInfoNewState extends State<MyOrdersPRVInfoNew> {
     _controllers.editControllers(response);
 
     setState(() {
-      subRoute =
-          response['sub_ruta'] != null && data['sub_ruta'].toString() != "[]"
-              ? response['sub_ruta'][0]['titulo'].toString()
-              : "";
+      subRoute = response['sub_ruta'] != null &&
+              response['sub_ruta'].toString() != "[]"
+          ? response['sub_ruta'][0]['titulo'].toString()
+          : "";
       operator = response['operadore'].toString() != null &&
               response['operadore'].toString().isNotEmpty
           ? response['operadore'] != null &&
@@ -99,9 +100,7 @@ class _MyOrdersPRVInfoNewState extends State<MyOrdersPRVInfoNew> {
 
   @override
   Widget build(BuildContext context) {
-    TextStyle customTextStyleText = TextStyle(
-        // fontWeight: FontWeight.bold,
-        fontSize: 18);
+    double fontSize = 18;
 
     return CustomProgressModal(
       isLoading: isLoading,
@@ -160,80 +159,82 @@ class _MyOrdersPRVInfoNewState extends State<MyOrdersPRVInfoNew> {
                             ],
                           ),
                           const SizedBox(height: 20),
-                          Text(
-                            "Código: ${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data['numero_orden'].toString()}",
-                            style: customTextStyleText,
+                          RichTextTitleContent(
+                            title: "Código",
+                            content:
+                                "${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data['numero_orden'].toString()}",
                           ),
                           const SizedBox(height: 20),
-                          Text(
-                            // "  Fecha: ${data['attributes']['pedido_fecha']['data']['attributes']['Fecha'].toString()}",
-                            "Fecha Ingreso: ${data['marca_t_i'].toString()}",
-                            style: customTextStyleText,
+                          RichTextTitleContent(
+                            title: "Fecha Envio",
+                            content: data['marca_tiempo_envio'].toString(),
                           ),
                           const SizedBox(height: 20),
-                          Text(
-                            "Nombre Cliente: ${_controllers.nombreEditController.text}",
-                            style: customTextStyleText,
+                          RichTextTitleContent(
+                            title: "Nombre Cliente",
+                            content: _controllers.nombreEditController.text,
                           ),
                           const SizedBox(height: 20),
-                          Text(
-                            "Ciudad: ${_controllers.ciudadEditController.text}",
-                            style: customTextStyleText,
+                          RichTextTitleContent(
+                            title: "Ciudad",
+                            content: _controllers.ciudadEditController.text,
                           ),
                           const SizedBox(height: 20),
-                          Text(
-                            "DIRECCIÓN: ${_controllers.direccionEditController.text}",
-                            style: customTextStyleText,
+                          RichTextTitleContent(
+                            title: "Dirección",
+                            content: _controllers.direccionEditController.text,
                           ),
                           const SizedBox(height: 20),
-                          Text(
-                            "TELEFÓNO CLIENTE: ${_controllers.telefonoEditController.text}",
-                            style: customTextStyleText,
+                          RichTextTitleContent(
+                            title: "Telefóno cliente",
+                            content: _controllers.telefonoEditController.text,
                           ),
                           const SizedBox(height: 20),
-                          Text(
-                            "Sub Ruta: $subRoute",
-                            style: customTextStyleText,
+                          RichTextTitleContent(
+                            title: "Sub Ruta",
+                            content: subRoute,
                           ),
                           const SizedBox(height: 20),
-                          Text(
-                            "Operador: $operator",
-                            style: customTextStyleText,
+                          RichTextTitleContent(
+                            title: "Operador",
+                            content: operator,
                           ),
                           const SizedBox(height: 20),
-                          Text(
-                            "Cantidad: ${_controllers.cantidadEditController.text}",
-                            style: customTextStyleText,
+                          RichTextTitleContent(
+                            title: "Cantidad",
+                            content: _controllers.cantidadEditController.text,
                           ),
                           const SizedBox(height: 20),
-                          Text(
-                            "Producto: ${_controllers.productoEditController.text}",
-                            style: customTextStyleText,
+                          RichTextTitleContent(
+                            title: "Producto",
+                            content: _controllers.productoEditController.text,
                           ),
                           const SizedBox(height: 20),
-                          Text(
-                            "Producto Extra: ${_controllers.productoExtraEditController.text}",
-                            style: customTextStyleText,
+                          RichTextTitleContent(
+                            title: "Producto Extra",
+                            content:
+                                _controllers.productoExtraEditController.text,
                           ),
                           const SizedBox(height: 20),
-                          Text(
-                            "Precio Total: ${_controllers.precioTotalEditController.text}",
-                            style: customTextStyleText,
+                          RichTextTitleContent(
+                            title: "Precio Total",
+                            content:
+                                "\$ ${_controllers.precioTotalEditController.text}",
                           ),
                           const SizedBox(height: 20),
-                          Text(
-                            "Status: ${data['status'].toString()}",
-                            style: customTextStyleText,
+                          RichTextTitleContent(
+                            title: "Status",
+                            content: data['status'].toString(),
                           ),
                           const SizedBox(height: 20),
-                          Text(
-                            "Confirmado?: ${data['estado_interno'].toString()}",
-                            style: customTextStyleText,
+                          RichTextTitleContent(
+                            title: "Confirmado?",
+                            content: data['estado_interno'].toString(),
                           ),
                           const SizedBox(height: 20),
-                          Text(
-                            "Estado Logistico: ${data['estado_logistico'].toString()}",
-                            style: customTextStyleText,
+                          RichTextTitleContent(
+                            title: "Estado Logistico",
+                            content: data['estado_logistico'].toString(),
                           ),
                           const SizedBox(height: 20),
                         ],
@@ -242,62 +243,6 @@ class _MyOrdersPRVInfoNewState extends State<MyOrdersPRVInfoNew> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  _modelTextField({text, controller}) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.0),
-        color: Color.fromARGB(255, 245, 244, 244),
-      ),
-      margin: EdgeInsets.only(bottom: 10),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              SizedBox(
-                width: 10,
-              ),
-              Text(
-                "$text: ",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
-              SizedBox(
-                width: 10,
-              ),
-              Expanded(
-                child: TextField(
-                  controller: controller,
-                  onChanged: (value) {
-                    setState(() {});
-                  },
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                  decoration: InputDecoration(
-                    hintText: text,
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                          width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                          width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    focusColor: Colors.black,
-                    iconColor: Colors.black,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 10,
-          )
-        ],
       ),
     );
   }
