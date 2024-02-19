@@ -852,6 +852,8 @@ class _TransportationBillingState extends State<TransportationBilling> {
     "subRuta",
   ];
   List arrayFiltersOr = [
+    "operadore.up_users.username",
+    // "operadore.up_users.email",
     'marca_tiempo_envio',
     'fecha_entrega',
     'numero_orden',
@@ -883,9 +885,9 @@ class _TransportationBillingState extends State<TransportationBilling> {
   ];
   List arrayFiltersAnd = [];
   List arrayFiltersNot = [
-    {'estado_interno': 'NO DESEA'},
+    {'status': 'PEDIDO PROGRAMADO'},
   ];
-  String sortFieldDefaultValue = "id:DESC";
+  String sortFieldDefaultValue = "id:ASC";
 
   List<String> listOperators = ['TODO'];
   TextEditingController operadorController =
@@ -893,8 +895,14 @@ class _TransportationBillingState extends State<TransportationBilling> {
   TextEditingController statusController = TextEditingController(text: "TODO");
   List<String> listStatus = [
     'TODO',
+    // 'PEDIDO PROGRAMADO',
+    'NOVEDAD',
+    'NOVEDAD RESUELTA',
     'ENTREGADO',
     'NO ENTREGADO',
+    'REAGENDADO',
+    'EN OFICINA',
+    'EN RUTA'
   ];
 
   bool changevalue = false;
@@ -1012,6 +1020,58 @@ class _TransportationBillingState extends State<TransportationBilling> {
     }
   }
 
+  paginateData() async {
+    setState(() {
+      isLoading = true;
+      data = [];
+    });
+
+    try {
+      if (listOperators.length == 1) {
+        var responsetransportadoras = await Connections()
+            .getOperatoresbyTransport(
+                sharedPrefs!.getString("idTransportadora").toString());
+        List<dynamic> transportadorasList =
+            responsetransportadoras['operadores'];
+        for (var transportadora in transportadorasList) {
+          listOperators.add(transportadora);
+        }
+      }
+      //
+      var response = await Connections()
+          .getOrdersForSellerStateSearchForDateTransporterLaravel(
+              selectedDateFilter,
+              sharedPrefs!.getString("dateOperatorState"),
+              sharedPrefs!.getString("dateOperatorState"),
+              populate,
+              arrayFiltersAnd,
+              arrayFiltersDefaultAnd,
+              arrayFiltersOr,
+              arrayFiltersNot,
+              currentPage,
+              pageSize,
+              searchController.text,
+              sortFieldDefaultValue);
+
+      setState(() {
+        data = [];
+        data = response['data'];
+        total = response["total"];
+      });
+
+      setState(() {
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      // ignore: use_build_context_synchronously
+      SnackBarHelper.showErrorSnackBar(
+          context, "Ha ocurrido un error de conexión");
+    }
+  }
+
   void resetFilters() {
     // getOldValue(true);
 
@@ -1094,41 +1154,30 @@ class _TransportationBillingState extends State<TransportationBilling> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Text("Valores Recibidos: \$${dailyProceedsC}"),
+                            Text("Valores Recibidos: \$$dailyProceedsC"),
                           ],
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Text("Costo Entrega: \$${dailyShippingCostC}"),
+                            Text("Costo Entrega: \$$dailyShippingCostC"),
                           ],
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Text("Total: \$${dailyTotalC}"),
+                            Text("Total: \$$dailyTotalC"),
                           ],
                         ),
                         Row(
-                          // mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Visibility(
-                                visible: operadorController.text != "TODO" &&
-                                    totalOperatorCost != 0,
-                                child: const Text("Costo Operador: ")),
-                            const SizedBox(
-                              width: 10,
+                            Text(
+                              " Estado Pago Operador: ${data.isNotEmpty ? data[0]['estado_pagado'].toString() : ''}",
                             ),
-                            Visibility(
-                                visible: operadorController.text != "TODO" &&
-                                    totalOperatorCost != 0,
-                                child:
-                                    Text('\$ ${totalOperatorCost.toString()}')),
                           ],
                         ),
-                        const SizedBox(
-                          height: 10,
-                        ),
+                        const SizedBox(height: 10),
                         responsive(
                             webMainContainer(width, heigth, context),
                             mobileMainContainer(width, heigth, context),
@@ -1311,7 +1360,7 @@ class _TransportationBillingState extends State<TransportationBilling> {
   _dataTableOrdersMobile(height) {
     return data.length > 0
         ? Container(
-            height: height * 0.60,
+            height: height * 0.58,
             child: DataTableModelPrincipal(
                 columnWidth: 400,
                 columns: getColumns(),
@@ -1606,8 +1655,8 @@ class _TransportationBillingState extends State<TransportationBilling> {
                     print(filter);
                   } else {}
 
-                  // paginateData();
-                  loadData();
+                  // loadData();
+                  paginateData();
                 });
               },
               decoration: InputDecoration(
@@ -1757,7 +1806,8 @@ class _TransportationBillingState extends State<TransportationBilling> {
       child: TextField(
         controller: controller,
         onSubmitted: (value) {
-          loadData();
+          // loadData();
+          paginateData();
         },
         onChanged: (value) {
           setState(() {});
@@ -1772,6 +1822,7 @@ class _TransportationBillingState extends State<TransportationBilling> {
                       searchController.clear();
                     });
                     await loadData();
+                    // paginateData();
                   },
                   child: const Icon(Icons.close))
               : null,
