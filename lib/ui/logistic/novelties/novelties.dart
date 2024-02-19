@@ -87,6 +87,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
     'NOVEDAD',
     'NOVEDAD RESUELTA',
     'NO ENTREGADO',
+    'ENTREGADO',
     'REAGENDADO',
   ];
 
@@ -123,7 +124,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
     "fecha_entrega"
   ];
   List not = [
-    {"status": "ENTREGADO"},
+    // {"status": "ENTREGADO"},
     {"status": "EN RUTA"},
     {"status": "EN OFICINA"},
   ];
