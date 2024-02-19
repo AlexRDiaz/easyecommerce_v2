@@ -1072,15 +1072,31 @@ class _TransportationBillingState extends State<TransportationBilling> {
     }
   }
 
+  getOldValue(Arrayrestoration) {
+    List respaldo = [
+      {
+        'transportadora.transportadora_id':
+            sharedPrefs!.getString("idTransportadora").toString()
+      }
+    ];
+    if (Arrayrestoration) {
+      setState(() {
+        arrayFiltersAnd.clear();
+        arrayFiltersAnd = respaldo;
+        sortFieldDefaultValue = "id:ASC";
+      });
+    }
+  }
+
   void resetFilters() {
-    // getOldValue(true);
+    getOldValue(true);
 
     operadorController.text = 'TODO';
     statusController.text = "TODO";
     selectedOperator = null;
 
     arrayFiltersAnd = [];
-    // _controllers.searchController.text = "";
+    searchController.text = "";
   }
 
   @override
@@ -1091,15 +1107,15 @@ class _TransportationBillingState extends State<TransportationBilling> {
     return CustomProgressModal(
       isLoading: isLoading,
       content: Scaffold(
-        body: Row(
-          children: <Widget>[
-            Expanded(
-              child: Container(
+        body: Container(
+          width: double.infinity,
+          child: ListView(
+            children: <Widget>[
+              Container(
                 // color: Colors.grey[300],
                 color: Colors.white,
                 child: Center(
                   child: Container(
-                    // margin: const EdgeInsets.all(6.0),
                     padding: const EdgeInsets.all(10.0),
                     child: Column(
                       children: [
@@ -1178,17 +1194,20 @@ class _TransportationBillingState extends State<TransportationBilling> {
                           ],
                         ),
                         const SizedBox(height: 10),
-                        responsive(
-                            webMainContainer(width, heigth, context),
-                            mobileMainContainer(width, heigth, context),
-                            context),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: responsive(
+                              webMainContainer(width, heigth, context),
+                              mobileMainContainer(width, heigth, context),
+                              context),
+                        ),
                       ],
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -1329,7 +1348,7 @@ class _TransportationBillingState extends State<TransportationBilling> {
 
   Container _dataTableOrders(height) {
     return Container(
-      height: height * 0.58,
+      height: height * 0.80,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
         color: Colors.white,
@@ -1360,7 +1379,7 @@ class _TransportationBillingState extends State<TransportationBilling> {
   _dataTableOrdersMobile(height) {
     return data.length > 0
         ? Container(
-            height: height * 0.58,
+            height: height * 0.65,
             child: DataTableModelPrincipal(
                 columnWidth: 400,
                 columns: getColumns(),
@@ -1381,21 +1400,30 @@ class _TransportationBillingState extends State<TransportationBilling> {
         label: Text('Fecha Entrega'),
         size: ColumnSize.S,
       ),
-      const DataColumn2(
+      DataColumn2(
         label: Text('Código'),
         size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          sortFunc3("numero_orden", changevalue);
+        },
       ),
-      const DataColumn2(
+      DataColumn2(
         label: Text('Nombre Cliente'),
         size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          sortFunc3("nombre_shipping", changevalue);
+        },
       ),
-      const DataColumn2(
-        label: Text('Ciudad'),
-        size: ColumnSize.M,
-      ),
-      const DataColumn2(
+      // const DataColumn2(
+      //   label: Text('Ciudad'),
+      //   size: ColumnSize.M,
+      // ),
+      DataColumn2(
         label: Text('Dirección'),
         size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          sortFunc3("direccion_shipping", changevalue);
+        },
       ),
       const DataColumn2(
         label: Text('Teléfono Cliente'),
@@ -1405,13 +1433,19 @@ class _TransportationBillingState extends State<TransportationBilling> {
         label: Text('Cantidad'),
         size: ColumnSize.S,
       ),
-      const DataColumn2(
+      DataColumn2(
         label: Text('Producto'),
         size: ColumnSize.L,
+        onSort: (columnIndex, ascending) {
+          sortFunc3("producto_p", changevalue);
+        },
       ),
-      const DataColumn2(
+      DataColumn2(
         label: Text('Producto Extra'),
         size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          sortFunc3("producto_extra", changevalue);
+        },
       ),
       const DataColumn2(
         label: Text('Precio Total'),
@@ -1421,21 +1455,31 @@ class _TransportationBillingState extends State<TransportationBilling> {
         label: SelectFilterStatus(
             'Estado de entrega', 'status', statusController, listStatus),
         size: ColumnSize.L,
+        onSort: (columnIndex, ascending) {
+          sortFunc3("status", changevalue);
+        },
       ),
-      const DataColumn2(
+      DataColumn2(
         label: Text('Comentario'),
         size: ColumnSize.S,
+        onSort: (columnIndex, ascending) {
+          sortFunc3("comentario", changevalue);
+        },
       ),
       const DataColumn2(
         label: Text('Tipo pago'),
         size: ColumnSize.M,
       ),
-      DataColumn2(
-        label: SelectFilter('Operador', 'operadore.up_users.operadore_id',
-            operadorController, listOperators),
-        size: ColumnSize.L,
-        // onSort: (columnIndex, ascending) {},
+      const DataColumn2(
+        label: Text('Operador'),
+        size: ColumnSize.M,
       ),
+      // DataColumn2(
+      //   label: SelectFilter('Operador', 'operadore.up_users.operadore_id',
+      //       operadorController, listOperators),
+      //   size: ColumnSize.L,
+      //   // onSort: (columnIndex, ascending) {},
+      // ),
       const DataColumn2(
         label: Text('Estado Devolución'),
         size: ColumnSize.M,
@@ -1445,6 +1489,20 @@ class _TransportationBillingState extends State<TransportationBilling> {
         size: ColumnSize.M,
       ),
     ];
+  }
+
+  sortFunc3(filtro, changevalu) {
+    setState(() {
+      if (changevalu) {
+        sortFieldDefaultValue = "$filtro:DESC";
+        changevalue = false;
+      } else {
+        // changevalue = true;
+        sortFieldDefaultValue = "$filtro:ASC";
+        changevalue = true;
+      }
+      loadData();
+    });
   }
 
   List<DataRow> buildDataRows(List data) {
@@ -1489,12 +1547,12 @@ class _TransportationBillingState extends State<TransportationBilling> {
               info(context, index);
             },
           ),
-          DataCell(
-            Text(data[index]['ciudad_shipping'].toString()),
-            onTap: () {
-              info(context, index);
-            },
-          ),
+          // DataCell(
+          //   Text(data[index]['ciudad_shipping'].toString()),
+          //   onTap: () {
+          //     info(context, index);
+          //   },
+          // ),
           DataCell(
             Text(data[index]['direccion_shipping'].toString()),
             onTap: () {
@@ -1536,6 +1594,9 @@ class _TransportationBillingState extends State<TransportationBilling> {
                     data[index]['comentario'].toString() == "null"
                 ? ""
                 : data[index]['comentario'].toString()),
+            onTap: () {
+              info(context, index);
+            },
           ),
           DataCell(
             Text(data[index]['tipo_pago'] == null ||
