@@ -24,7 +24,7 @@ class _AddLogisticUserLaravelState extends State<AddLogisticUserLaravel> {
     return AlertDialog(
       content: Container(
         width: 500,
-        height: MediaQuery.of(context).size.height * 0.65,
+        height: 400,
         child: ListView(
           children: [
             Column(
@@ -71,78 +71,81 @@ class _AddLogisticUserLaravelState extends State<AddLogisticUserLaravel> {
                   height: 20,
                 ),
                 Align(
-                  alignment: Alignment.centerRight,
-                  child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.greenAccent,
-                          minimumSize: Size(200, 40)),
-                      onPressed: () async {
-                        getLoadingModal(context, false);
-
-                        var accesofRol = await Connections()
-                            .getAccessofSpecificRol("LOGISTICA");
-                        vistas = accesofRol;
-
-                        await _controllers.createLogisticUser(
-                            permisos: vistas,
-                            success: (id) {
-                              Navigator.pop(context);
-                              // loadData();
-                              showDialog(
+                  alignment: Alignment.center,
+                  child: Container(
+                    width: 450,
+                    child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            minimumSize: Size(200, 40)),
+                        onPressed: () async {
+                          getLoadingModal(context, false);
+                    
+                          var accesofRol = await Connections()
+                              .getAccessofSpecificRol("LOGISTICA");
+                          vistas = accesofRol;
+                    
+                          await _controllers.createLogisticUser(
+                              permisos: vistas,
+                              success: (id) {
+                                Navigator.pop(context);
+                                // loadData();
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        title: Text(
+                                          "Completado",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        actions: [
+                                          ElevatedButton(
+                                              onPressed: () {
+                                                setState(() {});
+                                                Navigator.pop(context);
+                                              },
+                                              child: Text(
+                                                "ACEPTAR",
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold),
+                                              )),
+                                          SizedBox(
+                                            width: 10,
+                                          )
+                                        ],
+                                      );
+                                    });
+                                _controllers.userController.clear();
+                                _controllers.personController.clear();
+                                _controllers.phone1Controller.clear();
+                                _controllers.phone2Controller.clear();
+                                _controllers.mailController.clear();
+                    
+                                setState(() {});
+                              },
+                              error: () {
+                                Navigator.pop(context);
+                                AwesomeDialog(
+                                  width: 500,
                                   context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      title: Text(
-                                        "Completado",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      actions: [
-                                        ElevatedButton(
-                                            onPressed: () {
-                                              setState(() {});
-                                              Navigator.pop(context);
-                                            },
-                                            child: Text(
-                                              "ACEPTAR",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold),
-                                            )),
-                                        SizedBox(
-                                          width: 10,
-                                        )
-                                      ],
-                                    );
-                                  });
-                              _controllers.userController.clear();
-                              _controllers.personController.clear();
-                              _controllers.phone1Controller.clear();
-                              _controllers.phone2Controller.clear();
-                              _controllers.mailController.clear();
-
-                              setState(() {});
-                            },
-                            error: () {
-                              Navigator.pop(context);
-                              AwesomeDialog(
-                                width: 500,
-                                context: context,
-                                dialogType: DialogType.error,
-                                animType: AnimType.rightSlide,
-                                title: 'Error',
-                                desc: 'Vuelve a intentarlo',
-                                btnCancel: Container(),
-                                btnOkText: "Aceptar",
-                                btnOkColor: colors.colorGreen,
-                                btnCancelOnPress: () {},
-                                btnOkOnPress: () {},
-                              ).show();
-                            });
-                      },
-                      child: Text(
-                        "Guardar",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      )),
+                                  dialogType: DialogType.error,
+                                  animType: AnimType.rightSlide,
+                                  title: 'Error',
+                                  desc: 'Vuelve a intentarlo',
+                                  btnCancel: Container(),
+                                  btnOkText: "Aceptar",
+                                  btnOkColor: colors.colorGreen,
+                                  btnCancelOnPress: () {},
+                                  btnOkOnPress: () {},
+                                ).show();
+                              });
+                        },
+                        child: Text(
+                          "Guardar",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )),
+                  ),
                 )
               ],
             )
