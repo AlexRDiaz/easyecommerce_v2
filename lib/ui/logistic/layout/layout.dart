@@ -8,6 +8,7 @@ import 'package:frontend/ui/logistic/account_status/account_status.dart';
 import 'package:frontend/ui/logistic/account_status2/account_status2.dart';
 import 'package:frontend/ui/logistic/add_carrier/add_carrier.dart';
 import 'package:frontend/ui/logistic/add_carrier_laravel/add_carrier_laravel.dart';
+import 'package:frontend/ui/logistic/add_logistic_user_laravel/add_logistic_user_laravel.dart';
 import 'package:frontend/ui/logistic/add_logistics_user/add_logistics_user.dart';
 import 'package:frontend/ui/logistic/add_operators_transport/add_operators_transport.dart';
 import 'package:frontend/ui/logistic/add_provider/providers_view.dart';
@@ -96,7 +97,8 @@ class _LayoutPageState extends State<LayoutPage> {
       ),
       getOption(
         "Agregar Usuario Logística",
-        AddLogisticsUser(),
+        // AddLogisticsUser(),
+        AddLogisticsUserLaravel(),
       ),
       getOption(
         "Proveedores",
