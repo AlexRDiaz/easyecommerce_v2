@@ -5,6 +5,7 @@ import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/ui/transport/transportation_billing/controllers/controller-backup.dart';
 import 'package:frontend/ui/widgets/loading.dart';
+import 'package:frontend/ui/widgets/rich_text.dart';
 
 class InfoTransportationBilling extends StatefulWidget {
   // final String id;
@@ -79,44 +80,32 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          // "  Fecha: ${data['attributes']['Marca_Tiempo_Envio'].toString()}",
-                          "Fecha Envio: ${data['marca_tiempo_envio'].toString()}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                        RichTextTitleContent(
+                          title: "Fecha Envio",
+                          content: data['marca_tiempo_envio'].toString(),
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Fecha de Entrega",
+                          content: data['fecha_entrega'].toString(),
                         ),
-                        Text(
-                          "Fecha de Entrega: ${data['fecha_entrega'].toString()}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Código",
+                          content:
+                              "${data['users'] != null && data['users'].isNotEmpty ? data['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data['numero_orden'].toString()}",
                         ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "Código: ${data['users'] != null && data['users'].isNotEmpty ? data['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data['numero_orden'].toString()}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
+                        const SizedBox(height: 20),
                         Container(
                           padding: EdgeInsets.all(10),
                           child: Row(
                             children: [
                               Icon(
-                                Icons.account_circle, // Icono de usuario
-                                color: ColorsSystem()
-                                    .colorSelectMenu, // Color del ícono
-                                size: 24, // Tamaño del ícono
+                                Icons.account_circle,
+                                color: ColorsSystem().colorSelectMenu,
+                                size: 24,
                               ),
-                              SizedBox(
-                                  width:
-                                      10), // Espacio entre el icono y el texto
+                              const SizedBox(width: 10),
                               Text(
                                 "DATOS DEL CLIENTE",
                                 style: TextStyle(
@@ -128,46 +117,32 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                             ],
                           ),
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Nombre Cliente",
+                          content: data['nombre_shipping'].toString(),
                         ),
-                        Text(
-                          "Nombre Cliente: ${data['nombre_shipping']}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Dirección",
+                          content: data['direccion_shipping'].toString(),
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Telefóno cliente",
+                          content: data['telefono_shipping'].toString(),
                         ),
-                        Text(
-                          "DIRECCIÓN: ${data['direccion_shipping']}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "TELEFÓNO CLIENTE: ${data['telefono_shipping']}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
+                        const SizedBox(height: 20),
                         Container(
                           padding: EdgeInsets.all(10),
                           child: Row(
                             children: [
                               Icon(
-                                Icons.shopping_bag_rounded, // Icono de usuario
-                                color: ColorsSystem()
-                                    .colorSelectMenu, // Color del ícono
-                                size: 24, // Tamaño del ícono
+                                Icons.shopping_bag_rounded,
+                                color: ColorsSystem().colorSelectMenu,
+                                size: 24,
                               ),
-                              SizedBox(
-                                  width:
-                                      10), // Espacio entre el icono y el texto
+                              const SizedBox(width: 10),
                               Text(
                                 "DETALLES DEL PEDIDO",
                                 style: TextStyle(
@@ -179,101 +154,85 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                             ],
                           ),
                         ),
-                        SizedBox(
-                          height: 20,
+                        RichTextTitleContent(
+                          title: "Cantidad",
+                          content: data['cantidad_total'],
                         ),
-                        Text(
-                          "Cantidad: ${data['cantidad_total']}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Producto",
+                          content: data['producto_p'],
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Producto Extra",
+                          content: data['producto_extra'] == null ||
+                                  data['producto_extra'].toString() == "null"
+                              ? ""
+                              : data['producto_extra'].toString(),
                         ),
-                        Text(
-                          "Producto: ${data['producto_p']}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Precio Total",
+                          content: "\$ ${data['precio_total'].toString()}",
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Status",
+                          content: data['status'].toString(),
                         ),
-                        Text(
-                          "Producto Extra: ${data['producto_extra'] == null || data['producto_extra'].toString() == "null" ? "" : data['producto_extra'].toString()}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Tipo de Pago",
+                          content: data['tipo_pago'] == null ||
+                                  data['tipo_pago'].toString() == "null"
+                              ? ""
+                              : data['tipo_pago'].toString(),
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Operador",
+                          content: data['operadore'].toString() != null &&
+                                  data['operadore'].toString().isNotEmpty
+                              ? data['operadore'] != null &&
+                                      data['operadore'].isNotEmpty &&
+                                      data['operadore'][0]['up_users'] !=
+                                          null &&
+                                      data['operadore'][0]['up_users']
+                                          .isNotEmpty &&
+                                      data['operadore'][0]['up_users'][0]
+                                              ['username'] !=
+                                          null
+                                  ? data['operadore'][0]['up_users'][0]
+                                      ['username']
+                                  : ""
+                              : "",
                         ),
-                        Text(
-                          "Precio Total: \$ ${data['precio_total'].toString()}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Estado Devolución",
+                          content: data['estado_devolucion'].toString(),
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Estado de Pago",
+                          content: data['estado_pagado'].toString(),
                         ),
-                        Text(
-                          "Status: ${data['status'].toString()}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Comentario",
+                          content: data['comentario'] == null ||
+                                  data['comentario'].toString() == "null"
+                              ? ""
+                              : data['comentario'].toString(),
                         ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "Tipo de Pago: ${data['tipo_pago'] == null || data['tipo_pago'].toString() == "null" ? "" : data['tipo_pago'].toString()}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "Operador: ${data['operadore'].toString() != null && data['operadore'].toString().isNotEmpty ? data['operadore'] != null && data['operadore'].isNotEmpty && data['operadore'][0]['up_users'] != null && data['operadore'][0]['up_users'].isNotEmpty && data['operadore'][0]['up_users'][0]['username'] != null ? data['operadore'][0]['up_users'][0]['username'] : "" : ""}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "Estado Devolución: ${data['estado_devolucion'].toString()}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "Estado de Pago: ${data['estado_pagado'].toString()}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        // ! modificacion aqui para el comentario
-                        Text(
-                          "Comentario: ${data['comentario'].toString()}",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            // color: Colors.red
-                          ),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
+                        const SizedBox(height: 20),
+                        const Text(
                           "Archivo:",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
-                        SizedBox(
-                          height: 10,
-                        ),
+                        const SizedBox(height: 10),
                         data['archivo'].toString().isEmpty ||
                                 data['archivo'].toString() == "null"
                             ? Container()
@@ -284,25 +243,18 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                                   "$generalServer${data['archivo'].toString()}",
                                   fit: BoxFit.fill,
                                 )),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
+                        const SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         Container(
                           padding: EdgeInsets.all(10),
                           child: Row(
                             children: [
                               Icon(
-                                Icons.circle_notifications, // Icono de usuario
-                                color: ColorsSystem()
-                                    .colorSelectMenu, // Color del ícono
-                                size: 24, // Tamaño del ícono
+                                Icons.circle_notifications,
+                                color: ColorsSystem().colorSelectMenu,
+                                size: 24,
                               ),
-                              SizedBox(
-                                  width:
-                                      10), // Espacio entre el icono y el texto
+                              const SizedBox(width: 10),
                               Text(
                                 "NOVEDADES: ",
                                 style: TextStyle(
@@ -314,7 +266,6 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                             ],
                           ),
                         ),
-
                         Container(
                             height: 500,
                             width: 500,
@@ -385,10 +336,7 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                                     ),
                                   );
                                 })),
-
-                        SizedBox(
-                          height: 20,
-                        ),
+                        const SizedBox(height: 20),
                       ],
                     ),
             ),
