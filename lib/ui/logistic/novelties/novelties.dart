@@ -99,10 +99,11 @@ class _NoveltiesLState extends State<NoveltiesL> {
     'operadore',
     "operadore.user",
     "users",
-    "users.vendedores"
+    "users.vendedores",
+    "statusLastModifiedBy"
   ];
   List defaultArrayFiltersAnd = [
-    {"equals/estado_devolucion": "PENDIENTE"},
+    // {"equals/estado_devolucion": "PENDIENTE"},
     {"/estado_interno": "CONFIRMADO"},
     {"/estado_logistico": "ENVIADO"}
   ];
@@ -922,7 +923,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
           DataColumn2(
             label: Text("Dirección"),
             size: ColumnSize.M,
-            fixedWidth: 120,  
+            fixedWidth: 120,
             onSort: (columnIndex, ascending) {},
           ),
           DataColumn2(
@@ -1203,65 +1204,69 @@ class _NoveltiesLState extends State<NoveltiesL> {
           ), onTap: () {
         info(context, index);
       }),
-      DataCell(Container(
-        padding: EdgeInsets.all(5.0),
-        decoration: BoxDecoration(
-            border: Border.all(
-                width: 1.0, color: ColorsSystem().colorPrincipalBrand),
-            borderRadius: BorderRadius.circular(5.0)),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            Tooltip(
-              message: 'Gestionar Novedad',
-              child: gettryFromJson(
-                          data[index]['gestioned_novelty']?.toString(),
-                          'try') ==
-                      5
-                  ? Icon(
-                      Icons.warning,
-                      color: Colors.grey, // Color para estado deshabilitado
-                    )
-                  : InkWell(
-                      onTap: () {
-                        _mostrarVentanaEmergenteGuiasImpresas(
-                            context, index, 1, "Novedad Gestionada");
-                        myController.clear();
-                      },
-                      child: Icon(
-                        Icons.warning,
-                        color: Colors.yellow,
-                      ),
-                    ),
-            ),
-            Tooltip(
-              message: 'Resolver Novedad',
-              child: data[index]['status']?.toString() == "ENTREGADO"
-                  ? Icon(Icons.timelapse_rounded, color: Colors.grey)
-                  : InkWell(
-                      onTap: () {
-                        _mostrarVentanaEmergenteGuiasImpresas(
-                            context, index, 2, "Novedad Resuelta");
-                        myController.clear();
+      DataCell(data[index]['estado_devolucion'].toString() != "PENDIENTE"
+          ? Container()
+          : Container(
+              padding: EdgeInsets.all(5.0),
+              decoration: BoxDecoration(
+                  border: Border.all(
+                      width: 1.0, color: ColorsSystem().colorPrincipalBrand),
+                  borderRadius: BorderRadius.circular(5.0)),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Tooltip(
+                    message: 'Gestionar Novedad',
+                    child: gettryFromJson(
+                                data[index]['gestioned_novelty']?.toString(),
+                                'try') ==
+                            5
+                        ? Icon(
+                            Icons.warning,
+                            color:
+                                Colors.grey, // Color para estado deshabilitado
+                          )
+                        : InkWell(
+                            onTap: () {
+                              _mostrarVentanaEmergenteGuiasImpresas(
+                                  context, index, 1, "Novedad Gestionada");
+                              myController.clear();
+                            },
+                            child: Icon(
+                              Icons.warning,
+                              color: Colors.yellow,
+                            ),
+                          ),
+                  ),
+                  Tooltip(
+                    message: 'Resolver Novedad',
+                    child: data[index]['status']?.toString() == "ENTREGADO"
+                        ? Icon(Icons.timelapse_rounded, color: Colors.grey)
+                        : InkWell(
+                            onTap: () {
+                              _mostrarVentanaEmergenteGuiasImpresas(
+                                  context, index, 2, "Novedad Resuelta");
+                              myController.clear();
+                            },
+                            child: Icon(Icons.timelapse_rounded,
+                                color: Colors.orange),
+                          ),
+                  ),
+                  Tooltip(
+                    message: 'OK Novedad',
+                    child: InkWell(
+                      onTap: () async {
+                        await updateGestionedNovelty(
+                            context, index, 3, "Ok Novedad", "");
+                        await loadData();
                       },
                       child:
-                          Icon(Icons.timelapse_rounded, color: Colors.orange),
+                          Icon(Icons.check_circle_rounded, color: Colors.green),
                     ),
-            ),
-            Tooltip(
-              message: 'OK Novedad',
-              child: InkWell(
-                onTap: () async {
-                  await updateGestionedNovelty(
-                      context, index, 3, "Ok Novedad", "");
-                  await loadData();
-                },
-                child: Icon(Icons.check_circle_rounded, color: Colors.green),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
-      )),
+            )),
 
       DataCell(
           Text(

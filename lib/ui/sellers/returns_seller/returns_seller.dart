@@ -607,13 +607,20 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                       sortFunc2("comentario", changevalue);
                     },
                   ),
+                  // DataColumn2(
+                  //   label: Text('Marca Fecha Confirmación'),
+                  //   size: ColumnSize.L,
+                  //   onSort: (columnIndex, ascending) {
+                  //     sortFunc2("fecha_confirmacion", changevalue);
+                  //   },
+                  // ),
                   DataColumn2(
-                    label: Text('Marca Fecha Confirmación'),
-                    size: ColumnSize.L,
-                    onSort: (columnIndex, ascending) {
-                      sortFunc2("fecha_confirmacion", changevalue);
-                    },
-                  ),
+                      label: const Text('Marca T. Dev. L'),
+                      size: ColumnSize.L,
+                      onSort: (columnIndex, ascending) {
+                        sortFunc2("marca_t_d_l", changevalue);
+                      },
+                    ),
                   const DataColumn2(
                     label: Text('Transportadora'),
                     size: ColumnSize.M,
@@ -790,13 +797,27 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                             ), onTap: () {
                           showDialogInfoData(data[index]);
                         }),
+                        // DataCell(
+                        //     Text(
+                        //       data[index]['fecha_confirmacion'] == null ||
+                        //               data[index]['fecha_confirmacion'] ==
+                        //                   "null"
+                        //           ? ""
+                        //           : data[index]['fecha_confirmacion']
+                        //               .toString(),
+                        //       style: TextStyle(
+                        //         color: rowColor,
+                        //       ),
+                        //     ), onTap: () {
+                        //   showDialogInfoData(data[index]);
+                        // }),
                         DataCell(
                             Text(
-                              data[index]['fecha_confirmacion'] == null ||
-                                      data[index]['fecha_confirmacion'] ==
+                              data[index]['marca_t_d_l'] == null ||
+                                      data[index]['marca_t_d_l'] ==
                                           "null"
                                   ? ""
-                                  : data[index]['fecha_confirmacion']
+                                  : data[index]['marca_t_d_l']
                                       .toString(),
                               style: TextStyle(
                                 color: rowColor,
@@ -804,6 +825,7 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                             ), onTap: () {
                           showDialogInfoData(data[index]);
                         }),
+                        
                         DataCell(
                             Text(data[index]['transportadora'] != null &&
                                     data[index]['transportadora'].isNotEmpty
@@ -812,6 +834,7 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                                 : ''), onTap: () {
                           showDialogInfoData(data[index]);
                         }),
+                        
                         DataCell(
                             Text(data[index]['received_by'] != null &&
                                     data[index]['received_by'].isNotEmpty

@@ -12,7 +12,6 @@ import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
 
-
 class AddCarrier extends StatefulWidget {
   const AddCarrier({super.key});
 
@@ -118,7 +117,6 @@ class _AddCarrierState extends State<AddCarrier> {
       _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -264,6 +262,13 @@ class _AddCarrierState extends State<AddCarrier> {
         minWidth: 800,
         columns: [
           DataColumn2(
+            label: Text('Id'),
+            size: ColumnSize.S,
+            onSort: (columnIndex, ascending) {
+              // sortFuncUser();
+            },
+          ),
+          DataColumn2(
             label: Text('Usuario'),
             size: ColumnSize.S,
             onSort: (columnIndex, ascending) {
@@ -323,6 +328,17 @@ class _AddCarrierState extends State<AddCarrier> {
         rows: List<DataRow>.generate(
             dataL.length,
             (index) => DataRow(cells: [
+                  DataCell(Text(dataL[index]['id'].toString()),
+                      onTap: () async {
+                    await showDialog(
+                        context: context,
+                        builder: (context) {
+                          return UpdateCarrierModalLaravel(
+                              dataT: dataL[index]
+                              );
+                        });
+                    loadData();
+                  }),
                   DataCell(Text(dataL[index]['nombre'].toString()),
                       onTap: () async {
                     // print(dataL[index]

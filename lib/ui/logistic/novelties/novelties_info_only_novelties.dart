@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/config/colors.dart';
@@ -24,7 +26,8 @@ class NoveltiesInfoOnlyNovelties extends StatefulWidget {
       required this.function});
 
   @override
-  State<NoveltiesInfoOnlyNovelties> createState() => _NoveltiesInfoOnlyNovelties();
+  State<NoveltiesInfoOnlyNovelties> createState() =>
+      _NoveltiesInfoOnlyNovelties();
 }
 
 class _NoveltiesInfoOnlyNovelties extends State<NoveltiesInfoOnlyNovelties> {
@@ -36,6 +39,7 @@ class _NoveltiesInfoOnlyNovelties extends State<NoveltiesInfoOnlyNovelties> {
   final TextEditingController _comentarioController = TextEditingController();
   var idUser = sharedPrefs!.getString("id");
 
+  String lastStatusBy = "";
   @override
   void didChangeDependencies() {
     loadData();
@@ -58,6 +62,10 @@ class _NoveltiesInfoOnlyNovelties extends State<NoveltiesInfoOnlyNovelties> {
     } else {
       print("Error: No se encontró el pedido con el ID proporcionado.");
     }
+
+    lastStatusBy = data['status_last_modified_by'] != null
+        ? "${data['status_last_modified_by']['username'].toString()}-${data['status_last_modified_by']['id'].toString()}"
+        : "";
 
     Future.delayed(const Duration(milliseconds: 500), () {
       Navigator.pop(context);
@@ -136,7 +144,15 @@ class _NoveltiesInfoOnlyNovelties extends State<NoveltiesInfoOnlyNovelties> {
                         SizedBox(
                           height: 20,
                         ),
-
+                        Text(
+                          // "  Modificado Estado Entrega por: ${data['status_last_modified_by'] != null && data['status_last_modified_by'] != null ? "${data['users'][0]['username'].toString()}-${data['status_last_modified_by'].toString()}" : ''}",
+                          "  Modificado Estado Entrega por: $lastStatusBy",
+                          style: TextStyle(
+                              fontWeight: FontWeight.normal, fontSize: 18),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
                         Divider(
                           height: 1.0,
                           color: Colors.grey[200],
@@ -272,6 +288,13 @@ class _NoveltiesInfoOnlyNovelties extends State<NoveltiesInfoOnlyNovelties> {
                           style: TextStyle(
                               fontWeight: FontWeight.normal, fontSize: 18),
                         ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                            "  Comentario Novedad: ${getStateFromJson(data['gestioned_novelty']?.toString(), 'comment')}",
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal, fontSize: 18)),
                         SizedBox(
                           height: 20,
                         ),
@@ -588,6 +611,21 @@ class _NoveltiesInfoOnlyNovelties extends State<NoveltiesInfoOnlyNovelties> {
   //         );
   //       });
   // }
+
+  String getStateFromJson(String? jsonString, String claveAbuscar) {
+    // Verificar si jsonString es null
+    if (jsonString == null || jsonString.isEmpty) {
+      return ''; // Retorna una cadena vacía si el valor es null o está vacío
+    }
+
+    try {
+      Map<String, dynamic> jsonMap = json.decode(jsonString);
+      return jsonMap[claveAbuscar]?.toString() ?? '';
+    } catch (e) {
+      print('Error al decodificar JSON: $e');
+      return ''; // Manejar el error retornando una cadena vacía o un valor predeterminado
+    }
+  }
 
   Future<void> sendWhatsAppMessage(BuildContext context,
       Map<dynamic, dynamic> orderData, String newComment) async {

@@ -119,11 +119,16 @@ class _UpdateCarrierModalLaravelState extends State<UpdateCarrierModalLaravel> {
     _costo.text = dataL[0]['costo_transportadora'].toString();
     _telefono.text = dataL[0]['telefono_1'].toString();
     _telefono2.text = dataL[0]['telefono_2'].toString();
+
     accessTemp = json.decode(dataL[0]
             ['transportadoras_users_permissions_user_links'][0]['up_user']
         ['permisos']);
+    print(accessTemp);
 
+    // accessGeneralofRol = {};
     accessGeneralofRol = await Connections().getAccessofRolById(3);
+
+    print(accessGeneralofRol);
 
     if (dataL[0]['rutas'] != null) {
       if (dataL[0]['rutas'][0].length != 0) {
@@ -156,7 +161,7 @@ class _UpdateCarrierModalLaravelState extends State<UpdateCarrierModalLaravel> {
             height: MediaQuery.of(context).size.height,
             child: ListView(
               children: [
-                responsive(webContainer(context), Container(), context),
+                responsive(webContainer(context),movilContainer(context), context),
               ],
             ),
           ),
@@ -403,12 +408,14 @@ class _UpdateCarrierModalLaravelState extends State<UpdateCarrierModalLaravel> {
                   // getLoadingModal(context, false);
 
                   // ! falta el reseteo
-                  var response = await Connections().updatePassWordbyIdLaravel(idUser,"123456789");
+                  var response = await Connections()
+                      .updatePassWordbyIdLaravel(idUser, "123456789");
                   // ! *********************
 
                   // ignore: use_build_context_synchronously
                   // Navigator.pop(context);
-                  if (response["message"] == "Actualización de contraseña exitosa") {
+                  if (response["message"] ==
+                      "Actualización de contraseña exitosa") {
                     // ignore: use_build_context_synchronously
                     AwesomeDialog(
                       width: 500,
@@ -455,170 +462,285 @@ class _UpdateCarrierModalLaravelState extends State<UpdateCarrierModalLaravel> {
     );
   }
 
-  // Column movilContainer(BuildContext context) {
-  //   return Column(
-  //     children: [
-  //       Align(
-  //         alignment: Alignment.centerRight,
-  //         child: GestureDetector(
-  //             onTap: () {
-  //               Navigator.pop(context);
-  //             },
-  //             child: Icon(Icons.close)),
-  //       ),
-  //       SizedBox(
-  //         height: 10,
-  //       ),
-  //       TextField(
-  //         controller: _usuario,
-  //         style: TextStyle(fontWeight: FontWeight.bold),
-  //         decoration: InputDecoration(
-  //             hintText: "Usuario",
-  //             hintStyle: TextStyle(fontWeight: FontWeight.bold)),
-  //       ),
-  //       SizedBox(
-  //         height: 10,
-  //       ),
-  //       TextField(
-  //         controller: _correo,
-  //         style: TextStyle(fontWeight: FontWeight.bold),
-  //         decoration: InputDecoration(
-  //             hintText: "Correo",
-  //             hintStyle: TextStyle(fontWeight: FontWeight.bold)),
-  //       ),
-  //       SizedBox(
-  //         height: 10,
-  //       ),
-  //       TextField(
-  //         controller: _costo,
-  //         style: TextStyle(fontWeight: FontWeight.bold),
-  //         decoration: InputDecoration(
-  //             hintText: "Costo",
-  //             hintStyle: TextStyle(fontWeight: FontWeight.bold)),
-  //       ),
-  //       SizedBox(
-  //         height: 10,
-  //       ),
-  //       customDropdown(context),
-  //       TextField(
-  //         controller: _telefono,
-  //         style: TextStyle(fontWeight: FontWeight.bold),
-  //         decoration: InputDecoration(
-  //             hintText: "Teléfono",
-  //             hintStyle: TextStyle(fontWeight: FontWeight.bold)),
-  //       ),
-  //       SizedBox(
-  //         height: 10,
-  //       ),
-  //       TextField(
-  //         controller: _telefono2,
-  //         style: TextStyle(fontWeight: FontWeight.bold),
-  //         decoration: InputDecoration(
-  //             hintText: "Teléfono 2",
-  //             hintStyle: TextStyle(fontWeight: FontWeight.bold)),
-  //       ),
-  //       SizedBox(
-  //         height: 30,
-  //       ),
-  //       Text(
-  //         "Accesos",
-  //         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-  //       ),
-  //       accessContainer(),
-  //       SizedBox(
-  //         height: 20,
-  //       ),
-  //       Align(
-  //         child: ElevatedButton(
-  //             onPressed: () async {
-  //               // getLoadingModal(context, false);
-  //               List listaFinal = selectedItems
-  //                   .map((elemento) => elemento.split("-").last)
-  //                   .toList();
+  Column movilContainer(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment
+              .spaceBetween, // Asegura que los hijos de la Row se distribuyan al inicio y al final
+          children: [
+            Text(
+              "Actualización de Transportista",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Spacer(), // Inserta un Spacer aquí
+            Align(
+              alignment: Alignment
+                  .centerRight, // Corrige el alineamiento aquí si es necesario, aunque puede no ser necesario con el uso de Spacer
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: Icon(Icons.close),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(
+          height: 30,
+        ),
+        TextField(
+          controller: _usuario,
+          // style: TextStyle(fontWeight: FontWeight.bold),
+          decoration: InputDecoration(
+            hintText: "Usuario",
+            hintStyle: TextStyle(fontWeight: FontWeight.bold),
+            prefixIcon: Icon(Icons.person, color: Colors.deepPurple),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.blueGrey[300]!),
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.blue),
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            fillColor: Colors.blue[50],
+            filled: true,
+          ),
+        ),
+        SizedBox(height: 20),
+        TextField(
+          controller: _correo,
+          // style: TextStyle(fontWeight: FontWeight.bold),
+          decoration: InputDecoration(
+            hintText: "Correo",
+            hintStyle: TextStyle(fontWeight: FontWeight.bold),
+            prefixIcon: Icon(Icons.email, color: Colors.orange),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.blueGrey[300]!),
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.blue),
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            fillColor: Colors.blue[50],
+            filled: true,
+          ),
+        ),
+        SizedBox(height: 20),
+        TextField(
+          controller: _costo,
+          // style: TextStyle(fontWeight: FontWeight.bold),
+          decoration: InputDecoration(
+            hintText: "Costo",
+            hintStyle: TextStyle(fontWeight: FontWeight.bold),
+            prefixIcon: Icon(Icons.attach_money, color: Colors.green),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.blueGrey[300]!),
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.blue),
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            fillColor: Colors.blue[50],
+            filled: true,
+          ),
+        ),
+        SizedBox(
+          height: 20,
+        ),
+        customDropdown(context),
+        SizedBox(
+          height: 20,
+        ),
+        TextField(
+          controller: _telefono,
+          // style: TextStyle(fontWeight: FontWeight.bold),
+          decoration: InputDecoration(
+            hintText: "Teléfono",
+            hintStyle: TextStyle(fontWeight: FontWeight.bold),
+            prefixIcon: Icon(Icons.phone_android, color: Colors.blueAccent),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.blueGrey[300]!),
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.blue),
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            fillColor: Colors.blue[50],
+            filled: true,
+          ),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        TextField(
+          controller: _telefono2,
+          // style: TextStyle(fontWeight: FontWeight.bold),
+          decoration: InputDecoration(
+            hintText: "Teléfono 2",
+            hintStyle: TextStyle(fontWeight: FontWeight.bold),
+            prefixIcon: Icon(Icons.phone_in_talk, color: Colors.teal),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.blueGrey[300]!),
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.blue),
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            fillColor: Colors.blue[50],
+            filled: true,
+          ),
+        ),
+        SizedBox(
+          height: 30,
+        ),
+        Text(
+          "Accesos",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+        ),
+        accessContainer(),
+        SizedBox(
+          height: 20,
+        ),
+        //       Align(
+        //         child: ElevatedButton(
+        // onPressed: () async {
+        //   // getLoadingModal(context, false);
+        //   List listaFinal = selectedItems
+        //       .map((elemento) => elemento.split("-").last)
+        //       .toList();
 
-  //               // print("> ${widget.idP}");
+        //   var respf = await Connections().updateTransport(
+        //       idUser,
+        //       _usuario.text,
+        //       _correo.text,
+        //       _costo.text,
+        //       _telefono.text,
+        //       _telefono2.text,
+        //       listaFinal);
 
-  //               var respf = await Connections().updateTransport(
-  //                  idUser,
-  //                   _usuario.text,
-  //                   _correo.text,
-  //                   _costo.text,
-  //                   _telefono.text,
-  //                   _telefono2.text,
-  //                   listaFinal);
+        //   Navigator.pop(context);
+        // },
+        // child: Text(
+        //   "ACTUALIZAR",
+        //   style: TextStyle(fontWeight: FontWeight.bold),
+        // )),
+        //       ),
+        Align(
+          alignment:
+              Alignment.center, // Asegúrate de que el botón esté centrado
+          child: Container(
+            // width: MediaQuery.of(context).size.width * 0.5,
+            width: 450,
+            child: ButtonTheme(
+              minWidth: double
+                  .infinity, // Esto hace que el botón tenga el ancho máximo posible dentro del contenedor
+              child: ElevatedButton(
+                onPressed: () async {
+                  // Tu lógica de actualización
+                  List listaFinal = selectedItems
+                      .map((elemento) => elemento.split("-").last)
+                      .toList();
 
-  //               print(respf);
-  //               // var responseCreateGeneral = await Connections()
-  //               //     .updateTransporterGeneral(
-  //               //         _usuario.text,
-  //               //         listaFinal,
-  //               //         _costo.text,
-  //               //         _telefono.text,
-  //               //         _telefono2.text,
-  //               //         widget.idT
-  //               // );
-  //               // var response = await Connections().updateTransporter(
-  //               //     _usuario.text, _correo.text, widget.idP);
-  //               // Navigator.pop(context);
-  //               Navigator.pop(context);
-  //             },
-  //             child: Text(
-  //               "ACTUALIZAR",
-  //               style: TextStyle(fontWeight: FontWeight.bold),
-  //             )),
-  //       ),
-  //       SizedBox(
-  //         height: 30,
-  //       ),
-  //       ElevatedButton(
-  //           onPressed: () async {
-  //             // getLoadingModal(context, false);
-  //             // ! falta *************************
-  //             // var response = await Connections().updatePasswordByIdGet("123456789", widget.idP);
-  //             // ! ***********************************
+                  var respf = await Connections().updateTransport(
+                      idUser,
+                      _usuario.text,
+                      _correo.text,
+                      _costo.text,
+                      _telefono.text,
+                      _telefono2.text,
+                      listaFinal);
 
-  //             // ignore: use_build_context_synchronously
-  //             // Navigator.pop(context);
-  //             // if (response) {
-  //             //   // ignore: use_build_context_synchronously
-  //             //   AwesomeDialog(
-  //             //     width: 500,
-  //             //     context: context,
-  //             //     dialogType: DialogType.success,
-  //             //     animType: AnimType.rightSlide,
-  //             //     title: 'Completado',
-  //             //     desc: 'Restablecimiento Completada',
-  //             //     btnCancel: Container(),
-  //             //     btnOkText: "Aceptar",
-  //             //     btnOkColor: colors.colorGreen,
-  //             //     btnCancelOnPress: () {},
-  //             //     btnOkOnPress: () {},
-  //             //   ).show();
-  //             // } else {
-  //             //   // ignore: use_build_context_synchronously
-  //             //   AwesomeDialog(
-  //             //     width: 500,
-  //             //     context: context,
-  //             //     dialogType: DialogType.error,
-  //             //     animType: AnimType.rightSlide,
-  //             //     title: 'Error',
-  //             //     desc: 'Error',
-  //             //     btnCancel: Container(),
-  //             //     btnOkText: "Aceptar",
-  //             //     btnOkColor: colors.colorGreen,
-  //             //     btnCancelOnPress: () {},
-  //             //     btnOkOnPress: () {},
-  //             //   ).show();
-  //             // }
-  //           },
-  //           style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-  //           child: Text(
-  //             "Restablecer Contraseña",
-  //             style: TextStyle(fontWeight: FontWeight.bold),
-  //           )),
-  //     ],
-  //   );
-  // }
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                        10.0), // Alinea esto con tus TextField para consistencia
+                  ),
+                  // padding: EdgeInsets.symmetric(
+                  // vertical:
+                  // 15.0), // Ajusta el padding vertical para que coincida con la altura de tus TextField si es necesario
+                ),
+                child: Text(
+                  "ACTUALIZAR",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ),
+        ),
+
+        SizedBox(
+          height: 20,
+        ),
+        Align(
+          alignment: Alignment.center,
+          child: Container(
+            width: 450,
+            child: ElevatedButton(
+                onPressed: () async {
+                  // getLoadingModal(context, false);
+
+                  // ! falta el reseteo
+                  var response = await Connections()
+                      .updatePassWordbyIdLaravel(idUser, "123456789");
+                  // ! *********************
+
+                  // ignore: use_build_context_synchronously
+                  // Navigator.pop(context);
+                  if (response["message"] ==
+                      "Actualización de contraseña exitosa") {
+                    // ignore: use_build_context_synchronously
+                    AwesomeDialog(
+                      width: 500,
+                      context: context,
+                      dialogType: DialogType.success,
+                      animType: AnimType.rightSlide,
+                      title: 'Completado',
+                      desc: 'Restablecimiento Completada',
+                      btnOkText: "Aceptar",
+                      btnOkColor: colors.colorGreen,
+                      btnCancelOnPress: () {},
+                      btnOkOnPress: () {},
+                    ).show();
+                  } else {
+                    // ignore: use_build_context_synchronously
+                    AwesomeDialog(
+                      width: 500,
+                      context: context,
+                      dialogType: DialogType.error,
+                      animType: AnimType.rightSlide,
+                      title: 'Error',
+                      desc: 'Error',
+                      btnOkText: "Aceptar",
+                      btnOkColor: colors.colorGreen,
+                      btnCancelOnPress: () {},
+                      btnOkOnPress: () {},
+                    ).show();
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.redAccent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                        10.0), // Alinea esto con tus TextField para consistencia
+                  ),
+                ),
+                child: Text(
+                  "Restablecer Contraseña",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                )),
+          ),
+        ),
+      ],
+    );
+  }
 
   Container accessContainer() {
     return Container(
