@@ -28,7 +28,7 @@ class _CustomProgressModalState extends State<CustomProgressModal> {
         ),
         dismissible: false,
         opacity: 0.4,
-        color: Colors.black87,
+        color: Color.fromRGBO(211, 187, 255, 0.1),
         child: widget.content);
   }
 }

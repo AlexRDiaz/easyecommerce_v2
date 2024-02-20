@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
@@ -477,6 +479,10 @@ class _ResolvedNoveltiesState extends State<ResolvedNovelties> {
                         size: ColumnSize.S,
                         onSort: (columnIndex, ascending) {},
                       ),
+                      const DataColumn2(
+                        label: Text("Com. Novedades"),
+                        size: ColumnSize.M,
+                      ),
                       DataColumn2(
                         label: SelectFilter('Vendedor', 'equals/id_comercial',
                             vendedorController, listvendedores),
@@ -705,6 +711,17 @@ class _ResolvedNoveltiesState extends State<ResolvedNovelties> {
         info(context, index);
       }),
       DataCell(
+        InkWell(
+          child: Text(
+            getStateFromJson(
+                data[index]['gestioned_novelty']?.toString(), 'comment'),
+          ),
+          onTap: () {
+            info(context, index);
+          },
+        ),
+      ),
+      DataCell(
           Text(
             // data[index]['tienda_temporal'].toString(),
             data[index]['users'] != null && data[index]['users'].isNotEmpty
@@ -763,6 +780,21 @@ class _ResolvedNoveltiesState extends State<ResolvedNovelties> {
         info(context, index);
       }),
     ];
+  }
+
+  String getStateFromJson(String? jsonString, String claveAbuscar) {
+    // Verificar si jsonString es null
+    if (jsonString == null || jsonString.isEmpty) {
+      return ''; // Retorna una cadena vacía si el valor es null o está vacío
+    }
+
+    try {
+      Map<String, dynamic> jsonMap = json.decode(jsonString);
+      return jsonMap[claveAbuscar]?.toString() ?? '';
+    } catch (e) {
+      print('Error al decodificar JSON: $e');
+      return ''; // Manejar el error retornando una cadena vacía o un valor predeterminado
+    }
   }
 
   getLengthArrayMap(List data) {

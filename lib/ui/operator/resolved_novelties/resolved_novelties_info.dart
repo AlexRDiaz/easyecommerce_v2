@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:frontend/config/colors.dart';
 
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/ui/widgets/loading.dart';
+import 'package:frontend/ui/widgets/rich_text.dart';
 import 'package:frontend/ui/widgets/update_status_operator/update_status_operator_historial.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -217,32 +220,34 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                                 : Container(),
                           ],
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        // Text(
+                        //   "  Código: ${data['users'][0]['vendedores'][0]['nombre_comercial']}-${safeValue(data['numero_orden'].toString())}",
+                        //   style: TextStyle(
+                        //       fontWeight: FontWeight.normal, fontSize: 18),
+                        // ),
+                        RichTextTitleContent(
+                          title: "Código",
+                          content:
+                              "${data['users'][0]['vendedores'][0]['nombre_comercial']}-${safeValue(data['numero_orden'].toString())}",
                         ),
-                        Text(
-                          "  Código: ${data['users'][0]['vendedores'][0]['nombre_comercial']}-${safeValue(data['numero_orden'].toString())}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
+                        const SizedBox(height: 20),
+                        // Text(
+                        //   "  Fecha Envio: ${safeValue(data['marca_tiempo_envio'].toString())}",
+                        //   style: TextStyle(
+                        //       fontWeight: FontWeight.normal, fontSize: 18),
+                        // ),
+                        RichTextTitleContent(
+                          title: "Fecha Envio",
+                          content:
+                              safeValue(data['marca_tiempo_envio'].toString()),
                         ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Fecha Envio: ${safeValue(data['marca_tiempo_envio'].toString())}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
+                        const SizedBox(height: 20),
                         Divider(
                           height: 1.0,
                           color: Colors.grey[200],
                         ),
-                        SizedBox(
-                          height: 20,
-                        ),
+                        const SizedBox(height: 20),
                         Row(
                           children: [
                             Icon(
@@ -258,48 +263,32 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                             ),
                           ],
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Nombre Cliente",
+                          content: safeValue(data['nombre_shipping']),
                         ),
-                        Text(
-                          "  Nombre Cliente: ${safeValue(data['nombre_shipping'])}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Ciudad",
+                          content: safeValue(data['ciudad_shipping']),
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Dirección",
+                          content: safeValue(data['direccion_shipping']),
                         ),
-                        Text(
-                          "  Ciudad: ${safeValue(data['ciudad_shipping'])}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Teléfono Cliente",
+                          content: safeValue(data['telefono_shipping']),
                         ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Dirección: ${safeValue(data['direccion_shipping'])}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Teléfono Cliente: ${safeValue(data['telefono_shipping'])}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
+                        const SizedBox(height: 20),
                         Divider(
                           height: 1.0,
                           color: Colors.grey[200],
                         ),
-                        SizedBox(
-                          height: 20,
-                        ),
+                        const SizedBox(height: 20),
                         Row(
                           children: [
                             Icon(
@@ -315,72 +304,53 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                             ),
                           ],
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Cantidad",
+                          content: safeValue(data['cantidad_total']),
                         ),
-                        Text(
-                          "  Cantidad: ${safeValue(data['cantidad_total'])}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Producto",
+                          content: safeValue(data['producto_p']),
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Producto Extra",
+                          content: safeValue(data['producto_extra']),
                         ),
-                        Text(
-                          "  Producto: ${safeValue(data['producto_p'])}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Precio Total",
+                          content: safeValue(data['precio_total']),
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Observación",
+                          content: safeValue(data['observacion'].toString()),
                         ),
-                        Text(
-                          "  Producto Extra: ${safeValue(data['producto_extra'])}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Comentario",
+                          content: safeValue(data['comentario'].toString()),
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Status",
+                          content: safeValue(data['status'].toString()),
                         ),
-                        Text(
-                          "  Precio Total: ${safeValue(data['precio_total'])}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Com. Novedades",
+                          content: getStateFromJson(
+                              data['gestioned_novelty']?.toString(), 'comment'),
                         ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Observación: ${safeValue(data['observacion'].toString())}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Comentario: ${safeValue(data['comentario'].toString())}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Status: ${safeValue(data['status'].toString())}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
+                        const SizedBox(height: 20),
                         Divider(
                           height: 1.0,
                           color: Colors.grey[200],
                         ),
-                        SizedBox(
-                          height: 20,
-                        ),
+                        const SizedBox(height: 20),
                         Row(
                           children: [
                             Icon(
@@ -396,56 +366,59 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                             ),
                           ],
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        // Text(
+                        //   "  Vendedor: ${safeValue(data['tienda_temporal'].toString())}",
+                        //   style: TextStyle(
+                        //       fontWeight: FontWeight.normal, fontSize: 18),
+                        // ),
+                        RichTextTitleContent(
+                          title: "Vendedor",
+                          content:
+                              safeValue(data['tienda_temporal'].toString()),
                         ),
-                        Text(
-                          "  Vendedor: ${safeValue(data['tienda_temporal'].toString())}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
+                        const SizedBox(height: 20),
+                        // Text(
+                        //   "  Transportadora: ${safeValue(transportadoraNombre)}",
+                        //   style: TextStyle(
+                        //       fontWeight: FontWeight.normal, fontSize: 18),
+                        // ),
+                        RichTextTitleContent(
+                          title: "Transportadora",
+                          content: "${safeValue(transportadoraNombre)}",
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        // Text(
+                        //   "  Operador: ${safeValue(operadorUsername)}",
+                        //   style: TextStyle(
+                        //       fontWeight: FontWeight.normal, fontSize: 18),
+                        // ),
+                        RichTextTitleContent(
+                          title: "Operador",
+                          content: "${safeValue(operadorUsername)}",
                         ),
-                        Text(
-                          "  Transportadora: ${safeValue(transportadoraNombre)}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
+                        const SizedBox(height: 20),
+                        // Text(
+                        //   "  Estado Devolución: ${safeValue(data['estado_devolucion'].toString())}",
+                        //   style: TextStyle(
+                        //       fontWeight: FontWeight.normal, fontSize: 18),
+                        // ),
+                        RichTextTitleContent(
+                          title: "Estado Devolución",
+                          content:
+                              safeValue(data['estado_devolucion'].toString()),
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Fecha Entrega",
+                          content: safeValue(data['fecha_entrega'].toString()),
                         ),
-                        Text(
-                          "  Operador: ${safeValue(operadorUsername)}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Estado Devolución: ${safeValue(data['estado_devolucion'].toString())}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Fecha Entrega: ${safeValue(data['fecha_entrega'].toString())}",
-                          style: const TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
+                        const SizedBox(height: 20),
                         Divider(
                           height: 1.0,
                           color: Colors.grey[200],
                         ),
-                        const SizedBox(
-                          height: 20,
-                        ),
+                        const SizedBox(height: 20),
                         Row(
                           children: [
                             Icon(
@@ -461,9 +434,7 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                             ),
                           ],
                         ),
-                        SizedBox(
-                          height: 10,
-                        ),
+                        const SizedBox(height: 10),
                         Container(
                           height: 500,
                           width: 500,
@@ -517,9 +488,7 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
                             },
                           ),
                         ),
-                        const SizedBox(
-                          height: 20,
-                        ),
+                        const SizedBox(height: 20),
                       ],
                     ),
             ),
@@ -527,6 +496,21 @@ class _ResolvedNoveltiesInfo extends State<ResolvedNoveltiesInfo> {
         ),
       ),
     );
+  }
+
+  String getStateFromJson(String? jsonString, String claveAbuscar) {
+    // Verificar si jsonString es null
+    if (jsonString == null || jsonString.isEmpty) {
+      return ''; // Retorna una cadena vacía si el valor es null o está vacío
+    }
+
+    try {
+      Map<String, dynamic> jsonMap = json.decode(jsonString);
+      return jsonMap[claveAbuscar]?.toString() ?? '';
+    } catch (e) {
+      print('Error al decodificar JSON: $e');
+      return ''; // Manejar el error retornando una cadena vacía o un valor predeterminado
+    }
   }
 
   void _changeStatus(String status) {

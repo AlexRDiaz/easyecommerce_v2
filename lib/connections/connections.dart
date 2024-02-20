@@ -3735,8 +3735,8 @@ class Connections {
     filtersAndAll.addAll(and);
     filtersAndAll.addAll(defaultAnd);
     try {
-      print('start: ${sharedPrefs!.getString("dateDesdeTransportadora")}');
-      print('end: ${sharedPrefs!.getString("dateHastaTransportadora")}');
+      // print('start: ${sharedPrefs!.getString("dateDesdeTransportadora")}');
+      // print('end: ${sharedPrefs!.getString("dateHastaTransportadora")}');
 
       var response = await http.post(
           Uri.parse("$serverLaravel/api/pedidos-shopify/filter"),
@@ -3754,8 +3754,8 @@ class Connections {
             "sort": sortField,
             "not": []
           }));
-      print("sort -> $sortField");
-      print("and -> $and");
+      // print("sort -> $sortField");
+      // print("and -> $and");
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         return decodeData;
@@ -5487,8 +5487,9 @@ class Connections {
       if (request.statusCode != 200) {
         return 1;
       } else {
-        var decodeData = json.decode(response);
-        return decodeData;
+        // var decodeData = json.decode(response);
+        // return decodeData;
+        return 0;
       }
     } catch (e) {
       2;

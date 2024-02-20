@@ -305,8 +305,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
       //   // isLoading = false;
       // });
     } catch (e) {
-      Navigator.pop(context);
-
+      print("error: $e");
       _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
     }
   }
@@ -1076,57 +1075,62 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
   Future<dynamic> OpenShowDialog(BuildContext context, int index) {
     if (MediaQuery.of(context).size.width > 930) {
       return openDialog(
-          context,
-          MediaQuery.of(context).size.width * 0.5,
-          MediaQuery.of(context).size.height * 0.9,
-          Column(
-            children: [
-              Align(
-                alignment: Alignment.centerRight,
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: Icon(Icons.close),
-                ),
+              context,
+              MediaQuery.of(context).size.width * 0.5,
+              MediaQuery.of(context).size.height * 0.9,
+              Column(
+                children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Icon(Icons.close),
+                    ),
+                  ),
+                  Expanded(
+                      child: TransportProDeliveryHistoryDetails(
+                          id: data[index]['id'].toString(),
+                          order: data[index],
+                          comment: data[index]['comentario'].toString(),
+                          function: paginateData,
+                          data: data))
+                ],
               ),
-              Expanded(
-                  child: TransportProDeliveryHistoryDetails(
-                      id: data[index]['id'].toString(),
-                      order: data[index],
-                      comment: data[index]['comentario'].toString(),
-                      function: paginateData,
-                      data: data))
-            ],
-          ),
-          () {});
+              () {})
+          .then((value) => setState(() {
+                paginateData();
+              }));
     } else {
       return openDialog(
-          context,
-          MediaQuery.of(context).size.width * 0.8,
-          MediaQuery.of(context).size.height * 0.9,
-          Column(
-            children: [
-              Align(
-                alignment: Alignment.centerRight,
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                    paginateData;
-                  },
-                  child: Icon(Icons.close),
-                ),
+              context,
+              MediaQuery.of(context).size.width * 0.9,
+              MediaQuery.of(context).size.height * 0.9,
+              Column(
+                children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Icon(Icons.close),
+                    ),
+                  ),
+                  Expanded(
+                      child: TransportProDeliveryHistoryDetails(
+                          id: data[index]['id'].toString(),
+                          order: data[index],
+                          comment: data[index]['comentario'].toString(),
+                          function: paginateData,
+                          data: data))
+                ],
               ),
-              Expanded(
-                  child: TransportProDeliveryHistoryDetails(
-                      id: data[index]['id'].toString(),
-                      order: data[index],
-                      comment: data[index]['comentario'].toString(),
-                      function: paginateData,
-                      data: data))
-            ],
-          ),
-          () {});
+              () {})
+          .then((value) => setState(() {
+                paginateData();
+              }));
     }
   }
 

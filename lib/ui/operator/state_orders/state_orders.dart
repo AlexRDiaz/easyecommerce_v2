@@ -202,11 +202,14 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
       });
       updateCounters();
 
-      isLoading = false;
+      setState(() {
+        isLoading = false;
+      });
     } catch (e) {
-      isLoading = false;
+      setState(() {
+        isLoading = false;
+      });
       print("error!!!:  $e");
-      print(isLoading);
       _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
     }
 
@@ -1554,7 +1557,9 @@ class _StateOrdersOperatorState extends State<StateOrdersOperator> {
         builder: (context) {
           return AlertDialog(
             content: Container(
-              width: MediaQuery.of(context).size.width,
+              width: MediaQuery.of(context).size.width > 600
+                  ? MediaQuery.of(context).size.width * 0.5
+                  : MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
               child: Column(
                 children: [

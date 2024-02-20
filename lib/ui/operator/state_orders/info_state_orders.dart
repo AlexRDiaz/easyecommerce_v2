@@ -1,10 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:frontend/config/colors.dart';
 
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/navigators.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/ui/operator/orders_operator/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/loading.dart';
+import 'package:frontend/ui/widgets/rich_text.dart';
 import 'package:frontend/ui/widgets/update_status_operator/update_status_operator_historial.dart';
 
 class InfoStateOrdersOperator extends StatefulWidget {
@@ -94,10 +98,10 @@ class _InfoStateOrdersOperatorState extends State<InfoStateOrdersOperator> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            SizedBox(
-                              width: 20,
+                            const SizedBox(
+                              width: 10,
                             ),
                             data['status'].toString() != "ENTREGADO"
                                 ? ElevatedButton(
@@ -139,7 +143,7 @@ class _InfoStateOrdersOperatorState extends State<InfoStateOrdersOperator> {
 
                                       Navigator.pop(context);
                                     },
-                                    child: Text(
+                                    child: const Text(
                                       "Estado Entrega",
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold),
@@ -147,144 +151,163 @@ class _InfoStateOrdersOperatorState extends State<InfoStateOrdersOperator> {
                                 : Container(),
                           ],
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Fecha Envio",
+                          content: data['marca_tiempo_envio']
+                              .toString()
+                              .split(" ")[0],
                         ),
-                        Text(
-                          "  Fecha: ${data['marca_tiempo_envio'].toString().split(" ")[0]}",
-                          style: customTextStyleText,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Fecha Entrega",
+                          content: data['fecha_entrega'].toString(),
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Código",
+                          content:
+                              "${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data['numero_orden'].toString()}",
                         ),
-                        Text(
-                          "  Fecha Entrega: ${data['fecha_entrega'].toString()}",
-                          style: customTextStyleText,
+                        const SizedBox(height: 20),
+                        Container(
+                          padding: EdgeInsets.all(10),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.account_circle,
+                                color: ColorsSystem().colorSelectMenu,
+                                size: 24,
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                "DATOS DEL CLIENTE",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: ColorsSystem().colorSelectMenu,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Nombre Cliente",
+                          content: _controllers.nombreEditController.text,
                         ),
-                        Text(
-                          // "  Código: ${data['attributes']['Name_Comercial'].toString()}-${data['attributes']['NumeroOrden'].toString()}",
-                          "  Código: ${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data['numero_orden'].toString()}",
-                          style: customTextStyleText,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Ciudad",
+                          content: _controllers.ciudadEditController.text,
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Dirección",
+                          content: _controllers.direccionEditController.text,
                         ),
-                        Text(
-                          "  Nombre Cliente: ${_controllers.nombreEditController.text}",
-                          style: customTextStyleText,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Telefóno cliente",
+                          content: _controllers.telefonoEditController.text,
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        Container(
+                          padding: EdgeInsets.all(10),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.shopping_bag_rounded,
+                                color: ColorsSystem().colorSelectMenu,
+                                size: 24,
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                "DETALLES DEL PEDIDO",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: ColorsSystem().colorSelectMenu,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        Text(
-                          "  Ciudad: ${_controllers.ciudadEditController.text}",
-                          style: customTextStyleText,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Cantidad",
+                          content: _controllers.cantidadEditController.text,
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Producto",
+                          content: _controllers.productoEditController.text,
                         ),
-                        Text(
-                          "  DIRECCIÓN: ${_controllers.direccionEditController.text}",
-                          style: customTextStyleText,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Producto Extra",
+                          content:
+                              _controllers.productoExtraEditController.text,
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Precio Total",
+                          content: _controllers.precioTotalEditController.text,
                         ),
-                        Text(
-                          "  TELEFÓNO CLIENTE: ${_controllers.telefonoEditController.text}",
-                          style: customTextStyleText,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Observación",
+                          content: data['observacion'].toString(),
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Comentario",
+                          content: data['comentario'] != null
+                              ? data['comentario'].toString()
+                              : "",
                         ),
-                        Text(
-                          "  Cantidad: ${_controllers.cantidadEditController.text}",
-                          style: customTextStyleText,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Status",
+                          content: data['status'].toString(),
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Com. Novedades",
+                          content: getStateFromJson(
+                              data['gestioned_novelty']?.toString(), 'comment'),
                         ),
-                        Text(
-                          "  Producto: ${_controllers.productoEditController.text}",
-                          style: customTextStyleText,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Tipo Pago",
+                          content: data['tipo_pago'] != null
+                              ? data['tipo_pago'].toString()
+                              : "",
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Marca de Tiempo Devolución",
+                          content: data['marca_t_d'] != null
+                              ? data['marca_t_d'].toString()
+                              : "",
                         ),
-                        Text(
-                          "  Producto Extra: ${_controllers.productoExtraEditController.text}",
-                          style: customTextStyleText,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Marca de Tiempo de Ingreso de Pedido",
+                          content: data['marca_t_i'].toString(),
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Estado de Pago",
+                          content: data['estado_pagado'].toString(),
                         ),
-                        Text(
-                          "  Precio Total: ${_controllers.precioTotalEditController.text}",
-                          style: customTextStyleText,
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Observación: ${data['observacion'].toString()}",
-                          style: customTextStyleText,
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Comentario: ${data['comentario'].toString()}",
-                          style: customTextStyleText,
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Status: ${data['status'].toString()}",
-                          style: customTextStyleText,
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Tipo Pago: ${data['tipo_pago'] != null ? data['tipo_pago'].toString() : ""}",
-                          style: customTextStyleText,
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          " MARCA DE TIEMPO DEVOLUCIÓN: ${data['marca_t_d'].toString()}",
-                          style: customTextStyleText,
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          " MARCA DE TIEMPO DE INGRESO DE PEDIDO: ${data['marca_t_i'].toString()}",
-                          style: customTextStyleText,
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          " ESTADO DE PAGO: ${data['estado_pagado'].toString()}",
-                          style: customTextStyleText,
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Archivo:",
+                        const SizedBox(height: 20),
+                        const Text(
+                          "Archivo:",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
-                        SizedBox(
-                          height: 20,
-                        ),
+                        const SizedBox(height: 20),
                         data['archivo'].toString().isEmpty ||
                                 data['archivo'].toString() == "null"
                             ? Container()
@@ -295,11 +318,9 @@ class _InfoStateOrdersOperatorState extends State<InfoStateOrdersOperator> {
                                   "$generalServer${data['archivo'].toString()}",
                                   fit: BoxFit.fill,
                                 )),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Novedades:",
+                        const SizedBox(height: 20),
+                        const Text(
+                          "Novedades:",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -366,6 +387,21 @@ class _InfoStateOrdersOperatorState extends State<InfoStateOrdersOperator> {
             ),
           ),
         )));
+  }
+
+  String getStateFromJson(String? jsonString, String claveAbuscar) {
+    // Verificar si jsonString es null
+    if (jsonString == null || jsonString.isEmpty) {
+      return ''; // Retorna una cadena vacía si el valor es null o está vacío
+    }
+
+    try {
+      Map<String, dynamic> jsonMap = json.decode(jsonString);
+      return jsonMap[claveAbuscar]?.toString() ?? '';
+    } catch (e) {
+      print('Error al decodificar JSON: $e');
+      return ''; // Manejar el error retornando una cadena vacía o un valor predeterminado
+    }
   }
 
   _modelTextField({text, controller}) {

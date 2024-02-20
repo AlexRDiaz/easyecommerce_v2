@@ -31,7 +31,10 @@ class OrderInfoOperatorControllers extends ChangeNotifier {
     ciudadEditController.text = data['ciudad_shipping'].toString();
     nombreEditController.text = data['nombre_shipping'].toString();
     productoEditController.text = data['producto_p'].toString();
-    productoExtraEditController.text = data['producto_extra'].toString();
+    productoExtraEditController.text = data['producto_extra'] == null ||
+            data['producto_extra'].toString() == "null"
+        ? ""
+        : data['producto_extra'].toString();
     cantidadEditController.text = data['cantidad_total'].toString();
     direccionEditController.text = data['direccion_shipping'].toString();
     telefonoEditController.text = data['telefono_shipping'].toString();
