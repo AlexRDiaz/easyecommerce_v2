@@ -10,6 +10,7 @@ import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/logistic/novelties/generate_report_novelties.dart';
 import 'package:frontend/ui/logistic/novelties/novelties_info.dart';
+import 'package:frontend/ui/logistic/novelties/novelties_info_only_novelties.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_details.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/transport_delivery_details_data.dart';
 import 'package:frontend/ui/logistic/vendor_invoices/controllers/controllers.dart';
@@ -745,7 +746,11 @@ class _NoveltiesLState extends State<NoveltiesL> {
         SizedBox(
           height: 10,
         ),
-        Expanded(child: DataT()),
+        Expanded(
+            child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: DataT(),
+        )),
       ],
     );
   }
@@ -864,112 +869,133 @@ class _NoveltiesLState extends State<NoveltiesL> {
         dataTextStyle: const TextStyle(fontSize: 12, color: Colors.black),
         columnSpacing: 5,
         horizontalMargin: 5,
-        minWidth: 2500,
+        // minWidth: 2500,
+        minWidth: 3700,
         columns: [
           DataColumn2(
             label: Text("Contactos Pedido"),
             size: ColumnSize.L,
+            fixedWidth: 150,
             onSort: (columnIndex, ascending) {},
           ),
           DataColumn2(
             label: Text("Fecha Entrega"),
-            size: ColumnSize.S,
+            size: ColumnSize.L,
+            fixedWidth: 150,
             onSort: (columnIndex, ascending) {},
           ),
           DataColumn2(
             label: Text("Gestión Novedades"),
             size: ColumnSize.L,
+            fixedWidth: 150,
             onSort: (columnIndex, ascending) {},
           ),
           DataColumn2(
             label: const Text('Código'),
             size: ColumnSize.S,
+            fixedWidth: 150,
             onSort: (columnIndex, ascending) {},
           ),
           DataColumn2(
             label: Text(''),
-            size: ColumnSize.S,
+            size: ColumnSize.L,
+            fixedWidth: 100,
           ),
           DataColumn2(
             label: Text("Ciudad"),
             size: ColumnSize.S,
+            fixedWidth: 100,
             onSort: (columnIndex, ascending) {},
           ),
           DataColumn2(
             label: Text("Nombre Cliente"),
-            size: ColumnSize.S,
+            size: ColumnSize.M,
+            fixedWidth: 100,
             onSort: (columnIndex, ascending) {},
           ),
           DataColumn2(
             label: Text("Teléfono Cliente"),
             size: ColumnSize.S,
+            fixedWidth: 100,
             onSort: (columnIndex, ascending) {},
           ),
           DataColumn2(
             label: Text("Dirección"),
-            size: ColumnSize.S,
+            size: ColumnSize.M,
+            fixedWidth: 120,  
             onSort: (columnIndex, ascending) {},
           ),
           DataColumn2(
             label: Text("Cantidad"),
-            size: ColumnSize.S,
+            size: ColumnSize.M,
+            fixedWidth: 80,
             onSort: (columnIndex, ascending) {},
           ),
           DataColumn2(
             label: Text("Producto"),
-            size: ColumnSize.S,
+            size: ColumnSize.L,
+            fixedWidth: 180,
             onSort: (columnIndex, ascending) {},
           ),
           DataColumn2(
             label: Text("Producto Extra"),
             size: ColumnSize.S,
+            fixedWidth: 180,
             onSort: (columnIndex, ascending) {},
           ),
           DataColumn2(
             label: Text("Precio Total"),
             size: ColumnSize.S,
+            fixedWidth: 120,
             onSort: (columnIndex, ascending) {},
           ),
           DataColumn2(
             label: Text("Observación"),
-            size: ColumnSize.S,
+            size: ColumnSize.L,
+            fixedWidth: 120,
             onSort: (columnIndex, ascending) {},
           ),
           DataColumn2(
             label: Text("Comentario"),
-            size: ColumnSize.S,
+            fixedWidth: 220,
             onSort: (columnIndex, ascending) {},
           ),
           DataColumn2(
             label: Text("Comentario Novedades"),
-            size: ColumnSize.L,
+            fixedWidth: 220,
             onSort: (columnIndex, ascending) {},
           ),
           DataColumn2(
             label: Text("Marca Tiempo Gestión"),
-            size: ColumnSize.L,
+            size: ColumnSize.M,
+            fixedWidth: 120,
             onSort: (columnIndex, ascending) {},
           ),
           DataColumn2(
             label: Text("Status Actual Guía"),
             size: ColumnSize.L,
+            fixedWidth: 200,
             onSort: (columnIndex, ascending) {},
           ),
           DataColumn2(
             label: Text("Pedido Verificado"),
             size: ColumnSize.M,
+            fixedWidth: 120,
             onSort: (columnIndex, ascending) {},
           ),
           DataColumn2(
             label: SelectFilterNoId(
                 'Status', 'equals/status', statusController, listStatus),
-            size: ColumnSize.M,
+            size: ColumnSize.L,
+            fixedWidth: 150,
             onSort: (columnIndex, ascending) {},
           ),
           DataColumn2(
             label: SelectFilter('Vendedor', 'equals/id_comercial',
                 vendedorController, listvendedores),
-            size: ColumnSize.M,
+            size: ColumnSize.L,
+            fixedWidth: 150,
+
             // numeric: true,
             onSort: (columnIndex, ascending) {
               // sortFunc("Name_Comercial");
@@ -981,7 +1007,8 @@ class _NoveltiesLState extends State<NoveltiesL> {
                 'equals/transportadora.transportadora_id',
                 transportadorasController,
                 listtransportadores),
-            size: ColumnSize.M,
+            size: ColumnSize.L,
+            fixedWidth: 150,
             onSort: (columnIndex, ascending) {
               // sortFunc("Estado_Interno");
             },
@@ -989,16 +1016,19 @@ class _NoveltiesLState extends State<NoveltiesL> {
           DataColumn2(
             label: Text("Operador"),
             size: ColumnSize.S,
+            fixedWidth: 120,
             onSort: (columnIndex, ascending) {},
           ),
           DataColumn2(
             label: Text("Estado Devolución"),
             size: ColumnSize.S,
+            fixedWidth: 120,
             onSort: (columnIndex, ascending) {},
           ),
           DataColumn2(
             label: const Text('Fecha Marcar TI'),
             size: ColumnSize.S,
+            fixedWidth: 120,
             onSort: (columnIndex, ascending) {
               // sortFunc("Fecha");
             },
@@ -1006,6 +1036,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
           DataColumn2(
             label: const Text('Numero Intentos'),
             size: ColumnSize.S,
+            fixedWidth: 120,
             onSort: (columnIndex, ascending) {
               // sortFunc("Fecha");
             },
@@ -1205,14 +1236,17 @@ class _NoveltiesLState extends State<NoveltiesL> {
             ),
             Tooltip(
               message: 'Resolver Novedad',
-              child: InkWell(
-                onTap: () {
-                  _mostrarVentanaEmergenteGuiasImpresas(
-                      context, index, 2, "Novedad Resuelta");
-                  myController.clear();
-                },
-                child: Icon(Icons.timelapse_rounded, color: Colors.orange),
-              ),
+              child: data[index]['status']?.toString() == "ENTREGADO"
+                  ? Icon(Icons.timelapse_rounded, color: Colors.grey)
+                  : InkWell(
+                      onTap: () {
+                        _mostrarVentanaEmergenteGuiasImpresas(
+                            context, index, 2, "Novedad Resuelta");
+                        myController.clear();
+                      },
+                      child:
+                          Icon(Icons.timelapse_rounded, color: Colors.orange),
+                    ),
             ),
             Tooltip(
               message: 'OK Novedad',
@@ -1691,7 +1725,7 @@ Quedamos atentos a su respuesta Muchas gracias.
                 onPressed: () async {
                   // Mostrar indicador de carga antes de iniciar la descarga
                   // getLoadingModal(context,
-                      // true); // Asumiendo que esta función muestra un modal de carga.
+                  // true); // Asumiendo que esta función muestra un modal de carga.
 
                   try {
                     // Suponiendo que tu función necesita parámetros como 'populate', 'defaultArrayFiltersAnd', etc.
@@ -2128,12 +2162,9 @@ Quedamos atentos a su respuesta Muchas gracias.
 
   void _mostrarVentanaEmergenteGuiasImpresas(
       BuildContext context, index, noveltyState, title) {
-
-
     double width =
         MediaQuery.of(context).size.width * 0.30; // Ajustar según necesidad
-    double height =
-        200; // Ajustar según necesidad
+    double height = 200; // Ajustar según necesidad
 
     showDialog(
       context: context,
@@ -2159,7 +2190,7 @@ Quedamos atentos a su respuesta Muchas gracias.
             height: height,
             child: Column(
               // mainAxisAlignment: MainAxisAlignment
-                  // .spaceBetween, // Añade espacio entre los elementos
+              // .spaceBetween, // Añade espacio entre los elementos
               children: [
                 Container(
                   margin: EdgeInsets.only(top: 15),
@@ -2199,7 +2230,9 @@ Quedamos atentos a su respuesta Muchas gracias.
                           // Navigator.pop(context); // Cierra el modal después de la acción
                         },
                       ),
-                      SizedBox(width: 3.0,),
+                      SizedBox(
+                        width: 3.0,
+                      ),
                       ElevatedButton.icon(
                         icon: Icon(Icons.cancel),
                         label: Text("Cancelar"),
@@ -2357,7 +2390,7 @@ Quedamos atentos a su respuesta Muchas gracias.
                     ),
                   ),
                   Expanded(
-                      child: NoveltiesInfo(
+                      child: NoveltiesInfoOnlyNovelties(
                     id: data[index]['id'].toString(),
                     data: data,
                     function: paginateData,
