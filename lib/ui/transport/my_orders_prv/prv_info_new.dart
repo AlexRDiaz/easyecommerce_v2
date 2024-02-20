@@ -100,8 +100,6 @@ class _MyOrdersPRVInfoNewState extends State<MyOrdersPRVInfoNew> {
 
   @override
   Widget build(BuildContext context) {
-    double fontSize = 18;
-
     return CustomProgressModal(
       isLoading: isLoading,
       content: Scaffold(

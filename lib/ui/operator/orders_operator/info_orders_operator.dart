@@ -5,6 +5,7 @@ import 'package:frontend/helpers/navigators.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/ui/operator/orders_operator/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/loading.dart';
+import 'package:frontend/ui/widgets/rich_text.dart';
 import 'package:frontend/ui/widgets/update_status_operator/update_status_operator_historial.dart';
 
 class InfoOrdersOperator extends StatefulWidget {
@@ -125,62 +126,44 @@ class _InfoOrdersOperatorState extends State<InfoOrdersOperator> {
                                 )),
                           ],
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Fecha Envio",
+                          content: data['marca_tiempo_envio']
+                              .toString()
+                              .split(" ")[0],
                         ),
-                        Text(
-                          "  Fecha: ${data['marca_tiempo_envio'].toString().split(" ")[0]}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Código",
+                          content:
+                              "${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data['numero_orden'].toString()}",
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Ciudad",
+                          content: _controllers.ciudadEditController.text,
                         ),
-                        Text(
-                          // "  Código: ${data['attributes']['Name_Comercial'].toString()}-${data['attributes']['NumeroOrden'].toString()}",
-                          "  Código: ${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data['numero_orden'].toString()}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Nombre Cliente",
+                          content: _controllers.nombreEditController.text,
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Dirección",
+                          content: _controllers.direccionEditController.text,
                         ),
-                        Text(
-                          "  Ciudad: ${_controllers.ciudadEditController.text}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Nombre Cliente: ${_controllers.nombreEditController.text}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  DIRECCIÓN: ${_controllers.direccionEditController.text}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  TELEFÓNO CLIENTE:",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Telefóno cliente",
+                          content: _controllers.telefonoEditController.text,
                         ),
                         TextField(
                           style: TextStyle(fontWeight: FontWeight.bold),
                           controller: _numerController,
                         ),
-                        SizedBox(
-                          height: 20,
-                        ),
+                        const SizedBox(height: 20),
                         ElevatedButton(
                             onPressed: () async {
                               getLoadingModal(context, false);
@@ -190,71 +173,53 @@ class _InfoOrdersOperatorState extends State<InfoOrdersOperator> {
                               Navigator.pop(context);
                               await loadData();
                             },
-                            child: Text(
+                            child: const Text(
                               "ACTUALIZAR NÚMERO",
                               style: TextStyle(fontWeight: FontWeight.bold),
                             )),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Cantidad",
+                          content: _controllers.cantidadEditController.text,
                         ),
-                        Text(
-                          "  Cantidad: ${_controllers.cantidadEditController.text}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Producto",
+                          content: _controllers.productoEditController.text,
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Producto Extra",
+                          content:
+                              _controllers.productoExtraEditController.text,
                         ),
-                        Text(
-                          "  Producto: ${_controllers.productoEditController.text}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Precio Total",
+                          content: _controllers.precioTotalEditController.text,
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Observación",
+                          content: data['observacion'] == null
+                              ? ""
+                              : data['observacion'].toString(),
                         ),
-                        Text(
-                          "  Producto Extra: ${_controllers.productoExtraEditController.text}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Comentario",
+                          content: data['comentario'] != null
+                              ? data['comentario'].toString()
+                              : "",
                         ),
-                        SizedBox(
-                          height: 20,
+                        const SizedBox(height: 20),
+                        RichTextTitleContent(
+                          title: "Status",
+                          content: data['status'].toString(),
                         ),
-                        Text(
-                          "  Precio Total: ${_controllers.precioTotalEditController.text}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Observación: ${data['observacion'].toString()}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Comentario: ${data['comentario'].toString()}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Status: ${data['status'].toString()}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Novedades:",
+                        const SizedBox(height: 20),
+                        const Text(
+                          "Novedades:",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),

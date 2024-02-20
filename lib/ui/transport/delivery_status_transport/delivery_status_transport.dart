@@ -305,8 +305,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
       //   // isLoading = false;
       // });
     } catch (e) {
-      Navigator.pop(context);
-
+      print("error: $e");
       _showErrorSnackBar(context, "Ha ocurrido un error de conexión");
     }
   }
@@ -1106,7 +1105,7 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
     } else {
       return openDialog(
               context,
-              MediaQuery.of(context).size.width * 0.8,
+              MediaQuery.of(context).size.width * 0.9,
               MediaQuery.of(context).size.height * 0.9,
               Column(
                 children: [

@@ -815,7 +815,9 @@ class _OrdersOperatorState extends State<OrdersOperator> {
         builder: (context) {
           return AlertDialog(
             content: Container(
-              width: MediaQuery.of(context).size.width,
+              width: MediaQuery.of(context).size.width > 600
+                  ? MediaQuery.of(context).size.width * 0.5
+                  : MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
               child: Column(
                 children: [

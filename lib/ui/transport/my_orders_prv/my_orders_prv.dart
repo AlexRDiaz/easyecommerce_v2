@@ -50,6 +50,7 @@ class _MyOrdersPRVTransportState extends State<MyOrdersPRVTransport> {
   //transportadora, pedido_fecha, sub_ruta, operadore, operadore.user, users.vendedores
 
   List filtersOrCont = [
+    "operadore.up_users.username",
     'marca_t_i',
     'fecha_entrega',
     'numero_orden',
@@ -85,7 +86,7 @@ class _MyOrdersPRVTransportState extends State<MyOrdersPRVTransport> {
   List arrayFiltersNotEq = [];
 
   int currentPage = 1;
-  int pageSize = 150;
+  int pageSize = 500;
   int pageCount = 100;
   int total = 0;
   var sortFieldDefaultValue = "id:DESC";
@@ -94,6 +95,10 @@ class _MyOrdersPRVTransportState extends State<MyOrdersPRVTransport> {
   bool changevalue = false;
   List dataL = [];
   List selectedCheckBox = [];
+
+  TextEditingController operadorController =
+      TextEditingController(text: "TODO");
+  List<String> listOperators = ['TODO'];
 
   @override
   void didChangeDependencies() {
@@ -106,6 +111,17 @@ class _MyOrdersPRVTransportState extends State<MyOrdersPRVTransport> {
       setState(() {
         isLoading = true;
       });
+      if (listOperators.length == 1) {
+        var responsetransportadoras = await Connections()
+            .getOperatoresbyTransport(
+                sharedPrefs!.getString("idTransportadora").toString());
+        List<dynamic> transportadorasList =
+            responsetransportadoras['operadores'];
+        for (var transportadora in transportadorasList) {
+          listOperators.add(transportadora);
+        }
+      }
+
       var responseLaravel = await Connections().getOrdersSellersFilterLaravel(
           populate,
           filtersOrCont,
@@ -187,6 +203,31 @@ class _MyOrdersPRVTransportState extends State<MyOrdersPRVTransport> {
     // setState(() {});
   }
 
+  void resetFilters() {
+    operadorController.text = "TODO";
+
+    arrayFiltersAnd = [];
+    _controllers.searchController.clear();
+  }
+
+  getOldValue(Arrayrestoration) {
+    if (Arrayrestoration) {
+      setState(() {
+        arrayfiltersDefaultAnd = [
+          {
+            'transportadora.transportadora_id':
+                sharedPrefs!.getString("idTransportadora").toString()
+          },
+          {"status": "PEDIDO PROGRAMADO"},
+          {"estado_interno": "CONFIRMADO"},
+          {"estado_logistico": "ENVIADO"}
+        ];
+
+        sortFieldDefaultValue = "id:DESC";
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double heigth = MediaQuery.of(context).size.height;
@@ -206,6 +247,8 @@ class _MyOrdersPRVTransportState extends State<MyOrdersPRVTransport> {
                 alignment: Alignment.centerRight,
                 child: GestureDetector(
                   onTap: () async {
+                    resetFilters();
+                    getOldValue(true);
                     await loadData();
                   },
                   child: Container(
@@ -267,297 +310,6 @@ class _MyOrdersPRVTransportState extends State<MyOrdersPRVTransport> {
               const SizedBox(height: 10),
               responsive(webMainContainer(width, heigth, context),
                   mobileMainContainer(width, heigth, context), context),
-              /*
-            Container(
-              width: double.infinity,
-              child: counterChecks != 0
-                  ? _buttons()
-                  : _modelTextField(
-                      text: "Busqueda",
-                      controller: _controllers.searchController),
-            ),
-            Container(
-              padding: EdgeInsets.only(left: 250, right: 15),
-              child: ElevatedButton(
-                  onPressed: () async {
-                    await showDialog(
-                        context: context,
-                        builder: (context) {
-                          return ScannerOrdersPrv();
-                        });
-                    await loadData();
-                  },
-                  child: Text(
-                    "SCANNER",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  )),
-            ),
-            Row(
-              children: [
-                Text(
-                  "Totales: ${data.length}",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                SizedBox(
-                  width: 10,
-                ),
-                Text(
-                  "Seleccionados: $counterChecks",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            Expanded(
-              child: DataTable2(
-                  headingTextStyle: TextStyle(
-                      fontWeight: FontWeight.bold, color: Colors.black),
-                  dataTextStyle: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black),
-                  columnSpacing: 12,
-                  horizontalMargin: 12,
-                  minWidth: 3000,
-                  columns: [
-                    DataColumn2(
-                      label: Text(''),
-                      size: ColumnSize.S,
-                    ),
-                    DataColumn2(
-                      label: Text('Fecha'),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {
-                        sortFuncDate("Marca_Tiempo_Envio");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Fecha Entrega'),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {
-                        sortFuncDate("Marca_Tiempo_Envio");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Código'),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("NumeroOrden");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Ciudad'),
-                      size: ColumnSize.S,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("CiudadShipping");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Nombre Cliente'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("NombreShipping");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Dirección'),
-                      size: ColumnSize.L,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("DireccionShipping");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Sub Ruta'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFuncSubRoute();
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Operador'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFuncOperator();
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Teléfono'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("TelefonoShipping");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Cantidad'),
-                      size: ColumnSize.M,
-                      numeric: true,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("Cantidad_Total");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Producto'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("ProductoP");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Producto Extra'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("ProductoExtra");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Precio Total'),
-                      size: ColumnSize.M,
-                      numeric: true,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("PrecioTotal");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Status'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("Status");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Confirmado?'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("Estado_Interno");
-                      },
-                    ),
-                    DataColumn2(
-                      label: Text('Estado Logistico'),
-                      size: ColumnSize.M,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc("Estado_Logistico");
-                      },
-                    ),
-                  ],
-                  rows: List<DataRow>.generate(
-                      data.isNotEmpty ? data.length : [].length,
-                      (index) => DataRow(cells: [
-                            DataCell(Checkbox(
-                                value: optionsCheckBox[index]['check'],
-                                onChanged: (value) {
-                                  setState(() {
-                                    if (value!) {
-                                      optionsCheckBox[index]['check'] = value;
-                                      optionsCheckBox[index]['id'] =
-                                          data[index]['id'].toString();
-
-                                      counterChecks += 1;
-                                    } else {
-                                      optionsCheckBox[index]['check'] = value;
-                                      optionsCheckBox[index]['id'] = '';
-                                      counterChecks -= 1;
-                                    }
-                                  });
-                                })),
-                            DataCell(
-                                Text(data[index]['attributes']
-                                        ['Marca_Tiempo_Envio']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']
-                                        ['Fecha_Entrega'] ??
-                                    "".toString()),
-                                onTap: () {}),
-                            DataCell(
-                                Text(
-                                    style: TextStyle(
-                                        color: GetColor(data[index]
-                                            ['attributes']['revisado'])!),
-                                    '${data[index]['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['attributes']['Nombre_Comercial']}-${data[index]['attributes']['NumeroOrden'].toString()}'),
-                                onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['CiudadShipping']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['NombreShipping']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']
-                                        ['DireccionShipping']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['sub_ruta']
-                                            ['data'] !=
-                                        null
-                                    ? data[index]['attributes']['sub_ruta']
-                                        ['data']['attributes']['Titulo']
-                                    : "".toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['operadore']
-                                            ['data'] !=
-                                        null
-                                    ? data[index]['attributes']['operadore']
-                                            ['data']['attributes']['user']
-                                        ['data']['attributes']['username']
-                                    : "".toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']
-                                        ['TelefonoShipping']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['Cantidad_Total']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['ProductoP']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['ProductoExtra']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['PrecioTotal']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['Status']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']['Estado_Interno']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                            DataCell(
-                                Text(data[index]['attributes']
-                                        ['Estado_Logistico']
-                                    .toString()), onTap: () {
-                              info(context, index);
-                            }),
-                          ]))),
-            ),
-          */
             ],
           ),
         ),
@@ -748,9 +500,17 @@ class _MyOrdersPRVTransportState extends State<MyOrdersPRVTransport> {
         label: Text('Sub Ruta'),
         size: ColumnSize.M,
       ),
+      // DataColumn2(
+      //   label: Text('Operador'),
+      //   size: ColumnSize.M,
+      // ),
       DataColumn2(
-        label: Text('Operador'),
-        size: ColumnSize.M,
+        label: SelectFilter('Operador', 'operadore.up_users.operadore_id',
+            operadorController, listOperators),
+        size: ColumnSize.L,
+        onSort: (columnIndex, ascending) {
+          // sortFuncOperator();
+        },
       ),
       DataColumn2(
         label: Text('Teléfono Cliente'),
@@ -963,6 +723,56 @@ class _MyOrdersPRVTransportState extends State<MyOrdersPRVTransport> {
     }
 
     return rows;
+  }
+
+  Column SelectFilter(String title, filter, TextEditingController controller,
+      List<String> listOptions) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title),
+        Expanded(
+          child: Container(
+            margin: EdgeInsets.only(bottom: 4.5, top: 4.5),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5.0),
+              border: Border.all(color: Color.fromRGBO(6, 6, 6, 1)),
+            ),
+            height: 50,
+            child: DropdownButtonFormField<String>(
+              isExpanded: true,
+              value: controller.text,
+              onChanged: (String? newValue) {
+                setState(() {
+                  controller.text = newValue ?? "";
+
+                  arrayFiltersAnd
+                      .removeWhere((element) => element.containsKey(filter));
+
+                  if (newValue != 'TODO') {
+                    arrayFiltersAnd.add({filter: newValue?.split('-')[1]});
+                    // reemplazarValor(value, newValue!);
+                    //  print(value);
+                  }
+
+                  loadData();
+                });
+              },
+              decoration: InputDecoration(
+                  border: UnderlineInputBorder(
+                      borderRadius: BorderRadius.circular(10))),
+              items: listOptions.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child:
+                      Text(value.split("-")[0], style: TextStyle(fontSize: 15)),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   mobileMainContainer(double width, double heigth, BuildContext context) {
@@ -1285,7 +1095,9 @@ class _MyOrdersPRVTransportState extends State<MyOrdersPRVTransport> {
     }
     return openDialog(
             context,
-            MediaQuery.of(context).size.width * 0.5,
+            MediaQuery.of(context).size.width > 600
+                ? MediaQuery.of(context).size.width * 0.5
+                : MediaQuery.of(context).size.width * 0.9,
             MediaQuery.of(context).size.height,
             responsive(
                 Container(
@@ -1363,6 +1175,30 @@ class _MyOrdersPRVTransportState extends State<MyOrdersPRVTransport> {
                                 index: index,
                                 sumarNumero: sumarNumero,
                                 data: dataL)),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Visibility(
+                              visible: buttonLeft,
+                              child: IconButton(
+                                iconSize: 60,
+                                onPressed: () => {PreviusInfo(index)},
+                                icon: Icon(Icons.arrow_circle_left),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 70,
+                            ),
+                            Visibility(
+                              visible: buttonRigth,
+                              child: IconButton(
+                                iconSize: 60,
+                                onPressed: () => {NextInfo(index)},
+                                icon: Icon(Icons.arrow_circle_right),
+                              ),
+                            ),
+                          ],
+                        )
                       ],
                     ),
                   ),
