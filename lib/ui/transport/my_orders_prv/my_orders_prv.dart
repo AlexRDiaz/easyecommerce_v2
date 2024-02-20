@@ -89,7 +89,7 @@ class _MyOrdersPRVTransportState extends State<MyOrdersPRVTransport> {
   int pageSize = 500;
   int pageCount = 100;
   int total = 0;
-  var sortFieldDefaultValue = "id:DESC";
+  var sortFieldDefaultValue = "marca_tiempo_envio:desc";
   var sortField = "";
 
   bool changevalue = false;
@@ -223,7 +223,77 @@ class _MyOrdersPRVTransportState extends State<MyOrdersPRVTransport> {
           {"estado_logistico": "ENVIADO"}
         ];
 
-        sortFieldDefaultValue = "id:DESC";
+        sortFieldDefaultValue = "marca_tiempo_envio:desc";
+      });
+    }
+  }
+
+  sortFuncSubR() {
+    // print("sortFuncSubR");
+    if (sort) {
+      setState(() {
+        sort = false;
+      });
+      dataL.sort((a, b) {
+        String tituloA = a['sub_ruta']?.isNotEmpty == true
+            ? a['sub_ruta'][0]['titulo'].toString().toLowerCase()
+            : "zzz"; // Poner una cadena que sea 'mayor' que cualquier otra cadena no vacía
+        String tituloB = b['sub_ruta']?.isNotEmpty == true
+            ? b['sub_ruta'][0]['titulo'].toString().toLowerCase()
+            : "zzz";
+        return tituloB.compareTo(tituloA);
+      });
+    } else {
+      setState(() {
+        sort = true;
+      });
+      dataL.sort((a, b) {
+        String tituloA = a['sub_ruta']?.isNotEmpty == true
+            ? a['sub_ruta'][0]['titulo'].toString().toLowerCase()
+            : "zzz";
+        String tituloB = b['sub_ruta']?.isNotEmpty == true
+            ? b['sub_ruta'][0]['titulo'].toString().toLowerCase()
+            : "zzz";
+        return tituloA.compareTo(tituloB);
+      });
+    }
+  }
+
+  sortFuncOp() {
+    // print("sortFuncOp");
+    if (sort) {
+      setState(() {
+        sort = false;
+      });
+      dataL.sort((a, b) {
+        String tituloA = a['operadore']?.isNotEmpty == true
+            ? a['operadore'][0]['up_users'][0]['username']
+                .toString()
+                .toLowerCase()
+            : "zzz"; // Poner una cadena que sea 'mayor' que cualquier otra cadena no vacía
+        String tituloB = b['operadore']?.isNotEmpty == true
+            ? b['operadore'][0]['up_users'][0]['username']
+                .toString()
+                .toLowerCase()
+            : "zzz";
+        return tituloB.compareTo(tituloA);
+      });
+    } else {
+      setState(() {
+        sort = true;
+      });
+      dataL.sort((a, b) {
+        String tituloA = a['operadore']?.isNotEmpty == true
+            ? a['operadore'][0]['up_users'][0]['username']
+                .toString()
+                .toLowerCase()
+            : "zzz";
+        String tituloB = b['operadore']?.isNotEmpty == true
+            ? b['operadore'][0]['up_users'][0]['username']
+                .toString()
+                .toLowerCase()
+            : "zzz";
+        return tituloA.compareTo(tituloB);
       });
     }
   }
@@ -435,20 +505,23 @@ class _MyOrdersPRVTransportState extends State<MyOrdersPRVTransport> {
 
   Container _dataTableOrders(height) {
     return Container(
-      height: height * 0.70,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        color: Colors.white,
-      ),
-      child: dataL.length > 0
-          ? DataTableModelPrincipal(
-              columnWidth: 200,
-              columns: getColumns(),
-              rows: buildDataRows(dataL))
-          : const Center(
-              child: Text("Sin datos"),
-            ),
-    );
+        height: height * 0.70,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          color: Colors.white,
+        ),
+        child: DataTableModelPrincipal(
+            columnWidth: 200, columns: getColumns(), rows: buildDataRows(dataL))
+        // child: dataL.length > 0
+        //     ? DataTableModelPrincipal(
+        //         columnWidth: 200,
+        //         columns: getColumns(),
+        //         rows: buildDataRows(dataL))
+        //     :
+        //     const Center(
+        //         child: Text("Sin datos"),
+        //       ),
+        );
   }
 
   List<DataColumn2> getColumns() {
@@ -477,7 +550,7 @@ class _MyOrdersPRVTransportState extends State<MyOrdersPRVTransport> {
       ),
       DataColumn2(
         label: Text('Ciudad'),
-        size: ColumnSize.M,
+        size: ColumnSize.S,
         onSort: (columnIndex, ascending) {
           sortFunc3("ciudad_shipping", changevalue);
         },
@@ -499,6 +572,9 @@ class _MyOrdersPRVTransportState extends State<MyOrdersPRVTransport> {
       DataColumn2(
         label: Text('Sub Ruta'),
         size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          sortFuncSubR();
+        },
       ),
       // DataColumn2(
       //   label: Text('Operador'),
@@ -507,22 +583,20 @@ class _MyOrdersPRVTransportState extends State<MyOrdersPRVTransport> {
       DataColumn2(
         label: SelectFilter('Operador', 'operadore.up_users.operadore_id',
             operadorController, listOperators),
-        size: ColumnSize.L,
+        size: ColumnSize.M,
         onSort: (columnIndex, ascending) {
-          // sortFuncOperator();
+          sortFuncOp();
         },
       ),
       DataColumn2(
         label: Text('Teléfono Cliente'),
         size: ColumnSize.S,
       ),
-      DataColumn2(
-        label: Text('Cantidad'),
-        size: ColumnSize.S,
-        onSort: (columnIndex, ascending) {
-          sortFunc3("cantidad_total", changevalue);
-        },
-      ),
+      const DataColumn2(
+          label: Center(
+            child: Text('Cantidad'),
+          ),
+          fixedWidth: 100),
       DataColumn2(
         label: Text('Producto'),
         size: ColumnSize.L,
@@ -673,7 +747,9 @@ class _MyOrdersPRVTransportState extends State<MyOrdersPRVTransport> {
             },
           ),
           DataCell(
-            Text(dataL[index]['cantidad_total'].toString()),
+            Center(
+              child: Text(dataL[index]['cantidad_total'].toString()),
+            ),
             onTap: () {
               info(context, index);
             },
@@ -788,17 +864,22 @@ class _MyOrdersPRVTransportState extends State<MyOrdersPRVTransport> {
   }
 
   _dataTableOrdersMobile(height) {
-    return dataL.length > 0
-        ? Container(
-            height: height * 0.70,
-            child: DataTableModelPrincipal(
-                columnWidth: 400,
-                columns: getColumns(),
-                rows: buildDataRows(dataL)),
-          )
-        : const Center(
-            child: Text("Sin datos"),
-          );
+    return Container(
+      height: height * 0.70,
+      child: DataTableModelPrincipal(
+          columnWidth: 400, columns: getColumns(), rows: buildDataRows(dataL)),
+    );
+    // return dataL.length > 0
+    //     ? Container(
+    //         height: height * 0.70,
+    //         child: DataTableModelPrincipal(
+    //             columnWidth: 400,
+    //             columns: getColumns(),
+    //             rows: buildDataRows(dataL)),
+    //       )
+    //     : const Center(
+    //         child: Text("Sin datos"),
+    //       );
   }
 
   ElevatedButton _btnSubRuta() {

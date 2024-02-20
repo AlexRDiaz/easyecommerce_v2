@@ -103,6 +103,7 @@ class _TransportationBillingState extends State<TransportationBilling> {
   String? date = sharedPrefs!.getString("dateOperatorState");
   List<DateTime?> _dates = [];
   String? selectedOperator;
+  bool sort = false;
 
   @override
   void initState() {
@@ -536,20 +537,22 @@ class _TransportationBillingState extends State<TransportationBilling> {
 
   Container _dataTableOrders(height) {
     return Container(
-      height: height * 0.80,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        color: Colors.white,
-      ),
-      child: data.length > 0
-          ? DataTableModelPrincipal(
-              columnWidth: 200,
-              columns: getColumns(),
-              rows: buildDataRows(data))
-          : const Center(
-              child: Text("Sin datos"),
-            ),
-    );
+        height: height * 0.80,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          color: Colors.white,
+        ),
+        child: DataTableModelPrincipal(
+            columnWidth: 200, columns: getColumns(), rows: buildDataRows(data))
+        //  data.length > 0
+        //     ? DataTableModelPrincipal(
+        //         columnWidth: 200,
+        //         columns: getColumns(),
+        //         rows: buildDataRows(data))
+        //     : const Center(
+        //         child: Text("Sin datos"),
+        //       ),
+        );
   }
 
   mobileMainContainer(double width, double heigth, BuildContext context) {
@@ -565,17 +568,22 @@ class _TransportationBillingState extends State<TransportationBilling> {
   }
 
   _dataTableOrdersMobile(height) {
-    return data.length > 0
-        ? Container(
-            height: height * 0.65,
-            child: DataTableModelPrincipal(
-                columnWidth: 400,
-                columns: getColumns(),
-                rows: buildDataRows(data)),
-          )
-        : const Center(
-            child: Text("Sin datos"),
-          );
+    return Container(
+      height: height * 0.65,
+      child: DataTableModelPrincipal(
+          columnWidth: 400, columns: getColumns(), rows: buildDataRows(data)),
+    );
+    // return data.length > 0
+    //     ? Container(
+    //         height: height * 0.65,
+    //         child: DataTableModelPrincipal(
+    //             columnWidth: 400,
+    //             columns: getColumns(),
+    //             rows: buildDataRows(data)),
+    //       )
+    //     : const Center(
+    //         child: Text("Sin datos"),
+    //       );
   }
 
   List<DataColumn2> getColumns() {
@@ -615,12 +623,13 @@ class _TransportationBillingState extends State<TransportationBilling> {
       ),
       const DataColumn2(
         label: Text('Teléfono Cliente'),
-        size: ColumnSize.M,
-      ),
-      const DataColumn2(
-        label: Text('Cantidad'),
         size: ColumnSize.S,
       ),
+      const DataColumn2(
+          label: Center(
+            child: Text('Cantidad'),
+          ),
+          fixedWidth: 100),
       DataColumn2(
         label: Text('Producto'),
         size: ColumnSize.L,
@@ -642,25 +651,28 @@ class _TransportationBillingState extends State<TransportationBilling> {
       DataColumn2(
         label: SelectFilterStatus(
             'Estado de entrega', 'status', statusController, listStatus),
-        size: ColumnSize.L,
+        size: ColumnSize.M,
         onSort: (columnIndex, ascending) {
           sortFunc3("status", changevalue);
         },
       ),
       DataColumn2(
         label: Text('Comentario'),
-        size: ColumnSize.S,
+        size: ColumnSize.M,
         onSort: (columnIndex, ascending) {
           sortFunc3("comentario", changevalue);
         },
       ),
       const DataColumn2(
         label: Text('Tipo pago'),
-        size: ColumnSize.M,
+        size: ColumnSize.S,
       ),
-      const DataColumn2(
+      DataColumn2(
         label: Text('Operador'),
         size: ColumnSize.M,
+        onSort: (columnIndex, ascending) {
+          sortFuncOp();
+        },
       ),
       // DataColumn2(
       //   label: SelectFilter('Operador', 'operadore.up_users.operadore_id',
@@ -674,7 +686,7 @@ class _TransportationBillingState extends State<TransportationBilling> {
       ),
       const DataColumn2(
         label: Text('Est. Pago Operador'),
-        size: ColumnSize.M,
+        size: ColumnSize.S,
       ),
     ];
   }
@@ -754,7 +766,9 @@ class _TransportationBillingState extends State<TransportationBilling> {
             },
           ),
           DataCell(
-            Text(data[index]['cantidad_total'].toString()),
+            Center(
+              child: Text(data[index]['cantidad_total'].toString()),
+            ),
             onTap: () {
               info(context, index);
             },
@@ -818,6 +832,45 @@ class _TransportationBillingState extends State<TransportationBilling> {
     }
 
     return rows;
+  }
+
+  sortFuncOp() {
+    // print("sortFuncOp");
+    if (sort) {
+      setState(() {
+        sort = false;
+      });
+      data.sort((a, b) {
+        String tituloA = a['operadore']?.isNotEmpty == true
+            ? a['operadore'][0]['up_users'][0]['username']
+                .toString()
+                .toLowerCase()
+            : "zzz"; // Poner una cadena que sea 'mayor' que cualquier otra cadena no vacía
+        String tituloB = b['operadore']?.isNotEmpty == true
+            ? b['operadore'][0]['up_users'][0]['username']
+                .toString()
+                .toLowerCase()
+            : "zzz";
+        return tituloB.compareTo(tituloA);
+      });
+    } else {
+      setState(() {
+        sort = true;
+      });
+      data.sort((a, b) {
+        String tituloA = a['operadore']?.isNotEmpty == true
+            ? a['operadore'][0]['up_users'][0]['username']
+                .toString()
+                .toLowerCase()
+            : "zzz";
+        String tituloB = b['operadore']?.isNotEmpty == true
+            ? b['operadore'][0]['up_users'][0]['username']
+                .toString()
+                .toLowerCase()
+            : "zzz";
+        return tituloA.compareTo(tituloB);
+      });
+    }
   }
 
   Column SelectFilter(String title, filter, TextEditingController controller,
