@@ -7,8 +7,14 @@ import 'package:frontend/ui/transport/transportation_billing/controllers/control
 import 'package:frontend/ui/widgets/loading.dart';
 
 class InfoTransportationBilling extends StatefulWidget {
-  final String id;
-  const InfoTransportationBilling({super.key, required this.id});
+  // final String id;
+  final Map order;
+
+  const InfoTransportationBilling({
+    super.key,
+    // required this.id,
+    required this.order,
+  });
 
   @override
   State<InfoTransportationBilling> createState() =>
@@ -18,7 +24,8 @@ class InfoTransportationBilling extends StatefulWidget {
 class _InfoTransportationBilling extends State<InfoTransportationBilling> {
   var data = {};
   bool loading = true;
-  final OrderInfoOperatorBackupControllers _controllers = OrderInfoOperatorBackupControllers();
+  // final OrderInfoOperatorBackupControllers _controllers =
+  //     OrderInfoOperatorBackupControllers();
 
   @override
   void didChangeDependencies() {
@@ -30,10 +37,10 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
-    var response = await Connections().getOrdersByIDTransport(widget.id);
+    // var response = await Connections().getOrdersByIDTransport(widget.id);
     // data = response;
-    data = response;
-    _controllers.editControllers(response);
+    data = widget.order;
+    // _controllers.editControllers(data);
 
     Future.delayed(Duration(milliseconds: 500), () {
       Navigator.pop(context);
@@ -73,7 +80,8 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "  Fecha: ${data['attributes']['Marca_Tiempo_Envio'].toString()}",
+                          // "  Fecha: ${data['attributes']['Marca_Tiempo_Envio'].toString()}",
+                          "Fecha Envio: ${data['marca_tiempo_envio'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -81,7 +89,7 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                           height: 20,
                         ),
                         Text(
-                          "  Fecha de Entrega: ${data['attributes']['Fecha_Entrega'].toString()}",
+                          "Fecha de Entrega: ${data['fecha_entrega'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -89,7 +97,7 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                           height: 20,
                         ),
                         Text(
-                          "  Código: ${data['attributes']['Name_Comercial'].toString()}-${data['attributes']['NumeroOrden'].toString()}",
+                          "Código: ${data['users'] != null && data['users'].isNotEmpty ? data['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data['numero_orden'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -124,7 +132,7 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                           height: 20,
                         ),
                         Text(
-                          "  Nombre Cliente: ${_controllers.nombreEditController.text}",
+                          "Nombre Cliente: ${data['nombre_shipping']}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -132,7 +140,7 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                           height: 20,
                         ),
                         Text(
-                          "  DIRECCIÓN: ${_controllers.direccionEditController.text}",
+                          "DIRECCIÓN: ${data['direccion_shipping']}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -140,7 +148,7 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                           height: 20,
                         ),
                         Text(
-                          "  TELEFÓNO CLIENTE: ${_controllers.telefonoEditController.text}",
+                          "TELEFÓNO CLIENTE: ${data['telefono_shipping']}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -175,7 +183,7 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                           height: 20,
                         ),
                         Text(
-                          "  Cantidad: ${_controllers.cantidadEditController.text}",
+                          "Cantidad: ${data['cantidad_total']}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -183,7 +191,7 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                           height: 20,
                         ),
                         Text(
-                          "  Producto: ${_controllers.productoEditController.text}",
+                          "Producto: ${data['producto_p']}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -191,7 +199,7 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                           height: 20,
                         ),
                         Text(
-                          "  Producto Extra: ${_controllers.productoExtraEditController.text}",
+                          "Producto Extra: ${data['producto_extra'] == null || data['producto_extra'].toString() == "null" ? "" : data['producto_extra'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -199,7 +207,7 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                           height: 20,
                         ),
                         Text(
-                          "  Precio Total: ${_controllers.precioTotalEditController.text}",
+                          "Precio Total: \$ ${data['precio_total'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -207,7 +215,7 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                           height: 20,
                         ),
                         Text(
-                          "  Status: ${data['attributes']['Status'].toString()}",
+                          "Status: ${data['status'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -215,7 +223,7 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                           height: 20,
                         ),
                         Text(
-                          "  Tipo de Pago: ${data['attributes']['TipoPago'].toString()}",
+                          "Tipo de Pago: ${data['tipo_pago'] == null || data['tipo_pago'].toString() == "null" ? "" : data['tipo_pago'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -223,7 +231,7 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                           height: 20,
                         ),
                         Text(
-                          "  Operador: ${data['attributes']['operadore']['data'] != null ? data['attributes']['operadore']['data']['attributes']['user']['data']['attributes']['username'] : "".toString()}",
+                          "Operador: ${data['operadore'].toString() != null && data['operadore'].toString().isNotEmpty ? data['operadore'] != null && data['operadore'].isNotEmpty && data['operadore'][0]['up_users'] != null && data['operadore'][0]['up_users'].isNotEmpty && data['operadore'][0]['up_users'][0]['username'] != null ? data['operadore'][0]['up_users'][0]['username'] : "" : ""}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -231,7 +239,7 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                           height: 20,
                         ),
                         Text(
-                          "  Estado Devolución: ${data['attributes']['Estado_Devolucion'].toString()}",
+                          "Estado Devolución: ${data['estado_devolucion'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -239,7 +247,7 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                           height: 20,
                         ),
                         Text(
-                          "  Estado de Pago: ${data['attributes']['Estado_Pagado'].toString()}",
+                          "Estado de Pago: ${data['estado_pagado'].toString()}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -248,7 +256,7 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                         ),
                         // ! modificacion aqui para el comentario
                         Text(
-                          "  Comentario: ${data['attributes']['Comentario'].toString()}",
+                          "Comentario: ${data['comentario'].toString()}",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
@@ -259,22 +267,21 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                           height: 20,
                         ),
                         Text(
-                          "  Archivo:",
+                          "Archivo:",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
                         SizedBox(
                           height: 10,
                         ),
-                        data['attributes']['Archivo'].toString().isEmpty ||
-                                data['attributes']['Archivo'].toString() ==
-                                    "null"
+                        data['archivo'].toString().isEmpty ||
+                                data['archivo'].toString() == "null"
                             ? Container()
                             : Container(
                                 width: 300,
                                 height: 400,
                                 child: Image.network(
-                                  "$generalServer${data['attributes']['Archivo'].toString()}",
+                                  "$generalServer${data['archivo'].toString()}",
                                   fit: BoxFit.fill,
                                 )),
                         SizedBox(
@@ -312,9 +319,7 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                             height: 500,
                             width: 500,
                             child: ListView.builder(
-                                itemCount: data['attributes']['novedades']
-                                        ['data']
-                                    .length,
+                                itemCount: data['novedades'].length,
                                 itemBuilder: (context, index) {
                                   return ListTile(
                                     title: Container(
@@ -343,7 +348,7 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                                           Padding(
                                             padding: const EdgeInsets.all(8.0),
                                             child: Text(
-                                              " ${data['attributes']['novedades']['data'][index]['attributes']['comment']}",
+                                              " ${data['novedades'][index]['comment']}",
                                               style: const TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 18,
@@ -362,7 +367,7 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                                           Padding(
                                             padding: const EdgeInsets.all(8.0),
                                             child: Text(
-                                              "${data['attributes']['novedades']['data'][index]['attributes']['try']}",
+                                              "${data['novedades'][index]['try']}",
                                               style: const TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 18,
@@ -373,7 +378,7 @@ class _InfoTransportationBilling extends State<InfoTransportationBilling> {
                                           Container(
                                               margin: EdgeInsets.all(30),
                                               child: Image.network(
-                                                "$generalServer${data['attributes']['novedades']['data'][index]['attributes']['url_image'].toString()}",
+                                                "$generalServer${data['novedades'][index]['url_image'].toString()}",
                                               )),
                                         ],
                                       ),

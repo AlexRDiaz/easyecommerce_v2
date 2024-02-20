@@ -3727,6 +3727,7 @@ class Connections {
       List and,
       List defaultAnd,
       List or,
+      List not,
       currentPage,
       sizePage,
       search,
@@ -3735,9 +3736,6 @@ class Connections {
     filtersAndAll.addAll(and);
     filtersAndAll.addAll(defaultAnd);
     try {
-      // print('start: ${sharedPrefs!.getString("dateDesdeTransportadora")}');
-      // print('end: ${sharedPrefs!.getString("dateHastaTransportadora")}');
-
       var response = await http.post(
           Uri.parse("$serverLaravel/api/pedidos-shopify/filter"),
           headers: {'Content-Type': 'application/json'},
@@ -3748,11 +3746,11 @@ class Connections {
             "end": dateEnd,
             "or": or,
             "and": filtersAndAll,
+            "not": not,
             "page_size": sizePage,
             "page_number": currentPage,
             "search": search,
             "sort": sortField,
-            "not": []
           }));
       // print("sort -> $sortField");
       // print("and -> $and");
@@ -8303,7 +8301,6 @@ class Connections {
 
   updatePassWordbyIdLaravel(idUser, password) async {
     try {
-
       print(idUser);
       var response = await http.post(
           Uri.parse("$serverLaravel/api/users/reset-password/$idUser"),
@@ -8342,17 +8339,15 @@ class Connections {
     }
   }
 
-  updateRefererCost(idSeller,newRefererCost) async {
+  updateRefererCost(idSeller, newRefererCost) async {
     try {
-
       print("$idSeller -- $newRefererCost");
-      var request =
-          await http.put(Uri.parse("$serverLaravel/api/vendedores-cost/$idSeller"),
-              headers: {'Content-Type': 'application/json'},
-              body: json.encode({
-                "referer_cost": newRefererCost,
-              
-              }));
+      var request = await http.put(
+          Uri.parse("$serverLaravel/api/vendedores-cost/$idSeller"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "referer_cost": newRefererCost,
+          }));
       var response = await request.body;
       var decodeData = json.decode(response);
       if (request.statusCode != 200) {
@@ -8364,7 +8359,6 @@ class Connections {
       print(e);
     }
   }
-
 
   sendWithdrawalSeller(amount) async {
     try {
