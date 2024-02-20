@@ -280,8 +280,15 @@ class _AddSellersState extends State<AddSellers> {
             color: Colors.black),
         columnSpacing: 12,
         horizontalMargin: 12,
-        minWidth: 800,
+        minWidth: 850,
         columns: [
+          DataColumn2(
+            label: Text('Id'),
+            size: ColumnSize.S,
+            onSort: (columnIndex, ascending) {
+              // sortFuncUser();
+            },
+          ),
           DataColumn2(
             label: Text('Tipo Vendedor'),
             size: ColumnSize.L,
@@ -367,6 +374,10 @@ class _AddSellersState extends State<AddSellers> {
             dataL.length,
             (index) => DataRow(cells: [
                   DataCell(
+                      Text(dataL[index]["up_user"]['id']
+                          .toString()),
+                      onTap: () {}),
+                  DataCell(
                       Row(
                         children: [
                           if (_principal(_getTypeSeller(dataL[index]
@@ -380,14 +391,20 @@ class _AddSellersState extends State<AddSellers> {
                               : 0))) // Esta es una función que determina si es el principal.
                             Icon(Icons.star, color: Colors.orange),
                           Flexible(
-                            child: Text(_getTypeSeller(dataL[index]["up_user"] != null &&
-                                    dataL[index]["up_user"].isNotEmpty
-                                ? dataL[index]["up_user"]['id'] != null
-                                    ? int.parse(
-                                        dataL[index]["up_user"]['id'].toString())
-                                    : 0
-                                : 0 ,), overflow: TextOverflow.ellipsis,
-                                softWrap: false,),
+                            child: Text(
+                              _getTypeSeller(
+                                dataL[index]["up_user"] != null &&
+                                        dataL[index]["up_user"].isNotEmpty
+                                    ? dataL[index]["up_user"]['id'] != null
+                                        ? int.parse(dataL[index]["up_user"]
+                                                ['id']
+                                            .toString())
+                                        : 0
+                                    : 0,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              softWrap: false,
+                            ),
                           ),
                         ],
                       ),
@@ -551,7 +568,8 @@ class _AddSellersState extends State<AddSellers> {
                                           style: TextStyle(
                                               fontSize: 18,
                                               fontWeight: FontWeight.bold)),
-                                      Text("Ingrese valores en el formato  decimal (ej: 0.50)"),
+                                      Text(
+                                          "Ingrese valores en el formato  decimal (ej: 0.50)"),
                                       Container(
                                         margin: EdgeInsets.all(15.0),
                                         child: TextField(
@@ -563,10 +581,10 @@ class _AddSellersState extends State<AddSellers> {
                                           //   FilteringTextInputFormatter
                                           //       .digitsOnly
                                           // ],
-                                          keyboardType:
-                                              const TextInputType.numberWithOptions(
-                                                  decimal:
-                                                      true), // Permite números y punto decimal
+                                          keyboardType: const TextInputType
+                                              .numberWithOptions(
+                                              decimal:
+                                                  true), // Permite números y punto decimal
                                           inputFormatters: [
                                             FilteringTextInputFormatter.allow(
                                                 RegExp(
@@ -613,13 +631,15 @@ class _AddSellersState extends State<AddSellers> {
                                   btnOkOnPress: () async {
                                     String supervisorName =
                                         supervisorController.text;
-                                    if(supervisorName != "" ){
-                                    await Connections().updateRefererCost(
-                                        dataL[index]['vendedor_id'].toString(),
-                                        supervisorName);
-                                    loadData();
-                                    }else{
-                                      _showErrorSnackBar(context, "Costo Referido Vacío, Ingrese un Valor.");
+                                    if (supervisorName != "") {
+                                      await Connections().updateRefererCost(
+                                          dataL[index]['vendedor_id']
+                                              .toString(),
+                                          supervisorName);
+                                      loadData();
+                                    } else {
+                                      _showErrorSnackBar(context,
+                                          "Costo Referido Vacío, Ingrese un Valor.");
                                     }
                                   },
                                 ).show();
