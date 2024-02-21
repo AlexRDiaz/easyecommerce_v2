@@ -821,21 +821,30 @@ class _NoveltiesLState extends State<NoveltiesL> {
     );
   }
 
-  void _handleCheckboxChanged(bool? newValue, int index) async {
-    var gestionedNovelty = data[index]['gestioned_novelty'];
-    if (gestionedNovelty is String) {
-      gestionedNovelty = json.decode(gestionedNovelty);
+void _handleCheckboxChanged(bool? newValue, int index) async {
+  var dataAtIndex = data[index];
+  if (dataAtIndex != null) {
+    var gestionedNovelty = dataAtIndex['gestioned_novelty'];
+    Map<String, dynamic> updatedGestionedNovelty;
+
+    if (gestionedNovelty != null) {
+      if (gestionedNovelty is String) {
+        gestionedNovelty = json.decode(gestionedNovelty);
+      }
+      updatedGestionedNovelty = gestionedNovelty as Map<String, dynamic>;
+    } else {
+      updatedGestionedNovelty = {};
     }
 
-    gestionedNovelty['verified'] = newValue ?? false;
-    data[index]['gestioned_novelty'] = gestionedNovelty;
+    updatedGestionedNovelty['verified'] = newValue ?? false;
+    dataAtIndex['gestioned_novelty'] = updatedGestionedNovelty;
 
     await Connections().updateOrCreateGestionedNovelty(
-        data[index]['id'].toString(), "verified:$newValue");
+        dataAtIndex['id'].toString(), "verified:${newValue.toString()}");
 
     loadData();
   }
-
+}
   Checkbox checkboxPersonalizado(int index) {
     bool valorActual = false;
     String resp = getStateFromJson(
@@ -1118,7 +1127,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
       Map<String, dynamic> jsonMap = json.decode(jsonString);
       return jsonMap[claveAbuscar]?.toString() ?? '';
     } catch (e) {
-      print('Error al decodificar JSON: $e');
+      // print('Error al decodificar JSON: $e');
       return ''; // Manejar el error retornando una cadena vacía o un valor predeterminado
     }
   }
@@ -1133,7 +1142,7 @@ class _NoveltiesLState extends State<NoveltiesL> {
       Map<String, dynamic> jsonMap = json.decode(jsonString);
       return int.parse(jsonMap[claveAbuscar]!.toString()) ?? 0;
     } catch (e) {
-      print('Error al decodificar JSON: $e');
+      // print('Error al decodificar JSON: $e');
       return 0; // Manejar el error retornando una cadena vacía o un valor predeterminado
     }
   }
