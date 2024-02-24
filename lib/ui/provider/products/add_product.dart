@@ -343,7 +343,7 @@ class _AddProductState extends State<AddProduct> {
                                     showSuccessModal(
                                         context,
                                         "Por favor, ingrese el SKU, Precio Bodega y el Precio sugerido del producto",
-                                        Icons8.alert);
+                                        Icons8.warning_1);
                                   } else {
                                     if (double.parse(_priceWarehouseController
                                                 .text) <=
@@ -354,7 +354,7 @@ class _AddProductState extends State<AddProduct> {
                                       showSuccessModal(
                                           context,
                                           "Por favor, ingrese el precio Bodega y el sugerido de los productos validos",
-                                          Icons8.alert);
+                                          Icons8.warning_1);
                                     } else {
                                       setState(() {
                                         selectedColores = [];
@@ -753,7 +753,7 @@ class _AddProductState extends State<AddProduct> {
                                         showSuccessModal(
                                             context,
                                             "Por favor, ingrese una Cantidad y SKU válida.",
-                                            Icons8.alert);
+                                            Icons8.warning_1);
                                       } else {
                                         //
                                         var variant;
@@ -1208,7 +1208,7 @@ class _AddProductState extends State<AddProduct> {
                                         showSuccessModal(
                                             context,
                                             "Por favor, ingrese un SKU.",
-                                            Icons8.alert);
+                                            Icons8.warning_1);
                                       } else {
                                         // if ((chosenSize == null ||
                                         //     chosenColor == null ||
@@ -1233,7 +1233,7 @@ class _AddProductState extends State<AddProduct> {
                                           showSuccessModal(
                                               context,
                                               "Por favor, seleccione e ingrese una Cantidad valida.",
-                                              Icons8.alert);
+                                              Icons8.warning_1);
                                         } else {
                                           //
                                           var variant;
@@ -1937,7 +1937,7 @@ class _AddProductState extends State<AddProduct> {
                                       showSuccessModal(
                                           context,
                                           "Por favor, ingrese un correo electrónico válido.",
-                                          Icons8.alert);
+                                          Icons8.warning_1);
                                     } else {
                                       int? stock =
                                           int.tryParse(_stockController.text);
@@ -1949,7 +1949,7 @@ class _AddProductState extends State<AddProduct> {
                                         showSuccessModal(
                                             context,
                                             "Por favor, revise la cantidad de los productos privados.",
-                                            Icons8.alert);
+                                            Icons8.warning_1);
                                       } else {
                                         print("Add en reservasToSend");
 
@@ -1984,7 +1984,7 @@ class _AddProductState extends State<AddProduct> {
                                                 showSuccessModal(
                                                     context,
                                                     "Revise la cantidad de los productos privados no pueden ser mayor a la existencia ",
-                                                    Icons8.alert);
+                                                    Icons8.warning_1);
                                               } else {
                                                 setState(() {
                                                   reservasToSend.add({
@@ -2027,7 +2027,7 @@ class _AddProductState extends State<AddProduct> {
                                                 showSuccessModal(
                                                     context,
                                                     "Revise la cantidad de los productos privados no pueden ser mayor a la existencia ",
-                                                    Icons8.alert);
+                                                    Icons8.warning_1);
                                               } else {
                                                 setState(() {
                                                   reservasToSend.add({
@@ -2169,7 +2169,7 @@ class _AddProductState extends State<AddProduct> {
                                       // showSuccessModal(
                                       //     context,
                                       //     "Por favor, Es necesario que seleccione el Tipo, Categoría/as y Bodega.",
-                                      //     Icons8.alert);
+                                      //     Icons8.warning_1);
                                     } else {
                                       if (selectedType == "SIMPLE") {
                                         optionsTypes = [];

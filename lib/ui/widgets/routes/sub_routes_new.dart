@@ -230,7 +230,7 @@ class _SubRoutesModalNewState extends State<SubRoutesModalNew> {
                           showSuccessModal(
                               context,
                               "Error, Ocurrio un error en la solicitud.",
-                              Icons8.alert);
+                              Icons8.warning_1);
                         }
                       } else {
                         // print("multi");

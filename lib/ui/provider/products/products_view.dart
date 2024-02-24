@@ -1936,7 +1936,7 @@ class _ProductsViewState extends State<ProductsView> {
               onPressed: () async {
                 if (selectedWarehouseToCopy == null) {
                   showSuccessModal(context, "Por favor, Seleccione una Bodega.",
-                      Icons8.alert);
+                      Icons8.warning_1);
                 } else {
                   getLoadingModal(context, false);
 

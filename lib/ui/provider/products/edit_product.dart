@@ -728,7 +728,7 @@ class _EditProductState extends State<EditProduct> {
                                   showSuccessModal(
                                       context,
                                       "Por favor, ingrese las unidades y el motivo.",
-                                      Icons8.alert);
+                                      Icons8.warning_1);
                                 } else {
                                   if (isVariable == 1) {
                                     String skuVariant =
@@ -811,7 +811,7 @@ class _EditProductState extends State<EditProduct> {
                                   showSuccessModal(
                                       context,
                                       "Por favor, ingrese las unidades y el motivo.",
-                                      Icons8.alert);
+                                      Icons8.warning_1);
                                 } else {
                                   if (isVariable == 1) {
                                     String skuVariant =
@@ -1441,7 +1441,7 @@ class _EditProductState extends State<EditProduct> {
                                                 showSuccessModal(
                                                     context,
                                                     "Por favor, ingrese una Cantidad y SKU válida.",
-                                                    Icons8.alert);
+                                                    Icons8.warning_1);
                                               } else {
                                                 //
                                                 var variant;

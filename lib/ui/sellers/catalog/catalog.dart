@@ -3057,7 +3057,7 @@ class _CatalogState extends State<Catalog> {
                                   showSuccessModal(
                                       context,
                                       "Ha ocurrido un error al actualizar favoritos.",
-                                      Icons8.alert);
+                                      Icons8.warning_1);
                                 } else {
                                   // ignore: use_build_context_synchronously
                                   AwesomeDialog(
@@ -3095,7 +3095,7 @@ class _CatalogState extends State<Catalog> {
                                   showSuccessModal(
                                       context,
                                       "Ha ocurrido un error al agregar a favoritos.",
-                                      Icons8.alert);
+                                      Icons8.warning_1);
                                 } else {
                                   // ignore: use_build_context_synchronously
                                   AwesomeDialog(
@@ -3176,7 +3176,7 @@ class _CatalogState extends State<Catalog> {
                                   showSuccessModal(
                                       context,
                                       "Ha ocurrido un error al actualizar En venta.",
-                                      Icons8.alert);
+                                      Icons8.warning_1);
                                 } else {
                                   // ignore: use_build_context_synchronously
                                   AwesomeDialog(
@@ -3223,7 +3223,7 @@ class _CatalogState extends State<Catalog> {
                                   showSuccessModal(
                                       context,
                                       "Ha ocurrido un error al agregar a En venta.",
-                                      Icons8.alert);
+                                      Icons8.warning_1);
                                 } else {
                                   // ignore: use_build_context_synchronously
                                   AwesomeDialog(
@@ -3324,7 +3324,7 @@ class _CatalogState extends State<Catalog> {
                                             showSuccessModal(
                                                 context,
                                                 "Ha ocurrido un error al actualizar favoritos.",
-                                                Icons8.alert);
+                                                Icons8.warning_1);
                                           } else {
                                             // ignore: use_build_context_synchronously
                                             AwesomeDialog(
@@ -3365,7 +3365,7 @@ class _CatalogState extends State<Catalog> {
                                             showSuccessModal(
                                                 context,
                                                 "Ha ocurrido un error al agregar a favoritos.",
-                                                Icons8.alert);
+                                                Icons8.warning_1);
                                           } else {
                                             // ignore: use_build_context_synchronously
                                             AwesomeDialog(
@@ -3455,7 +3455,7 @@ class _CatalogState extends State<Catalog> {
                                             showSuccessModal(
                                                 context,
                                                 "Ha ocurrido un error al actualizar En venta.",
-                                                Icons8.alert);
+                                                Icons8.warning_1);
                                           } else {
                                             // ignore: use_build_context_synchronously
                                             AwesomeDialog(
@@ -3506,7 +3506,7 @@ class _CatalogState extends State<Catalog> {
                                             showSuccessModal(
                                                 context,
                                                 "Ha ocurrido un error al agregar a En venta.",
-                                                Icons8.alert);
+                                                Icons8.warning_1);
                                           } else {
                                             // ignore: use_build_context_synchronously
                                             AwesomeDialog(

@@ -4121,8 +4121,8 @@ class Connections {
     filtersAndAll.addAll(filtersAnd);
 
     filtersAndAll.addAll(defaultAnd);
-    print(json.encode(
-        {"and": filtersAndAll, "or": filtersOr, "searchValue": searchValue}));
+    // print(json.encode(
+    //     {"and": filtersAndAll, "or": filtersOr, "searchValue": searchValue}));
     try {
       var response =
           await http.post(Uri.parse("$serverLaravel/api/operadoresoftransport"),
@@ -6443,6 +6443,90 @@ class Connections {
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  //  *
+  Future getRoutesByCarrier(idCarrier) async {
+    try {
+      var response = await http.get(
+        Uri.parse("$serverLaravel/api/transportadora/rutas/$idCarrier"),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  //  *
+  Future updateOperatorGeneralLaravel(
+      idUser, idOper, idSubruta, user, mail, costo, phone) async {
+    try {
+      var response =
+          await http.put(Uri.parse("$serverLaravel/api/users/operator/$idUser"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "idOper": idOper,
+                "idSubRoute": idSubruta,
+                "username": user,
+                "email": mail,
+                "cost": costo,
+                "phone": phone,
+              }));
+      if (response.statusCode == 200) {
+        return 0;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  //  *
+  Future updateUserGeneral(id, datajson) async {
+    try {
+      var request = await http.put(Uri.parse("$serverLaravel/api/users/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(datajson));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  //  *
+  Future createRouteLaravel(idCarrier, idRoute, subrouteName) async {
+    try {
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/subrutas/new"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "id_carrier": idCarrier,
+                "id_route": idRoute,
+                "subroute_name": subrouteName,
+              }));
+      if (response.statusCode == 200) {
+        return 0;
       } else {
         return 1;
       }
