@@ -307,79 +307,93 @@ class _MyOrdersPRVTransportState extends State<MyOrdersPRVTransport> {
       content: Scaffold(
         body: Container(
           width: double.infinity,
-          padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 10,
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: GestureDetector(
-                  onTap: () async {
-                    resetFilters();
-                    getOldValue(true);
-                    await loadData();
-                  },
-                  child: Container(
-                    color: Colors.transparent,
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Icon(
-                          Icons.replay_outlined,
-                          color: Colors.green,
+          child: ListView(
+            children: <Widget>[
+              Container(
+                // color: Colors.grey[300],
+                color: Colors.white,
+
+                child: Container(
+                  width: double.infinity,
+                  padding:
+                      const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+                  child: Column(
+                    children: [
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: GestureDetector(
+                          onTap: () async {
+                            resetFilters();
+                            getOldValue(true);
+                            await loadData();
+                          },
+                          child: Container(
+                            color: Colors.transparent,
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Icon(
+                                  Icons.replay_outlined,
+                                  color: Colors.green,
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text(
+                                  "Recargar Información",
+                                  style: TextStyle(
+                                      decoration: TextDecoration.underline,
+                                      color: Colors.green),
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Text(
-                          "Recargar Información",
-                          style: TextStyle(
-                              decoration: TextDecoration.underline,
-                              color: Colors.green),
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Align(
+                              alignment: Alignment.centerRight,
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  await showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return ScannerOrdersPrv();
+                                      });
+                                  await loadData();
+                                },
+                                style: ButtonStyle(
+                                  backgroundColor: MaterialStateProperty.all(
+                                    const Color(0xFF031749),
+                                  ),
+                                ),
+                                child: const Text(
+                                  "SCANNER",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      responsive(webMainContainer(width, heigth, context),
+                          mobileMainContainer(width, heigth, context), context),
+                      const SizedBox(height: 10),
+                    ],
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          await showDialog(
-                              context: context,
-                              builder: (context) {
-                                return ScannerOrdersPrv();
-                              });
-                          await loadData();
-                        },
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all(
-                            const Color(0xFF031749),
-                          ),
-                        ),
-                        child: const Text(
-                          "SCANNER",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              responsive(webMainContainer(width, heigth, context),
-                  mobileMainContainer(width, heigth, context), context),
             ],
           ),
         ),
@@ -865,7 +879,7 @@ class _MyOrdersPRVTransportState extends State<MyOrdersPRVTransport> {
 
   _dataTableOrdersMobile(height) {
     return Container(
-      height: height * 0.70,
+      height: height * 0.80,
       child: DataTableModelPrincipal(
           columnWidth: 400, columns: getColumns(), rows: buildDataRows(dataL)),
     );

@@ -29,8 +29,10 @@ class _CreateSubRoutesModalState extends State<CreateSubRoutesModal> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
-
-    routesList = await Connections().getRoutesForTransporter(widget.idTransport);
+    print("_CreateSubRoutesModalState");
+    routesList =
+        await Connections().getRoutesForTransporter(widget.idTransport);
+    print(routesList);
 
     for (var i = 0; i < routesList.length; i++) {
       setState(() {

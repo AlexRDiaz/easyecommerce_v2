@@ -10,5 +10,5 @@ class ColorsSystem {
   Color textoClaro = Color(0xff00A5FF);
   Color violetWidgets = Color(0xffEAE8EF);
   Color colorVioletDateText = Color(0xff5D4D89);
-
+  Color mainBlue = Color(0xFF031749);
 }

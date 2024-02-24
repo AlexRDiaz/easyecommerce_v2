@@ -4,6 +4,7 @@ import 'package:frontend/config/exports.dart';
 import 'package:frontend/providers/logistic/navigation_provider.dart';
 import 'package:frontend/providers/transport/navigation_provider.dart';
 import 'package:frontend/ui/operator/resolved_novelties/resolved_novelties.dart';
+import 'package:frontend/ui/transport/add_operators_transport/add_operators_view.dart';
 import 'package:frontend/ui/transport/add_operators_transport/add_operators_transport.dart';
 import 'package:frontend/ui/transport/create_sub_routes_transport/create_sub_routes_transport.dart';
 import 'package:frontend/ui/transport/delivery_status_transport/delivery_status_transport.dart';
@@ -42,7 +43,7 @@ class _LayoutTransportPageState extends State<LayoutTransportPage> {
     WelcomeScreen(),
     MyOrdersPRVTransport(),
     DeliveryStatusTransport(),
-    AddOperatorsTransport(),
+    AddOperatorsView(),
     MyTransporterAccount(),
     Withdrawals(),
     PaymentVouchersTransport(),

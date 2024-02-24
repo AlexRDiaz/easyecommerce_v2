@@ -369,7 +369,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     } else {
       print("No existen datos con este filtro");
       showSuccessModal(context,
-          "No existen datos con los filtros seleccionados.", Icons8.alert);
+          "No existen datos con los filtros seleccionados.", Icons8.warning_1);
     }
 
     //
