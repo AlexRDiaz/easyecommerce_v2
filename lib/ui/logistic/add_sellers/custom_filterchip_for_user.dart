@@ -47,6 +47,8 @@ class _CustomFilterChips extends State<CustomFilterChips> {
   }
 
   void _prepareChipList() {
+    chipList.clear();
+    
     for (var viewName in widget.accessTemp) {
       chipList.add({
         'view_name': viewName,

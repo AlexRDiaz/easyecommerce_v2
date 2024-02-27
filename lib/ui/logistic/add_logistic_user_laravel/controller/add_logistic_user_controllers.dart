@@ -18,39 +18,48 @@ class AddLogisticsLaravelControllers {
       TextEditingController(text: "");
 
   createLogisticUser({success, error, permisos}) async {
-    var response = await Connections().createLogisticUser(
-        userController.text,
-        personController.text,
-        phone1Controller.text,
-        phone2Controller.text,
-        mailController.text,
-        permisos);
-    if (response[0]) {
-      success(response[1]);
+    if (phone1Controller.text != "" ||
+        phone2Controller.text != "" ||
+        personController.text != "" ||
+        userController.text != "" ||
+        personController.text != "" ||
+        mailController.text != "") {
+      error();
+    }
+
+    Map<String, dynamic> roleParameters = {
+      "telefono1": phone1Controller.text,
+      "telefono2": phone2Controller.text,
+      "persona_cargo": personController.text
+    };
+
+    var response = await Connections().createUser(1, userController.text,
+        mailController.text, permisos, 1, roleParameters);
+
+    if (response['user_id'] != null) {
+      success(response['user_id']);
     } else {
       error();
     }
   }
 
   updateControllersEdit(data) {
-    phone1EditController.text = data["telefono_1"].toString();
-    phone2EditController.text = data["telefono_2"].toString();
-    userEditController.text = data["username"].toString();
-    mailEditController.text = data["email"].toString();
-    personEditController.text = data["persona_cargo"].toString();
+    phone1EditController.text = data[0]['up_user']["telefono_1"].toString();
+    phone2EditController.text = data[0]['up_user']["telefono_2"].toString();
+    userEditController.text = data[0]['up_user']["username"].toString();
+    mailEditController.text = data[0]['up_user']["email"].toString();
+    personEditController.text = data[0]['up_user']["persona_cargo"].toString();
   }
 
-  updateUser({success, error, permisos}) async {
-    var response = await Connections().updateLogisticUser(
+  updateUser({success, error, id}) async {
+    var response = await Connections().updateLogisticUserLara(
+        id,
         userEditController.text,
-        phone1EditController.text,
-        phone2EditController.text,
-        personEditController.text,
         mailEditController.text,
-        passwordEditController.text,
-        // permisos);
-        );
-    if (response) {
+        personEditController.text,
+        phone1EditController.text,
+        phone2EditController.text);
+    if (response != 1 && response != 2) {
       success();
     } else {
       error();

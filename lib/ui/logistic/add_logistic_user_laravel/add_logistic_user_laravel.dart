@@ -7,6 +7,7 @@ import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/navigators.dart';
 import 'package:frontend/ui/logistic/add_logistic_user_laravel/controller/add_logistic_user_controllers.dart';
+import 'package:frontend/ui/logistic/add_logistic_user_laravel/edit_logistic_user_laravel.dart';
 import 'package:frontend/ui/logistic/add_logistics_user/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/logistic/add_logistic_user.dart';
@@ -108,12 +109,11 @@ class _AddLogisticsUserLaravelState extends State<AddLogisticsUserLaravel> {
             ),
             Expanded(
               child: Container(
-                margin: EdgeInsets.all(10.0),
-                decoration: BoxDecoration(
-                  border: Border.all(width: 1,color: Colors.grey),
-                  borderRadius: BorderRadius.circular(10.0)
-                ),
-                child: dataTable(context)),
+                  margin: EdgeInsets.all(10.0),
+                  decoration: BoxDecoration(
+                      border: Border.all(width: 1, color: Colors.grey),
+                      borderRadius: BorderRadius.circular(10.0)),
+                  child: dataTable(context)),
             ),
           ],
         ),
@@ -123,112 +123,127 @@ class _AddLogisticsUserLaravelState extends State<AddLogisticsUserLaravel> {
 
   DataTable2 dataTable(BuildContext context) {
     return DataTable2(
-                headingTextStyle: TextStyle(
-                    fontWeight: FontWeight.bold, color: Colors.black),
-                dataTextStyle: TextStyle(
-                    fontSize: 12,
-                    color: Colors.black),
-                columnSpacing: 10,
-                horizontalMargin: 10,
-                minWidth: 800,
-                columns: [
-                  DataColumn2(
-                    label: Text('Usuario'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFuncUser();
-                    },
-                  ),
-                  DataColumn2(
-                    label: Text('Persona Cargo'),
-                    size: ColumnSize.M,
-                    onSort: (columnIndex, ascending) {
-                      // sortFuncPersonaCargo();
-                    },
-                  ),
-                  DataColumn2(
-                    label: Text(''),
-                    size: ColumnSize.M,
-                  ),
-                  DataColumn2(
-                    label: Text('Tipo de Usuario'),
-                    size: ColumnSize.M,
-                  ),
-                  DataColumn2(
-                    label: Text(''),
-                    size: ColumnSize.M,
-                  ),
-                ],
-                rows: List<DataRow>.generate(
-                    data.length,
-                    (index) => DataRow(cells: [
-                          DataCell(onTap: () {
-                            // Navigators().pushNamed(context,
-                            //     '/layout/logistic/logistic-user/info?id=${data[index]['id']}');
-                          }, Text(data[index]['up_user']['username'].toString())),
-                          DataCell(
-                              Text(data[index]['up_user']['persona_cargo'].toString()),
-                              onTap: () {
-                            // Navigators().pushNamed(context,
-                            //     '/layout/logistic/logistic-user/info?id=${data[index]['id']}');
-                          }),
-                          DataCell(Row(
-                            children: [
-                              GestureDetector(
-                                onTap: () async {
-                                  var _url = Uri(
-                                      scheme: 'tel',
-                                      path:
-                                          '${data[index]['up_user']['telefono_1'].toString()}');
+        headingTextStyle:
+            TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+        dataTextStyle: TextStyle(fontSize: 12, color: Colors.black),
+        columnSpacing: 10,
+        horizontalMargin: 10,
+        minWidth: 800,
+        columns: [
+          DataColumn2(
+            label: Text('Id'),
+            size: ColumnSize.S,
+            onSort: (columnIndex, ascending) {},
+          ),
+          DataColumn2(
+            label: Text('Usuario'),
+            size: ColumnSize.M,
+            onSort: (columnIndex, ascending) {},
+          ),
+          DataColumn2(
+            label: Text('Persona Cargo'),
+            size: ColumnSize.M,
+            onSort: (columnIndex, ascending) {
+              // sortFuncPersonaCargo();
+            },
+          ),
+          DataColumn2(
+            label: Text(''),
+            size: ColumnSize.M,
+          ),
+          DataColumn2(
+            label: Text('Tipo de Usuario'),
+            size: ColumnSize.M,
+          ),
+          DataColumn2(
+            label: Text(''),
+            size: ColumnSize.M,
+          ),
+        ],
+        rows: List<DataRow>.generate(
+            data.length,
+            (index) => DataRow(cells: [
+                  DataCell(Text(data[index]['up_user']['id'].toString())),
+                  DataCell(onTap: () async {
+                    await showDialog(
+                        context: context,
+                        builder: (context) {
+                          return EditLogisticUserLaravel(dataT: data[index]);
+                        });
+                    loadData();
+                  },
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.admin_panel_settings,
+                            color: Colors.amber,
+                          ),
+                          Text(data[index]['up_user']['username'].toString()),
+                        ],
+                      )),
+                  DataCell(
+                      Text(data[index]['up_user']['persona_cargo'].toString()),
+                      onTap: () {
+                    // Navigators().pushNamed(context,
+                    //     '/layout/logistic/logistic-user/info?id=${data[index]['id']}');
+                  }),
+                  DataCell(Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () async {
+                          var _url = Uri(
+                              scheme: 'tel',
+                              path:
+                                  '${data[index]['up_user']['telefono_1'].toString()}');
 
-                                  if (!await launchUrl(_url)) {
-                                    throw Exception('Could not launch $_url');
-                                  }
-                                },
-                                child: Icon(
-                                  Icons.call,
-                                  size: 20,
-                                ),
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              GestureDetector(
-                                onTap: () async {
-                                  var _url = Uri.parse(
-                                      "https://api.whatsapp.com/send?phone=${data[index]['up_user']['telefono_1'].toString()}&text=Hola, me gustaría ......");
-                                  if (!await launchUrl(_url)) {
-                                    throw Exception('Could not launch $_url');
-                                  }
-                                },
-                                child: Icon(
-                                  Icons.message_outlined,
-                                  size: 20,
-                                ),
-                              )
-                            ],
-                          )),
-                          DataCell(
-                              Text(data[index]['roles_front']['titulo']
-                                  .toString()), onTap: () {
-                            // Navigators().pushNamed(context,
-                            //     '/layout/logistic/logistic-user/info?id=${data[index]['id']}');
-                          }),
-                          DataCell(GestureDetector(
-                            onTap: () async {
-                              // getLoadingModal(context, false);
-                              var response = await Connections()
-                                  .deleteUser(data[index]['up_user']['id']);
+                          if (!await launchUrl(_url)) {
+                            throw Exception('Could not launch $_url');
+                          }
+                        },
+                        child: Icon(
+                          Icons.call,
+                          size: 20,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      GestureDetector(
+                        onTap: () async {
+                          var _url = Uri.parse(
+                              "https://api.whatsapp.com/send?phone=${data[index]['up_user']['telefono_1'].toString()}&text=Hola, me gustaría ......");
+                          if (!await launchUrl(_url)) {
+                            throw Exception('Could not launch $_url');
+                          }
+                        },
+                        child: Icon(
+                          Icons.message_outlined,
+                          size: 20,
+                        ),
+                      )
+                    ],
+                  )),
+                  DataCell(
+                      Text(data[index]['roles_front']['titulo'].toString()),
+                      onTap: () {
+                    // Navigators().pushNamed(context,
+                    //     '/layout/logistic/logistic-user/info?id=${data[index]['id']}');
+                  }),
+                  DataCell(GestureDetector(
+                    onTap: () async {
+                      // getLoadingModal(context, false);
+                      await Connections()
+                          .deleteUser(data[index]['up_user']['id'].toString());
 
-                              // Navigator.pop(context);
-                              await loadData();
-                            },
-                            child: Icon(
-                              Icons.delete_forever_outlined,
-                              color: Colors.redAccent,
-                            ),
-                          )),
-                        ])));
+                      // Navigator.pop(context);
+                      await loadData();
+                    },
+                    child: Icon(
+                      Icons.delete_forever_outlined,
+                      color: Colors.redAccent,
+                    ),
+                  )),
+                ])));
   }
 
   modalAddLogisticUser(BuildContext context) async {
@@ -245,7 +260,7 @@ class _AddLogisticsUserLaravelState extends State<AddLogisticsUserLaravel> {
       margin: EdgeInsets.all(8.0),
       width: MediaQuery.of(context).size.width * 0.4,
       decoration: BoxDecoration(
-        border: Border.all(width: 1,color: Colors.grey),
+        border: Border.all(width: 1, color: Colors.grey),
         borderRadius: BorderRadius.circular(10.0),
         color: Color.fromARGB(255, 245, 244, 244),
       ),

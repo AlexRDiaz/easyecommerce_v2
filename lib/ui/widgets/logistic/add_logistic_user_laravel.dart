@@ -15,7 +15,8 @@ class AddLogisticUserLaravel extends StatefulWidget {
 }
 
 class _AddLogisticUserLaravelState extends State<AddLogisticUserLaravel> {
-  AddLogisticsLaravelControllers _controllers = AddLogisticsLaravelControllers();
+  AddLogisticsLaravelControllers _controllers =
+      AddLogisticsLaravelControllers();
 
   List vistas = [];
 
@@ -30,41 +31,51 @@ class _AddLogisticUserLaravelState extends State<AddLogisticUserLaravel> {
             Column(
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment
+                      .spaceBetween, // Asegura que los hijos de la Row se distribuyan al inicio y al final
                   children: [
-                    GestureDetector(
+                    Text(
+                      "Registro de Usuario Logística",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Spacer(), // Inserta un Spacer aquí
+                    Align(
+                      alignment: Alignment
+                          .centerRight, // Corrige el alineamiento aquí si es necesario, aunque puede no ser necesario con el uso de Spacer
+                      child: GestureDetector(
                         onTap: () {
                           Navigator.pop(context);
                         },
-                        child: Icon(Icons.close))
+                        child: Icon(Icons.close),
+                      ),
+                    ),
                   ],
                 ),
                 SizedBox(
-                  height: 10,
+                  height: 20,
                 ),
                 _styledTextField(
-                    controller:  _controllers.userController,
-                    hintText: "Usuario", 
+                    controller: _controllers.userController,
+                    hintText: "Usuario",
                     prefixIcon: Icons.person,
                     iconColor: Colors.blue),
                 _styledTextField(
                     controller: _controllers.personController,
-                    hintText: "Persona Cargo", 
+                    hintText: "Persona Cargo",
                     prefixIcon: Icons.supervisor_account,
                     iconColor: Colors.deepPurple),
                 _styledTextField(
                     controller: _controllers.phone1Controller,
-                    hintText: "Teléfono Uno", 
+                    hintText: "Teléfono Uno",
                     prefixIcon: Icons.phone),
                 _styledTextField(
                     controller: _controllers.phone2Controller,
-                    hintText: "Teléfono Dos", 
+                    hintText: "Teléfono Dos",
                     prefixIcon: Icons.phone_android,
                     iconColor: Colors.orange),
                 _styledTextField(
                     controller: _controllers.mailController,
-                    hintText: "Correo", 
+                    hintText: "Correo",
                     prefixIcon: Icons.email,
                     iconColor: Colors.red),
                 SizedBox(
@@ -80,49 +91,38 @@ class _AddLogisticUserLaravelState extends State<AddLogisticUserLaravel> {
                             minimumSize: Size(200, 40)),
                         onPressed: () async {
                           getLoadingModal(context, false);
-                    
+
                           var accesofRol = await Connections()
                               .getAccessofSpecificRol("LOGISTICA");
                           vistas = accesofRol;
-                    
+
                           await _controllers.createLogisticUser(
                               permisos: vistas,
                               success: (id) {
                                 Navigator.pop(context);
+                                Navigator.pop(context);
                                 // loadData();
-                                showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return AlertDialog(
-                                        title: Text(
-                                          "Completado",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        actions: [
-                                          ElevatedButton(
-                                              onPressed: () {
-                                                setState(() {});
-                                                Navigator.pop(context);
-                                              },
-                                              child: Text(
-                                                "ACEPTAR",
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold),
-                                              )),
-                                          SizedBox(
-                                            width: 10,
-                                          )
-                                        ],
-                                      );
-                                    });
+                                // AwesomeDialog(
+                                //   width: 500,
+                                //   context: context,
+                                //   dialogType: DialogType.success,
+                                //   animType: AnimType.rightSlide,
+                                //   title: 'Ok',
+                                //   desc: 'Nuevo Usuario Logística Agregado',
+                                //   btnOkText: "Aceptar",
+                                //   btnOkColor: colors.colorGreen,
+                                //   btnOkOnPress: () {
+                                //     Navigator.pop(context);
+                                //   },
+                                // ).show();
                                 _controllers.userController.clear();
                                 _controllers.personController.clear();
                                 _controllers.phone1Controller.clear();
                                 _controllers.phone2Controller.clear();
                                 _controllers.mailController.clear();
-                    
-                                setState(() {});
+                                // Navigator.pop(context);
+
+                                // setState(() {});
                               },
                               error: () {
                                 Navigator.pop(context);
@@ -133,10 +133,8 @@ class _AddLogisticUserLaravelState extends State<AddLogisticUserLaravel> {
                                   animType: AnimType.rightSlide,
                                   title: 'Error',
                                   desc: 'Vuelve a intentarlo',
-                                  btnCancel: Container(),
                                   btnOkText: "Aceptar",
                                   btnOkColor: colors.colorGreen,
-                                  btnCancelOnPress: () {},
                                   btnOkOnPress: () {},
                                 ).show();
                               });
@@ -205,7 +203,7 @@ class _AddLogisticUserLaravelState extends State<AddLogisticUserLaravel> {
     );
   }
 
-    Widget _styledTextField({
+  Widget _styledTextField({
     required TextEditingController controller,
     required String hintText,
     IconData? prefixIcon,

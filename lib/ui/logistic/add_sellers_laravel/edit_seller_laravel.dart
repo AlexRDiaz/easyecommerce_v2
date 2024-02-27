@@ -48,34 +48,12 @@ class _EditSellersLaravelState extends State<EditSellersLaravel> {
 
   loadData() async {
     try {
-      // var response = await Connections().getSellerGeneralByID();
       setState(() {
         isLoading = true;
         dataL = [widget.dataT];
       });
       accessGeneralofRol = await Connections().getAccessofRolById(2);
-      // data = response;
-      // print(accessGeneralofRol);
-
-      // setState(() {
-      //   // dataL = [widget.dataT];
-      // });
-
-      // print(dataL);
-
       _controllers.updateControllersEdit(dataL);
-
-      // if (accessTemp == null || accessTemp.isEmpty) {
-      //   print("ERROR: accessTemp está vacío o es nulo.");
-      // }
-
-      // if (accessGeneralofRol == null || accessGeneralofRol.isEmpty) {
-      //   print("ERROR: accessGeneralofRol está vacío o es nulo.");
-      // }
-
-      // Future.delayed(Duration(milliseconds: 500), () {
-      //   // Navigator.pop(context);
-      // });
       setState(() {
         isLoading = false;
       });
