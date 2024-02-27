@@ -84,6 +84,9 @@ dependencies:
   badges: ^3.1.2
   photo_view: ^0.14.0
   dropdown_button2: ^2.3.8
+  flutter_spinbox: ^0.13.1
+  csv: ^5.1.1
+  file_saver: ^0.2.11
 
   
 

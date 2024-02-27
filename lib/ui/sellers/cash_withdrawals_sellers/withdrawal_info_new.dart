@@ -55,7 +55,7 @@ class _SellerWithdrawalInfoNewState extends State<SellerWithdrawalInfoNew> {
 
   @override
   Widget build(BuildContext context) {
-    print("hereee _SellerWithdrawalInfoState new info");
+    // print("hereee _SellerWithdrawalInfoState new info");
     double heigth = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
 
@@ -161,9 +161,12 @@ class _SellerWithdrawalInfoNewState extends State<SellerWithdrawalInfoNew> {
                                   if (_codeController.text ==
                                       data['codigo_generado']) {
                                     getLoadingModal(context, false);
+                                    // var response = await Connections()
+                                    //     .withdrawalPut(
+                                    //         data['id'], _codeController.text);
                                     var response = await Connections()
-                                        .withdrawalPut(
-                                            data['id'], _codeController.text);
+                                        .sendAproveWithdrawal(data['id']);
+
                                     Navigator.pop(context);
 
                                     AwesomeDialog(

@@ -82,7 +82,7 @@ class ProductCard extends StatelessWidget {
                   // v3
                   Container(
                     width: MediaQuery.of(context).size.width,
-                    padding: EdgeInsets.all(10),
+                    // padding: EdgeInsets.all(10),
                     height: imgHeight,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
