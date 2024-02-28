@@ -110,7 +110,7 @@ class _VendorWithDrawalRequestLaravelState
     } else if (screenSize.width == 1366 &&
         (screenSize.height >= 689 && screenSize.height <= 695)) {
       if (getStringCheck() == "APROBADO") {
-        baseAspectRatio = 0.45; // Aspecto base para 1440x900
+        baseAspectRatio = 0.5; // Aspecto base para 1440x900
       } else if (getStringCheck() == "RECHAZADO") {
         baseAspectRatio = 0.6; // Aspecto base para 1440x900
       } else {
@@ -358,42 +358,6 @@ class _VendorWithDrawalRequestLaravelState
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
-                                          // IconButton(
-                                          //   icon: Icon(
-                                          //     Icons.sync,
-                                          //     color: Colors.orange,
-                                          //   ),
-                                          //   onPressed: () {
-                                          //     // print('Hola');
-                                          //     AwesomeDialog(
-                                          //       width: 500,
-                                          //       context: context,
-                                          //       dialogType: DialogType.warning,
-                                          //       animType: AnimType.rightSlide,
-                                          //       title:
-                                          //           'Está segur@ de cambiar a Estado RECHAZADO la Solicitud correspondiente al monto de \$ ${data[index]['monto'].toString()} y restaurar dicho valor?',
-                                          //       desc: '',
-                                          //       btnOkText: "Aceptar",
-                                          //       btnCancelText: "Cancelar",
-                                          //       btnOkColor: colors.colorGreen,
-                                          //       btnCancelOnPress: () {},
-                                          //       btnOkOnPress: () async {
-                                          //         var response = await Connections()
-                                          //             .WithdrawalDenied(
-                                          //                 data[index]['users_permissions_user']
-                                          //                         [0]['id']
-                                          //                     .toString(),
-                                          //                 data[index]['id']
-                                          //                     .toString(),
-                                          //                 data[index]['monto']
-                                          //                     .toString());
-                                          //         print(response);
-                                          //         await loadData();
-                                          //       },
-                                          //     ).show();
-                                          //   },
-                                          // ),
-                                        
                                         ],
                                       ),
                                     ),
@@ -1046,7 +1010,10 @@ class _VendorWithDrawalRequestLaravelState
                         arrayFiltersAnd = [
                           // {"/estado": "APROBADO"}
                         ];
-                        arrayFiltersOr = ["monto", "fecha"];
+                        arrayFiltersOr = [ "monto",
+                          "users_permissions_user.user_id",
+                          "users_permissions_user.username",
+                          "users_permissions_user.email"];
                         arrayFiltersNot = [];
                         updateOrAddEstadoFilter(arrayFiltersAnd);
                         await loadData();
@@ -1080,7 +1047,7 @@ class _VendorWithDrawalRequestLaravelState
                           'up_users',
                         ];
                         arrayFiltersAnd = [];
-                        arrayFiltersOr = ["nombre_comercial"];
+                        arrayFiltersOr = ["nombre_comercial", "up_users.user_id","up_users.username"];
                         arrayFiltersNot = [
                           {"id_master": ""}
                         ];
@@ -1118,7 +1085,10 @@ class _VendorWithDrawalRequestLaravelState
                         arrayFiltersAnd = [
                           // {"/estado": "APROBADO"}
                         ];
-                        arrayFiltersOr = ["monto", "fecha"];
+                        arrayFiltersOr = [ "monto",
+                          "users_permissions_user.user_id",
+                          "users_permissions_user.username",
+                          "users_permissions_user.email"];
                         arrayFiltersNot = [];
                         updateOrAddEstadoFilter(arrayFiltersAnd);
                         await loadData();
@@ -1171,41 +1141,6 @@ class _VendorWithDrawalRequestLaravelState
                                           fontSize: 16.0,
                                           fontWeight: FontWeight.bold,
                                         ),
-                                      ),
-                                      IconButton(
-                                        icon: Icon(
-                                          Icons.sync,
-                                          color: Colors.orange,
-                                        ),
-                                        onPressed: () {
-                                          // print('Hola');
-                                          AwesomeDialog(
-                                            width: 500,
-                                            context: context,
-                                            dialogType: DialogType.warning,
-                                            animType: AnimType.rightSlide,
-                                            title:
-                                                'Está segur@ de cambiar a Estado RECHAZADO la Solicitud correspondiente al monto de \$ ${data[index]['monto'].toString()} y restaurar dicho valor?',
-                                            desc: '',
-                                            btnOkText: "Aceptar",
-                                            btnCancelText: "Cancelar",
-                                            btnOkColor: colors.colorGreen,
-                                            btnCancelOnPress: () {},
-                                            btnOkOnPress: () async {
-                                              var response = await Connections()
-                                                  .WithdrawalDenied(
-                                                      data[index]['users_permissions_user']
-                                                              [0]['id']
-                                                          .toString(),
-                                                      data[index]['id']
-                                                          .toString(),
-                                                      data[index]['monto']
-                                                          .toString());
-                                              print(response);
-                                              await loadData();
-                                            },
-                                          ).show();
-                                        },
                                       ),
                                     ],
                                   ),

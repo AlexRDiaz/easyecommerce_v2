@@ -144,8 +144,8 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
         isLoading: isLoading,
         content: AlertDialog(
             content: SizedBox(
-                width: MediaQuery.of(context).size.width * 0.8,
-                height: MediaQuery.of(context).size.height * 0.7,
+                width: MediaQuery.of(context).size.width * 0.9,
+                height: MediaQuery.of(context).size.height * 0.8,
                 child: responsive(webContainer(context, adjustedAspectRatio),
                     movilContainer(context, adjustedAspectRatio), context))));
   }
@@ -166,7 +166,7 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
       baseAspectRatio = 0.5; // Aspecto base para 1920x1080
     } else if (screenSize.width == 1366 &&
         (screenSize.height >= 689 && screenSize.height <= 695)) {
-      baseAspectRatio = 0.4; // Aspecto base para 1440x900
+      baseAspectRatio = 0.55; // Aspecto base para 1440x900
     } else {
       baseAspectRatio = 0.7; // Aspecto base por defecto
     }
@@ -291,7 +291,7 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 5,
           mainAxisSpacing: 10.0, // Espacio vertical entre elementos
-          crossAxisSpacing: 10.0, // Espacio horizontal entre elementos
+          crossAxisSpacing: 5.0, // Espacio horizontal entre elementos
           childAspectRatio:
               adjustedAspectRatio, // Relación entre ancho y altura de cada tarjeta
         ),
@@ -309,13 +309,13 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
                     Padding(
                       padding: EdgeInsets.only(left: 8.0, right: 8.0),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Text(
                             UIUtils.formatDate(
                                 data[index]['updated_at'].toString()),
                             style: TextStyle(
-                              fontSize: 16.0,
+                              fontSize: 14.0,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -434,6 +434,39 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
                                   ).show();
                             },
                           ),
+                          IconButton(
+                        icon: Icon(
+                          Icons.sync,
+                          color: Colors.orange,
+                        ),
+                        onPressed: () {
+                          // print('Hola');
+                          AwesomeDialog(
+                            width: 500,
+                            context: context,
+                            dialogType: DialogType.warning,
+                            animType: AnimType.rightSlide,
+                            title:
+                                'Está segur@ de cambiar a Estado RECHAZADO la Solicitud correspondiente al monto de \$ ${data[index]['monto'].toString()} y restaurar dicho valor?',
+                            desc: '',
+                            btnOkText: "Aceptar",
+                            btnCancelText: "Cancelar",
+                            btnOkColor: Colors.green,
+                            btnCancelOnPress: () {},
+                            btnOkOnPress: () async {
+                              var response = await Connections()
+                                  .WithdrawalDenied(
+                                      data[index]['users_permissions_user'][0]
+                                              ['id']
+                                          .toString(),
+                                      data[index]['id'].toString(),
+                                      data[index]['monto'].toString());
+                              print(response);
+                              await loadData();
+                            },
+                          ).show();
+                        },
+                      ),
                         ],
                       ),
                     ),
@@ -630,7 +663,7 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
                 Padding(
                   padding: EdgeInsets.only(left: 8.0, right: 8.0),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Text(
                         UIUtils.formatDate(
@@ -669,11 +702,11 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
                                       //             true), // Permite números y punto decimal
                                       decoration: InputDecoration(
                                         labelText: "Comentario",
-                                        labelStyle: const TextStyle(
-                                            color: Colors.grey),
+                                        labelStyle:
+                                            const TextStyle(color: Colors.grey),
                                         prefixIcon: Icon(Icons.comment,
-                                            color: ColorsSystem()
-                                                .colorSelectMenu),
+                                            color:
+                                                ColorsSystem().colorSelectMenu),
                                         enabledBorder: OutlineInputBorder(
                                           borderSide: BorderSide(
                                               color: ColorsSystem()
@@ -682,8 +715,8 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
                                               BorderRadius.circular(15.0),
                                         ),
                                         focusedBorder: OutlineInputBorder(
-                                          borderSide: BorderSide(
-                                              color: Colors.blue),
+                                          borderSide:
+                                              BorderSide(color: Colors.blue),
                                           borderRadius:
                                               BorderRadius.circular(15.0),
                                         ),
@@ -719,9 +752,9 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
                               btnOkOnPress: () async {
                                 // WithdrawalIntern
                                 if (imageSelect != null) {
-                                  var response = await Connections()
-                                      .postDoc(imageSelect!);
-                
+                                  var response =
+                                      await Connections().postDoc(imageSelect!);
+
                                   if (commentupdateController.text == "") {
                                     // supervisorController.text =
                                     //     "Pago Realizado";
@@ -755,24 +788,84 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
                               ).show();
                         },
                       ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.sync,
+                          color: Colors.orange,
+                        ),
+                        onPressed: () {
+                          // print('Hola');
+                          AwesomeDialog(
+                            width: 500,
+                            context: context,
+                            dialogType: DialogType.warning,
+                            animType: AnimType.rightSlide,
+                            title:
+                                'Está segur@ de cambiar a Estado RECHAZADO la Solicitud correspondiente al monto de \$ ${data[index]['monto'].toString()} y restaurar dicho valor?',
+                            desc: '',
+                            btnOkText: "Aceptar",
+                            btnCancelText: "Cancelar",
+                            btnOkColor: Colors.green,
+                            btnCancelOnPress: () {},
+                            btnOkOnPress: () async {
+                              var response = await Connections()
+                                  .WithdrawalDenied(
+                                      data[index]['users_permissions_user'][0]
+                                              ['id']
+                                          .toString(),
+                                      data[index]['id'].toString(),
+                                      data[index]['monto'].toString());
+                              print(response);
+                              await loadData();
+                            },
+                          ).show();
+                        },
+                      ),
                     ],
                   ),
                 ),
-                // Padding(padding: EdgeInsets.only(left: 8.0, right: 8.0),
+                // Padding(
+                //   padding: EdgeInsets.only(left: 8.0, right: 8.0),
                 //   child: Row(
                 //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 //     children: [
-                //       Text(
-                //         UIUtils.formatDate(
-                //             data[index]['updated_at'].toString()),
-                //         style: TextStyle(
-                //           fontSize: 16.0,
-                //           fontWeight: FontWeight.bold,
+                //       IconButton(
+                //         icon: Icon(
+                //           Icons.sync,
+                //           color: Colors.orange,
                 //         ),
+                //         onPressed: () {
+                //           // print('Hola');
+                //           AwesomeDialog(
+                //             width: 500,
+                //             context: context,
+                //             dialogType: DialogType.warning,
+                //             animType: AnimType.rightSlide,
+                //             title:
+                //                 'Está segur@ de cambiar a Estado RECHAZADO la Solicitud correspondiente al monto de \$ ${data[index]['monto'].toString()} y restaurar dicho valor?',
+                //             desc: '',
+                //             btnOkText: "Aceptar",
+                //             btnCancelText: "Cancelar",
+                //             btnOkColor: Colors.green,
+                //             btnCancelOnPress: () {},
+                //             btnOkOnPress: () async {
+                //               var response = await Connections()
+                //                   .WithdrawalDenied(
+                //                       data[index]['users_permissions_user'][0]
+                //                               ['id']
+                //                           .toString(),
+                //                       data[index]['id'].toString(),
+                //                       data[index]['monto'].toString());
+                //               print(response);
+                //               await loadData();
+                //             },
+                //           ).show();
+                //         },
                 //       ),
+
                 //     ],
-                //   ),),
-                
+                //   ),
+                // ),
                 SizedBox(height: 5.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -808,8 +901,7 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         TextSpan(
-                          text: data[index]['users_permissions_user'] !=
-                                      null &&
+                          text: data[index]['users_permissions_user'] != null &&
                                   data[index]['users_permissions_user']
                                       .isNotEmpty
                               ? "${data[index]['users_permissions_user'][0]['id'].toString()}"
@@ -826,18 +918,16 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
                     text: TextSpan(
                       style: TextStyle(
                           fontSize: 14.0,
-                          color: Colors
-                              .black), // Tamaño de fuente y color base
+                          color: Colors.black), // Tamaño de fuente y color base
                       children: <TextSpan>[
                         TextSpan(
                           text: 'Vendedor: ',
                           style: TextStyle(
-                              fontWeight: FontWeight
-                                  .bold), // Estilo para "Vendedor: "
+                              fontWeight:
+                                  FontWeight.bold), // Estilo para "Vendedor: "
                         ),
                         TextSpan(
-                          text: data[index]['users_permissions_user'] !=
-                                      null &&
+                          text: data[index]['users_permissions_user'] != null &&
                                   data[index]['users_permissions_user']
                                       .isNotEmpty
                               ? '${data[index]['users_permissions_user'][0]['username'].toString()}'
@@ -853,8 +943,7 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
                     text: TextSpan(
                       style: TextStyle(
                           fontSize: 14.0,
-                          color: Colors
-                              .black), // Tamaño de fuente y color base
+                          color: Colors.black), // Tamaño de fuente y color base
                       children: <TextSpan>[
                         TextSpan(
                           text: 'Email: ',
@@ -863,8 +952,7 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
                                   FontWeight.bold), // Estilo para "Email: "
                         ),
                         TextSpan(
-                          text: data[index]['users_permissions_user'] !=
-                                      null &&
+                          text: data[index]['users_permissions_user'] != null &&
                                   data[index]['users_permissions_user']
                                       .isNotEmpty
                               ? '${data[index]['users_permissions_user'][0]['email'].toString()}'
@@ -880,8 +968,7 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
                     text: TextSpan(
                       style: TextStyle(
                           fontSize: 14.0,
-                          color: Colors
-                              .black), // Tamaño de fuente y color base
+                          color: Colors.black), // Tamaño de fuente y color base
                       children: <TextSpan>[
                         TextSpan(
                           text: 'Estado Pago: ',
