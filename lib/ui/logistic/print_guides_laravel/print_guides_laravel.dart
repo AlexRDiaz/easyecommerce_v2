@@ -49,7 +49,6 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
   int total = 0;
   bool changevalue = false;
 
-
   String model = "PedidosShopify";
   var sortFieldDefaultValue = "id:DESC";
   List populate = ['transportadora', 'users.vendedores'];
@@ -498,69 +497,7 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           ElevatedButton(
-              onPressed: () async {
-                const double point = 1.0;
-                const double inch = 72.0;
-                const double cm = inch / 2.54;
-                const double mm = inch / 25.4;
-                // getLoadingModal(context, false);
-                final doc = pw.Document();
-
-                for (var i = 0; i < optionsCheckBox.length; i++) {
-                  // print(optionsCheckBox[i]);
-                  if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
-                      optionsCheckBox[i]['id'].toString() != '') {
-                    final capturedImage =
-                        await screenshotController.captureFromWidget(Container(
-                            child: ModelGuide(
-                      address: optionsCheckBox[i]['address'],
-                      city: optionsCheckBox[i]['city'],
-                      date: optionsCheckBox[i]['date'],
-                      extraProduct: optionsCheckBox[i]['extraProduct'],
-                      idForBarcode: optionsCheckBox[i]['id'],
-                      name: optionsCheckBox[i]['name'],
-                      numPedido: optionsCheckBox[i]['numPedido'],
-                      observation: optionsCheckBox[i]['obervation'],
-                      phone: optionsCheckBox[i]['phone'],
-                      price: optionsCheckBox[i]['price'],
-                      product: optionsCheckBox[i]['product'],
-                      qrLink: optionsCheckBox[i]['qrLink'],
-                      quantity: optionsCheckBox[i]['quantity'],
-                      transport: optionsCheckBox[i]['transport'],
-                    )));
-                    doc.addPage(pw.Page(
-                      pageFormat: PdfPageFormat(21.0 * cm, 21.0 * cm,
-                          marginAll: 0.1 * cm),
-                      build: (pw.Context context) {
-                        return pw.Row(
-                          children: [
-                            pw.Image(pw.MemoryImage(capturedImage),
-                                fit: pw.BoxFit.contain)
-                          ],
-                        );
-                      },
-                    ));
-                    // var response = await Connections()
-                    //     .updateOrderLogisticStatus(
-                    //         "IMPRESO", optionsCheckBox[i]['id'].toString());
-
-                    //new
-                    var responseL = await Connections().updateOrderWithTime(
-                        optionsCheckBox[i]['id'].toString(),
-                        "estado_logistico:IMPRESO",
-                        idUser,
-                        "",
-                        "");
-                  }
-                }
-                // Navigator.pop(context);
-                await Printing.layoutPdf(
-                    onLayout: (PdfPageFormat format) async => await doc.save());
-                _controllers.searchController.clear();
-                setState(() {});
-                optionsCheckBox = [];
-                loadData();
-              },
+              onPressed: generateDocument,
               child: const Text(
                 "IMPRIMIR",
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -574,11 +511,12 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                     context: context,
                     builder: (context) {
                       return RoutesModalv2(
-                          idOrder: optionsCheckBox,
-                          someOrders: true,
-                          phoneClient: "",
-                          codigo: "",
-                          origin: " ",);
+                        idOrder: optionsCheckBox,
+                        someOrders: true,
+                        phoneClient: "",
+                        codigo: "",
+                        origin: " ",
+                      );
                     });
 
                 setState(() {});
@@ -592,6 +530,157 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
         ],
       ),
     );
+  }
+
+  void generateDocument() async {
+    try {
+      // setState(() {
+      //   isLoading = true;
+      // });
+      const double point = 1.0;
+      const double inch = 72.0;
+      const double cm = inch / 2.54;
+      const double mm = inch / 25.4;
+      // getLoadingModal(context, false);
+
+      int total = optionsCheckBox.length;
+      int step = 0;
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return AlertDialog(
+            content: Row(
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 20.0),
+                Text("Cargando... $step/$total "),
+              ],
+            ),
+          );
+        },
+      );
+
+      final doc = pw.Document();
+
+      await Future.forEach(optionsCheckBox, (checkBox) async {
+        if (checkBox['id'].toString().isNotEmpty &&
+            checkBox['id'].toString() != '') {
+          final capturedImage = await screenshotController.captureFromWidget(
+            Container(
+              child: ModelGuide(
+                address: checkBox['address'],
+                city: checkBox['city'],
+                date: checkBox['date'],
+                extraProduct: checkBox['extraProduct'],
+                idForBarcode: checkBox['id'],
+                name: checkBox['name'],
+                numPedido: checkBox['numPedido'],
+                observation: checkBox['obervation'],
+                phone: checkBox['phone'],
+                price: checkBox['price'],
+                product: checkBox['product'],
+                qrLink: checkBox['qrLink'],
+                quantity: checkBox['quantity'],
+                transport: checkBox['transport'],
+              ),
+            ),
+          );
+
+          doc.addPage(
+            pw.Page(
+              pageFormat:
+                  PdfPageFormat(21.0 * cm, 21.0 * cm, marginAll: 0.1 * cm),
+              build: (pw.Context context) {
+                return pw.Row(
+                  children: [
+                    pw.Image(pw.MemoryImage(capturedImage),
+                        fit: pw.BoxFit.contain),
+                  ],
+                );
+              },
+            ),
+          );
+
+          step++;
+
+          // Actualizar el diálogo con el progreso actual
+          Navigator.pop(context); // Cerrar el diálogo actual
+          if (step != total) {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) {
+                return AlertDialog(
+                  content: Row(
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(width: 20.0),
+                      Text("Cargando... $step/$total "),
+                    ],
+                  ),
+                );
+              },
+            );
+          } else {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) {
+                return AlertDialog(
+                  content: Row(
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(width: 20.0),
+                      Text("Generando Documento..."),
+                    ],
+                  ),
+                );
+              },
+            );
+          }
+          // showDialog(
+          //   context: context,
+          //   barrierDismissible: false,
+          //   builder: (context) {
+          //     return AlertDialog(
+          //       content: Row(
+          //         children: [
+          //           CircularProgressIndicator(),
+          //           SizedBox(width: 20.0),
+          //           Text("Cargando... $step/$total "),
+          //         ],
+          //       ),
+          //     );
+          //   },
+          // );
+
+          var responseL = await Connections().updateOrderWithTime(
+            checkBox['id'].toString(),
+            "estado_logistico:IMPRESO",
+            idUser,
+            "",
+            "",
+          );
+        }
+      });
+
+      // Cerrar el diálogo después de completar todas las iteraciones
+      Navigator.pop(context);
+      await Printing.layoutPdf(
+          onLayout: (PdfPageFormat format) async => await doc.save());
+      _controllers.searchController.clear();
+      // setState(() {});
+      // setState(() {
+      //   isLoading = false;
+      // });
+      optionsCheckBox = [];
+      loadData();
+      // isLoading = false;
+    } catch (e) {
+      print("Error al generar el documento $e");
+    }
   }
 
   _modelTextField({text, controller}) {
@@ -671,7 +760,6 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
       loadData();
     });
   }
-
 
   sortFuncTransporte() {
     if (sort) {
@@ -825,7 +913,4 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
       counterChecks = optionsCheckBox.length;
     });
   }
-
-
-
 }
