@@ -47,6 +47,8 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
   bool isFirst = true;
   bool isLoading = false;
   int total = 0;
+  bool changevalue = false;
+
 
   String model = "PedidosShopify";
   var sortFieldDefaultValue = "id:DESC";
@@ -241,105 +243,105 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
             label: Text('Nombre Cliente'),
             size: ColumnSize.M,
             onSort: (columnIndex, ascending) {
-              sortFunc("NombreShipping");
+              // sortFunc("NombreShipping");
             },
           ),
           DataColumn2(
             label: Text('Fecha'),
             size: ColumnSize.S,
             onSort: (columnIndex, ascending) {
-              sortFuncFecha();
+              // sortFuncFecha();
             },
           ),
           DataColumn2(
             label: Text('Código'),
             size: ColumnSize.M,
             onSort: (columnIndex, ascending) {
-              sortFunc("NumeroOrden");
+              sortFunc("numero_orden", changevalue);
             },
           ),
           DataColumn2(
             label: Text('Ciudad'),
             size: ColumnSize.M,
             onSort: (columnIndex, ascending) {
-              sortFunc("CiudadShipping");
+              // sortFunc("CiudadShipping");
             },
           ),
           DataColumn2(
             label: Text('Dirección'),
             size: ColumnSize.M,
             onSort: (columnIndex, ascending) {
-              sortFunc("DireccionShipping");
+              // sortFunc("DireccionShipping");
             },
           ),
           DataColumn2(
             label: Text('Teléfono Cliente'),
             size: ColumnSize.M,
             onSort: (columnIndex, ascending) {
-              sortFunc("TelefonoShipping");
+              // sortFunc("TelefonoShipping");
             },
           ),
           DataColumn2(
             label: Text('Cantidad'),
             size: ColumnSize.M,
             onSort: (columnIndex, ascending) {
-              sortFunc("Cantidad_Total");
+              // sortFunc("Cantidad_Total");
             },
           ),
           DataColumn2(
             label: Text('Producto'),
             size: ColumnSize.M,
             onSort: (columnIndex, ascending) {
-              sortFunc("ProductoP");
+              // sortFunc("ProductoP");
             },
           ),
           DataColumn2(
             label: Text('Producto Extra'),
             size: ColumnSize.M,
             onSort: (columnIndex, ascending) {
-              sortFunc("ProductoExtra");
+              // sortFunc("ProductoExtra");
             },
           ),
           DataColumn2(
             label: Text('Precio Total'),
             size: ColumnSize.M,
             onSort: (columnIndex, ascending) {
-              sortFunc("PrecioTotal");
+              // sortFunc("PrecioTotal");
             },
           ),
           DataColumn2(
             label: Text('Transportadora'),
             size: ColumnSize.M,
             onSort: (columnIndex, ascending) {
-              sortFuncTransporte();
+              // sortFuncTransporte();
             },
           ),
           DataColumn2(
             label: Text('Status'),
             size: ColumnSize.M,
             onSort: (columnIndex, ascending) {
-              sortFunc("Status");
+              // sortFunc("Status");
             },
           ),
           DataColumn2(
             label: Text('Confirmado?'),
             size: ColumnSize.M,
             onSort: (columnIndex, ascending) {
-              sortFunc("Estado_Interno");
+              // sortFunc("Estado_Interno");
             },
           ),
           DataColumn2(
             label: Text('Estado Logistico'),
             size: ColumnSize.M,
             onSort: (columnIndex, ascending) {
-              sortFunc("Estado_Logistico");
+              // sortFunc("Estado_Logistico");
             },
           ),
           DataColumn2(
             label: Text('Observación'),
             size: ColumnSize.M,
             onSort: (columnIndex, ascending) {
-              sortFunc("Observacion");
+              // sortFunc("Observacion");
             },
           ),
         ],
@@ -639,23 +641,37 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
     );
   }
 
-  sortFunc(name) {
-    if (sort) {
-      setState(() {
-        sort = false;
-      });
-      data.sort((a, b) => b['attributes'][name]
-          .toString()
-          .compareTo(a['attributes'][name].toString()));
-    } else {
-      setState(() {
-        sort = true;
-      });
-      data.sort((a, b) => a['attributes'][name]
-          .toString()
-          .compareTo(b['attributes'][name].toString()));
-    }
+  // sortFunc(name) {
+  //   if (sort) {
+  //     setState(() {
+  //       sort = false;
+  //     });
+  //     data.sort((a, b) => b['attributes'][name]
+  //         .toString()
+  //         .compareTo(a['attributes'][name].toString()));
+  //   } else {
+  //     setState(() {
+  //       sort = true;
+  //     });
+  //     data.sort((a, b) => a['attributes'][name]
+  //         .toString()
+  //         .compareTo(b['attributes'][name].toString()));
+  //   }
+  // }
+
+  sortFunc(filtro, changeval) {
+    setState(() {
+      if (changeval) {
+        sortFieldDefaultValue = "$filtro:DESC";
+        changevalue = false;
+      } else {
+        sortFieldDefaultValue = "$filtro:ASC";
+        changevalue = true;
+      }
+      loadData();
+    });
   }
+
 
   sortFuncTransporte() {
     if (sort) {
@@ -809,4 +825,7 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
       counterChecks = optionsCheckBox.length;
     });
   }
+
+
+
 }
