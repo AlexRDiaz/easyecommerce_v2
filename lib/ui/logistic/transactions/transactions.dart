@@ -1026,6 +1026,7 @@ class _TransactionsState extends State<Transactions> {
     'REFERENCIADO',
     'DEVOLUCION',
     'REEMBOLSO',
+    'RETIRO',
   ];
 
   List<String> listTipo = [

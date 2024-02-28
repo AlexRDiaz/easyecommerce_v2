@@ -191,6 +191,7 @@ class ProductReport {
 
   Future<void> generateCsvFileProductSimple(dataProduct) async {
     try {
+      // print("It's simple");
       ProductModel product = dataProduct;
       String productName = product.productName.toString();
 
@@ -214,38 +215,36 @@ class ProductReport {
 
       // String firstImg = urlsImgsList[0];
       String firstImg = "$generalServer${urlsImgsList[0]}";
-      print("firstImg: $firstImg");
+      // print("firstImg: $firstImg");
       String firstCategory = categoriesId[0].toString();
-      print("firstCategory: $firstCategory");
-
-      // if (product.isvariable == 1) {
-      //   List<Map<String, dynamic>>? variants =
-      //       (features["variants"] as List<dynamic>)
-      //           .cast<Map<String, dynamic>>();
-      // } else {
-      //   skuFinal = "${sku}C${product.productId.toString()}";
-      // }
+      // print("firstCategory: $firstCategory");
 
       skuFinal = "${sku}C${product.productId.toString()}";
 
       //
       Map<String, dynamic> data = {
-        "Handle": productName,
-        "Title": productName,
-        "Body (HTML)": description,
+        "Handle": '$productName',
+        "Title": '$productName',
+        "Body (HTML)": '$description',
         "Vendor": product.warehouse?.branchName,
         "Product Category": firstCategory,
         "Type": type,
         "Tags": "",
-        "Published": "FALSE",
+        "Published": "TRUE",
+        "Option1 Name": "",
+        "Option1 Value": "",
+        "Option2 Name": "",
+        "Option2 Value": "",
+        "Option3 Name": "",
+        "Option3 Value": "",
         "Variant SKU": skuFinal,
         "Variant Grams": "",
         "Variant Inventory Tracker": "",
         "Variant Inventory Qty": "",
         "Variant Inventory Policy": "deny",
         "Variant Fulfillment Service": "manual",
-        "Variant Price": product.price.toString(),
-        "Variant Compare At Price": suggestedPrice,
+        "Variant Price": suggestedPrice,
+        "Variant Compare At Price": "",
         "Variant Requires Shipping": "",
         "Variant Taxable": "TRUE",
         "Variant Barcode": "TRUE",
@@ -253,8 +252,8 @@ class ProductReport {
         "Image Position": "1",
         "Image Alt Text": "",
         "Gift Card": "FALSE",
-        "SEO Title": productName,
-        "SEO Description": productName,
+        "SEO Title": '$productName',
+        "SEO Description": '$productName',
         "Google Shopping / Google Product Category": "",
         "Google Shopping / Gender": "",
         "Google Shopping / Age Group": "",
@@ -274,13 +273,7 @@ class ProductReport {
         "Cost per item": suggestedPrice,
         "Price / International": "",
         "Compare At Price / International": "",
-        "Status": "active",
-        "Option1 Name": "",
-        "Option1 Value": "",
-        "Option2 Name": "",
-        "Option2 Value": "",
-        "Option3 Name": "",
-        "Option3 Value": ""
+        "Status": "active"
       };
 
       //
@@ -297,6 +290,265 @@ class ProductReport {
         ],
       );
 
+      Uint8List bytes = Uint8List.fromList(utf8.encode(data4cvs));
+
+      await FileSaver.instance.saveFile(
+        name: nameFile,
+        bytes: bytes,
+        ext: 'csv',
+        mimeType: MimeType.csv,
+      );
+      //
+    } catch (e) {
+      print("Error en Generar el reporte! $e");
+    }
+  }
+
+  Future<void> generateCsvFileProductVariant(dataProduct) async {
+    try {
+      // print("It's varaible");
+      ProductModel product = dataProduct;
+      String productName = product.productName.toString();
+      String vendor = product.warehouse!.branchName.toString();
+      // Decodificar el JSON
+      Map<String, dynamic> features = jsonDecode(product.features);
+
+      String suggestedPrice = features["price_suggested"].toString();
+      String sku = features["sku"];
+      String skuFinal = "";
+      String description = features["description"];
+      String type = features["type"];
+      List<dynamic> categories = features["categories"];
+      List<String> categoriesId =
+          categories.map((item) => item["id"].toString()).toList();
+
+      List<String> urlsImgsList = product.urlImg != null &&
+              product.urlImg.isNotEmpty &&
+              product.urlImg.toString() != "[]"
+          ? (jsonDecode(product.urlImg) as List).cast<String>()
+          : [];
+
+      // String firstImg = urlsImgsList[0];
+      String firstImg = "$generalServer${urlsImgsList[0]}";
+      String firstCategory = categoriesId[0].toString();
+
+      List<String> skuValues = [];
+      String finalOptions = "";
+      List<String> variantsValue = [];
+      if (product.isvariable == 1) {
+        List<dynamic> options = features["options"];
+
+        for (var option in options) {
+          String name = option["name"].toString();
+          finalOptions += name;
+
+          if (options.last != option) {
+            finalOptions += "/";
+          }
+        }
+
+        List<dynamic> variants = features["variants"];
+
+        for (var variant in variants) {
+          skuValues.add("${variant["sku"]}C${product.productId.toString()}");
+
+          List<String> fields = ["size", "color", "dimension"];
+          List<String> variantValues = [];
+
+          for (var field in fields) {
+            String value = variant[field] ?? "";
+
+            if (value.isNotEmpty) {
+              variantValues.add(value);
+            }
+          }
+
+          if (variantValues.isNotEmpty) {
+            variantsValue.add(variantValues.join("/"));
+          }
+        }
+      }
+
+      // print("skuValues: $skuValues");
+      // print("finalOptions: $finalOptions");
+      // print("variantsValue: $variantsValue");
+
+      //
+      List<String> headers = [
+        "Handle",
+        "Title",
+        "Body (HTML)",
+        "Vendor",
+        "Product Category",
+        "Type",
+        "Tags",
+        "Published",
+        "Option1 Name",
+        "Option1 Value",
+        "Option2 Name",
+        "Option2 Value",
+        "Option3 Name",
+        "Option3 Value",
+        "Variant SKU",
+        "Variant Grams",
+        "Variant Inventory Tracker",
+        "Variant Inventory Qty",
+        "Variant Inventory Policy",
+        "Variant Fulfillment Service",
+        "Variant Price",
+        "Variant Compare At Price",
+        "Variant Requires Shipping",
+        "Variant Taxable",
+        "Variant Barcode",
+        "Image Src",
+        "Image Position",
+        "Image Alt Text",
+        "Gift Card",
+        "SEO Title",
+        "SEO Description",
+        "Google Shopping / Google Product Category",
+        "Google Shopping / Gender",
+        "Google Shopping / Age Group",
+        "Google Shopping / MPN",
+        "Google Shopping / AdWords Grouping",
+        "Google Shopping / AdWords Labels",
+        "Google Shopping / Condition",
+        "Google Shopping / Custom Product",
+        "Google Shopping / Custom Label 0",
+        "Google Shopping / Custom Label 1",
+        "Google Shopping / Custom Label 2",
+        "Google Shopping / Custom Label 3",
+        "Google Shopping / Custom Label 4",
+        "Variant Image",
+        "Variant Weight Unit",
+        "Variant Tax Code",
+        "Cost per item",
+        "Price / International",
+        "Compare At Price / International",
+        "Status"
+      ];
+
+      List<List<String>> dataRows = [headers];
+
+      for (var i = 0; i < variantsValue.length; i++) {
+        List<String> dataVariant = [];
+
+        if (i == 0) {
+          dataVariant = [
+            "$productName",
+            "$productName",
+            '$description',
+            vendor,
+            firstCategory,
+            type,
+            "",
+            "TRUE",
+            finalOptions,
+            variantsValue[i],
+            "",
+            "",
+            "",
+            "",
+            skuValues[i],
+            "",
+            "",
+            "",
+            "deny",
+            "manual",
+            suggestedPrice,
+            "",
+            "",
+            "TRUE",
+            "TRUE",
+            firstImg,
+            "1",
+            "",
+            "FALSE",
+            '$productName',
+            '$productName',
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            suggestedPrice,
+            "",
+            "",
+            "active"
+          ];
+        } else {
+          dataVariant = [
+            "$productName",
+            "$productName",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            variantsValue[i],
+            "",
+            "",
+            "",
+            "",
+            skuValues[i],
+            "",
+            "",
+            "",
+            "deny",
+            "manual",
+            suggestedPrice,
+            "",
+            "",
+            "TRUE",
+            "TRUE",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            suggestedPrice,
+            "",
+            "",
+            "active"
+          ];
+        }
+        dataRows.add(dataVariant);
+      }
+
+      //
+      var nameFile = "$productName-EasyEcommerce";
+
+      String data4cvs = const ListToCsvConverter().convert(dataRows);
       Uint8List bytes = Uint8List.fromList(utf8.encode(data4cvs));
 
       await FileSaver.instance.saveFile(

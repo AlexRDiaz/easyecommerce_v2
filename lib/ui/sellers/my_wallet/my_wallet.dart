@@ -61,6 +61,7 @@ class _MyWalletState extends State<MyWallet> {
     'REFERENCIADO',
     'DEVOLUCION',
     'REEMBOLSO',
+    'RETIRO',
   ];
 
   List<String> listTipo = [

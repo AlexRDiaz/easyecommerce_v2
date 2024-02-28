@@ -1342,8 +1342,10 @@ class _CatalogState extends State<Catalog> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(0.0),
           ),
+          contentPadding: EdgeInsets.all(0),
           content: Container(
             color: Colors.white,
+            padding: EdgeInsets.all(20),
             child: SizedBox(
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
@@ -1353,41 +1355,40 @@ class _CatalogState extends State<Catalog> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Visibility(
-                        visible: product.isvariable != 1,
-                        child: Tooltip(
-                          message: 'Descargar archivo CSV',
-                          child: ElevatedButton(
-                            style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all(
-                                Colors.green,
-                              ),
+                      Tooltip(
+                        message: 'Descargar archivo CSV',
+                        child: ElevatedButton(
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(
+                              Colors.green,
                             ),
-                            onPressed: () async {
-                              getLoadingModal(context, true);
-                              try {
-                                // await getReport.generateExcelFileWithData(product);
-                                if (product.isvariable == 1) {
-                                } else {
-                                  await getReport
-                                      .generateCsvFileProductSimple(product);
-                                }
-                                Navigator.of(context).pop();
-                              } catch (e) {
-                                Navigator.of(context).pop();
-                                print("error: $e");
-                                SnackBarHelper.showErrorSnackBar(context,
-                                    "Ha ocurrido un error al generar el reporte");
+                          ),
+                          onPressed: () async {
+                            getLoadingModal(context, true);
+                            try {
+                              // await getReport.generateExcelFileWithData(product);
+                              if (product.isvariable == 1) {
+                                await getReport
+                                    .generateCsvFileProductVariant(product);
+                              } else {
+                                await getReport
+                                    .generateCsvFileProductSimple(product);
                               }
-                            },
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.file_download_sharp),
-                                SizedBox(width: 8),
-                                Text(''),
-                              ],
-                            ),
+                              Navigator.of(context).pop();
+                            } catch (e) {
+                              Navigator.of(context).pop();
+                              print("error: $e");
+                              SnackBarHelper.showErrorSnackBar(context,
+                                  "Ha ocurrido un error al generar el reporte");
+                            }
+                          },
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.file_download_sharp),
+                              SizedBox(width: 8),
+                              Text(''),
+                            ],
                           ),
                         ),
                       ),
@@ -1455,37 +1456,41 @@ class _CatalogState extends State<Catalog> {
                                         ),
                                         const SizedBox(height: 10),
                                         _textTitle("Descripción:"),
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Html(
-                                                    data: description,
-                                                    style: {
-                                                      'p': Style(
-                                                        fontSize: FontSize(16),
-                                                        color: Colors.grey[800],
-                                                        margin: Margins.only(
-                                                            bottom: 0),
-                                                      ),
-                                                      'li': Style(
-                                                        margin: Margins.only(
-                                                            bottom: 0),
-                                                      ),
-                                                      'ol': Style(
-                                                        margin: Margins.only(
-                                                            bottom: 0),
-                                                      ),
-                                                    },
-                                                  ),
-                                                ],
-                                              ),
+                                        Container(
+                                          // width: 500,
+                                          // color: Colors.purple.shade100,
+                                          padding: const EdgeInsets.only(
+                                              left: 10, right: 15),
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: Colors.grey,
+                                              width: 1.0,
                                             ),
-                                          ],
+                                          ),
+                                          height: 400,
+                                          child: ListView(
+                                            children: [
+                                              Html(
+                                                data: description,
+                                                style: {
+                                                  'p': Style(
+                                                    fontSize: FontSize(16),
+                                                    color: Colors.grey[800],
+                                                    margin:
+                                                        Margins.only(bottom: 0),
+                                                  ),
+                                                  'li': Style(
+                                                    margin:
+                                                        Margins.only(bottom: 0),
+                                                  ),
+                                                  'ol': Style(
+                                                    margin:
+                                                        Margins.only(bottom: 0),
+                                                  ),
+                                                },
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                         const SizedBox(height: 10),
                                         Row(
@@ -1613,9 +1618,14 @@ class _CatalogState extends State<Catalog> {
                                           style: customTextStyleText,
                                         ),
                                         const SizedBox(height: 10),
-                                        _textTitle("Bodega:"),
-                                        _text(product.warehouse!.branchName
-                                            .toString()),
+                                        Row(
+                                          children: [
+                                            _textTitle("Bodega:"),
+                                            const SizedBox(width: 10),
+                                            _text(product.warehouse!.branchName
+                                                .toString()),
+                                          ],
+                                        ),
                                         Row(
                                           children: [
                                             _textTitle("Atención al cliente:"),
