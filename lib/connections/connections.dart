@@ -4482,7 +4482,7 @@ class Connections {
     }
   }
 
-  Future debitWithdrawal(id,comprobante,comentario) async {
+  Future debitWithdrawal(id, comprobante, comentario) async {
     try {
       // String id = Get.parameters['id'].toString();
 
@@ -8637,21 +8637,16 @@ class Connections {
     }
   }
 
-  
-  WithdrawalDone(
-    idWithdrawal,
-    comprobante,
-    comment
-  ) async {
+  WithdrawalDone(idWithdrawal, comprobante, comment) async {
     try {
-      print( json.encode({"comprobante": comprobante,"comentario": comment}));
+      print(json.encode({"comprobante": comprobante, "comentario": comment}));
 
       var request = await http.put(
           Uri.parse(
               "$serverLaravel/api/seller/ordenesretiro/withdrawal/done/$idWithdrawal"),
           headers: {'Content-Type': 'application/json'},
-          body: json.encode({"comprobante": comprobante,"comentario": comment})
-          );
+          body:
+              json.encode({"comprobante": comprobante, "comentario": comment}));
       var response = await request.body;
       var decodeData = json.decode(response);
       if (request.statusCode != 200) {
@@ -8664,21 +8659,16 @@ class Connections {
     }
   }
 
-
-  WithdrawalIntern(
-    idWithdrawal,
-    comprobante,
-    comment
-  ) async {
+  WithdrawalIntern(idWithdrawal, comprobante, comment) async {
     try {
-      print( json.encode({"comprobante": comprobante,"comentario": comment}));
+      print(json.encode({"comprobante": comprobante, "comentario": comment}));
 
       var request = await http.put(
           Uri.parse(
               "$serverLaravel/api/seller/ordenesretiro/withdrawal/update-intern/$idWithdrawal"),
           headers: {'Content-Type': 'application/json'},
-          body: json.encode({"comprobante": comprobante,"comentario": comment})
-          );
+          body:
+              json.encode({"comprobante": comprobante, "comentario": comment}));
       var response = await request.body;
       var decodeData = json.decode(response);
       if (request.statusCode != 200) {
@@ -8690,6 +8680,4 @@ class Connections {
       return 2;
     }
   }
-
-  
 }

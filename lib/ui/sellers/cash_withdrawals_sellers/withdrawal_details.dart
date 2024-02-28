@@ -43,7 +43,7 @@ class _SellerWithdrawalDetailsState extends State<SellerWithdrawalDetails> {
             child: Icon(Icons.arrow_back_ios, color: Colors.black)),
         centerTitle: true,
         title: Text(
-          "Retiros Vendedores Form",
+          "Solicitar retiro",
           style: TextStyle(
               fontWeight: FontWeight.bold, color: Colors.black, fontSize: 20),
         ),

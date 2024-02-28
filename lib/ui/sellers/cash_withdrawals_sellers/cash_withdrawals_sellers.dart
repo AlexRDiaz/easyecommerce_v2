@@ -461,7 +461,9 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
           ),
         );
       },
-    ).then((value) {});
+    ).then((value) => setState(() {
+          loadData();
+        }));
   }
 
   _modelTextField({text, controller}) {

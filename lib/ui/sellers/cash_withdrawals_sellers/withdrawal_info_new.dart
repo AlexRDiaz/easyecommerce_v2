@@ -55,7 +55,7 @@ class _SellerWithdrawalInfoNewState extends State<SellerWithdrawalInfoNew> {
 
   @override
   Widget build(BuildContext context) {
-    // print("hereee _SellerWithdrawalInfoState new info");
+    // print("VALIDAR e Info");
     double heigth = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
 
@@ -167,24 +167,31 @@ class _SellerWithdrawalInfoNewState extends State<SellerWithdrawalInfoNew> {
                                     var response = await Connections()
                                         .sendAproveWithdrawal(data['id']);
 
+                                    if (response == 0) {
+                                      Navigator.pop(context);
+
+                                      AwesomeDialog(
+                                        width: 500,
+                                        context: context,
+                                        dialogType: DialogType.success,
+                                        animType: AnimType.rightSlide,
+                                        title: 'Completado',
+                                        desc: '',
+                                        btnCancel: Container(),
+                                        btnOkText: "Aceptar",
+                                        btnOkColor: colors.colorGreen,
+                                        btnCancelOnPress: () {},
+                                        btnOkOnPress: () async {
+                                          Navigator.pop(context);
+
+                                          Navigators().pushNamedAndRemoveUntil(
+                                              context, "/layout/sellers");
+                                        },
+                                      ).show();
+                                    }
+                                  } else {
                                     Navigator.pop(context);
 
-                                    AwesomeDialog(
-                                      width: 500,
-                                      context: context,
-                                      dialogType: DialogType.success,
-                                      animType: AnimType.rightSlide,
-                                      title: 'Completado',
-                                      desc: '',
-                                      btnCancel: Container(),
-                                      btnOkText: "Aceptar",
-                                      btnOkColor: colors.colorGreen,
-                                      btnCancelOnPress: () {},
-                                      btnOkOnPress: () async {
-                                        await loadData();
-                                      },
-                                    ).show();
-                                  } else {
                                     AwesomeDialog(
                                       width: 500,
                                       context: context,
