@@ -947,7 +947,7 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
           setState(() {});
         },
         onChanged: (value) {
-          setState(() {});
+          // setState(() {});
         },
         style: const TextStyle(fontWeight: FontWeight.bold),
         decoration: InputDecoration(

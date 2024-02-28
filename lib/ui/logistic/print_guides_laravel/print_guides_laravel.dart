@@ -705,20 +705,20 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                   ),
                   _model(
                       "Código: ${data[index]['users'] != null && data[index]['users'].toString() != "[]" ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal']}-${data[index]['numero_orden']}"),
-                  _model("Fecha: ${data[index]['marcar_t_i'].toString()}"),
+                  _model("Fecha: ${data[index]['marca_t_i'].toString()}"),
                   _model("Nombre Cliente: ${data[index]['nombre_shipping']}"),
                   _model("Teléfono: ${data[index]['telefono_shipping']}"),
                   _model("Detalle: ${data[index]['direccion_shipping']}"),
                   _model("Cantidad: ${data[index]['cantidad_total']}"),
                   _model("Precio Total: ${data[index]['precio_total']}"),
-                  _model("Producto: ${data[index][' producto_p']}"),
+                  _model("Producto: ${data[index]['producto_p']}"),
                   _model("Producto Extra: ${data[index]['producto_extra']}"),
                   _model("Ciudad: ${data[index]['ciudad_shipping']}"),
                   _model("Status: ${data[index]['status']}"),
                   _model("Comentario: ${data[index]['comentario']}"),
                   _model("Fecha de Entrega: ${data[index]['fecha_entrega']}"),
                   _model(
-                      "Marca de Tiempo Envio: ${data[index]['marca_tiempo_rnvio']}"),
+                      "Marca de Tiempo Envio: ${data[index]['marca_tiempo_envio']}"),
                   _model(
                       "Estado Logistico: ${data[index]['estado_devolucion']}"),
                   _model("Observación: ${data[index]['observacion']}"),
