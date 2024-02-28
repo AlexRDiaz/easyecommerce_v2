@@ -4482,16 +4482,16 @@ class Connections {
     }
   }
 
-  Future debitWithdrawal(comprobante) async {
+  Future debitWithdrawal(id,comprobante,comentario) async {
     try {
-      String id = Get.parameters['id'].toString();
+      // String id = Get.parameters['id'].toString();
 
       var request = await http.post(
           Uri.parse("$serverLaravel/api/transacciones/debit_withdrawal/$id"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
             "comprobante": comprobante,
-            "comentario": "",
+            "comentario": comentario,
             // "fecha_transferencia":
             //     "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year} ${DateTime.now().hour}:${DateTime.now().minute}",
             "generated_by": sharedPrefs!.getString("id").toString()

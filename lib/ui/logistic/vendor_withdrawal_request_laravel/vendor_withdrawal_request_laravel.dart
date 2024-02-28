@@ -358,41 +358,42 @@ class _VendorWithDrawalRequestLaravelState
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
-                                          IconButton(
-                                            icon: Icon(
-                                              Icons.sync,
-                                              color: Colors.orange,
-                                            ),
-                                            onPressed: () {
-                                              // print('Hola');
-                                              AwesomeDialog(
-                                                width: 500,
-                                                context: context,
-                                                dialogType: DialogType.warning,
-                                                animType: AnimType.rightSlide,
-                                                title:
-                                                    'Está segur@ de cambiar a Estado RECHAZADO la Solicitud correspondiente al monto de \$ ${data[index]['monto'].toString()} y restaurar dicho valor?',
-                                                desc: '',
-                                                btnOkText: "Aceptar",
-                                                btnCancelText: "Cancelar",
-                                                btnOkColor: colors.colorGreen,
-                                                btnCancelOnPress: () {},
-                                                btnOkOnPress: () async {
-                                                  var response = await Connections()
-                                                      .WithdrawalDenied(
-                                                          data[index]['users_permissions_user']
-                                                                  [0]['id']
-                                                              .toString(),
-                                                          data[index]['id']
-                                                              .toString(),
-                                                          data[index]['monto']
-                                                              .toString());
-                                                  print(response);
-                                                  await loadData();
-                                                },
-                                              ).show();
-                                            },
-                                          ),
+                                          // IconButton(
+                                          //   icon: Icon(
+                                          //     Icons.sync,
+                                          //     color: Colors.orange,
+                                          //   ),
+                                          //   onPressed: () {
+                                          //     // print('Hola');
+                                          //     AwesomeDialog(
+                                          //       width: 500,
+                                          //       context: context,
+                                          //       dialogType: DialogType.warning,
+                                          //       animType: AnimType.rightSlide,
+                                          //       title:
+                                          //           'Está segur@ de cambiar a Estado RECHAZADO la Solicitud correspondiente al monto de \$ ${data[index]['monto'].toString()} y restaurar dicho valor?',
+                                          //       desc: '',
+                                          //       btnOkText: "Aceptar",
+                                          //       btnCancelText: "Cancelar",
+                                          //       btnOkColor: colors.colorGreen,
+                                          //       btnCancelOnPress: () {},
+                                          //       btnOkOnPress: () async {
+                                          //         var response = await Connections()
+                                          //             .WithdrawalDenied(
+                                          //                 data[index]['users_permissions_user']
+                                          //                         [0]['id']
+                                          //                     .toString(),
+                                          //                 data[index]['id']
+                                          //                     .toString(),
+                                          //                 data[index]['monto']
+                                          //                     .toString());
+                                          //         print(response);
+                                          //         await loadData();
+                                          //       },
+                                          //     ).show();
+                                          //   },
+                                          // ),
+                                        
                                         ],
                                       ),
                                     ),
@@ -637,7 +638,7 @@ class _VendorWithDrawalRequestLaravelState
                                                       "Pago Realizado";
                                                 }
                                                 var finalresp = await Connections()
-                                                    .WithdrawalDone(
+                                                    .debitWithdrawal(
                                                         data[index]['id']
                                                             .toString(),
                                                         response[1].toString(),
