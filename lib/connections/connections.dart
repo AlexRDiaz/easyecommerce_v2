@@ -8205,6 +8205,7 @@ class Connections {
         requestBody['end'] = dateEnd;
       }
 
+      print("ak> $requestBody");
       var request = await http.post(Uri.parse("$serverLaravel/api/generaldata"),
           headers: {
             'Content-Type': 'application/json',
@@ -8399,6 +8400,30 @@ class Connections {
     }
   }
 
+  updateLogisticUserLara(
+      id, userName, email, personaCargo, telf1, telf2) async {
+    try {
+      var response = await http.put(
+          Uri.parse("$serverLaravel/api/users/logistic-users/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "username": userName,
+            "email": email,
+            "persona_cargo": personaCargo,
+            'telefono_1': telf1,
+            'telefono_2': telf2,
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
   updateSupervisor(id, idSupervisor) async {
     try {
       var response = await http.post(
@@ -8571,4 +8596,100 @@ class Connections {
       return 2;
     }
   }
+
+  getSellersLara() async {
+    int res = 0;
+    try {
+      var request = await http.get(Uri.parse("$serverLaravel/api/vendedores"),
+          headers: {'Content-Type': 'application/json'});
+
+      var responselaravel = await request.body;
+      var decodeData = json.decode(responselaravel);
+
+      return decodeData;
+    } catch (e) {
+      return (e);
+    }
+  }
+
+  WithdrawalDenied(
+    idUser,
+    idWithdrawal,
+    amount,
+  ) async {
+    try {
+      print(json.encode({"monto": amount, "idSesion": idUser}));
+
+      var request = await http.put(
+          Uri.parse(
+              "$serverLaravel/api/seller/ordenesretiro/withdrawal/denied/$idWithdrawal"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"monto": amount, "idSesion": idUser}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  
+  WithdrawalDone(
+    idWithdrawal,
+    comprobante,
+    comment
+  ) async {
+    try {
+      print( json.encode({"comprobante": comprobante,"comentario": comment}));
+
+      var request = await http.put(
+          Uri.parse(
+              "$serverLaravel/api/seller/ordenesretiro/withdrawal/done/$idWithdrawal"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"comprobante": comprobante,"comentario": comment})
+          );
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+
+  WithdrawalIntern(
+    idWithdrawal,
+    comprobante,
+    comment
+  ) async {
+    try {
+      print( json.encode({"comprobante": comprobante,"comentario": comment}));
+
+      var request = await http.put(
+          Uri.parse(
+              "$serverLaravel/api/seller/ordenesretiro/withdrawal/update-intern/$idWithdrawal"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"comprobante": comprobante,"comentario": comment})
+          );
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  
 }

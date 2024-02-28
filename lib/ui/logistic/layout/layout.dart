@@ -8,6 +8,7 @@ import 'package:frontend/ui/logistic/account_status/account_status.dart';
 import 'package:frontend/ui/logistic/account_status2/account_status2.dart';
 import 'package:frontend/ui/logistic/add_carrier/add_carrier.dart';
 import 'package:frontend/ui/logistic/add_carrier_laravel/add_carrier_laravel.dart';
+import 'package:frontend/ui/logistic/add_logistic_user_laravel/add_logistic_user_laravel.dart';
 import 'package:frontend/ui/logistic/add_logistics_user/add_logistics_user.dart';
 import 'package:frontend/ui/logistic/add_operators_transport/add_operators_transport.dart';
 import 'package:frontend/ui/logistic/add_provider/providers_view.dart';
@@ -27,6 +28,7 @@ import 'package:frontend/ui/logistic/logistics_products/logistics_products.dart'
 import 'package:frontend/ui/logistic/novelties/novelties.dart';
 import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
 import 'package:frontend/ui/logistic/print_guides/print_guides.dart';
+import 'package:frontend/ui/logistic/print_guides_laravel/print_guides_laravel.dart';
 import 'package:frontend/ui/logistic/printed_guides/printedguides.dart';
 import 'package:frontend/ui/logistic/profit_date/profit_date.dart';
 import 'package:frontend/ui/logistic/proof_payment/proof_payment.dart';
@@ -46,6 +48,7 @@ import 'package:frontend/ui/logistic/transport_invoices/transport_invoices.dart'
 import 'package:frontend/ui/logistic/update_password/update_password.dart';
 import 'package:frontend/ui/logistic/vendor_invoices/vendor_invoices.dart';
 import 'package:frontend/ui/logistic/vendor_withdrawal_request/vendor_withdrawal_request.dart';
+import 'package:frontend/ui/logistic/vendor_withdrawal_request_laravel/vendor_withdrawal_request_laravel.dart';
 import 'package:frontend/ui/logistic/withdrawal_assignment/withdrawal_assignment.dart';
 import 'package:frontend/ui/test/test.dart';
 import 'package:frontend/ui/welcome/welcome.dart';
@@ -96,7 +99,8 @@ class _LayoutPageState extends State<LayoutPage> {
       ),
       getOption(
         "Agregar Usuario Logística",
-        AddLogisticsUser(),
+        // AddLogisticsUser(),
+        AddLogisticsUserLaravel(),
       ),
       getOption(
         "Proveedores",
@@ -132,7 +136,8 @@ class _LayoutPageState extends State<LayoutPage> {
       ),
       getOption(
         "Solicitud de Retiro Vendedores",
-        VendorWithDrawalRequest(),
+        // VendorWithDrawalRequest(),
+        VendorWithDrawalRequestLaravel(),
       ),
       getOption(
         "Estado de Entregas",
@@ -144,7 +149,8 @@ class _LayoutPageState extends State<LayoutPage> {
       ),
       getOption(
         "Imprimir Guías",
-        PrintGuides(),
+        // PrintGuides(),
+        PrintGuidesLaravel(),
       ),
 
       getOption(

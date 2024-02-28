@@ -84,7 +84,6 @@ class AddSellersLaravelControllers {
   }
 
   updateUser({success, error, idUser}) async {
-    var responseSeller = true;
     var responseGeneralSeller = await Connections().updateSellerLara(
         idUser,
         userEditController.text,
@@ -96,19 +95,6 @@ class AddSellersLaravelControllers {
         returnCostEditController.text,
         urlTiendaEditController.text);
 
-    print(responseGeneralSeller);
-    // if (username != userEditController.text) {
-    //   responseSeller = await Connections().updateSellerUsername(
-    //     userEditController.text,
-    //   );
-    // }
-    // if (email != mailEditController.text) {
-    //   responseSeller = await Connections().updateSellerMail(
-    //     mailEditController.text,
-    //   );
-    // }
-
-    // if (responseSeller && responseGeneralSeller['message'] == "Usuario actualizado con éxito") {
     if (responseGeneralSeller != 1 && responseGeneralSeller != 2) {
       success();
     } else {

@@ -1223,4 +1223,5 @@ class _AddSellersState extends State<AddSellers> {
       ),
     );
   }
+
 }
