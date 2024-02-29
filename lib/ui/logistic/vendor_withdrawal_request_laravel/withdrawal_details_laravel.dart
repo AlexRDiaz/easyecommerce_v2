@@ -112,7 +112,7 @@ class _WithDrawalDetailsLaravelState extends State<WithdrawalDetailsLaravel> {
                   ),
                   RowLabel(
                     title: 'Comentario',
-                    value: data[0]['Comentario'].toString(),
+                    value: data[0]['comentario'].toString(),
                     color: Colors.black,
                   ),
                   RowImage(

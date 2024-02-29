@@ -166,7 +166,7 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
       baseAspectRatio = 0.5; // Aspecto base para 1920x1080
     } else if (screenSize.width == 1366 &&
         (screenSize.height >= 689 && screenSize.height <= 695)) {
-      baseAspectRatio = 0.55; // Aspecto base para 1440x900
+      baseAspectRatio = 0.5; // Aspecto base para 1440x900
     } else {
       baseAspectRatio = 0.7; // Aspecto base por defecto
     }
@@ -434,39 +434,6 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
                                   ).show();
                             },
                           ),
-                          IconButton(
-                        icon: Icon(
-                          Icons.sync,
-                          color: Colors.orange,
-                        ),
-                        onPressed: () {
-                          // print('Hola');
-                          AwesomeDialog(
-                            width: 500,
-                            context: context,
-                            dialogType: DialogType.warning,
-                            animType: AnimType.rightSlide,
-                            title:
-                                'Está segur@ de cambiar a Estado RECHAZADO la Solicitud correspondiente al monto de \$ ${data[index]['monto'].toString()} y restaurar dicho valor?',
-                            desc: '',
-                            btnOkText: "Aceptar",
-                            btnCancelText: "Cancelar",
-                            btnOkColor: Colors.green,
-                            btnCancelOnPress: () {},
-                            btnOkOnPress: () async {
-                              var response = await Connections()
-                                  .WithdrawalDenied(
-                                      data[index]['users_permissions_user'][0]
-                                              ['id']
-                                          .toString(),
-                                      data[index]['id'].toString(),
-                                      data[index]['monto'].toString());
-                              print(response);
-                              await loadData();
-                            },
-                          ).show();
-                        },
-                      ),
                         ],
                       ),
                     ),
@@ -506,6 +473,40 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
                       ],
                     ),
                     SizedBox(height: 5.0),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10.0),
+                      child: RichText(
+                        text: TextSpan(
+                          style: TextStyle(
+                              fontSize: 16.0,
+                              color: Colors
+                                  .black), // Tamaño de fuente y color base
+                          children: <TextSpan>[
+                            TextSpan(
+                              text: 'Tienda: ',
+                              style: TextStyle(
+                                  fontWeight: FontWeight
+                                      .bold), // Estilo para "Vendedor: "
+                            ),
+                            TextSpan(
+                              text: data[index]['users_permissions_user'] !=
+                                          null &&
+                                      data[index]['users_permissions_user']
+                                          .isNotEmpty
+                                  ? data[index]['users_permissions_user'][0]
+                                                  ['vendedores'] !=
+                                              null &&
+                                          data[index]['users_permissions_user']
+                                                  [0]['vendedores']
+                                              .isNotEmpty
+                                      ? '${data[index]['users_permissions_user'][0]['vendedores'][0]['nombre_comercial'].toString()}'
+                                      : ""
+                                  : "",
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                     Padding(
                       padding: const EdgeInsets.only(left: 10.0),
                       child: RichText(
@@ -663,7 +664,7 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
                 Padding(
                   padding: EdgeInsets.only(left: 8.0, right: 8.0),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         UIUtils.formatDate(
@@ -786,39 +787,6 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
                               // }
                               // },
                               ).show();
-                        },
-                      ),
-                      IconButton(
-                        icon: Icon(
-                          Icons.sync,
-                          color: Colors.orange,
-                        ),
-                        onPressed: () {
-                          // print('Hola');
-                          AwesomeDialog(
-                            width: 500,
-                            context: context,
-                            dialogType: DialogType.warning,
-                            animType: AnimType.rightSlide,
-                            title:
-                                'Está segur@ de cambiar a Estado RECHAZADO la Solicitud correspondiente al monto de \$ ${data[index]['monto'].toString()} y restaurar dicho valor?',
-                            desc: '',
-                            btnOkText: "Aceptar",
-                            btnCancelText: "Cancelar",
-                            btnOkColor: Colors.green,
-                            btnCancelOnPress: () {},
-                            btnOkOnPress: () async {
-                              var response = await Connections()
-                                  .WithdrawalDenied(
-                                      data[index]['users_permissions_user'][0]
-                                              ['id']
-                                          .toString(),
-                                      data[index]['id'].toString(),
-                                      data[index]['monto'].toString());
-                              print(response);
-                              await loadData();
-                            },
-                          ).show();
                         },
                       ),
                     ],

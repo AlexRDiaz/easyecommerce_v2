@@ -110,9 +110,9 @@ class _VendorWithDrawalRequestLaravelState
     } else if (screenSize.width == 1366 &&
         (screenSize.height >= 689 && screenSize.height <= 695)) {
       if (getStringCheck() == "APROBADO") {
-        baseAspectRatio = 0.5; // Aspecto base para 1440x900
+        baseAspectRatio = 0.45; // Aspecto base para 1440x900
       } else if (getStringCheck() == "RECHAZADO") {
-        baseAspectRatio = 0.6; // Aspecto base para 1440x900
+        baseAspectRatio = 0.5; // Aspecto base para 1440x900
       } else {
         baseAspectRatio = 0.7; // Aspecto base para 1920x1080
       }
@@ -204,7 +204,7 @@ class _VendorWithDrawalRequestLaravelState
 
                         sortFieldDefaultValue = "id:DESC";
                         populate = [
-                          'users_permissions_user',
+                          'users_permissions_user.vendedores',
                         ];
                         arrayFiltersAnd = [
                           // {"/estado": "APROBADO"}
@@ -213,7 +213,8 @@ class _VendorWithDrawalRequestLaravelState
                           "monto",
                           "users_permissions_user.user_id",
                           "users_permissions_user.username",
-                          "users_permissions_user.email"
+                          "users_permissions_user.email",
+                          "users_permissions_user.vendedores.nombre_comercial"
                         ];
                         arrayFiltersNot = [];
                         updateOrAddEstadoFilter(arrayFiltersAnd);
@@ -248,7 +249,11 @@ class _VendorWithDrawalRequestLaravelState
                           'up_users',
                         ];
                         arrayFiltersAnd = [];
-                        arrayFiltersOr = ["nombre_comercial", "up_users.user_id","up_users.username"];
+                        arrayFiltersOr = [
+                          "nombre_comercial",
+                          "up_users.user_id",
+                          "up_users.username"
+                        ];
                         arrayFiltersNot = [
                           {"id_master": ""}
                         ];
@@ -281,7 +286,7 @@ class _VendorWithDrawalRequestLaravelState
 
                         sortFieldDefaultValue = "id:DESC";
                         populate = [
-                          'users_permissions_user',
+                          'users_permissions_user.vendedores',
                         ];
                         arrayFiltersAnd = [
                           // {"/estado": "APROBADO"}
@@ -290,7 +295,8 @@ class _VendorWithDrawalRequestLaravelState
                           "monto",
                           "users_permissions_user.user_id",
                           "users_permissions_user.username",
-                          "users_permissions_user.email"
+                          "users_permissions_user.email",
+                          "users_permissions_user.vendedores.nombre_comercial"
                         ];
                         arrayFiltersNot = [];
                         updateOrAddEstadoFilter(arrayFiltersAnd);
@@ -358,6 +364,42 @@ class _VendorWithDrawalRequestLaravelState
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
+                                          //     IconButton(
+                                          IconButton(
+                                            icon: Icon(
+                                              Icons.sync,
+                                              color: Colors.orange,
+                                            ),
+                                            onPressed: () {
+                                              // print('Hola');
+                                              AwesomeDialog(
+                                                width: 500,
+                                                context: context,
+                                                dialogType: DialogType.warning,
+                                                animType: AnimType.rightSlide,
+                                                title:
+                                                    'Está segur@ de cambiar a Estado RECHAZADO la Solicitud correspondiente al monto de \$ ${data[index]['monto'].toString()} y restaurar dicho valor?',
+                                                desc: '',
+                                                btnOkText: "Aceptar",
+                                                btnCancelText: "Cancelar",
+                                                btnOkColor: Colors.green,
+                                                btnCancelOnPress: () {},
+                                                btnOkOnPress: () async {
+                                                  var response = await Connections()
+                                                      .WithdrawalDenied(
+                                                          data[index]['users_permissions_user']
+                                                                  [0]['id']
+                                                              .toString(),
+                                                          data[index]['id']
+                                                              .toString(),
+                                                          data[index]['monto']
+                                                              .toString());
+                                                  print(response);
+                                                  await loadData();
+                                                },
+                                              ).show();
+                                            },
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -383,6 +425,45 @@ class _VendorWithDrawalRequestLaravelState
                                       ],
                                     ),
                                     SizedBox(height: 8.0),
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.only(left: 10.0),
+                                      child: RichText(
+                                        text: TextSpan(
+                                          style: TextStyle(
+                                              fontSize: 16.0,
+                                              color: Colors
+                                                  .black), // Tamaño de fuente y color base
+                                          children: <TextSpan>[
+                                            TextSpan(
+                                              text: 'Tienda: ',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight
+                                                      .bold), // Estilo para "Vendedor: "
+                                            ),
+                                            TextSpan(
+                                              text: data[index][
+                                                              'users_permissions_user'] !=
+                                                          null &&
+                                                      data[index][
+                                                              'users_permissions_user']
+                                                          .isNotEmpty
+                                                  ? data[index]['users_permissions_user']
+                                                                      [0][
+                                                                  'vendedores'] !=
+                                                              null &&
+                                                          data[index]['users_permissions_user']
+                                                                      [0]
+                                                                  ['vendedores']
+                                                              .isNotEmpty
+                                                      ? '${data[index]['users_permissions_user'][0]['vendedores'][0]['nombre_comercial'].toString()}'
+                                                      : ""
+                                                  : "",
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
                                     Padding(
                                       padding:
                                           const EdgeInsets.only(left: 10.0),
@@ -601,13 +682,15 @@ class _VendorWithDrawalRequestLaravelState
                                                   supervisorController.text =
                                                       "Pago Realizado";
                                                 }
-                                                var finalresp = await Connections()
-                                                    .debitWithdrawal(
-                                                        data[index]['id']
-                                                            .toString(),
-                                                        response[1].toString(),
-                                                        supervisorController
-                                                            .text);
+                                                var finalresp =
+                                                    await Connections()
+                                                        .debitWithdrawal(
+                                                            data[index]['id']
+                                                                .toString(),
+                                                            response[1]
+                                                                .toString(),
+                                                            supervisorController
+                                                                .text);
                                                 // print(finalresp);
                                                 supervisorController.clear();
                                                 loadData();
@@ -680,7 +763,7 @@ class _VendorWithDrawalRequestLaravelState
                                                     sortFieldDefaultValue:
                                                         "id:DESC",
                                                     populate: [
-                                                      'users_permissions_user'
+                                                      'users_permissions_user.vendedores'
                                                     ],
                                                     arrayFiltersAnd: [
                                                       {"/estado": "REALIZADO"},
@@ -696,7 +779,8 @@ class _VendorWithDrawalRequestLaravelState
                                                       "monto",
                                                       "users_permissions_user.user_id",
                                                       "users_permissions_user.username",
-                                                      "users_permissions_user.email"
+                                                      "users_permissions_user.email",
+                                                      "users_permissions_user.vendedores.nombre_comercial"
                                                     ],
                                                   );
                                                 },
@@ -822,6 +906,45 @@ class _VendorWithDrawalRequestLaravelState
                                           ],
                                         ),
                                         SizedBox(height: 8.0),
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(left: 10.0),
+                                          child: RichText(
+                                            text: TextSpan(
+                                              style: TextStyle(
+                                                  fontSize: 16.0,
+                                                  color: Colors
+                                                      .black), // Tamaño de fuente y color base
+                                              children: <TextSpan>[
+                                                TextSpan(
+                                                  text: 'Tienda: ',
+                                                  style: TextStyle(
+                                                      fontWeight: FontWeight
+                                                          .bold), // Estilo para "Vendedor: "
+                                                ),
+                                                TextSpan(
+                                                  text: data[index][
+                                                                  'users_permissions_user'] !=
+                                                              null &&
+                                                          data[index][
+                                                                  'users_permissions_user']
+                                                              .isNotEmpty
+                                                      ? data[index]['users_permissions_user']
+                                                                          [0][
+                                                                      'vendedores'] !=
+                                                                  null &&
+                                                              data[index]['users_permissions_user']
+                                                                          [0]
+                                                                      ['vendedores']
+                                                                  .isNotEmpty
+                                                          ? '${data[index]['users_permissions_user'][0]['vendedores'][0]['nombre_comercial'].toString()}'
+                                                          : ""
+                                                      : "",
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
                                         Padding(
                                           padding:
                                               const EdgeInsets.only(left: 10.0),
@@ -1005,15 +1128,18 @@ class _VendorWithDrawalRequestLaravelState
 
                         sortFieldDefaultValue = "id:DESC";
                         populate = [
-                          'users_permissions_user',
+                          'users_permissions_user.vendedores',
                         ];
                         arrayFiltersAnd = [
                           // {"/estado": "APROBADO"}
                         ];
-                        arrayFiltersOr = [ "monto",
+                        arrayFiltersOr = [
+                          "monto",
                           "users_permissions_user.user_id",
                           "users_permissions_user.username",
-                          "users_permissions_user.email"];
+                          "users_permissions_user.email",
+                          "users_permissions_user.vendedores.nombre_comercial"
+                        ];
                         arrayFiltersNot = [];
                         updateOrAddEstadoFilter(arrayFiltersAnd);
                         await loadData();
@@ -1047,7 +1173,11 @@ class _VendorWithDrawalRequestLaravelState
                           'up_users',
                         ];
                         arrayFiltersAnd = [];
-                        arrayFiltersOr = ["nombre_comercial", "up_users.user_id","up_users.username"];
+                        arrayFiltersOr = [
+                          "nombre_comercial",
+                          "up_users.user_id",
+                          "up_users.username"
+                        ];
                         arrayFiltersNot = [
                           {"id_master": ""}
                         ];
@@ -1080,15 +1210,18 @@ class _VendorWithDrawalRequestLaravelState
 
                         sortFieldDefaultValue = "id:DESC";
                         populate = [
-                          'users_permissions_user',
+                          'users_permissions_user.vendedores',
                         ];
                         arrayFiltersAnd = [
                           // {"/estado": "APROBADO"}
                         ];
-                        arrayFiltersOr = [ "monto",
+                        arrayFiltersOr = [
+                          "monto",
                           "users_permissions_user.user_id",
                           "users_permissions_user.username",
-                          "users_permissions_user.email"];
+                          "users_permissions_user.email",
+                          "users_permissions_user.vendedores.nombre_comercial"
+                        ];
                         arrayFiltersNot = [];
                         updateOrAddEstadoFilter(arrayFiltersAnd);
                         await loadData();
@@ -1142,6 +1275,41 @@ class _VendorWithDrawalRequestLaravelState
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
+                                      IconButton(
+                                        icon: Icon(
+                                          Icons.sync,
+                                          color: Colors.orange,
+                                        ),
+                                        onPressed: () {
+                                          // print('Hola');
+                                          AwesomeDialog(
+                                            width: 500,
+                                            context: context,
+                                            dialogType: DialogType.warning,
+                                            animType: AnimType.rightSlide,
+                                            title:
+                                                'Está segur@ de cambiar a Estado RECHAZADO la Solicitud correspondiente al monto de \$ ${data[index]['monto'].toString()} y restaurar dicho valor?',
+                                            desc: '',
+                                            btnOkText: "Aceptar",
+                                            btnCancelText: "Cancelar",
+                                            btnOkColor: Colors.green,
+                                            btnCancelOnPress: () {},
+                                            btnOkOnPress: () async {
+                                              var response = await Connections()
+                                                  .WithdrawalDenied(
+                                                      data[index]['users_permissions_user']
+                                                              [0]['id']
+                                                          .toString(),
+                                                      data[index]['id']
+                                                          .toString(),
+                                                      data[index]['monto']
+                                                          .toString());
+                                              print(response);
+                                              await loadData();
+                                            },
+                                          ).show();
+                                        },
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -1164,6 +1332,44 @@ class _VendorWithDrawalRequestLaravelState
                                       ),
                                     ),
                                   ],
+                                ),
+                                SizedBox(height: 5.0),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 10.0),
+                                  child: RichText(
+                                    text: TextSpan(
+                                      style: TextStyle(
+                                          fontSize: 16.0,
+                                          color: Colors
+                                              .black), // Tamaño de fuente y color base
+                                      children: <TextSpan>[
+                                        TextSpan(
+                                          text: 'Tienda: ',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight
+                                                  .bold), // Estilo para "Vendedor: "
+                                        ),
+                                        TextSpan(
+                                          text: data[index][
+                                                          'users_permissions_user'] !=
+                                                      null &&
+                                                  data[index][
+                                                          'users_permissions_user']
+                                                      .isNotEmpty
+                                              ? data[index]['users_permissions_user']
+                                                                  [0]
+                                                              ['vendedores'] !=
+                                                          null &&
+                                                      data[index]['users_permissions_user']
+                                                              [0]['vendedores']
+                                                          .isNotEmpty
+                                                  ? '${data[index]['users_permissions_user'][0]['vendedores'][0]['nombre_comercial'].toString()}'
+                                                  : ""
+                                              : "",
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
                                 SizedBox(height: 5.0),
                                 Padding(
@@ -1446,7 +1652,7 @@ class _VendorWithDrawalRequestLaravelState
                                                     sortFieldDefaultValue:
                                                         "id:DESC",
                                                     populate: [
-                                                      'users_permissions_user'
+                                                      'users_permissions_user.vendedores'
                                                     ],
                                                     arrayFiltersAnd: [
                                                       {"/estado": "REALIZADO"},
@@ -1460,7 +1666,10 @@ class _VendorWithDrawalRequestLaravelState
                                                     arrayFiltersNot: [],
                                                     arrayFiltersOr: [
                                                       "monto",
-                                                      "fecha_transferencia"
+                                                      "users_permissions_user.user_id",
+                                                      "users_permissions_user.username",
+                                                      "users_permissions_user.email",
+                                                      "users_permissions_user.vendedores.nombre_comercial"
                                                     ],
                                                   );
                                                 },
@@ -1536,6 +1745,45 @@ class _VendorWithDrawalRequestLaravelState
                                       ],
                                     ),
                                     SizedBox(height: 8.0),
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.only(left: 10.0),
+                                      child: RichText(
+                                        text: TextSpan(
+                                          style: TextStyle(
+                                              fontSize: 16.0,
+                                              color: Colors
+                                                  .black), // Tamaño de fuente y color base
+                                          children: <TextSpan>[
+                                            TextSpan(
+                                              text: 'Tienda: ',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight
+                                                      .bold), // Estilo para "Vendedor: "
+                                            ),
+                                            TextSpan(
+                                              text: data[index][
+                                                              'users_permissions_user'] !=
+                                                          null &&
+                                                      data[index][
+                                                              'users_permissions_user']
+                                                          .isNotEmpty
+                                                  ? data[index]['users_permissions_user']
+                                                                      [0][
+                                                                  'vendedores'] !=
+                                                              null &&
+                                                          data[index]['users_permissions_user']
+                                                                      [0]
+                                                                  ['vendedores']
+                                                              .isNotEmpty
+                                                      ? '${data[index]['users_permissions_user'][0]['vendedores'][0]['nombre_comercial'].toString()}'
+                                                      : ""
+                                                  : "",
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
                                     Padding(
                                       padding:
                                           const EdgeInsets.only(left: 10.0),
