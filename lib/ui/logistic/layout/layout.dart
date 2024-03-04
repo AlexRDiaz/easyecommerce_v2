@@ -17,6 +17,7 @@ import 'package:frontend/ui/logistic/add_sellers_laravel/add_seller_laravel.dart
 import 'package:frontend/ui/logistic/add_stock_to_vendors/add_stock_to_vendors.dart';
 import 'package:frontend/ui/logistic/assign_routes/assign_routes.dart';
 import 'package:frontend/ui/logistic/audit/audit_data.dart';
+import 'package:frontend/ui/logistic/carriers_external/carriers_external_views.dart';
 import 'package:frontend/ui/logistic/dashboard/dashboard.dart';
 import 'package:frontend/ui/logistic/delivery_historial/delivery_historial.dart';
 import 'package:frontend/ui/logistic/delivery_status/delivery_status.dart';
@@ -87,6 +88,10 @@ class _LayoutPageState extends State<LayoutPage> {
       getOption(
         "Ingresos y Egresos",
         IncomeAndExpenses(),
+      ),
+      getOption(
+        "Transportistas Externos",
+        CarriersExternalView(),
       ),
       getOption(
         "Agregar Vendedores",
@@ -189,7 +194,8 @@ class _LayoutPageState extends State<LayoutPage> {
         RoleConfiguration(),
       ),
       getOption("Novedades", NoveltiesL()),
-      getOption("Configuración General Transporte", AddOperatorsTransportLogistic()),
+      getOption(
+          "Configuración General Transporte", AddOperatorsTransportLogistic()),
       // AddStockToVendors(),
       // WithdrawalAssignment(),
     ];

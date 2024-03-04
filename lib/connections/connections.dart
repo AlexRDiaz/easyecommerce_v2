@@ -6609,6 +6609,88 @@ class Connections {
     }
   }
 
+  //  *
+  getProvincias() async {
+    try {
+      var response = await http.get(Uri.parse("$serverLaravel/api/provincias"),
+          headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  getParroquiasByProvincia(idProv) async {
+    try {
+      var response = await http.get(
+          Uri.parse("$serverLaravel/api/provincias/cantones/$idProv"),
+          headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  //  *
+  Future createCarrierExternal(name, phone, email, address, status) async {
+    try {
+      print(json.encode({
+        "name": name,
+        "phone": phone,
+        "email": email,
+        "address": address,
+        "status": json.encode(status),
+      }));
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/carrierexternal"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "name": name,
+                "phone": phone,
+                "email": email,
+                "address": address,
+                "status": json.encode(status),
+              }));
+      if (response.statusCode == 200) {
+        return 0;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  //  *
+  getCarriersExternal() async {
+    try {
+      var response = await http.get(
+          Uri.parse("$serverLaravel/api/carrierexternal"),
+          headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
   //TEST
 
   Future getOrdersTest1() async {

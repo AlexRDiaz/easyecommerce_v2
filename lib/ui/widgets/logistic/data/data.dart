@@ -6,6 +6,8 @@ import 'package:frontend/main.dart';
 List optionsLogistic = [
   {"name": "DashBoard", "icon": Icons.home_outlined},
   {"name": "Ingresos y Egresos", "icon": Icons.list},
+  {"name": "Transportistas Externos", "icon": Icons.local_shipping_outlined},
+
   {"name": "Agregar Vendedores", "icon": Icons.add},
   {"name": "Agregar Transportistas", "icon": Icons.add},
   {"name": "Agregar Usuario Logística", "icon": Icons.add},
@@ -39,10 +41,12 @@ List optionsLogistic = [
 
   {"name": "Cambiar Contraseña", "icon": Icons.security},
   {"name": "Configuración de Roles", "icon": Icons.new_releases_outlined},
-  
-  {"name": "Novedades", "icon": Icons.warning_amber_outlined},
-  {"name": "Configuración General Transporte", "icon": Icons.emoji_transportation},
 
+  {"name": "Novedades", "icon": Icons.warning_amber_outlined},
+  {
+    "name": "Configuración General Transporte",
+    "icon": Icons.emoji_transportation
+  },
 
   {"name": "Cerrar Sesión", "icon": Icons.logout_outlined},
 ];
@@ -118,5 +122,4 @@ List optionsProvider = [
   {"name": "Imprimir Guías", "icon": Icons.print_outlined},
   {"name": "Guías Impresas", "icon": Icons.print},
   {"name": "Guías Enviadas", "icon": Icons.send_outlined},
-
 ];
