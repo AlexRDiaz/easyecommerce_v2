@@ -217,7 +217,11 @@ class _AuditDataInfo extends State<AuditDataInfo> {
                         //   },
                         // ),
                         // ! aqui va el ususario que confirma
-                        Text("Usuario de Confirmación:"),
+                        Text(
+                          "  Usuario de Confirmación: ${data['confirmed_by'] != null ? data['confirmed_by']['username'].toString() : 'Desconocido'}",
+                          style: TextStyle(
+                              fontWeight: FontWeight.normal, fontSize: 18),
+                        ),
                         SizedBox(
                           height: 20,
                         ),
