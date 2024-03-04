@@ -27,14 +27,32 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
   TextEditingController mailController = TextEditingController(text: "");
   TextEditingController phoneController = TextEditingController(text: "");
   TextEditingController addressController = TextEditingController(text: "");
+  //status
   TextEditingController programadoController = TextEditingController(text: "");
   TextEditingController enRutaController = TextEditingController(text: "");
   TextEditingController entregadoController = TextEditingController(text: "");
   TextEditingController noEntregadoController = TextEditingController(text: "");
   TextEditingController novedadController = TextEditingController(text: "");
   TextEditingController reagendadoController = TextEditingController(text: "");
-  TextEditingController enOficinaController = TextEditingController(text: "");
+  TextEditingController enOficinaStatusController =
+      TextEditingController(text: "");
+  TextEditingController novedadResueltaController =
+      TextEditingController(text: "");
+  //estado_devolucion
+  TextEditingController devolucionEnRutacontroller =
+      TextEditingController(text: "");
+  TextEditingController enBodegaController = TextEditingController(text: "");
+  TextEditingController enOficinaDevolucionController =
+      TextEditingController(text: "");
+  TextEditingController pendienteController = TextEditingController(text: "");
+  TextEditingController enBodegaProvController =
+      TextEditingController(text: "");
+
+  final TextEditingController _typeController = TextEditingController();
+
   var statusToSend;
+  List typeToSend = [];
+
   List<String> parroquiasToSelect = [];
   String? selectedParroquia;
 
@@ -158,6 +176,63 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                 icon: Icons.location_on,
               ),
               const SizedBox(height: 10),
+              const Text(
+                "Agregar tipo de cobertura",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 5),
+              Row(
+                children: [
+                  SizedBox(
+                    width:
+                        screenWith > 600 ? screenWith * 0.2 : screenWith * 0.42,
+                    child: TextFieldWithIcon(
+                      controller: _typeController,
+                      labelText: 'Cobertura',
+                      icon: Icons.description,
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      // minimumSize: Size(200, 40)
+                    ),
+                    onPressed: () async {
+                      //
+                      if (_typeController.text.isEmpty) {
+                        showSuccessModal(context, "Por favor, ingrese un tipo.",
+                            Icons8.warning_1);
+                      } else {
+                        var type = _typeController.text;
+                        typeToSend.add(type);
+                      }
+                      print("typeToSend: $typeToSend");
+                    },
+                    child: const Text(
+                      "Añadir",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+              Wrap(
+                spacing: 8.0,
+                runSpacing: 8.0,
+                children: List.generate(typeToSend.length, (index) {
+                  String categoryName = typeToSend[
+                      index]; // Obtén el nombre de la categoría actual
+                  return Chip(
+                    label: Text(categoryName),
+                    onDeleted: () {
+                      setState(() {
+                        typeToSend.removeAt(index);
+                        // print("catAct: $selectedCategoriesMap");
+                      });
+                    },
+                  );
+                }),
+              ),
               Align(
                 alignment: Alignment.centerLeft,
                 child: TextButton(
@@ -171,6 +246,8 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                   ),
                 ),
               ),
+
+              /*
               DropdownButtonHideUnderline(
                 child: DropdownButton2<String>(
                   isExpanded: true,
@@ -240,22 +317,24 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                   },
                 ),
               ),
-              const Text(
-                "Costo de Transporte",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton(
-                  onPressed: () async {
-                    //
-                  },
-                  child: const Text(
-                    "Agregar Nuevo Coste Transporte",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
+              */
+
+              // const Text(
+              //   "Costo de Transporte",
+              //   style: TextStyle(fontWeight: FontWeight.bold),
+              // ),
+              // Align(
+              //   alignment: Alignment.centerLeft,
+              //   child: TextButton(
+              //     onPressed: () async {
+              //       //
+              //     },
+              //     child: const Text(
+              //       "Agregar Nuevo Coste Transporte",
+              //       style: TextStyle(fontWeight: FontWeight.bold),
+              //     ),
+              //   ),
+              // ),
               const SizedBox(height: 20),
               Align(
                 alignment: Alignment.centerRight,
@@ -359,178 +438,328 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
             height: screenHeight * 0.75,
             color: Colors.white,
             padding: EdgeInsets.all(20),
-            child: Column(
+            child: ListView(
               children: [
-                const Text(
-                  "Status Equivalentes",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Row(
+                Column(
                   children: [
                     const Text(
-                      "PEDIDO PROGRAMADO:",
-                    ),
-                    const SizedBox(width: 20),
-                    SizedBox(
-                      width: 150,
-                      child: TextFormField(
-                        controller: programadoController,
-                        onChanged: (value) {
-                          setState(() {});
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    const Text(
-                      "EN RUTA:",
-                    ),
-                    const SizedBox(width: 20),
-                    SizedBox(
-                      width: 150,
-                      child: TextFormField(
-                        controller: enRutaController,
-                        onChanged: (value) {
-                          setState(() {});
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    const Text(
-                      "ENTREGADO:",
-                    ),
-                    const SizedBox(width: 20),
-                    SizedBox(
-                      width: 150,
-                      child: TextFormField(
-                        controller: entregadoController,
-                        onChanged: (value) {
-                          setState(() {});
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    const Text(
-                      "NO ENTREGADO:",
-                    ),
-                    const SizedBox(width: 20),
-                    SizedBox(
-                      width: 150,
-                      child: TextFormField(
-                        controller: noEntregadoController,
-                        onChanged: (value) {
-                          setState(() {});
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    const Text(
-                      "NOVEDAD:",
-                    ),
-                    const SizedBox(width: 20),
-                    SizedBox(
-                      width: 150,
-                      child: TextFormField(
-                        controller: novedadController,
-                        onChanged: (value) {
-                          setState(() {});
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    const Text(
-                      "REAGENDADO:",
-                    ),
-                    const SizedBox(width: 20),
-                    SizedBox(
-                      width: 150,
-                      child: TextFormField(
-                        controller: reagendadoController,
-                        onChanged: (value) {
-                          setState(() {});
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    const Text(
-                      "EN OFICINA:",
-                    ),
-                    const SizedBox(width: 20),
-                    SizedBox(
-                      width: 150,
-                      child: TextFormField(
-                        controller: enOficinaController,
-                        onChanged: (value) {
-                          setState(() {});
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 30),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        minimumSize: Size(200, 40)),
-                    onPressed: () async {
-                      //
-                      statusToSend = {
-                        "PEDIDO PROGRAMADO": programadoController.text != ""
-                            ? programadoController.text
-                            : 0,
-                        "EN RUTA": enRutaController.text != ""
-                            ? enRutaController.text
-                            : 0,
-                        "ENTREGADO": entregadoController.text != ""
-                            ? entregadoController.text
-                            : 0,
-                        "NO ENTREGADO": noEntregadoController.text != ""
-                            ? noEntregadoController.text
-                            : 0,
-                        "NOVEDAD": novedadController.text != ""
-                            ? novedadController.text
-                            : 0,
-                        "REAGENDADO": reagendadoController.text != ""
-                            ? reagendadoController.text
-                            : 0,
-                        "EN OFICINA": enOficinaController.text != ""
-                            ? enOficinaController.text
-                            : 0,
-                        // "options": optionsTypes
-                      };
-
-                      Navigator.pop(context);
-                    },
-                    child: const Text(
-                      "Guardar",
+                      "Estatus Equivalentes",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                  ),
+                    const Row(
+                      children: [
+                        Text(
+                          "Status",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Text(
+                          "PEDIDO PROGRAMADO:",
+                        ),
+                        const SizedBox(width: 20),
+                        SizedBox(
+                          width: 150,
+                          child: TextFormField(
+                            controller: programadoController,
+                            onChanged: (value) {
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Text(
+                          "EN RUTA:",
+                        ),
+                        const SizedBox(width: 20),
+                        SizedBox(
+                          width: 150,
+                          child: TextFormField(
+                            controller: enRutaController,
+                            onChanged: (value) {
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Text(
+                          "ENTREGADO:",
+                        ),
+                        const SizedBox(width: 20),
+                        SizedBox(
+                          width: 150,
+                          child: TextFormField(
+                            controller: entregadoController,
+                            onChanged: (value) {
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Text(
+                          "NO ENTREGADO:",
+                        ),
+                        const SizedBox(width: 20),
+                        SizedBox(
+                          width: 150,
+                          child: TextFormField(
+                            controller: noEntregadoController,
+                            onChanged: (value) {
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Text(
+                          "NOVEDAD:",
+                        ),
+                        const SizedBox(width: 20),
+                        SizedBox(
+                          width: 150,
+                          child: TextFormField(
+                            controller: novedadController,
+                            onChanged: (value) {
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Text(
+                          "REAGENDADO:",
+                        ),
+                        const SizedBox(width: 20),
+                        SizedBox(
+                          width: 150,
+                          child: TextFormField(
+                            controller: reagendadoController,
+                            onChanged: (value) {
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Text(
+                          "EN OFICINA:",
+                        ),
+                        const SizedBox(width: 20),
+                        SizedBox(
+                          width: 150,
+                          child: TextFormField(
+                            controller: enOficinaStatusController,
+                            onChanged: (value) {
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Text(
+                          "NOVEDAD RESUELTA:",
+                        ),
+                        const SizedBox(width: 20),
+                        SizedBox(
+                          width: 150,
+                          child: TextFormField(
+                            controller: enOficinaStatusController,
+                            onChanged: (value) {
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    const Row(
+                      children: [
+                        Text(
+                          "Estado Devolución",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Text(
+                          "DEVOLUCION EN RUTA:",
+                        ),
+                        const SizedBox(width: 20),
+                        SizedBox(
+                          width: 150,
+                          child: TextFormField(
+                            controller: devolucionEnRutacontroller,
+                            onChanged: (value) {
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Text(
+                          "EN BODEGA:",
+                        ),
+                        const SizedBox(width: 20),
+                        SizedBox(
+                          width: 150,
+                          child: TextFormField(
+                            controller: enBodegaController,
+                            onChanged: (value) {
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Text(
+                          "ENTREGADO EN OFICINA:",
+                        ),
+                        const SizedBox(width: 20),
+                        SizedBox(
+                          width: 150,
+                          child: TextFormField(
+                            controller: enOficinaDevolucionController,
+                            onChanged: (value) {
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Text(
+                          "EN BODEGA PROVEEDOR:",
+                        ),
+                        const SizedBox(width: 20),
+                        SizedBox(
+                          width: 150,
+                          child: TextFormField(
+                            controller: enBodegaProvController,
+                            onChanged: (value) {
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Text(
+                          "PENDIENTE:",
+                        ),
+                        const SizedBox(width: 20),
+                        SizedBox(
+                          width: 150,
+                          child: TextFormField(
+                            controller: pendienteController,
+                            onChanged: (value) {
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 30),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            minimumSize: Size(200, 40)),
+                        onPressed: () async {
+                          //
+                          statusToSend = {
+                            "PEDIDO PROGRAMADO": programadoController.text != ""
+                                ? programadoController.text
+                                : 0,
+                            "EN RUTA": enRutaController.text != ""
+                                ? enRutaController.text
+                                : 0,
+                            "ENTREGADO": entregadoController.text != ""
+                                ? entregadoController.text
+                                : 0,
+                            "NO ENTREGADO": noEntregadoController.text != ""
+                                ? noEntregadoController.text
+                                : 0,
+                            "NOVEDAD": novedadController.text != ""
+                                ? novedadController.text
+                                : 0,
+                            "REAGENDADO": reagendadoController.text != ""
+                                ? reagendadoController.text
+                                : 0,
+                            "EN OFICINA": enOficinaStatusController.text != ""
+                                ? enOficinaStatusController.text
+                                : 0,
+                            "NOVEDAD RESUELTA":
+                                novedadResueltaController.text != ""
+                                    ? novedadResueltaController.text
+                                    : 0,
+                            // devol
+                            "DEVOLUCION EN RUTA":
+                                devolucionEnRutacontroller.text != ""
+                                    ? devolucionEnRutacontroller.text
+                                    : 0,
+                            "EN BODEGA": enBodegaController.text != ""
+                                ? enBodegaController.text
+                                : 0,
+                            "ENTREGADO EN OFICINA":
+                                enOficinaDevolucionController.text != ""
+                                    ? enOficinaDevolucionController.text
+                                    : 0,
+                            "EN BODEGA PROVEEDOR":
+                                enBodegaProvController.text != ""
+                                    ? enBodegaProvController.text
+                                    : 0,
+                            "PENDIENTE": pendienteController.text != ""
+                                ? pendienteController.text
+                                : 0,
+                          };
+
+                          Navigator.pop(context);
+                        },
+                        child: const Text(
+                          "Guardar",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

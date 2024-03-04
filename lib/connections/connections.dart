@@ -6691,6 +6691,32 @@ class Connections {
     }
   }
 
+  //  *
+  getCoverageByProvincia(idProv) async {
+    try {
+      idProv = idProv == null || idProv == "null" ? "" : idProv;
+      print(json.encode({
+        "id_provincia": idProv,
+      }));
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/carrierexternal/coveragebyprov"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "id_provincia": idProv,
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      print(error);
+      return 2;
+    }
+  }
+
   //TEST
 
   Future getOrdersTest1() async {
