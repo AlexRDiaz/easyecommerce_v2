@@ -29,6 +29,7 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
   SearchCashWithdrawalsSellersControllers _controllers =
       SearchCashWithdrawalsSellersControllers();
   List data = [];
+  var dataCount = {};
   bool sort = false;
   int idUser = int.parse(sharedPrefs!.getString("id").toString());
 
@@ -41,6 +42,7 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
   loadData() async {
     try {
       var response;
+      var responseCount;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         getLoadingModal(context, false);
       });
@@ -48,7 +50,10 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
       response = await Connections()
           .getWithdrawalSellers(_controllers.searchController.text);
 
+      responseCount = await Connections().getCountAR(idUser.toString());
+
       data = response;
+      dataCount = responseCount;
 
       Future.delayed(Duration(milliseconds: 500), () {
         Navigator.pop(context);
@@ -110,95 +115,96 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
         child: Column(
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: IconButton(
-                      onPressed: () async {
-                        loadData();
-                      },
-                      icon: const Icon(
-                        Icons.autorenew_rounded,
-                        size: 35,
-                        color: Color(0xFF031749),
-                      ),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    border: Border.all(width: 1, color: Colors.grey),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                    child: Text(
+                      dataCount['aprobados'] != null
+                          ? "Aprobados: \$ ${dataCount['aprobados']['suma_monto'].toString()} || ${dataCount['aprobados']['conteo'].toString()} "
+                          : "Aprobados:",
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
-              ],
-            ),
-            /*
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      withdrawalInputDialog(context);
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: IconButton(
+                    onPressed: () async {
+                      loadData();
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF274965),
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "Solicitar Retiro",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+                    icon: const Icon(
+                      Icons.autorenew_rounded,
+                      size: 35,
+                      color: Color(0xFF031749),
                     ),
                   ),
                 ),
               ],
             ),
-            */
-            Expanded(
-              child: Column(
-                children: [
-                  Container(
-                    height: heigth * 0.80,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      color: Colors.white,
-                    ),
-                    child: data.length > 0
-                        ? DataTable2(
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
-                            ),
-                            dataRowColor:
-                                MaterialStateColor.resolveWith((states) {
-                              return Colors.white;
-                            }),
-                            dividerThickness: 1,
-                            headingTextStyle: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black),
-                            dataTextStyle: const TextStyle(color: Colors.black),
-                            columnSpacing: 12,
-                            headingRowHeight: 40,
-                            horizontalMargin: 32,
-                            minWidth: 900,
-                            dataRowHeight: 45,
-                            columns: getColumns(),
-                            rows: buildDataRows(data),
-                          )
-                        // ? DataTableModelPrincipal(
-                        //     columnWidth: 100,
-                        //     columns: getColumns(),
-                        //     rows: buildDataRows(data))
-                        : const Center(
-                            child: Text("Sin datos"),
-                          ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    border: Border.all(width: 1, color: Colors.grey),
                   ),
-                ],
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                    child: Text(
+                      dataCount['realizados'] != null
+                          ? "Realizados: \$ ${dataCount['realizados']['suma_monto'].toString()} || ${dataCount['realizados']['conteo'].toString()} "
+                          : "Realizados:",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 10.0,
+            ),
+            Expanded(
+              child: Container(
+                height: heigth * 0.80,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  color: Colors.white,
+                ),
+                child: data.length > 0
+                    ? DataTable2(
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                        dataRowColor: MaterialStateColor.resolveWith((states) {
+                          return Colors.white;
+                        }),
+                        dividerThickness: 1,
+                        headingTextStyle: const TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.black),
+                        dataTextStyle: const TextStyle(color: Colors.black),
+                        columnSpacing: 12,
+                        headingRowHeight: 40,
+                        horizontalMargin: 32,
+                        minWidth: 900,
+                        dataRowHeight: 45,
+                        columns: getColumns(),
+                        rows: buildDataRows(data),
+                      )
+                    // ? DataTableModelPrincipal(
+                    //     columnWidth: 100,
+                    //     columns: getColumns(),
+                    //     rows: buildDataRows(data))
+                    : const Center(
+                        child: Text("Sin datos"),
+                      ),
               ),
             ),
             /*

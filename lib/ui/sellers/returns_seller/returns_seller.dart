@@ -74,7 +74,9 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
     {
       'id_comercial':
           sharedPrefs!.getString("idComercialMasterSeller").toString()
-    }
+    },
+    {"estado_interno": "CONFIRMADO"},
+    {"estado_logistico": "ENVIADO"},
   ];
 
   List arrayFiltersDefaultOr = [
@@ -183,9 +185,11 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
     'EN BODEGA',
     'EN BODEGA PROVEEDOR'
   ];
+  List<String> listStatus = ["TODO", "NOVEDAD", "NO ENTREGADO"];
 
   TextEditingController estadoDevolucionController =
       TextEditingController(text: "TODO");
+  TextEditingController statusController = TextEditingController(text: "TODO");
 
   List arrayFiltersNotEq = [];
 
@@ -580,9 +584,21 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                       sortFunc2("precio_total", changevalue);
                     },
                   ),
+                  // DataColumn2(
+                  //   label: Text('Status'),
+                  //   size: ColumnSize.S,
+                  //   onSort: (columnIndex, ascending) {
+                  //     sortFunc2("status", changevalue);
+                  //   },
+                  // ),
                   DataColumn2(
-                    label: Text('Status'),
-                    size: ColumnSize.S,
+                    label: SelectFilter(
+                        'Status',
+                        'status',
+                        statusController,
+                        listStatus),
+                    size: ColumnSize.L,
+                    numeric: true,
                     onSort: (columnIndex, ascending) {
                       sortFunc2("status", changevalue);
                     },
@@ -615,12 +631,12 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                   //   },
                   // ),
                   DataColumn2(
-                      label: const Text('Marca T. Dev. L'),
-                      size: ColumnSize.L,
-                      onSort: (columnIndex, ascending) {
-                        sortFunc2("marca_t_d_l", changevalue);
-                      },
-                    ),
+                    label: const Text('Marca T. Dev. L'),
+                    size: ColumnSize.L,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc2("marca_t_d_l", changevalue);
+                    },
+                  ),
                   const DataColumn2(
                     label: Text('Transportadora'),
                     size: ColumnSize.M,
@@ -814,18 +830,16 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                         DataCell(
                             Text(
                               data[index]['marca_t_d_l'] == null ||
-                                      data[index]['marca_t_d_l'] ==
-                                          "null"
+                                      data[index]['marca_t_d_l'] == "null"
                                   ? ""
-                                  : data[index]['marca_t_d_l']
-                                      .toString(),
+                                  : data[index]['marca_t_d_l'].toString(),
                               style: TextStyle(
                                 color: rowColor,
                               ),
                             ), onTap: () {
                           showDialogInfoData(data[index]);
                         }),
-                        
+
                         DataCell(
                             Text(data[index]['transportadora'] != null &&
                                     data[index]['transportadora'].isNotEmpty
@@ -834,7 +848,7 @@ class _ReturnsSellerState extends State<ReturnsSeller> {
                                 : ''), onTap: () {
                           showDialogInfoData(data[index]);
                         }),
-                        
+
                         DataCell(
                             Text(data[index]['received_by'] != null &&
                                     data[index]['received_by'].isNotEmpty

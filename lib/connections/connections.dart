@@ -5223,6 +5223,24 @@ class Connections {
     }
   }
 
+  getCountAR(id) async {
+    int res = 0;
+    try {
+      print("id > $id");
+      var request = await http.get(
+          Uri.parse("$serverLaravel/api/seller/ordenesretiro/count-a-r/$id"),
+          headers: {'Content-Type': 'application/json'});
+
+      var responselaravel = await request.body;
+      var decodeData = json.decode(responselaravel);
+
+      return decodeData;
+    } catch (e) {
+      return (e);
+    }
+  }
+
+
   getSaldoPorId(id) async {
     int res = 0;
     try {

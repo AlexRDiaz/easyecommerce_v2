@@ -1,7 +1,9 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/ui/sellers/my_seller_account/controllers/controllers.dart';
@@ -65,9 +67,48 @@ class _SellerWithdrawalDetailsState extends State<SellerWithdrawalDetails> {
                 SizedBox(
                   height: 20,
                 ),
-                InputRow(
-                    controller: _controllers.montoController,
-                    title: 'Monto a Retirar'),
+                Center(child: Text("Usar . (punto) para los valores con decimales, si el valor no contiene decimales no usar . (punto)",style: TextStyle(color: Colors.red),),),
+                // InputRow(
+                //     controller: _controllers.montoController,
+                //     title: 'Monto a Retirar'),
+                Container(
+                  width: 500,
+                  margin: EdgeInsets.all(15.0),
+                  child: TextField(
+                    controller: _controllers
+                        .montoController, // Asume que ya tienes este controlador
+                    // keyboardType: TextInputType
+                    //     .number, // Muestra el teclado numérico
+                    // inputFormatters: [
+                    //   FilteringTextInputFormatter
+                    //       .digitsOnly
+                    // ],
+                    keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true), // Permite números y punto decimal
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(
+                          r'^\d*\.?\d*')), // Expresión regular para números con o sin decimales
+                    ],
+                    decoration: InputDecoration(
+                      labelText: "Monto a Retirar",
+                      labelStyle: const TextStyle(color: Colors.grey),
+                      prefixIcon: Icon(Icons.attach_money,
+                          color: ColorsSystem().colorSelectMenu),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide:
+                            BorderSide(color: ColorsSystem().colorSelectMenu),
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blue),
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      // Si deseas agregar un sufijo al campo de texto, puedes descomentar la siguiente línea
+                      // suffixIcon: Icon(Icons.check_circle, color: Colors.green),
+                    ),
+                  ),
+                ),
+
                 SizedBox(
                   height: 20,
                 ),

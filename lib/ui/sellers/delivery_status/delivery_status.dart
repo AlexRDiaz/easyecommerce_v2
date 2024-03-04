@@ -328,6 +328,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       data = response['data'];
       pageCount = response['last_page'];
       //paginatorController.navigateToPage(0);
+      // print("T -> ${response['total']}");
 
       setState(() {
         isFirst = false;
@@ -1056,10 +1057,13 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                                       "ENTREGADO EN OFICINA" ||
                                                   data[index]['status']
                                                           .toString() ==
-                                                      "EN RUTA" ||
+                                                      "DEVOLUCION EN RUTA" ||
                                                   data[index]['estado_devolucion']
                                                           .toString() ==
-                                                      "EN BODEGA"
+                                                      "EN BODEGA" ||
+                                                  data[index]['estado_devolucion']
+                                                          .toString() ==
+                                                      "EN BODEGA PROVEEDOR"
                                               ? data[index]['users'][0]
                                                           ['vendedores'][0]
                                                       ['costo_devolucion']
