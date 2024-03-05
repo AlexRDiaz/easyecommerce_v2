@@ -48,7 +48,10 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
 
   List<String> listvendedores = ['TODO'];
   TextEditingController searchController = TextEditingController();
-  var arrayfiltersDefaultAnd = [];
+  var arrayfiltersDefaultAnd = [
+    {"estado_interno": "CONFIRMADO"},
+    {"estado_logistico": "ENVIADO"}
+  ];
   String selectedDateFilter = "FECHA ENTREGA";
 
   @override
@@ -546,16 +549,16 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
       var resltNewWalletValueSeller;
 
       if (idSeller != 0) {
-
-          // Cambiar el valor
-        String hoy = "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
+        // Cambiar el valor
+        String hoy =
+            "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
         await sharedPrefs!.setString("dateDesdeVendedor", "1/1/2023");
         await sharedPrefs!.setString("dateHastaVendedor", hoy);
         getLoadingModal(context, false);
         responseValues = await Connections()
-            .getValuesSellerLaravel(arrayfiltersDefaultAnd,selectedDateFilter);
+            .getValuesSellerLaravel(arrayfiltersDefaultAnd, selectedDateFilter);
         retvalTotal = await Connections().getOrdenesRetiroCount(idSeller);
-        resltNewWalletValueSeller = await Connections().getSaldoPorId(idSeller);
+        resltNewWalletValueSeller = await Connections().getSaldoPorId(idSeller); 
       }
 
       setState(() {
@@ -563,7 +566,6 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
         valuesTransporter = responseValues['data'];
         valueTotalReturns =
             double.parse(retvalTotal['total_retiros'].toString());
-
 
         if (resltNewWalletValueSeller['saldo'] == null) {
           valueNewWallet = 0.0;
@@ -574,7 +576,7 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
 
         calculateValues();
       });
-    Navigator.pop(context);
+      Navigator.pop(context);
     } catch (e) {
       print(e);
     }

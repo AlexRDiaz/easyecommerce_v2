@@ -878,12 +878,10 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
         optionsCheckBox.add({
           "id": element['id'].toString(),
           "numPedido":
-              element['users'] != null && element['users'].toString() != "[]"
-                  ? element['users'][0]['vendedores'][0]['nombre_comercial']
-                  : "${element['tienda_temporal']}-${element['numero_orden']}"
-                      .toString(),
+              "${element['users'] != null && element['users'].toString() != "[]" ? element['users'][0]['vendedores'][0]['nombre_comercial'] : element['tienda_temporal']}-${element['numero_orden']}"
+                  .toString(),
           "date": element['marca_t_i'].toString(),
-          "city": element['ciudadS_shipping'].toString(),
+          "city": element['ciudad_shipping'].toString(),
           "product": element['producto_p'].toString(),
           "extraProduct": element['producto_extra'].toString(),
           "quantity": element['cantidad_total'].toString(),
