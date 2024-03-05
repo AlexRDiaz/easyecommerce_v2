@@ -35,6 +35,7 @@ class _OrderInfoState extends State<OrderInfo> {
   OrderEntryControllers _controllers = OrderEntryControllers();
   String estadoEntrega = "";
   String estadoLogistic = "";
+  String estadoInterno = "";
   String route = "";
   String carrier = "";
 
@@ -60,6 +61,7 @@ class _OrderInfoState extends State<OrderInfo> {
     setState(() {
       estadoEntrega = data['status'].toString();
       estadoLogistic = data['estado_logistico'].toString();
+      estadoInterno = data['estado_interno'].toString();
       route = data['ruta'] != null && data['ruta'].toString() != "[]"
           ? data['ruta'][0]['titulo'].toString()
           : "";
@@ -146,7 +148,7 @@ class _OrderInfoState extends State<OrderInfo> {
                             SizedBox(
                               width: 20,
                             ),
-                            ElevatedButton(
+                            (estadoInterno == "CONFIRMADO" && estadoLogistic == "IMPRESO") ? Container():ElevatedButton(
                                 onPressed: () async {
                                   await showDialog(
                                       context: context,

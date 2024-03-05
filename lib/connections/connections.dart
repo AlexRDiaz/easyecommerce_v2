@@ -7890,11 +7890,16 @@ class Connections {
       List filtersAndAll = [];
       filtersAndAll.addAll(and);
       filtersAndAll.addAll(defaultAnd);
+      print(json.encode({
+            "start": dateStart,
+            "end": dateEnd,
+            "and": filtersAndAll,
+          }));
 
       var request = await http.post(
           Uri.parse(
               "$serverLaravel/api/logistic/values/getByDateRangeValuesAudit"),
-          headers: {
+          headers: { 
             'Content-Type': 'application/json',
           },
           body: json.encode({

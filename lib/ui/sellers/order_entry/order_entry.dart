@@ -922,19 +922,27 @@ class _OrderEntryState extends State<OrderEntry> {
                                                 child: Icon(Icons.message,
                                                     color: Colors.white),
                                               ),
-                                              TextButton(
-                                                style: TextButton.styleFrom(
+                                              Visibility(
+                                                visible: data[index][
+                                                                'estado_interno']
+                                                            .toString() !=
+                                                        "CONFIRMADO" &&
+                                                    data[index]['estado_logistico']
+                                                            .toString() !=
+                                                        "IMPRESO",
+                                                child: TextButton(
+                                                  style: TextButton.styleFrom(
                                                     backgroundColor:
                                                         ColorsSystem()
                                                             .colorBlack,
                                                     shadowColor: Color.fromARGB(
                                                         255, 80, 78, 78),
                                                     shape:
-                                                        RoundedRectangleBorder()),
-                                                onPressed: () async {
-                                                  // print('Check selected');
-                                                  setState(() {});
-                                                  await showDialog(
+                                                        RoundedRectangleBorder(),
+                                                  ),
+                                                  onPressed: () async {
+                                                    setState(() {});
+                                                    await showDialog(
                                                       context: context,
                                                       builder: (context) {
                                                         return RoutesModalv2(
@@ -947,55 +955,53 @@ class _OrderEntryState extends State<OrderEntry> {
                                                               "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data[index]['numero_orden']}",
                                                           origin: "",
                                                         );
-                                                        //
-                                                      });
-                                                  loadData();
-                                                },
-                                                child: Icon(Icons.check,
-                                                    color: Colors.white),
-                                              ),
-                                              data[index]['estado_logistico']
-                                                              .toString() ==
-                                                          "ENVIADO" ||
-                                                      data[index]['estado_logistico']
-                                                              .toString() ==
-                                                          "IMPRESO"
-                                                  ? Container()
-                                                  : TextButton(
-                                                      style:
-                                                          TextButton.styleFrom(
-                                                        backgroundColor:
-                                                            ColorsSystem()
-                                                                .colorBlack,
-                                                        shadowColor:
-                                                            Color.fromARGB(255,
-                                                                80, 78, 78),
-                                                        shape:
-                                                            RoundedRectangleBorder(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .horizontal(
-                                                            right:
-                                                                Radius.circular(
-                                                                    10.0),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      onPressed: () async {
-                                                        // print('Close selected');
-                                                        var response =
-                                                            await Connections()
-                                                                .updateOrderInteralStatusLaravel(
-                                                                    "NO DESEA",
-                                                                    data[index][
-                                                                            'id']
-                                                                        .toString());
-                                                        setState(() {});
-                                                        loadData();
                                                       },
-                                                      child: Icon(Icons.close,
-                                                          color: Colors.white),
+                                                    );
+                                                    loadData();
+                                                  },
+                                                  child: Icon(Icons.check,
+                                                      color: Colors.white),
+                                                ),
+                                              ),
+                                              Visibility(
+                                                visible: data[index][
+                                                                'estado_interno']
+                                                            .toString() !=
+                                                        "CONFIRMADO" &&
+                                                    data[index]['estado_logistico']
+                                                            .toString() !=
+                                                        "IMPRESO",
+                                                child: TextButton(
+                                                  style: TextButton.styleFrom(
+                                                    backgroundColor:
+                                                        ColorsSystem()
+                                                            .colorBlack,
+                                                    shadowColor: Color.fromARGB(
+                                                        255, 80, 78, 78),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius
+                                                          .horizontal(
+                                                        right: Radius.circular(
+                                                            10.0),
+                                                      ),
                                                     ),
+                                                  ),
+                                                  onPressed: () async {
+                                                    var response =
+                                                        await Connections()
+                                                            .updateOrderInteralStatusLaravel(
+                                                                "NO DESEA",
+                                                                data[index]
+                                                                        ['id']
+                                                                    .toString());
+                                                    setState(() {});
+                                                    loadData();
+                                                  },
+                                                  child: Icon(Icons.close,
+                                                      color: Colors.white),
+                                                ),
+                                              ),
                                             ],
                                           )),
                                     ],

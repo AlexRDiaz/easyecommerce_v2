@@ -1036,7 +1036,7 @@ void _handleCheckboxChanged(bool? newValue, int index) async {
             onSort: (columnIndex, ascending) {},
           ),
           DataColumn2(
-            label: const Text('Fecha Marcar TI'),
+            label: const Text('Fecha Envio'),
             size: ColumnSize.S,
             fixedWidth: 120,
             onSort: (columnIndex, ascending) {
@@ -1545,7 +1545,7 @@ Quedamos atentos a su respuesta Muchas gracias.
       }),
       DataCell(
           Text(
-            data[index]['marca_t_i'].toString().split(' ')[0].toString(),
+            data[index]['marca_tiempo_envio'].toString().split(' ')[0].toString(),
             style: TextStyle(
               color: rowColor,
             ),

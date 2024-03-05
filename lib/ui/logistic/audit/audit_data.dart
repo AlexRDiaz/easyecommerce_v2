@@ -88,8 +88,8 @@ class _AuditState extends State<Audit> {
 
   List defaultArrayFiltersAnd = [
     // {"equals/estado_devolucion": "PENDIENTE"},
-    {"/estado_interno": "CONFIRMADO"},
-    {"/estado_logistico": "ENVIADO"}
+    // {"/estado_interno": "CONFIRMADO"},
+    // {"/estado_logistico": "ENVIADO"}
   ];
   List arrayFiltersAnd = [];
   List arrayFiltersOr = [
@@ -215,7 +215,7 @@ class _AuditState extends State<Audit> {
           arrayFiltersAnd,
           defaultArrayFiltersAnd);
 
-      // print(respvalues);
+      print(respvalues);
 
       if (listtransportadores.length == 1) {
         var responsetransportadoras = await Connections().getTransportadoras();
