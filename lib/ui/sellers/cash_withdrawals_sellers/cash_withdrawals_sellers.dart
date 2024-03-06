@@ -11,6 +11,7 @@ import 'package:frontend/ui/sellers/cash_withdrawals_sellers/withdrawal_info_new
 import 'package:frontend/ui/sellers/cash_withdrawals_sellers/withdrawal_seller.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/transport/data_table_model.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:frontend/helpers/server.dart';
 
@@ -126,7 +127,7 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
                     padding: const EdgeInsets.only(left: 8.0, right: 8.0),
                     child: Text(
                       dataCount['aprobados'] != null
-                          ? "Aprobados: \$ ${dataCount['aprobados']['suma_monto'].toString()} || ${dataCount['aprobados']['conteo'].toString()} "
+                          ? "Aprobados: \$ ${NumberFormat("#,##0.00", "en_US").format(double.parse(dataCount['aprobados']['suma_monto'].toString()))} || ${dataCount['aprobados']['conteo'].toString()} "
                           : "Aprobados:",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
@@ -159,7 +160,7 @@ class _CashWithdrawalsSellersState extends State<CashWithdrawalsSellers> {
                     padding: const EdgeInsets.only(left: 8.0, right: 8.0),
                     child: Text(
                       dataCount['realizados'] != null
-                          ? "Realizados: \$ ${dataCount['realizados']['suma_monto'].toString()} || ${dataCount['realizados']['conteo'].toString()} "
+                          ? "Realizados: \$ ${NumberFormat("#,##0.00", "en_US").format(double.parse(dataCount['realizados']['suma_monto'].toString()))} || ${dataCount['realizados']['conteo'].toString()} "
                           : "Realizados:",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),

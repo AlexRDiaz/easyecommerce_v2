@@ -925,10 +925,10 @@ class _OrderEntryState extends State<OrderEntry> {
                                               Visibility(
                                                 visible: data[index][
                                                                 'estado_logistico']
-                                                            .toString() ==
+                                                            .toString() !=
                                                         "IMPRESO" &&
                                                     data[index]['estado_interno']
-                                                            .toString() ==
+                                                            .toString() !=
                                                         "CONFIRMADO",
                                                 child: TextButton(
                                                   style: TextButton.styleFrom(
@@ -966,10 +966,10 @@ class _OrderEntryState extends State<OrderEntry> {
                                               Visibility(
                                                 visible: data[index][
                                                                 'estado_logistico']
-                                                            .toString() ==
+                                                            .toString() !=
                                                         "IMPRESO" &&
                                                     data[index]['estado_interno']
-                                                            .toString() ==
+                                                            .toString() !=
                                                         "CONFIRMADO",
                                                 child: TextButton(
                                                   style: TextButton.styleFrom(
