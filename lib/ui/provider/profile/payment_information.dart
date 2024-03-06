@@ -168,6 +168,7 @@ class _PaymentInformationState extends State<PaymentInformation> {
                         return null;
                       },
                     ),
+                    SizedBox(height: 10),
                     TextFormField(
                       keyboardType: TextInputType.number,
                       controller: _dniController,
@@ -233,6 +234,8 @@ class _PaymentInformationState extends State<PaymentInformation> {
         _bankEntityController.text,
         _accountTypeController.text,
         _accountNumber.text);
+
+    print(response);
     if (response == 0) {
       // ignore: use_build_context_synchronously
       AwesomeDialog(

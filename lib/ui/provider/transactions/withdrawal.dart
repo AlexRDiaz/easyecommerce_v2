@@ -57,6 +57,7 @@ class _WithdrawalState extends State<Withdrawal> {
                     children: [
                       Expanded(
                         child: TextField(
+                          controller: withdrawal,
                           keyboardType: TextInputType.number,
                           inputFormatters: <TextInputFormatter>[
                             FilteringTextInputFormatter.digitsOnly,
@@ -113,6 +114,7 @@ class _WithdrawalState extends State<Withdrawal> {
     });
     var resultSendWithdrawal =
         await Connections().sendWithdrawal(withdrawal.text);
+    print("$resultSendWithdrawal");
     if (resultSendWithdrawal != 1 || resultSendWithdrawal != 2) {
       setState(() {
         code = resultSendWithdrawal['code'].toString();

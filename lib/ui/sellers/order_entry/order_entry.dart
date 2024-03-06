@@ -924,12 +924,12 @@ class _OrderEntryState extends State<OrderEntry> {
                                               ),
                                               Visibility(
                                                 visible: data[index][
-                                                                'estado_interno']
-                                                            .toString() !=
-                                                        "CONFIRMADO" &&
-                                                    data[index]['estado_logistico']
-                                                            .toString() !=
-                                                        "IMPRESO",
+                                                                'estado_logistico']
+                                                            .toString() ==
+                                                        "IMPRESO" &&
+                                                    data[index]['estado_interno']
+                                                            .toString() ==
+                                                        "CONFIRMADO",
                                                 child: TextButton(
                                                   style: TextButton.styleFrom(
                                                     backgroundColor:
@@ -965,12 +965,12 @@ class _OrderEntryState extends State<OrderEntry> {
                                               ),
                                               Visibility(
                                                 visible: data[index][
-                                                                'estado_interno']
-                                                            .toString() !=
-                                                        "CONFIRMADO" &&
-                                                    data[index]['estado_logistico']
-                                                            .toString() !=
-                                                        "IMPRESO",
+                                                                'estado_logistico']
+                                                            .toString() ==
+                                                        "IMPRESO" &&
+                                                    data[index]['estado_interno']
+                                                            .toString() ==
+                                                        "CONFIRMADO",
                                                 child: TextButton(
                                                   style: TextButton.styleFrom(
                                                     backgroundColor:
