@@ -86,6 +86,89 @@ class _CarriersExternalViewState extends State<CarriersExternalView> {
               ),
               const SizedBox(height: 20),
               Container(
+                height: MediaQuery.of(context).size.height * 0.7,
+                child: Container(
+                  padding: EdgeInsets.all(5),
+                  child: GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 4, // Número de tarjetas por fila
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                      childAspectRatio: 1.0,
+                    ),
+                    itemCount: data.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Card(
+                        color: Colors.blue.shade100,
+                        child: InkWell(
+                          onTap: () {
+                            showInfo(context, data[index]);
+                          },
+                          child: Container(
+                            padding: EdgeInsets.all(10),
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  height: screenHeight * 0.1,
+                                  width: screenWith * 0.1,
+                                  child: Container(
+                                    color: Colors.deepPurple.shade100,
+                                  ),
+                                ),
+                                Text(data[index]['name']),
+                                Text(data[index]['phone']),
+                                Text(data[index]['email']),
+                                Text(data[index]['address']),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+
+              // Container(
+              //   height: MediaQuery.of(context).size.height * 0.50,
+              //   child: Container(
+              //     padding: EdgeInsets.all(5),
+              //     child: ListView.builder(
+              //       itemCount: data.length,
+              //       itemBuilder: (BuildContext context, int index) {
+              //         return Card(
+              //           color: Colors.blue.shade100,
+              //           child: InkWell(
+              //             onTap: () {
+              //               showInfo(context);
+              //             },
+              //             child: Container(
+              //               padding: EdgeInsets.all(10),
+              //               child: Column(
+              //                 children: [
+              //                   SizedBox(
+              //                     height: screenHeight * 0.1,
+              //                     width: screenWith * 0.1,
+              //                     child: Container(
+              //                       color: Colors.deepPurple.shade100,
+              //                     ),
+              //                   ),
+              //                   Text(data[index]['name']),
+              //                   Text(data[index]['phone']),
+              //                   Text(data[index]['email']),
+              //                   Text(data[index]['address']),
+              //                 ],
+              //               ),
+              //             ),
+              //           ),
+              //         );
+              //       },
+              //     ),
+              //   ),
+              // ),
+
+              /*
+              Container(
                 height: MediaQuery.of(context).size.height * 0.50,
                 child: Container(
                   padding: EdgeInsets.all(5),
@@ -125,6 +208,7 @@ class _CarriersExternalViewState extends State<CarriersExternalView> {
                   ),
                 ),
               ),
+            */
             ],
           ),
         ),
@@ -188,18 +272,19 @@ class _CarriersExternalViewState extends State<CarriersExternalView> {
         }));
   }
 
-  Future<dynamic> showInfo(BuildContext context) {
+  Future<dynamic> showInfo(BuildContext context, data) {
+    // print(data);
     return showDialog(
       context: context,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
             //
-            return const AlertDialog(
+            return AlertDialog(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(20.0))),
               contentPadding: EdgeInsets.all(0),
-              content: InfoCarrierExternal(),
+              content: InfoCarrierExternal(data: data),
             );
           },
         );

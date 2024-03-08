@@ -9,7 +9,9 @@ import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:frontend/ui/widgets/transport/data_table_model.dart';
 
 class InfoCarrierExternal extends StatefulWidget {
-  const InfoCarrierExternal({super.key});
+  final Map data;
+
+  const InfoCarrierExternal({super.key, required this.data});
 
   @override
   State<InfoCarrierExternal> createState() => _InfoCarrierExternalState();
@@ -27,7 +29,8 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
   List<String> parroquiasToSelect = [];
   String? selectedParroquia;
 
-  List data = [];
+  List coveragesList = [];
+  var data = [];
 
   @override
   void didChangeDependencies() {
@@ -47,15 +50,24 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
 
       provinciasList = await Connections().getProvincias();
       for (var i = 0; i < provinciasList.length; i++) {
-        setState(() {
-          provinciasToSelect.add('${provinciasList[i]}');
-        });
+        provinciasToSelect.add('${provinciasList[i]}');
       }
 
-      var response = await Connections()
-          .getCoverageByProvincia((selectedProvincia.toString().split("-")[0]));
-
+      // data = widget.data;
+      print("${widget.data['id']}");
+      var response =
+          await Connections().getCarrierExternalById(widget.data['id']);
+      // print(response);
       data = response['data'];
+      setState(() {
+        nameController.text = data[0]['name'].toString();
+        mailController.text = data[0]['phone'].toString();
+        phoneController.text = data[0]['email'].toString();
+        addressController.text = data[0]['address'].toString();
+        coveragesList = data[0]['carrier_coverages'];
+      });
+
+      // print(coveragesList);
       //
       setState(() {
         isLoading = false;
@@ -84,18 +96,29 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
       child: CustomProgressModal(
         isLoading: isLoading,
         content: ListView(
-          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+          padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
           children: [
             Column(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
+                const Text(
+                  "Información",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                      fontSize: 20),
+                ),
+                const SizedBox(height: 10),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Column(
                       children: [
                         SizedBox(
-                          width: screenWith * 0.3,
+                          width: screenWith > 600
+                              ? screenWith * 0.3
+                              : screenWith * 0.7,
                           child: TextFieldWithIcon(
                             controller: nameController,
                             labelText: 'Nombre Transportadora',
@@ -104,7 +127,9 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                         ),
                         const SizedBox(height: 10),
                         SizedBox(
-                          width: screenWith * 0.3,
+                          width: screenWith > 600
+                              ? screenWith * 0.3
+                              : screenWith * 0.7,
                           child: TextFieldWithIcon(
                             controller: phoneController,
                             labelText: 'Número de Teléfono',
@@ -117,7 +142,9 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                         ),
                         const SizedBox(height: 10),
                         SizedBox(
-                          width: screenWith * 0.3,
+                          width: screenWith > 600
+                              ? screenWith * 0.3
+                              : screenWith * 0.7,
                           child: TextFieldWithIcon(
                             controller: mailController,
                             labelText: 'Correo',
@@ -126,7 +153,9 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                         ),
                         const SizedBox(height: 10),
                         SizedBox(
-                          width: screenWith * 0.3,
+                          width: screenWith > 600
+                              ? screenWith * 0.3
+                              : screenWith * 0.7,
                           child: TextFieldWithIcon(
                             controller: addressController,
                             labelText: 'Direccion',
@@ -142,7 +171,10 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                   ],
                 ),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    Text("Total: ${coveragesList.length.toString()}"),
+                    const SizedBox(width: 10),
                     SizedBox(
                       width: screenWith * 0.3,
                       child: DropdownButtonHideUnderline(
@@ -183,28 +215,57 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                       ),
                     ),
                     const SizedBox(width: 20),
-                    TextButton(
-                      onPressed: () async {
-                        //
-                      },
-                      child: const Text(
-                        "Agregar Nueva Cobertura",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
+                    // TextButton(
+                    //   onPressed: () async {
+                    //     //
+                    //   },
+                    //   child: const Text(
+                    //     "Agregar Nueva Cobertura",
+                    //     style: TextStyle(fontWeight: FontWeight.bold),
+                    //   ),
+                    // ),
                   ],
                 ),
                 Container(
-                  height: screenHeight * 0.30,
-                  width: screenWith * 0.5,
+                  height: screenHeight * 0.40,
+                  width: screenWith * 0.55,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
                     color: Colors.white,
                   ),
-                  child: DataTableModelPrincipal(
-                    columnWidth: 200,
+                  // child: DataTableModelPrincipal(
+                  //   columnWidth: 200,
+                  //   columns: getColumns(),
+                  //   rows: buildDataRows(coveragesList),
+                  // ),
+                  child: DataTable2(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 1,
+                          blurRadius: 1,
+                        ),
+                      ],
+                    ),
+                    dataRowColor: MaterialStateColor.resolveWith((states) {
+                      if (states.contains(MaterialState.selected)) {
+                        return Colors.blue.withOpacity(0.5);
+                      } else if (states.contains(MaterialState.hovered)) {
+                        return const Color.fromARGB(255, 234, 241, 251);
+                      }
+                      return const Color.fromARGB(0, 173, 233, 231);
+                    }),
+                    headingTextStyle: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.black),
+                    dataTextStyle: const TextStyle(color: Colors.black),
+                    columnSpacing: 12,
+                    horizontalMargin: 12,
+                    minWidth: 800,
                     columns: getColumns(),
-                    rows: buildDataRows(data),
+                    rows: buildDataRows(coveragesList),
                   ),
                 ),
               ],
@@ -218,29 +279,35 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
   List<DataColumn2> getColumns() {
     return [
       DataColumn2(
+        label: Text('ID'),
+        size: ColumnSize.S,
+        fixedWidth: 80,
+      ),
+      DataColumn2(
         label: Text('Provincia'),
         size: ColumnSize.M,
-        fixedWidth: 250,
+        fixedWidth: 180,
+      ),
+      DataColumn2(
+        label: Text('ID'),
+        size: ColumnSize.S,
+        fixedWidth: 80,
       ),
       DataColumn2(
         label: Text("Ciudad"),
         size: ColumnSize.S,
-        fixedWidth: 250,
+        fixedWidth: 180,
       ),
       DataColumn2(
         label: Text('Tipo'),
         size: ColumnSize.S,
         fixedWidth: 150,
       ),
-      DataColumn2(
-        label: Text(''),
-        size: ColumnSize.S,
-      ),
     ];
   }
 
   List<DataRow> buildDataRows(List dataL) {
-    dataL = dataL;
+    dataL;
 
     List<DataRow> rows = [];
     for (int index = 0; index < dataL.length; index++) {
@@ -248,25 +315,36 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
         cells: [
           DataCell(
             Text(
-              dataL[index]['dpa_provincia']['provincia'].toString(),
-            ),
-          ),
-          DataCell(
-            InkWell(
-              child: Text(
-                dataL[index]['ciudad'].toString(),
-              ),
+              coveragesList != [] ? dataL[index]['id_prov_ref'].toString() : "",
             ),
           ),
           DataCell(
             Text(
-              dataL[index]['cobertura_gintra'].toString(),
+              coveragesList != []
+                  ? dataL[index]['coverage_external']['dpa_provincia']
+                          ['provincia']
+                      .toString()
+                  : "",
             ),
           ),
           DataCell(
-            Text(""
-                // dataL[index]['marca_tiempo_envio'].toString(),
-                ),
+            Text(
+              coveragesList != []
+                  ? dataL[index]['id_ciudad_ref'].toString()
+                  : "",
+            ),
+          ),
+          DataCell(
+            Text(
+              coveragesList != []
+                  ? dataL[index]['coverage_external']['ciudad'].toString()
+                  : "",
+            ),
+          ),
+          DataCell(
+            Text(
+              coveragesList != [] ? dataL[index]['type'].toString() : "",
+            ),
           ),
         ],
       );

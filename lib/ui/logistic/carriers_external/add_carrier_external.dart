@@ -1,5 +1,9 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animated_icons/icons8.dart';
@@ -10,6 +14,7 @@ import 'package:frontend/ui/provider/products/add_product.dart';
 import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
+import 'package:excel/excel.dart';
 
 class AddCarrierExternal extends StatefulWidget {
   const AddCarrierExternal({super.key});
@@ -48,6 +53,23 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
   TextEditingController enBodegaProvController =
       TextEditingController(text: "");
 
+  //costos
+  TextEditingController localLocalNormalController =
+      TextEditingController(text: "");
+  TextEditingController localLocalEspecialController =
+      TextEditingController(text: "");
+  TextEditingController localProvinciaNormalController =
+      TextEditingController(text: "");
+  TextEditingController localProvinciaEspecialController =
+      TextEditingController(text: "");
+  TextEditingController costoDevolucionController =
+      TextEditingController(text: "");
+  TextEditingController costoBaseController = TextEditingController(text: "");
+  TextEditingController maxPriceController = TextEditingController(text: "");
+  TextEditingController porcentajeIncrementalController =
+      TextEditingController(text: "");
+  TextEditingController costoSeguroController = TextEditingController(text: "");
+
   final TextEditingController _typeController = TextEditingController();
 
   var statusToSend;
@@ -55,6 +77,9 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
 
   List<String> parroquiasToSelect = [];
   String? selectedParroquia;
+
+  List<Map<String, dynamic>> coberturaToSend = [];
+  var costsToSend;
 
   @override
   void didChangeDependencies() {
@@ -189,7 +214,8 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                     child: TextFieldWithIcon(
                       controller: _typeController,
                       labelText: 'Cobertura',
-                      icon: Icons.description,
+                      icon: Icons.label,
+                      applyValidator: false,
                     ),
                   ),
                   const SizedBox(width: 20),
@@ -205,9 +231,15 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                             Icons8.warning_1);
                       } else {
                         var type = _typeController.text;
-                        typeToSend.add(type);
+
+                        if (!typeToSend.contains(type)) {
+                          typeToSend.add(type);
+                          setState(() {
+                            _typeController.clear();
+                          });
+                        }
                       }
-                      print("typeToSend: $typeToSend");
+                      // print("typeToSend: $typeToSend");
                     },
                     child: const Text(
                       "Añadir",
@@ -233,20 +265,60 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                   );
                 }),
               ),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton(
-                  onPressed: () async {
-                    //
-                    showStatus(context);
-                  },
-                  child: const Text(
-                    "Agregar Estados Equivalentes",
-                    style: TextStyle(fontWeight: FontWeight.bold),
+              Row(
+                children: [
+                  TextButton(
+                    onPressed: () async {
+                      //
+                      _importFromExcel();
+                    },
+                    child: const Text(
+                      "Cargar provincias de cobertura",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
+                  Visibility(
+                    visible: coberturaToSend.isNotEmpty,
+                    child: const Icon(Icons.check),
+                  ),
+                ],
               ),
-
+              Row(
+                children: [
+                  TextButton(
+                    onPressed: () async {
+                      //
+                      showAddCost(context);
+                    },
+                    child: const Text(
+                      "Agregar Coste Transporte",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Visibility(
+                    visible: costsToSend != null,
+                    child: const Icon(Icons.check),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  TextButton(
+                    onPressed: () async {
+                      //
+                      showStatus(context);
+                    },
+                    child: const Text(
+                      "Agregar Estados Equivalentes",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Visibility(
+                    visible: statusToSend != null,
+                    child: const Icon(Icons.check),
+                  ),
+                ],
+              ),
               /*
               DropdownButtonHideUnderline(
                 child: DropdownButton2<String>(
@@ -318,23 +390,6 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                 ),
               ),
               */
-
-              // const Text(
-              //   "Costo de Transporte",
-              //   style: TextStyle(fontWeight: FontWeight.bold),
-              // ),
-              // Align(
-              //   alignment: Alignment.centerLeft,
-              //   child: TextButton(
-              //     onPressed: () async {
-              //       //
-              //     },
-              //     child: const Text(
-              //       "Agregar Nuevo Coste Transporte",
-              //       style: TextStyle(fontWeight: FontWeight.bold),
-              //     ),
-              //   ),
-              // ),
               const SizedBox(height: 20),
               Align(
                 alignment: Alignment.centerRight,
@@ -359,14 +414,17 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                         if (phoneNumber.startsWith("0")) {
                           phoneNumber = "+593${phoneNumber.substring(1)}";
                         }
-                        print("esteeeeee");
+
                         var responseCreate = await Connections()
                             .createCarrierExternal(
                                 nameController.text,
                                 phoneNumber,
                                 mailController.text,
                                 addressController.text,
-                                statusToSend);
+                                statusToSend,
+                                typeToSend,
+                                costsToSend,
+                                coberturaToSend);
 
                         if (responseCreate == 0) {
                           Navigator.pop(context);
@@ -421,6 +479,316 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
     );
   }
 
+  Future<dynamic> showAddCost(BuildContext context) {
+    double screenWith = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20.0)),
+          ),
+          contentPadding: EdgeInsets.all(0),
+          content: Container(
+            width: screenWith > 600 ? screenWith * 0.35 : screenWith,
+            height: screenHeight * 0.75,
+            color: Colors.white,
+            padding: EdgeInsets.all(20),
+            child: ListView(
+              children: [
+                Column(
+                  children: [
+                    const Text(
+                      "Costo por entrega:",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Row(
+                      children: [
+                        const Text(
+                          "Local-Local Normal:",
+                        ),
+                        const SizedBox(width: 20),
+                        SizedBox(
+                          width: 150,
+                          child: TextFormField(
+                            controller: localLocalNormalController,
+                            onChanged: (value) {
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Text(
+                          "Local-Local Especial:",
+                        ),
+                        const SizedBox(width: 20),
+                        SizedBox(
+                          width: 150,
+                          child: TextFormField(
+                            controller: localLocalEspecialController,
+                            onChanged: (value) {
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Text(
+                          "Local-Provincial Normal:",
+                        ),
+                        const SizedBox(width: 20),
+                        SizedBox(
+                          width: 150,
+                          child: TextFormField(
+                            controller: localProvinciaNormalController,
+                            onChanged: (value) {
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Text(
+                          "Local-Provincial Especial:",
+                        ),
+                        const SizedBox(width: 20),
+                        SizedBox(
+                          width: 150,
+                          child: TextFormField(
+                            controller: localProvinciaEspecialController,
+                            onChanged: (value) {
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Text(
+                          "Costo Devolucion: % ",
+                        ),
+                        const SizedBox(width: 20),
+                        Column(
+                          children: [
+                            SizedBox(
+                              width: 150,
+                              child: TextFormField(
+                                controller: costoDevolucionController,
+                                onChanged: (value) {
+                                  setState(() {});
+                                },
+                              ),
+                            ),
+                            const Text(
+                              "Costo envio + (Costo.dev % del Costo envio)",
+                              style: TextStyle(fontSize: 11),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Text(
+                          "Costo seguro:",
+                        ),
+                        const SizedBox(width: 20),
+                        Column(
+                          children: [
+                            SizedBox(
+                              width: 150,
+                              child: TextFormField(
+                                controller: enOficinaStatusController,
+                                onChanged: (value) {
+                                  setState(() {});
+                                },
+                              ),
+                            ),
+                            const Text(
+                              "Costo.seg % del Precio total",
+                              style: TextStyle(fontSize: 11),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    const Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Costo Recaudo:",
+                        ),
+                      ],
+                    ),
+                    const Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Menor/igual a Precio.max aplica Costo base",
+                          style: TextStyle(fontSize: 11),
+                        ),
+                      ],
+                    ),
+                    const Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Mayor a Precio.max aplica Costo Icrem. % del Precio Total",
+                          style: TextStyle(fontSize: 11),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Text(
+                          "Costo base:",
+                        ),
+                        SizedBox(
+                          width: 100,
+                          child: TextField(
+                            controller: costoBaseController,
+                            onChanged: (value) {
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Text(
+                          "Precio Maximo:",
+                        ),
+                        SizedBox(
+                          width: 100,
+                          child: TextFormField(
+                            controller: maxPriceController,
+                            onChanged: (value) {
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Text(
+                          "Costo Icremental %:",
+                        ),
+                        SizedBox(
+                          width: 100,
+                          child: TextFormField(
+                            controller: porcentajeIncrementalController,
+                            onChanged: (value) {
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 30),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            minimumSize: Size(200, 40)),
+                        onPressed: () async {
+                          //
+                          if (localLocalNormalController.text == "" ||
+                              localLocalEspecialController.text == "" ||
+                              localProvinciaNormalController.text == "" ||
+                              localProvinciaEspecialController.text == "" ||
+                              costoDevolucionController.text == "" ||
+                              costoBaseController.text == "" ||
+                              maxPriceController.text == "" ||
+                              porcentajeIncrementalController.text == "" ||
+                              costoSeguroController.text == "") {
+                            showSuccessModal(
+                                context,
+                                "Por favor, ingrese todos los datos.",
+                                Icons8.warning_1);
+                          }
+                          costsToSend = {
+                            "local_local_normal":
+                                localLocalNormalController.text != ""
+                                    ? localLocalNormalController.text
+                                    : 0,
+                            "local_local_especial":
+                                localLocalEspecialController.text != ""
+                                    ? localLocalEspecialController.text
+                                    : 0,
+                            "local_provincia_normal":
+                                localProvinciaNormalController.text != ""
+                                    ? localProvinciaNormalController.text
+                                    : 0,
+                            "local_provincia_especial":
+                                localProvinciaEspecialController.text != ""
+                                    ? localProvinciaEspecialController.text
+                                    : 0,
+                            "costo_devolucion":
+                                costoDevolucionController.text != ""
+                                    ? costoDevolucionController.text
+                                    : 0,
+                            "costo_recaudo": {
+                              "base": costoBaseController.text != ""
+                                  ? costoBaseController.text
+                                  : 0, //ctvs fijos
+                              "max_price": maxPriceController.text != ""
+                                  ? maxPriceController.text
+                                  : 0,
+                              "incremental":
+                                  porcentajeIncrementalController.text != ""
+                                      ? porcentajeIncrementalController.text
+                                      : 0 // %
+                            },
+                            "costo_seguro": costoSeguroController.text != ""
+                                ? costoSeguroController.text
+                                : 0,
+                          };
+
+                          Navigator.pop(context);
+                          setState(() {});
+                        },
+                        child: const Text(
+                          "Guardar",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    ).then((value) {
+      if (value != null) {
+        // El usuario cerró el diálogo correctamente
+        setState(() {
+          loadData();
+        });
+      }
+    });
+  }
+
   Future<dynamic> showStatus(BuildContext context) {
     double screenWith = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
@@ -434,7 +802,7 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
           ),
           contentPadding: EdgeInsets.all(0),
           content: Container(
-            width: screenWith > 600 ? screenWith * 0.3 : screenWith,
+            width: screenWith > 600 ? screenWith * 0.35 : screenWith,
             height: screenHeight * 0.75,
             color: Colors.white,
             padding: EdgeInsets.all(20),
@@ -589,7 +957,7 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                         SizedBox(
                           width: 150,
                           child: TextFormField(
-                            controller: enOficinaStatusController,
+                            controller: novedadResueltaController,
                             onChanged: (value) {
                               setState(() {});
                             },
@@ -752,6 +1120,7 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                           };
 
                           Navigator.pop(context);
+                          setState(() {});
                         },
                         child: const Text(
                           "Guardar",
@@ -774,5 +1143,101 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
         });
       }
     });
+  }
+
+  _importFromExcel() async {
+    FilePickerResult? pickedFile = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['xlsx'],
+      allowMultiple: false,
+    );
+
+    try {
+      var bytes = pickedFile?.files.single.bytes;
+      var excel = Excel.decodeBytes(bytes!);
+      getLoadingModal(context, false);
+
+      List<Map<String, dynamic>> provinciasList = [];
+
+      for (var table in excel.tables.keys) {
+        // Asegurarse de estar en la hoja deseada, por ejemplo, "Hoja2"
+        if (table.toLowerCase() == "provincias") {
+          for (var row in excel.tables[table]!.rows.skip(1)) {
+            try {
+              Map<String, dynamic> provincia = {
+                "id_provincia":
+                    int.tryParse(row[0]?.value?.toString().trim() ?? '') ?? 0,
+                "provincia": row[1]?.value?.toString().trim() ?? '',
+              };
+              provinciasList.add(provincia);
+            } catch (e) {
+              print('Error al procesar la fila:');
+              print('Detalles del error: $e');
+            }
+          }
+        }
+        // print(provinciasList);
+
+        if (table.toLowerCase() == "ciudades") {
+          for (var row in excel.tables[table]!.rows.skip(1)) {
+            try {
+              Map<String, dynamic> ciudadData = {
+                "id_ciudad":
+                    int.tryParse(row[0]?.value?.toString().trim() ?? '') ?? 0,
+                "ciudad": row[1]?.value?.toString().trim() ?? '',
+                "provincia": row[2]?.value?.toString().trim() ?? '',
+                "tipo": row[3]?.value?.toString().trim() ?? '',
+              };
+
+              int id_prov = 0;
+              for (var provinciaNombre in provinciasList) {
+                if (provinciaNombre['provincia'] ==
+                    (row[2]?.value?.toString()?.trim() ?? '')) {
+                  id_prov = provinciaNombre["id_provincia"];
+                  break;
+                }
+              }
+
+              // Agregar nuevo valor después de crear el mapa
+              ciudadData["id_provincia"] = id_prov;
+
+              coberturaToSend.add(ciudadData);
+            } catch (e) {
+              print('Error al procesar la fila:');
+              print('Detalles del error: $e');
+            }
+          }
+        }
+
+        /*
+        for (var row in excel.tables[table]!.rows.skip(1)) {
+          try {
+            Map<String, dynamic> jsonData = {
+              "id_ciudad":
+                  int.tryParse(row[0]?.value?.toString()?.trim() ?? '') ?? 0,
+              "ciudad": row[1]?.value?.toString().trim() ?? '',
+              "provincia": row[2]?.value?.toString().trim() ?? '',
+              // "id_provincia":
+              //     int.tryParse(row[1]?.value?.toString()?.trim() ?? '') ?? 0,
+              "id_provincia": 0,
+              "tipo": row[3]?.value?.toString().trim() ?? '',
+            };
+
+            jsonDataList.add(jsonData);
+          } catch (e) {
+            print('Error al procesar la fila:');
+            print('Detalles del error: $e');
+          }
+        }
+        */
+      }
+      Navigator.pop(context);
+      setState(() {});
+
+      // Imprimir la representación JSON (opcional)
+      // print(jsonEncode(coberturaToSend));
+    } catch (e) {
+      print('Error al decodificar el archivo Excel: $e');
+    }
   }
 }

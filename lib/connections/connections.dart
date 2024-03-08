@@ -6644,15 +6644,19 @@ class Connections {
   }
 
   //  *
-  Future createCarrierExternal(name, phone, email, address, status) async {
+  Future createCarrierExternal(
+      name, phone, email, address, status, types, costs, cobertura) async {
     try {
-      print(json.encode({
-        "name": name,
-        "phone": phone,
-        "email": email,
-        "address": address,
-        "status": json.encode(status),
-      }));
+      // print(json.encode({
+      //   "name": name,
+      //   "phone": phone,
+      //   "email": email,
+      //   "address": address,
+      //   "status": json.encode(status),
+      //   "type_coverage": json.encode(types),
+      //   "costs": json.encode(costs),
+      //   "coverage": json.encode(cobertura),
+      // }));
       var response =
           await http.post(Uri.parse("$serverLaravel/api/carrierexternal"),
               headers: {'Content-Type': 'application/json'},
@@ -6662,6 +6666,9 @@ class Connections {
                 "email": email,
                 "address": address,
                 "status": json.encode(status),
+                "type_coverage": json.encode(types),
+                "costs": json.encode(costs),
+                "coverage": json.encode(cobertura),
               }));
       if (response.statusCode == 200) {
         return 0;
@@ -6678,6 +6685,24 @@ class Connections {
     try {
       var response = await http.get(
           Uri.parse("$serverLaravel/api/carrierexternal"),
+          headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  //  *
+  getCarrierExternalById(id) async {
+    try {
+      var response = await http.get(
+          Uri.parse("$serverLaravel/api/carrierexternal/$id"),
           headers: {'Content-Type': 'application/json'});
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
