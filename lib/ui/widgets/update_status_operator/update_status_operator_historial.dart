@@ -473,6 +473,7 @@ class _UpdateStatusOperatorHistorialState
       skuProducto = "UKNOWNPC0";
     }
     int indiceC = skuProducto.lastIndexOf('C');
+    // String sku = "012C1018";
     String sku = skuProducto.substring(0, indiceC);
     int idProducto = int.parse(skuProducto.substring(indiceC + 1));
     // ! ******************************

@@ -122,9 +122,9 @@ class _TransactionRollbackState extends State<TransactionRollback> {
       },
       btnOkOnPress: () async {
         // Navigator.pop(context);
-
         var res = await Connections()
             .rollbackTransaction(listaIds, idRollbackTransaction.text);
+        print(res);
         if (res == 1 || res == 2) {
           // ignore: use_build_context_synchronously
           AwesomeDialog(

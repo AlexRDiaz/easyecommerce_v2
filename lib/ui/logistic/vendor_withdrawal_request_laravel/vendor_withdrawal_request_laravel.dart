@@ -393,6 +393,8 @@ class _VendorWithDrawalRequestLaravelState
                                                           data[index]['id']
                                                               .toString(),
                                                           data[index]['monto']
+                                                              .toString(),
+                                                          data[index]['rol_id']
                                                               .toString());
                                                   print(response);
                                                   await loadData();
@@ -436,7 +438,11 @@ class _VendorWithDrawalRequestLaravelState
                                                   .black), // Tamaño de fuente y color base
                                           children: <TextSpan>[
                                             TextSpan(
-                                              text: 'Tienda: ',
+                                              text: data[index]['rol_id']
+                                                          .toString() ==
+                                                      "5"
+                                                  ? 'Proveedor'
+                                                  : 'Tienda: ',
                                               style: TextStyle(
                                                   fontWeight: FontWeight
                                                       .bold), // Estilo para "Vendedor: "
@@ -475,7 +481,11 @@ class _VendorWithDrawalRequestLaravelState
                                           ),
                                           children: <TextSpan>[
                                             TextSpan(
-                                              text: 'Id Vendedor: ',
+                                              text: data[index]['rol_id']
+                                                          .toString() ==
+                                                      "5"
+                                                  ? 'Id Proveedor: '
+                                                  : 'Id Vendedor: ',
                                               style: TextStyle(
                                                   fontWeight: FontWeight.bold),
                                             ),
@@ -506,7 +516,12 @@ class _VendorWithDrawalRequestLaravelState
                                                   .black), // Tamaño de fuente y color base
                                           children: <TextSpan>[
                                             TextSpan(
-                                              text: 'Vendedor: ',
+                                              text: data[index]['rol_id']
+                                                          .toString() ==
+                                                      "5"
+                                                  ? 'Proveedor: '
+                                                  : 'Vendedor: ',
+
                                               style: TextStyle(
                                                   fontWeight: FontWeight
                                                       .bold), // Estilo para "Vendedor: "
@@ -690,7 +705,10 @@ class _VendorWithDrawalRequestLaravelState
                                                             response[1]
                                                                 .toString(),
                                                             supervisorController
-                                                                .text);
+                                                                .text,
+                                                            data[index]
+                                                                    ['rol_id']
+                                                                .toString());
                                                 // print(finalresp);
                                                 supervisorController.clear();
                                                 loadData();
@@ -1303,6 +1321,8 @@ class _VendorWithDrawalRequestLaravelState
                                                       data[index]['id']
                                                           .toString(),
                                                       data[index]['monto']
+                                                          .toString(),
+                                                      data[index]['rol_id']
                                                           .toString());
                                               print(response);
                                               await loadData();

@@ -5,6 +5,7 @@ import 'package:frontend/models/provider_transactions_model.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/provider/transactions/controllers/transactions_controller.dart';
 import 'package:frontend/ui/provider/transactions/withdrawal.dart';
+import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:intl/intl.dart';
@@ -25,7 +26,7 @@ class _TransactionsViewState extends State<TransactionsView> {
   bool isLoading = false;
   bool isFirst = false;
 
-  List populate = ["pedido"];
+  List populate = ["pedido", "orden_retiro"];
   List arrayFiltersAnd = [];
   List arrayFiltersOr = [];
   var sortFieldDefaultValue = "id:DESC";
@@ -219,8 +220,12 @@ class _TransactionsViewState extends State<TransactionsView> {
                           horizontalMargin: 12,
                           columns: [
                             const DataColumn2(
-                              label: Text('Fecha Envio'), //check
+                              label: Text('Id Origen'), //check
                               size: ColumnSize.S,
+                            ),
+                            const DataColumn2(
+                              label: Text('Fecha Envio'), //check
+                              size: ColumnSize.L,
                             ),
                             DataColumn2(
                               label: const Text('Fecha Entrega'), //img
@@ -298,25 +303,53 @@ class _TransactionsViewState extends State<TransactionsView> {
                             (index) => DataRow(
                               cells: [
                                 DataCell(
-                                  Text(data[index]['pedido']
-                                                  ['marca_tiempo_envio']
-                                              .toString() ==
-                                          "null"
+                                  Text(data[index]['origin_id'] == null
                                       ? ""
-                                      : data[index]['pedido']
-                                              ['marca_tiempo_envio']
-                                          .toString()),
+                                      : data[index]['origin_id'].toString()),
+                                ),
+                                // DataCell(
+                                //   // data[index]['pedido'] == null ||
+                                //   //         data[index]['pedido']
+                                //   //                 ['marca_tiempo_envio'] ==
+                                //   //             null
+                                //   //     ?
+                                //   // ()
+                                //   Text(data[index]['pedido']
+                                //               ['marca_tiempo_envio']
+                                //           .toString()) ,
+                                // // ),
+                                DataCell(
+                                  data[index]['orden_retiro'] != null
+                                      ? Text(UIUtils.formatDate(data[index]
+                                              ['orden_retiro']['createdAt']
+                                          .toString())) // Si orden_retiro no es null
+                                      : Text(data[index]['pedido'] == null
+                                          ? ""
+                                          : data[index]['pedido']
+                                                  ['marca_tiempo_envio']
+                                              .toString()), // Si orden_retiro es null
                                 ),
                                 DataCell(
-                                  Text(
-                                    (data[index]['pedido']['fecha_entrega']
-                                                .toString() ==
-                                            "null"
-                                        ? ""
-                                        : data[index]['pedido']['fecha_entrega']
-                                            .toString()),
-                                  ),
+                                  data[index]['orden_retiro'] != null
+                                      ? Text(UIUtils.formatDate(data[index]
+                                              ['orden_retiro']['updatedAt']
+                                          .toString())) // Si orden_retiro no es null
+                                      : Text(data[index]['pedido'] == null
+                                          ? ""
+                                          : data[index]['pedido']
+                                                  ['fecha_entrega']
+                                              .toString()), // Si orden_retiro es null
                                 ),
+
+                                // DataCell(
+                                //   Text(data[index]['pedido'] == null ||
+                                //           data[index]['pedido']
+                                //                   ['fecha_entrega'] ==
+                                //               null
+                                //       ? ""
+                                //       : data[index]['pedido']['fecha_entrega']
+                                //           .toString()),
+                                // ),
                                 DataCell(
                                   Text(data[index]['transaction_type']
                                       .toString()),
@@ -324,21 +357,46 @@ class _TransactionsViewState extends State<TransactionsView> {
                                 ),
                                 DataCell(
                                   Text(
-                                      '${data[index]['pedido']['name_comercial'] ?? "NaN"}-${data[index]['pedido']['numero_orden'].toString()}'),
+                                      "${data[index]['origin_code']}"), // Si orden_retiro es null
                                 ),
+                                // DataCell(
+                                //   Text(
+                                //       '${data[index]['pedido'] == null ? "" : data[index]['pedido']['name_comercial'] ?? "NaN"}-${data[index]['pedido'] == null ? "" : data[index]['pedido']['numero_orden'].toString()}'),
+                                // ),
                                 DataCell(
-                                  // Text(data[index]['product_id'].toString()),
-                                  Text(data[index]['pedido']['cantidad_total']),
-                                ),
+                                    // data[index]['originCode']
+                                    //             .toString()
+                                    //             .split("-")[0] ==
+                                    //         "Retiro"
+                                    //     ? Text("hola")
+                                    //     : Text(data[index]['pedido']
+                                    //             ['cantidad_total']
+                                    //         .toString()),
+                                    // Text(data[index]['originCode']
+                                    //             .toString()
+                                    //             .split("-")[0])
+                                    Text(
+                                        "${data[index]['origin_code'].toString().split('-')[0] == "Retiro" || data[index]['origin_code'].toString().split('-')[0] == "reembolso" ? 0 : data[index]['pedido']['cantidad_total'].toString()} ")),
                                 DataCell(
                                   Text(data[index]['comment'].toString()),
                                 ),
                                 DataCell(
+                                  data[index]['transaction_type'].toString() == "Retiro" || data[index]['transaction_type'].toString() == "Restauracion" ?
+                                  Row(children: [
+                                    Icon(Icons.remove,color: Colors.red,size: 12),
                                   Text(data[index]['amount'].toString()),
+                                  ],)
+                                  :   
+                                  Row(children: [
+                                    Icon(Icons.add,color: Colors.green,size: 12),
+                                  Text(data[index]['amount'].toString()),
+                                  ],)
                                 ),
                                 DataCell(
-                                  // Text(data[index]['product_id'].toString()),
-                                  Text(""),
+                                  Text(data[index]['description'] == null
+                                      ? ""
+                                      : data[index]['description'].toString()),
+                                  // Text(""),
                                 ),
                                 DataCell(
                                   Text(
@@ -348,8 +406,9 @@ class _TransactionsViewState extends State<TransactionsView> {
                                   Text(data[index]['current_value'].toString()),
                                 ),
                                 DataCell(
-                                  Text(data[index]['pedido']['status']
-                                      .toString()),
+                                  Text(data[index]['status'] == null
+                                      ? ""
+                                      : data[index]['status'].toString()),
                                 ),
                               ],
                             ),

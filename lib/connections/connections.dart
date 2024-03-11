@@ -4482,7 +4482,7 @@ class Connections {
     }
   }
 
-  Future debitWithdrawal(id, comprobante, comentario) async {
+  Future debitWithdrawal(id, comprobante, comentario,rolInvoke) async {
     try {
       // String id = Get.parameters['id'].toString();
 
@@ -4494,7 +4494,9 @@ class Connections {
             "comentario": comentario,
             // "fecha_transferencia":
             //     "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year} ${DateTime.now().hour}:${DateTime.now().minute}",
-            "generated_by": sharedPrefs!.getString("id").toString()
+            "generated_by": sharedPrefs!.getString("id").toString(),
+            // ! este se agrega paro lo del rolInvoke ↓↓
+            "rol_id": rolInvoke
           }));
       var response = await request.body;
       var decodeData = json.decode(response);
@@ -5239,7 +5241,6 @@ class Connections {
       return (e);
     }
   }
-
 
   getSaldoPorId(id) async {
     int res = 0;
@@ -6988,6 +6989,11 @@ class Connections {
 
   rollbackTransaction(ids, idOrigen) async {
     String? generatedBy = sharedPrefs!.getString("id");
+    print(json.encode({
+            "ids": ids,
+            "generated_by": generatedBy,
+            "id_origen": idOrigen
+          }));
     try {
       var response = await http.post(
           Uri.parse(
@@ -7000,12 +7006,14 @@ class Connections {
           }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
-        // print(decodeData);
+        print(decodeData);
         return decodeData;
       } else {
+        print("try error");
         return 1;
       }
     } catch (error) {
+        print("catch error");
       return 2;
     }
   }
@@ -7742,7 +7750,8 @@ class Connections {
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
             "monto": amount,
-            "email": "easyecommercetest@gmail.com",
+            // "email": "easyecommercetest@gmail.com",
+            "email": "jeipige@gmail.com",
             //sharedPrefs!.getString("email").toString(),
             "id_vendedor": "${sharedPrefs!.getString("idProviderUserMaster")}"
           }));
@@ -7778,34 +7787,48 @@ class Connections {
     }
   }
 
-  sendWithdrawalAprovate(amount) async {
+  sendWithdrawalAprovate(code, amount) async {
     try {
+      print("------------");
+      print(json.encode({
+        "monto": amount.toString(),
+        // "codigo": "2983",
+        "codigo": code.toString(),
+        "id_vendedor": "${sharedPrefs!.getString("idProviderUserMaster")}"
+      }));
+
       var request = await http.post(
           Uri.parse(
-              "$serverLaravel/api/seller/ordenesretiro/withdrawal-provider-aproved/${sharedPrefs!.getString("idProviderUserMaster")}"),
+              "$serverLaravel/api/transacciones/withdrawal-provider-aproved/${sharedPrefs!.getString("idProviderUserMaster")}"),
+          // "$serverLaravel/api/seller/ordenesretiro/withdrawal-provider-aproved/${sharedPrefs!.getString("idProviderUserMaster")}"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
-            "monto": amount,
-            "codigo": "2983",
+            "monto": amount.toString(),
+            // "codigo": "2983",
+            "codigo": code.toString(),
             "id_vendedor": "${sharedPrefs!.getString("idProviderUserMaster")}"
           }));
       var response = await request.body;
       var decodeData = json.decode(response);
 
       if (request.statusCode != 200) {
+        print(decodeData);
         return 1;
       } else {
+        print(decodeData);
         return decodeData;
       }
     } catch (e) {
+      print(e);
       return 2;
+      // return 2;
     }
   }
 
   editAccountData(names, last_name, email, bank_entity, account_type,
       account_number) async {
     try {
-      var request = await http.put(
+      var request = await http.post(
           Uri.parse(
               "$serverLaravel/api/users/update-paiment-information/${sharedPrefs!.getString("idProviderUserMaster")}"),
           headers: {
@@ -7891,15 +7914,15 @@ class Connections {
       filtersAndAll.addAll(and);
       filtersAndAll.addAll(defaultAnd);
       print(json.encode({
-            "start": dateStart,
-            "end": dateEnd,
-            "and": filtersAndAll,
-          }));
+        "start": dateStart,
+        "end": dateEnd,
+        "and": filtersAndAll,
+      }));
 
       var request = await http.post(
           Uri.parse(
               "$serverLaravel/api/logistic/values/getByDateRangeValuesAudit"),
-          headers: { 
+          headers: {
             'Content-Type': 'application/json',
           },
           body: json.encode({
@@ -8639,15 +8662,17 @@ class Connections {
     idUser,
     idWithdrawal,
     amount,
+    rolId
   ) async {
     try {
-      print(json.encode({"monto": amount, "idSesion": idUser}));
+      print("$idWithdrawal");
+      print(json.encode({"monto": amount, "idSesion": idUser, "rol_id":rolId}));
 
       var request = await http.put(
           Uri.parse(
               "$serverLaravel/api/seller/ordenesretiro/withdrawal/denied/$idWithdrawal"),
           headers: {'Content-Type': 'application/json'},
-          body: json.encode({"monto": amount, "idSesion": idUser}));
+          body: json.encode({"monto": amount, "idSesion": idUser, "rol_id":rolId}));
       var response = await request.body;
       var decodeData = json.decode(response);
       if (request.statusCode != 200) {
