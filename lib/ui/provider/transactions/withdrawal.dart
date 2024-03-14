@@ -2,12 +2,14 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/ui/widgets/custom_dropdown_menu.dart';
 import 'package:frontend/ui/widgets/providers/pin_input.dart';
 
 class Withdrawal extends StatefulWidget {
-  const Withdrawal({super.key});
+  final String saldo;
+  const Withdrawal({super.key, required this.saldo});
 
   @override
   State<Withdrawal> createState() => _WithdrawalState();
@@ -24,7 +26,7 @@ class _WithdrawalState extends State<Withdrawal> {
   List<String> selectedItems = [];
   String _selectedValue =
       ''; // Declara una variable para almacenar el valor seleccionado
-
+  String idAccount = "";
   @override
   void initState() {
     loadData();
@@ -52,6 +54,23 @@ class _WithdrawalState extends State<Withdrawal> {
               padding: EdgeInsets.all(20),
               child: Column(
                 children: [
+                  Row(children: [
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          "\$ ${widget.saldo}",
+                          style: TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 24),
+                        ),
+                      ),
+                    ),
+                  ]),
+                  Row(children: [
+                    Expanded(child: Center(child: Text("Saldo Actual"))),
+                  ]),
+                  SizedBox(height: 10,),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -80,7 +99,12 @@ class _WithdrawalState extends State<Withdrawal> {
                   CustomDropdownMenu(
                     items: accounts,
                     hintText: "Cuenta",
-                    onValueChanged: (value) {},
+                    onValueChanged: (value) {
+                      setState(() {
+                        // print(">id: $value");
+                        idAccount = value;
+                      });
+                    },
                   ),
                   SizedBox(height: 40),
                 ],
@@ -161,7 +185,7 @@ class _WithdrawalState extends State<Withdrawal> {
                       child: Icon(Icons.close),
                     ),
                   ),
-                  Expanded(child: PinInput(code: code, amount: withdrawal.text))
+                  Expanded(child: PinInput(code: code, amount: withdrawal.text,idAccount: idAccount,))
                 ],
               ),
             ),
@@ -173,7 +197,23 @@ class _WithdrawalState extends State<Withdrawal> {
     return SizedBox(
       // Ancho deseado para el botón
       child: ElevatedButton(
-        onPressed: () => sendWithdrawal(),
+        onPressed: () {
+          if (int.parse(widget.saldo) < int.parse(withdrawal.text)) {
+            AwesomeDialog(
+              width: 500,
+              context: context,
+              dialogType: DialogType.error,
+              animType: AnimType.rightSlide,
+              title: 'Saldo Insuficiente',
+              desc: '',
+              btnOkText: "Aceptar",
+              btnOkColor: Colors.green,
+              btnOkOnPress: () async {},
+            ).show();
+          } else {
+            sendWithdrawal();
+          }
+        },
         style: ElevatedButton.styleFrom(
           primary: const Color.fromRGBO(0, 200, 83, 1),
           onPrimary: Colors.white,

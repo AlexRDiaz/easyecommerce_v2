@@ -37,9 +37,11 @@ class _VendorWithDrawalRequestLaravelState
   List optionsCheckBox = [];
   // int counterChecks = 0;
   List data = [];
+  List dataAccountOrder = [];
   String id = "";
   bool aprobado = false;
   bool realizado = false;
+  bool realizadopro = false;
   bool rechazado = false;
   bool sort = false;
   int currentPage = 1;
@@ -81,10 +83,11 @@ class _VendorWithDrawalRequestLaravelState
         "",
         "",
         sortFieldDefaultValue);
-
     setState(() {
       data = [];
       data = response['data'];
+      // dataAccountOrder = [];
+      // dataAccountOrder = dataAccountWithdrawal;
       isLoading = false;
     });
   }
@@ -189,7 +192,7 @@ class _VendorWithDrawalRequestLaravelState
         Wrap(
           children: [
             Container(
-              width: 150,
+              width: 200,
               child: Row(
                 children: [
                   Checkbox(
@@ -198,6 +201,8 @@ class _VendorWithDrawalRequestLaravelState
                         setState(() {
                           aprobado = true;
                           realizado = false;
+                          realizadopro = false;
+
                           rechazado = false;
                         });
                         model = "OrdenesRetiro";
@@ -232,7 +237,7 @@ class _VendorWithDrawalRequestLaravelState
               ),
             ),
             Container(
-              width: 150,
+              width: 250,
               child: Row(
                 children: [
                   Checkbox(
@@ -241,6 +246,7 @@ class _VendorWithDrawalRequestLaravelState
                         setState(() {
                           aprobado = false;
                           realizado = true;
+                          realizadopro = false;
                           rechazado = false;
                         });
                         model = "Vendedore";
@@ -266,12 +272,50 @@ class _VendorWithDrawalRequestLaravelState
                     Icons.check,
                     color: Colors.green,
                   ),
-                  Text("Realizados")
+                  Text("Realizados Vendedores")
                 ],
               ),
             ),
             Container(
-              width: 150,
+              width: 250,
+              child: Row(
+                children: [
+                  Checkbox(
+                      value: realizadopro,
+                      onChanged: (value) async {
+                        setState(() {
+                          aprobado = false;
+                          realizado = false;
+                          realizadopro = true;
+                          rechazado = false;
+                        });
+                        model = "Provider";
+                        sortFieldDefaultValue = "id:ASC";
+                        populate = [
+                          'user',
+                        ];
+                        arrayFiltersAnd = [];
+                        arrayFiltersOr = [
+                          "user.username",
+                          "user.user_id",
+                          "name"
+                        ];
+                        arrayFiltersNot = [];
+                        await loadData();
+                      }),
+                  SizedBox(
+                    width: 5,
+                  ),
+                  Icon(
+                    Icons.check,
+                    color: Colors.green,
+                  ),
+                  Text("Realizados Proveedores")
+                ],
+              ),
+            ),
+            Container(
+              width: 200,
               child: Row(
                 children: [
                   Checkbox(
@@ -281,6 +325,7 @@ class _VendorWithDrawalRequestLaravelState
                           aprobado = false;
                           rechazado = true;
                           realizado = false;
+                          realizadopro = false;
                         });
                         model = "OrdenesRetiro";
 
@@ -371,7 +416,6 @@ class _VendorWithDrawalRequestLaravelState
                                               color: Colors.orange,
                                             ),
                                             onPressed: () {
-                                              // print('Hola');
                                               AwesomeDialog(
                                                 width: 500,
                                                 context: context,
@@ -396,7 +440,6 @@ class _VendorWithDrawalRequestLaravelState
                                                               .toString(),
                                                           data[index]['rol_id']
                                                               .toString());
-                                                  print(response);
                                                   await loadData();
                                                 },
                                               ).show();
@@ -414,14 +457,22 @@ class _VendorWithDrawalRequestLaravelState
                                           '\$ ',
                                           style: TextStyle(
                                             fontSize: 25.0,
-                                            color: Colors.blue,
+                                            color: data[index]['rol_id']
+                                                        .toString() ==
+                                                    "5"
+                                                ? Colors.deepPurple
+                                                : Colors.blue,
                                           ),
                                         ),
                                         Text(
                                           data[index]['monto'].toString(),
                                           style: TextStyle(
                                             fontSize: 25.0,
-                                            color: Colors.blue,
+                                            color: data[index]['rol_id']
+                                                        .toString() ==
+                                                    "5"
+                                                ? Colors.deepPurple
+                                                : Colors.blue,
                                           ),
                                         ),
                                       ],
@@ -608,27 +659,28 @@ class _VendorWithDrawalRequestLaravelState
                                               MaterialStatePropertyAll(
                                                   Colors.green),
                                         ),
-                                        onPressed: () {
+                                        onPressed: () async {
                                           // Lógica para eliminar
+                                          var dataAccountWithdrawal =
+                                              await Connections()
+                                                  .getAccountDatainWithdrawal(
+                                                      data[index]["id"]);
+                                          // ignore: use_build_context_synchronously
                                           AwesomeDialog(
                                             body: Column(
                                               children: [
-                                                Text("Realizar Pago",
+                                                const Text("Realizar Pago",
                                                     style: TextStyle(
                                                         fontSize: 18,
                                                         fontWeight:
                                                             FontWeight.bold)),
-                                                // Text("Ingrese Comentario:"),
+                                                account(dataAccountWithdrawal),
                                                 Container(
-                                                  margin: EdgeInsets.all(15.0),
+                                                  margin: const EdgeInsets.all(
+                                                      15.0),
                                                   child: TextField(
                                                     controller:
                                                         supervisorController, // Asume que ya tienes este controlador
-                                                    // keyboardType:
-                                                    //     const TextInputType
-                                                    //         .numberWithOptions(
-                                                    //         decimal:
-                                                    //             true), // Permite números y punto decimal
                                                     decoration: InputDecoration(
                                                       labelText: "Comentario",
                                                       labelStyle:
@@ -656,12 +708,9 @@ class _VendorWithDrawalRequestLaravelState
                                                             BorderRadius
                                                                 .circular(15.0),
                                                       ),
-                                                      // Si deseas agregar un sufijo al campo de texto, puedes descomentar la siguiente línea
-                                                      // suffixIcon: Icon(Icons.check_circle, color: Colors.green),
                                                     ),
                                                   ),
                                                 ),
-                                                // Text(""),
                                                 Container(
                                                   margin: EdgeInsets.all(15.0),
                                                   child: ImageRow(
@@ -709,7 +758,6 @@ class _VendorWithDrawalRequestLaravelState
                                                             data[index]
                                                                     ['rol_id']
                                                                 .toString());
-                                                // print(finalresp);
                                                 supervisorController.clear();
                                                 loadData();
                                               } else {
@@ -728,6 +776,134 @@ class _VendorWithDrawalRequestLaravelState
                                               // }
                                             },
                                           ).show();
+                                          // } else {
+                                          //   AwesomeDialog(
+                                          //     body: Column(
+                                          //       children: [
+                                          //         Text("Realizar Pago",
+                                          //             style: TextStyle(
+                                          //                 fontSize: 18,
+                                          //                 fontWeight:
+                                          //                     FontWeight.bold)),
+                                          //         Container(
+                                          //           margin:
+                                          //               EdgeInsets.all(15.0),
+                                          //           child: TextField(
+                                          //             controller:
+                                          //                 supervisorController, // Asume que ya tienes este controlador
+                                          //             // keyboardType:
+                                          //             //     const TextInputType
+                                          //             //         .numberWithOptions(
+                                          //             //         decimal:
+                                          //             //             true), // Permite números y punto decimal
+                                          //             decoration:
+                                          //                 InputDecoration(
+                                          //               labelText: "Comentario",
+                                          //               labelStyle:
+                                          //                   const TextStyle(
+                                          //                       color: Colors
+                                          //                           .grey),
+                                          //               prefixIcon: Icon(
+                                          //                   Icons.comment,
+                                          //                   color: ColorsSystem()
+                                          //                       .colorSelectMenu),
+                                          //               enabledBorder:
+                                          //                   OutlineInputBorder(
+                                          //                 borderSide: BorderSide(
+                                          //                     color: ColorsSystem()
+                                          //                         .colorSelectMenu),
+                                          //                 borderRadius:
+                                          //                     BorderRadius
+                                          //                         .circular(
+                                          //                             15.0),
+                                          //               ),
+                                          //               focusedBorder:
+                                          //                   OutlineInputBorder(
+                                          //                 borderSide:
+                                          //                     BorderSide(
+                                          //                         color: Colors
+                                          //                             .blue),
+                                          //                 borderRadius:
+                                          //                     BorderRadius
+                                          //                         .circular(
+                                          //                             15.0),
+                                          //               ),
+                                          //               // Si deseas agregar un sufijo al campo de texto, puedes descomentar la siguiente línea
+                                          //               // suffixIcon: Icon(Icons.check_circle, color: Colors.green),
+                                          //             ),
+                                          //           ),
+                                          //         ),
+                                          //         Container(
+                                          //           margin:
+                                          //               EdgeInsets.all(15.0),
+                                          //           child: ImageRow(
+                                          //               title:
+                                          //                   'Cargar Comprobante:',
+                                          //               onSelect:
+                                          //                   (XFile image) {
+                                          //                 setState(() {
+                                          //                   imageSelect = image;
+                                          //                 });
+                                          //               }),
+                                          //         ),
+                                          //       ],
+                                          //     ),
+                                          //     width: 500,
+                                          //     context: context,
+                                          //     dialogType: DialogType.info,
+                                          //     animType: AnimType.rightSlide,
+                                          //     btnOkText: "Aceptar",
+                                          //     btnCancelText: "Cancelar",
+                                          //     btnOkColor: Colors
+                                          //         .green, // Asegúrate de que colors.colorGreen sea válido, aquí lo puse directamente como Colors.green
+                                          //     btnCancelOnPress: () {
+                                          //       supervisorController.clear();
+                                          //     },
+                                          //     btnOkOnPress: () async {
+                                          //       if (imageSelect != null) {
+                                          //         var response =
+                                          //             await Connections()
+                                          //                 .postDoc(
+                                          //                     imageSelect!);
+
+                                          //         if (supervisorController
+                                          //                 .text ==
+                                          //             "") {
+                                          //           supervisorController.text =
+                                          //               "Pago Realizado";
+                                          //         }
+                                          //         var finalresp =
+                                          //             await Connections()
+                                          //                 .debitWithdrawal(
+                                          //                     data[index]['id']
+                                          //                         .toString(),
+                                          //                     response[1]
+                                          //                         .toString(),
+                                          //                     supervisorController
+                                          //                         .text,
+                                          //                     data[index]
+                                          //                             ['rol_id']
+                                          //                         .toString());
+                                          //         // print(finalresp);
+                                          //         supervisorController.clear();
+                                          //         loadData();
+                                          //       } else {
+                                          //         _showErrorSnackBar(context,
+                                          //             "Campo del comprobante vacío, subir foto del comprobante.");
+                                          //       }
+                                          //       // String supervisorName =
+                                          //       //     supervisorController.text;
+                                          //       // if(supervisorName != "" ){
+                                          //       // await Connections().updateRefererCost(
+                                          //       //     dataL[index]['vendedor_id'].toString(),
+                                          //       //     supervisorName);
+                                          //       // loadData();
+                                          //       // }else{
+                                          //       //   _showErrorSnackBar(context, "Costo Referido Vacío, Ingrese un Valor.");
+                                          //       // }
+                                          //     },
+                                          //   ).show();
+                                          // }
                                         },
                                         child: Text('Realizar Pago'),
                                       ),
@@ -825,293 +1001,463 @@ class _VendorWithDrawalRequestLaravelState
                               );
                             },
                           )
-                        : GridView.builder(
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 5,
-                              mainAxisSpacing:
-                                  10.0, // Espacio vertical entre elementos
-                              crossAxisSpacing:
-                                  10.0, // Espacio horizontal entre elementos
-                              childAspectRatio:
-                                  adjustedAspectRatio, // Relación entre ancho y altura de cada tarjeta
-                            ),
-                            itemCount: data.length,
-                            itemBuilder: (context, index) {
-                              return Card(
-                                elevation: 3.0,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                        child: Column(
+                        : getStringCheck() == "REALIZADO PROVEEDOR"
+                            ? GridView.builder(
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 3,
+                                  mainAxisSpacing:
+                                      20.0, // Espacio vertical entre elementos
+                                  crossAxisSpacing:
+                                      20.0, // Espacio horizontal entre elementos
+                                  childAspectRatio:
+                                      // adjustedAspectRatio, // Relación entre ancho y altura de cada tarjeta
+                                      6, // Relación entre ancho y altura de cada tarjeta
+                                ),
+                                itemCount: data.length,
+                                itemBuilder: (context, index) {
+                                  return Card(
+                                    elevation: 3.0,
+                                    child: Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              IconButton(
+                                                icon: Icon(
+                                                  Icons
+                                                      .document_scanner_rounded,
+                                                  color: Colors.orange,
+                                                ),
+                                                onPressed: () async {
+                                                  await showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return AprovedSellerWithdrawals(
+                                                        model: "OrdenesRetiro",
+                                                        sortFieldDefaultValue:
+                                                            "id:DESC",
+                                                        populate: [
+                                                          'users_permissions_user.vendedores'
+                                                        ],
+                                                        arrayFiltersAnd: [
+                                                          {
+                                                            "/estado":
+                                                                "REALIZADO"
+                                                          },
+                                                          {
+                                                            "equals/users_permissions_user.user_id":
+                                                                data[index]['user']
+                                                                        ['id']
+                                                                    .toString()
+                                                          }
+                                                        ],
+                                                        arrayFiltersNot: [],
+                                                        arrayFiltersOr: [
+                                                          "monto",
+                                                          "users_permissions_user.user_id",
+                                                          "users_permissions_user.username",
+                                                          "users_permissions_user.email",
+                                                          "users_permissions_user.vendedores.nombre_comercial"
+                                                        ],
+                                                      );
+                                                    },
+                                                  );
+                                                },
+                                              ),
+                                              Expanded(
+                                                child: Text(
+                                                  data[index]['user'] != null
+                                                      ? "${data[index]['user_id'].toString()} | ${data[index]['user']['username'].toString()} | ${data[index]['name'].toString()}"
+                                                      : "",
+                                                  style: const TextStyle(
+                                                    fontSize: 14.0,
+                                                    color: Colors.blue,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              )
+                            : GridView.builder(
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 5,
+                                  mainAxisSpacing:
+                                      10.0, // Espacio vertical entre elementos
+                                  crossAxisSpacing:
+                                      10.0, // Espacio horizontal entre elementos
+                                  childAspectRatio:
+                                      adjustedAspectRatio, // Relación entre ancho y altura de cada tarjeta
+                                ),
+                                itemCount: data.length,
+                                itemBuilder: (context, index) {
+                                  return Card(
+                                    elevation: 3.0,
+                                    child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Padding(
-                                          padding: EdgeInsets.only(
-                                              left: 8.0, right: 8.0),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(
-                                                UIUtils.formatDate(data[index]
-                                                        ['created_at']
-                                                    .toString()),
-                                                style: TextStyle(
-                                                  fontSize: 16.0,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                              // IconButton(
-                                              //   icon: Icon(
-                                              //     Icons.edit,
-                                              //     color: Colors.orange,
-                                              //   ),
-                                              //   onPressed: () {
-                                              //     print('Hola');
-                                              //     // AwesomeDialog(
-                                              //     //   width: 500,
-                                              //     //   context: context,
-                                              //     //   dialogType: DialogType.warning,
-                                              //     //   animType: AnimType.rightSlide,
-                                              //     //   title:
-                                              //     //       'Está segur@ de cambiar a Estado RECHAZADO la Solicitud correspondiente al monto de \$ ${data[index]['monto'].toString()} y restaurar dicho valor?',
-                                              //     //   desc: '',
-                                              //     //   btnOkText: "Aceptar",
-                                              //     //   btnCancelText: "Cancelar",
-                                              //     //   btnOkColor: colors.colorGreen,
-                                              //     //   btnCancelOnPress: () {},
-                                              //     //   btnOkOnPress: () async {
-                                              //     //     var response =
-                                              //     //         await Connections()
-                                              //     //             .WithdrawalDenied(
-                                              //     //               data[index]['users_permissions_user'][0]['id'].toString(),
-                                              //     //                 data[index]['id']
-                                              //     //                     .toString(),
-                                              //     //                 data[index]
-                                              //     //                         ['monto']
-                                              //     //                     .toString());
-                                              //     //     print(response);
-                                              //     //     await loadData();
-                                              //     //   },
-                                              //     // ).show();
-                                              //   },
-                                              // ),
-                                            ],
-                                          ),
-                                        ),
-                                        SizedBox(height: 25.0),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                                        Expanded(
+                                            child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            Text(
-                                              '\$ ',
-                                              style: TextStyle(
-                                                fontSize: 25.0,
-                                                color: Colors.blue,
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                  left: 8.0, right: 8.0),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    UIUtils.formatDate(
+                                                        data[index]
+                                                                ['created_at']
+                                                            .toString()),
+                                                    style: TextStyle(
+                                                      fontSize: 16.0,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                  // IconButton(
+                                                  //   icon: Icon(
+                                                  //     Icons.edit,
+                                                  //     color: Colors.orange,
+                                                  //   ),
+                                                  //   onPressed: () {
+                                                  //     print('Hola');
+                                                  //     // AwesomeDialog(
+                                                  //     //   width: 500,
+                                                  //     //   context: context,
+                                                  //     //   dialogType: DialogType.warning,
+                                                  //     //   animType: AnimType.rightSlide,
+                                                  //     //   title:
+                                                  //     //       'Está segur@ de cambiar a Estado RECHAZADO la Solicitud correspondiente al monto de \$ ${data[index]['monto'].toString()} y restaurar dicho valor?',
+                                                  //     //   desc: '',
+                                                  //     //   btnOkText: "Aceptar",
+                                                  //     //   btnCancelText: "Cancelar",
+                                                  //     //   btnOkColor: colors.colorGreen,
+                                                  //     //   btnCancelOnPress: () {},
+                                                  //     //   btnOkOnPress: () async {
+                                                  //     //     var response =
+                                                  //     //         await Connections()
+                                                  //     //             .WithdrawalDenied(
+                                                  //     //               data[index]['users_permissions_user'][0]['id'].toString(),
+                                                  //     //                 data[index]['id']
+                                                  //     //                     .toString(),
+                                                  //     //                 data[index]
+                                                  //     //                         ['monto']
+                                                  //     //                     .toString());
+                                                  //     //     print(response);
+                                                  //     //     await loadData();
+                                                  //     //   },
+                                                  //     // ).show();
+                                                  //   },
+                                                  // ),
+                                                ],
                                               ),
                                             ),
-                                            Text(
-                                              data[index]['monto'].toString(),
-                                              style: TextStyle(
-                                                fontSize: 25.0,
-                                                color: Colors.blue,
+                                            SizedBox(height: 25.0),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  '\$ ',
+                                                  style: TextStyle(
+                                                    fontSize: 25.0,
+                                                    color: data[index]['rol_id']
+                                                                .toString() ==
+                                                            "5"
+                                                        ? Colors.deepPurple
+                                                        : Colors.blue,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  data[index]['monto']
+                                                      .toString(),
+                                                  style: TextStyle(
+                                                    fontSize: 25.0,
+                                                    color: data[index]['rol_id']
+                                                                .toString() ==
+                                                            "5"
+                                                        ? Colors.deepPurple
+                                                        : Colors.blue,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            SizedBox(height: 8.0),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 10.0),
+                                              child: RichText(
+                                                text: TextSpan(
+                                                  style: TextStyle(
+                                                      fontSize: 16.0,
+                                                      color: Colors
+                                                          .black), // Tamaño de fuente y color base
+                                                  children: <TextSpan>[
+                                                    TextSpan(
+                                                      text: data[index]
+                                                                      ['rol_id']
+                                                                  .toString() ==
+                                                              "5"
+                                                          ? "Proveedor"
+                                                          : 'Tienda: ',
+                                                      style: TextStyle(
+                                                          fontWeight: FontWeight
+                                                              .bold), // Estilo para "Vendedor: "
+                                                    ),
+                                                    TextSpan(
+                                                      text: data[index]['users_permissions_user'] !=
+                                                                  null &&
+                                                              data[index][
+                                                                      'users_permissions_user']
+                                                                  .isNotEmpty
+                                                          ? data[index]['users_permissions_user']
+                                                                              [0]
+                                                                          [
+                                                                          'vendedores'] !=
+                                                                      null &&
+                                                                  data[index]['users_permissions_user']
+                                                                              [0]
+                                                                          ['vendedores']
+                                                                      .isNotEmpty
+                                                              ? '${data[index]['users_permissions_user'][0]['vendedores'][0]['nombre_comercial'].toString()}'
+                                                              : ""
+                                                          : "",
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 10.0),
+                                              child: RichText(
+                                                text: TextSpan(
+                                                  style: TextStyle(
+                                                    fontSize: 16.0,
+                                                    color: Colors.black,
+                                                  ),
+                                                  children: <TextSpan>[
+                                                    TextSpan(
+                                                      text: data[index]
+                                                                      ['rol_id']
+                                                                  .toString() ==
+                                                              "5"
+                                                          ? "Id Proveedor: "
+                                                          : 'Id Vendedor: ',
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    ),
+                                                    TextSpan(
+                                                      text: data[index][
+                                                                      'users_permissions_user'] !=
+                                                                  null &&
+                                                              data[index][
+                                                                      'users_permissions_user']
+                                                                  .isNotEmpty
+                                                          ? "${data[index]['users_permissions_user'][0]['id'].toString()}"
+                                                          : "",
+                                                      style: TextStyle(
+                                                          fontStyle:
+                                                              FontStyle.italic),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 10.0),
+                                              child: RichText(
+                                                text: TextSpan(
+                                                  style: TextStyle(
+                                                      fontSize: 16.0,
+                                                      color: Colors
+                                                          .black), // Tamaño de fuente y color base
+                                                  children: <TextSpan>[
+                                                    TextSpan(
+                                                      text: data[index]
+                                                                      ['rol_id']
+                                                                  .toString() ==
+                                                              "5"
+                                                          ? "Proveedor: "
+                                                          : 'Vendedor: ',
+                                                      style: TextStyle(
+                                                          fontWeight: FontWeight
+                                                              .bold), // Estilo para "Vendedor: "
+                                                    ),
+                                                    TextSpan(
+                                                      text: data[index][
+                                                                      'users_permissions_user'] !=
+                                                                  null &&
+                                                              data[index][
+                                                                      'users_permissions_user']
+                                                                  .isNotEmpty
+                                                          ? '${data[index]['users_permissions_user'][0]['username'].toString()}'
+                                                          : "",
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 10.0),
+                                              child: RichText(
+                                                text: TextSpan(
+                                                  style: TextStyle(
+                                                      fontSize: 16.0,
+                                                      color: Colors
+                                                          .black), // Tamaño de fuente y color base
+                                                  children: <TextSpan>[
+                                                    TextSpan(
+                                                      text: 'Email: ',
+                                                      style: TextStyle(
+                                                          fontWeight: FontWeight
+                                                              .bold), // Estilo para "Email: "
+                                                    ),
+                                                    TextSpan(
+                                                      text: data[index][
+                                                                      'users_permissions_user'] !=
+                                                                  null &&
+                                                              data[index][
+                                                                      'users_permissions_user']
+                                                                  .isNotEmpty
+                                                          ? '${data[index]['users_permissions_user'][0]['email'].toString()}'
+                                                          : "",
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 10.0),
+                                              child: RichText(
+                                                text: TextSpan(
+                                                  style: TextStyle(
+                                                      fontSize: 16.0,
+                                                      color: Colors
+                                                          .black), // Tamaño de fuente y color base
+                                                  children: <TextSpan>[
+                                                    TextSpan(
+                                                      text: 'Estado Pago: ',
+                                                      style: TextStyle(
+                                                          fontWeight: FontWeight
+                                                              .bold), // Estilo para "Estado Pago: "
+                                                    ),
+                                                    TextSpan(
+                                                      text:
+                                                          '${data[index]['estado'].toString()}',
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                             ),
                                           ],
-                                        ),
-                                        SizedBox(height: 8.0),
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(left: 10.0),
-                                          child: RichText(
-                                            text: TextSpan(
-                                              style: TextStyle(
-                                                  fontSize: 16.0,
-                                                  color: Colors
-                                                      .black), // Tamaño de fuente y color base
-                                              children: <TextSpan>[
-                                                TextSpan(
-                                                  text: 'Tienda: ',
-                                                  style: TextStyle(
-                                                      fontWeight: FontWeight
-                                                          .bold), // Estilo para "Vendedor: "
-                                                ),
-                                                TextSpan(
-                                                  text: data[index][
-                                                                  'users_permissions_user'] !=
-                                                              null &&
-                                                          data[index][
-                                                                  'users_permissions_user']
-                                                              .isNotEmpty
-                                                      ? data[index]['users_permissions_user']
-                                                                          [0][
-                                                                      'vendedores'] !=
-                                                                  null &&
-                                                              data[index]['users_permissions_user']
-                                                                          [0]
-                                                                      ['vendedores']
-                                                                  .isNotEmpty
-                                                          ? '${data[index]['users_permissions_user'][0]['vendedores'][0]['nombre_comercial'].toString()}'
-                                                          : ""
-                                                      : "",
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(left: 10.0),
-                                          child: RichText(
-                                            text: TextSpan(
-                                              style: TextStyle(
-                                                fontSize: 16.0,
-                                                color: Colors.black,
-                                              ),
-                                              children: <TextSpan>[
-                                                TextSpan(
-                                                  text: 'Id Vendedor: ',
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                ),
-                                                TextSpan(
-                                                  text: data[index][
-                                                                  'users_permissions_user'] !=
-                                                              null &&
-                                                          data[index][
-                                                                  'users_permissions_user']
-                                                              .isNotEmpty
-                                                      ? "${data[index]['users_permissions_user'][0]['id'].toString()}"
-                                                      : "",
-                                                  style: TextStyle(
-                                                      fontStyle:
-                                                          FontStyle.italic),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(left: 10.0),
-                                          child: RichText(
-                                            text: TextSpan(
-                                              style: TextStyle(
-                                                  fontSize: 16.0,
-                                                  color: Colors
-                                                      .black), // Tamaño de fuente y color base
-                                              children: <TextSpan>[
-                                                TextSpan(
-                                                  text: 'Vendedor: ',
-                                                  style: TextStyle(
-                                                      fontWeight: FontWeight
-                                                          .bold), // Estilo para "Vendedor: "
-                                                ),
-                                                TextSpan(
-                                                  text: data[index][
-                                                                  'users_permissions_user'] !=
-                                                              null &&
-                                                          data[index][
-                                                                  'users_permissions_user']
-                                                              .isNotEmpty
-                                                      ? '${data[index]['users_permissions_user'][0]['username'].toString()}'
-                                                      : "",
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(left: 10.0),
-                                          child: RichText(
-                                            text: TextSpan(
-                                              style: TextStyle(
-                                                  fontSize: 16.0,
-                                                  color: Colors
-                                                      .black), // Tamaño de fuente y color base
-                                              children: <TextSpan>[
-                                                TextSpan(
-                                                  text: 'Email: ',
-                                                  style: TextStyle(
-                                                      fontWeight: FontWeight
-                                                          .bold), // Estilo para "Email: "
-                                                ),
-                                                TextSpan(
-                                                  text: data[index][
-                                                                  'users_permissions_user'] !=
-                                                              null &&
-                                                          data[index][
-                                                                  'users_permissions_user']
-                                                              .isNotEmpty
-                                                      ? '${data[index]['users_permissions_user'][0]['email'].toString()}'
-                                                      : "",
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(left: 10.0),
-                                          child: RichText(
-                                            text: TextSpan(
-                                              style: TextStyle(
-                                                  fontSize: 16.0,
-                                                  color: Colors
-                                                      .black), // Tamaño de fuente y color base
-                                              children: <TextSpan>[
-                                                TextSpan(
-                                                  text: 'Estado Pago: ',
-                                                  style: TextStyle(
-                                                      fontWeight: FontWeight
-                                                          .bold), // Estilo para "Estado Pago: "
-                                                ),
-                                                TextSpan(
-                                                  text:
-                                                      '${data[index]['estado'].toString()}',
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
+                                        )),
+                                        // Padding(
+                                        //   padding: const EdgeInsets.only(
+                                        //       left: 8.0, right: 8.0),
+                                        //   child: Center(
+                                        //     child: Container(
+                                        //       width: double.infinity,
+                                        //       child: ElevatedButton(
+                                        //         style: ButtonStyle(
+                                        //           backgroundColor:
+                                        //               MaterialStatePropertyAll(
+                                        //                   Colors.grey),
+                                        //         ),
+                                        //         onPressed: () {
+                                        //           // Lógica para eliminar
+                                        //         },
+                                        //         child: Text('Ver Comprobante'),
+                                        //       ),
+                                        //     ),
+                                        //   ),
+                                        // ),
+                                        // SizedBox(
+                                        //   height: 10.0,
+                                        // )
                                       ],
-                                    )),
-                                    // Padding(
-                                    //   padding: const EdgeInsets.only(
-                                    //       left: 8.0, right: 8.0),
-                                    //   child: Center(
-                                    //     child: Container(
-                                    //       width: double.infinity,
-                                    //       child: ElevatedButton(
-                                    //         style: ButtonStyle(
-                                    //           backgroundColor:
-                                    //               MaterialStatePropertyAll(
-                                    //                   Colors.grey),
-                                    //         ),
-                                    //         onPressed: () {
-                                    //           // Lógica para eliminar
-                                    //         },
-                                    //         child: Text('Ver Comprobante'),
-                                    //       ),
-                                    //     ),
-                                    //   ),
-                                    // ),
-                                    // SizedBox(
-                                    //   height: 10.0,
-                                    // )
-                                  ],
-                                ),
-                              );
-                            },
-                          ))),
+                                    ),
+                                  );
+                                },
+                              ))),
       ],
     );
+  }
+
+  Container account(data) {
+    if (data["message"] == "Empty") {
+      return Container();
+    } else {
+      return Container(
+        padding: EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: data["data"]["bank_entity"] == "Pichincha"
+              ? Colors.amber
+              : Colors.blueGrey[100],
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              data != [] ? data["data"]["bank_entity"] : "",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 10),
+            Text(
+              data != [] ? 'Dni: ${data["data"]["dni"]}' : "",
+              style: TextStyle(fontSize: 16),
+            ),
+            SizedBox(height: 5),
+            Text(
+              data != []
+                  ? 'Propietario: ${data["data"]["names"]} ${data["data"]["last_name"]}'
+                  : "",
+              style: TextStyle(fontSize: 16),
+            ),
+            SizedBox(height: 5),
+            Text(
+              data != []
+                  ? 'Número de cuenta: ${data["data"]["account_number"]}'
+                  : "",
+              style: TextStyle(fontSize: 16),
+            ),
+            SizedBox(height: 5),
+            Text(
+              data != []
+                  ? 'Tipo de cuenta: ${data["data"]["account_type"]}'
+                  : "",
+              style: TextStyle(fontSize: 16),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   Column movilContainer(BuildContext context, double adjustedAspectRatio) {
@@ -1140,6 +1486,7 @@ class _VendorWithDrawalRequestLaravelState
                         setState(() {
                           aprobado = true;
                           realizado = false;
+                          realizadopro = false;
                           rechazado = false;
                         });
                         model = "OrdenesRetiro";
@@ -1174,7 +1521,7 @@ class _VendorWithDrawalRequestLaravelState
               ),
             ),
             Container(
-              width: 150,
+              width: 250,
               child: Row(
                 children: [
                   Checkbox(
@@ -1183,6 +1530,7 @@ class _VendorWithDrawalRequestLaravelState
                         setState(() {
                           aprobado = false;
                           realizado = true;
+                          realizadopro = false;
                           rechazado = false;
                         });
                         model = "Vendedore";
@@ -1208,57 +1556,101 @@ class _VendorWithDrawalRequestLaravelState
                     Icons.check,
                     color: Colors.green,
                   ),
-                  Text("Realizados")
+                  Text("Realizados Vendedores")
                 ],
               ),
             ),
-            Container(
-              width: 150,
-              child: Row(
-                children: [
-                  Checkbox(
-                      value: rechazado,
-                      onChanged: (value) async {
-                        setState(() {
-                          aprobado = false;
-                          rechazado = true;
-                          realizado = false;
-                        });
-                        model = "OrdenesRetiro";
-
-                        sortFieldDefaultValue = "id:DESC";
-                        populate = [
-                          'users_permissions_user.vendedores',
-                        ];
-                        arrayFiltersAnd = [
-                          // {"/estado": "APROBADO"}
-                        ];
-                        arrayFiltersOr = [
-                          "monto",
-                          "users_permissions_user.user_id",
-                          "users_permissions_user.username",
-                          "users_permissions_user.email",
-                          "users_permissions_user.vendedores.nombre_comercial"
-                        ];
-                        arrayFiltersNot = [];
-                        updateOrAddEstadoFilter(arrayFiltersAnd);
-                        await loadData();
-                      }),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  Icon(
-                    Icons.close_outlined,
-                    color: Colors.red,
-                  ),
-                  Text("Rechazados")
-                ],
-              ),
-            )
           ],
         ),
         SizedBox(
-          height: 20.0,
+          height: 5.0,
+        ),
+        Wrap(children: [
+          Container(
+            width: 250,
+            child: Row(
+              children: [
+                Checkbox(
+                    value: realizadopro,
+                    onChanged: (value) async {
+                      setState(() {
+                        aprobado = false;
+                        realizado = false;
+                        realizadopro = true;
+                        rechazado = false;
+                      });
+                      model = "Provider";
+                      sortFieldDefaultValue = "id:ASC";
+                      populate = [
+                        'user',
+                      ];
+                      arrayFiltersAnd = [];
+                      arrayFiltersOr = [
+                        "user.username",
+                        "user.user_id",
+                        "name"
+                      ];
+                      arrayFiltersNot = [];
+                      await loadData();
+                    }),
+                SizedBox(
+                  width: 5,
+                ),
+                Icon(
+                  Icons.check,
+                  color: Colors.green,
+                ),
+                Text("Realizados Proveedores")
+              ],
+            ),
+          ),
+          Container(
+            width: 150,
+            child: Row(
+              children: [
+                Checkbox(
+                    value: rechazado,
+                    onChanged: (value) async {
+                      setState(() {
+                        aprobado = false;
+                        rechazado = true;
+                        realizado = false;
+                        realizadopro = false;
+                      });
+                      model = "OrdenesRetiro";
+
+                      sortFieldDefaultValue = "id:DESC";
+                      populate = [
+                        'users_permissions_user.vendedores',
+                      ];
+                      arrayFiltersAnd = [
+                        // {"/estado": "APROBADO"}
+                      ];
+                      arrayFiltersOr = [
+                        "monto",
+                        "users_permissions_user.user_id",
+                        "users_permissions_user.username",
+                        "users_permissions_user.email",
+                        "users_permissions_user.vendedores.nombre_comercial"
+                      ];
+                      arrayFiltersNot = [];
+                      updateOrAddEstadoFilter(arrayFiltersAnd);
+                      await loadData();
+                    }),
+                SizedBox(
+                  width: 5,
+                ),
+                Icon(
+                  Icons.close_outlined,
+                  color: Colors.red,
+                ),
+                Text("Rechazados")
+              ],
+            ),
+          )
+        ]),
+        SizedBox(
+          height: 15.0,
         ),
         Expanded(
             child: Container(
@@ -1299,7 +1691,6 @@ class _VendorWithDrawalRequestLaravelState
                                           color: Colors.orange,
                                         ),
                                         onPressed: () {
-                                          // print('Hola');
                                           AwesomeDialog(
                                             width: 500,
                                             context: context,
@@ -1324,7 +1715,6 @@ class _VendorWithDrawalRequestLaravelState
                                                           .toString(),
                                                       data[index]['rol_id']
                                                           .toString());
-                                              print(response);
                                               await loadData();
                                             },
                                           ).show();
@@ -1341,14 +1731,22 @@ class _VendorWithDrawalRequestLaravelState
                                       '\$ ',
                                       style: TextStyle(
                                         fontSize: 25.0,
-                                        color: Colors.blue,
+                                        color:
+                                            data[index]["rol_id"].toString() ==
+                                                    "5"
+                                                ? Colors.deepPurple
+                                                : Colors.blue,
                                       ),
                                     ),
                                     Text(
                                       data[index]['monto'].toString(),
                                       style: TextStyle(
                                         fontSize: 25.0,
-                                        color: Colors.blue,
+                                        color:
+                                            data[index]["rol_id"].toString() ==
+                                                    "5"
+                                                ? Colors.deepPurple
+                                                : Colors.blue,
                                       ),
                                     ),
                                   ],
@@ -1364,7 +1762,11 @@ class _VendorWithDrawalRequestLaravelState
                                               .black), // Tamaño de fuente y color base
                                       children: <TextSpan>[
                                         TextSpan(
-                                          text: 'Tienda: ',
+                                          text: data[index]["rol_id"]
+                                                      .toString() ==
+                                                  "5"
+                                              ? "Proveedor "
+                                              : 'Tienda: ',
                                           style: TextStyle(
                                               fontWeight: FontWeight
                                                   .bold), // Estilo para "Vendedor: "
@@ -1402,7 +1804,11 @@ class _VendorWithDrawalRequestLaravelState
                                       ),
                                       children: <TextSpan>[
                                         TextSpan(
-                                          text: 'Id Vendedor: ',
+                                          text: data[index]["rol_id"]
+                                                      .toString() ==
+                                                  "5"
+                                              ? "Id Proveedor: "
+                                              : 'Id Vendedor: ',
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold),
                                         ),
@@ -1432,7 +1838,11 @@ class _VendorWithDrawalRequestLaravelState
                                               .black), // Tamaño de fuente y color base
                                       children: <TextSpan>[
                                         TextSpan(
-                                          text: 'Vendedor: ',
+                                          text: data[index]["rol_id"]
+                                                      .toString() ==
+                                                  "5"
+                                              ? "Proveedor: "
+                                              : 'Vendedor: ',
                                           style: TextStyle(
                                               fontWeight: FontWeight
                                                   .bold), // Estilo para "Vendedor: "
@@ -1518,7 +1928,11 @@ class _VendorWithDrawalRequestLaravelState
                                               MaterialStatePropertyAll(
                                                   Colors.green),
                                         ),
-                                        onPressed: () {
+                                        onPressed: () async {
+                                          var dataAccountWithdrawal =
+                                              await Connections()
+                                                  .getAccountDatainWithdrawal(
+                                                      data[index]["id"]);
                                           // Lógica para eliminar
                                           AwesomeDialog(
                                             body: Column(
@@ -1529,6 +1943,7 @@ class _VendorWithDrawalRequestLaravelState
                                                         fontWeight:
                                                             FontWeight.bold)),
                                                 // Text("Ingrese Comentario:"),
+                                                account(dataAccountWithdrawal),
                                                 Container(
                                                   margin: EdgeInsets.all(15.0),
                                                   child: TextField(
@@ -1614,7 +2029,6 @@ class _VendorWithDrawalRequestLaravelState
                                                         response[1].toString(),
                                                         supervisorController
                                                             .text);
-                                                // print(finalresp);
                                                 supervisorController.clear();
                                                 loadData();
                                               }
@@ -1716,217 +2130,317 @@ class _VendorWithDrawalRequestLaravelState
                               );
                             },
                           )
-                        : ListView.builder(
-                            itemCount: data.length,
-                            itemBuilder: (context, index) {
-                              return Card(
-                                elevation: 3.0,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          left: 8.0, right: 8.0),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                        : getStringCheck() == "REALIZADO PROVEEDOR"
+                            ? ListView.builder(
+                                itemCount: data.length,
+                                itemBuilder: (context, index) {
+                                  return Card(
+                                    elevation: 3.0,
+                                    child: Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            UIUtils.formatDate(data[index]
-                                                    ['created_at']
-                                                .toString()),
-                                            style: TextStyle(
-                                              fontSize: 16.0,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                          Row(
+                                            children: [
+                                              IconButton(
+                                                icon: Icon(
+                                                  Icons
+                                                      .document_scanner_rounded,
+                                                  color: Colors.orange,
+                                                ),
+                                                onPressed: () async {
+                                                  await showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return AprovedSellerWithdrawals(
+                                                        model: "OrdenesRetiro",
+                                                        sortFieldDefaultValue:
+                                                            "id:DESC",
+                                                        populate: [
+                                                          'users_permissions_user.vendedores'
+                                                        ],
+                                                        arrayFiltersAnd: [
+                                                          {
+                                                            "/estado":
+                                                                "REALIZADO"
+                                                          },
+                                                          {
+                                                            "equals/users_permissions_user.user_id":
+                                                                data[index][
+                                                                        'user_id']
+                                                                    .toString()
+                                                          }
+                                                        ],
+                                                        arrayFiltersNot: [],
+                                                        arrayFiltersOr: [
+                                                          "monto",
+                                                          "users_permissions_user.user_id",
+                                                          "users_permissions_user.username",
+                                                          "users_permissions_user.email",
+                                                          "users_permissions_user.vendedores.nombre_comercial"
+                                                        ],
+                                                      );
+                                                    },
+                                                  );
+                                                },
+                                              ),
+                                              Expanded(
+                                                child: Text(
+                                                  data[index]['user'] != null
+                                                      ? "${data[index]['user_id'].toString()} | ${data[index]['user']['username'].toString()} | ${data[index]['name'].toString()}"
+                                                      : "",
+                                                  style: const TextStyle(
+                                                    fontSize: 14.0,
+                                                    color: Colors.blue,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
                                     ),
-                                    SizedBox(height: 15.0),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                  );
+                                },
+                              )
+                            : ListView.builder(
+                                itemCount: data.length,
+                                itemBuilder: (context, index) {
+                                  return Card(
+                                    elevation: 3.0,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          '\$ ',
-                                          style: TextStyle(
-                                            fontSize: 25.0,
-                                            color: Colors.blue,
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                              left: 8.0, right: 8.0),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                UIUtils.formatDate(data[index]
+                                                        ['created_at']
+                                                    .toString()),
+                                                style: TextStyle(
+                                                  fontSize: 16.0,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        Text(
-                                          data[index]['monto'].toString(),
-                                          style: TextStyle(
-                                            fontSize: 25.0,
-                                            color: Colors.blue,
+                                        SizedBox(height: 15.0),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              '\$ ',
+                                              style: TextStyle(
+                                                fontSize: 25.0,
+                                                color: data[index]["rol_id"]
+                                                            .toString() ==
+                                                        "5"
+                                                    ? Colors.deepPurple
+                                                    : Colors.blue,
+                                              ),
+                                            ),
+                                            Text(
+                                              data[index]['monto'].toString(),
+                                              style: TextStyle(
+                                                fontSize: 25.0,
+                                                color: data[index]["rol_id"]
+                                                            .toString() ==
+                                                        "5"
+                                                    ? Colors.deepPurple
+                                                    : Colors.blue,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 8.0),
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(left: 10.0),
+                                          child: RichText(
+                                            text: TextSpan(
+                                              style: TextStyle(
+                                                  fontSize: 16.0,
+                                                  color: Colors
+                                                      .black), // Tamaño de fuente y color base
+                                              children: <TextSpan>[
+                                                TextSpan(
+                                                  text: data[index]["rol_id"]
+                                                              .toString() ==
+                                                          "5"
+                                                      ? "Proveedor "
+                                                      : 'Tienda: ',
+                                                  style: TextStyle(
+                                                      fontWeight: FontWeight
+                                                          .bold), // Estilo para "Vendedor: "
+                                                ),
+                                                TextSpan(
+                                                  text: data[index][
+                                                                  'users_permissions_user'] !=
+                                                              null &&
+                                                          data[index][
+                                                                  'users_permissions_user']
+                                                              .isNotEmpty
+                                                      ? data[index]['users_permissions_user']
+                                                                          [0][
+                                                                      'vendedores'] !=
+                                                                  null &&
+                                                              data[index]['users_permissions_user']
+                                                                          [0]
+                                                                      ['vendedores']
+                                                                  .isNotEmpty
+                                                          ? '${data[index]['users_permissions_user'][0]['vendedores'][0]['nombre_comercial'].toString()}'
+                                                          : ""
+                                                      : "",
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ),
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(left: 10.0),
+                                          child: RichText(
+                                            text: TextSpan(
+                                              style: TextStyle(
+                                                fontSize: 16.0,
+                                                color: Colors.black,
+                                              ),
+                                              children: <TextSpan>[
+                                                TextSpan(
+                                                  text: data[index]["rol_id"]
+                                                              .toString() ==
+                                                          "5"
+                                                      ? "Id Proveedor: "
+                                                      : 'Id Vendedor: ',
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                                TextSpan(
+                                                  text: data[index][
+                                                                  'users_permissions_user'] !=
+                                                              null &&
+                                                          data[index][
+                                                                  'users_permissions_user']
+                                                              .isNotEmpty
+                                                      ? "${data[index]['users_permissions_user'][0]['id'].toString()}"
+                                                      : "",
+                                                  style: TextStyle(
+                                                      fontStyle:
+                                                          FontStyle.italic),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(left: 10.0),
+                                          child: RichText(
+                                            text: TextSpan(
+                                              style: TextStyle(
+                                                  fontSize: 16.0,
+                                                  color: Colors
+                                                      .black), // Tamaño de fuente y color base
+                                              children: <TextSpan>[
+                                                TextSpan(
+                                                  text: data[index]["rol_id"]
+                                                              .toString() ==
+                                                          "5"
+                                                      ? "Proveedor: "
+                                                      : 'Vendedor: ',
+                                                  style: TextStyle(
+                                                      fontWeight: FontWeight
+                                                          .bold), // Estilo para "Vendedor: "
+                                                ),
+                                                TextSpan(
+                                                  text: data[index][
+                                                                  'users_permissions_user'] !=
+                                                              null &&
+                                                          data[index][
+                                                                  'users_permissions_user']
+                                                              .isNotEmpty
+                                                      ? '${data[index]['users_permissions_user'][0]['username'].toString()}'
+                                                      : "",
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(left: 10.0),
+                                          child: RichText(
+                                            text: TextSpan(
+                                              style: TextStyle(
+                                                  fontSize: 16.0,
+                                                  color: Colors
+                                                      .black), // Tamaño de fuente y color base
+                                              children: <TextSpan>[
+                                                TextSpan(
+                                                  text: 'Email: ',
+                                                  style: TextStyle(
+                                                      fontWeight: FontWeight
+                                                          .bold), // Estilo para "Email: "
+                                                ),
+                                                TextSpan(
+                                                  text: data[index][
+                                                                  'users_permissions_user'] !=
+                                                              null &&
+                                                          data[index][
+                                                                  'users_permissions_user']
+                                                              .isNotEmpty
+                                                      ? '${data[index]['users_permissions_user'][0]['email'].toString()}'
+                                                      : "",
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(left: 10.0),
+                                          child: RichText(
+                                            text: TextSpan(
+                                              style: TextStyle(
+                                                  fontSize: 16.0,
+                                                  color: Colors
+                                                      .black), // Tamaño de fuente y color base
+                                              children: <TextSpan>[
+                                                TextSpan(
+                                                  text: 'Estado Pago: ',
+                                                  style: TextStyle(
+                                                      fontWeight: FontWeight
+                                                          .bold), // Estilo para "Estado Pago: "
+                                                ),
+                                                TextSpan(
+                                                  text:
+                                                      '${data[index]['estado'].toString()}',
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 10.0,
+                                        )
                                       ],
                                     ),
-                                    SizedBox(height: 8.0),
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(left: 10.0),
-                                      child: RichText(
-                                        text: TextSpan(
-                                          style: TextStyle(
-                                              fontSize: 16.0,
-                                              color: Colors
-                                                  .black), // Tamaño de fuente y color base
-                                          children: <TextSpan>[
-                                            TextSpan(
-                                              text: 'Tienda: ',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight
-                                                      .bold), // Estilo para "Vendedor: "
-                                            ),
-                                            TextSpan(
-                                              text: data[index][
-                                                              'users_permissions_user'] !=
-                                                          null &&
-                                                      data[index][
-                                                              'users_permissions_user']
-                                                          .isNotEmpty
-                                                  ? data[index]['users_permissions_user']
-                                                                      [0][
-                                                                  'vendedores'] !=
-                                                              null &&
-                                                          data[index]['users_permissions_user']
-                                                                      [0]
-                                                                  ['vendedores']
-                                                              .isNotEmpty
-                                                      ? '${data[index]['users_permissions_user'][0]['vendedores'][0]['nombre_comercial'].toString()}'
-                                                      : ""
-                                                  : "",
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(left: 10.0),
-                                      child: RichText(
-                                        text: TextSpan(
-                                          style: TextStyle(
-                                            fontSize: 16.0,
-                                            color: Colors.black,
-                                          ),
-                                          children: <TextSpan>[
-                                            TextSpan(
-                                              text: 'Id Vendedor: ',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            TextSpan(
-                                              text: data[index][
-                                                              'users_permissions_user'] !=
-                                                          null &&
-                                                      data[index][
-                                                              'users_permissions_user']
-                                                          .isNotEmpty
-                                                  ? "${data[index]['users_permissions_user'][0]['id'].toString()}"
-                                                  : "",
-                                              style: TextStyle(
-                                                  fontStyle: FontStyle.italic),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(left: 10.0),
-                                      child: RichText(
-                                        text: TextSpan(
-                                          style: TextStyle(
-                                              fontSize: 16.0,
-                                              color: Colors
-                                                  .black), // Tamaño de fuente y color base
-                                          children: <TextSpan>[
-                                            TextSpan(
-                                              text: 'Vendedor: ',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight
-                                                      .bold), // Estilo para "Vendedor: "
-                                            ),
-                                            TextSpan(
-                                              text: data[index][
-                                                              'users_permissions_user'] !=
-                                                          null &&
-                                                      data[index][
-                                                              'users_permissions_user']
-                                                          .isNotEmpty
-                                                  ? '${data[index]['users_permissions_user'][0]['username'].toString()}'
-                                                  : "",
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(left: 10.0),
-                                      child: RichText(
-                                        text: TextSpan(
-                                          style: TextStyle(
-                                              fontSize: 16.0,
-                                              color: Colors
-                                                  .black), // Tamaño de fuente y color base
-                                          children: <TextSpan>[
-                                            TextSpan(
-                                              text: 'Email: ',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight
-                                                      .bold), // Estilo para "Email: "
-                                            ),
-                                            TextSpan(
-                                              text: data[index][
-                                                              'users_permissions_user'] !=
-                                                          null &&
-                                                      data[index][
-                                                              'users_permissions_user']
-                                                          .isNotEmpty
-                                                  ? '${data[index]['users_permissions_user'][0]['email'].toString()}'
-                                                  : "",
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(left: 10.0),
-                                      child: RichText(
-                                        text: TextSpan(
-                                          style: TextStyle(
-                                              fontSize: 16.0,
-                                              color: Colors
-                                                  .black), // Tamaño de fuente y color base
-                                          children: <TextSpan>[
-                                            TextSpan(
-                                              text: 'Estado Pago: ',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight
-                                                      .bold), // Estilo para "Estado Pago: "
-                                            ),
-                                            TextSpan(
-                                              text:
-                                                  '${data[index]['estado'].toString()}',
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: 10.0,
-                                    )
-                                  ],
-                                ),
-                              );
-                            },
-                          ))),
+                                  );
+                                },
+                              ))),
       ],
     );
   }
@@ -1990,6 +2504,9 @@ class _VendorWithDrawalRequestLaravelState
     }
     if (realizado == true) {
       return "REALIZADO";
+    }
+    if (realizadopro == true) {
+      return "REALIZADO PROVEEDOR";
     }
     if (rechazado == true) {
       return "RECHAZADO";

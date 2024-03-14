@@ -233,7 +233,8 @@ class _PaymentInformationState extends State<PaymentInformation> {
         _emailController.text,
         _bankEntityController.text,
         _accountTypeController.text,
-        _accountNumber.text);
+        _accountNumber.text,
+        _dniController);
 
     print(response);
     if (response == 0) {

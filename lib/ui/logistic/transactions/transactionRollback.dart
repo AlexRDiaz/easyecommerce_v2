@@ -167,7 +167,7 @@ class _TransactionRollbackState extends State<TransactionRollback> {
 
   void getlistToRollback() async {
     listToRollback = [];
-    var listRollback =
+    var listRollback =  
         await Connections().getListToRollback(idRollbackTransaction.text);
     if (listRollback != 1 || listToRollback != 2) {
       setState(() {
