@@ -20,6 +20,7 @@ class _PaymentInformationUpdateState extends State<PaymentInformationUpdate> {
   TextEditingController _accountTypeController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _accountNumber = TextEditingController();
+  TextEditingController _dni = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -32,6 +33,7 @@ class _PaymentInformationUpdateState extends State<PaymentInformationUpdate> {
         widget.currentAccount[widget.index]['account_type'];
     _emailController.text = widget.currentAccount[widget.index]['email'];
     _accountNumber.text = widget.currentAccount[widget.index]['account_number'];
+    _dni.text = widget.currentAccount[widget.index]['dni'] ?? "";
     super.initState();
   }
 
@@ -183,6 +185,27 @@ class _PaymentInformationUpdateState extends State<PaymentInformationUpdate> {
                         return null;
                       },
                     ),
+                     SizedBox(height: 10),
+                    TextFormField(
+                      keyboardType: TextInputType.text,
+                      controller: _dni,
+                      decoration: InputDecoration(
+                        labelText: 'Dni',
+                        fillColor:
+                            Colors.white, // Color del fondo del TextFormField
+                        filled: true,
+
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Por favor, ingresa tu numero de identiciación';
+                        }
+                        return null;
+                      },
+                    ),
                   ],
                 ),
               )),
@@ -230,6 +253,7 @@ class _PaymentInformationUpdateState extends State<PaymentInformationUpdate> {
         _accountTypeController.text;
     widget.currentAccount[widget.index]['email'] = _emailController.text;
     widget.currentAccount[widget.index]['account_number'] = _accountNumber.text;
+    widget.currentAccount[widget.index]['dni'] = _dni.text;
 
     var response = await Connections().modifyAccountData(widget.currentAccount);
     if (response == 0) {

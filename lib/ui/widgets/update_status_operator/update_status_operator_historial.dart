@@ -472,6 +472,7 @@ class _UpdateStatusOperatorHistorialState
     if (datacostos['sku'] == "" || datacostos['sku'] == null) {
       skuProducto = "UKNOWNPC0";
     }
+    skuProducto = datacostos["sku"].toString();
     int indiceC = skuProducto.lastIndexOf('C');
     String sku = skuProducto.substring(0, indiceC);
     int idProducto = int.parse(skuProducto.substring(indiceC + 1));

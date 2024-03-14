@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/main.dart';
 import 'package:pinput/pinput.dart';
 
 /// This is the basic usage of Pinput
@@ -10,8 +11,9 @@ import 'package:pinput/pinput.dart';
 class PinInput extends StatefulWidget {
   String code;
   String amount;
+  String idAccount;
 
-  PinInput({Key? key, required this.code, required this.amount})
+  PinInput({Key? key, required this.code, required this.amount, required this.idAccount})
       : super(key: key);
 
   @override
@@ -110,7 +112,7 @@ class _PinInputState extends State<PinInput> {
               separatorBuilder: (index) => const SizedBox(width: 8),
               validator: (value) {
                 return value == widget.code
-                    ? saveApplication()
+                    ? saveApplication(widget.code)
                     : 'El pin es incorrecto';
               },
               // onClipboardFound: (value) {
@@ -191,8 +193,10 @@ class _PinInputState extends State<PinInput> {
     );
   }
 
-  saveApplication() async {
-    await Connections().sendWithdrawalAprovate(widget.amount);
+  saveApplication(code) async {
+    print("$code | ${widget.amount}");
+    var respord = await Connections().sendWithdrawalAprovate(code,widget.amount.toString(),widget.idAccount.toString());
+    print("cambioaprobado ->$respord");
     // ignore: use_build_context_synchronously
     AwesomeDialog(
       width: 500,

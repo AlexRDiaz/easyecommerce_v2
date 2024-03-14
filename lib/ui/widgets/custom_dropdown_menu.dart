@@ -50,9 +50,10 @@ class _CustomDropdownMenuState extends State<CustomDropdownMenu> {
                 item["last_name"].toString().split(' ')[0].toString();
             final bank =
                 item["bank_entity"].toString().split(' ')[0].toString();
-
+            // print(item["id"].toString());
             return DropdownMenuItem<String>(
-                value: "Cta: " + item["account_number"],
+                value: "Cta: " + "${item["account_number"]}/${item["id"]}",
+                // value: item,
                 child: Card(
                   elevation: 4,
                   shape: RoundedRectangleBorder(
@@ -101,14 +102,18 @@ class _CustomDropdownMenuState extends State<CustomDropdownMenu> {
             setState(() {
               _selectedValue = newValue!; // Actualiza el valor seleccionado
             });
+            widget.onValueChanged(
+                newValue!.split("/")[1]); // Llama a la función onValueChanged
           },
           selectedItemBuilder: (context) {
             return widget.items.map((item) {
+              String selectedAccount =
+                  _selectedValue.isNotEmpty ? _selectedValue.split("/")[0] : '';
               return Container(
                 alignment: AlignmentDirectional.center,
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Text(
-                  _selectedValue,
+                  selectedAccount,
                   style: const TextStyle(
                     fontSize: 14,
                     overflow: TextOverflow.ellipsis,
