@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/ui/logistic/carriers_external/add_carrier_external.dart';
+import 'package:frontend/ui/logistic/carriers_external/carriers_external_general.dart';
 import 'package:frontend/ui/logistic/carriers_external/info_carrier_external.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
@@ -15,6 +16,9 @@ class CarriersExternalView extends StatefulWidget {
 class _CarriersExternalViewState extends State<CarriersExternalView> {
   bool isLoading = false;
   var data = [];
+
+  List populate = [];
+  List arrayFiltersOr = ["name", "phone", "email", "address"];
   TextEditingController searchController = TextEditingController(text: "");
 
   @override
@@ -31,7 +35,8 @@ class _CarriersExternalViewState extends State<CarriersExternalView> {
 
       //
 
-      data = await Connections().getCarriersExternal();
+      data = await Connections()
+          .getCarriersExternal(arrayFiltersOr, searchController.text);
 
       setState(() {
         isLoading = false;
@@ -77,16 +82,43 @@ class _CarriersExternalViewState extends State<CarriersExternalView> {
             children: <Widget>[
               Row(
                 children: [
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.5,
-                    child: _modelTextField(
-                        text: "Buscar", controller: searchController),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        width: MediaQuery.of(context).size.width * 0.5,
+                        child: _modelTextField(
+                            text: "Buscar", controller: searchController),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () async {
+                          //
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CarriersExternalGeneral(),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          "Coberturas Generales",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 20),
+              /*
               Container(
-                height: MediaQuery.of(context).size.height * 0.7,
+                height: MediaQuery.of(context).size.height * 0.75,
+                color: Colors.amber,
                 child: Container(
                   padding: EdgeInsets.all(5),
                   child: GridView.builder(
@@ -108,13 +140,13 @@ class _CarriersExternalViewState extends State<CarriersExternalView> {
                             padding: EdgeInsets.all(10),
                             child: Column(
                               children: [
-                                SizedBox(
-                                  height: screenHeight * 0.1,
-                                  width: screenWith * 0.1,
-                                  child: Container(
-                                    color: Colors.deepPurple.shade100,
-                                  ),
-                                ),
+                                // SizedBox(
+                                //   height: screenHeight * 0.1,
+                                //   width: screenWith * 0.1,
+                                //   child: Container(
+                                //     color: Colors.deepPurple.shade100,
+                                //   ),
+                                // ),
                                 Text(data[index]['name']),
                                 Text(data[index]['phone']),
                                 Text(data[index]['email']),
@@ -128,7 +160,7 @@ class _CarriersExternalViewState extends State<CarriersExternalView> {
                   ),
                 ),
               ),
-
+*/
               // Container(
               //   height: MediaQuery.of(context).size.height * 0.50,
               //   child: Container(
@@ -167,38 +199,39 @@ class _CarriersExternalViewState extends State<CarriersExternalView> {
               //   ),
               // ),
 
-              /*
               Container(
-                height: MediaQuery.of(context).size.height * 0.50,
+                height: MediaQuery.of(context).size.height * 0.75,
+                // color: Colors.cyan,
                 child: Container(
                   padding: EdgeInsets.all(5),
                   child: Wrap(
                     spacing: 10,
                     runSpacing: 10,
                     children: List.generate(
-                      10,
+                      data.length,
                       (index) => Card(
-                        color: Colors.blue.shade100,
+                        color: Colors.white,
                         child: InkWell(
                           onTap: () {
                             //
-                            showInfo(context);
+                            showInfo(context, data[index]);
                           },
                           child: Container(
                             padding: EdgeInsets.all(10),
+                            width: screenWith * 0.22,
                             child: Column(
                               children: [
-                                SizedBox(
-                                  height: screenHeight * 0.1,
-                                  width: screenWith * 0.1,
-                                  child: Container(
-                                    color: Colors.deepPurple.shade100,
-                                  ),
-                                ),
-                                Text(data[0]['name']),
-                                Text(data[0]['phone']),
-                                Text(data[0]['email']),
-                                Text(data[0]['address']),
+                                // SizedBox(
+                                //   height: screenHeight * 0.1,
+                                //   width: screenWith * 0.1,
+                                //   child: Container(
+                                //     color: Colors.deepPurple.shade100,
+                                //   ),
+                                // ),
+                                Text(data[index]['name']),
+                                Text(data[index]['phone']),
+                                Text(data[index]['email']),
+                                Text(data[index]['address']),
                               ],
                             ),
                           ),
@@ -208,7 +241,6 @@ class _CarriersExternalViewState extends State<CarriersExternalView> {
                   ),
                 ),
               ),
-            */
             ],
           ),
         ),
@@ -225,7 +257,7 @@ class _CarriersExternalViewState extends State<CarriersExternalView> {
         color: Color.fromARGB(255, 245, 244, 244),
       ),
       child: TextField(
-        controller: controller,
+        controller: searchController,
         onSubmitted: (value) {
           loadData();
         },
@@ -236,7 +268,8 @@ class _CarriersExternalViewState extends State<CarriersExternalView> {
           suffixIcon: searchController.text.isNotEmpty
               ? GestureDetector(
                   onTap: () {
-                    Navigator.pop(context);
+                    searchController.clear();
+                    loadData();
                   },
                   child: Icon(Icons.close))
               : null,

@@ -32,6 +32,11 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
   TextEditingController mailController = TextEditingController(text: "");
   TextEditingController phoneController = TextEditingController(text: "");
   TextEditingController addressController = TextEditingController(text: "");
+  //estado_logistico
+  TextEditingController pendienteController = TextEditingController(text: "");
+  TextEditingController impresoController = TextEditingController(text: "");
+  TextEditingController enviadoController = TextEditingController(text: "");
+  TextEditingController rechazadoController = TextEditingController(text: "");
   //status
   TextEditingController programadoController = TextEditingController(text: "");
   TextEditingController enRutaController = TextEditingController(text: "");
@@ -49,7 +54,7 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
   TextEditingController enBodegaController = TextEditingController(text: "");
   TextEditingController enOficinaDevolucionController =
       TextEditingController(text: "");
-  TextEditingController pendienteController = TextEditingController(text: "");
+  // TextEditingController pendienteController = TextEditingController(text: "");
   TextEditingController enBodegaProvController =
       TextEditingController(text: "");
 
@@ -66,8 +71,7 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
       TextEditingController(text: "");
   TextEditingController costoBaseController = TextEditingController(text: "");
   TextEditingController maxPriceController = TextEditingController(text: "");
-  TextEditingController porcentajeIncrementalController =
-      TextEditingController(text: "");
+  TextEditingController incrementalController = TextEditingController(text: "");
   TextEditingController costoSeguroController = TextEditingController(text: "");
 
   final TextEditingController _typeController = TextEditingController();
@@ -148,7 +152,7 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
 
     return Container(
       width: screenWith > 600 ? screenWith * 0.4 : screenWith,
-      height: screenHeight * 0.85,
+      height: screenHeight * 0.9,
       color: Colors.white,
       child: CustomProgressModal(
         isLoading: isLoading,
@@ -270,7 +274,15 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                   TextButton(
                     onPressed: () async {
                       //
-                      _importFromExcel();
+
+                      if (typeToSend.isEmpty) {
+                        showSuccessModal(
+                            context,
+                            "Por favor, primero ingrese los Tipos de Cobertura.",
+                            Icons8.warning_1);
+                      } else {
+                        _importFromExcel();
+                      }
                     },
                     child: const Text(
                       "Cargar provincias de cobertura",
@@ -281,6 +293,21 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                     visible: coberturaToSend.isNotEmpty,
                     child: const Icon(Icons.check),
                   ),
+                  const SizedBox(width: 20),
+                  TextButton(
+                      onPressed: () async {
+                        //
+                        generateExcelTemplate();
+                      },
+                      child: const Row(
+                        children: [
+                          Icon(Icons.file_download_rounded),
+                          Text(
+                            "Descargar plantilla",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      )),
                 ],
               ),
               Row(
@@ -291,7 +318,7 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                       showAddCost(context);
                     },
                     child: const Text(
-                      "Agregar Coste Transporte",
+                      "Agregar Costos de Transporte",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -407,60 +434,70 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                             "Por favor, ingrese un correo electrónico válido.",
                             Icons8.warning_1);
                       } else {
-                        // print(_controllers.mailController.text);
-                        getLoadingModal(context, false);
-
-                        String phoneNumber = phoneController.text;
-                        if (phoneNumber.startsWith("0")) {
-                          phoneNumber = "+593${phoneNumber.substring(1)}";
-                        }
-
-                        var responseCreate = await Connections()
-                            .createCarrierExternal(
-                                nameController.text,
-                                phoneNumber,
-                                mailController.text,
-                                addressController.text,
-                                statusToSend,
-                                typeToSend,
-                                costsToSend,
-                                coberturaToSend);
-
-                        if (responseCreate == 0) {
-                          Navigator.pop(context);
-                          // ignore: use_build_context_synchronously
-                          AwesomeDialog(
-                            width: 500,
-                            context: context,
-                            dialogType: DialogType.success,
-                            animType: AnimType.rightSlide,
-                            title: 'Completado',
-                            desc: 'Se creo el  con exito.',
-                            btnCancel: Container(),
-                            btnOkText: "Aceptar",
-                            btnOkColor: colors.colorGreen,
-                            btnCancelOnPress: () {},
-                            btnOkOnPress: () {
-                              Navigator.pop(context);
-                            },
-                          ).show();
+                        if (coberturaToSend.isEmpty ||
+                            costsToSend == null ||
+                            statusToSend == null) {
+                          showSuccessModal(
+                              context,
+                              "Por favor, ingrese las Coberturas, Costos y Estados.",
+                              Icons8.warning_1);
                         } else {
-                          Navigator.pop(context);
-                          // ignore: use_build_context_synchronously
-                          AwesomeDialog(
-                            width: 500,
-                            context: context,
-                            dialogType: DialogType.error,
-                            animType: AnimType.rightSlide,
-                            title: 'Error',
-                            desc: 'Intentelo de nuevo',
-                            btnCancel: Container(),
-                            btnOkText: "Aceptar",
-                            btnOkColor: colors.colorGreen,
-                            btnCancelOnPress: () {},
-                            btnOkOnPress: () {},
-                          ).show();
+                          // print(_controllers.mailController.text);
+                          getLoadingModal(context, false);
+
+                          String phoneNumber = phoneController.text;
+                          if (phoneNumber.startsWith("0")) {
+                            phoneNumber = "+593${phoneNumber.substring(1)}";
+                          }
+
+                          var responseCreate = await Connections()
+                              .createCarrierExternal(
+                                  nameController.text,
+                                  phoneNumber,
+                                  mailController.text,
+                                  addressController.text,
+                                  statusToSend,
+                                  typeToSend,
+                                  costsToSend,
+                                  coberturaToSend);
+
+                          if (responseCreate == 0) {
+                            Navigator.pop(context);
+                            // ignore: use_build_context_synchronously
+                            AwesomeDialog(
+                              width: 500,
+                              context: context,
+                              dialogType: DialogType.success,
+                              animType: AnimType.rightSlide,
+                              title: 'Completado',
+                              desc: 'Se creo el  con exito.',
+                              btnCancel: Container(),
+                              btnOkText: "Aceptar",
+                              btnOkColor: colors.colorGreen,
+                              btnCancelOnPress: () {},
+                              btnOkOnPress: () {
+                                Navigator.pop(context);
+                              },
+                            ).show();
+                          } else {
+                            Navigator.pop(context);
+                            // ignore: use_build_context_synchronously
+                            AwesomeDialog(
+                              width: 500,
+                              context: context,
+                              dialogType: DialogType.error,
+                              animType: AnimType.rightSlide,
+                              title: 'Error',
+                              desc: 'Intentelo de nuevo',
+                              btnCancel: Container(),
+                              btnOkText: "Aceptar",
+                              btnOkColor: colors.colorGreen,
+                              btnCancelOnPress: () {},
+                              btnOkOnPress: () {},
+                            ).show();
+                          }
                         }
+
                         //
                       }
                     }
@@ -501,13 +538,13 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                 Column(
                   children: [
                     const Text(
-                      "Costo por entrega:",
+                      "Costo por entrega: ",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Row(
                       children: [
                         const Text(
-                          "Local-Local Normal:",
+                          "Local-Local Normal: ",
                         ),
                         const SizedBox(width: 20),
                         SizedBox(
@@ -525,7 +562,7 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                     Row(
                       children: [
                         const Text(
-                          "Local-Local Especial:",
+                          "Local-Local Especial: ",
                         ),
                         const SizedBox(width: 20),
                         SizedBox(
@@ -543,7 +580,7 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                     Row(
                       children: [
                         const Text(
-                          "Local-Provincial Normal:",
+                          "Local-Provincial Normal: ",
                         ),
                         const SizedBox(width: 20),
                         SizedBox(
@@ -561,7 +598,7 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                     Row(
                       children: [
                         const Text(
-                          "Local-Provincial Especial:",
+                          "Local-Provincial Especial: ",
                         ),
                         const SizedBox(width: 20),
                         SizedBox(
@@ -605,7 +642,7 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                     Row(
                       children: [
                         const Text(
-                          "Costo seguro:",
+                          "Costo seguro: % ",
                         ),
                         const SizedBox(width: 20),
                         Column(
@@ -613,7 +650,7 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                             SizedBox(
                               width: 150,
                               child: TextFormField(
-                                controller: enOficinaStatusController,
+                                controller: costoSeguroController,
                                 onChanged: (value) {
                                   setState(() {});
                                 },
@@ -632,7 +669,7 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Text(
-                          "Costo Recaudo:",
+                          "Costo Recaudo: ",
                         ),
                       ],
                     ),
@@ -657,7 +694,7 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                     Row(
                       children: [
                         const Text(
-                          "Costo base:",
+                          "Costo base: ",
                         ),
                         SizedBox(
                           width: 100,
@@ -673,7 +710,7 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                     Row(
                       children: [
                         const Text(
-                          "Precio Maximo:",
+                          "Precio Maximo: ",
                         ),
                         SizedBox(
                           width: 100,
@@ -689,12 +726,12 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                     Row(
                       children: [
                         const Text(
-                          "Costo Icremental %:",
+                          "Costo Icremental %: ",
                         ),
                         SizedBox(
                           width: 100,
                           child: TextFormField(
-                            controller: porcentajeIncrementalController,
+                            controller: incrementalController,
                             onChanged: (value) {
                               setState(() {});
                             },
@@ -711,57 +748,54 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                             minimumSize: Size(200, 40)),
                         onPressed: () async {
                           //
-                          if (localLocalNormalController.text == "" ||
-                              localLocalEspecialController.text == "" ||
-                              localProvinciaNormalController.text == "" ||
-                              localProvinciaEspecialController.text == "" ||
-                              costoDevolucionController.text == "" ||
-                              costoBaseController.text == "" ||
-                              maxPriceController.text == "" ||
-                              porcentajeIncrementalController.text == "" ||
-                              costoSeguroController.text == "") {
+                          print(localLocalNormalController.text);
+                          if (localLocalNormalController.text.isEmpty) {
+                            print("ifffff");
+
                             showSuccessModal(
                                 context,
                                 "Por favor, ingrese todos los datos.",
                                 Icons8.warning_1);
-                          }
-                          costsToSend = {
-                            "local_local_normal":
-                                localLocalNormalController.text != ""
-                                    ? localLocalNormalController.text
-                                    : 0,
-                            "local_local_especial":
-                                localLocalEspecialController.text != ""
-                                    ? localLocalEspecialController.text
-                                    : 0,
-                            "local_provincia_normal":
-                                localProvinciaNormalController.text != ""
-                                    ? localProvinciaNormalController.text
-                                    : 0,
-                            "local_provincia_especial":
-                                localProvinciaEspecialController.text != ""
-                                    ? localProvinciaEspecialController.text
-                                    : 0,
-                            "costo_devolucion":
-                                costoDevolucionController.text != ""
-                                    ? costoDevolucionController.text
-                                    : 0,
-                            "costo_recaudo": {
-                              "base": costoBaseController.text != ""
-                                  ? costoBaseController.text
-                                  : 0, //ctvs fijos
-                              "max_price": maxPriceController.text != ""
-                                  ? maxPriceController.text
+                          } else {
+                            print("elseee");
+
+                            costsToSend = {
+                              "local_local_normal":
+                                  localLocalNormalController.text != ""
+                                      ? localLocalNormalController.text
+                                      : 0,
+                              "local_local_especial":
+                                  localLocalEspecialController.text != ""
+                                      ? localLocalEspecialController.text
+                                      : 0,
+                              "local_provincia_normal":
+                                  localProvinciaNormalController.text != ""
+                                      ? localProvinciaNormalController.text
+                                      : 0,
+                              "local_provincia_especial":
+                                  localProvinciaEspecialController.text != ""
+                                      ? localProvinciaEspecialController.text
+                                      : 0,
+                              "costo_devolucion":
+                                  costoDevolucionController.text != ""
+                                      ? costoDevolucionController.text
+                                      : 0,
+                              "costo_seguro": costoSeguroController.text != ""
+                                  ? costoSeguroController.text
                                   : 0,
-                              "incremental":
-                                  porcentajeIncrementalController.text != ""
-                                      ? porcentajeIncrementalController.text
-                                      : 0 // %
-                            },
-                            "costo_seguro": costoSeguroController.text != ""
-                                ? costoSeguroController.text
-                                : 0,
-                          };
+                              "costo_recaudo": {
+                                "base": costoBaseController.text != ""
+                                    ? costoBaseController.text
+                                    : 0, //ctvs fijos
+                                "max_price": maxPriceController.text != ""
+                                    ? maxPriceController.text
+                                    : 0,
+                                "incremental": incrementalController.text != ""
+                                    ? incrementalController.text
+                                    : 0 // %
+                              },
+                            };
+                          }
 
                           Navigator.pop(context);
                           setState(() {});
@@ -814,6 +848,109 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                       "Estatus Equivalentes",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
+                    const Row(
+                      // mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Ejemplo: 3-Entregado",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontStyle: FontStyle.italic,
+                          ),
+                          // style: TextStyle(fontSize: 12),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    const Row(
+                      children: [
+                        Text(
+                          "Estado Interno",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Text(
+                          "CONFIRMADO:",
+                        ),
+                        const SizedBox(width: 20),
+                        SizedBox(
+                          width: 150,
+                          child: TextFormField(
+                            controller: pendienteController,
+                            onChanged: (value) {
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    const Row(
+                      children: [
+                        Text(
+                          "Estado Logístico",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Text(
+                          "IMPRESO:",
+                        ),
+                        const SizedBox(width: 20),
+                        SizedBox(
+                          width: 150,
+                          child: TextFormField(
+                            controller: impresoController,
+                            onChanged: (value) {
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Text(
+                          "ENVIADO:",
+                        ),
+                        const SizedBox(width: 20),
+                        SizedBox(
+                          width: 150,
+                          child: TextFormField(
+                            controller: enviadoController,
+                            onChanged: (value) {
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Text(
+                          "RECHAZADO:",
+                        ),
+                        const SizedBox(width: 20),
+                        SizedBox(
+                          width: 150,
+                          child: TextFormField(
+                            controller: rechazadoController,
+                            onChanged: (value) {
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
                     const Row(
                       children: [
                         Text(
@@ -1045,24 +1182,24 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        const Text(
-                          "PENDIENTE:",
-                        ),
-                        const SizedBox(width: 20),
-                        SizedBox(
-                          width: 150,
-                          child: TextFormField(
-                            controller: pendienteController,
-                            onChanged: (value) {
-                              setState(() {});
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
+                    // const SizedBox(height: 10),
+                    // Row(
+                    //   children: [
+                    //     const Text(
+                    //       "PENDIENTE:", //
+                    //     ),
+                    //     const SizedBox(width: 20),
+                    //     SizedBox(
+                    //       width: 150,
+                    //       child: TextFormField(
+                    //         controller: pendienteController,
+                    //         onChanged: (value) {
+                    //           setState(() {});
+                    //         },
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
                     const SizedBox(height: 30),
                     Align(
                       alignment: Alignment.centerRight,
@@ -1072,6 +1209,7 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                             minimumSize: Size(200, 40)),
                         onPressed: () async {
                           //
+                          /*
                           statusToSend = {
                             "PEDIDO PROGRAMADO": programadoController.text != ""
                                 ? programadoController.text
@@ -1118,6 +1256,255 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                                 ? pendienteController.text
                                 : 0,
                           };
+*/
+                          statusToSend = [
+                            {
+                              "estado": "estado_interno",
+                              "name_local": "CONFIRMADO",
+                              "id": pendienteController.text.toString() != ""
+                                  ? pendienteController.text
+                                      .toString()
+                                      .split("-")[0]
+                                  : 0,
+                              "name": pendienteController.text != ""
+                                  ? pendienteController.text
+                                      .toString()
+                                      .split("-")[1]
+                                  : "",
+                            },
+                            {
+                              "estado": "estado_logistico",
+                              "name_local": "IMPRESO",
+                              "id": impresoController.text.toString() != ""
+                                  ? impresoController.text
+                                      .toString()
+                                      .split("-")[0]
+                                  : 0,
+                              "name": impresoController.text != ""
+                                  ? impresoController.text
+                                      .toString()
+                                      .split("-")[1]
+                                  : "",
+                            },
+                            {
+                              "estado": "estado_logistico",
+                              "name_local": "ENVIADO",
+                              "id": enviadoController.text.toString() != ""
+                                  ? enviadoController.text
+                                      .toString()
+                                      .split("-")[0]
+                                  : 0,
+                              "name": enviadoController.text != ""
+                                  ? enviadoController.text
+                                      .toString()
+                                      .split("-")[1]
+                                  : ""
+                            },
+                            {
+                              "estado": "estado_logistico",
+                              "name_local": "RECHAZADO",
+                              "id": rechazadoController.text.toString() != ""
+                                  ? rechazadoController.text
+                                      .toString()
+                                      .split("-")[0]
+                                  : 0,
+                              "name": rechazadoController.text != ""
+                                  ? rechazadoController.text
+                                      .toString()
+                                      .split("-")[1]
+                                  : ""
+                            },
+                            //
+                            {
+                              "estado": "status",
+                              "name_local": "PEDIDO PROGRAMADO",
+                              "id": programadoController.text.toString() != ""
+                                  ? programadoController.text
+                                      .toString()
+                                      .split("-")[0]
+                                  : 0,
+                              "name": programadoController.text != ""
+                                  ? programadoController.text
+                                      .toString()
+                                      .split("-")[1]
+                                  : ""
+                            },
+                            {
+                              "estado": "status",
+                              "name_local": "EN RUTA",
+                              "id": enRutaController.text.toString() != ""
+                                  ? enRutaController.text
+                                      .toString()
+                                      .split("-")[0]
+                                  : 0,
+                              "name": enRutaController.text != ""
+                                  ? enRutaController.text
+                                      .toString()
+                                      .split("-")[1]
+                                  : ""
+                            },
+                            {
+                              "estado": "status",
+                              "name_local": "ENTREGADO",
+                              "id": entregadoController.text.toString() != ""
+                                  ? entregadoController.text
+                                      .toString()
+                                      .split("-")[0]
+                                  : 0,
+                              "name": entregadoController.text != ""
+                                  ? entregadoController.text
+                                      .toString()
+                                      .split("-")[1]
+                                  : ""
+                            },
+                            {
+                              "estado": "status",
+                              "name_local": "NO ENTREGADO",
+                              "id": noEntregadoController.text.toString() != ""
+                                  ? noEntregadoController.text
+                                      .toString()
+                                      .split("-")[0]
+                                  : 0,
+                              "name": noEntregadoController.text != ""
+                                  ? noEntregadoController.text
+                                      .toString()
+                                      .split("-")[1]
+                                  : ""
+                            },
+                            {
+                              "estado": "status",
+                              "name_local": "NOVEDAD",
+                              "id": novedadController.text.toString() != ""
+                                  ? novedadController.text
+                                      .toString()
+                                      .split("-")[0]
+                                  : 0,
+                              "name": novedadController.text != ""
+                                  ? novedadController.text
+                                      .toString()
+                                      .split("-")[1]
+                                  : ""
+                            },
+                            {
+                              "estado": "status",
+                              "name_local": "NOVEDAD RESUELTA",
+                              "id": novedadResueltaController.text.toString() !=
+                                      ""
+                                  ? novedadResueltaController.text
+                                      .toString()
+                                      .split("-")[0]
+                                  : 0,
+                              "name": novedadResueltaController.text != ""
+                                  ? novedadResueltaController.text
+                                      .toString()
+                                      .split("-")[1]
+                                  : ""
+                            },
+                            {
+                              "estado": "status",
+                              "name_local": "REAGENDADO",
+                              "id": reagendadoController.text.toString() != ""
+                                  ? reagendadoController.text
+                                      .toString()
+                                      .split("-")[0]
+                                  : 0,
+                              "name": reagendadoController.text != ""
+                                  ? reagendadoController.text
+                                      .toString()
+                                      .split("-")[1]
+                                  : ""
+                            },
+                            {
+                              "estado": "status",
+                              "name_local": "EN OFICINA",
+                              "id": enOficinaStatusController.text.toString() !=
+                                      ""
+                                  ? enOficinaStatusController.text
+                                      .toString()
+                                      .split("-")[0]
+                                  : 0,
+                              "name": enOficinaStatusController.text != ""
+                                  ? enOficinaStatusController.text
+                                      .toString()
+                                      .split("-")[1]
+                                  : ""
+                            },
+                            //
+                            {
+                              "estado": "estado_devolucion",
+                              "name_local": "DEVOLUCION EN RUTA",
+                              "id":
+                                  devolucionEnRutacontroller.text.toString() !=
+                                          ""
+                                      ? devolucionEnRutacontroller.text
+                                          .toString()
+                                          .split("-")[0]
+                                      : 0,
+                              "name": devolucionEnRutacontroller.text != ""
+                                  ? devolucionEnRutacontroller.text
+                                      .toString()
+                                      .split("-")[1]
+                                  : ""
+                            },
+                            {
+                              "estado": "estado_devolucion",
+                              "name_local": "EN BODEGA",
+                              "id": enBodegaController.text.toString() != ""
+                                  ? enBodegaController.text
+                                      .toString()
+                                      .split("-")[0]
+                                  : 0,
+                              "name": enBodegaController.text != ""
+                                  ? enBodegaController.text
+                                      .toString()
+                                      .split("-")[1]
+                                  : ""
+                            },
+                            {
+                              "estado": "estado_devolucion",
+                              "name_local": "ENTREGADO EN OFICINA",
+                              "id": enOficinaDevolucionController.text
+                                          .toString() !=
+                                      ""
+                                  ? enOficinaDevolucionController.text
+                                      .toString()
+                                      .split("-")[0]
+                                  : 0,
+                              "name": enOficinaDevolucionController.text != ""
+                                  ? enOficinaDevolucionController.text
+                                      .toString()
+                                      .split("-")[1]
+                                  : ""
+                            },
+                            {
+                              "estado": "estado_devolucion",
+                              "name_local": "EN BODEGA PROVEEDOR",
+                              "id": enBodegaProvController.text.toString() != ""
+                                  ? enBodegaProvController.text
+                                      .toString()
+                                      .split("-")[0]
+                                  : 0,
+                              "name": enBodegaProvController.text != ""
+                                  ? enBodegaProvController.text
+                                      .toString()
+                                      .split("-")[1]
+                                  : ""
+                            },
+                            // {
+                            //   "status": "PENDIENTE",
+                            //   "id": pendienteController.text.toString() != ""
+                            //       ? pendienteController.text
+                            //           .toString()
+                            //           .split("-")[0]
+                            //       : 0,
+                            //   "value": pendienteController.text != ""
+                            //       ? pendienteController.text
+                            //           .toString()
+                            //           .split("-")[1]
+                            //       : ""
+                            // },
+                          ];
+                          print(statusToSend);
 
                           Navigator.pop(context);
                           setState(() {});
@@ -1159,85 +1546,329 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
 
       List<Map<String, dynamic>> provinciasList = [];
 
-      for (var table in excel.tables.keys) {
-        // Asegurarse de estar en la hoja deseada, por ejemplo, "Hoja2"
-        if (table.toLowerCase() == "provincias") {
-          for (var row in excel.tables[table]!.rows.skip(1)) {
-            try {
-              Map<String, dynamic> provincia = {
-                "id_provincia":
-                    int.tryParse(row[0]?.value?.toString().trim() ?? '') ?? 0,
-                "provincia": row[1]?.value?.toString().trim() ?? '',
-              };
-              provinciasList.add(provincia);
-            } catch (e) {
-              print('Error al procesar la fila:');
-              print('Detalles del error: $e');
-            }
-          }
+      List errorList = [];
+
+      List<String> expectedSheetNames = ['provincias', 'ciudades'];
+
+      List<String> sheetNames = excel.tables.keys.toList();
+      bool namesCorrect = true;
+      for (int i = 0; i < expectedSheetNames.length; i++) {
+        String expectedName = expectedSheetNames[i];
+
+        if (i < sheetNames.length &&
+            sheetNames[i].toLowerCase() != expectedName) {
+          namesCorrect = false;
         }
-        // print(provinciasList);
-
-        if (table.toLowerCase() == "ciudades") {
-          for (var row in excel.tables[table]!.rows.skip(1)) {
-            try {
-              Map<String, dynamic> ciudadData = {
-                "id_ciudad":
-                    int.tryParse(row[0]?.value?.toString().trim() ?? '') ?? 0,
-                "ciudad": row[1]?.value?.toString().trim() ?? '',
-                "provincia": row[2]?.value?.toString().trim() ?? '',
-                "tipo": row[3]?.value?.toString().trim() ?? '',
-              };
-
-              int id_prov = 0;
-              for (var provinciaNombre in provinciasList) {
-                if (provinciaNombre['provincia'] ==
-                    (row[2]?.value?.toString()?.trim() ?? '')) {
-                  id_prov = provinciaNombre["id_provincia"];
-                  break;
-                }
-              }
-
-              // Agregar nuevo valor después de crear el mapa
-              ciudadData["id_provincia"] = id_prov;
-
-              coberturaToSend.add(ciudadData);
-            } catch (e) {
-              print('Error al procesar la fila:');
-              print('Detalles del error: $e');
-            }
-          }
-        }
-
-        /*
-        for (var row in excel.tables[table]!.rows.skip(1)) {
-          try {
-            Map<String, dynamic> jsonData = {
-              "id_ciudad":
-                  int.tryParse(row[0]?.value?.toString()?.trim() ?? '') ?? 0,
-              "ciudad": row[1]?.value?.toString().trim() ?? '',
-              "provincia": row[2]?.value?.toString().trim() ?? '',
-              // "id_provincia":
-              //     int.tryParse(row[1]?.value?.toString()?.trim() ?? '') ?? 0,
-              "id_provincia": 0,
-              "tipo": row[3]?.value?.toString().trim() ?? '',
-            };
-
-            jsonDataList.add(jsonData);
-          } catch (e) {
-            print('Error al procesar la fila:');
-            print('Detalles del error: $e');
-          }
-        }
-        */
       }
-      Navigator.pop(context);
-      setState(() {});
+      if (namesCorrect) {
+        for (var table in excel.tables.keys) {
+          // Asegurarse de estar en la hoja deseada, por ejemplo, "Hoja2"
+          if (table.toLowerCase() == "provincias") {
+            for (var row in excel.tables[table]!.rows.skip(1)) {
+              try {
+                Map<String, dynamic> provincia = {
+                  "id_provincia":
+                      int.tryParse(row[0]?.value?.toString().trim() ?? '') ?? 0,
+                  "provincia": row[1]?.value?.toString().trim() ?? '',
+                };
+                provinciasList.add(provincia);
+              } catch (e) {
+                print('Error al procesar la fila:');
+                print('Detalles del error: $e');
+              }
+            }
+          }
+          // print(provinciasList);
 
+          if (table.toLowerCase() == "ciudades") {
+            for (var row in excel.tables[table]!.rows.skip(1)) {
+              try {
+                Map<String, dynamic> ciudadData = {
+                  "id_ciudad":
+                      int.tryParse(row[0]?.value?.toString().trim() ?? '') ?? 0,
+                  "ciudad": row[1]?.value?.toString().trim() ?? '',
+                  "provincia": row[2]?.value?.toString().trim() ?? '',
+                  "tipo": row[3]?.value?.toString().trim() ?? '',
+                };
+
+                int id_prov = 0;
+                for (var provinciaNombre in provinciasList) {
+                  if (provinciaNombre['provincia'] ==
+                      (row[2]?.value?.toString()?.trim() ?? '')) {
+                    id_prov = provinciaNombre["id_provincia"];
+                    break;
+                  }
+                }
+
+                // Agregar nuevo valor después de crear el mapa
+                ciudadData["id_provincia"] = id_prov;
+
+                bool matchFound = false;
+
+                for (var element in typeToSend) {
+                  if (row[3]?.value?.toString().trim() == element) {
+                    matchFound = true;
+                    break;
+                  }
+                }
+
+                if (!matchFound) {
+                  errorList.add(
+                      "${row[1]?.value?.toString().trim()}-${row[3]?.value?.toString().trim()}");
+                }
+
+                coberturaToSend.add(ciudadData);
+              } catch (e) {
+                print('Error al procesar la fila:');
+                print('Detalles del error: $e');
+              }
+            }
+          }
+        }
+
+        Navigator.pop(context);
+        setState(() {});
+        if (errorList.isNotEmpty) {
+          coberturaToSend.clear();
+          setState(() {});
+
+          String resError = errorList.join(',\n');
+
+          // ignore: use_build_context_synchronously
+          AwesomeDialog(
+            width: 500,
+            context: context,
+            dialogType: DialogType.error,
+            animType: AnimType.rightSlide,
+            title:
+                "Error, el archivo contiene tipos de cobertura que no ha ingresado.",
+            desc: resError,
+            btnCancel: Container(),
+            btnOkText: "Aceptar",
+            btnOkColor: colors.colorGreen,
+            btnCancelOnPress: () {},
+            btnOkOnPress: () {
+              // Navigator.pop(context);
+            },
+          ).show();
+        }
+      } else {
+        Navigator.pop(context);
+        setState(() {});
+        // ignore: use_build_context_synchronously
+        AwesomeDialog(
+          width: 500,
+          context: context,
+          dialogType: DialogType.error,
+          animType: AnimType.rightSlide,
+          title: "Error",
+          desc:
+              "Los nombres y/o las posiciones de las hojas no son las correctas.",
+          btnCancel: Container(),
+          btnOkText: "Aceptar",
+          btnOkColor: colors.colorGreen,
+          btnCancelOnPress: () {},
+          btnOkOnPress: () {
+            // Navigator.pop(context);
+          },
+        ).show();
+      }
       // Imprimir la representación JSON (opcional)
       // print(jsonEncode(coberturaToSend));
     } catch (e) {
       print('Error al decodificar el archivo Excel: $e');
+    }
+  }
+
+  Future<void> generateExcelTemplate() async {
+    try {
+      final excel = Excel.createExcel();
+
+      Sheet sheet1 = excel['Provincias'];
+      sheet1!.setColWidth(2, 20);
+
+      sheet1
+          .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0))
+          .value = 'ID Provincia';
+      sheet1
+          .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 0))
+          .value = 'Provincia';
+      //
+      sheet1
+          .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1))
+          .value = "1301";
+      sheet1
+          .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 1))
+          .value = "Azuay";
+      sheet1
+          .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 2))
+          .value = "1302";
+      sheet1
+          .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 2))
+          .value = "Bolívar";
+
+      excel.delete(excel.getDefaultSheet() as String);
+
+      //
+      Sheet sheet2 = excel['Ciudades'];
+
+      sheet2!.setColWidth(2, 20);
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0))
+          .value = 'ID';
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 0))
+          .value = 'Ciudad';
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 0))
+          .value = 'Provincia';
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: 0))
+          .value = 'Origen';
+      //
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1))
+          .value = "50210";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 1))
+          .value = "Cuenca";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 1))
+          .value = "Azuay";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: 1))
+          .value = "Normal";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 2))
+          .value = "50211";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 2))
+          .value = "Sayuasí";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 2))
+          .value = "Azuay";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: 2))
+          .value = "Especial";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 3))
+          .value = "50212";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 3))
+          .value = "Chimbo";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 3))
+          .value = "Bolívar";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: 3))
+          .value = "Especial";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 4))
+          .value = "50213";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 4))
+          .value = "Guaranda";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 4))
+          .value = "Bolívar";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: 4))
+          .value = "Normal";
+      /*
+            // Hoja 1
+      final sheet1 = excel.sheets['Provincias'];
+      sheet1!.setColWidth(2, 50);
+
+      sheet1
+          .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0))
+          .value = 'ID Provincia';
+      sheet1
+          .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 0))
+          .value = 'Provincia';
+      //
+      sheet1
+          .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1))
+          .value = "1301";
+      sheet1
+          .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 1))
+          .value = "Azuay";
+      sheet1
+          .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 2))
+          .value = "1302";
+      sheet1
+          .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 2))
+          .value = "Bolívar";
+
+      // Hoja 2
+      final sheet2 = excel.sheets['Ciudades'];
+      sheet2!.setColWidth(2, 50);
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0))
+          .value = 'ID';
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 0))
+          .value = 'Ciudad';
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 0))
+          .value = 'Provincia';
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: 0))
+          .value = 'Origen';
+      //
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1))
+          .value = "50210";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 1))
+          .value = "Cuenca";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 1))
+          .value = "Azuay";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: 1))
+          .value = "Normal";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 2))
+          .value = "50211";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 2))
+          .value = "Sayuasí";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 2))
+          .value = "Azuay";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: 2))
+          .value = "Especial";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 3))
+          .value = "50212";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 3))
+          .value = "Chimbo";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 3))
+          .value = "Bolívar";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: 3))
+          .value = "Especial";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 4))
+          .value = "50213";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 4))
+          .value = "Guaranda";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 4))
+          .value = "Bolívar";
+      sheet2
+          .cell(CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: 4))
+          .value = "Normal";
+      */
+
+      var nombreFile = "Coberturas-Plantilla-EasyEcommerce";
+      excel.save(fileName: '$nombreFile.xlsx');
+    } catch (e) {
+      print("Error en Generar el reporte!");
     }
   }
 }
