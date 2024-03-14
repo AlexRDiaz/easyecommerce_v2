@@ -83,6 +83,7 @@ class _VendorWithDrawalRequestLaravelState
         "",
         "",
         sortFieldDefaultValue);
+        print("ak> $response");
     setState(() {
       data = [];
       data = response['data'];
@@ -297,7 +298,7 @@ class _VendorWithDrawalRequestLaravelState
                         arrayFiltersAnd = [];
                         arrayFiltersOr = [
                           "user.username",
-                          "user.user_id",
+                          "user.id",
                           "name"
                         ];
                         arrayFiltersNot = [];
