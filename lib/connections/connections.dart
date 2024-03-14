@@ -7795,8 +7795,7 @@ class Connections {
           body: json.encode({
             "monto": amount,
             // "email": "easyecommercetest@gmail.com",
-            "email": "jeipige@gmail.com",
-            //sharedPrefs!.getString("email").toString(),
+            "email":sharedPrefs!.getString("email").toString(),
             "id_vendedor": "${sharedPrefs!.getString("idProviderUserMaster")}"
           }));
       var response = await request.body;
