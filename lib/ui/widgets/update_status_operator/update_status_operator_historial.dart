@@ -468,11 +468,11 @@ class _UpdateStatusOperatorHistorialState
         tipo);
 
     // ! proceso separacion sku / id
-    String skuProducto = "";
+      String skuProducto = "";
     if (datacostos['sku'] == "" || datacostos['sku'] == null) {
       skuProducto = "UKNOWNPC0";
     }
-    skuProducto = datacostos["sku"].toString();
+    // skuProducto = datacostos["sku"].toString();
     int indiceC = skuProducto.lastIndexOf('C');
     String sku = skuProducto.substring(0, indiceC);
     int idProducto = int.parse(skuProducto.substring(indiceC + 1));
