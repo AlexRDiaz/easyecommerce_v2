@@ -186,11 +186,68 @@ class _EditStatusState extends State<EditStatus> {
                         .indexWhere((element) => element['id'] == idToUpdate);
 
                     if (foundElementIndex != -1) {
-                      bool res = idExists(editIdController.text);
-                      // print(res);
-                      if (res) {
-                        showSuccessModal(context, "Error, este ID ya existe.",
-                            Icons8.warning_1);
+                      if (editIdController.text != data['id_ref']) {
+                        bool res = idExists(editIdController.text);
+                        // print(res);
+                        if (res) {
+                          showSuccessModal(context, "Error, este ID ya existe.",
+                              Icons8.warning_1);
+                        } else {
+                          //
+                          getLoadingModal(context, false);
+
+                          // Actualizar los valores del elemento encontrado
+                          statusList[foundElementIndex]['estado'] =
+                              selectedStatus.toString().split("-")[1];
+                          statusList[foundElementIndex]['name_local'] =
+                              selectedStatus.toString().split("-")[0];
+                          statusList[foundElementIndex]['id_ref'] =
+                              editIdController.text;
+                          statusList[foundElementIndex]['name'] =
+                              editEstadoController.text;
+
+                          var responseUpdt = await Connections().updateCarrier(
+                              widget.carrierId,
+                              {"status": json.encode(statusList)});
+
+                          if (responseUpdt == 0) {
+                            Navigator.pop(context);
+                            // ignore: use_build_context_synchronously
+                            AwesomeDialog(
+                              width: 500,
+                              context: context,
+                              dialogType: DialogType.success,
+                              animType: AnimType.rightSlide,
+                              title: 'Completado',
+                              desc: 'Se actualizo con exito.',
+                              btnCancel: Container(),
+                              btnOkText: "Aceptar",
+                              btnOkColor: colors.colorGreen,
+                              btnCancelOnPress: () {},
+                              btnOkOnPress: () {
+                                Navigator.pop(context);
+                              },
+                            ).show();
+                          } else {
+                            Navigator.pop(context);
+                            // ignore: use_build_context_synchronously
+                            AwesomeDialog(
+                              width: 500,
+                              context: context,
+                              dialogType: DialogType.error,
+                              animType: AnimType.rightSlide,
+                              title: 'Error',
+                              desc: 'Intentelo de nuevo',
+                              btnCancel: Container(),
+                              btnOkText: "Aceptar",
+                              btnOkColor: colors.colorGreen,
+                              btnCancelOnPress: () {},
+                              btnOkOnPress: () {},
+                            ).show();
+                          }
+                        }
+
+                        //
                       } else {
                         //
                         getLoadingModal(context, false);
@@ -244,7 +301,6 @@ class _EditStatusState extends State<EditStatus> {
                             btnOkOnPress: () {},
                           ).show();
                         }
-                        //
                       }
                     } else {
                       print("Elemento con ID $idToUpdate no encontrado.");
