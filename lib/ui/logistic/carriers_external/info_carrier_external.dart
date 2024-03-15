@@ -8,6 +8,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animated_icons/icons8.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/ui/logistic/carriers_external/edit_coverage.dart';
+import 'package:frontend/ui/logistic/carriers_external/edit_status.dart';
+import 'package:frontend/ui/logistic/carriers_external/new_coverage.dart';
+import 'package:frontend/ui/logistic/carriers_external/new_status.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/provider/products/add_product.dart';
 import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
@@ -91,6 +95,9 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
   TextEditingController newIdCiudadController = TextEditingController(text: "");
   TextEditingController newCiudadController = TextEditingController(text: "");
   TextEditingController newIdProvController = TextEditingController(text: "");
+  bool newProvincia = false;
+
+  final TextEditingController _newTypeController = TextEditingController();
 
   @override
   void didChangeDependencies() {
@@ -166,7 +173,7 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
     double screenHeight = MediaQuery.of(context).size.height;
 
     return Container(
-      width: screenWith > 600 ? screenWith * 0.8 : screenWith,
+      width: screenWith > 600 ? screenWith * 0.85 : screenWith,
       height: screenHeight * 0.95,
       color: Colors.white,
       child: Form(
@@ -231,9 +238,9 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                       Container(
                         width: screenWith * 0.4,
                         // color: Colors.blue,
-                        padding: EdgeInsets.all(10),
+                        padding: EdgeInsets.fromLTRB(20, 10, 10, 10),
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             const Text(
                               "Costo por entrega: ",
@@ -241,14 +248,32 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                             ),
                             const SizedBox(height: 10),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Column(
                                   children: [
-                                    const Text(
-                                      "Local-Local Normal",
-                                      style: TextStyle(fontSize: 12),
+                                    RichText(
+                                      text: const TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: "Local",
+                                          ),
+                                          TextSpan(
+                                            text: "-Local Normal",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ],
+                                      ),
                                     ),
+                                    const Text(
+                                      "(Normal 1)",
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(width: 10),
+                                Column(
+                                  children: [
                                     SizedBox(
                                       width: 120,
                                       child: TextFieldWithIcon(
@@ -263,13 +288,35 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                                     ),
                                   ],
                                 ),
-                                const SizedBox(width: 20),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
                                 Column(
                                   children: [
-                                    const Text(
-                                      "Local-Local Especial",
-                                      style: TextStyle(fontSize: 12),
+                                    RichText(
+                                      text: const TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: "Local",
+                                          ),
+                                          TextSpan(
+                                            text: "-Local Especial",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ],
+                                      ),
                                     ),
+                                    Text(
+                                      "(Especial 1)",
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(width: 10),
+                                Column(
+                                  children: [
                                     SizedBox(
                                       width: 120,
                                       child: TextFieldWithIcon(
@@ -288,14 +335,32 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                               ],
                             ),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Column(
                                   children: [
-                                    const Text(
-                                      "Local-Provincial Normal",
-                                      style: TextStyle(fontSize: 12),
+                                    RichText(
+                                      text: const TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: "Local",
+                                          ),
+                                          TextSpan(
+                                            text: "-Provincial Normal",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ],
+                                      ),
                                     ),
+                                    const Text(
+                                      "(Normal 2)",
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(width: 10),
+                                Column(
+                                  children: [
                                     SizedBox(
                                       width: 120,
                                       child: TextFieldWithIcon(
@@ -311,13 +376,35 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                                     ),
                                   ],
                                 ),
-                                const SizedBox(width: 20),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
                                 Column(
                                   children: [
-                                    const Text(
-                                      "Local-Provincial Especial",
-                                      style: TextStyle(fontSize: 12),
+                                    RichText(
+                                      text: const TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: "Local",
+                                          ),
+                                          TextSpan(
+                                            text: "-Provincial Especial",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ],
+                                      ),
                                     ),
+                                    const Text(
+                                      "(Especial 2)",
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(width: 10),
+                                Column(
+                                  children: [
                                     SizedBox(
                                       width: 120,
                                       child: TextFieldWithIcon(
@@ -336,83 +423,60 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                               ],
                             ),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                const Text(
-                                  "Costo Devolucion %",
-                                  style: TextStyle(fontSize: 12),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  width: 150,
-                                  child: Flexible(
-                                    child: const Text(
+                                const Column(
+                                  children: [
+                                    Text(
+                                      "Costo Devolucion %",
+                                    ),
+                                    Text(
                                       "Costo envio + (Costo.dev % del Costo envio)",
                                       style: TextStyle(fontSize: 11),
                                     ),
-                                  ),
+                                  ],
                                 ),
                                 const SizedBox(width: 5),
-                                SizedBox(
-                                  width: 120,
-                                  child: TextFieldWithIcon(
-                                    controller: costoDevolucionController,
-                                    labelText: "",
-                                    icon: Icons.percent,
-                                  ),
-                                ),
-
-                                // const SizedBox(width: 20),
-                                // Column(
-                                //   children: [
-                                //     const Text(
-                                //       "Costo seguro %",
-                                //       style: TextStyle(fontSize: 12),
-                                //     ),
-                                //     const Text(
-                                //       "Costo.seg % del Precio total",
-                                //       style: TextStyle(fontSize: 11),
-                                //     ),
-                                //     SizedBox(
-                                //       width: 120,
-                                //       child: TextFieldWithIcon(
-                                //         controller: costoSeguroController,
-                                //         labelText: "",
-                                //         icon: Icons.percent,
-                                //       ),
-                                //     ),
-                                //   ],
-                                // ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Text(
-                                  "Costo seguro %",
-                                  style: TextStyle(fontSize: 12),
+                                Column(
+                                  children: [
+                                    SizedBox(
+                                      width: 120,
+                                      child: TextFieldWithIcon(
+                                        controller: costoDevolucionController,
+                                        labelText: "",
+                                        icon: Icons.percent,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                const Text(
-                                  "Costo.seg % del Precio total",
-                                  style: TextStyle(fontSize: 11),
+                                const Column(
+                                  children: [
+                                    Text(
+                                      "Costo seguro %",
+                                    ),
+                                    Text(
+                                      "Costo.seg % del Precio total",
+                                      style: TextStyle(fontSize: 11),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(width: 5),
-                                SizedBox(
-                                  width: 120,
-                                  child: TextFieldWithIcon(
-                                    controller: costoSeguroController,
-                                    labelText: "",
-                                    icon: Icons.percent,
-                                  ),
+                                const SizedBox(width: 10),
+                                Column(
+                                  children: [
+                                    SizedBox(
+                                      width: 120,
+                                      child: TextFieldWithIcon(
+                                        controller: costoSeguroController,
+                                        labelText: "",
+                                        icon: Icons.percent,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
@@ -429,12 +493,18 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                             const Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                SizedBox(width: 20),
-                                Flexible(
-                                  child: Text(
-                                    "Menor/igual a Precio.max aplica Costo base. Mayor a Precio.max aplica Costo Icrem. % del Precio Total",
-                                    style: TextStyle(fontSize: 11),
-                                  ),
+                                Text(
+                                  "Menor/igual a Precio.max aplica Costo base",
+                                  style: TextStyle(fontSize: 11),
+                                ),
+                              ],
+                            ),
+                            const Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Mayor a Precio.max aplica Costo Icrem. % del Precio Total",
+                                  style: TextStyle(fontSize: 11),
                                 ),
                               ],
                             ),
@@ -481,6 +551,11 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                                         ],
                                       ),
                                     ),
+                                  ],
+                                ),
+                                const SizedBox(width: 20),
+                                Column(
+                                  children: [
                                     const Text(
                                       "Costo Icremental %",
                                       style: TextStyle(fontSize: 12),
@@ -511,8 +586,8 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                     alignment: Alignment.center,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          minimumSize: Size(200, 40)),
+                        backgroundColor: Colors.green,
+                      ),
                       onPressed: () async {
                         if (formKey.currentState!.validate()) {
                           // getLoadingModal(context, false);
@@ -625,6 +700,7 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                       ),
                     ),
                   ),
+                  //
                   const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -637,7 +713,8 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                       TextButton(
                         onPressed: () async {
                           //
-                          showAddNewStatus();
+                          // showAddNewStatus();
+                          showAddStatus();
                         },
                         child: const Text(
                           "Agregar Nuevo Estado Equivalente",
@@ -649,7 +726,7 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                   const SizedBox(height: 10),
                   Container(
                     height: screenHeight * 0.40,
-                    width: screenWith * 0.55,
+                    width: screenWith * 0.5,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
                       color: Colors.white,
@@ -740,56 +817,192 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                       TextButton(
                         onPressed: () async {
                           //
-                          showAddNewCoverage();
+                          // showAddNewCoverage();
+                          showAddCoverage();
                         },
                         child: const Text(
                           "Agregar Nueva Cobertura",
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
+                      const SizedBox(height: 10),
                     ],
                   ),
-                  Container(
-                    height: screenHeight * 0.40,
-                    width: screenWith * 0.55,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      color: Colors.white,
-                    ),
-                    // child: DataTableModelPrincipal(
-                    //   columnWidth: 200,
-                    //   columns: getColumns(),
-                    //   rows: buildDataRows(coveragesList),
-                    // ),
-                    child: DataTable2(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 1,
-                            blurRadius: 1,
+                  Row(
+                    children: [
+                      const SizedBox(width: 20),
+                      Container(
+                        height: screenHeight * 0.40,
+                        width: screenWith * 0.50,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          color: Colors.white,
+                        ),
+                        child: DataTable2(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.5),
+                                spreadRadius: 1,
+                                blurRadius: 1,
+                              ),
+                            ],
+                          ),
+                          dataRowColor:
+                              MaterialStateColor.resolveWith((states) {
+                            if (states.contains(MaterialState.selected)) {
+                              return Colors.blue.withOpacity(0.5);
+                            } else if (states.contains(MaterialState.hovered)) {
+                              return const Color.fromARGB(255, 234, 241, 251);
+                            }
+                            return const Color.fromARGB(0, 173, 233, 231);
+                          }),
+                          headingTextStyle: TextStyle(
+                              fontWeight: FontWeight.bold, color: Colors.black),
+                          dataTextStyle: const TextStyle(color: Colors.black),
+                          columnSpacing: 12,
+                          horizontalMargin: 12,
+                          minWidth: 800,
+                          columns: getColumns(),
+                          rows: buildDataRows(coveragesList),
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Column(
+                                children: [
+                                  const Text(
+                                    "Nuevo tipo de Cobertura",
+                                  ),
+                                  const SizedBox(width: 5),
+                                  SizedBox(
+                                    width: 180,
+                                    child: TextFieldWithIcon(
+                                      controller: _newTypeController,
+                                      labelText: '',
+                                      icon: Icons.label,
+                                      applyValidator: false,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(width: 10),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.indigo[900],
+                                  // minimumSize: Size(200, 40)
+                                ),
+                                onPressed: () async {
+                                  //
+                                  getLoadingModal(context, false);
+
+                                  if (_newTypeController.text.isEmpty) {
+                                    showSuccessModal(
+                                        context,
+                                        "Por favor, ingrese un tipo.",
+                                        Icons8.warning_1);
+                                  } else {
+                                    var type = _newTypeController.text;
+
+                                    if (!typesToSelect.contains(type)) {
+                                      typesToSelect.add(type);
+                                      setState(() async {
+                                        _newTypeController.clear();
+
+                                        var responseUpt = await Connections()
+                                            .updateCarrier(
+                                                widget.data['id'].toString(), {
+                                          "type_coverage":
+                                              json.encode(typesToSelect),
+                                        });
+                                        if (responseUpt == 0) {
+                                          Navigator.pop(context);
+                                          // ignore: use_build_context_synchronously
+                                          AwesomeDialog(
+                                            width: 500,
+                                            context: context,
+                                            dialogType: DialogType.success,
+                                            animType: AnimType.rightSlide,
+                                            title: 'Completado',
+                                            desc: 'Se actualizo con exito.',
+                                            btnCancel: Container(),
+                                            btnOkText: "Aceptar",
+                                            btnOkColor: colors.colorGreen,
+                                            btnCancelOnPress: () {},
+                                            btnOkOnPress: () {
+                                              // Navigator.pop(context);
+                                              loadData();
+                                            },
+                                          ).show();
+                                        } else {
+                                          Navigator.pop(context);
+                                          // ignore: use_build_context_synchronously
+                                          AwesomeDialog(
+                                            width: 500,
+                                            context: context,
+                                            dialogType: DialogType.error,
+                                            animType: AnimType.rightSlide,
+                                            title: 'Error',
+                                            desc: 'Intentelo de nuevo',
+                                            btnCancel: Container(),
+                                            btnOkText: "Aceptar",
+                                            btnOkColor: colors.colorGreen,
+                                            btnCancelOnPress: () {},
+                                            btnOkOnPress: () {},
+                                          ).show();
+                                        }
+                                        //
+                                      });
+                                    } else {
+                                      print("ya esta ");
+                                    }
+                                  }
+                                  // print("typeToSend: $typeToSend");
+                                },
+                                child: const Text(
+                                  "Añadir",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Container(
+                            width: screenWith * 0.2,
+                            height: screenHeight * 0.3,
+                            // color: Colors.amber,
+                            child: ListView.builder(
+                              itemCount: typesToSelect.length,
+                              itemBuilder: (context, index) {
+                                // return Text(typesToSelect[index]);
+                                return Container(
+                                  width: 200,
+                                  height: 35,
+                                  decoration: BoxDecoration(
+                                    // color: Colors.deepPurple.shade100,
+                                    border: Border.all(
+                                      color: Colors.black,
+                                      width: 1.0,
+                                    ),
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      typesToSelect[index],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                         ],
                       ),
-                      dataRowColor: MaterialStateColor.resolveWith((states) {
-                        if (states.contains(MaterialState.selected)) {
-                          return Colors.blue.withOpacity(0.5);
-                        } else if (states.contains(MaterialState.hovered)) {
-                          return const Color.fromARGB(255, 234, 241, 251);
-                        }
-                        return const Color.fromARGB(0, 173, 233, 231);
-                      }),
-                      headingTextStyle: TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.black),
-                      dataTextStyle: const TextStyle(color: Colors.black),
-                      columnSpacing: 12,
-                      horizontalMargin: 12,
-                      minWidth: 800,
-                      columns: getColumns(),
-                      rows: buildDataRows(coveragesList),
-                    ),
+                    ],
                   ),
                 ],
               )
@@ -834,13 +1047,19 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
         cells: [
           DataCell(
             Text(
-              statusList != [] ? dataL[index]['id'].toString() : "",
+              statusList != [] ? dataL[index]['id_ref'].toString() : "",
             ),
+            onTap: () {
+              showEditStatus(dataL[index], statusList);
+            },
           ),
           DataCell(
             Text(
               statusList != [] ? dataL[index]['name'].toString() : "",
             ),
+            onTap: () {
+              showEditStatus(dataL[index], statusList);
+            },
           ),
           DataCell(
             Text(
@@ -887,6 +1106,10 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
         size: ColumnSize.S,
         fixedWidth: 150,
       ),
+      DataColumn2(
+        label: Text(''),
+        size: ColumnSize.S,
+      ),
     ];
   }
 
@@ -901,6 +1124,10 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
             Text(
               coveragesList != [] ? dataL[index]['id_prov_ref'].toString() : "",
             ),
+            // onTap: () {
+            //   // showEditCoverage(dataL[index]);
+            //   showEditCoverage(dataL[index], typesToSelect);
+            // },
           ),
           DataCell(
             Text(
@@ -930,6 +1157,64 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
               coveragesList != [] ? dataL[index]['type'].toString() : "",
             ),
           ),
+          DataCell(
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () async {
+                    AwesomeDialog(
+                      width: 500,
+                      context: context,
+                      dialogType: DialogType.info,
+                      animType: AnimType.rightSlide,
+                      title: '¿Estás seguro de eliminar el Producto?',
+                      desc:
+                          '${coveragesList != [] ? dataL[index]['id'].toString() : ""}-${coveragesList != [] ? dataL[index]['coverage_external']['ciudad'].toString() : ""}',
+                      btnOkText: "Confirmar",
+                      btnCancelText: "Cancelar",
+                      btnOkColor: Colors.blueAccent,
+                      btnCancelOnPress: () {},
+                      btnOkOnPress: () async {
+                        getLoadingModal(context, false);
+
+                        var responseUpt = await Connections()
+                            .updateCoverage(dataL[index]['id'].toString(), {
+                          "active": 0,
+                        });
+
+                        if (responseUpt == 0) {
+                          Navigator.pop(context);
+                        } else {
+                          Navigator.pop(context);
+                          // ignore: use_build_context_synchronously
+                          AwesomeDialog(
+                            width: 500,
+                            context: context,
+                            dialogType: DialogType.error,
+                            animType: AnimType.rightSlide,
+                            title: 'Error',
+                            desc: 'Intentelo de nuevo',
+                            btnCancel: Container(),
+                            btnOkText: "Aceptar",
+                            btnOkColor: colors.colorGreen,
+                            btnCancelOnPress: () {},
+                            btnOkOnPress: () {},
+                          ).show();
+                        }
+
+                        await loadData();
+                      },
+                    ).show();
+                  },
+                  child: const Icon(
+                    Icons.delete,
+                    size: 20,
+                    color: Colors.red,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       );
       rows.add(row);
@@ -938,373 +1223,137 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
     return rows;
   }
 
-  Future<dynamic> showAddNewStatus() {
-    double screenWith = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-
+  Future<dynamic> showEditCoverage(data, types) {
     return showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(20.0)),
-          ),
-          contentPadding: EdgeInsets.all(0),
-          content: Container(
-            width: 500,
-            height: 400,
-            color: Colors.white,
-            padding: EdgeInsets.all(20),
-            child: ListView(
-              children: [
-                const Text(
-                  "Nuevo Estado Equivalente",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 30),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Column(
-                      children: [
-                        SizedBox(
-                          width: 250,
-                          child: TextFieldWithIcon(
-                            controller: newIdController,
-                            labelText: 'ID',
-                            icon: Icons.edit,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(
-                                  RegExp(r'[0-9+]')),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        SizedBox(
-                          width: 250,
-                          child: TextFieldWithIcon(
-                            controller: newEstadoController,
-                            labelText: 'Estado',
-                            icon: Icons.edit,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        SizedBox(
-                          width: 250,
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton2<String>(
-                              isExpanded: true,
-                              hint: Text(
-                                'Estado',
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: Theme.of(context).hintColor,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              items: statusToSelect
-                                  .map((item) => DropdownMenuItem(
-                                        value: item,
-                                        child: Text(
-                                          item.split('-')[0],
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ))
-                                  .toList(),
-                              value: selectedStatus,
-                              onChanged: (value) async {
-                                setState(() {
-                                  selectedStatus = value as String;
-                                });
-                                Navigator.pop(context);
-                                showAddNewStatus();
-                              },
-
-                              //This to clear the search value when you close the menu
-                              onMenuStateChange: (isOpen) {
-                                if (!isOpen) {}
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 30),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        minimumSize: Size(200, 40)),
-                    onPressed: () async {
-                      //
-                      var newStatus = {
-                        "estado": selectedStatus.toString().split("-")[1],
-                        "name_local": selectedStatus.toString().split("-")[0],
-                        "id": newIdController.text != ""
-                            ? newIdController.text.toString()
-                            : 0,
-                        "name": newEstadoController.text != ""
-                            ? newEstadoController.text.toString()
-                            : "",
-                      };
-
-                      statusList.add(newStatus);
-
-                      var responseCreate = await Connections().updateCarrier(
-                          widget.data['id'],
-                          {"status": json.encode(statusList)});
-
-                      if (responseCreate == 0) {
-                        setState(() {});
-                        Navigator.pop(context);
-                        loadData();
-                      } else {
-                        setState(() {
-                          statusList.removeLast();
-                        });
-                        Navigator.pop(context);
-                      }
-                    },
-                    child: const Text(
-                      "Guardar",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            //
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(20.0))),
+              contentPadding: EdgeInsets.all(0),
+              content: EditCoverage(
+                  data: data, types: types, coveragesList: coveragesList),
+            );
+          },
         );
       },
-    ).then((value) {
-      if (value != null) {
-        // El usuario cerró el diálogo correctamente
-        setState(() {
+    ).then((value) => setState(() {
           loadData();
-        });
-      }
-    });
+        }));
   }
 
-  Future<dynamic> showAddNewCoverage() {
-    double screenWith = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-
+  Future<dynamic> showEditStatus(data, status) {
+    // print(data);
+    // print(status);
     return showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(20.0)),
-          ),
-          contentPadding: EdgeInsets.all(0),
-          content: Container(
-            width: 500,
-            height: 500,
-            color: Colors.white,
-            padding: EdgeInsets.all(20),
-            child: ListView(
-              children: [
-                const Text(
-                  "Nueva Cobertura",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 30),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Column(
-                      children: [
-                        SizedBox(
-                          width: 250,
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton2<String>(
-                              isExpanded: true,
-                              hint: Text(
-                                'Provincia',
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: Theme.of(context).hintColor,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              items: provinciasToSelect
-                                  .map((item) => DropdownMenuItem(
-                                        value: item,
-                                        child: Text(
-                                          item.split('-')[0],
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ))
-                                  .toList(),
-                              value: selectedProvinciaNewC,
-                              onChanged: (value) async {
-                                setState(() {
-                                  selectedProvinciaNewC = value as String;
-                                  String resProv = idProvRef(
-                                      selectedProvinciaNewC
-                                          .toString()
-                                          .split('-')[0]);
-                                  newIdProvController.text =
-                                      resProv != "-1" ? resProv : "";
-                                });
-                                Navigator.pop(context);
-                                showAddNewCoverage();
-                              },
-
-                              //This to clear the search value when you close the menu
-                              onMenuStateChange: (isOpen) {
-                                if (!isOpen) {}
-                              },
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 250,
-                          child: TextFieldWithIcon(
-                            controller: newIdProvController,
-                            labelText: 'ID Provincia',
-                            icon: Icons.edit,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(
-                                  RegExp(r'[0-9]')),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          width: 250,
-                          child: TextFieldWithIcon(
-                            controller: newIdCiudadController,
-                            labelText: 'ID Ciudad',
-                            icon: Icons.edit,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(
-                                  RegExp(r'[0-9]')),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          width: 250,
-                          child: TextFieldWithIcon(
-                            controller: newCiudadController,
-                            labelText: 'Ciudad',
-                            icon: Icons.edit,
-                          ),
-                        ),
-                        SizedBox(
-                          width: 250,
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton2<String>(
-                              isExpanded: true,
-                              hint: Text(
-                                'Tipo Cobertura',
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: Theme.of(context).hintColor,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              items: typesToSelect
-                                  .map((item) => DropdownMenuItem(
-                                        value: item,
-                                        child: Text(
-                                          item,
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ))
-                                  .toList(),
-                              value: selectedType,
-                              onChanged: (value) async {
-                                setState(() {
-                                  selectedType = value as String;
-                                });
-                                Navigator.pop(context);
-                                showAddNewCoverage();
-                              },
-
-                              //This to clear the search value when you close the menu
-                              onMenuStateChange: (isOpen) {
-                                if (!isOpen) {}
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 30),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        minimumSize: Size(200, 40)),
-                    onPressed: () async {
-                      //
-
-                      var responseCreate = await Connections()
-                          .createNewCoverage(
-                              widget.data['id'],
-                              newIdCiudadController.text,
-                              newCiudadController.text,
-                              newIdProvController.text,
-                              selectedProvinciaNewC.toString().split('-')[1],
-                              selectedProvinciaNewC.toString().split('-')[0],
-                              selectedType.toString());
-
-                      if (responseCreate == 0) {
-                        setState(() {});
-                        Navigator.pop(context);
-                        loadData();
-                      } else {
-                        setState(() {
-                          statusList.removeLast();
-                        });
-                        Navigator.pop(context);
-                      }
-                    },
-                    child: const Text(
-                      "Guardar",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            //
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(20.0))),
+              contentPadding: EdgeInsets.all(0),
+              content: EditStatus(
+                  carrierId: widget.data['id'].toString(),
+                  data: data,
+                  status: status),
+            );
+          },
         );
       },
-    ).then((value) {
-      if (value != null) {
-        // El usuario cerró el diálogo correctamente
-        setState(() {
+    ).then((value) => setState(() {
           loadData();
-        });
-      }
-    });
+        }));
+  }
+
+  Future<dynamic> showAddCoverage() {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            //
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(20.0))),
+              contentPadding: EdgeInsets.all(0),
+              content: NewCoverage(
+                  carrierId: widget.data['id'].toString(),
+                  types: typesToSelect,
+                  coveragesList: coveragesList),
+            );
+          },
+        );
+      },
+    ).then((value) => setState(() {
+          loadData();
+        }));
+  }
+
+  Future<dynamic> showAddStatus() {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            //
+            return AlertDialog(
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(20.0))),
+              contentPadding: EdgeInsets.all(0),
+              content: NewStatus(
+                  carrierId: widget.data['id'].toString(), status: statusList),
+            );
+          },
+        );
+      },
+    ).then((value) => setState(() {
+          loadData();
+        }));
   }
 
   String idProvRef(provincia) {
     String res = "";
 
     String targetProvincia = provincia;
-    int targetIdProvRef = coveragesList.firstWhere(
+    String targetIdProvRef = coveragesList.firstWhere(
             (element) =>
                 element["coverage_external"]["dpa_provincia"]["provincia"] ==
                 targetProvincia,
             orElse: () => null)?["id_prov_ref"] ??
-        -1;
+        "-1";
 
-    print("targetProvincia: $targetProvincia");
-    print("resultado: $targetIdProvRef");
+    // print("targetProvincia: $targetProvincia");
+    // print("resultado: $targetIdProvRef");
 
     return targetIdProvRef.toString();
+  }
+
+  bool idCiudadRefExists(String idCiudadRef) {
+    // Obtener todos los id_ciudad_ref de coveragesList
+    List<String> idCiudadRefs = coveragesList
+        .map<String>((element) => element["id_ciudad_ref"])
+        .toList();
+
+    // Comprobar si el id_ciudad_ref dado ya existe en la lista
+    bool idExists = idCiudadRefs.contains(idCiudadRef);
+
+    return idExists;
+  }
+
+  bool idProvinciaRefExists(String idProvRef) {
+    // Obtener todos los id_ciudad_ref de coveragesList
+    List<String> idProvRefs =
+        coveragesList.map<String>((element) => element["id_prov_ref"]).toList();
+
+    // Comprobar si el id_ciudad_ref dado ya existe en la lista
+    bool idExists = idProvRefs.contains(idProvRef);
+
+    return idExists;
   }
 }

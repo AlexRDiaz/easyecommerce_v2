@@ -33,7 +33,7 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
   TextEditingController phoneController = TextEditingController(text: "");
   TextEditingController addressController = TextEditingController(text: "");
   //estado_logistico
-  TextEditingController pendienteController = TextEditingController(text: "");
+  TextEditingController confirmadoController = TextEditingController(text: "");
   TextEditingController impresoController = TextEditingController(text: "");
   TextEditingController enviadoController = TextEditingController(text: "");
   TextEditingController rechazadoController = TextEditingController(text: "");
@@ -76,7 +76,7 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
 
   final TextEditingController _typeController = TextEditingController();
 
-  var statusToSend;
+  List statusToSend = [];
   List typeToSend = [];
 
   List<String> parroquiasToSelect = [];
@@ -97,6 +97,7 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
         isLoading = true;
         provinciasToSelect = [];
         parroquiasToSelect = [];
+        statusToSend = [];
       });
       //
       var provinciasList = [];
@@ -341,7 +342,7 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                     ),
                   ),
                   Visibility(
-                    visible: statusToSend != null,
+                    visible: statusToSend.isNotEmpty,
                     child: const Icon(Icons.check),
                   ),
                 ],
@@ -826,6 +827,7 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
   Future<dynamic> showStatus(BuildContext context) {
     double screenWith = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+    statusToSend = [];
 
     return showDialog(
       context: context,
@@ -879,7 +881,7 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                         SizedBox(
                           width: 150,
                           child: TextFormField(
-                            controller: pendienteController,
+                            controller: confirmadoController,
                             onChanged: (value) {
                               setState(() {});
                             },
@@ -1182,24 +1184,6 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                         ),
                       ],
                     ),
-                    // const SizedBox(height: 10),
-                    // Row(
-                    //   children: [
-                    //     const Text(
-                    //       "PENDIENTE:", //
-                    //     ),
-                    //     const SizedBox(width: 20),
-                    //     SizedBox(
-                    //       width: 150,
-                    //       child: TextFormField(
-                    //         controller: pendienteController,
-                    //         onChanged: (value) {
-                    //           setState(() {});
-                    //         },
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ),
                     const SizedBox(height: 30),
                     Align(
                       alignment: Alignment.centerRight,
@@ -1209,302 +1193,338 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                             minimumSize: Size(200, 40)),
                         onPressed: () async {
                           //
-                          /*
-                          statusToSend = {
-                            "PEDIDO PROGRAMADO": programadoController.text != ""
-                                ? programadoController.text
-                                : 0,
-                            "EN RUTA": enRutaController.text != ""
-                                ? enRutaController.text
-                                : 0,
-                            "ENTREGADO": entregadoController.text != ""
-                                ? entregadoController.text
-                                : 0,
-                            "NO ENTREGADO": noEntregadoController.text != ""
-                                ? noEntregadoController.text
-                                : 0,
-                            "NOVEDAD": novedadController.text != ""
-                                ? novedadController.text
-                                : 0,
-                            "REAGENDADO": reagendadoController.text != ""
-                                ? reagendadoController.text
-                                : 0,
-                            "EN OFICINA": enOficinaStatusController.text != ""
-                                ? enOficinaStatusController.text
-                                : 0,
-                            "NOVEDAD RESUELTA":
-                                novedadResueltaController.text != ""
-                                    ? novedadResueltaController.text
-                                    : 0,
-                            // devol
-                            "DEVOLUCION EN RUTA":
-                                devolucionEnRutacontroller.text != ""
-                                    ? devolucionEnRutacontroller.text
-                                    : 0,
-                            "EN BODEGA": enBodegaController.text != ""
-                                ? enBodegaController.text
-                                : 0,
-                            "ENTREGADO EN OFICINA":
-                                enOficinaDevolucionController.text != ""
-                                    ? enOficinaDevolucionController.text
-                                    : 0,
-                            "EN BODEGA PROVEEDOR":
-                                enBodegaProvController.text != ""
-                                    ? enBodegaProvController.text
-                                    : 0,
-                            "PENDIENTE": pendienteController.text != ""
-                                ? pendienteController.text
-                                : 0,
-                          };
-*/
-                          statusToSend = [
-                            {
-                              "estado": "estado_interno",
-                              "name_local": "CONFIRMADO",
-                              "id": pendienteController.text.toString() != ""
-                                  ? pendienteController.text
-                                      .toString()
-                                      .split("-")[0]
-                                  : 0,
-                              "name": pendienteController.text != ""
-                                  ? pendienteController.text
-                                      .toString()
-                                      .split("-")[1]
-                                  : "",
-                            },
-                            {
-                              "estado": "estado_logistico",
-                              "name_local": "IMPRESO",
-                              "id": impresoController.text.toString() != ""
-                                  ? impresoController.text
-                                      .toString()
-                                      .split("-")[0]
-                                  : 0,
-                              "name": impresoController.text != ""
-                                  ? impresoController.text
-                                      .toString()
-                                      .split("-")[1]
-                                  : "",
-                            },
-                            {
-                              "estado": "estado_logistico",
-                              "name_local": "ENVIADO",
-                              "id": enviadoController.text.toString() != ""
-                                  ? enviadoController.text
-                                      .toString()
-                                      .split("-")[0]
-                                  : 0,
-                              "name": enviadoController.text != ""
-                                  ? enviadoController.text
-                                      .toString()
-                                      .split("-")[1]
-                                  : ""
-                            },
-                            {
-                              "estado": "estado_logistico",
-                              "name_local": "RECHAZADO",
-                              "id": rechazadoController.text.toString() != ""
-                                  ? rechazadoController.text
-                                      .toString()
-                                      .split("-")[0]
-                                  : 0,
-                              "name": rechazadoController.text != ""
-                                  ? rechazadoController.text
-                                      .toString()
-                                      .split("-")[1]
-                                  : ""
-                            },
-                            //
-                            {
-                              "estado": "status",
-                              "name_local": "PEDIDO PROGRAMADO",
-                              "id": programadoController.text.toString() != ""
-                                  ? programadoController.text
-                                      .toString()
-                                      .split("-")[0]
-                                  : 0,
-                              "name": programadoController.text != ""
-                                  ? programadoController.text
-                                      .toString()
-                                      .split("-")[1]
-                                  : ""
-                            },
-                            {
-                              "estado": "status",
-                              "name_local": "EN RUTA",
-                              "id": enRutaController.text.toString() != ""
-                                  ? enRutaController.text
-                                      .toString()
-                                      .split("-")[0]
-                                  : 0,
-                              "name": enRutaController.text != ""
-                                  ? enRutaController.text
-                                      .toString()
-                                      .split("-")[1]
-                                  : ""
-                            },
-                            {
-                              "estado": "status",
-                              "name_local": "ENTREGADO",
-                              "id": entregadoController.text.toString() != ""
-                                  ? entregadoController.text
-                                      .toString()
-                                      .split("-")[0]
-                                  : 0,
-                              "name": entregadoController.text != ""
-                                  ? entregadoController.text
-                                      .toString()
-                                      .split("-")[1]
-                                  : ""
-                            },
-                            {
-                              "estado": "status",
-                              "name_local": "NO ENTREGADO",
-                              "id": noEntregadoController.text.toString() != ""
-                                  ? noEntregadoController.text
-                                      .toString()
-                                      .split("-")[0]
-                                  : 0,
-                              "name": noEntregadoController.text != ""
-                                  ? noEntregadoController.text
-                                      .toString()
-                                      .split("-")[1]
-                                  : ""
-                            },
-                            {
-                              "estado": "status",
-                              "name_local": "NOVEDAD",
-                              "id": novedadController.text.toString() != ""
-                                  ? novedadController.text
-                                      .toString()
-                                      .split("-")[0]
-                                  : 0,
-                              "name": novedadController.text != ""
-                                  ? novedadController.text
-                                      .toString()
-                                      .split("-")[1]
-                                  : ""
-                            },
-                            {
-                              "estado": "status",
-                              "name_local": "NOVEDAD RESUELTA",
-                              "id": novedadResueltaController.text.toString() !=
-                                      ""
-                                  ? novedadResueltaController.text
-                                      .toString()
-                                      .split("-")[0]
-                                  : 0,
-                              "name": novedadResueltaController.text != ""
-                                  ? novedadResueltaController.text
-                                      .toString()
-                                      .split("-")[1]
-                                  : ""
-                            },
-                            {
-                              "estado": "status",
-                              "name_local": "REAGENDADO",
-                              "id": reagendadoController.text.toString() != ""
-                                  ? reagendadoController.text
-                                      .toString()
-                                      .split("-")[0]
-                                  : 0,
-                              "name": reagendadoController.text != ""
-                                  ? reagendadoController.text
-                                      .toString()
-                                      .split("-")[1]
-                                  : ""
-                            },
-                            {
-                              "estado": "status",
-                              "name_local": "EN OFICINA",
-                              "id": enOficinaStatusController.text.toString() !=
-                                      ""
-                                  ? enOficinaStatusController.text
-                                      .toString()
-                                      .split("-")[0]
-                                  : 0,
-                              "name": enOficinaStatusController.text != ""
-                                  ? enOficinaStatusController.text
-                                      .toString()
-                                      .split("-")[1]
-                                  : ""
-                            },
-                            //
-                            {
-                              "estado": "estado_devolucion",
-                              "name_local": "DEVOLUCION EN RUTA",
-                              "id":
-                                  devolucionEnRutacontroller.text.toString() !=
-                                          ""
-                                      ? devolucionEnRutacontroller.text
-                                          .toString()
-                                          .split("-")[0]
-                                      : 0,
-                              "name": devolucionEnRutacontroller.text != ""
-                                  ? devolucionEnRutacontroller.text
-                                      .toString()
-                                      .split("-")[1]
-                                  : ""
-                            },
-                            {
-                              "estado": "estado_devolucion",
-                              "name_local": "EN BODEGA",
-                              "id": enBodegaController.text.toString() != ""
-                                  ? enBodegaController.text
-                                      .toString()
-                                      .split("-")[0]
-                                  : 0,
-                              "name": enBodegaController.text != ""
-                                  ? enBodegaController.text
-                                      .toString()
-                                      .split("-")[1]
-                                  : ""
-                            },
-                            {
-                              "estado": "estado_devolucion",
-                              "name_local": "ENTREGADO EN OFICINA",
-                              "id": enOficinaDevolucionController.text
-                                          .toString() !=
-                                      ""
-                                  ? enOficinaDevolucionController.text
-                                      .toString()
-                                      .split("-")[0]
-                                  : 0,
-                              "name": enOficinaDevolucionController.text != ""
-                                  ? enOficinaDevolucionController.text
-                                      .toString()
-                                      .split("-")[1]
-                                  : ""
-                            },
-                            {
-                              "estado": "estado_devolucion",
-                              "name_local": "EN BODEGA PROVEEDOR",
-                              "id": enBodegaProvController.text.toString() != ""
-                                  ? enBodegaProvController.text
-                                      .toString()
-                                      .split("-")[0]
-                                  : 0,
-                              "name": enBodegaProvController.text != ""
-                                  ? enBodegaProvController.text
-                                      .toString()
-                                      .split("-")[1]
-                                  : ""
-                            },
-                            // {
-                            //   "status": "PENDIENTE",
-                            //   "id": pendienteController.text.toString() != ""
-                            //       ? pendienteController.text
-                            //           .toString()
-                            //           .split("-")[0]
-                            //       : 0,
-                            //   "value": pendienteController.text != ""
-                            //       ? pendienteController.text
-                            //           .toString()
-                            //           .split("-")[1]
-                            //       : ""
-                            // },
-                          ];
-                          print(statusToSend);
+                          //estado_interno
+                          if (confirmadoController.text != "") {
+                            if (!confirmadoController.text.contains('-')) {
+                              //
+                              print("no contiene el -");
+                            } else {
+                              //
+                              var status = {
+                                "estado": "estado_interno",
+                                "name_local": "CONFIRMADO",
+                                "id_ref": confirmadoController.text
+                                    .toString()
+                                    .split("-")[0],
+                                "name": confirmadoController.text
+                                    .toString()
+                                    .split("-")[1],
+                              };
+
+                              statusToSend.add(status);
+                            }
+                          }
+                          //estado_logistico
+                          if (impresoController.text != "") {
+                            if (!impresoController.text.contains('-')) {
+                              //
+                              print("no contiene el -");
+                            } else {
+                              //
+                              var status = {
+                                "estado": "estado_logistico",
+                                "name_local": "IMPRESO",
+                                "id_ref": impresoController.text
+                                    .toString()
+                                    .split("-")[0],
+                                "name": impresoController.text
+                                    .toString()
+                                    .split("-")[1],
+                              };
+
+                              statusToSend.add(status);
+                            }
+                          }
+                          if (enviadoController.text != "") {
+                            if (!enviadoController.text.contains('-')) {
+                              //
+                              print("no contiene el -");
+                            } else {
+                              //
+                              var status = {
+                                "estado": "estado_logistico",
+                                "name_local": "ENVIADO",
+                                "id_ref": enviadoController.text
+                                    .toString()
+                                    .split("-")[0],
+                                "name": enviadoController.text
+                                    .toString()
+                                    .split("-")[1]
+                              };
+
+                              statusToSend.add(status);
+                            }
+                          }
+                          if (rechazadoController.text != "") {
+                            if (!rechazadoController.text.contains('-')) {
+                              //
+                              print("no contiene el -");
+                            } else {
+                              //
+                              var status = {
+                                "estado": "estado_logistico",
+                                "name_local": "RECHAZADO",
+                                "id_ref": rechazadoController.text
+                                    .toString()
+                                    .split("-")[0],
+                                "name": rechazadoController.text
+                                    .toString()
+                                    .split("-")[1]
+                              };
+
+                              statusToSend.add(status);
+                            }
+                          }
+                          //status
+                          if (programadoController.text != "") {
+                            if (!programadoController.text.contains('-')) {
+                              //
+                              print("no contiene el -");
+                            } else {
+                              //
+                              var status = {
+                                "estado": "status",
+                                "name_local": "PEDIDO PROGRAMADO",
+                                "id_ref": programadoController.text
+                                    .toString()
+                                    .split("-")[0],
+                                "name": programadoController.text
+                                    .toString()
+                                    .split("-")[1]
+                              };
+
+                              statusToSend.add(status);
+                            }
+                          }
+                          if (enRutaController.text != "") {
+                            if (!enRutaController.text.contains('-')) {
+                              //
+                              print("no contiene el -");
+                            } else {
+                              //
+                              var status = {
+                                "estado": "status",
+                                "name_local": "EN RUTA",
+                                "id_ref": enRutaController.text
+                                    .toString()
+                                    .split("-")[0],
+                                "name": enRutaController.text
+                                    .toString()
+                                    .split("-")[1]
+                              };
+
+                              statusToSend.add(status);
+                            }
+                          }
+                          if (entregadoController.text != "") {
+                            if (!entregadoController.text.contains('-')) {
+                              //
+                              print("no contiene el -");
+                            } else {
+                              //
+                              var status = {
+                                "estado": "status",
+                                "name_local": "ENTREGADO",
+                                "id_ref": entregadoController.text
+                                    .toString()
+                                    .split("-")[0],
+                                "name": entregadoController.text
+                                    .toString()
+                                    .split("-")[1]
+                              };
+
+                              statusToSend.add(status);
+                            }
+                          }
+                          if (noEntregadoController.text != "") {
+                            if (!noEntregadoController.text.contains('-')) {
+                              //
+                              print("no contiene el -");
+                            } else {
+                              //
+                              var status = {
+                                "estado": "status",
+                                "name_local": "NO ENTREGADO",
+                                "id_ref": noEntregadoController.text
+                                    .toString()
+                                    .split("-")[0],
+                                "name": noEntregadoController.text
+                                    .toString()
+                                    .split("-")[1]
+                              };
+
+                              statusToSend.add(status);
+                            }
+                          }
+                          if (novedadController.text != "") {
+                            if (!novedadController.text.contains('-')) {
+                              //
+                              print("no contiene el -");
+                            } else {
+                              //
+                              var status = {
+                                "estado": "status",
+                                "name_local": "NOVEDAD",
+                                "id_ref": novedadController.text
+                                    .toString()
+                                    .split("-")[0],
+                                "name": novedadController.text
+                                    .toString()
+                                    .split("-")[1]
+                              };
+
+                              statusToSend.add(status);
+                            }
+                          }
+                          if (novedadResueltaController.text != "") {
+                            if (!novedadResueltaController.text.contains('-')) {
+                              //
+                              print("no contiene el -");
+                            } else {
+                              //
+                              var status = {
+                                "estado": "status",
+                                "name_local": "NOVEDAD RESUELTA",
+                                "id_ref": novedadResueltaController.text
+                                    .toString()
+                                    .split("-")[0],
+                                "name": novedadResueltaController.text
+                                    .toString()
+                                    .split("-")[1]
+                              };
+
+                              statusToSend.add(status);
+                            }
+                          }
+                          if (reagendadoController.text != "") {
+                            if (!reagendadoController.text.contains('-')) {
+                              //
+                              print("no contiene el -");
+                            } else {
+                              //
+                              var status = {
+                                "estado": "status",
+                                "name_local": "REAGENDADO",
+                                "id_ref": reagendadoController.text
+                                    .toString()
+                                    .split("-")[0],
+                                "name": reagendadoController.text
+                                    .toString()
+                                    .split("-")[1]
+                              };
+
+                              statusToSend.add(status);
+                            }
+                          }
+                          if (enOficinaStatusController.text != "") {
+                            if (!enOficinaStatusController.text.contains('-')) {
+                              //
+                              print("no contiene el -");
+                            } else {
+                              //
+                              var status = {
+                                "estado": "status",
+                                "name_local": "EN OFICINA",
+                                "id_ref": enOficinaStatusController.text
+                                    .toString()
+                                    .split("-")[0],
+                                "name": enOficinaStatusController.text
+                                    .toString()
+                                    .split("-")[1]
+                              };
+
+                              statusToSend.add(status);
+                            }
+                          }
+                          //estado_devolucion
+                          if (devolucionEnRutacontroller.text != "") {
+                            if (!devolucionEnRutacontroller.text
+                                .contains('-')) {
+                              //
+                              print("no contiene el -");
+                            } else {
+                              //
+                              var status = {
+                                "estado": "estado_devolucion",
+                                "name_local": "DEVOLUCION EN RUTA",
+                                "id_ref": devolucionEnRutacontroller.text
+                                    .toString()
+                                    .split("-")[0],
+                                "name": devolucionEnRutacontroller.text
+                                    .toString()
+                                    .split("-")[1]
+                              };
+
+                              statusToSend.add(status);
+                            }
+                          }
+                          if (enBodegaController.text != "") {
+                            if (!enBodegaController.text.contains('-')) {
+                              //
+                              print("no contiene el -");
+                            } else {
+                              //
+                              var status = {
+                                "estado": "estado_devolucion",
+                                "name_local": "EN BODEGA",
+                                "id_ref": enBodegaController.text
+                                    .toString()
+                                    .split("-")[0],
+                                "name": enBodegaController.text
+                                    .toString()
+                                    .split("-")[1]
+                              };
+
+                              statusToSend.add(status);
+                            }
+                          }
+                          if (enOficinaDevolucionController.text != "") {
+                            if (!enOficinaDevolucionController.text
+                                .contains('-')) {
+                              //
+                              print("no contiene el -");
+                            } else {
+                              //
+                              var status = {
+                                "estado": "estado_devolucion",
+                                "name_local": "ENTREGADO EN OFICINA",
+                                "id_ref": enOficinaDevolucionController.text
+                                    .toString()
+                                    .split("-")[0],
+                                "name": enOficinaDevolucionController.text
+                                    .toString()
+                                    .split("-")[1]
+                              };
+
+                              statusToSend.add(status);
+                            }
+                          }
+                          if (enBodegaProvController.text != "") {
+                            if (!enBodegaProvController.text.contains('-')) {
+                              //
+                              print("no contiene el -");
+                            } else {
+                              //
+                              var status = {
+                                "estado": "estado_devolucion",
+                                "name_local": "EN BODEGA PROVEEDOR",
+                                "id_ref": enBodegaProvController.text
+                                    .toString()
+                                    .split("-")[0],
+                                "name": enBodegaProvController.text
+                                    .toString()
+                                    .split("-")[1]
+                              };
+
+                              statusToSend.add(status);
+                            }
+                          }
+
+                          statusToSend.asMap().forEach((index, element) {
+                            int res = index + 1;
+                            element['id'] = res.toString();
+                          });
+                          // print(statusToSend);
 
                           Navigator.pop(context);
                           setState(() {});

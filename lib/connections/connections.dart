@@ -6767,14 +6767,14 @@ class Connections {
   //  *
   Future createNewCoverage(id_carrier, id_ciudad, ciudad, id_prov,
       id_prov_local, provincia, tipo) async {
-    print(json.encode({
-      "id_carrier": id_carrier,
-      "id_ciudad": id_ciudad,
-      "ciudad": ciudad,
-      "id_prov": id_prov,
-      "provincia": provincia,
-      "tipo": tipo,
-    }));
+    // print(json.encode({
+    //   "id_carrier": id_carrier,
+    //   "id_ciudad": id_ciudad,
+    //   "ciudad": ciudad,
+    //   "id_prov": id_prov,
+    //   "provincia": provincia,
+    //   "tipo": tipo,
+    // }));
     try {
       var response = await http.post(
           Uri.parse("$serverLaravel/api/carrierexternal/newcoverage"),
@@ -6821,6 +6821,27 @@ class Connections {
       }
     } catch (error) {
       print(error);
+      return 2;
+    }
+  }
+
+  //  *
+  Future updateCoverage(id, datajson) async {
+    // print(json.encode(datajson));
+    try {
+      var request = await http.put(
+          Uri.parse("$serverLaravel/api/carriercoverage/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(datajson));
+      var response = await request.body;
+
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        var decodeData = json.decode(response);
+        return 0;
+      }
+    } catch (e) {
       return 2;
     }
   }
