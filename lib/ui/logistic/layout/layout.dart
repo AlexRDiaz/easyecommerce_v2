@@ -90,10 +90,6 @@ class _LayoutPageState extends State<LayoutPage> {
         IncomeAndExpenses(),
       ),
       getOption(
-        "Transportistas Externos",
-        CarriersExternalView(),
-      ),
-      getOption(
         "Agregar Vendedores",
         AddSellers(),
         // AddSellersStrappi(),
@@ -196,6 +192,10 @@ class _LayoutPageState extends State<LayoutPage> {
       getOption("Novedades", NoveltiesL()),
       getOption(
           "Configuración General Transporte", AddOperatorsTransportLogistic()),
+      getOption(
+        "Transportistas Externos",
+        CarriersExternalView(),
+      ),
       // AddStockToVendors(),
       // WithdrawalAssignment(),
     ];

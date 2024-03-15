@@ -6,8 +6,6 @@ import 'package:frontend/main.dart';
 List optionsLogistic = [
   {"name": "DashBoard", "icon": Icons.home_outlined},
   {"name": "Ingresos y Egresos", "icon": Icons.list},
-  {"name": "Transportistas Externos", "icon": Icons.local_shipping_outlined},
-
   {"name": "Agregar Vendedores", "icon": Icons.add},
   {"name": "Agregar Transportistas", "icon": Icons.add},
   {"name": "Agregar Usuario Logística", "icon": Icons.add},
@@ -47,6 +45,7 @@ List optionsLogistic = [
     "name": "Configuración General Transporte",
     "icon": Icons.emoji_transportation
   },
+  {"name": "Transportistas Externos", "icon": Icons.local_shipping_outlined},
 
   {"name": "Cerrar Sesión", "icon": Icons.logout_outlined},
 ];
