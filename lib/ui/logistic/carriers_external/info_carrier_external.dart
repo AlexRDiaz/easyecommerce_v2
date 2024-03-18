@@ -6,8 +6,10 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animated_icons/icons8.dart';
+import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/ui/logistic/carriers_external/edit_coverage.dart';
 import 'package:frontend/ui/logistic/carriers_external/edit_status.dart';
 import 'package:frontend/ui/logistic/carriers_external/new_coverage.dart';
@@ -99,6 +101,9 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
 
   final TextEditingController _newTypeController = TextEditingController();
 
+  bool _statusSection = false;
+  bool _coverageSection = false;
+
   @override
   void didChangeDependencies() {
     loadData();
@@ -181,7 +186,7 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
         child: CustomProgressModal(
           isLoading: isLoading,
           content: ListView(
-            padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
             children: [
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -194,393 +199,46 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                         color: Colors.black,
                         fontSize: 20),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: screenWith * 0.3,
-                        // color: Colors.amber,
-                        padding: EdgeInsets.all(10),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            TextFieldWithIcon(
-                              controller: nameController,
-                              labelText: 'Nombre Transportadora',
-                              icon: Icons.person_outline,
-                            ),
-                            const SizedBox(height: 10),
-                            TextFieldWithIcon(
-                              controller: phoneController,
-                              labelText: 'Número de Teléfono',
-                              icon: Icons.phone_in_talk,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                    RegExp(r'[0-9+]')),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            TextFieldWithIcon(
-                              controller: mailController,
-                              labelText: 'Correo',
-                              icon: Icons.mail,
-                            ),
-                            const SizedBox(height: 10),
-                            TextFieldWithIcon(
-                              controller: addressController,
-                              labelText: 'Direccion',
-                              icon: Icons.location_on,
-                            ),
-                          ],
-                        ),
+                  responsive(
+                      // web
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: screenWith * 0.3,
+                            // color: Colors.amber,
+                            padding: const EdgeInsets.all(20),
+                            child: _dataGeneral(context),
+                          ),
+                          const SizedBox(width: 20),
+                          Container(
+                            width: screenWith * 0.4,
+                            // color: Colors.blue,
+                            padding: EdgeInsets.fromLTRB(20, 10, 10, 10),
+                            child: _dataCostos(context),
+                          ),
+                        ],
                       ),
-                      // const SizedBox(width: 20),
-                      Container(
-                        width: screenWith * 0.4,
-                        // color: Colors.blue,
-                        padding: EdgeInsets.fromLTRB(20, 10, 10, 10),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Costo por entrega: ",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Column(
-                                  children: [
-                                    RichText(
-                                      text: const TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text: "Local",
-                                          ),
-                                          TextSpan(
-                                            text: "-Local Normal",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const Text(
-                                      "(Normal 1)",
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(width: 10),
-                                Column(
-                                  children: [
-                                    SizedBox(
-                                      width: 120,
-                                      child: TextFieldWithIcon(
-                                        controller: localLocalNormalController,
-                                        labelText: "",
-                                        icon: Icons.monetization_on,
-                                        inputFormatters: [
-                                          FilteringTextInputFormatter.allow(
-                                              RegExp(r'[0-9.]')),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Column(
-                                  children: [
-                                    RichText(
-                                      text: const TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text: "Local",
-                                          ),
-                                          TextSpan(
-                                            text: "-Local Especial",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Text(
-                                      "(Especial 1)",
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(width: 10),
-                                Column(
-                                  children: [
-                                    SizedBox(
-                                      width: 120,
-                                      child: TextFieldWithIcon(
-                                        controller:
-                                            localLocalEspecialController,
-                                        labelText: "",
-                                        icon: Icons.monetization_on,
-                                        inputFormatters: [
-                                          FilteringTextInputFormatter.allow(
-                                              RegExp(r'[0-9.]')),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Column(
-                                  children: [
-                                    RichText(
-                                      text: const TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text: "Local",
-                                          ),
-                                          TextSpan(
-                                            text: "-Provincial Normal",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const Text(
-                                      "(Normal 2)",
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(width: 10),
-                                Column(
-                                  children: [
-                                    SizedBox(
-                                      width: 120,
-                                      child: TextFieldWithIcon(
-                                        controller:
-                                            localProvinciaNormalController,
-                                        labelText: "",
-                                        icon: Icons.monetization_on,
-                                        inputFormatters: [
-                                          FilteringTextInputFormatter.allow(
-                                              RegExp(r'[0-9.]')),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Column(
-                                  children: [
-                                    RichText(
-                                      text: const TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text: "Local",
-                                          ),
-                                          TextSpan(
-                                            text: "-Provincial Especial",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const Text(
-                                      "(Especial 2)",
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(width: 10),
-                                Column(
-                                  children: [
-                                    SizedBox(
-                                      width: 120,
-                                      child: TextFieldWithIcon(
-                                        controller:
-                                            localProvinciaEspecialController,
-                                        labelText: "",
-                                        icon: Icons.monetization_on,
-                                        inputFormatters: [
-                                          FilteringTextInputFormatter.allow(
-                                              RegExp(r'[0-9.]')),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                const Column(
-                                  children: [
-                                    Text(
-                                      "Costo Devolucion %",
-                                    ),
-                                    Text(
-                                      "Costo envio + (Costo.dev % del Costo envio)",
-                                      style: TextStyle(fontSize: 11),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(width: 5),
-                                Column(
-                                  children: [
-                                    SizedBox(
-                                      width: 120,
-                                      child: TextFieldWithIcon(
-                                        controller: costoDevolucionController,
-                                        labelText: "",
-                                        icon: Icons.percent,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                const Column(
-                                  children: [
-                                    Text(
-                                      "Costo seguro %",
-                                    ),
-                                    Text(
-                                      "Costo.seg % del Precio total",
-                                      style: TextStyle(fontSize: 11),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(width: 10),
-                                Column(
-                                  children: [
-                                    SizedBox(
-                                      width: 120,
-                                      child: TextFieldWithIcon(
-                                        controller: costoSeguroController,
-                                        labelText: "",
-                                        icon: Icons.percent,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            const Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                SizedBox(width: 20),
-                                Text(
-                                  "Costo Recaudo: ",
-                                ),
-                              ],
-                            ),
-                            const Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Menor/igual a Precio.max aplica Costo base",
-                                  style: TextStyle(fontSize: 11),
-                                ),
-                              ],
-                            ),
-                            const Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Mayor a Precio.max aplica Costo Icrem. % del Precio Total",
-                                  style: TextStyle(fontSize: 11),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Column(
-                                  children: [
-                                    const Text(
-                                      "Precio Maximo",
-                                      style: TextStyle(fontSize: 12),
-                                    ),
-                                    SizedBox(
-                                      width: 120,
-                                      child: TextFieldWithIcon(
-                                        controller: maxPriceController,
-                                        labelText: "",
-                                        icon: Icons.monetization_on,
-                                        inputFormatters: [
-                                          FilteringTextInputFormatter.allow(
-                                              RegExp(r'[0-9.]')),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(width: 20),
-                                Column(
-                                  children: [
-                                    const Text(
-                                      "Costo base",
-                                      style: TextStyle(fontSize: 12),
-                                    ),
-                                    SizedBox(
-                                      width: 120,
-                                      child: TextFieldWithIcon(
-                                        controller: costoBaseController,
-                                        labelText: "",
-                                        icon: Icons.monetization_on,
-                                        inputFormatters: [
-                                          FilteringTextInputFormatter.allow(
-                                              RegExp(r'[0-9.]')),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(width: 20),
-                                Column(
-                                  children: [
-                                    const Text(
-                                      "Costo Icremental %",
-                                      style: TextStyle(fontSize: 12),
-                                    ),
-                                    SizedBox(
-                                      width: 120,
-                                      child: TextFieldWithIcon(
-                                        controller: incrementalController,
-                                        labelText: "",
-                                        icon: Icons.percent,
-                                        inputFormatters: [
-                                          FilteringTextInputFormatter.allow(
-                                              RegExp(r'[0-9.]')),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                      // mobile
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: screenWith * 0.9,
+                            // color: Colors.amber,
+                            padding: const EdgeInsets.all(20),
+                            child: _dataGeneral(context),
+                          ),
+                          Container(
+                            width: screenWith * 0.9,
+                            // color: Colors.blue,
+                            padding: EdgeInsets.fromLTRB(20, 10, 10, 10),
+                            child: _dataCostos(context),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                      context),
+
                   const SizedBox(height: 5),
                   Align(
                     alignment: Alignment.center,
@@ -702,77 +360,105 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                   ),
                   //
                   const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "Estados Equivalentes:",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                  ExpansionTile(
+                    title: Text(
+                      "Estados Equivalentes",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: ColorsSystem().mainBlue,
                       ),
-                      const SizedBox(width: 20),
-                      TextButton(
-                        onPressed: () async {
-                          //
-                          // showAddNewStatus();
-                          showAddStatus();
-                        },
-                        child: const Text(
-                          "Agregar Nuevo Estado Equivalente",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    height: screenHeight * 0.40,
-                    width: screenWith * 0.5,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      color: Colors.white,
                     ),
-                    child: DataTable2(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 1,
-                            blurRadius: 1,
+                    trailing: Icon(_statusSection
+                        ? Icons.arrow_drop_down_circle
+                        : Icons.arrow_drop_down),
+                    onExpansionChanged: (bool expanded) {
+                      setState(() {
+                        _statusSection = expanded;
+                      });
+                    },
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          TextButton(
+                            onPressed: () async {
+                              //
+                              // showAddNewStatus();
+                              showAddStatus();
+                            },
+                            child: const Text(
+                              "Agregar Nuevo Estado Equivalente",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
                           ),
                         ],
                       ),
-                      dataRowColor: MaterialStateColor.resolveWith((states) {
-                        if (states.contains(MaterialState.selected)) {
-                          return Colors.blue.withOpacity(0.5);
-                        } else if (states.contains(MaterialState.hovered)) {
-                          return const Color.fromARGB(255, 234, 241, 251);
-                        }
-                        return const Color.fromARGB(0, 173, 233, 231);
-                      }),
-                      headingTextStyle: const TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.black),
-                      dataTextStyle: const TextStyle(color: Colors.black),
-                      columnSpacing: 12,
-                      horizontalMargin: 12,
-                      minWidth: 800,
-                      columns: getColumnsStatus(),
-                      rows: buildDataRowsStatus(statusList),
+                      const SizedBox(height: 10),
+                      Container(
+                        height: screenHeight * 0.45,
+                        width: screenWith * 0.60,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          color: Colors.white,
+                        ),
+                        child: DataTable2(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.5),
+                                spreadRadius: 1,
+                                blurRadius: 1,
+                              ),
+                            ],
+                          ),
+                          dataRowColor:
+                              MaterialStateColor.resolveWith((states) {
+                            if (states.contains(MaterialState.selected)) {
+                              return Colors.blue.withOpacity(0.5);
+                            } else if (states.contains(MaterialState.hovered)) {
+                              return const Color.fromARGB(255, 234, 241, 251);
+                            }
+                            return const Color.fromARGB(0, 173, 233, 231);
+                          }),
+                          headingTextStyle: const TextStyle(
+                              fontWeight: FontWeight.bold, color: Colors.black),
+                          dataTextStyle: const TextStyle(color: Colors.black),
+                          columnSpacing: 12,
+                          horizontalMargin: 12,
+                          minWidth: 800,
+                          columns: getColumnsStatus(),
+                          rows: buildDataRowsStatus(statusList),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+                  ExpansionTile(
+                    title: Text(
+                      "Coberturas",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: ColorsSystem().mainBlue,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    "Cobertura:",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    trailing: Icon(_coverageSection
+                        ? Icons.arrow_drop_down_circle
+                        : Icons.arrow_drop_down),
+                    onExpansionChanged: (bool expanded) {
+                      setState(() {
+                        _coverageSection = expanded;
+                      });
+                    },
                     children: [
-                      Text(
-                          "Total Ciudades: ${coveragesList.length.toString()}"),
-                      const SizedBox(width: 10),
-                      /*
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                              "Total Ciudades: ${coveragesList.length.toString()}"),
+                          const SizedBox(width: 10),
+                          /*
                       SizedBox(
                         width: screenWith * 0.3,
                         child: DropdownButtonHideUnderline(
@@ -814,194 +500,402 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                       ),
                       const SizedBox(width: 20),
                       */
-                      TextButton(
-                        onPressed: () async {
-                          //
-                          // showAddNewCoverage();
-                          showAddCoverage();
-                        },
-                        child: const Text(
-                          "Agregar Nueva Cobertura",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      const SizedBox(width: 20),
-                      Container(
-                        height: screenHeight * 0.40,
-                        width: screenWith * 0.50,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          color: Colors.white,
-                        ),
-                        child: DataTable2(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.5),
-                                spreadRadius: 1,
-                                blurRadius: 1,
-                              ),
-                            ],
+                          TextButton(
+                            onPressed: () async {
+                              //
+                              // showAddNewCoverage();
+                              showAddCoverage();
+                            },
+                            child: const Text(
+                              "Agregar Nueva Cobertura",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
                           ),
-                          dataRowColor:
-                              MaterialStateColor.resolveWith((states) {
-                            if (states.contains(MaterialState.selected)) {
-                              return Colors.blue.withOpacity(0.5);
-                            } else if (states.contains(MaterialState.hovered)) {
-                              return const Color.fromARGB(255, 234, 241, 251);
-                            }
-                            return const Color.fromARGB(0, 173, 233, 231);
-                          }),
-                          headingTextStyle: TextStyle(
-                              fontWeight: FontWeight.bold, color: Colors.black),
-                          dataTextStyle: const TextStyle(color: Colors.black),
-                          columnSpacing: 12,
-                          horizontalMargin: 12,
-                          minWidth: 800,
-                          columns: getColumns(),
-                          rows: buildDataRows(coveragesList),
-                        ),
+                          const SizedBox(height: 10),
+                        ],
                       ),
-                      const SizedBox(width: 20),
-                      Column(
-                        children: [
+                      responsive(
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
+                              const SizedBox(width: 20),
+                              Container(
+                                height: screenHeight * 0.45,
+                                width: screenWith * 0.50,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                  color: Colors.white,
+                                ),
+                                child: DataTable2(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(10)),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.5),
+                                        spreadRadius: 1,
+                                        blurRadius: 1,
+                                      ),
+                                    ],
+                                  ),
+                                  dataRowColor:
+                                      MaterialStateColor.resolveWith((states) {
+                                    if (states
+                                        .contains(MaterialState.selected)) {
+                                      return Colors.blue.withOpacity(0.5);
+                                    } else if (states
+                                        .contains(MaterialState.hovered)) {
+                                      return const Color.fromARGB(
+                                          255, 234, 241, 251);
+                                    }
+                                    return const Color.fromARGB(
+                                        0, 173, 233, 231);
+                                  }),
+                                  headingTextStyle: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black),
+                                  dataTextStyle:
+                                      const TextStyle(color: Colors.black),
+                                  columnSpacing: 12,
+                                  horizontalMargin: 12,
+                                  minWidth: 800,
+                                  columns: getColumns(),
+                                  rows: buildDataRows(coveragesList),
+                                ),
+                              ),
+                              const SizedBox(width: 20),
                               Column(
                                 children: [
-                                  const Text(
-                                    "Nuevo tipo de Cobertura",
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Column(
+                                        children: [
+                                          const Text(
+                                            "Nuevo tipo de Cobertura",
+                                          ),
+                                          const SizedBox(width: 5),
+                                          SizedBox(
+                                            width: 180,
+                                            child: TextFieldWithIcon(
+                                              controller: _newTypeController,
+                                              labelText: '',
+                                              icon: Icons.label,
+                                              applyValidator: false,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(width: 10),
+                                      ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.indigo[900],
+                                          // minimumSize: Size(200, 40)
+                                        ),
+                                        onPressed: () async {
+                                          //
+                                          getLoadingModal(context, false);
+
+                                          if (_newTypeController.text.isEmpty) {
+                                            showSuccessModal(
+                                                context,
+                                                "Por favor, ingrese un tipo.",
+                                                Icons8.warning_1);
+                                          } else {
+                                            var type = _newTypeController.text;
+
+                                            if (!typesToSelect.contains(type)) {
+                                              typesToSelect.add(type);
+                                              setState(() async {
+                                                _newTypeController.clear();
+
+                                                var responseUpt =
+                                                    await Connections()
+                                                        .updateCarrier(
+                                                            widget.data['id']
+                                                                .toString(),
+                                                            {
+                                                      "type_coverage":
+                                                          json.encode(
+                                                              typesToSelect),
+                                                    });
+                                                if (responseUpt == 0) {
+                                                  Navigator.pop(context);
+                                                  // ignore: use_build_context_synchronously
+                                                  AwesomeDialog(
+                                                    width: 500,
+                                                    context: context,
+                                                    dialogType:
+                                                        DialogType.success,
+                                                    animType:
+                                                        AnimType.rightSlide,
+                                                    title: 'Completado',
+                                                    desc:
+                                                        'Se actualizo con exito.',
+                                                    btnCancel: Container(),
+                                                    btnOkText: "Aceptar",
+                                                    btnOkColor:
+                                                        colors.colorGreen,
+                                                    btnCancelOnPress: () {},
+                                                    btnOkOnPress: () {
+                                                      // Navigator.pop(context);
+                                                      loadData();
+                                                    },
+                                                  ).show();
+                                                } else {
+                                                  Navigator.pop(context);
+                                                  // ignore: use_build_context_synchronously
+                                                  AwesomeDialog(
+                                                    width: 500,
+                                                    context: context,
+                                                    dialogType:
+                                                        DialogType.error,
+                                                    animType:
+                                                        AnimType.rightSlide,
+                                                    title: 'Error',
+                                                    desc: 'Intentelo de nuevo',
+                                                    btnCancel: Container(),
+                                                    btnOkText: "Aceptar",
+                                                    btnOkColor:
+                                                        colors.colorGreen,
+                                                    btnCancelOnPress: () {},
+                                                    btnOkOnPress: () {},
+                                                  ).show();
+                                                }
+                                                //
+                                              });
+                                            } else {
+                                              print("ya esta ");
+                                            }
+                                          }
+                                          // print("typeToSend: $typeToSend");
+                                        },
+                                        child: const Text(
+                                          "Añadir",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(width: 5),
-                                  SizedBox(
-                                    width: 180,
-                                    child: TextFieldWithIcon(
-                                      controller: _newTypeController,
-                                      labelText: '',
-                                      icon: Icons.label,
-                                      applyValidator: false,
+                                  Container(
+                                    width: screenWith * 0.2,
+                                    height: screenHeight * 0.3,
+                                    // color: Colors.amber,
+                                    child: ListView.builder(
+                                      itemCount: typesToSelect.length,
+                                      itemBuilder: (context, index) {
+                                        // return Text(typesToSelect[index]);
+                                        return Container(
+                                          width: 230,
+                                          height: 35,
+                                          decoration: BoxDecoration(
+                                            // color: Colors.deepPurple.shade100,
+                                            border: Border.all(
+                                              color: Colors.black,
+                                              width: 1.0,
+                                            ),
+                                            borderRadius:
+                                                BorderRadius.circular(8.0),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              typesToSelect[index],
+                                            ),
+                                          ),
+                                        );
+                                      },
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(width: 10),
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.indigo[900],
-                                  // minimumSize: Size(200, 40)
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Container(
+                                height: screenHeight * 0.50,
+                                width: screenWith * 0.7,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                  color: Colors.white,
                                 ),
-                                onPressed: () async {
-                                  //
-                                  getLoadingModal(context, false);
-
-                                  if (_newTypeController.text.isEmpty) {
-                                    showSuccessModal(
-                                        context,
-                                        "Por favor, ingrese un tipo.",
-                                        Icons8.warning_1);
-                                  } else {
-                                    var type = _newTypeController.text;
-
-                                    if (!typesToSelect.contains(type)) {
-                                      typesToSelect.add(type);
-                                      setState(() async {
-                                        _newTypeController.clear();
-
-                                        var responseUpt = await Connections()
-                                            .updateCarrier(
-                                                widget.data['id'].toString(), {
-                                          "type_coverage":
-                                              json.encode(typesToSelect),
-                                        });
-                                        if (responseUpt == 0) {
-                                          Navigator.pop(context);
-                                          // ignore: use_build_context_synchronously
-                                          AwesomeDialog(
-                                            width: 500,
-                                            context: context,
-                                            dialogType: DialogType.success,
-                                            animType: AnimType.rightSlide,
-                                            title: 'Completado',
-                                            desc: 'Se actualizo con exito.',
-                                            btnCancel: Container(),
-                                            btnOkText: "Aceptar",
-                                            btnOkColor: colors.colorGreen,
-                                            btnCancelOnPress: () {},
-                                            btnOkOnPress: () {
-                                              // Navigator.pop(context);
-                                              loadData();
-                                            },
-                                          ).show();
-                                        } else {
-                                          Navigator.pop(context);
-                                          // ignore: use_build_context_synchronously
-                                          AwesomeDialog(
-                                            width: 500,
-                                            context: context,
-                                            dialogType: DialogType.error,
-                                            animType: AnimType.rightSlide,
-                                            title: 'Error',
-                                            desc: 'Intentelo de nuevo',
-                                            btnCancel: Container(),
-                                            btnOkText: "Aceptar",
-                                            btnOkColor: colors.colorGreen,
-                                            btnCancelOnPress: () {},
-                                            btnOkOnPress: () {},
-                                          ).show();
-                                        }
-                                        //
-                                      });
-                                    } else {
-                                      print("ya esta ");
+                                child: DataTable2(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(10)),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.5),
+                                        spreadRadius: 1,
+                                        blurRadius: 1,
+                                      ),
+                                    ],
+                                  ),
+                                  dataRowColor:
+                                      MaterialStateColor.resolveWith((states) {
+                                    if (states
+                                        .contains(MaterialState.selected)) {
+                                      return Colors.blue.withOpacity(0.5);
+                                    } else if (states
+                                        .contains(MaterialState.hovered)) {
+                                      return const Color.fromARGB(
+                                          255, 234, 241, 251);
                                     }
-                                  }
-                                  // print("typeToSend: $typeToSend");
-                                },
-                                child: const Text(
-                                  "Añadir",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                    return const Color.fromARGB(
+                                        0, 173, 233, 231);
+                                  }),
+                                  headingTextStyle: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black),
+                                  dataTextStyle:
+                                      const TextStyle(color: Colors.black),
+                                  columnSpacing: 12,
+                                  horizontalMargin: 12,
+                                  minWidth: 800,
+                                  columns: getColumns(),
+                                  rows: buildDataRows(coveragesList),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Column(
+                                    children: [
+                                      const Text(
+                                        "Nuevo tipo de Cobertura",
+                                      ),
+                                      const SizedBox(width: 5),
+                                      SizedBox(
+                                        width: 180,
+                                        child: TextFieldWithIcon(
+                                          controller: _newTypeController,
+                                          labelText: '',
+                                          icon: Icons.label,
+                                          applyValidator: false,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(width: 10),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.indigo[900],
+                                      // minimumSize: Size(200, 40)
+                                    ),
+                                    onPressed: () async {
+                                      //
+                                      getLoadingModal(context, false);
+
+                                      if (_newTypeController.text.isEmpty) {
+                                        showSuccessModal(
+                                            context,
+                                            "Por favor, ingrese un tipo.",
+                                            Icons8.warning_1);
+                                      } else {
+                                        var type = _newTypeController.text;
+
+                                        if (!typesToSelect.contains(type)) {
+                                          typesToSelect.add(type);
+                                          setState(() async {
+                                            _newTypeController.clear();
+
+                                            var responseUpt =
+                                                await Connections()
+                                                    .updateCarrier(
+                                                        widget.data['id']
+                                                            .toString(),
+                                                        {
+                                                  "type_coverage": json
+                                                      .encode(typesToSelect),
+                                                });
+                                            if (responseUpt == 0) {
+                                              Navigator.pop(context);
+                                              // ignore: use_build_context_synchronously
+                                              AwesomeDialog(
+                                                width: 500,
+                                                context: context,
+                                                dialogType: DialogType.success,
+                                                animType: AnimType.rightSlide,
+                                                title: 'Completado',
+                                                desc: 'Se actualizo con exito.',
+                                                btnCancel: Container(),
+                                                btnOkText: "Aceptar",
+                                                btnOkColor: colors.colorGreen,
+                                                btnCancelOnPress: () {},
+                                                btnOkOnPress: () {
+                                                  // Navigator.pop(context);
+                                                  loadData();
+                                                },
+                                              ).show();
+                                            } else {
+                                              Navigator.pop(context);
+                                              // ignore: use_build_context_synchronously
+                                              AwesomeDialog(
+                                                width: 500,
+                                                context: context,
+                                                dialogType: DialogType.error,
+                                                animType: AnimType.rightSlide,
+                                                title: 'Error',
+                                                desc: 'Intentelo de nuevo',
+                                                btnCancel: Container(),
+                                                btnOkText: "Aceptar",
+                                                btnOkColor: colors.colorGreen,
+                                                btnCancelOnPress: () {},
+                                                btnOkOnPress: () {},
+                                              ).show();
+                                            }
+                                            //
+                                          });
+                                        } else {
+                                          print("ya esta ");
+                                        }
+                                      }
+                                      // print("typeToSend: $typeToSend");
+                                    },
+                                    child: const Text(
+                                      "Añadir",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                width: screenWith * 0.7,
+                                height: screenHeight * 0.3,
+                                // color: Colors.amber,
+                                child: ListView.builder(
+                                  itemCount: typesToSelect.length,
+                                  itemBuilder: (context, index) {
+                                    // return Text(typesToSelect[index]);
+                                    return Container(
+                                      width: 230,
+                                      height: 35,
+                                      decoration: BoxDecoration(
+                                        // color: Colors.deepPurple.shade100,
+                                        border: Border.all(
+                                          color: Colors.black,
+                                          width: 1.0,
+                                        ),
+                                        borderRadius:
+                                            BorderRadius.circular(8.0),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          typesToSelect[index],
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
                             ],
                           ),
-                          Container(
-                            width: screenWith * 0.2,
-                            height: screenHeight * 0.3,
-                            // color: Colors.amber,
-                            child: ListView.builder(
-                              itemCount: typesToSelect.length,
-                              itemBuilder: (context, index) {
-                                // return Text(typesToSelect[index]);
-                                return Container(
-                                  width: 200,
-                                  height: 35,
-                                  decoration: BoxDecoration(
-                                    // color: Colors.deepPurple.shade100,
-                                    border: Border.all(
-                                      color: Colors.black,
-                                      width: 1.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      typesToSelect[index],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
+                          context),
+                      const SizedBox(height: 20),
                     ],
                   ),
                 ],
@@ -1010,6 +904,579 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
           ),
         ),
       ),
+    );
+  }
+
+  Column _dataGeneral(BuildContext context) {
+    return Column(
+      children: [
+        TextFieldWithIcon(
+          controller: nameController,
+          labelText: 'Nombre Transportadora',
+          icon: Icons.person_outline,
+        ),
+        const SizedBox(height: 10),
+        TextFieldWithIcon(
+          controller: phoneController,
+          labelText: 'Número de Teléfono',
+          icon: Icons.phone_in_talk,
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'[0-9+]')),
+          ],
+        ),
+        const SizedBox(height: 10),
+        TextFieldWithIcon(
+          controller: mailController,
+          labelText: 'Correo',
+          icon: Icons.mail,
+        ),
+        const SizedBox(height: 10),
+        TextFieldWithIcon(
+          controller: addressController,
+          labelText: 'Direccion',
+          icon: Icons.location_on,
+        ),
+      ],
+    );
+  }
+
+  Column _dataCostos(BuildContext context) {
+    return Column(
+      // mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        const Text(
+          "Costo por entrega",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
+        ),
+        const SizedBox(height: 10),
+        responsive(
+            Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 230,
+                      //      color: Colors.deepPurple.shade100,
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              RichText(
+                                text: const TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: "Local",
+                                    ),
+                                    TextSpan(
+                                      text: "-Local Especial",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                "(Especial 1)",
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    SizedBox(
+                      width: 120,
+                      child: TextFieldWithIcon(
+                        controller: localLocalEspecialController,
+                        labelText: "",
+                        icon: Icons.monetization_on,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 230,
+                      //      color: Colors.deepPurple.shade100,
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              RichText(
+                                text: const TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: "Local",
+                                    ),
+                                    TextSpan(
+                                      text: "-Provincial Normal",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                "(Normal 2)",
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    SizedBox(
+                      width: 120,
+                      child: TextFieldWithIcon(
+                        controller: localProvinciaNormalController,
+                        labelText: "",
+                        icon: Icons.monetization_on,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 230,
+                      //      color: Colors.deepPurple.shade100,
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              RichText(
+                                text: const TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: "Local",
+                                    ),
+                                    TextSpan(
+                                      text: "-Provincial Especial",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                "(Especial 2)",
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    SizedBox(
+                      width: 120,
+                      child: TextFieldWithIcon(
+                        controller: localProvinciaEspecialController,
+                        labelText: "",
+                        icon: Icons.monetization_on,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 230,
+                      //      color: Colors.deepPurple.shade100,
+                      child: const Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                "Costo Devolucion %",
+                              ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  "Costo envio + (Costo.dev % del Costo envio)",
+                                  style: TextStyle(fontSize: 11),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    SizedBox(
+                      width: 120,
+                      child: TextFieldWithIcon(
+                        controller: costoDevolucionController,
+                        labelText: "",
+                        icon: Icons.percent,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 230,
+                      // color: Colors.deepPurple.shade100,
+                      child: const Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                "Costo seguro %",
+                              ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                "Costo.seg % del Precio total",
+                                style: TextStyle(fontSize: 11),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    SizedBox(
+                      width: 120,
+                      child: TextFieldWithIcon(
+                        controller: costoSeguroController,
+                        labelText: "",
+                        icon: Icons.percent,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            Column(
+              children: [
+                RichText(
+                  text: const TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "Local",
+                      ),
+                      TextSpan(
+                        text: "-Local Especial",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+                const Text(
+                  "(Especial 1)",
+                ),
+                SizedBox(
+                  width: 120,
+                  child: TextFieldWithIcon(
+                    controller: localLocalEspecialController,
+                    labelText: "",
+                    icon: Icons.monetization_on,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                RichText(
+                  text: const TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "Local",
+                      ),
+                      TextSpan(
+                        text: "-Provincial Normal",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+                const Text(
+                  "(Normal 2)",
+                ),
+                SizedBox(
+                  width: 120,
+                  child: TextFieldWithIcon(
+                    controller: localProvinciaNormalController,
+                    labelText: "",
+                    icon: Icons.monetization_on,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                RichText(
+                  text: const TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "Local",
+                      ),
+                      TextSpan(
+                        text: "-Provincial Especial",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+                const Text(
+                  "(Especial 2)",
+                ),
+                SizedBox(
+                  width: 120,
+                  child: TextFieldWithIcon(
+                    controller: localProvinciaEspecialController,
+                    labelText: "",
+                    icon: Icons.monetization_on,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  "Costo Devolucion %",
+                ),
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        "Costo envio + (Costo.dev % del Costo envio)",
+                        style: TextStyle(fontSize: 11),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  width: 120,
+                  child: TextFieldWithIcon(
+                    controller: costoDevolucionController,
+                    labelText: "",
+                    icon: Icons.percent,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  "Costo seguro %",
+                ),
+                const Text(
+                  "Costo.seg % del Precio total",
+                  style: TextStyle(fontSize: 11),
+                ),
+                SizedBox(
+                  width: 120,
+                  child: TextFieldWithIcon(
+                    controller: costoSeguroController,
+                    labelText: "",
+                    icon: Icons.percent,
+                  ),
+                ),
+              ],
+            ),
+            context),
+        const SizedBox(height: 10),
+        const Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Text(
+              "Costo Recaudo: ",
+            ),
+          ],
+        ),
+        const Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Text(
+              "Menor/igual a Precio.max aplica Costo base",
+              style: TextStyle(fontSize: 11),
+            ),
+          ],
+        ),
+        const Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Flexible(
+              child: Text(
+                "Mayor a Precio.max aplica Costo Icrem. % del Precio Total",
+                style: TextStyle(fontSize: 11),
+              ),
+            )
+          ],
+        ),
+        const SizedBox(height: 10),
+        responsive(
+            // web
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Column(
+                  children: [
+                    const Text(
+                      "Precio Maximo",
+                      style: TextStyle(fontSize: 12),
+                    ),
+                    SizedBox(
+                      width: 120,
+                      child: TextFieldWithIcon(
+                        controller: maxPriceController,
+                        labelText: "",
+                        icon: Icons.monetization_on,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 20),
+                Column(
+                  children: [
+                    const Text(
+                      "Costo base",
+                      style: TextStyle(fontSize: 12),
+                    ),
+                    SizedBox(
+                      width: 120,
+                      child: TextFieldWithIcon(
+                        controller: costoBaseController,
+                        labelText: "",
+                        icon: Icons.monetization_on,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 20),
+                Column(
+                  children: [
+                    const Text(
+                      "Costo Icremental %",
+                      style: TextStyle(fontSize: 12),
+                    ),
+                    SizedBox(
+                      width: 120,
+                      child: TextFieldWithIcon(
+                        controller: incrementalController,
+                        labelText: "",
+                        icon: Icons.percent,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            // mobile
+            Column(
+              children: [
+                Row(
+                  children: [
+                    const Text(
+                      "Precio Maximo: ",
+                    ),
+                    SizedBox(
+                      width: 120,
+                      child: TextFieldWithIcon(
+                        controller: maxPriceController,
+                        labelText: "",
+                        icon: Icons.monetization_on,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    const Text(
+                      "Costo base: ",
+                    ),
+                    SizedBox(
+                      width: 120,
+                      child: TextFieldWithIcon(
+                        controller: costoBaseController,
+                        labelText: "",
+                        icon: Icons.monetization_on,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    const Text(
+                      "Costo Icremental %: ",
+                    ),
+                    SizedBox(
+                      width: 120,
+                      child: TextFieldWithIcon(
+                        controller: incrementalController,
+                        labelText: "",
+                        icon: Icons.percent,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            context),
+      ],
     );
   }
 
@@ -1083,32 +1550,33 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
     return [
       DataColumn2(
         label: Text('ID'),
-        size: ColumnSize.S,
-        fixedWidth: 80,
+        // size: ColumnSize.S,
+        fixedWidth: 100,
       ),
       DataColumn2(
         label: Text('Provincia'),
-        size: ColumnSize.M,
+        // size: ColumnSize.S,
         fixedWidth: 180,
       ),
       DataColumn2(
         label: Text('ID'),
-        size: ColumnSize.S,
-        fixedWidth: 80,
+        // size: ColumnSize.S,
+        fixedWidth: 100,
       ),
       DataColumn2(
         label: Text("Ciudad"),
-        size: ColumnSize.S,
         fixedWidth: 180,
+        // size: ColumnSize.S,
       ),
       DataColumn2(
         label: Text('Tipo'),
-        size: ColumnSize.S,
-        fixedWidth: 150,
+        // size: ColumnSize.S,
+        fixedWidth: 120,
       ),
       DataColumn2(
         label: Text(''),
-        size: ColumnSize.S,
+        // size: ColumnSize.S,
+        fixedWidth: 50,
       ),
     ];
   }
@@ -1128,6 +1596,9 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
             //   // showEditCoverage(dataL[index]);
             //   showEditCoverage(dataL[index], typesToSelect);
             // },
+            onTap: () {
+              //
+            },
           ),
           DataCell(
             Text(
@@ -1137,6 +1608,9 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                       .toString()
                   : "",
             ),
+            onTap: () {
+              //
+            },
           ),
           DataCell(
             Text(
@@ -1144,6 +1618,9 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                   ? dataL[index]['id_ciudad_ref'].toString()
                   : "",
             ),
+            onTap: () {
+              //
+            },
           ),
           DataCell(
             Text(
@@ -1151,11 +1628,17 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                   ? dataL[index]['coverage_external']['ciudad'].toString()
                   : "",
             ),
+            onTap: () {
+              //
+            },
           ),
           DataCell(
             Text(
               coveragesList != [] ? dataL[index]['type'].toString() : "",
             ),
+            onTap: () {
+              //
+            },
           ),
           DataCell(
             Row(
@@ -1214,6 +1697,9 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                 ),
               ],
             ),
+            onTap: () {
+              //
+            },
           ),
         ],
       );

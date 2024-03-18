@@ -64,7 +64,7 @@ class _CarriersExternalViewState extends State<CarriersExternalView> {
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
             //
-            showCreateOperator(context);
+            showCreateCarrier(context);
           },
           backgroundColor: Colors.green,
           child: const Center(
@@ -86,7 +86,9 @@ class _CarriersExternalViewState extends State<CarriersExternalView> {
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Container(
-                        width: MediaQuery.of(context).size.width * 0.5,
+                        width: screenWith > 600
+                            ? screenWith * 0.5
+                            : screenWith * 0.8,
                         child: _modelTextField(
                             text: "Buscar", controller: searchController),
                       ),
@@ -218,7 +220,9 @@ class _CarriersExternalViewState extends State<CarriersExternalView> {
                           },
                           child: Container(
                             padding: EdgeInsets.all(10),
-                            width: screenWith * 0.22,
+                            width: screenWith > 600
+                                ? screenWith * 0.22
+                                : screenWith * 0.8,
                             child: Column(
                               children: [
                                 // SizedBox(
@@ -284,7 +288,7 @@ class _CarriersExternalViewState extends State<CarriersExternalView> {
     );
   }
 
-  Future<dynamic> showCreateOperator(BuildContext context) {
+  Future<dynamic> showCreateCarrier(BuildContext context) {
     return showDialog(
       context: context,
       builder: (context) {

@@ -3,6 +3,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animated_icons/icons8.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
@@ -10,7 +11,6 @@ import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_sna
 import 'package:frontend/ui/provider/products/add_product.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
-import 'package:frontend/ui/widgets/text_field_icon.dart';
 
 class NewCoverage extends StatefulWidget {
   final String carrierId;
@@ -32,15 +32,21 @@ class _NewCoverageState extends State<NewCoverage> {
   bool isLoading = false;
 
   List coveragesList = [];
-  String? selectedProvinciaNewC;
 
   TextEditingController newIdCiudadController = TextEditingController(text: "");
   TextEditingController newCiudadController = TextEditingController(text: "");
   TextEditingController newIdProvController = TextEditingController(text: "");
   bool newProvincia = false;
   List<String> provinciasToSelect = [];
+  String? selectedProvinciaNewC;
+
   List<String> typesToSelect = [];
   String? selectedType;
+  var coverageExternals = [];
+
+  List<String> matchedCitiesToSelect = [];
+  bool isExistingCity = false;
+  String? existingCity = "";
 
   @override
   void didChangeDependencies() {
@@ -67,7 +73,6 @@ class _NewCoverageState extends State<NewCoverage> {
 
       setState(() {
         coveragesList = widget.coveragesList;
-        // typesToSelect = widget.types;
       });
     } catch (e) {
       setState(() {
@@ -79,6 +84,27 @@ class _NewCoverageState extends State<NewCoverage> {
       SnackBarHelper.showErrorSnackBar(
           context, "Ha ocurrido un error al cargar las Subrutas");
     }
+  }
+
+  getCiudades() async {
+    var transportList = [];
+
+    setState(() {
+      isLoading = true;
+      coverageExternals = [];
+    });
+
+    var provinciaCiudades = await Connections()
+        .getCiudadesByProvincia(selectedProvinciaNewC.toString().split('-')[1]);
+
+    setState(() {
+      coverageExternals = provinciaCiudades[0]['coverage_externals'];
+    });
+    // print("coverage_externals: $coverageExternals");
+
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
@@ -148,6 +174,7 @@ class _NewCoverageState extends State<NewCoverage> {
                                     resProv != "-1" ? resProv : "";
                                 newProvincia = resProv == "-1" ? true : false;
                               });
+                              await getCiudades();
 
                               // print(newProvincia);
                             },
@@ -159,20 +186,10 @@ class _NewCoverageState extends State<NewCoverage> {
                           ),
                         ),
                       ),
+
                       SizedBox(
                         width: 250,
-                        child:
-                            // TextFieldIcon(
-                            //   //el nuevo widget
-                            //   controller: newIdProvController,
-                            //   labelText: 'ID Provincia',
-                            //   readOnly: true,
-                            //   icon: Icons.edit,
-                            //   inputFormatters: [
-                            //     FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                            //   ],
-                            // ),
-                            TextField(
+                        child: TextField(
                           controller: newIdProvController,
                           decoration: InputDecoration(
                             labelText: 'ID Provincia',
@@ -184,31 +201,87 @@ class _NewCoverageState extends State<NewCoverage> {
                           inputFormatters: [
                             FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
                           ],
-                          readOnly: newProvincia
-                              ? false
-                              : true, // Deshabilitar la edición
+                          readOnly: newProvincia ? false : true,
                         ),
                       ),
+                      // SizedBox(
+                      //   width: 250,
+                      //   child: TextField(
+                      //     controller: newCiudadController,
+                      //     decoration: InputDecoration(
+                      //       labelText: 'Ciudad',
+                      //       icon: Icon(
+                      //         Icons.edit,
+                      //         color: ColorsSystem().colorSelectMenu,
+                      //       ),
+                      //     ),
+                      //     onChanged: (searchTerm) {
+                      //       if (coverageExternals.isNotEmpty) {
+                      //         // searchCities(newCiudadController.text);
+                      //       }
+                      //     },
+                      //   ),
+                      // ),
+
                       SizedBox(
                         width: 250,
-                        child: TextFieldWithIcon(
-                          //widget de producto
+                        child: TypeAheadField(
+                          controller: newCiudadController,
+                          builder: (context, controller, focusNode) {
+                            return InputDecorator(
+                              decoration: InputDecoration(
+                                prefixIcon: Icon(Icons.edit,
+                                    color: ColorsSystem().colorSelectMenu),
+                                labelText: "Ciudad",
+                              ),
+                              child: TextField(
+                                controller:
+                                    newCiudadController, // Enlaza el controller
+                                focusNode: focusNode,
+                                // autofocus: true,
+                              ),
+                            );
+                          },
+                          itemBuilder: (context, suggestion) {
+                            return ListTile(
+                              title: Text(suggestion["ciudad"]),
+                            );
+                          },
+                          onSelected: (suggestion) {
+                            newCiudadController.text = suggestion["ciudad"];
+                            existingCity =
+                                "${suggestion["ciudad"]}-${suggestion["id"].toString()}";
+                            print('Selected city: $existingCity');
+                          },
+                          suggestionsCallback: (String pattern) {
+                            List<dynamic> matchedCities = coverageExternals
+                                .where((city) => city["ciudad"]
+                                    .toLowerCase()
+                                    .contains(pattern.toLowerCase()))
+                                .toList();
+                            return matchedCities;
+                          },
+                          emptyBuilder: (context) => const Text("Ciudad nueva"),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        width: 250,
+                        child: TextField(
                           controller: newIdCiudadController,
-                          labelText: 'ID Ciudad',
-                          icon: Icons.edit,
+                          decoration: InputDecoration(
+                            labelText: 'ID Ciudad',
+                            icon: Icon(
+                              Icons.edit,
+                              color: ColorsSystem().colorSelectMenu,
+                            ),
+                          ),
                           inputFormatters: [
                             FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
                           ],
                         ),
                       ),
-                      SizedBox(
-                        width: 250,
-                        child: TextFieldWithIcon(
-                          controller: newCiudadController,
-                          labelText: 'Ciudad',
-                          icon: Icons.edit,
-                        ),
-                      ),
+                      const SizedBox(height: 15),
                       SizedBox(
                         width: 250,
                         child: DropdownButtonHideUnderline(
@@ -251,6 +324,7 @@ class _NewCoverageState extends State<NewCoverage> {
                 ],
               ),
               const SizedBox(height: 30),
+              //
               Align(
                 alignment: Alignment.centerRight,
                 child: ElevatedButton(
@@ -294,7 +368,20 @@ class _NewCoverageState extends State<NewCoverage> {
                                 .createNewCoverage(
                                     widget.carrierId,
                                     newIdCiudadController.text,
-                                    newCiudadController.text,
+                                    existingCity == "" ||
+                                            existingCity
+                                                    .toString()
+                                                    .split('-')[0] !=
+                                                newCiudadController.text
+                                        ? 0
+                                        : existingCity.toString().split('-')[1],
+                                    existingCity == "" ||
+                                            existingCity
+                                                    .toString()
+                                                    .split('-')[0] !=
+                                                newCiudadController.text
+                                        ? newCiudadController.text
+                                        : existingCity.toString().split('-')[0],
                                     newIdProvController.text,
                                     selectedProvinciaNewC
                                         .toString()
@@ -341,7 +428,20 @@ class _NewCoverageState extends State<NewCoverage> {
                               .createNewCoverage(
                                   widget.carrierId,
                                   newIdCiudadController.text,
-                                  newCiudadController.text,
+                                  existingCity == "" ||
+                                          existingCity
+                                                  .toString()
+                                                  .split('-')[0] !=
+                                              newCiudadController.text
+                                      ? 0
+                                      : existingCity.toString().split('-')[1],
+                                  existingCity == "" ||
+                                          existingCity
+                                                  .toString()
+                                                  .split('-')[0] !=
+                                              newCiudadController.text
+                                      ? newCiudadController.text
+                                      : existingCity.toString().split('-')[0],
                                   newIdProvController.text,
                                   selectedProvinciaNewC
                                       .toString()
@@ -427,5 +527,23 @@ class _NewCoverageState extends State<NewCoverage> {
     bool idExists = idProvRefs.contains(idProvRef);
 
     return idExists;
+  }
+
+  List<String> searchCities(String searchValue) {
+    // Filtrar la lista para encontrar coincidencias basadas en el nombre de la ciudad
+    List matchedCities = coverageExternals
+        .where((city) =>
+            city["ciudad"].toLowerCase().contains(searchValue.toLowerCase()))
+        .toList();
+
+    // Mapear cada ciudad al formato "ciudad-id" y unirlos en una sola cadena
+    List<String> formattedCities = matchedCities.map((city) {
+      return '${city["ciudad"]}-${city["id"]}';
+    }).toList();
+
+    setState(() {
+      matchedCitiesToSelect = formattedCities;
+    });
+    return formattedCities;
   }
 }

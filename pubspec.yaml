@@ -87,8 +87,7 @@ dependencies:
   flutter_spinbox: ^0.13.1
   csv: ^5.1.1
   file_saver: ^0.2.11
-
-  
+  flutter_typeahead: ^5.0.1
 
 dev_dependencies:
   flutter_test:

@@ -3752,7 +3752,7 @@ class Connections {
       "populate": populate,
       "date_filter": dateFilter,
       "start": dateStart,
-      "end":   dateEnd,
+      "end": dateEnd,
       "or": or,
       "and": filtersAndAll,
       "not": not,
@@ -6816,16 +6816,19 @@ class Connections {
   }
 
   //  *
-  Future createNewCoverage(id_carrier, id_ciudad, ciudad, id_prov,
-      id_prov_local, provincia, tipo) async {
+  Future createNewCoverage(id_carrier, id_ciudad, id_city_local, ciudad,
+      id_prov, id_prov_local, provincia, tipo) async {
     // print(json.encode({
     //   "id_carrier": id_carrier,
     //   "id_ciudad": id_ciudad,
+    //   "id_city_local": id_city_local,
     //   "ciudad": ciudad,
     //   "id_prov": id_prov,
+    //   "id_prov_local": id_prov_local,
     //   "provincia": provincia,
     //   "tipo": tipo,
     // }));
+
     try {
       var response = await http.post(
           Uri.parse("$serverLaravel/api/carrierexternal/newcoverage"),
@@ -6833,6 +6836,7 @@ class Connections {
           body: json.encode({
             "id_carrier": id_carrier,
             "id_ciudad": id_ciudad,
+            "id_city_local": id_city_local,
             "ciudad": ciudad,
             "id_prov": id_prov,
             "id_prov_local": id_prov_local,
@@ -6893,6 +6897,24 @@ class Connections {
         return 0;
       }
     } catch (e) {
+      return 2;
+    }
+  }
+
+  //  *
+  getCiudadesByProvincia(id) async {
+    try {
+      var response = await http.get(
+          Uri.parse("$serverLaravel/api/provincias/coverages/$id"),
+          headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
       return 2;
     }
   }
@@ -8032,7 +8054,7 @@ class Connections {
           body: json.encode({
             "monto": amount,
             // "email": "easyecommercetest@gmail.com",
-            "email":sharedPrefs!.getString("email").toString(),
+            "email": sharedPrefs!.getString("email").toString(),
             "id_vendedor": "${sharedPrefs!.getString("idProviderUserMaster")}"
           }));
       var response = await request.body;
@@ -8107,7 +8129,7 @@ class Connections {
   }
 
   editAccountData(names, last_name, email, bank_entity, account_type,
-      account_number,dni) async {
+      account_number, dni) async {
     try {
       var request = await http.post(
           Uri.parse(
@@ -8123,7 +8145,7 @@ class Connections {
             "bank_entity": bank_entity,
             "account_type": account_type,
             "account_number": account_number,
-            "dni":dni
+            "dni": dni
           }));
       var response = await request.body;
       var decodeData = json.decode(response);
