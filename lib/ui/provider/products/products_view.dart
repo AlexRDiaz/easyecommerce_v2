@@ -614,15 +614,15 @@ class _ProductsViewState extends State<ProductsView> {
                             Align(
                               alignment: Alignment.center,
                               child: FractionallySizedBox(
-                                widthFactor: 0.6,
-                                heightFactor: 0.9,
+                                widthFactor: 0.8,
+                                heightFactor: 0.8,
                                 child: data[index]['url_img'] != null &&
                                         data[index]['url_img'].isNotEmpty &&
                                         data[index]['url_img'].toString() !=
                                             "[]"
                                     ? Image.network(
                                         "$generalServer${getFirstUrl(data[index]['url_img'])}",
-                                        fit: BoxFit.fill,
+                                        fit: BoxFit.cover,
                                       )
                                     : Container(),
                               ),

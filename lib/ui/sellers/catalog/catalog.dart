@@ -87,6 +87,8 @@ class _CatalogState extends State<Catalog> {
   int total = 0;
   var getReport = ProductReport();
 
+  bool isSelectedOwn = false;
+
   @override
   void initState() {
     super.initState();
@@ -612,8 +614,10 @@ class _CatalogState extends State<Catalog> {
           const SizedBox(height: 30),
           //
           _buttonFavorites(),
-          const SizedBox(height: 30),
+          const SizedBox(height: 20),
           _buttonOnSale(),
+          const SizedBox(height: 20),
+          _buttonOwnProducts()
           //
         ],
       ),
@@ -737,6 +741,12 @@ class _CatalogState extends State<Catalog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [_buttonOnSale()],
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [_buttonOwnProducts()],
                 ),
               )
             ],
@@ -1141,6 +1151,63 @@ class _CatalogState extends State<Catalog> {
           const SizedBox(width: 5),
           Text(
             'En Venta',
+            style: GoogleFonts.robotoCondensed(
+              fontSize: 16,
+              color: Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  ElevatedButton _buttonOwnProducts() {
+    return ElevatedButton(
+      onPressed: () {
+        setState(() {
+          isSelectedOwn = !isSelectedOwn;
+          // print("$isSelectedOwn");
+          if (isSelectedOwn) {
+            // print("add seller_owned");
+            arrayFiltersAnd.add({"seller_owned": "1"});
+          } else {
+            // print("remove seller_owned");
+            arrayFiltersAnd
+                .removeWhere((filter) => filter.containsKey("seller_owned"));
+          }
+          // print(arrayFiltersAnd);
+          setState(() {
+            _getProductModelCatalog();
+          });
+        });
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isSelectedOwn ? Colors.indigo[50] : Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(50),
+          side: const BorderSide(
+            width: 1,
+            color: Colors.indigo,
+          ),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isSelectedOwn ? Colors.indigo[50] : Colors.white,
+            ),
+            child: Icon(
+              isSelectedOwn ? Icons.home : Icons.home_outlined,
+              color: Colors.indigo[900],
+            ),
+          ),
+          const SizedBox(width: 5),
+          Text(
+            'Mis Productos',
             style: GoogleFonts.robotoCondensed(
               fontSize: 16,
               color: Colors.black,

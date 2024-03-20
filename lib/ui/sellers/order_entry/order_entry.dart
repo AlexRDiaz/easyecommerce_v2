@@ -427,6 +427,7 @@ class _OrderEntryState extends State<OrderEntry> {
                               ),
                               ElevatedButton(
                                   onPressed: () async {
+                                    /*
                                     await showDialog(
                                         context: (context),
                                         builder: (context) {
@@ -434,6 +435,8 @@ class _OrderEntryState extends State<OrderEntry> {
                                           return const AddOrderSellersLaravel();
                                         });
                                     await loadData();
+                                    */
+                                    showNuevo(context);
                                   },
                                   child: const Row(
                                     children: [Text(" Nuevo"), Icon(Icons.add)],
@@ -1525,5 +1528,26 @@ class _OrderEntryState extends State<OrderEntry> {
       }
       loadData();
     });
+  }
+
+  Future<dynamic> showNuevo(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            //
+            return const AlertDialog(
+              // shape: RoundedRectangleBorder(
+              //     borderRadius: BorderRadius.all(Radius.circular(20.0))),
+              contentPadding: EdgeInsets.all(0),
+              content: AddOrderSellersLaravel(),
+            );
+          },
+        );
+      },
+    ).then((value) => setState(() {
+          loadData();
+        }));
   }
 }

@@ -435,7 +435,7 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
           content: Container(
             width: screenWith > 600 ? screenWith * 0.35 : screenWith,
             height:
-                screenWith > 600 ? screenHeight * 0.75 : screenHeight * 0.85,
+                screenWith > 600 ? screenHeight * 0.80 : screenHeight * 0.90,
             color: Colors.white,
             padding: EdgeInsets.all(20),
             child: Form(

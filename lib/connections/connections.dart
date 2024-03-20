@@ -6145,7 +6145,8 @@ class Connections {
             "url_img": json.encode(product.urlImg),
             "isvariable": product.isvariable,
             "features": json.encode(product.features),
-            "warehouse_id": product.warehouseId
+            "warehouse_id": product.warehouseId,
+            "seller_owned": product.seller_owned,
           }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -6162,6 +6163,17 @@ class Connections {
   //  *
   getProductsCatalog(populate, page_size, current_page, or, and, outFilter,
       filterps, sort, search) async {
+    print(json.encode({
+      "populate": populate,
+      "page_size": page_size,
+      "page_number": current_page,
+      "or": or,
+      "and": and,
+      "out_filters": outFilter,
+      "filterps": filterps,
+      "sort": sort,
+      "search": search
+    }));
     try {
       var response =
           await http.post(Uri.parse("$serverLaravel/api/products/all"),
@@ -7583,6 +7595,7 @@ class Connections {
             "reference": warehouse.reference,
             "description": warehouse.description,
             'url_image': warehouse.url_image,
+            'id_provincia': warehouse.id_provincia,
             'city': warehouse.city,
             'collection': json.encode(warehouse.collection),
             // 'collection': "prueba",
