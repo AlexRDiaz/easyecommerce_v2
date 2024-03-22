@@ -69,6 +69,11 @@ class Connections {
               ? sharedPrefs!.setString(
                   "referer", decodeDataUser['user']['vendedores'][0]['referer'])
               : "";
+          //  *
+          sharedPrefs!.setString(
+              "seller_costo_envio",
+              decodeDataUser['user']['vendedores'][0]['costo_envio']
+                  .toString());
           List temporalPermisos =
               jsonDecode(decodeDataUser['user']['permisos']);
           List<String> finalPermisos = [];
@@ -6163,17 +6168,6 @@ class Connections {
   //  *
   getProductsCatalog(populate, page_size, current_page, or, and, outFilter,
       filterps, sort, search) async {
-    print(json.encode({
-      "populate": populate,
-      "page_size": page_size,
-      "page_number": current_page,
-      "or": or,
-      "and": and,
-      "out_filters": outFilter,
-      "filterps": filterps,
-      "sort": sort,
-      "search": search
-    }));
     try {
       var response =
           await http.post(Uri.parse("$serverLaravel/api/products/all"),

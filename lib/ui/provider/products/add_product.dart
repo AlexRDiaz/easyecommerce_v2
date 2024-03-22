@@ -2231,9 +2231,10 @@ class _AddProductState extends State<AddProduct> {
                                           Icons8.warning_1);
                                     } else {
                                       //
+                                      String id_comercial = "";
+
                                       if (sellerOwner) {
                                         print("Add en reservasToSend");
-                                        String id_comercial = "";
 
                                         var response = await Connections()
                                             .getPersonalInfoAccountByEmail(
@@ -2368,7 +2369,9 @@ class _AddProductState extends State<AddProduct> {
                                             .toString()
                                             .split("-")[0]
                                             .toString()),
-                                        seller_owned: sellerOwner ? 1 : 0,
+                                        seller_owned: sellerOwner
+                                            ? int.parse(id_comercial.toString())
+                                            : 0,
                                       ));
                                       Navigator.pop(context);
                                       var dataProductNew = response;
@@ -2401,8 +2404,8 @@ class _AddProductState extends State<AddProduct> {
                                       }
                                       // print(response);
 
-                                      // Navigator.pop(context);
-                                      // Navigator.pop(context);
+                                      Navigator.pop(context);
+                                      Navigator.pop(context);
                                     }
                                   }
                                 },

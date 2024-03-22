@@ -64,6 +64,18 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
   double profit = 0;
   int quantityTotal = 0;
 
+  //
+  List<String> carriersTypeToSelect = ["Interno", "Externo"];
+  String? selectedCarrierExternal;
+  List<String> provinciasToSelect = [];
+  String? selectedProvincia;
+  String? selectedCarrierType;
+  List<String> carriersExternalsToSelect = [];
+  List<String> citiesToSelect = [];
+
+  String? selectedCity;
+  bool recaudo = true;
+
   bool containsEmoji(String text) {
     final emojiPattern = RegExp(
         r'[\u2000-\u3300]|[\uD83C][\uDF00-\uDFFF]|[\uD83D][\uDC00-\uDE4F]'
@@ -77,6 +89,49 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
     getRoutes();
     getData();
     super.didChangeDependencies();
+  }
+
+  getData() async {
+    numeroOrden = await generateNumeroOrden();
+    _producto.text = widget.product.productName!;
+    productp = widget.product.productName!;
+    double? priceT = widget.product.price;
+
+    features = jsonDecode(widget.product.features);
+    chosenSku = features["sku"];
+    priceSuggestedProd = double.parse(features["price_suggested"].toString());
+
+    String priceSuggested = "";
+    priceSuggested = features["price_suggested"].toString();
+
+    if (priceSuggested.contains(".")) {
+      var parts = priceSuggested.split('.');
+      _precioTotalEnt.text = parts[0];
+      _precioTotalDec.text = parts[1];
+    } else {
+      _precioTotalEnt.text = priceSuggested;
+      _precioTotalDec.text = "00";
+    }
+
+    _cantidad.text = "1";
+
+    variantsListOriginal = features["variants"];
+    print(variantsListOriginal);
+
+    if (widget.product.isvariable == 1 && variantsListOriginal.isNotEmpty) {
+      for (var variant in variantsListOriginal) {
+        variantsToSelect.add("${variant['sku']}");
+        print("${variant['sku']}");
+      }
+    }
+    setState(() {
+      variantsToSelect = variantsToSelect;
+    });
+
+    costShippingSeller =
+        double.parse(sharedPrefs!.getString("seller_costo_envio").toString());
+    // print(costShippingSeller);
+    //
   }
 
   getRoutes() async {
@@ -124,64 +179,841 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
     }
   }
 
-  getData() async {
-    numeroOrden = await generateNumeroOrden();
-    _producto.text = widget.product.productName!;
-    productp = widget.product.productName!;
-    double? priceT = widget.product.price;
-
-    features = jsonDecode(widget.product.features);
-    chosenSku = features["sku"];
-    priceSuggestedProd = double.parse(features["price_suggested"].toString());
-
-    String priceSuggested = "";
-    priceSuggested = features["price_suggested"].toString();
-
-    if (priceSuggested.contains(".")) {
-      var parts = priceSuggested.split('.');
-      _precioTotalEnt.text = parts[0];
-      _precioTotalDec.text = parts[1];
-    } else {
-      _precioTotalEnt.text = priceSuggested;
-      _precioTotalDec.text = "00";
-    }
-
-    _cantidad.text = "1";
-
-    variantsListOriginal = features["variants"];
-    //  print(variantsListOriginal);
-
-    if (widget.product.isvariable == 1) {
-      Set<String> uniqueVariants = <String>{};
-
-      for (var variantData in variantsListOriginal) {
-        String sku = variantData["sku"];
-        String size = variantData["size"] ?? "";
-        String color = variantData["color"] ?? "";
-        String dimension = variantData["dimension"] ?? "";
-
-        String variantString =
-            "$sku${size.isNotEmpty ? '-$size' : ''}${color.isNotEmpty ? '/$color' : ''}${dimension.isNotEmpty ? '/$dimension' : ''}";
-
-        uniqueVariants.add(variantString);
+  getCarriersExternals() async {
+    try {
+      var responseCarriers = await Connections().getCarriersExternal([], "");
+      for (var item in responseCarriers) {
+        carriersExternalsToSelect.add("${item['name']}-${item['id']}");
       }
-
-      variantsToSelect = uniqueVariants.toList();
+      setState(() {});
+    } catch (error) {
+      print('Error al cargar ciudades: $error');
     }
-    costShippingSeller =
-        double.parse(sharedPrefs!.getString("seller_costo_envio").toString());
+  }
 
-    //
+  getProvincias() async {
+    try {
+      var provinciasList = [];
+
+      provinciasList = await Connections().getProvincias();
+      for (var i = 0; i < provinciasList.length; i++) {
+        provinciasToSelect.add('${provinciasList[i]}');
+      }
+      // setState(() {});
+    } catch (error) {
+      print('Error al cargar Provincias: $error');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     double screenWidthDialog = MediaQuery.of(context).size.width;
 
-    double screenWidth =
-        screenWidthDialog > 600 ? screenWidthDialog * 0.40 : screenWidthDialog;
+    // double screenWidth =
+    //     screenWidthDialog > 600 ? screenWidthDialog * 0.40 : screenWidthDialog;
     // print(screenWidth);
 
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10.0),
+        color: Colors.white,
+      ),
+      padding: EdgeInsets.all(20),
+      width: screenWidth * 70,
+      // color: Colors.amber,
+      height: MediaQuery.of(context).size.height,
+      child: Form(
+        key: formKey,
+        child: Row(
+          children: [
+            Container(
+              width: screenWidth * 0.4,
+              child: ListView(
+                padding: EdgeInsets.only(right: 20),
+                children: [
+                  const Text(
+                    "Datos",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  TextFormField(
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    controller: _nombre,
+                    decoration: const InputDecoration(
+                      labelText: "Nombre Cliente",
+                      labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    keyboardType: TextInputType.text,
+                    validator: (String? value) {
+                      if (value == null || value.isEmpty) {
+                        return "Campo requerido";
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    controller: _direccion,
+                    decoration: const InputDecoration(
+                      labelText: "Dirección",
+                      labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    validator: (String? value) {
+                      if (value == null || value.isEmpty) {
+                        return "Campo requerido";
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    controller: _telefono,
+                    decoration: const InputDecoration(
+                      labelText: "Teléfono",
+                      labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9+]')),
+                    ],
+                    validator: (String? value) {
+                      if (value == null || value.isEmpty) {
+                        return "Campo requerido";
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    controller: _producto,
+                    maxLines: 3,
+                    decoration: const InputDecoration(
+                      labelText: "Producto",
+                      labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    validator: (String? value) {
+                      if (value == null || value.isEmpty) {
+                        return "Campo requerido";
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  //simple
+                  Visibility(
+                    visible: widget.product.isvariable == 0,
+                    child: const Row(
+                      children: [
+                        Text(
+                          "Cantidad:",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                  //simple
+                  Visibility(
+                    visible: widget.product.isvariable == 0,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 150,
+                          child: SpinBox(
+                            min: 1,
+                            max: 100,
+                            value: quantity,
+                            onChanged: (value) {
+                              setState(() {
+                                quantity = value;
+                              });
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 20),
+                        _buttonAddSimple(context),
+                      ],
+                    ),
+                  ),
+                  // variant
+                  Visibility(
+                    visible: widget.product.isvariable == 1,
+                    child: Row(
+                      children: [
+                        const Text(
+                          "Variante:",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Visibility(
+                    visible: widget.product.isvariable == 1,
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: screenWidth * 0.2,
+                          child: DropdownButtonFormField<String>(
+                            isExpanded: true,
+                            hint: Text(
+                              'Seleccione Variante',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Theme.of(context).hintColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            items: variantsToSelect.map((item) {
+                              var parts = item.split('-');
+                              var name = parts[1];
+                              return DropdownMenuItem(
+                                value: item,
+                                child: Text(
+                                  name,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                            value: chosenVariant,
+                            onChanged: (value) {
+                              setState(() {
+                                chosenVariant = value as String;
+                                var parts = value.split('-');
+                                chosenSku = parts[0];
+                              });
+                            },
+                            decoration: InputDecoration(
+                              fillColor: Colors.white,
+                              filled: true,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5.0),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Visibility(
+                    visible: widget.product.isvariable == 1,
+                    child: Row(
+                      children: [
+                        Text(
+                          "Cantidad:",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Visibility(
+                    visible: widget.product.isvariable == 1,
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 150,
+                          child: SpinBox(
+                            min: 1,
+                            max: 100,
+                            value: quantity,
+                            onChanged: (value) {
+                              setState(() {
+                                quantity = value;
+                              });
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        _buttonAddVariants(context),
+                      ],
+                    ),
+                  ),
+                  //
+                  const SizedBox(height: 10),
+                  Visibility(
+                    visible: true,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          // SizedBox(
+                          //   // width: screenWidth * 0.80,
+                          //   width: screenWidthDialog > 600
+                          //       ? screenWidth * 0.90
+                          //       : screenWidth * 0.60,
+                          child: Wrap(
+                            spacing: 8.0,
+                            runSpacing: 8.0,
+                            children:
+                                variantsDetailsList.map<Widget>((variant) {
+                              String chipLabel = "${variant['variant_title']}";
+
+                              chipLabel +=
+                                  " - Cantidad: ${variant['quantity']}";
+                              chipLabel +=
+                                  " - Precio Bodega: ${widget.product.price.toString()}";
+                              chipLabel += " - Total: \$${variant['price']}";
+
+                              if (screenWidthDialog < 600) {
+                                chipLabel = "${variant['variant_title']}";
+
+                                chipLabel += "; ${variant['quantity']}";
+                                // chipLabel +=
+                                //     " - Bodega: \$${widget.product.price.toString()}";
+                                chipLabel += " ;Total:\$${variant['price']}";
+                              }
+                              return Chip(
+                                padding: EdgeInsets.all(0),
+                                label: Text(chipLabel),
+                                onDeleted: () {
+                                  if (widget.product.isvariable == 1) {
+                                    setState(() async {
+                                      if (variant.containsKey('sku')) {
+                                        variantsDetailsList.remove(variant);
+                                      }
+                                      calculateTotalWPrice();
+                                      calculateTotalQuantity();
+                                    });
+                                  }
+                                },
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Row(
+                    children: [
+                      Text(
+                        "Precio Dropshipping:",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      SizedBox(
+                        // width: 100,
+                        width: screenWidthDialog > 600 ? 100 : 70,
+                        child: TextFormField(
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          controller: _precioTotalEnt,
+                          decoration: const InputDecoration(
+                            labelText: "(Entero)",
+                            labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          keyboardType: TextInputType.number,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          validator: (String? value) {
+                            if (value == null || value.isEmpty) {
+                              return "Campo requerido";
+                            }
+                          },
+                        ),
+                      ),
+                      const Text("  .  ", style: TextStyle(fontSize: 35)),
+                      SizedBox(
+                        // width: 100,
+                        width: screenWidthDialog > 600 ? 100 : 70,
+                        child: TextFormField(
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          controller: _precioTotalDec,
+                          decoration: const InputDecoration(
+                            labelText: "(Decimal)",
+                            labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          keyboardType: TextInputType.number,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      ElevatedButton(
+                        onPressed: () async {
+                          var resTotalProfit = await calculateProfit();
+
+                          setState(() {
+                            profit = double.parse(resTotalProfit.toString());
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blueAccent,
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.calculate, color: Colors.white),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      const Text(
+                        "Precio Bodega:",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(width: 10),
+                      SizedBox(
+                        // width: 200,
+                        width: screenWidthDialog > 600 ? 200 : 150,
+                        child: Text(
+                          priceWarehouseTotal.toString(),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 5),
+                  Row(
+                    children: [
+                      const Text(
+                        "Costo Envio:",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(width: 10),
+                      SizedBox(
+                        // width: 200,
+                        width: screenWidthDialog > 600 ? 200 : 150,
+                        child: Text(
+                          '\$${costShippingSeller.toString()}',
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 5),
+                  Row(
+                    children: [
+                      const Text(
+                        "Utilidad:",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(width: 10),
+                      SizedBox(
+                        // width: 200,
+                        width: screenWidthDialog > 600 ? 200 : 150,
+                        child: Text(
+                          profit.toString(),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    controller: _productoE,
+                    decoration: const InputDecoration(
+                      labelText: "Producto Extra",
+                      labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    controller: _observacion,
+                    decoration: const InputDecoration(
+                      labelText: "Observación",
+                      labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text(
+                            "CANCELAR",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          )),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      ElevatedButton(
+                          onPressed: () async {
+                            if (selectedValueRoute == null ||
+                                selectedValueTransport == null) {
+                              showSuccessModal(
+                                  context,
+                                  "Por favor, Debe seleccionar una ciudad y una transportadora.",
+                                  Icons8.alert);
+                            } else {
+                              // if (widget.product.isvariable == 1 &&
+                              //     chosenVariant == null) {
+                              if (widget.product.isvariable == 1 &&
+                                  variantsDetailsList.isEmpty) {
+                                showSuccessModal(
+                                    context,
+                                    "Por favor, Debe al menos seleccionar una variante del producto.",
+                                    Icons8.alert);
+                              } else {
+                                if (formKey.currentState!.validate()) {
+                                  getLoadingModal(context, false);
+
+                                  String priceTotal =
+                                      "${_precioTotalEnt.text}.${_precioTotalDec.text}";
+
+                                  // String sku =
+                                  //     "${chosenSku}C${widget.product.productId}";
+                                  String idProd =
+                                      widget.product.productId.toString();
+
+                                  var response =
+                                      await Connections().createOrderProduct(
+                                    sharedPrefs!
+                                        .getString("idComercialMasterSeller"),
+                                    numeroOrden,
+                                    _nombre.text,
+                                    _direccion.text,
+                                    _telefono.text,
+                                    selectedValueRoute.toString().split("-")[0],
+                                    _producto.text,
+                                    _productoE.text,
+                                    // _cantidad.text,
+                                    quantityTotal,
+                                    priceTotal,
+                                    _observacion.text,
+                                    // sku,
+                                    idProd,
+                                    variantsDetailsList,
+                                  );
+
+                                  var resUpdateRT = await Connections()
+                                      .updateOrderRouteAndTransportLaravel(
+                                    selectedValueRoute.toString().split("-")[1],
+                                    selectedValueTransport
+                                        .toString()
+                                        .split("-")[1],
+                                    response['id'],
+                                  );
+
+                                  var response3 =
+                                      await Connections().updateOrderWithTime(
+                                    response['id'].toString(),
+                                    "estado_interno:CONFIRMADO",
+                                    sharedPrefs!.getString("id"),
+                                    "",
+                                    "",
+                                  );
+
+                                  String messageVar = "";
+                                  if (widget.product.isvariable == 1) {
+                                    messageVar = " (";
+                                    for (var variant in variantsDetailsList) {
+                                      messageVar +=
+                                          "${variant['quantity']} de ${variant['variant_title']}; ";
+                                    }
+                                    messageVar += ") ";
+                                  }
+
+                                  var _url = Uri.parse(
+                                    """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda ${comercial}, Me comunico con usted para confirmar su pedido de compra de: ${_producto.text}${messageVar}${_productoE.text.isNotEmpty ? ' y ${_productoE.text}' : ''}, por un valor total de: \$${priceTotal}. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                  );
+
+                                  if (!await launchUrl(_url)) {
+                                    throw Exception('Could not launch $_url');
+                                  }
+
+                                  Navigator.pop(context);
+                                  Navigator.pop(context);
+                                }
+                              }
+                            }
+                          },
+                          child: const Text(
+                            "GUARDAR",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          )),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(
+              width: 20,
+            ),
+            Align(
+              alignment: Alignment.topLeft,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Transportadora",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(
+                    width: 300,
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton2<String>(
+                        isExpanded: true,
+                        hint: Text(
+                          'Tipo',
+                          style: TextStyle(
+                              fontSize: 14,
+                              color: Theme.of(context).hintColor,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        items: carriersTypeToSelect
+                            .map((item) => DropdownMenuItem(
+                                  value: item,
+                                  child: Text(
+                                    item,
+                                    style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ))
+                            .toList(),
+                        value: selectedCarrierType,
+                        onChanged: (value) async {
+                          setState(() {
+                            selectedCarrierType = value as String;
+                          });
+                          if (selectedCarrierType == "Externo") {
+                            getCarriersExternals();
+                          }
+                          // await getTransports();
+                        },
+                      ),
+                    ),
+                  ),
+                  //interno
+                  Visibility(
+                    visible: selectedCarrierType == "Interno",
+                    child: SizedBox(
+                      width: 350,
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton2<String>(
+                          isExpanded: true,
+                          hint: Text(
+                            'Seleccione una Ciudad',
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: Theme.of(context).hintColor,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          items: routes
+                              .map((item) => DropdownMenuItem(
+                                    value: item,
+                                    child: Text(
+                                      item.split('-')[0],
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ))
+                              .toList(),
+                          value: selectedValueRoute,
+                          onChanged: (value) async {
+                            setState(() {
+                              selectedValueRoute = value as String;
+                              transports.clear();
+                              selectedValueTransport = null;
+                            });
+                            await getTransports();
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  Visibility(
+                    visible: selectedCarrierType == "Interno",
+                    child: SizedBox(
+                      width: 350,
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton2<String>(
+                          isExpanded: true,
+                          hint: Text(
+                            'Seleccione una Transportadora',
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: Theme.of(context).hintColor,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          items: transports
+                              .map((item) => DropdownMenuItem(
+                                    value: item,
+                                    child: Text(
+                                      item.split('-')[0],
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ))
+                              .toList(),
+                          value: selectedValueTransport,
+                          onChanged: selectedValueRoute == null
+                              ? null
+                              : (value) {
+                                  setState(() {
+                                    selectedValueTransport = value as String;
+                                  });
+                                },
+                        ),
+                      ),
+                    ),
+                  ),
+                  //externo
+                  Visibility(
+                    visible: selectedCarrierType == "Externo",
+                    child: SizedBox(
+                      width: 350,
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton2<String>(
+                          isExpanded: true,
+                          hint: Text(
+                            'Seleccione Transportadora Externa',
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: Theme.of(context).hintColor,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          items: carriersExternalsToSelect
+                              .map((item) => DropdownMenuItem(
+                                    value: item,
+                                    child: Text(
+                                      item,
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ))
+                              .toList(),
+                          value: selectedCarrierExternal,
+                          onChanged: (value) async {
+                            setState(() {
+                              selectedCarrierExternal = value as String;
+                            });
+                            await getProvincias();
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  Visibility(
+                    visible: selectedCarrierType == "Externo",
+                    child: SizedBox(
+                      width: 350,
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton2<String>(
+                          isExpanded: true,
+                          hint: Text(
+                            'Provincia',
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: Theme.of(context).hintColor,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          items: provinciasToSelect
+                              .map((item) => DropdownMenuItem(
+                                    value: item,
+                                    child: Text(
+                                      item,
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ))
+                              .toList(),
+                          value: selectedCarrierExternal,
+                          onChanged: (value) async {
+                            setState(() {
+                              selectedCarrierExternal = value as String;
+                            });
+                            // await getTransports();
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  Visibility(
+                    visible: selectedCarrierType == "Externo",
+                    child: SizedBox(
+                      width: 350,
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton2<String>(
+                          isExpanded: true,
+                          hint: Text(
+                            'Ciudad',
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: Theme.of(context).hintColor,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          items: citiesToSelect
+                              .map((item) => DropdownMenuItem(
+                                    value: item,
+                                    child: Text(
+                                      item,
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ))
+                              .toList(),
+                          value: selectedCarrierExternal,
+                          onChanged: (value) async {
+                            setState(() {
+                              selectedCarrierExternal = value as String;
+                            });
+                            // await getTransports();
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  Visibility(
+                    visible: selectedCarrierType == "Externo",
+                    child: Row(
+                      children: [
+                        Checkbox(
+                          value: recaudo,
+                          onChanged: (value) {
+                            //
+                            setState(() {
+                              recaudo = value!;
+                            });
+                            print(recaudo);
+                          },
+                          shape: CircleBorder(),
+                        ),
+                        Text("Con Recaudo"),
+                        Checkbox(
+                          value: !recaudo,
+                          onChanged: (value) {
+                            //
+                            setState(() {
+                              recaudo = !value!;
+                            });
+                            print(recaudo);
+                          },
+                          shape: CircleBorder(),
+                        ),
+                        Text("Sin Recaudo"),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+/*
     return Scaffold(
       body: Container(
         width: MediaQuery.of(context).size.width,
@@ -1048,6 +1880,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
         ),
       ),
     );
+    */
   }
 
   Future<String> generateNumeroOrden() async {
@@ -1159,5 +1992,85 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
         _precioTotalDec.text = "00";
       }
     });
+  }
+
+  ElevatedButton _buttonAddSimple(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () async {
+        bool existVariant = false;
+        for (var variant in variantsDetailsList) {
+          if (variant['sku'].toString() == chosenSku.toString()) {
+            existVariant = true;
+            break;
+          }
+        }
+        if (!existVariant) {
+          var variant = await generateVariantData(chosenSku);
+          setState(() {
+            variantsDetailsList.add(variant);
+          });
+        } else {
+          //upt
+          variantsDetailsList = [];
+          var variant = await generateVariantData(chosenSku);
+          setState(() {
+            variantsDetailsList.add(variant);
+          });
+        }
+
+        calculateTotalWPrice();
+        calculateTotalQuantity();
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.green,
+      ),
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            "Añadir",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
+  }
+
+  ElevatedButton _buttonAddVariants(BuildContext context) {
+    return ElevatedButton(
+      onPressed: widget.product.isvariable == 1 && chosenVariant == null
+          ? null
+          : () async {
+              bool existVariant = false;
+              for (var variant in variantsDetailsList) {
+                if (variant['sku'].toString() == chosenSku.toString()) {
+                  existVariant = true;
+                  break;
+                }
+              }
+              if (!existVariant) {
+                var variant = await generateVariantData(chosenSku);
+                setState(() {
+                  variantsDetailsList.add(variant);
+                });
+                calculateTotalWPrice();
+                calculateTotalQuantity();
+                // print("variantsDetailsList");
+                // print(variantsDetailsList);
+              }
+            },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.green,
+      ),
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            "Añadir",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
   }
 }

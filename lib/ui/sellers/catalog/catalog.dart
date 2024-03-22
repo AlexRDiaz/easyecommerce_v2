@@ -58,7 +58,9 @@ class _CatalogState extends State<Catalog> {
   bool isFirst = false;
   List populate = ["warehouse", "productseller", "reserve.seller"];
   List arrayFiltersOr = ["product_name", "stock", "price"];
-  List arrayFiltersAnd = [];
+  List arrayFiltersAnd = [
+    {"seller_owned": "0"}
+  ];
   List outFilter = [];
   List filterps = [];
   var sortFieldDefaultValue = "product_id:asc";
@@ -105,6 +107,7 @@ class _CatalogState extends State<Catalog> {
     setState(() {
       isLoading = true;
     });
+
     await _productController.loadProductsCatalog(
         populate,
         pageSize,
@@ -168,6 +171,16 @@ class _CatalogState extends State<Catalog> {
               .add('${warehouse.id}-${warehouse.branchName}-${warehouse.city}');
         });
       }
+    }
+  }
+
+  getOldValue(Arrayrestoration) {
+    if (Arrayrestoration) {
+      setState(() {
+        arrayFiltersAnd = [
+          {"seller_owned": "0"}
+        ];
+      });
     }
   }
 
@@ -361,7 +374,6 @@ class _CatalogState extends State<Catalog> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 20),
           Text(
             'Filtros',
             style: GoogleFonts.robotoCondensed(
@@ -370,7 +382,7 @@ class _CatalogState extends State<Catalog> {
               color: Theme.of(context).hintColor,
             ),
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 20),
           TextButton(
             onPressed: () async {
               setState(() {
@@ -386,7 +398,7 @@ class _CatalogState extends State<Catalog> {
               ],
             ),
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 20),
           //
           Text(
             'Proveedor',
@@ -1168,17 +1180,26 @@ class _CatalogState extends State<Catalog> {
           isSelectedOwn = !isSelectedOwn;
           // print("$isSelectedOwn");
           if (isSelectedOwn) {
-            // print("add seller_owned");
-            arrayFiltersAnd.add({"seller_owned": "1"});
-          } else {
-            // print("remove seller_owned");
+            var idMaster =
+                sharedPrefs!.getString("idComercialMasterSeller").toString();
+            print("add seller_owned");
             arrayFiltersAnd
                 .removeWhere((filter) => filter.containsKey("seller_owned"));
+            arrayFiltersAnd.add({"seller_owned": idMaster});
+            setState(() {
+              _getProductModelCatalog();
+            });
+          } else {
+            print("remove seller_owned");
+
+            arrayFiltersAnd
+                .removeWhere((filter) => filter.containsKey("seller_owned"));
+            arrayFiltersAnd.add({"seller_owned": "0"});
+            setState(() {
+              _getProductModelCatalog();
+            });
           }
           // print(arrayFiltersAnd);
-          setState(() {
-            _getProductModelCatalog();
-          });
         });
       },
       style: ElevatedButton.styleFrom(
@@ -1222,12 +1243,15 @@ class _CatalogState extends State<Catalog> {
     selectedProvider = 'TODO';
     selectedCategory = 'TODO';
     selectedCategoriesList = [];
-    arrayFiltersAnd = [];
+    arrayFiltersAnd = [
+      {"seller_owned": "0"}
+    ];
     outFilter = [];
     _minPriceController.clear();
     _maxPriceController.clear();
     isSelectedFavorites = false;
     isSelectedOnSale = false;
+    isSelectedOwn = false;
     filterps = [];
   }
 
@@ -1958,8 +1982,8 @@ class _CatalogState extends State<Catalog> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          // _buttonCreateGuide(product, context),
-                          // const SizedBox(width: 30),
+                          _buttonCreateGuide(product, context),
+                          const SizedBox(width: 30),
                           _buttonAddFavorite(
                               product, isFavorite, labelIsFavorite, context),
                           const SizedBox(width: 30),
@@ -1999,6 +2023,27 @@ class _CatalogState extends State<Catalog> {
     );
   }
 
+  // Future<dynamic> showInfoProduct(BuildContext context) {
+  //   return showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       return StatefulBuilder(
+  //         builder: (context, setState) {
+  //           //
+  //           // return const AlertDialog(
+  //           //   // shape: RoundedRectangleBorder(
+  //           //   //     borderRadius: BorderRadius.all(Radius.circular(20.0))),
+  //           //   contentPadding: EdgeInsets.all(0),
+  //           //   content: AddOrderSellersLaravel(),
+  //           // );
+  //         },
+  //       );
+  //     },
+  //   ).then((value) => setState(() {
+  //         _getProductModelCatalog();
+  //       }));
+  // }
+
   addOrderDialog(ProductModel product) {
     double screenWidthDialog = MediaQuery.of(context).size.width;
 
@@ -2008,6 +2053,20 @@ class _CatalogState extends State<Catalog> {
     return showDialog(
       context: context,
       builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            //
+            return AlertDialog(
+              // shape: RoundedRectangleBorder(
+              //     borderRadius: BorderRadius.all(Radius.circular(20.0))),
+              contentPadding: EdgeInsets.all(0),
+              content: ProductAddOrder(
+                product: product,
+              ),
+            );
+          },
+        );
+        /*
         return Dialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(0.0),
@@ -2020,6 +2079,7 @@ class _CatalogState extends State<Catalog> {
             ),
           ),
         );
+        */
       },
     ).then((value) {});
   }
