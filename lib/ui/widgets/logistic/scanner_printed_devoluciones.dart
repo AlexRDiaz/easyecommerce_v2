@@ -40,10 +40,13 @@ class _ScannerPrintedDevolucionesState
               child: BarcodeKeyboardListener(
                 bufferDuration: Duration(milliseconds: 200),
                 onBarcodeScanned: (barcode) async {
-                  // barcode = "112907";
+                  // barcode = "196963";
+                  // var responseOrder =
+                  //     await Connections().getOrderByID(barcode.toString());
                   var responseOrder =
-                      await Connections().getOrderByID(barcode.toString());
-                  var status = responseOrder['attributes']['Status'];
+                      await Connections().getOrderByIDHistoryLaravel(barcode);
+                  // var status = responseOrder['attributes']['Status'];
+                  var status = responseOrder['status'];
 
                   if (!visible) return;
                   getLoadingModal(context, false);
@@ -57,13 +60,15 @@ class _ScannerPrintedDevolucionesState
 
                     setState(() {
                       _barcode =
-                          "${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']}";
+                          "${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']}";
+                      // "${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']}";
                     });
                   } else {
                     setState(() {
                       resStatus = false;
                       _barcode =
-                          "Error al cambiar pedido: ${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']} a estado EN BODEGA, el status debe encontrarse en NOVEDAD o NO ENTREGADO";
+                          "Error al cambiar pedido: ${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']} a estado EN BODEGA, el status debe encontrarse en NOVEDAD o NO ENTREGADO";
+                      // "Error al cambiar pedido: ${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']} a estado EN BODEGA, el status debe encontrarse en NOVEDAD o NO ENTREGADO";
                     });
                   }
 
@@ -134,7 +139,8 @@ class _ScannerPrintedDevolucionesState
         _resTransaction = resNovelty["res"];
 
         _barcode =
-            "${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']}";
+            "${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']}";
+        // "${responseOrder['attributes']['Name_Comercial']}-${responseOrder['attributes']['NumeroOrden']}";
       });
     }
   }
