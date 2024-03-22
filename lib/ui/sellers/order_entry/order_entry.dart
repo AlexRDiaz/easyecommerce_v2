@@ -865,72 +865,131 @@ class _OrderEntryState extends State<OrderEntry> {
                               DataCell(
                                 SingleChildScrollView(
                                   scrollDirection: Axis.horizontal,
-                                  child: Row(
-                                    children: <Widget>[
-                                      Padding(
-                                          padding: EdgeInsets.all(2.0),
-                                          child: Row(
-                                            children: [
-                                              TextButton(
-                                                style: TextButton.styleFrom(
-                                                  backgroundColor:
-                                                      ColorsSystem().colorBlack,
-                                                  shadowColor: Color.fromARGB(
-                                                      255, 80, 78, 78),
-                                                  shape:
-                                                      const RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.horizontal(
-                                                      left:
-                                                          Radius.circular(10.0),
-                                                    ),
-                                                  ),
-                                                ),
-                                                onPressed: () async {
-                                                  // print('Phone selected');
-                                                  var _url = Uri(
-                                                      scheme: 'tel',
-                                                      path:
-                                                          '${data[index]['telefono_shipping'].toString()}');
-
-                                                  if (!await launchUrl(_url)) {
-                                                    throw Exception(
-                                                        'Could not launch $_url');
-                                                  }
-                                                },
-                                                child: Icon(Icons.phone,
-                                                    color: Colors.white),
-                                              ),
-                                              TextButton(
-                                                style: TextButton.styleFrom(
+                                  child: Padding(
+                                      padding: EdgeInsets.all(2.0),
+                                      child: (data[index]['estado_logistico']
+                                                      .toString() ==
+                                                  "IMPRESO" &&
+                                              data[index]['estado_interno']
+                                                      .toString() ==
+                                                  "CONFIRMADO")
+                                          ? Row(
+                                              children: [
+                                                TextButton(
+                                                  style: TextButton.styleFrom(
                                                     backgroundColor:
                                                         ColorsSystem()
                                                             .colorBlack,
                                                     shadowColor: Color.fromARGB(
                                                         255, 80, 78, 78),
                                                     shape:
-                                                        RoundedRectangleBorder()),
-                                                onPressed: () async {
-                                                  // print('Message selected');
-                                                  var _url = Uri.parse(
-                                                      """https://api.whatsapp.com/send?phone=${data[index]['telefono_shipping'].toString()}&text=Hola ${data[index]['nombre_shipping'].toString()}, te saludo de la tienda ${data[index]['tienda_temporal'].toString()}, Me comunico con usted para confirmar su pedido de compra de: ${data[index]['producto_p'].toString()}${data[index]['producto_extra'] != null && data[index]['producto_extra'].toString() != 'null' && data[index]['producto_extra'].toString() != '' ? ' y ${data[index]['producto_extra'].toString()}' : ''}, por un valor total de: ${data[index]['precio_total'].toString()}. Su dirección de entrega será: ${data[index]['direccion_shipping'].toString()} Es correcto...? Desea mas información del producto?""");
-                                                  if (!await launchUrl(_url)) {
-                                                    throw Exception(
-                                                        'Could not launch $_url');
-                                                  }
-                                                },
-                                                child: Icon(Icons.message,
-                                                    color: Colors.white),
-                                              ),
-                                              Visibility(
-                                                visible: data[index][
-                                                                'estado_logistico']
-                                                            .toString() !=
-                                                        "IMPRESO" &&
-                                                    data[index]['estado_interno']
-                                                            .toString() !=
-                                                        "CONFIRMADO",
-                                                child: TextButton(
+                                                        const RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius
+                                                          .horizontal(
+                                                        left: Radius.circular(
+                                                            10.0),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  onPressed: () async {
+                                                    // print('Phone selected');
+                                                    var _url = Uri(
+                                                        scheme: 'tel',
+                                                        path:
+                                                            '${data[index]['telefono_shipping'].toString()}');
+
+                                                    if (!await launchUrl(
+                                                        _url)) {
+                                                      throw Exception(
+                                                          'Could not launch $_url');
+                                                    }
+                                                  },
+                                                  child: Icon(Icons.phone,
+                                                      color: Colors.white),
+                                                ),
+                                                TextButton(
+                                                  style: TextButton.styleFrom(
+                                                      backgroundColor:
+                                                          ColorsSystem()
+                                                              .colorBlack,
+                                                      shadowColor:
+                                                          Color.fromARGB(
+                                                              255, 80, 78, 78),
+                                                      shape:
+                                                          RoundedRectangleBorder()),
+                                                  onPressed: () async {
+                                                    // print('Message selected');
+                                                    var _url = Uri.parse(
+                                                        """https://api.whatsapp.com/send?phone=${data[index]['telefono_shipping'].toString()}&text=Hola ${data[index]['nombre_shipping'].toString()}, te saludo de la tienda ${data[index]['tienda_temporal'].toString()}, Me comunico con usted para confirmar su pedido de compra de: ${data[index]['producto_p'].toString()}${data[index]['producto_extra'] != null && data[index]['producto_extra'].toString() != 'null' && data[index]['producto_extra'].toString() != '' ? ' y ${data[index]['producto_extra'].toString()}' : ''}, por un valor total de: ${data[index]['precio_total'].toString()}. Su dirección de entrega será: ${data[index]['direccion_shipping'].toString()} Es correcto...? Desea mas información del producto?""");
+                                                    if (!await launchUrl(
+                                                        _url)) {
+                                                      throw Exception(
+                                                          'Could not launch $_url');
+                                                    }
+                                                  },
+                                                  child: Icon(Icons.message,
+                                                      color: Colors.white),
+                                                ),
+                                              ],
+                                            )
+                                          : Row(
+                                              children: [
+                                                TextButton(
+                                                  style: TextButton.styleFrom(
+                                                    backgroundColor:
+                                                        ColorsSystem()
+                                                            .colorBlack,
+                                                    shadowColor: Color.fromARGB(
+                                                        255, 80, 78, 78),
+                                                    shape:
+                                                        const RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius
+                                                          .horizontal(
+                                                        left: Radius.circular(
+                                                            10.0),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  onPressed: () async {
+                                                    // print('Phone selected');
+                                                    var _url = Uri(
+                                                        scheme: 'tel',
+                                                        path:
+                                                            '${data[index]['telefono_shipping'].toString()}');
+
+                                                    if (!await launchUrl(
+                                                        _url)) {
+                                                      throw Exception(
+                                                          'Could not launch $_url');
+                                                    }
+                                                  },
+                                                  child: Icon(Icons.phone,
+                                                      color: Colors.white),
+                                                ),
+                                                TextButton(
+                                                  style: TextButton.styleFrom(
+                                                      backgroundColor:
+                                                          ColorsSystem()
+                                                              .colorBlack,
+                                                      shadowColor:
+                                                          Color.fromARGB(
+                                                              255, 80, 78, 78),
+                                                      shape:
+                                                          RoundedRectangleBorder()),
+                                                  onPressed: () async {
+                                                    // print('Message selected');
+                                                    var _url = Uri.parse(
+                                                        """https://api.whatsapp.com/send?phone=${data[index]['telefono_shipping'].toString()}&text=Hola ${data[index]['nombre_shipping'].toString()}, te saludo de la tienda ${data[index]['tienda_temporal'].toString()}, Me comunico con usted para confirmar su pedido de compra de: ${data[index]['producto_p'].toString()}${data[index]['producto_extra'] != null && data[index]['producto_extra'].toString() != 'null' && data[index]['producto_extra'].toString() != '' ? ' y ${data[index]['producto_extra'].toString()}' : ''}, por un valor total de: ${data[index]['precio_total'].toString()}. Su dirección de entrega será: ${data[index]['direccion_shipping'].toString()} Es correcto...? Desea mas información del producto?""");
+                                                    if (!await launchUrl(
+                                                        _url)) {
+                                                      throw Exception(
+                                                          'Could not launch $_url');
+                                                    }
+                                                  },
+                                                  child: Icon(Icons.message,
+                                                      color: Colors.white),
+                                                ),
+                                                TextButton(
                                                   style: TextButton.styleFrom(
                                                     backgroundColor:
                                                         ColorsSystem()
@@ -962,16 +1021,7 @@ class _OrderEntryState extends State<OrderEntry> {
                                                   child: Icon(Icons.check,
                                                       color: Colors.white),
                                                 ),
-                                              ),
-                                              Visibility(
-                                                visible: data[index][
-                                                                'estado_logistico']
-                                                            .toString() !=
-                                                        "IMPRESO" &&
-                                                    data[index]['estado_interno']
-                                                            .toString() !=
-                                                        "CONFIRMADO",
-                                                child: TextButton(
+                                                TextButton(
                                                   style: TextButton.styleFrom(
                                                     backgroundColor:
                                                         ColorsSystem()
@@ -1001,11 +1051,8 @@ class _OrderEntryState extends State<OrderEntry> {
                                                   child: Icon(Icons.close,
                                                       color: Colors.white),
                                                 ),
-                                              ),
-                                            ],
-                                          )),
-                                    ],
-                                  ),
+                                              ],
+                                            )),
                                 ),
                               ),
                               DataCell(

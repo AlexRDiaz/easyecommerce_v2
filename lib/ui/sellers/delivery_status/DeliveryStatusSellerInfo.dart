@@ -327,7 +327,9 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             data['status'] != "NOVEDAD RESUELTA" &&
-                    data['estado_devolucion'] == "PENDIENTE" &&  data['status'] != "ENTREGADO" 
+                    data['status'] != "NO ENTREGADO" &&
+                    data['estado_devolucion'] == "PENDIENTE" &&
+                    data['status'] != "ENTREGADO"
                 ? Container(
                     width: whidth * 0.15,
                     child: FilledButton.tonalIcon(
@@ -469,12 +471,14 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                       onPressed: () async {
                         if (data['operadore'] != null &&
                             data['operadore'].isNotEmpty) {
-                          await Connections().updateOrderWithTime(
-                              data['id'].toString(),
-                              "status:${_statusController.text}",
-                              idUser,
-                              "",
-                              {"comentario": _comentarioController.text});
+                          await updateGestionedNovelty(
+                              context, data, _comentarioController.text);
+                          // await Connections().updateOrderWithTime(
+                          //     data['id'].toString(),
+                          //     "status:${_statusController.text}",
+                          //     idUser,
+                          //     "",
+                          //     {"comentario": _comentarioController.text});
 
                           await sendWhatsAppMessage(
                               context, data, _comentarioController.text);
@@ -500,6 +504,24 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
             ),
           );
         });
+  }
+
+  updateGestionedNovelty(context, data, comment) async {
+    // getLoadingModal(context, false);
+    DateTime now = DateTime.now();
+    String formattedDate = DateFormat('d/M/yyyy HH:mm:ss').format(now);
+
+    print(formattedDate);
+
+    comment = "$comment UID: ${sharedPrefs!.getString("id")}";
+
+    var resp = await Connections().postGestinodNovelty(
+      data['id'],
+      comment,
+      sharedPrefs!.getString("id"),
+      2,
+      formattedDate,
+    );
   }
 
   // Métodos auxiliares

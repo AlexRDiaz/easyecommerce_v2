@@ -103,7 +103,7 @@ class _InfoStateOrdersOperatorState extends State<InfoStateOrdersOperator> {
                             const SizedBox(
                               width: 10,
                             ),
-                            data['status'].toString() != "ENTREGADO"
+                            data['status'].toString() != "ENTREGADO" && data['estado_devolucion'] == "PENDIENTE"
                                 ? ElevatedButton(
                                     onPressed: () async {
                                       var response = await Connections()

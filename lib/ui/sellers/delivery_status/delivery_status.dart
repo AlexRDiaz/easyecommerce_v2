@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:js_util';
 
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
@@ -788,6 +789,15 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                             },
                           ),
                           DataColumn2(
+                            // label: InputFilter('Comentario Novedad',
+                            //     comentarioController, 'comentario'),
+                            label: Text('Comentario Novedad'),
+                            size: ColumnSize.M,
+                            onSort: (columnIndex, ascending) {
+                              // sortFunc("Comentario");
+                            },
+                          ),
+                          DataColumn2(
                             label: SelectFilter2('Estado de Entrega', 'status',
                                 statusController, listStatus),
                             // label: Text('Status'),
@@ -1006,6 +1016,15 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                       : data[index]['comentario'].toString()),
                                   // Text(data[index]['comentario'].toString()),
                                   onTap: () {
+                                showInfo(context, index);
+                              }),
+                              DataCell(
+                                  Text(
+                                    getStateFromJson(
+                                        data[index]['gestioned_novelty']
+                                            ?.toString(),
+                                        'comment'),
+                                  ), onTap: () {
                                 showInfo(context, index);
                               }),
                               DataCell(
@@ -1271,6 +1290,21 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     });
 
     paginatorController.navigateToPage(0);
+  }
+
+  String getStateFromJson(String? jsonString, String claveAbuscar) {
+    // Verificar si jsonString es null
+    if (jsonString == null || jsonString.isEmpty) {
+      return ''; // Retorna una cadena vacía si el valor es null o está vacío
+    }
+
+    try {
+      Map<String, dynamic> jsonMap = json.decode(jsonString);
+      return jsonMap[claveAbuscar]?.toString() ?? '';
+    } catch (e) {
+      // print('Error al decodificar JSON: $e');
+      return ''; // Manejar el error retornando una cadena vacía o un valor predeterminado
+    }
   }
 
   Future<dynamic> OpenShowDialog(BuildContext context, int index) {

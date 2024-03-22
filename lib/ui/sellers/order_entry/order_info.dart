@@ -127,8 +127,7 @@ class _OrderInfoState extends State<OrderInfo> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            estadoLogistic == "ENVIADO" ||
-                                    estadoLogistic == "IMPRESO"
+                           (estadoInterno == "CONFIRMADO" && estadoLogistic != "PENDIENTE") 
                                 ? Container()
                                 : ElevatedButton(
                                     onPressed: () async {
@@ -148,7 +147,7 @@ class _OrderInfoState extends State<OrderInfo> {
                             SizedBox(
                               width: 20,
                             ),
-                            (estadoInterno == "CONFIRMADO" && estadoLogistic == "IMPRESO") ? Container():ElevatedButton(
+                            (estadoInterno == "CONFIRMADO" && estadoLogistic != "PENDIENTE") ? Container():ElevatedButton(
                                 onPressed: () async {
                                   await showDialog(
                                       context: context,
