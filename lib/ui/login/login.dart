@@ -238,7 +238,7 @@ class _LoginPageState extends State<LoginPage> {
               height: 30,
             ),
             const Text(
-              "EASYECOMMERCE - Copyright © 2023.  v.2.2.28",
+              "EASYECOMMERCE - Copyright © 2023.  v.2.2.29",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ],
