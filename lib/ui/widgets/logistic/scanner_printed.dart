@@ -5,6 +5,7 @@ import 'package:flutter_barcode_listener/flutter_barcode_listener.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/ui/widgets/loading.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 class ScannerPrinted extends StatefulWidget {
@@ -44,7 +45,7 @@ class _ScannerPrintedState extends State<ScannerPrinted> {
                 onBarcodeScanned: (barcode) async {
                   if (!visible) return;
                   getLoadingModal(context, false);
-                  // barcode = "174790";
+                  barcode = "229966";
                   // var responseOrder = await Connections().getOrderByID(barcode);
                   var responseOrder =
                       await Connections().getOrderByIDHistoryLaravel(barcode);
@@ -84,12 +85,30 @@ class _ScannerPrintedState extends State<ScannerPrinted> {
                         });
                       }
                     } else if (widget.from == "logistic") {
-                      responseL = await Connections().updateOrderWithTime(
-                          barcode.toString(),
-                          "estado_logistico:ENVIADO",
-                          idUser,
-                          "",
-                          "");
+                      var responsereduceStock = await Connections()
+                          .updateProductVariantStock(
+                              responseOrder['sku'],
+                              responseOrder['cantidad_total'],
+                              0,
+                              responseOrder['id_comercial']);
+
+                      if (responsereduceStock == 0) {
+                        responseL = await Connections().updateOrderWithTime(
+                            barcode.toString(),
+                            "estado_logistico:ENVIADO",
+                            idUser,
+                            "",
+                            "");
+                      }
+                      if (responsereduceStock ==
+                          "No Dispone de Stock en la Reserva") {
+                        var emojiSaludo = "\u{1F44B}"; // 👋
+                        var _url = Uri.parse(
+                            "https://api.whatsapp.com/send?phone=+593${responseOrder['users'][0]['vendedores'][0]['telefono_1'].toString()}&text=Hola,${emojiSaludo} ${responseOrder['users'][0]['vendedores'][0]['nombre_comercial'].toString()} tu pedido con el id ${responseOrder['numero_orden']} no tiene Stock en tu reserva de Producto. Deseas Recargar el Stock o Eliminar la reserva ? ");
+                        if (!await launchUrl(_url)) {
+                          throw Exception('Could not launch $_url');
+                        }
+                      }
                     } else if (widget.from == "transport_printedguides") {
                       responseL = await Connections().updateOrderWithTime(
                           barcode.toString(),

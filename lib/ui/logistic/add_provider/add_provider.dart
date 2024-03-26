@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animated_icons/icons8.dart';
 import 'package:frontend/config/exports.dart';
@@ -238,20 +239,38 @@ class _AddProviderState extends StateMVC<AddProvider> {
 
           ElevatedButton(
             onPressed: () async {
-              var getAccesofEspecificRol =
-                  await Connections().getAccessofSpecificRol("PROVEEDOR");
+              // await loadData();
+              if (_nameController.text == "" ||
+                  _phone1Controller.text == "" ||
+                  _descriptionController.text == "" ||
+                  _emailController == "" ||
+                  _usernameController == "") {
+                AwesomeDialog(
+                  width: 500,
+                  context: context,
+                  dialogType: DialogType.error,
+                  animType: AnimType.rightSlide,
+                  title: 'Debe llenar todos los Campos',
+                  btnOkText: "Aceptar",
+                  btnOkColor: colors.colorGreen,
+                  btnOkOnPress: () {},
+                ).show();
+              } else {
+                var getAccesofEspecificRol =
+                    await Connections().getAccessofSpecificRol("PROVEEDOR");
 
-              _controller.addProvider(ProviderModel(
-                  name: _nameController.text,
-                  phone: _phone1Controller.text,
-                  description: _descriptionController.text,
-                  user: UserModel(
-                    username: _usernameController.text,
-                    email: _emailController.text,
-                    permisos: getAccesofEspecificRol,
-                  )));
+                _controller.addProvider(ProviderModel(
+                    name: _nameController.text,
+                    phone: _phone1Controller.text,
+                    description: _descriptionController.text,
+                    user: UserModel(
+                      username: _usernameController.text,
+                      email: _emailController.text,
+                      permisos: getAccesofEspecificRol,
+                    )));
 
-              Navigator.pop(context);
+                Navigator.pop(context);
+              }
             },
             style: ElevatedButton.styleFrom(
               foregroundColor: Colors.white,

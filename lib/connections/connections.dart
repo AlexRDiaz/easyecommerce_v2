@@ -5351,6 +5351,49 @@ class Connections {
     }
   }
 
+
+  getValuesProviderLaravel(arrayfiltersDefaultAnd, dateFilter) async {
+    try {
+      print(json.encode({
+            "date_filter": dateFilter,
+            "start": sharedPrefs!.getString("dateDesdeVendedor"),
+            "end": sharedPrefs!.getString("dateHastaVendedor"),
+            "or": [],
+            "and": arrayfiltersDefaultAnd,
+            "not": [],
+            "id_user" : sharedPrefs!.getString("id"),
+          }));
+      int res = 0;
+      var request = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/pedidos-shopify/products/values/provider"),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode({
+            "date_filter": dateFilter,
+            "start": sharedPrefs!.getString("dateDesdeVendedor"),
+            "end": sharedPrefs!.getString("dateHastaVendedor"),
+            "or": [],
+            "and": arrayfiltersDefaultAnd,
+            "not": [],
+            "id_user" : sharedPrefs!.getString("id"),
+          }));
+
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        res = 1;
+        print("res:" + res.toString());
+      } else {
+        print("res:" + res.toString());
+      }
+      return decodeData;
+    } catch (e) {
+      return (e);
+    }
+  }
+
 // ! para estado de cuente2
 
 // ** Mi cuenta vendedor
@@ -5553,7 +5596,13 @@ class Connections {
     print(sharedPrefs!.getString("dateDesdeVendedor"));
     print(sharedPrefs!.getString("dateHastaVendedor"));
     String urlnew = "$serverLaravel/api/pedidos-shopify/filterall";
-
+    print( json.encode({
+            "start": sharedPrefs!.getString("dateDesdeVendedor"),
+            "end": sharedPrefs!.getString("dateHastaVendedor"),
+            "and": andDefault,
+            "status": status,
+            "internal": internal,
+          }));
     try {
       var requestlaravel = await http.post(Uri.parse(urlnew),
           headers: {'Content-Type': 'application/json'},

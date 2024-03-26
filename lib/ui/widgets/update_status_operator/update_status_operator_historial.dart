@@ -468,20 +468,35 @@ class _UpdateStatusOperatorHistorialState
         tipo);
 
     // ! proceso separacion sku / id
-      String skuProducto = "";
-    if (datacostos['sku'] == "" || datacostos['sku'] == null) {
-      skuProducto = "UKNOWNPC0";
-    }
+    // String skuProducto = "";
+    // if (datacostos['sku'] == "" || datacostos['sku'] == null) {
+      // skuProducto = "UKNOWNPC0";
+    // }
     // skuProducto = datacostos["sku"].toString();
-    int indiceC = skuProducto.lastIndexOf('C');
-    String sku = skuProducto.substring(0, indiceC);
-    int idProducto = int.parse(skuProducto.substring(indiceC + 1));
-    // ! ******************************
-    await Connections().createStockHistory(idProducto, sku,
-        datacostos['cantidad_total'], "Aumento de Stock Pedido EN BODEGA", 1);
-    // ! ******************************
+    // int indiceC = skuProducto.lastIndexOf('C');
+    // String sku = skuProducto.substring(0, indiceC);
+    // int idProducto = int.parse(skuProducto.substring(indiceC + 1));
+    // // ! ******************************
+    // await Connections().createStockHistory(idProducto, sku,
+    //     datacostos['cantidad_total'], "Aumento de Stock Pedido EN BODEGA", 1);
+    // // ! ******************************
 
-    dialogEntregado(resDelivered);
+    // dialogEntregado(resDelivered);
+    // if (indiceC >= 0) {
+      // String sku = skuProducto.substring(0, indiceC);
+      // int idProducto = int.parse(skuProducto.substring(indiceC + 1));
+      // await Connections().createStockHistory(
+      //   idProducto,
+      //   sku,
+      //   datacostos['cantidad_total'],
+      //   "Aumento de Stock Pedido EN BODEGA",
+      //   1,
+      // );
+      dialogEntregado(resDelivered);
+    // } else {
+    //   // Manejar el caso en el que no se encuentre 'C' en la cadena skuProducto
+    //   print("No se encontró el carácter 'C' en la cadena skuProducto.");
+    // }
   }
 
   Future<void> paymentNoEntregado(datane, comentario) async {

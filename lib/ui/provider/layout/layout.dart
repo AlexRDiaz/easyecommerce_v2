@@ -308,6 +308,7 @@ import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/providers/provider/navigation_provider.dart';
 import 'package:frontend/ui/provider/add_provider/sub_providers_view.dart';
+import 'package:frontend/ui/provider/delivery_status_provider/delivery_status.dart';
 import 'package:frontend/ui/provider/guidesgroup/guides_sent/table_orders_guides_sent.dart';
 import 'package:frontend/ui/provider/guidesgroup/print_guides/print_guides.dart';
 import 'package:frontend/ui/provider/guidesgroup/printed_guides/printedguides.dart';
@@ -389,6 +390,11 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
     {
       "page": "Mis Transacciones",
       "view": const TransactionsView(),
+      "selected": false
+    },
+    {
+      "page": "Estado de Entregas",
+      "view": const DeliveryStatus(),
       "selected": false
     },
     {
@@ -633,6 +639,10 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
                               'Mis Transacciones',
                               'Mis Transacciones',
                               Icon(Icons.wallet, color: colorlabels)),
+                              _buildMenuItem(
+                              'Estado de Entregas',
+                              'Estado de Entregas',
+                              Icon(Icons.emoji_transportation, color: colorlabels)),
                         ]),
                         _buildMenu(
                             'Imprimir', Icon(Icons.print, color: colorlabels), [
