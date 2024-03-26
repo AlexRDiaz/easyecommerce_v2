@@ -52,7 +52,7 @@ class MyCustomWidget extends StatelessWidget {
                       SizedBox(width: 8.0),
                       CustomContainer(
                         value: value2,
-                        labelText: 'Costo Entrega!',
+                        labelText: 'Costo Entrega',
                         type: "1",
                       ),
                       SizedBox(width: 8.0),

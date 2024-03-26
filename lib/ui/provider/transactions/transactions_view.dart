@@ -8,6 +8,7 @@ import 'package:frontend/ui/provider/transactions/controllers/transactions_contr
 import 'package:frontend/ui/provider/transactions/withdrawal.dart';
 import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/loading.dart';
+import 'package:get/get.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:intl/intl.dart';
 
@@ -22,12 +23,11 @@ class _TransactionsViewState extends State<TransactionsView> {
   TextEditingController _search = TextEditingController(text: "");
   NumberPaginatorController paginatorController = NumberPaginatorController();
   int currentPage = 1;
-  int pageSize = 70;
-  int pageCount = 100;
+  int pageSize = 100;
+  int pageCount = 0;
   bool isLoading = false;
   bool isFirst = false;
   String saldo = '0';
-
 
   List populate = ["pedido", "orden_retiro"];
   List arrayFiltersAnd = [];
@@ -70,8 +70,6 @@ class _TransactionsViewState extends State<TransactionsView> {
       isLoading = true;
     });
 
-
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
@@ -113,6 +111,22 @@ class _TransactionsViewState extends State<TransactionsView> {
         getLoadingModal(context, false);
       });
 
+      var response = await _transactionsController.loadTransactionsByProvider(
+          sharedPrefs!.getString("idProvider"),
+          populate,
+          pageSize,
+          currentPage,
+          arrayFiltersOr,
+          arrayFiltersAnd,
+          sortFieldDefaultValue.toString(),
+          _search.text);
+
+      setState(() {
+        data = response['data'];
+        pageCount = response['last_page'];
+        total = response['total'];
+      });
+
       Future.delayed(Duration(milliseconds: 500), () {
         Navigator.pop(context);
       });
@@ -142,9 +156,15 @@ class _TransactionsViewState extends State<TransactionsView> {
                   child: Column(
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
+                          Container(
+                              width: MediaQuery.of(context).size.width * 0.5,
+                              child: numberPaginator()),
+                          SizedBox(
+                            width: 10,
+                          ),
                           ElevatedButton(
                             onPressed: () {
                               withdrawalInputDialog(context);
@@ -337,8 +357,8 @@ class _TransactionsViewState extends State<TransactionsView> {
                                 ),
                                 DataCell(
                                   data[index]['orden_retiro'] != null
-                                      ? Text(data[index]
-                                              ['orden_retiro']['fechaTransferencia']
+                                      ? Text(data[index]['orden_retiro']
+                                              ['fechaTransferencia']
                                           .toString()) // Si orden_retiro no es null
                                       : Text(data[index]['pedido'] == null
                                           ? ""

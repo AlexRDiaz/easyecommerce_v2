@@ -11,7 +11,9 @@ import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
-import 'package:frontend/ui/sellers/delivery_status/DeliveryStatusSellerInfo.dart';
+import 'package:frontend/ui/provider/delivery_status_provider/DeliveryStatusSellerInfo.dart';
+import 'package:frontend/ui/provider/delivery_status_provider/create_report.dart';
+// import 'package:frontend/ui/sellers/delivery_status/DeliveryStatusSellerInfo.dart';
 import 'package:frontend/ui/sellers/delivery_status/create_report.dart';
 import 'package:frontend/ui/transport/delivery_status_transport/Opcion.dart';
 import 'package:frontend/ui/utils/utils.dart';
@@ -20,6 +22,7 @@ import 'package:frontend/ui/transport/delivery_status_transport/delivery_details
 import 'package:frontend/ui/transport/my_orders_prv/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:frontend/ui/widgets/box_values.dart';
+import 'package:frontend/ui/widgets/box_values_provider.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:intl/intl.dart';
@@ -105,17 +108,14 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       TextEditingController(text: "");
   TextEditingController costoDevolucionController =
       TextEditingController(text: "");
-  TextEditingController costoProveedorController =
-      TextEditingController(text: "");
-
   bool changevalue = false;
 
   String selectedDateFilter = "FECHA ENTREGA";
 
   var arrayfiltersDefaultAnd = [
     {
-      'id_comercial':
-          sharedPrefs!.getString("idComercialMasterSeller").toString()
+      'product.warehouse.provider.id':
+          sharedPrefs!.getString("idProvider").toString(),
     },
     {'estado_interno': "CONFIRMADO"},
     {'estado_logistico': "ENVIADO"}
@@ -132,7 +132,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     'sub_ruta',
     'operadore',
     'operadore.user',
-    'novedades'
+    'novedades',
+    'product.warehouse.provider'
   ];
 
   List filtersOrCont = [
@@ -175,6 +176,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     'PENDIENTE',
     'NO DESEA',
   ];
+  
   List<String> listDateFilter = [
     'FECHA ENVIO',
     'FECHA ENTREGA',
@@ -200,7 +202,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   List arrayFiltersAnd2 = [];
 
   NumberPaginatorController paginatorController = NumberPaginatorController();
-  var getReport = CreateReport();
+  var getReport = CreateReportProvider();
   List selectedStatus = [];
   List selectedInternal = [];
   List<String> selectedChips = [];
@@ -211,7 +213,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     'novedades',
     'pedidoFecha',
     'ruta',
-    'subRuta'
+    'subRuta',
+    'product.warehouse.provider'
   ];
   //        $pedidos = PedidosShopify::with(['operadore.up_users', 'transportadora', 'users.vendedores', 'novedades', 'pedidoFecha', 'ruta', 'subRuta'])
 
@@ -245,8 +248,10 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           selectedDateFilter);
 
       var responseValues = await Connections()
-          .getValuesSellerLaravel(arrayfiltersDefaultAnd, selectedDateFilter);
-
+          .getValuesProviderLaravel(arrayfiltersDefaultAnd, selectedDateFilter);
+      
+      // print("ak-> $responseValues");
+      
       var responseLaravel = await Connections()
           .getOrdersForSellerStateSearchForDateSellerLaravel(
               populate,
@@ -260,11 +265,11 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
               _controllers.searchController.text,
               arrayFiltersNotEq,
               sortFieldDefaultValue);
-
+      // print("data> $responseLaravel");
       dataCounters = responseCounters;
       valuesTransporter = responseValues['data'];
       data = responseLaravel['data'];
-      print(">> $data");
+
       // totallast = responseLaravel['total'];
       totallast = dataCounters['TOTAL'];
       pageCount = responseLaravel['last_page'];
@@ -358,12 +363,16 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     }
 
     List DefaultAnd = [
+      // {
+      //   'id_comercial':
+      //       sharedPrefs!.getString("idComercialMasterSeller").toString()
+      // },
       {
-        'id_comercial':
-            sharedPrefs!.getString("idComercialMasterSeller").toString()
+        'product.warehouse.provider.id':
+            sharedPrefs!.getString("idProvider").toString(),
       },
-      // {'estado_interno': "CONFIRMADO"},
-      // {'estado_logistico': "ENVIADO"}
+      {'estado_interno': "CONFIRMADO"},
+      {'estado_logistico': "ENVIADO"}
     ];
     var responseAll = await Connections()
         .getAllOrdersByDateRangeLaravel(DefaultAnd, status, internal);
@@ -371,7 +380,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     allData = responseAll;
 
     if (allData.isNotEmpty) {
-      getReport.generateExcelFileWithData(allData);
+      getReport.generateExcelFileWithDataProvider(allData);
     } else {
       print("No existen datos con este filtro");
       showSuccessModal(context,
@@ -489,11 +498,11 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                               ),
                               Container(
                                 padding: EdgeInsets.all(10),
-                                child: boxValues(
+                                child: boxValuesProvider (
                                     totalValoresRecibidos:
                                         totalValoresRecibidos,
-                                    costoDeEntregas: costoDeEntregas,
-                                    devoluciones: devoluciones,
+                                    retirosefectivo: costoDeEntregas,
+                                    saldoactual: devoluciones,
                                     utilidad: utilidad),
                               ),
                             ],
@@ -683,10 +692,6 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                         horizontalMargin: 12,
                         minWidth: 4500,
                         columns: [
-                          const DataColumn2(
-                            label: Text(""),
-                            fixedWidth: 100,
-                          ),
                           DataColumn2(
                             label: InputFilter('Fecha Entrega',
                                 fechaEntregaController, 'fecha_entrega'),
@@ -721,28 +726,6 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                             size: ColumnSize.M,
                             onSort: (columnIndex, ascending) {
                               // sortFunc("NombreShipping");
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter(
-                                'Dirección',
-                                direccionShippingController,
-                                'direccion_shipping'),
-                            //label: Text('Dirección'),
-                            size: ColumnSize.M,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("DireccionShipping");
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter(
-                                'Teléfono Cliente',
-                                telefonoShippingController,
-                                'telefono_shipping'),
-                            //label: Text('Teléfono Cliente'),
-                            size: ColumnSize.S,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("TelefonoShipping");
                             },
                           ),
                           DataColumn2(
@@ -832,6 +815,15 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                             },
                           ),
                           DataColumn2(
+                            label: InputFilter('Costo Proveedor',
+                                marcaTiController, 'value_product_warehouse'),
+                            //label: Text('Fecha Ingreso'),
+                            size: ColumnSize.M,
+                            onSort: (columnIndex, ascending) {
+                              // sortFuncDate("Marca_T_I");
+                            },
+                          ),
+                          DataColumn2(
                             label: SelectFilter2(
                                 'Estado Devolución',
                                 'estado_devolucion',
@@ -845,59 +837,12 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                           ),
                           DataColumn2(
                             label: InputFilter(
-                                'Costo Entrega',
-                                costoEntregaController,
-                                'users.vendedores.costo_envio'),
-                            // label: Text('Costo Entrega'),  //costo_envio
-                            size: ColumnSize.S,
-                            onSort: (columnIndex, ascending) {
-                              // sortFuncCost("CostoEnvio");
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter(
-                                'Costo Devolución',
-                                costoDevolucionController,
-                                'users.vendedores.costo_devolucion'),
-                            // label: Text('Costo Devolución'), //costo_devolucion
-                            size: ColumnSize.S,
-                            onSort: (columnIndex, ascending) {
-                              // sortFuncCost("CostoDevolucion");
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter(
-                                'Costo Proveedor',
-                                costoProveedorController,
-                                'value_product_warehouse'),
-                            // label: Text('Costo Devolución'), //costo_devolucion
-                            size: ColumnSize.S,
-                            onSort: (columnIndex, ascending) {
-                              // sortFuncCost("CostoDevolucion");
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter('Fecha Ingreso',
-                                marcaTiController, 'marca_t_i'),
-                            //label: Text('Fecha Ingreso'),
-                            size: ColumnSize.S,
-                            onSort: (columnIndex, ascending) {
-                              // sortFuncDate("Marca_T_I");
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter(
                                 'Fecha Envío', marcaTiController, 'sent_at'),
                             //label: Text('Fecha Ingreso'),
                             size: ColumnSize.S,
                             onSort: (columnIndex, ascending) {
                               // sortFuncDate("Marca_T_I");
                             },
-                          ),
-                          DataColumn2(
-                            label: const Text('N. intentos'),
-                            size: ColumnSize.S,
-                            onSort: (columnIndex, ascending) {},
                           ),
                           const DataColumn2(
                             label: Text('Transportadora'),
@@ -913,44 +858,6 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                           data.isNotEmpty ? data.length : [].length,
                           (index) => DataRow(
                             cells: [
-                              DataCell(
-                                  (data[index]["status"] == "NOVEDAD" ||
-                                              data[index]["status"] ==
-                                                  "NO ENTREGADO") &&
-                                          data[index]["estado_devolucion"] ==
-                                              "PENDIENTE"
-                                      ? Row(children: [
-                                          Container(
-                                            height: height * 0.065,
-                                            child: IconButton(
-                                                onPressed: () {
-                                                  sendWhatsAppMessageConfirm(
-                                                      context, data[index]);
-                                                },
-                                                icon: Image.asset(
-                                                    images.whatsapp_icon)),
-                                          ),
-                                          Container(
-                                            height: height * 0.063,
-                                            child: IconButton(
-                                                onPressed: () async {
-                                                  var _url = Uri(
-                                                      scheme: 'tel',
-                                                      path:
-                                                          '${data[index]['telefono_shipping'].toString()}');
-
-                                                  if (!await launchUrl(_url)) {
-                                                    throw Exception(
-                                                        'Could not launch $_url');
-                                                  }
-                                                },
-                                                icon: Image.asset(
-                                                    images.phone_call)),
-                                          )
-                                        ])
-                                      : Container(), onTap: () {
-                                showInfo(context, index);
-                              }),
                               DataCell(
                                   Row(
                                     children: [
@@ -989,16 +896,6 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                               }),
                               DataCell(
                                   Text(data[index]['nombre_shipping']
-                                      .toString()), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['direccion_shipping']
-                                      .toString()), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['telefono_shipping']
                                       .toString()), onTap: () {
                                 showInfo(context, index);
                               }),
@@ -1063,58 +960,16 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                 showInfo(context, index);
                               }),
                               DataCell(
+                                  Text(data[index]['value_product_warehouse'] !=
+                                          null
+                                      ? data[index]['value_product_warehouse']
+                                          .toString()
+                                      : ""), onTap: () {
+                                showInfo(context, index);
+                              }),
+                              DataCell(
                                   Text(data[index]['estado_devolucion']
                                       .toString()), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['users'] != null
-                                      ? data[index]['status'].toString() ==
-                                                  "ENTREGADO" ||
-                                              data[index]['status']
-                                                      .toString() ==
-                                                  "NO ENTREGADO"
-                                          ? data[index]['users'][0]
-                                                      ['vendedores'][0]
-                                                  ['costo_envio']
-                                              .toString()
-                                          : ""
-                                      : ""), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['users'] != null
-                                      ? data[index]['status'].toString() ==
-                                              "NOVEDAD"
-                                          ? data[index]['estado_devolucion']
-                                                          .toString() ==
-                                                      "ENTREGADO EN OFICINA" ||
-                                                  data[index]['status']
-                                                          .toString() ==
-                                                      "DEVOLUCION EN RUTA" ||
-                                                  data[index]['estado_devolucion']
-                                                          .toString() ==
-                                                      "EN BODEGA" ||
-                                                  data[index]['estado_devolucion']
-                                                          .toString() ==
-                                                      "EN BODEGA PROVEEDOR"
-                                              ? data[index]['users'][0]
-                                                          ['vendedores'][0]
-                                                      ['costo_devolucion']
-                                                  .toString()
-                                              : ""
-                                          : ""
-                                      : ""), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['value_product_warehouse'] != null ? data[index]['value_product_warehouse'].toString() :" "),
-                                  onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['marca_t_i'].toString()),
-                                  onTap: () {
                                 showInfo(context, index);
                               }),
                               DataCell(
@@ -1122,11 +977,6 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                       ? ""
                                       : UIUtils.formatDate(
                                           data[index]['sent_at'].toString())),
-                                  onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  getLengthArrayMap(data[index]['novedades']),
                                   onTap: () {
                                 showInfo(context, index);
                               }),
@@ -1272,16 +1122,15 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     costoDeEntregas = 0;
     devoluciones = 0;
 
+    print("ak -> $valuesTransporter");
     setState(() {
       totalValoresRecibidos =
           double.parse(valuesTransporter['totalValoresRecibidos'].toString());
       costoDeEntregas =
-          double.parse(valuesTransporter['totalShippingCost'].toString());
+          double.parse(valuesTransporter['totalRetirosEfectivo'].toString());
       devoluciones =
-          double.parse(valuesTransporter['totalCostoDevolucion'].toString());
-      utilidad = (valuesTransporter['totalValoresRecibidos']) -
-          (valuesTransporter['totalShippingCost'] +
-              valuesTransporter['totalCostoDevolucion']);
+          double.parse(valuesTransporter['saldoActual'].toString());
+      utilidad = (valuesTransporter['totalValoresRecibidos'] - valuesTransporter['totalRetirosEfectivo']);
       utilidad = double.parse(utilidad.toString());
     });
   }
@@ -1790,30 +1639,6 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                             ],
                           ),
                           const SizedBox(height: 20),
-                          const Text("Estado Interno"),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              buildFilterChip(
-                                  'CONFIRMADO',
-                                  'estado_interno',
-                                  setState,
-                                  const Color.fromARGB(128, 165, 249, 211)),
-                              const SizedBox(width: 20),
-                              buildFilterChip(
-                                  'NO DESEA',
-                                  'estado_interno',
-                                  setState,
-                                  const Color.fromARGB(128, 139, 170, 237)),
-                              const SizedBox(width: 20),
-                              buildFilterChip(
-                                  'PENDIENTE',
-                                  'estado_interno',
-                                  setState,
-                                  const Color.fromARGB(128, 250, 151, 245)),
-                            ],
-                          ),
-                          const SizedBox(height: 30),
                         ], //
                       ),
                     ],
@@ -1876,34 +1701,6 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                             ],
                           ),
                           const SizedBox(height: 15),
-                          const Text("Estado Interno"),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              buildFilterChip(
-                                  'CONFIRMADO',
-                                  'estado_interno',
-                                  setState,
-                                  const Color.fromARGB(128, 165, 249, 211)),
-                              const SizedBox(width: 10),
-                              buildFilterChip(
-                                  'NO DESEA',
-                                  'estado_interno',
-                                  setState,
-                                  const Color.fromARGB(128, 139, 170, 237)),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              buildFilterChip(
-                                  'PENDIENTE',
-                                  'estado_interno',
-                                  setState,
-                                  const Color.fromARGB(128, 250, 151, 245)),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
                         ], //
                       ),
                     ],

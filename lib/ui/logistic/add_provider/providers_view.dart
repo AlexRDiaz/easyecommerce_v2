@@ -388,6 +388,7 @@ class _ProviderViewState extends State<ProviderView> {
           );
         }).then((value) => setState(() {
           //_futureProviderData = _loadProviders(); // Actualiza el Future
+          _providerController.loadProviders();
         }));
   }
 
