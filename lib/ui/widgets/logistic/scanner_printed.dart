@@ -45,7 +45,7 @@ class _ScannerPrintedState extends State<ScannerPrinted> {
                 onBarcodeScanned: (barcode) async {
                   if (!visible) return;
                   getLoadingModal(context, false);
-                  barcode = "229966";
+                  // barcode = "229966";
                   // var responseOrder = await Connections().getOrderByID(barcode);
                   var responseOrder =
                       await Connections().getOrderByIDHistoryLaravel(barcode);
