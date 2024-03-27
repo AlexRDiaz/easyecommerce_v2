@@ -51,7 +51,7 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
 
   String model = "PedidosShopify";
   var sortFieldDefaultValue = "id:DESC";
-  List populate = ['transportadora', 'users.vendedores'];
+  List populate = ['transportadora', 'users.vendedores','ruta'];
   List arrayFiltersAnd = [
     {"/estado_logistico": "PENDIENTE"},
     {"/estado_interno": "CONFIRMADO"}
@@ -355,6 +355,7 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                         });
 
                         if (value!) {
+                          print(data[index]);
                           optionsCheckBox.add({
                             "check": false,
                             "id": data[index]['id'].toString(),
@@ -362,7 +363,8 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                                 "${data[index]['users'] != null && data[index]['users'].toString() != "[]" ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal']}-${data[index]['numero_orden']}"
                                     .toString(),
                             "date": data[index]['marca_t_i'].toString(),
-                            "city": data[index]['ciudad_shipping'].toString(),
+                            // "city": data[index]['ciudad_shipping'].toString(),
+                            "city": data[index]['ruta'][0]["titulo"].toString(),
                             "product": data[index]['producto_p'].toString(),
                             "extraProduct":
                                 data[index]['producto_extra'].toString(),
@@ -370,7 +372,7 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                                 data[index]['cantidad_total'].toString(),
                             "phone":
                                 data[index]['telefono_shipping'].toString(),
-                            "price": data[index]['precio_total'].toString(),
+                            "price": data[index]['precio_total'].toString(),  
                             "name": data[index]['nombre_shipping'].toString(),
                             "transport": data[index]['transportadora'] !=
                                         null &&
@@ -881,7 +883,8 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
               "${element['users'] != null && element['users'].toString() != "[]" ? element['users'][0]['vendedores'][0]['nombre_comercial'] : element['tienda_temporal']}-${element['numero_orden']}"
                   .toString(),
           "date": element['marca_t_i'].toString(),
-          "city": element['ciudad_shipping'].toString(),
+          "city": element['ruta'][0]["titulo"].toString(),
+          // "city": element['ciudad_shipping'].toString(),
           "product": element['producto_p'].toString(),
           "extraProduct": element['producto_extra'].toString(),
           "quantity": element['cantidad_total'].toString(),

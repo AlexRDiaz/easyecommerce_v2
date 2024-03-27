@@ -37,6 +37,7 @@ class ProductsView extends StatefulWidget {
 class _ProductsViewState extends State<ProductsView> {
   TextEditingController _search = TextEditingController(text: "");
   NumberPaginatorController paginatorController = NumberPaginatorController();
+  NumberPaginatorController paginatorControllerI = NumberPaginatorController();
   int currentPage = 1;
   int pageSize = 70;
   int pageCount = 100;
@@ -50,6 +51,11 @@ class _ProductsViewState extends State<ProductsView> {
   var sortFieldDefaultValue = "product_id:DESC";
 
   List data = [];
+  List dataHistory = [];
+  int currentPageIntern = 1;
+  int pageSizeIntern = 100;
+  int pageCountIntern = 0;
+  int totalIntern = 0;
   int counterChecks = 0;
   int total = 0;
 
@@ -180,6 +186,34 @@ class _ProductsViewState extends State<ProductsView> {
     //   SnackBarHelper.showErrorSnackBar(
     //       context, "Ha ocurrido un error de conexión");
     // }
+  }
+
+  paginateDataIntern(productId) async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
+      var response = await Connections().historyByProduct(productId,pageSizeIntern,pageCountIntern);
+      setState(() {
+        dataHistory = response['data'];
+        pageCountIntern = response['last_page'];
+        totalIntern = response['total'];
+      });
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
+      setState(() {
+        isFirst = false;
+        isLoading = false;
+      });
+      // print("datos paginados");
+    } catch (e) {
+      SnackBarHelper.showErrorSnackBar(
+          context, "Ha ocurrido un error de conexión");
+    }
   }
 
   paginateData() async {
@@ -1627,8 +1661,11 @@ class _ProductsViewState extends State<ProductsView> {
     ProductModel product = ProductModel.fromJson(data);
 
     int? productId = product.productId;
-    var response = await Connections().historyByProduct(productId);
-    List dataHistory = response ?? [];
+    var response = await Connections().historyByProduct(productId,pageSizeIntern,pageCountIntern);
+
+    dataHistory = response['data'] ?? [];
+    pageCountIntern = response['last_page'];
+    totalIntern = response['total'];
 
     if (dataHistory.isNotEmpty) {
       print("successful");
@@ -1688,8 +1725,26 @@ class _ProductsViewState extends State<ProductsView> {
                               ),
                             ],
                           ),
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              SizedBox(
+                                // width: 100,
+                                child: Row(
+                                  children: [
+                                    Container(
+                                        width:
+                                            screenWidth*0.5,
+                                        child:
+                                            numberPaginatorIntern(productId)),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                           const SizedBox(height: 15),
                           Container(
+                            padding: EdgeInsets.all(20),
                             height: screenHeight * 0.7,
                             child: DataTable2(
                               decoration: BoxDecoration(
@@ -1859,6 +1914,27 @@ class _ProductsViewState extends State<ProductsView> {
         });
         if (!isLoading) {
           await paginateData();
+        }
+      },
+    );
+  }
+
+  NumberPaginator numberPaginatorIntern(id) {
+    return NumberPaginator(
+      config: NumberPaginatorUIConfig(
+        buttonSelectedBackgroundColor: const Color(0xFF253e55),
+        buttonShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5), // Customize the button shape
+        ),
+      ),
+      controller: paginatorControllerI,
+      numberPages: pageCount > 0 ? pageCount : 1,
+      onPageChange: (index) async {
+        setState(() {
+          currentPage = index + 1;
+        });
+        if (!isLoading) {
+          await paginateDataIntern(id);
         }
       },
     );

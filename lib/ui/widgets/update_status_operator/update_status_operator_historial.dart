@@ -435,6 +435,22 @@ class _UpdateStatusOperatorHistorialState
           Navigator.pop(context);
         },
       ).show();
+    } else if (resDelivered == "Transacciones ya Registradas") {
+      AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.warning,
+        animType: AnimType.rightSlide,
+        title: "$resDelivered",
+        //  desc: 'Vuelve a intentarlo',
+        btnCancel: Container(),
+        btnOkText: "Aceptar",
+        btnOkColor: Colors.green,
+        btnCancelOnPress: () {},
+        btnOkOnPress: () {
+          Navigator.pop(context);
+        },
+      ).show();
     } else {
       // ignore: use_build_context_synchronously
       AwesomeDialog(
@@ -470,7 +486,7 @@ class _UpdateStatusOperatorHistorialState
     // ! proceso separacion sku / id
     // String skuProducto = "";
     // if (datacostos['sku'] == "" || datacostos['sku'] == null) {
-      // skuProducto = "UKNOWNPC0";
+    // skuProducto = "UKNOWNPC0";
     // }
     // skuProducto = datacostos["sku"].toString();
     // int indiceC = skuProducto.lastIndexOf('C');
@@ -483,16 +499,16 @@ class _UpdateStatusOperatorHistorialState
 
     // dialogEntregado(resDelivered);
     // if (indiceC >= 0) {
-      // String sku = skuProducto.substring(0, indiceC);
-      // int idProducto = int.parse(skuProducto.substring(indiceC + 1));
-      // await Connections().createStockHistory(
-      //   idProducto,
-      //   sku,
-      //   datacostos['cantidad_total'],
-      //   "Aumento de Stock Pedido EN BODEGA",
-      //   1,
-      // );
-      dialogEntregado(resDelivered);
+    // String sku = skuProducto.substring(0, indiceC);
+    // int idProducto = int.parse(skuProducto.substring(indiceC + 1));
+    // await Connections().createStockHistory(
+    //   idProducto,
+    //   sku,
+    //   datacostos['cantidad_total'],
+    //   "Aumento de Stock Pedido EN BODEGA",
+    //   1,
+    // );
+    dialogEntregado(resDelivered);
     // } else {
     //   // Manejar el caso en el que no se encuentre 'C' en la cadena skuProducto
     //   print("No se encontró el carácter 'C' en la cadena skuProducto.");

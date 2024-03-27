@@ -5351,18 +5351,17 @@ class Connections {
     }
   }
 
-
   getValuesProviderLaravel(arrayfiltersDefaultAnd, dateFilter) async {
     try {
       print(json.encode({
-            "date_filter": dateFilter,
-            "start": sharedPrefs!.getString("dateDesdeVendedor"),
-            "end": sharedPrefs!.getString("dateHastaVendedor"),
-            "or": [],
-            "and": arrayfiltersDefaultAnd,
-            "not": [],
-            "id_user" : sharedPrefs!.getString("id"),
-          }));
+        "date_filter": dateFilter,
+        "start": sharedPrefs!.getString("dateDesdeVendedor"),
+        "end": sharedPrefs!.getString("dateHastaVendedor"),
+        "or": [],
+        "and": arrayfiltersDefaultAnd,
+        "not": [],
+        "id_user": sharedPrefs!.getString("id"),
+      }));
       int res = 0;
       var request = await http.post(
           Uri.parse(
@@ -5377,7 +5376,7 @@ class Connections {
             "or": [],
             "and": arrayfiltersDefaultAnd,
             "not": [],
-            "id_user" : sharedPrefs!.getString("id"),
+            "id_user": sharedPrefs!.getString("id"),
           }));
 
       var response = await request.body;
@@ -5596,13 +5595,13 @@ class Connections {
     print(sharedPrefs!.getString("dateDesdeVendedor"));
     print(sharedPrefs!.getString("dateHastaVendedor"));
     String urlnew = "$serverLaravel/api/pedidos-shopify/filterall";
-    print( json.encode({
-            "start": sharedPrefs!.getString("dateDesdeVendedor"),
-            "end": sharedPrefs!.getString("dateHastaVendedor"),
-            "and": andDefault,
-            "status": status,
-            "internal": internal,
-          }));
+    print(json.encode({
+      "start": sharedPrefs!.getString("dateDesdeVendedor"),
+      "end": sharedPrefs!.getString("dateHastaVendedor"),
+      "and": andDefault,
+      "status": status,
+      "internal": internal,
+    }));
     try {
       var requestlaravel = await http.post(Uri.parse(urlnew),
           headers: {'Content-Type': 'application/json'},
@@ -6423,13 +6422,14 @@ class Connections {
   }
 
   //*
-  Future historyByProduct(id) async {
+  Future historyByProduct(id, pageSize, pageNumber) async {
     int res;
     try {
-      var response = await http.get(
-        Uri.parse("$serverLaravel/api/stockhistory/byproduct/$id"),
-        headers: {'Content-Type': 'application/json'},
-      );
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/stockhistory/byproduct/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body:
+              json.encode({"page_size": pageSize, "page_number": pageNumber}));
 
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -7854,10 +7854,21 @@ class Connections {
             "archivo": archivo,
             "tipo": tipo
           }));
-      if (response.statusCode != 200) {
-        return 1;
+
+      if (response.statusCode == 200) {
+        // Si la respuesta es 200, se procesó la solicitud correctamente
+        var responseData = json.decode(response.body);
+        var res = responseData["res"];
+        if (res == "Transacciones ya Registradas") {
+          // Si la transacción ya está registrada, manejarlo aquí
+          return res;
+        } else {
+          // Si no se encontraron errores, continuar con el flujo normal
+          return 0;
+        }
       } else {
-        return 0;
+        // Si la solicitud no fue exitosa, manejar el error
+        return 2;
       }
     } catch (e) {
       return 2;
