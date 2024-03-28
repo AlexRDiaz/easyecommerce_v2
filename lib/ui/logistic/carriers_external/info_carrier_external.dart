@@ -140,12 +140,10 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
         coveragesList = data[0]['carrier_coverages'];
         statusList = jsonDecode(data[0]['status']);
         costsRes = jsonDecode(data[0]['costs']);
-        localLocalNormalController.text = costsRes["local_local_normal"];
-        localLocalEspecialController.text = costsRes["local_local_especial"];
-        localProvinciaNormalController.text =
-            costsRes["local_provincia_normal"];
-        localProvinciaEspecialController.text =
-            costsRes["local_provincia_especial"];
+        localLocalNormalController.text = costsRes["normal1"];
+        localLocalEspecialController.text = costsRes["especial1"];
+        localProvinciaNormalController.text = costsRes["normal2"];
+        localProvinciaEspecialController.text = costsRes["especial2"];
         costoDevolucionController.text = costsRes["costo_devolucion"];
         costoSeguroController.text = costsRes["costo_seguro"];
         costoBaseController.text = costsRes["costo_recaudo"]["base"];

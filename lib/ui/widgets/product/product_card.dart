@@ -60,12 +60,11 @@ class ProductCard extends StatelessWidget {
     if (product.seller_owned != 0) {
       List<ReserveModel>? reservesList = product.reserves;
       if (reservesList != null) {
-        for (int i = 0; i < reservesList.length; i++) {
+        for (var reserva in reservesList) {
           var idMaster =
               sharedPrefs!.getString("idComercialMasterSeller").toString();
-          ReserveModel reserve = reservesList[i];
-          //
-          if (int.parse(idMaster) == int.parse(reserve.idComercial as String)) {
+          ReserveModel reserve = reserva;
+          if (idMaster == reserve.idComercial.toString()) {
             totalReservas += reserve.stock!;
           } else {
             // print("Existen reservas pero NO de este userMaster");
@@ -343,8 +342,8 @@ class ProductCard extends StatelessWidget {
                         ),
                         Text(
                           product.seller_owned != 0
-                              ? '$totalReservas'
-                              : '${product.stock}',
+                              ? totalReservas.toString()
+                              : product.stock.toString(),
                           // style: TextStyle(
                           //   color: Colors.black,
                           //   fontSize: textSize,

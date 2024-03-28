@@ -74,6 +74,8 @@ class Connections {
               "seller_costo_envio",
               decodeDataUser['user']['vendedores'][0]['costo_envio']
                   .toString());
+          sharedPrefs!.setString("seller_telefono",
+              decodeDataUser['user']['vendedores'][0]['telefono_1'].toString());
           List temporalPermisos =
               jsonDecode(decodeDataUser['user']['permisos']);
           List<String> finalPermisos = [];
@@ -6596,7 +6598,7 @@ class Connections {
   //  *
   Future createOrderProduct(
       idMaster,
-      numOrder,
+      nameComercial,
       nombre,
       direccion,
       telefono,
@@ -6608,32 +6610,66 @@ class Connections {
       observacion,
       // sku,
       productId,
-      variantsDetails) async {
+      variantsDetails,
+      recaudo,
+      //iterno
+      rutaId,
+      transportadoraId,
+      //externo
+      carrierExternalId,
+      ciudadIdDest) async {
     try {
-      var response = await http.post(
-          Uri.parse("$serverLaravel/api/orderproduct/$idMaster"),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({
-            "NumeroOrden": numOrder.toString(),
-            "NombreShipping": nombre.toString(),
-            "DireccionShipping": direccion.toString(),
-            "TelefonoShipping": telefono.toString(),
-            "CiudadShipping": ciudad.toString(),
-            "ProductoP": productoP.toString(),
-            "ProductoExtra": productoE.toString(),
-            "Cantidad_Total": cantidadT.toString(),
-            "PrecioTotal": precio.toString(),
-            "Observacion": observacion.toString(),
-            "Name_Comercial": sharedPrefs!.getString("NameComercialSeller"),
-            // "sku": sku.toString(),
-            "product_id": int.parse(productId),
-            "variant_details": json.encode(variantsDetails)
-          }));
+      String? generatedBy = sharedPrefs!.getString("id");
+      print(json.encode({
+        "generatedBy": generatedBy,
+        "IdComercial": idMaster,
+        "Name_Comercial": nameComercial,
+        "NombreShipping": nombre.toString(),
+        "DireccionShipping": direccion.toString(),
+        "TelefonoShipping": telefono.toString(),
+        "CiudadShipping": ciudad.toString(),
+        "ProductoP": productoP.toString(),
+        "ProductoExtra": productoE.toString(),
+        "Cantidad_Total": cantidadT.toString(),
+        "PrecioTotal": precio.toString(),
+        "Observacion": observacion.toString(),
+        "product_id": int.parse(productId),
+        "variant_details": json.encode(variantsDetails),
+        "ruta": rutaId,
+        "transportadora": transportadoraId,
+        "carrier_id": carrierExternalId,
+        "ciudad_des": ciudadIdDest,
+      }));
+
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/orderproduct"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "generatedBy": generatedBy,
+                "IdComercial": idMaster,
+                "Name_Comercial": nameComercial,
+                "NombreShipping": nombre.toString(),
+                "DireccionShipping": direccion.toString(),
+                "TelefonoShipping": telefono.toString(),
+                "CiudadShipping": ciudad.toString(),
+                "ProductoP": productoP.toString(),
+                "ProductoExtra": productoE.toString(),
+                "Cantidad_Total": cantidadT.toString(),
+                "PrecioTotal": precio.toString(),
+                "Observacion": observacion.toString(),
+                "product_id": int.parse(productId),
+                "variant_details": json.encode(variantsDetails),
+                "recaudo": recaudo,
+                "ruta": rutaId,
+                "transportadora": transportadoraId,
+                "carrier_id": int.parse(carrierExternalId),
+                "ciudad_des": int.parse(ciudadIdDest),
+              }));
 
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         // print(decodeData['orden_ingresada']);
-        return decodeData['orden_ingresada'];
+        return decodeData['data'];
       } else {
         return 1;
       }
@@ -6913,6 +6949,25 @@ class Connections {
       var response = await http.get(
           Uri.parse("$serverLaravel/api/provincias/coverages/$id"),
           headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  //  *
+  getCoverage(and) async {
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/carriercoverage/search"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"and": and}));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         // print(decodeData);

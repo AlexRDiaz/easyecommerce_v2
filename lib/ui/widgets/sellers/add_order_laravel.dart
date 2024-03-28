@@ -47,17 +47,6 @@ class _AddOrderSellersLaravelState extends State<AddOrderSellersLaravel> {
   String? selectedValueTransport;
   String? comercial = sharedPrefs!.getString("NameComercialSeller");
 
-  //
-  List<String> carriersTypeToSelect = ["Interno", "Externo"];
-  String? selectedCarrierType;
-  List<String> carriersExternalsToSelect = [];
-  String? selectedCarrierExternal;
-  List<String> provinciasToSelect = [];
-  String? selectedProvincia;
-  List<String> citiesToSelect = [];
-  String? selectedCity;
-  bool recaudo = true;
-
   @override
   void didChangeDependencies() {
     getRoutes();
@@ -109,38 +98,18 @@ class _AddOrderSellersLaravelState extends State<AddOrderSellersLaravel> {
     }
   }
 
-  getCarriersExternals() async {
-    try {
-      var responseCarriers = await Connections().getCarriersExternal([], "");
-      for (var item in responseCarriers) {
-        carriersExternalsToSelect.add("${item['name']}-${item['id']}");
-      }
-    } catch (error) {
-      print('Error al cargar rutas: $error');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.0),
-        color: Colors.white,
-      ),
-      padding: EdgeInsets.all(20),
-      width: screenWidth * 70,
-      // color: Colors.amber,
-      height: MediaQuery.of(context).size.height,
-      child: Form(
-        key: formKey,
-        child: Row(
-          children: [
-            Container(
-              width: screenWidth * 0.4,
-              child: ListView(
+    return AlertDialog(
+      content: Container(
+        width: 500,
+        height: MediaQuery.of(context).size.height,
+        // color: Colors.white,
+        child: Form(
+          key: formKey,
+          child: ListView(
+            children: [
+              Column(
                 children: [
                   const SizedBox(height: 10),
                   const Align(
@@ -153,7 +122,6 @@ class _AddOrderSellersLaravelState extends State<AddOrderSellersLaravel> {
                       ),
                     ),
                   ),
-
                   DropdownButtonHideUnderline(
                     child: DropdownButton2<String>(
                       isExpanded: true,
@@ -365,392 +333,125 @@ class _AddOrderSellersLaravelState extends State<AddOrderSellersLaravel> {
                   const SizedBox(
                     height: 30,
                   ),
-                  _btnsCancelSave(context),
-                ],
-              ),
-            ),
-            const SizedBox(
-              width: 20,
-            ),
-            Align(
-              alignment: Alignment.topLeft,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Transportadora",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(
-                    width: 300,
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton2<String>(
-                        isExpanded: true,
-                        hint: Text(
-                          'Tipo',
-                          style: TextStyle(
-                              fontSize: 14,
-                              color: Theme.of(context).hintColor,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        items: carriersTypeToSelect
-                            .map((item) => DropdownMenuItem(
-                                  value: item,
-                                  child: Text(
-                                    item,
-                                    style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ))
-                            .toList(),
-                        value: selectedCarrierType,
-                        onChanged: (value) async {
-                          setState(() {
-                            selectedCarrierType = value as String;
-                          });
-                          // await getTransports();
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
                         },
-                      ),
-                    ),
-                  ),
-                  Visibility(
-                    visible: selectedCarrierType == "Interno",
-                    child: SizedBox(
-                      width: 350,
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton2<String>(
-                          isExpanded: true,
-                          hint: Text(
-                            'Seleccione una Ciudad',
-                            style: TextStyle(
-                                fontSize: 14,
-                                color: Theme.of(context).hintColor,
-                                fontWeight: FontWeight.bold),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF0EEE8F4),
+                          // backgroundColor: Colors.transparent,
+                          side: const BorderSide(
+                              color: Color(0xFF031749),
+                              width: 2), // Borde del botón
+                        ),
+                        child: const Text(
+                          "CANCELAR",
+                          style: TextStyle(
+                            color: Color(0xFF031749), // Color del texto
+                            fontWeight: FontWeight.bold,
                           ),
-                          items: routes
-                              .map((item) => DropdownMenuItem(
-                                    value: item,
-                                    child: Text(
-                                      item.split('-')[0],
-                                      style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ))
-                              .toList(),
-                          value: selectedValueRoute,
-                          onChanged: (value) async {
-                            setState(() {
-                              selectedValueRoute = value as String;
-                              transports.clear();
-                              selectedValueTransport = null;
-                            });
-                            await getTransports();
-                          },
                         ),
                       ),
-                    ),
-                  ),
-                  Visibility(
-                    visible: selectedCarrierType == "Interno",
-                    child: SizedBox(
-                      width: 350,
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton2<String>(
-                          isExpanded: true,
-                          hint: Text(
-                            'Seleccione una Transportadora',
-                            style: TextStyle(
-                                fontSize: 14,
-                                color: Theme.of(context).hintColor,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          items: transports
-                              .map((item) => DropdownMenuItem(
-                                    value: item,
-                                    child: Text(
-                                      item.split('-')[0],
-                                      style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ))
-                              .toList(),
-                          value: selectedValueTransport,
-                          onChanged: selectedValueRoute == null
-                              ? null
-                              : (value) {
-                                  setState(() {
-                                    selectedValueTransport = value as String;
-                                  });
-                                },
-                        ),
+                      const SizedBox(
+                        width: 10,
                       ),
-                    ),
-                  ),
-                  Visibility(
-                    visible: selectedCarrierType == "Externo",
-                    child: SizedBox(
-                      width: 350,
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton2<String>(
-                          isExpanded: true,
-                          hint: Text(
-                            'Seleccione Transportadora Externa',
-                            style: TextStyle(
-                                fontSize: 14,
-                                color: Theme.of(context).hintColor,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          items: carriersExternalsToSelect
-                              .map((item) => DropdownMenuItem(
-                                    value: item,
-                                    child: Text(
-                                      item,
-                                      style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ))
-                              .toList(),
-                          value: selectedCarrierExternal,
-                          onChanged: (value) async {
-                            setState(() {
-                              selectedCarrierExternal = value as String;
-                            });
-                            // await getTransports();
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                  Visibility(
-                    visible: selectedCarrierType == "Externo",
-                    child: SizedBox(
-                      width: 350,
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton2<String>(
-                          isExpanded: true,
-                          hint: Text(
-                            'Provincia',
-                            style: TextStyle(
-                                fontSize: 14,
-                                color: Theme.of(context).hintColor,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          items: provinciasToSelect
-                              .map((item) => DropdownMenuItem(
-                                    value: item,
-                                    child: Text(
-                                      item,
-                                      style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ))
-                              .toList(),
-                          value: selectedCarrierExternal,
-                          onChanged: (value) async {
-                            setState(() {
-                              selectedCarrierExternal = value as String;
-                            });
-                            // await getTransports();
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                  Visibility(
-                    visible: selectedCarrierType == "Externo",
-                    child: SizedBox(
-                      width: 350,
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton2<String>(
-                          isExpanded: true,
-                          hint: Text(
-                            'Ciudad',
-                            style: TextStyle(
-                                fontSize: 14,
-                                color: Theme.of(context).hintColor,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          items: citiesToSelect
-                              .map((item) => DropdownMenuItem(
-                                    value: item,
-                                    child: Text(
-                                      item,
-                                      style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ))
-                              .toList(),
-                          value: selectedCarrierExternal,
-                          onChanged: (value) async {
-                            setState(() {
-                              selectedCarrierExternal = value as String;
-                            });
-                            // await getTransports();
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                  Visibility(
-                    visible: selectedCarrierType == "Externo",
-                    child: Row(
-                      children: [
-                        Checkbox(
-                          value: recaudo,
-                          onChanged: (value) {
+                      ElevatedButton(
+                          onPressed: () async {
                             //
-                            setState(() {
-                              recaudo = value!;
-                            });
-                            print(recaudo);
-                          },
-                          shape: CircleBorder(),
-                        ),
-                        Text("Con Recaudo"),
-                        Checkbox(
-                          value: !recaudo,
-                          onChanged: (value) {
-                            //
-                            setState(() {
-                              recaudo = !value!;
-                            });
-                            print(recaudo);
-                          },
-                          shape: CircleBorder(),
-                        ),
-                        Text("Sin Recaudo"),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+                            if (selectedValueRoute == null ||
+                                selectedValueTransport == null) {
+                              AwesomeDialog(
+                                width: 500,
+                                context: context,
+                                dialogType: DialogType.error,
+                                animType: AnimType.rightSlide,
+                                title: 'Error de selección',
+                                desc:
+                                    'Debe seleccionar una ciudad y una transportadora.',
+                                btnCancel: Container(),
+                                btnOkText: "Aceptar",
+                                btnOkColor: colors.colorGreen,
+                                btnCancelOnPress: () {},
+                                btnOkOnPress: () {},
+                              ).show();
+                            } else {
+                              if (formKey.currentState!.validate()) {
+                                getLoadingModal(context, false);
 
-            // Container(
-            //   width: screenWidth * 0.4,
-            //   child:
-            // ),],),
-          ],
+                                String priceTotal =
+                                    "${_precioTotalEnt.text}.${_precioTotalDec.text}";
+
+                                //createOrder
+                                var response =
+                                    await Connections().createOrderLaravel(
+                                  _nombre.text,
+                                  selectedValueRoute.toString().split("-")[0],
+                                  _direccion.text,
+                                  _telefono.text,
+                                  _producto.text,
+                                  _productoE.text,
+                                  _cantidad.text,
+                                  priceTotal,
+                                  _observacion.text,
+                                  selectedValueRoute.toString().split("-")[1],
+                                  selectedValueTransport
+                                      .toString()
+                                      .split("-")[1],
+                                );
+
+                                // print(response);
+                                if (response == 0) {
+                                  var _url = Uri.parse(
+                                      """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda ${comercial}, Me comunico con usted para confirmar su pedido de compra de: ${_producto.text}${_productoE.text.isNotEmpty ? ' y ${_productoE.text}' : ''}, por un valor total de: \$${priceTotal}. Su dirección de entrega será: ${_direccion.text} Es correcto...? Desea mas información del producto?""");
+                                  if (!await launchUrl(_url)) {
+                                    throw Exception('Could not launch $_url');
+                                  }
+
+                                  Navigator.pop(context);
+                                  Navigator.pop(context);
+                                } else {
+                                  // ignore: use_build_context_synchronously
+                                  AwesomeDialog(
+                                    width: 500,
+                                    context: context,
+                                    dialogType: DialogType.error,
+                                    animType: AnimType.rightSlide,
+                                    title: "Error al crear el pedido",
+                                    //  desc: 'Vuelve a intentarlo',
+                                    btnCancel: Container(),
+                                    btnOkText: "Aceptar",
+                                    btnOkColor: Colors.green,
+                                    btnCancelOnPress: () {},
+                                    btnOkOnPress: () {
+                                      Navigator.pop(context);
+                                    },
+                                  ).show();
+                                }
+                              }
+                            }
+
+                            //
+                          },
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(
+                              Color(0xFF031749),
+                            ),
+                          ),
+                          child: const Text(
+                            "GUARDAR",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          )),
+                    ],
+                  )
+                ],
+              )
+            ],
+          ),
         ),
       ),
-    );
-  }
-
-  Row _btnsCancelSave(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF0EEE8F4),
-            // backgroundColor: Colors.transparent,
-            side: const BorderSide(
-                color: Color(0xFF031749), width: 2), // Borde del botón
-          ),
-          child: const Text(
-            "CANCELAR",
-            style: TextStyle(
-              color: Color(0xFF031749), // Color del texto
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        const SizedBox(
-          width: 10,
-        ),
-        ElevatedButton(
-            onPressed: () async {
-              //
-              if (selectedValueRoute == null ||
-                  selectedValueTransport == null) {
-                AwesomeDialog(
-                  width: 500,
-                  context: context,
-                  dialogType: DialogType.error,
-                  animType: AnimType.rightSlide,
-                  title: 'Error de selección',
-                  desc: 'Debe seleccionar una ciudad y una transportadora.',
-                  btnCancel: Container(),
-                  btnOkText: "Aceptar",
-                  btnOkColor: colors.colorGreen,
-                  btnCancelOnPress: () {},
-                  btnOkOnPress: () {},
-                ).show();
-              } else {
-                if (formKey.currentState!.validate()) {
-                  getLoadingModal(context, false);
-
-                  String priceTotal =
-                      "${_precioTotalEnt.text}.${_precioTotalDec.text}";
-
-                  //createOrder
-                  var response = await Connections().createOrderLaravel(
-                    _nombre.text,
-                    selectedValueRoute.toString().split("-")[0],
-                    _direccion.text,
-                    _telefono.text,
-                    _producto.text,
-                    _productoE.text,
-                    _cantidad.text,
-                    priceTotal,
-                    _observacion.text,
-                    selectedValueRoute.toString().split("-")[1],
-                    selectedValueTransport.toString().split("-")[1],
-                  );
-
-                  // print(response);
-                  if (response == 0) {
-                    var _url = Uri.parse(
-                        """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda ${comercial}, Me comunico con usted para confirmar su pedido de compra de: ${_producto.text}${_productoE.text.isNotEmpty ? ' y ${_productoE.text}' : ''}, por un valor total de: \$${priceTotal}. Su dirección de entrega será: ${_direccion.text} Es correcto...? Desea mas información del producto?""");
-                    if (!await launchUrl(_url)) {
-                      throw Exception('Could not launch $_url');
-                    }
-
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-                  } else {
-                    // ignore: use_build_context_synchronously
-                    AwesomeDialog(
-                      width: 500,
-                      context: context,
-                      dialogType: DialogType.error,
-                      animType: AnimType.rightSlide,
-                      title: "Error al crear el pedido",
-                      //  desc: 'Vuelve a intentarlo',
-                      btnCancel: Container(),
-                      btnOkText: "Aceptar",
-                      btnOkColor: Colors.green,
-                      btnCancelOnPress: () {},
-                      btnOkOnPress: () {
-                        Navigator.pop(context);
-                      },
-                    ).show();
-                  }
-                }
-              }
-
-              //
-            },
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(
-                Color(0xFF031749),
-              ),
-            ),
-            child: const Text(
-              "GUARDAR",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            )),
-      ],
     );
   }
 }
