@@ -1189,6 +1189,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                   Icons8.alert);
                             } else {
                               if (formKey.currentState!.validate()) {
+                                print("$selectedCarrierType");
                                 getLoadingModal(context, false);
 
                                 String priceTotal =
@@ -1199,6 +1200,21 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                 String idProd =
                                     widget.product.productId.toString();
 
+                                String messageVar = "";
+
+                                if (widget.product.isvariable == 1) {
+                                  messageVar = " (";
+                                  for (var variant in variantsDetailsList) {
+                                    messageVar +=
+                                        "${variant['quantity']}-${variant['variant_title']}; ";
+                                  }
+                                  messageVar = messageVar.substring(
+                                      1, messageVar.length - 2);
+                                  messageVar += ") ";
+                                }
+
+                                print(messageVar);
+
                                 String remitente_address = widget
                                     .product.warehouse!.address
                                     .toString();
@@ -1207,6 +1223,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                 String remitente_city_ref = "";
                                 String destinatario_prov_ref = "";
                                 String destinatario_city_ref = "";
+                                var dataIntegration;
 
                                 if (selectedCarrierType == "Externo") {
                                   var responseProvCityRem =
@@ -1233,55 +1250,29 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                       responseProvCityRem['id_prov_ref'];
                                   remitente_city_ref =
                                       responseProvCityRem['id_ciudad_ref'];
-                                  print("REMITENTE:");
-                                  print(
-                                      "$origen_prov: $remitente_city_ref-${responseProvCityRem['coverage_external']['dpa_provincia']['provincia']}");
-                                  print(
-                                      "${widget.product.warehouse!.city.toString()}: $remitente_city_ref");
+                                  // print("REMITENTE:");
+                                  // print(
+                                  //     "$origen_prov: $remitente_city_ref-${responseProvCityRem['coverage_external']['dpa_provincia']['provincia']}");
+                                  // print(
+                                  //     "${widget.product.warehouse!.city.toString()}: $remitente_city_ref");
 
                                   destinatario_prov_ref =
                                       selectedCity.toString().split("-")[3];
                                   destinatario_city_ref =
                                       selectedCity.toString().split("-")[4];
 
-                                  print("DESTINATARIO:");
-                                  print(
-                                      "${selectedProvincia.toString().split("-")[0]}: $destinatario_prov_ref");
-                                  print(
-                                      "${selectedCity.toString().split("-")[0]}: $destinatario_city_ref");
+                                  // print("DESTINATARIO:");
+                                  // print(
+                                  //     "${selectedProvincia.toString().split("-")[0]}: $destinatario_prov_ref");
+                                  // print(
+                                  //     "${selectedCity.toString().split("-")[0]}: $destinatario_city_ref");
 
-/*
-{
-  "remitente": {
-    "nombre": "MANDESTORE",
-    "telefono": "0990479411",
-    "provincia":"1031",
-    "ciudad":"56331",
-    "direccion": "Test Direcc"
-  },
-  "destinatario": {
-    "nombre": "Cliente test",
-    "telefono": "0988860822",
-    "provincia":"1032",
-    "ciudad":"56348",
-    "direccion": "direccion cliente test "
-  },
-  "cant_paquetes": "1",
-  "peso_total": "1.00",  
-  "documento_venta": "",
-  "contenido": "Impresora térmica",
-  "observacion": "",
-  "fecha": "2024-03-27 00:09:04",
-  "declarado": 340,
-  "con_recaudo": true
-}
- */
                                   DateTime now = DateTime.now();
                                   String formattedDateTime =
                                       DateFormat('yyyy-MM-dd HH:mm:ss')
                                           .format(now);
 
-                                  var sendIntegration = {
+                                  dataIntegration = {
                                     "remitente": {
                                       "nombre": sharedPrefs!
                                           .getString("NameComercialSeller"),
@@ -1298,18 +1289,18 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                       "ciudad": destinatario_city_ref,
                                       "direccion": _direccion.text
                                     },
-                                    "cant_paquetes": quantityTotal,
-                                    "peso_total": "1.00",
+                                    "cant_paquetes": "1",
+                                    "peso_total": "2.00",
                                     "documento_venta": "",
-                                    "contenido": _producto.text,
+                                    "contenido":
+                                        "${quantityTotal};${_producto.text}${widget.product.isvariable == 1 ? messageVar : ""};${_productoE.text}", //agregar cantidad;producto;(variantes);(producto_extra) 1;Impresora termica; azul ;Envio Prioritario
                                     "observacion": _observacion.text,
                                     "fecha": formattedDateTime,
-                                    "declarado": 340,
+                                    "declarado": double.parse(priceTotal),
                                     "con_recaudo": recaudo ? true : false
                                   };
-                                  // print(sendIntegration);
+                                  print(dataIntegration);
                                 }
-
 /*
                                 var response =
                                     await Connections().createOrderProduct(
@@ -1353,18 +1344,32 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                       ? selectedCity.toString().split("-")[1]
                                       : 0,
                                 );
-*/
 
-                                String messageVar = "";
-                                if (widget.product.isvariable == 1) {
-                                  messageVar = " (";
-                                  for (var variant in variantsDetailsList) {
-                                    messageVar +=
-                                        "${variant['quantity']} de ${variant['variant_title']}; ";
+                                // print(response);
+
+                                if (selectedCarrierType == "Externo" &&
+                                    selectedCarrierExternal
+                                            .toString()
+                                            .split("-")[1] ==
+                                        "1") {
+                                  if (response != 1 || response != 2) {
+                                    //send Gintra
+                                    print("send Gintra");
+                                    var responseGintra = await Connections()
+                                        .postOrdersGintra(dataIntegration);
+                                    print("responseInteg");
+                                    print(responseGintra);
+
+                                    if (responseGintra != []) {
+                                      await Connections().updatenueva(
+                                          response['id'], {
+                                        "id_externo": responseGintra['guia']
+                                      });
+                                    }
+                                    //
                                   }
-                                  messageVar += ") ";
                                 }
-
+*/
                                 var _url = Uri.parse(
                                   """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda ${comercial}, Me comunico con usted para confirmar su pedido de compra de: ${_producto.text}${messageVar}${_productoE.text.isNotEmpty ? ' y ${_productoE.text}' : ''}, por un valor total de: \$${priceTotal}. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
                                 );
@@ -1428,8 +1433,17 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
 
   Future<Map<String, dynamic>> generateVariantData(String sku) async {
     Map<String, dynamic>? variantFound = findVariantBySku(sku);
-    //{id: 7611503, sku: CMS20LAMARILLO, size: L, color: amarillo, inventory_quantity: 10, price: 20}
-    var nameChosenVariant = chosenVariant?.split('-');
+    // Obtener las claves disponibles en el mapa variantFound
+    List<String> availableKeys = variantFound?.keys
+            .where((key) =>
+                !['id', 'sku', 'inventory_quantity', 'price'].contains(key))
+            .toList() ??
+        [];
+
+    // Formar el título de la variante utilizando las claves disponibles
+    String variantTitle =
+        availableKeys.map((key) => variantFound?[key]).join('/');
+
     double priceT = (int.parse(quantity.toString()) *
         double.parse(widget.product.price.toString()));
 
@@ -1439,9 +1453,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
       "quantity": quantity,
       "price": priceT,
       "title": _producto.text,
-      "variant_title": widget.product.isvariable == 1
-          ? "${nameChosenVariant?[1]}"
-          : variantFound?['sku'],
+      "variant_title":
+          widget.product.isvariable == 1 ? variantTitle : variantFound?['sku'],
       "sku": "${variantFound?['sku']}C${widget.product.productId}",
     };
 

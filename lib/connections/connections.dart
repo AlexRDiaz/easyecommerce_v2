@@ -6620,26 +6620,26 @@ class Connections {
       ciudadIdDest) async {
     try {
       String? generatedBy = sharedPrefs!.getString("id");
-      print(json.encode({
-        "generatedBy": generatedBy,
-        "IdComercial": idMaster,
-        "Name_Comercial": nameComercial,
-        "NombreShipping": nombre.toString(),
-        "DireccionShipping": direccion.toString(),
-        "TelefonoShipping": telefono.toString(),
-        "CiudadShipping": ciudad.toString(),
-        "ProductoP": productoP.toString(),
-        "ProductoExtra": productoE.toString(),
-        "Cantidad_Total": cantidadT.toString(),
-        "PrecioTotal": precio.toString(),
-        "Observacion": observacion.toString(),
-        "product_id": int.parse(productId),
-        "variant_details": json.encode(variantsDetails),
-        "ruta": rutaId,
-        "transportadora": transportadoraId,
-        "carrier_id": carrierExternalId,
-        "ciudad_des": ciudadIdDest,
-      }));
+      // print(json.encode({
+      //   "generatedBy": generatedBy,
+      //   "IdComercial": idMaster,
+      //   "Name_Comercial": nameComercial,
+      //   "NombreShipping": nombre.toString(),
+      //   "DireccionShipping": direccion.toString(),
+      //   "TelefonoShipping": telefono.toString(),
+      //   "CiudadShipping": ciudad.toString(),
+      //   "ProductoP": productoP.toString(),
+      //   "ProductoExtra": productoE.toString(),
+      //   "Cantidad_Total": cantidadT.toString(),
+      //   "PrecioTotal": precio.toString(),
+      //   "Observacion": observacion.toString(),
+      //   "product_id": int.parse(productId),
+      //   "variant_details": json.encode(variantsDetails),
+      //   "ruta": rutaId,
+      //   "transportadora": transportadoraId,
+      //   "carrier_id": carrierExternalId,
+      //   "ciudad_des": ciudadIdDest,
+      // }));
 
       var response =
           await http.post(Uri.parse("$serverLaravel/api/orderproduct"),
@@ -6977,6 +6977,54 @@ class Connections {
       }
     } catch (error) {
       return 2;
+    }
+  }
+
+  Future postOrdersGintra(datajson) async {
+    // print("postOrdersGintra");
+    // print(json.encode(datajson));
+    try {
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/gintracom/postorder"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(datajson));
+
+      // body: json.encode({
+      //   "remitente": {
+      //     "nombre": "test desde easy 2",
+      //     "telefono": "0990479408",
+      //     "provincia": "1",
+      //     "ciudad": "1",
+      //     "direccion": "test desde easy 2"
+      //   },
+      //   "destinatario": {
+      //     "nombre": "test desde easy 2",
+      //     "telefono": "0988860823",
+      //     "provincia": "1",
+      //     "ciudad": "1",
+      //     "direccion": "test desde easy 2"
+      //   },
+      //   "cant_paquetes": "1",
+      //   "peso_total": "1.00",
+      //   "documento_venta": "",
+      //   "contenido": "test desde easy 2",
+      //   "observacion": "",
+      //   "fecha": "2023-07-18 00:22:04",
+      //   "declarado": 340,
+      //   "con_recaudo": true
+      // }));
+      var response = await request.body;
+      if (request.statusCode == 204) {
+        print("204");
+
+        return [];
+      } else if (request.statusCode == 200) {
+        var decodeData = json.decode(response);
+        print(decodeData);
+        return decodeData;
+      }
+    } catch (e) {
+      print("error: $e");
     }
   }
 
