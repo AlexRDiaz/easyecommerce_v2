@@ -83,6 +83,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
 
   double priceTotalProduct = 0;
   double taxCostShipping = 0;
+  double costEasy = 2;
 
   var responseCarriersGeneral;
 
@@ -1299,9 +1300,9 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                     "declarado": double.parse(priceTotal),
                                     "con_recaudo": recaudo ? true : false
                                   };
-                                  print(dataIntegration);
+                                  // print(dataIntegration);
                                 }
-/*
+
                                 var response =
                                     await Connections().createOrderProduct(
                                   sharedPrefs!
@@ -1329,24 +1330,24 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                       ? selectedValueRoute
                                           .toString()
                                           .split("-")[1]
-                                      : 0,
+                                      : "0",
                                   selectedCarrierType == "Interno"
                                       ? selectedValueTransport
                                           .toString()
                                           .split("-")[1]
-                                      : 0,
+                                      : "0",
                                   selectedCarrierType == "Externo"
                                       ? selectedCarrierExternal
                                           .toString()
                                           .split("-")[1]
-                                      : 0,
+                                      : "0",
                                   selectedCarrierType == "Externo"
                                       ? selectedCity.toString().split("-")[1]
-                                      : 0,
+                                      : "0",
                                 );
 
                                 // print(response);
-
+/*
                                 if (selectedCarrierType == "Externo" &&
                                     selectedCarrierExternal
                                             .toString()
@@ -1378,8 +1379,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                   throw Exception('Could not launch $_url');
                                 }
 
-                                // Navigator.pop(context);
-
+                                Navigator.pop(context);
                                 Navigator.pop(context);
                               }
                             }
@@ -1610,6 +1610,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
     deliveryPrice = double.parse(deliveryPrice.toStringAsFixed(2));
 
     double iva = deliveryPrice * (15 / 100);
+    deliveryPrice = costEasy + deliveryPrice;
     iva = double.parse(iva.toStringAsFixed(2));
     //falta iva
     setState(() {

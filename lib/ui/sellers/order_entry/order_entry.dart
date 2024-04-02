@@ -100,8 +100,9 @@ class _OrderEntryState extends State<OrderEntry> {
   // List populate = ['users', 'pedido_fecha'];
   List populate = [
     // 'operadore.up_users',
-    "carrierExternal",
-    "ciudadExternal",
+    //habilitar para version transp. externo
+    // "carrierExternal",
+    // "ciudadExternal",
     'transportadora',
     'users.vendedores',
     // 'novedades',
@@ -1110,10 +1111,16 @@ class _OrderEntryState extends State<OrderEntry> {
                                   data[index]['transportadora'].isNotEmpty
                               ? data[index]['transportadora'][0]['nombre']
                                   .toString()
-                              : data[index]['carrier_external'] != null
-                                  ? data[index]['carrier_external']['name']
-                                      .toString()
-                                  : ""),
+                              : ''),
+                          //habilitar para version transp. externo
+                          // Text(data[index]['transportadora'] != null &&
+                          //         data[index]['transportadora'].isNotEmpty
+                          //     ? data[index]['transportadora'][0]['nombre']
+                          //         .toString()
+                          //     : data[index]['carrier_external'] != null
+                          //         ? data[index]['carrier_external']['name']
+                          //             .toString()
+                          //         : ""),
                           onTap: () {
                             info(context, index);
                           },

@@ -351,6 +351,8 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
   @override
   void didChangeDependencies() {
     var currentIndex = sharedPrefs!.getString("index");
+    print("currentIndex: $currentIndex");
+
     currentView = {
       "page": sharedPrefs!.getString("index") != null
           ? pagesProvider[int.parse(sharedPrefs!.getString("index").toString())]

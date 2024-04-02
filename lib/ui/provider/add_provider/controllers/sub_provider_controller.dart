@@ -18,7 +18,14 @@ class SubProviderController extends ControllerMVC {
     setState(() {});
   }
 
-  // Método para actualizar un proveedor existente
+  // Método para actualizar un subproveedor existente
+  upate(int providerId, json) async {
+    await Connections().updateProviderRequest(providerId, json);
+    setState(() {
+      // warehouses.removeWhere((warehouse) => warehouse.id == warehouseId);
+    });
+    // await loadWarehouses(sharedPrefs!.getString("idProvider").toString());
+  }
 
   // Método para eliminar un proveedor
   void deleteSubuser(int userId) {

@@ -34,6 +34,8 @@ class _AddProviderState extends StateMVC<AddProvider> {
   final TextEditingController _emailController = TextEditingController();
 
   final TextEditingController _descriptionController = TextEditingController();
+  bool provSpecial = false;
+
   String?
       _selectedImageURL; // Esta variable almacenará la URL de la imagen seleccionada
 
@@ -190,6 +192,25 @@ class _AddProviderState extends StateMVC<AddProvider> {
                       ),
                     ),
                   ),
+                  /*
+                  Row(
+                    children: [
+                      const Text('Proveedor Especial?'),
+                      SizedBox(width: 10),
+                      Checkbox(
+                        value: provSpecial,
+                        onChanged: (value) {
+                          //
+                          setState(() {
+                            provSpecial = value!;
+                          });
+                          print(provSpecial);
+                        },
+                        // shape: CircleBorder(),s
+                      ),
+                    ],
+                  )
+                  */
                   // Container(
                   //   margin: EdgeInsets.symmetric(vertical: 10.0),
                   //   padding: EdgeInsets.all(8.0),

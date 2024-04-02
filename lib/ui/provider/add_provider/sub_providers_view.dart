@@ -1,4 +1,8 @@
+import 'dart:convert';
+
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:frontend/models/user_model.dart';
 import 'package:frontend/ui/logistic/add_provider/add_provider.dart';
@@ -7,6 +11,7 @@ import 'package:frontend/ui/logistic/add_provider/edit_provider.dart';
 import 'package:frontend/ui/provider/add_provider/add_sub_provider.dart';
 import 'package:frontend/ui/provider/add_provider/controllers/sub_provider_controller.dart';
 import 'package:frontend/ui/provider/add_provider/edit_sub_provider.dart';
+import 'package:frontend/ui/widgets/loading.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class SubProviderView extends StatefulWidget {
@@ -23,11 +28,21 @@ class _SubProviderViewState extends State<SubProviderView> {
   bool edited = false;
   bool isFilterIconVisible = false;
   bool selectable = false;
+  List<dynamic> accessTemp = [];
 
   @override
   void initState() {
     super.initState();
     _subProviderController = SubProviderController();
+    // List<String> userPermissionsSubProv =
+    //     sharedPrefs!.getStringList("PERMISOS")!;
+    List<String>? permisos = sharedPrefs!.getStringList("userpermissions");
+
+    if (permisos != null) {
+      accessTemp = permisos;
+    } else {
+      print("permisos is null");
+    }
   }
 
   hasEdited(value) {
@@ -42,9 +57,10 @@ class _SubProviderViewState extends State<SubProviderView> {
         builder: (context) {
           return AlertDialog(
             content: Container(
-              width: MediaQuery.of(context).size.width * 0.35,
-              height: MediaQuery.of(context).size.height * 0.35,
+              width: MediaQuery.of(context).size.width * 0.50,
+              height: MediaQuery.of(context).size.height * 0.85,
               child: EditSubProvider(
+                accessTemp: accessTemp,
                 provider: provider,
                 hasEdited: hasEdited,
               ),
@@ -63,7 +79,7 @@ class _SubProviderViewState extends State<SubProviderView> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.only(left: 350, right: 350),
+        padding: const EdgeInsets.only(left: 20, right: 20),
         child: Column(
           children: [
             Padding(
@@ -92,20 +108,20 @@ class _SubProviderViewState extends State<SubProviderView> {
                     onPressed: () => openDialog(context),
                     child: Text("Nuevo"),
                   ),
-                  SizedBox(width: 10),
-                  ElevatedButton(
-                    onPressed: () => setState(() {
-                      selectable = !selectable;
-                    }),
-                    child: Text("Seleccionar"),
-                  ),
-                  SizedBox(width: 10),
-                  ElevatedButton(
-                    onPressed: () => setState(() {
-                      selectable = !selectable;
-                    }),
-                    child: Text("Eliminar"),
-                  ),
+                  // SizedBox(width: 10),
+                  // ElevatedButton(
+                  //   onPressed: () => setState(() {
+                  //     selectable = !selectable;
+                  //   }),
+                  //   child: Text("Seleccionar"),
+                  // ),
+                  // SizedBox(width: 10),
+                  // ElevatedButton(
+                  //   onPressed: () => setState(() {
+                  //     selectable = !selectable;
+                  //   }),
+                  //   child: Text("Eliminar"),
+                  // ),
                 ],
               ),
             ),
@@ -125,6 +141,7 @@ class _SubProviderViewState extends State<SubProviderView> {
                   final subProviderModelDataSource = SubProviderModelDataSource(
                     editProviderDialog: editProviderDialog,
                     providers: snapshot.data!,
+                    deleteDialog: deleteDialog,
                   );
 
                   return Container(
@@ -141,32 +158,38 @@ class _SubProviderViewState extends State<SubProviderView> {
                       showHorizontalScrollbar: true,
                       columns: <GridColumn>[
                         GridColumn(
-                            autoFitPadding: EdgeInsets.all(30.0),
-                            columnName: 'nombre',
-                            label: FilterIcon(
-                              name: "Nombre",
-                              onFilterPressed: () {
-                                // Lógica para aplicar el filtro
-                              },
-                            )),
+                          autoFitPadding: EdgeInsets.all(30.0),
+                          columnName: 'nombre',
+                          label: Center(
+                            child: Text("Nombre"),
+                          ),
+                        ),
                         GridColumn(
-                            autoFitPadding: EdgeInsets.all(30.0),
-                            columnName: 'username',
-                            label: FilterIcon(
-                              name: "Correo",
-                              onFilterPressed: () {
-                                // Lógica para aplicar el filtro
-                              },
-                            )),
+                          autoFitPadding: EdgeInsets.all(30.0),
+                          columnName: 'username',
+                          label: Center(
+                            child: Text("Correo"),
+                          ),
+                          // label: FilterIcon(
+                          //   name: "Correo",
+                          //   onFilterPressed: () {
+                          //     // Lógica para aplicar el filtro
+                          //   },
+                          // ),
+                        ),
                         GridColumn(
-                            autoFitPadding: EdgeInsets.all(30.0),
-                            columnName: 'description',
-                            label: FilterIcon(
-                              name: "Bloqueado",
-                              onFilterPressed: () {
-                                // Lógica para aplicar el filtro
-                              },
-                            )),
+                          autoFitPadding: EdgeInsets.all(30.0),
+                          columnName: 'description',
+                          label: Center(
+                            child: Text("Bloqueado"),
+                          ),
+                          // label: FilterIcon(
+                          //   name: "Bloqueado",
+                          //   onFilterPressed: () {
+                          //     // Lógica para aplicar el filtro
+                          //   },
+                          // ),
+                        ),
                         GridColumn(
                           autoFitPadding: EdgeInsets.all(30.0),
                           columnName: 'Actions',
@@ -230,13 +253,15 @@ class _SubProviderViewState extends State<SubProviderView> {
         builder: (context) {
           return AlertDialog(
             content: Container(
-              width: MediaQuery.of(context).size.width * 0.35,
-              height: MediaQuery.of(context).size.height * 0.35,
-              child: AddSubProvider(),
+              width: MediaQuery.of(context).size.width * 0.5,
+              height: MediaQuery.of(context).size.height * 0.85,
+              child: AddSubProvider(
+                accessTemp: accessTemp,
+              ),
             ),
           );
         }).then((value) => setState(() {
-          //_futureProviderData = _loadProviders(); // Actualiza el Future
+          _getSubProviderModelData();
         }));
   }
 
@@ -262,12 +287,45 @@ class _SubProviderViewState extends State<SubProviderView> {
       },
     );
   }
+
+  deleteDialog(provider) {
+    ProviderModel providerM = provider;
+    return AwesomeDialog(
+      width: 500,
+      context: context,
+      dialogType: DialogType.info,
+      animType: AnimType.rightSlide,
+      title: '¿Está seguro de eliminar el Proveedor?',
+      desc:
+          '${providerM.name.toString()} de ${providerM.user?.username.toString()}',
+      btnOkText: "Confirmar",
+      btnCancelText: "Cancelar",
+      btnOkColor: Colors.blueAccent,
+      btnCancelOnPress: () {},
+      btnOkOnPress: () async {
+        getLoadingModal(context, false);
+
+        await _subProviderController
+            .upate(int.parse(providerM.id.toString()), {"active": 0});
+
+        Navigator.pop(context);
+      },
+    ).show().then((value) {
+      setState(() {
+        _getSubProviderModelData();
+      });
+    });
+  }
 }
 
 class SubProviderModelDataSource extends DataGridSource {
   final Function(dynamic) editProviderDialog;
+  final Function(dynamic) deleteDialog;
+
   SubProviderModelDataSource(
-      {required List<UserModel> providers, required this.editProviderDialog}) {
+      {required List<UserModel> providers,
+      required this.editProviderDialog,
+      required this.deleteDialog}) {
     _providersData = providers
         .map<DataGridRow>((e) => DataGridRow(cells: [
               DataGridCell<String>(columnName: 'name', value: e.username),
@@ -307,7 +365,7 @@ class SubProviderModelDataSource extends DataGridSource {
               child: IconButton(
                 icon: Icon(Icons.delete),
                 onPressed: () {
-                  // Lógica para eliminar la fila correspondiente
+                  deleteDialog(e.value);
                 },
               ),
             )

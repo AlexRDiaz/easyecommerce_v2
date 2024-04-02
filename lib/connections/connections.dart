@@ -179,6 +179,11 @@ class Connections {
               decodeDataUser['user']['providers'][0]['name'].toString());
           List temporalPermisos =
               jsonDecode(decodeDataUser['user']['permisos']);
+
+          List<String> permisosConvertidos =
+              temporalPermisos.map((permiso) => permiso.toString()).toList();
+          sharedPrefs!.setStringList("userpermissions", permisosConvertidos);
+
           List<String> finalPermisos = [];
           for (var i = 0; i < temporalPermisos.length; i++) {
             finalPermisos.add(temporalPermisos.toString());
@@ -6620,27 +6625,29 @@ class Connections {
       ciudadIdDest) async {
     try {
       String? generatedBy = sharedPrefs!.getString("id");
-      // print(json.encode({
-      //   "generatedBy": generatedBy,
-      //   "IdComercial": idMaster,
-      //   "Name_Comercial": nameComercial,
-      //   "NombreShipping": nombre.toString(),
-      //   "DireccionShipping": direccion.toString(),
-      //   "TelefonoShipping": telefono.toString(),
-      //   "CiudadShipping": ciudad.toString(),
-      //   "ProductoP": productoP.toString(),
-      //   "ProductoExtra": productoE.toString(),
-      //   "Cantidad_Total": cantidadT.toString(),
-      //   "PrecioTotal": precio.toString(),
-      //   "Observacion": observacion.toString(),
-      //   "product_id": int.parse(productId),
-      //   "variant_details": json.encode(variantsDetails),
-      //   "ruta": rutaId,
-      //   "transportadora": transportadoraId,
-      //   "carrier_id": carrierExternalId,
-      //   "ciudad_des": ciudadIdDest,
-      // }));
-
+      /*
+      print(json.encode({
+        "generatedBy": generatedBy,
+        "IdComercial": idMaster,
+        "Name_Comercial": nameComercial,
+        "NombreShipping": nombre.toString(),
+        "DireccionShipping": direccion.toString(),
+        "TelefonoShipping": telefono.toString(),
+        "CiudadShipping": ciudad.toString(),
+        "ProductoP": productoP.toString(),
+        "ProductoExtra": productoE.toString(),
+        "Cantidad_Total": cantidadT.toString(),
+        "PrecioTotal": precio.toString(),
+        "Observacion": observacion.toString(),
+        "product_id": int.parse(productId),
+        "variant_details": json.encode(variantsDetails),
+        "recaudo": recaudo,
+        "ruta": rutaId,
+        "transportadora": transportadoraId,
+        "carrier_id": int.parse(carrierExternalId),
+        "ciudad_des": int.parse(ciudadIdDest),
+      }));
+*/
       var response =
           await http.post(Uri.parse("$serverLaravel/api/orderproduct"),
               headers: {'Content-Type': 'application/json'},
@@ -6674,6 +6681,7 @@ class Connections {
         return 1;
       }
     } catch (error) {
+      print(error);
       return 2;
     }
   }
@@ -7722,7 +7730,8 @@ class Connections {
             "password": "123456789",
             "providers": sharedPrefs!.getString("idProvider"),
             "role": 2,
-            "roles_front": 5
+            "roles_front": 5,
+            "permisos": user.permisos,
           }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);

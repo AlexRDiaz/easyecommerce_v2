@@ -90,6 +90,7 @@ class _CatalogState extends State<Catalog> {
   var getReport = ProductReport();
 
   bool isSelectedOwn = false;
+  int idUser = int.parse(sharedPrefs!.getString("id").toString());
 
   @override
   void initState() {
@@ -1982,7 +1983,10 @@ class _CatalogState extends State<Catalog> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          _buttonCreateGuide(product, context),
+                          Visibility(
+                            visible: idUser == 2,
+                            child: _buttonCreateGuide(product, context),
+                          ),
                           const SizedBox(width: 30),
                           _buttonAddFavorite(
                               product, isFavorite, labelIsFavorite, context),
