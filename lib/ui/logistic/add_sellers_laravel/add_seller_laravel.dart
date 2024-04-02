@@ -40,6 +40,7 @@ class _AddSellersState extends State<AddSellers> {
   int total = 0;
   int actives = 0;
   int inactives = 0;
+  bool _switchValue = false;
 
   String model = "UpUsersVendedoresLink";
 
@@ -47,7 +48,9 @@ class _AddSellersState extends State<AddSellers> {
   List populate = [
     'up_user.vendedores',
   ];
-  List arrayFiltersAnd = [];
+  List arrayFiltersAnd = [
+    {"/up_user.active": "1"}
+  ];
   // List arrayFiltersOr = ["nombre", "costo_transportadora", "telefono_1"];
   List arrayFiltersOr = [
     // "up_user.username",
@@ -185,7 +188,27 @@ class _AddSellersState extends State<AddSellers> {
         ),
         // Container(
         //   margin: const EdgeInsets.all(10.0),
-        //   child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        //   child:
+        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Text("Activos"),
+          Switch(
+            value: _switchValue,
+            onChanged: (newValue) {
+              setState(() {
+                _switchValue = newValue;
+                // Modificar el valor de active en arrayFiltersAnd
+                if (_switchValue) {
+                  arrayFiltersAnd[0]["/up_user.active"] = "0";
+                } else {
+                  arrayFiltersAnd[0]["/up_user.active"] = "1";
+                }
+                // Volver a cargar los datos con los nuevos filtros
+                loadData();
+              });
+            },
+          ),
+          Text("Inactivos"),
+        ]),
         //     const Icon(
         //       Icons.check_circle,
         //       color: Colors.green,
@@ -373,9 +396,7 @@ class _AddSellersState extends State<AddSellers> {
         rows: List<DataRow>.generate(
             dataL.length,
             (index) => DataRow(cells: [
-                  DataCell(
-                      Text(dataL[index]["up_user"]['id']
-                          .toString()),
+                  DataCell(Text(dataL[index]["up_user"]['id'].toString()),
                       onTap: () {}),
                   DataCell(
                       Row(
@@ -775,7 +796,8 @@ class _AddSellersState extends State<AddSellers> {
                       color: Colors.redAccent,
                     ),
                   )),
-                  DataCell(GestureDetector(
+                  DataCell(
+                    GestureDetector(
                     onTap: () async {
                       AwesomeDialog(
                         width: 500,
@@ -812,38 +834,83 @@ class _AddSellersState extends State<AddSellers> {
                               : ""
                           : ""),
                       onTap: () {}),
-                  DataCell(GestureDetector(
-                    onTap: () async {
-                      AwesomeDialog(
-                        width: 500,
-                        context: context,
-                        dialogType: DialogType.error,
-                        animType: AnimType.rightSlide,
-                        title: 'Seguro de Eliminar Usuario?',
-                        desc:
-                            'Si tiene asignado algun pedido en el sistema puede causar conflictos internos.',
-                        btnOkText: "Aceptar",
-                        btnCancelText: "Cancelar",
-                        btnOkColor: colors.colorGreen,
-                        btnCancelOnPress: () {},
-                        btnOkOnPress: () async {
-                          // getLoadingModal(context, false);
-                          // await Connections().deleteUser(dataL[index]['id']);
-                          await Connections().deleteUser(
-                              dataL[index]["up_user"]['id'].toString());
-                          await Connections().deleteSellers(
-                              dataL[index]["up_user"]['vendedores'][0]['id']);
-                          // Navigator.pop(context);
+                  DataCell(dataL[index]["up_user"] != null &&
+                          dataL[index]["up_user"].isNotEmpty &&
+                          (dataL[index]["up_user"]['active']== true || dataL[index]["up_user"]['active'].toString() == "1")
+                      ? GestureDetector(
+                          onTap: () async {
+                            AwesomeDialog(
+                              width: 500,
+                              context: context,
+                              dialogType: DialogType.error,
+                              animType: AnimType.rightSlide,
+                              title: 'Seguro de Eliminar Usuario?',
+                              desc:
+                                  'Si tiene asignado algun pedido en el sistema puede causar conflictos internos.',
+                              btnOkText: "Aceptar",
+                              btnCancelText: "Cancelar",
+                              btnOkColor: colors.colorGreen,
+                              btnCancelOnPress: () {},
+                              btnOkOnPress: () async {
+                                // getLoadingModal(context, false);
+                                // await Connections().deleteUser(dataL[index]['id']);
+                                // ! --------------- USANDO ACTUALMENTE---------------------
+                                // await Connections().deleteUser(
+                                //     dataL[index]["up_user"]['id'].toString());
+                                // await Connections().deleteSellers(
+                                //     dataL[index]["up_user"]['vendedores'][0]['id']);
+                                await Connections().updateUserActiveStatus(
+                                    dataL[index]["up_user"]['id'].toString(),
+                                    0);
 
-                          await loadData();
-                        },
-                      ).show();
-                    },
-                    child: Icon(
-                      Icons.delete_forever_outlined,
-                      color: Colors.redAccent,
-                    ),
-                  )),
+                                // ! ------------------------------------
+
+                                await loadData();
+                              },
+                            ).show();
+                          },
+                          child: Icon(
+                            Icons.delete_forever_outlined,
+                            color: Colors.redAccent,
+                          ),
+                        )
+                      : GestureDetector(
+                          onTap: () async {
+                            AwesomeDialog(
+                              width: 500,
+                              context: context,
+                              dialogType: DialogType.error,
+                              animType: AnimType.rightSlide,
+                              title: 'Seguro de Restaurar el Usuario?',
+                              desc:
+                                  'Se restaurara el usuario seleccionado en la plataforma.',
+                              btnOkText: "Aceptar",
+                              btnCancelText: "Cancelar",
+                              btnOkColor: colors.colorGreen,
+                              btnCancelOnPress: () {},
+                              btnOkOnPress: () async {
+                                // getLoadingModal(context, false);
+                                // await Connections().deleteUser(dataL[index]['id']);
+                                // ! --------------- USANDO ACTUALMENTE---------------------
+                                // await Connections().deleteUser(
+                                //     dataL[index]["up_user"]['id'].toString());
+                                // await Connections().deleteSellers(
+                                //     dataL[index]["up_user"]['vendedores'][0]['id']);
+                                await Connections().updateUserActiveStatus(
+                                    dataL[index]["up_user"]['id'].toString(),
+                                    1);
+
+                                // ! ------------------------------------
+
+                                await loadData();
+                              },
+                            ).show();
+                          },
+                          child: Icon(
+                            Icons.screen_rotation_alt_outlined,
+                            color: Colors.green,
+                          ),
+                        )),
                 ])));
   }
 
@@ -1223,5 +1290,4 @@ class _AddSellersState extends State<AddSellers> {
       ),
     );
   }
-
 }

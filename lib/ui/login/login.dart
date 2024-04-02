@@ -261,13 +261,13 @@ class _LoginPageState extends State<LoginPage> {
       } else {
         redirectToCorrectView(context);
       }
-    }, error: () {
+    }, error: (String error) {
       AwesomeDialog(
         width: 500,
         context: context,
         dialogType: DialogType.error,
         animType: AnimType.rightSlide,
-        title: 'Credenciales Incorrectas',
+        title: '$error',
         desc: 'Vuelve a intentarlo',
         btnCancel: Container(),
         btnOkText: "Aceptar",

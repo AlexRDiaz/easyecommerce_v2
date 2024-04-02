@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -89,6 +91,8 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                         _buildSection(
                           'INFORMACIÓN DE PEDIDO',
                           [
+                            _buildRow('Fecha Envio',
+                                data['marca_tiempo_envio'].toString(), context),
                             _buildRow('Fecha de Entrega',
                                 data['fecha_entrega'].toString(), context),
                             _buildRow(
@@ -103,6 +107,8 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                                 "Código",
                                 '${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data['numero_orden'].toString()}',
                                 context),
+                            _buildRow(
+                                "Status", data['status'].toString(), context),
                           ],
                         ),
                         Divider(),
@@ -114,10 +120,10 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                                 data['ciudad_shipping'].toString(), context),
                             _buildRow("Nombre Cliente",
                                 data['nombre_shipping'].toString(), context),
-                            _buildRow("Dirección",
-                                data['direccion_shipping'].toString(), context),
-                            _buildRow("Teléfono Cliente",
-                                data['telefono_shipping'].toString(), context),
+                            // _buildRow("Dirección",
+                            //     data['direccion_shipping'].toString(), context),
+                            // _buildRow("Teléfono Cliente",
+                            //     data['telefono_shipping'].toString(), context),
                           ],
                         ),
                         Divider(),
@@ -139,6 +145,13 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                             _buildRow("Precio Total",
                                 data['precio_total'].toString(), context),
                             _buildRow(
+                                "Observacion",
+                                data['observacion'] == null ||
+                                        data['observacion'] == "null"
+                                    ? ""
+                                    : data['observacion'].toString(),
+                                context),
+                            _buildRow(
                                 "Comentario",
                                 data['comentario'] == null ||
                                         data['comentario'] == "null"
@@ -146,32 +159,36 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                                     : data['comentario'].toString(),
                                 context),
                             _buildRow(
-                                "Status", data['status'].toString(), context),
+                                "Comentario Novedades",
+                                getStateFromJson(
+                                    data['gestioned_novelty']?.toString(),
+                                    'comment'),
+                                context),
                             _buildRow("Confirmado",
                                 data['estado_interno'].toString(), context),
                             _buildRow("Estado Logístico",
                                 data['estado_logistico'].toString(), context),
                             _buildRow("Estado Devolución",
                                 data['estado_devolucion'].toString(), context),
-                            _buildRow(
-                                "Costo Entrega",
-                                data['users'] != null
-                                    ? data['users'][0]['vendedores'][0]
-                                            ['costo_envio']
-                                        .toString()
-                                    : "",
-                                context),
-                            _buildRow(
-                                "Costo Devolución",
-                                data['estado_devolucion'].toString() !=
-                                        "PENDIENTE"
-                                    ? data['users'] != null
-                                        ? data['users'][0]['vendedores'][0]
-                                                ['costo_devolucion']
-                                            .toString()
-                                        : ""
-                                    : "",
-                                context),
+                            // _buildRow(
+                            //     "Costo Entrega",
+                            //     data['users'] != null
+                            //         ? data['users'][0]['vendedores'][0]
+                            //                 ['costo_envio']
+                            //             .toString()
+                            //         : "",
+                            //     context),
+                            // _buildRow(
+                            //     "Costo Devolución",
+                            //     data['estado_devolucion'].toString() !=
+                            //             "PENDIENTE"
+                            //         ? data['users'] != null
+                            //             ? data['users'][0]['vendedores'][0]
+                            //                     ['costo_devolucion']
+                            //                 .toString()
+                            //             : ""
+                            //         : "",
+                            //     context),
                             _buildRow("Fecha Ingreso",
                                 data['marca_t_i'].toString(), context),
                           ],
@@ -322,7 +339,7 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                 ),
         ),
         Divider(),
-        
+
         // FilledButton.tonal(
         //   onPressed: () {},
         //   child: const Text('Enabled'),
@@ -430,6 +447,21 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
             ),
           );
         });
+  }
+
+  String getStateFromJson(String? jsonString, String claveAbuscar) {
+    // Verificar si jsonString es null
+    if (jsonString == null || jsonString.isEmpty) {
+      return ''; // Retorna una cadena vacía si el valor es null o está vacío
+    }
+
+    try {
+      Map<String, dynamic> jsonMap = json.decode(jsonString);
+      return jsonMap[claveAbuscar]?.toString() ?? '';
+    } catch (e) {
+      // print('Error al decodificar JSON: $e');
+      return ''; // Manejar el error retornando una cadena vacía o un valor predeterminado
+    }
   }
 
   updateGestionedNovelty(context, data, comment) async {

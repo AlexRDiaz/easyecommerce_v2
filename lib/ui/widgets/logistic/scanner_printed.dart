@@ -87,8 +87,7 @@ class _ScannerPrintedState extends State<ScannerPrinted> {
                     } else if (widget.from == "logistic") {
                       var responsereduceStock = await Connections()
                           .updateProductVariantStock(
-                              responseOrder['sku'],
-                              responseOrder['cantidad_total'],
+                              responseOrder['variant_details'],
                               0,
                               responseOrder['id_comercial']);
 

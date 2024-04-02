@@ -117,7 +117,7 @@ class _PrintedGuidesState extends State<PrintedGuides> {
     for (var i = 0; i < data.length; i++) {
       optionsCheckBox.add({
         "check": false,
-        "sku":"",
+        "variant_details":"",
         "id": "",
         "numPedido": "",
         "date": "",
@@ -420,7 +420,7 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                                     selectAll = false;
                                     if (value!) {
                                       optionsCheckBox[index]['check'] = value;
-                                      optionsCheckBox[index]['sku'] = data[index]['sku'].toString();
+                                      optionsCheckBox[index]['variant_details'] = data[index]['variant_details'].toString();
                                       optionsCheckBox[index]['id'] =
                                           data[index]['id'].toString();
                                       optionsCheckBox[index]['numPedido'] =
@@ -809,8 +809,7 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                     //new
                     responsereduceStock = await Connections()
                         .updateProductVariantStock(
-                            optionsCheckBox[i]['sku'],
-                            optionsCheckBox[i]['cantidad_total'],
+                            optionsCheckBox[i]['variant_details'],
                             0,
                             optionsCheckBox[i]['id_comercial']);
 

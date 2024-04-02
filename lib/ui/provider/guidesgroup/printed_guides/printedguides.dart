@@ -693,8 +693,7 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
                     //new
                     responsereduceStock = await Connections()
                         .updateProductVariantStock(
-                            data[i]['sku'],
-                            data[i]['cantidad_total'],
+                            data[i]['variant_details'],
                             0,
                             data[i]['id_comercial']);
 

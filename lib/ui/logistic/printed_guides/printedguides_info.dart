@@ -203,8 +203,8 @@ class _PrintedGuideInfoState extends State<PrintedGuideInfo> {
                 getLoadingModal(context, false);
 
                 var responsereduceStock = await Connections()
-                    .updateProductVariantStock(data['sku'],
-                        data['cantidad_total'], 0, data['id_comercial']);
+                    .updateProductVariantStock(data['variant_details'],
+                        0, data['id_comercial']);
 
                 if (responsereduceStock == 0) {
                   var responseL = await Connections().updateOrderWithTime(
