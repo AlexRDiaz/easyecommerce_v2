@@ -1,11 +1,15 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animated_icons/icons8.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:frontend/models/user_model.dart';
 import 'package:frontend/ui/logistic/add_provider/controllers/provider_controller.dart';
+import 'package:frontend/ui/logistic/add_sellers/custom_filterchip_for_user.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/provider/add_provider/controllers/sub_provider_controller.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
@@ -20,10 +24,15 @@ import 'package:progress_state_button/progress_button.dart';
 import 'package:provider/provider.dart';
 
 class EditSubProvider extends StatefulWidget {
+  final List<dynamic> accessTemp;
+
   final UserModel provider;
   final Function(dynamic) hasEdited;
   const EditSubProvider(
-      {super.key, required this.provider, required this.hasEdited});
+      {super.key,
+      required this.provider,
+      required this.hasEdited,
+      required this.accessTemp});
 
   @override
   // State<EditSubProvider> createState() => _EditSubProviderState();
@@ -42,14 +51,39 @@ class _EditSubProviderState extends StateMVC<EditSubProvider> {
   String?
       _selectedImageURL; // Esta variable almacenará la URL de la imagen seleccionada
 
+  List<dynamic> accessTemp = [];
+  Map<String, dynamic> accessGeneralofRol = {};
+  String idUser = "";
+  List vistas = [];
+
   @override
   void initState() {
     _controller = SubProviderController();
+    // print(sharedPrefs!.getString("idProvider"));
     _usernameController.text = widget.provider.username!;
     _emailController.text = widget.provider.email!;
     _blocked = widget.provider.blocked!;
 
     super.initState();
+    getAccess();
+  }
+
+  getAccess() async {
+    //  sharedPrefs!.getString("id")
+    idUser = widget.provider.id.toString();
+
+    // print("general id: ${sharedPrefs!.getString("id")}");
+    // print("to edit: $idUser");
+
+    var result = await Connections().getPermissionsSellerPrincipalforNewSeller(
+        sharedPrefs!.getString("id"));
+
+    accessTemp = jsonDecode(widget.provider.permisos);
+
+    setState(() {
+      accessTemp = accessTemp;
+      accessGeneralofRol = result;
+    });
   }
 
   @override
@@ -87,7 +121,7 @@ class _EditSubProviderState extends StateMVC<EditSubProvider> {
           const Text(
             'Editar  Usuario',
             style: TextStyle(
-              fontSize: 30.0, // Tamaño de fuente grande
+              fontSize: 24.0, // Tamaño de fuente grande
               fontWeight: FontWeight.bold, // Texto en negrita
               color: Color.fromARGB(255, 3, 3, 3), // Color de texto
               fontFamily:
@@ -160,6 +194,36 @@ class _EditSubProviderState extends StateMVC<EditSubProvider> {
                         _blocked = value;
                       });
                     },
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    "Accesos",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                  Container(
+                    margin: EdgeInsets.all(20.0),
+                    height: 500,
+                    width: 500,
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                            width: 1.0,
+                            color: Color.fromARGB(255, 224, 222, 222)),
+                        borderRadius: BorderRadius.circular(10.0)),
+                    child: Builder(
+                      builder: (context) {
+                        return CustomFilterChips(
+                          accessTemp: accessTemp,
+                          accessGeneralofRol: accessGeneralofRol,
+                          loadData: () {},
+                          idUser: idUser.toString(),
+                          onSelectionChanged: (selectedChips) {
+                            setState(() {
+                              vistas = List.from(selectedChips);
+                            });
+                          },
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),

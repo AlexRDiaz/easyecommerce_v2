@@ -69,6 +69,13 @@ class Connections {
               ? sharedPrefs!.setString(
                   "referer", decodeDataUser['user']['vendedores'][0]['referer'])
               : "";
+          //  *
+          sharedPrefs!.setString(
+              "seller_costo_envio",
+              decodeDataUser['user']['vendedores'][0]['costo_envio']
+                  .toString());
+          sharedPrefs!.setString("seller_telefono",
+              decodeDataUser['user']['vendedores'][0]['telefono_1'].toString());
           List temporalPermisos =
               jsonDecode(decodeDataUser['user']['permisos']);
           List<String> finalPermisos = [];
@@ -172,6 +179,11 @@ class Connections {
               decodeDataUser['user']['providers'][0]['name'].toString());
           List temporalPermisos =
               jsonDecode(decodeDataUser['user']['permisos']);
+
+          List<String> permisosConvertidos =
+              temporalPermisos.map((permiso) => permiso.toString()).toList();
+          sharedPrefs!.setStringList("userpermissions", permisosConvertidos);
+
           List<String> finalPermisos = [];
           for (var i = 0; i < temporalPermisos.length; i++) {
             finalPermisos.add(temporalPermisos.toString());
@@ -6193,7 +6205,8 @@ class Connections {
             "url_img": json.encode(product.urlImg),
             "isvariable": product.isvariable,
             "features": json.encode(product.features),
-            "warehouse_id": product.warehouseId
+            "warehouse_id": product.warehouseId,
+            "seller_owned": product.seller_owned,
           }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -6639,7 +6652,7 @@ class Connections {
   //  *
   Future createOrderProduct(
       idMaster,
-      numOrder,
+      nameComercial,
       nombre,
       direccion,
       telefono,
@@ -6651,36 +6664,73 @@ class Connections {
       observacion,
       // sku,
       productId,
-      variantsDetails) async {
+      variantsDetails,
+      recaudo,
+      //iterno
+      rutaId,
+      transportadoraId,
+      //externo
+      carrierExternalId,
+      ciudadIdDest) async {
     try {
-      var response = await http.post(
-          Uri.parse("$serverLaravel/api/orderproduct/$idMaster"),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({
-            "NumeroOrden": numOrder.toString(),
-            "NombreShipping": nombre.toString(),
-            "DireccionShipping": direccion.toString(),
-            "TelefonoShipping": telefono.toString(),
-            "CiudadShipping": ciudad.toString(),
-            "ProductoP": productoP.toString(),
-            "ProductoExtra": productoE.toString(),
-            "Cantidad_Total": cantidadT.toString(),
-            "PrecioTotal": precio.toString(),
-            "Observacion": observacion.toString(),
-            "Name_Comercial": sharedPrefs!.getString("NameComercialSeller"),
-            // "sku": sku.toString(),
-            "product_id": int.parse(productId),
-            "variant_details": json.encode(variantsDetails)
-          }));
+      String? generatedBy = sharedPrefs!.getString("id");
+      /*
+      print(json.encode({
+        "generatedBy": generatedBy,
+        "IdComercial": idMaster,
+        "Name_Comercial": nameComercial,
+        "NombreShipping": nombre.toString(),
+        "DireccionShipping": direccion.toString(),
+        "TelefonoShipping": telefono.toString(),
+        "CiudadShipping": ciudad.toString(),
+        "ProductoP": productoP.toString(),
+        "ProductoExtra": productoE.toString(),
+        "Cantidad_Total": cantidadT.toString(),
+        "PrecioTotal": precio.toString(),
+        "Observacion": observacion.toString(),
+        "product_id": int.parse(productId),
+        "variant_details": json.encode(variantsDetails),
+        "recaudo": recaudo,
+        "ruta": rutaId,
+        "transportadora": transportadoraId,
+        "carrier_id": int.parse(carrierExternalId),
+        "ciudad_des": int.parse(ciudadIdDest),
+      }));
+*/
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/orderproduct"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "generatedBy": generatedBy,
+                "IdComercial": idMaster,
+                "Name_Comercial": nameComercial,
+                "NombreShipping": nombre.toString(),
+                "DireccionShipping": direccion.toString(),
+                "TelefonoShipping": telefono.toString(),
+                "CiudadShipping": ciudad.toString(),
+                "ProductoP": productoP.toString(),
+                "ProductoExtra": productoE.toString(),
+                "Cantidad_Total": cantidadT.toString(),
+                "PrecioTotal": precio.toString(),
+                "Observacion": observacion.toString(),
+                "product_id": int.parse(productId),
+                "variant_details": json.encode(variantsDetails),
+                "recaudo": recaudo,
+                "ruta": rutaId,
+                "transportadora": transportadoraId,
+                "carrier_id": int.parse(carrierExternalId),
+                "ciudad_des": int.parse(ciudadIdDest),
+              }));
 
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         // print(decodeData['orden_ingresada']);
-        return decodeData['orden_ingresada'];
+        return decodeData['data'];
       } else {
         return 1;
       }
     } catch (error) {
+      print(error);
       return 2;
     }
   }
@@ -6965,6 +7015,73 @@ class Connections {
       }
     } catch (error) {
       return 2;
+    }
+  }
+
+  //  *
+  getCoverage(and) async {
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/carriercoverage/search"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"and": and}));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  Future postOrdersGintra(datajson) async {
+    // print("postOrdersGintra");
+    // print(json.encode(datajson));
+    try {
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/gintracom/postorder"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(datajson));
+
+      // body: json.encode({
+      //   "remitente": {
+      //     "nombre": "test desde easy 2",
+      //     "telefono": "0990479408",
+      //     "provincia": "1",
+      //     "ciudad": "1",
+      //     "direccion": "test desde easy 2"
+      //   },
+      //   "destinatario": {
+      //     "nombre": "test desde easy 2",
+      //     "telefono": "0988860823",
+      //     "provincia": "1",
+      //     "ciudad": "1",
+      //     "direccion": "test desde easy 2"
+      //   },
+      //   "cant_paquetes": "1",
+      //   "peso_total": "1.00",
+      //   "documento_venta": "",
+      //   "contenido": "test desde easy 2",
+      //   "observacion": "",
+      //   "fecha": "2023-07-18 00:22:04",
+      //   "declarado": 340,
+      //   "con_recaudo": true
+      // }));
+      var response = await request.body;
+      if (request.statusCode == 204) {
+        print("204");
+
+        return [];
+      } else if (request.statusCode == 200) {
+        var decodeData = json.decode(response);
+        print(decodeData);
+        return decodeData;
+      }
+    } catch (e) {
+      print("error: $e");
     }
   }
 
@@ -7632,6 +7749,7 @@ class Connections {
             "reference": warehouse.reference,
             "description": warehouse.description,
             'url_image': warehouse.url_image,
+            'id_provincia': warehouse.id_provincia,
             'city': warehouse.city,
             'collection': json.encode(warehouse.collection),
             // 'collection': "prueba",
@@ -7661,7 +7779,8 @@ class Connections {
             "password": "123456789",
             "providers": sharedPrefs!.getString("idProvider"),
             "role": 2,
-            "roles_front": 5
+            "roles_front": 5,
+            "permisos": user.permisos,
           }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);

@@ -58,7 +58,9 @@ class _CatalogState extends State<Catalog> {
   bool isFirst = false;
   List populate = ["warehouse", "productseller", "reserve.seller"];
   List arrayFiltersOr = ["product_name", "stock", "price"];
-  List arrayFiltersAnd = [];
+  List arrayFiltersAnd = [
+    {"seller_owned": "0"}
+  ];
   List outFilter = [];
   List filterps = [];
   var sortFieldDefaultValue = "product_id:asc";
@@ -87,6 +89,9 @@ class _CatalogState extends State<Catalog> {
   int total = 0;
   var getReport = ProductReport();
 
+  bool isSelectedOwn = false;
+  int idUser = int.parse(sharedPrefs!.getString("id").toString());
+
   @override
   void initState() {
     super.initState();
@@ -103,6 +108,7 @@ class _CatalogState extends State<Catalog> {
     setState(() {
       isLoading = true;
     });
+
     await _productController.loadProductsCatalog(
         populate,
         pageSize,
@@ -166,6 +172,16 @@ class _CatalogState extends State<Catalog> {
               .add('${warehouse.id}-${warehouse.branchName}-${warehouse.city}');
         });
       }
+    }
+  }
+
+  getOldValue(Arrayrestoration) {
+    if (Arrayrestoration) {
+      setState(() {
+        arrayFiltersAnd = [
+          {"seller_owned": "0"}
+        ];
+      });
     }
   }
 
@@ -359,7 +375,6 @@ class _CatalogState extends State<Catalog> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 20),
           Text(
             'Filtros',
             style: GoogleFonts.robotoCondensed(
@@ -368,7 +383,7 @@ class _CatalogState extends State<Catalog> {
               color: Theme.of(context).hintColor,
             ),
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 20),
           TextButton(
             onPressed: () async {
               setState(() {
@@ -384,7 +399,7 @@ class _CatalogState extends State<Catalog> {
               ],
             ),
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 20),
           //
           Text(
             'Proveedor',
@@ -612,8 +627,10 @@ class _CatalogState extends State<Catalog> {
           const SizedBox(height: 30),
           //
           _buttonFavorites(),
-          const SizedBox(height: 30),
+          const SizedBox(height: 20),
           _buttonOnSale(),
+          const SizedBox(height: 20),
+          _buttonOwnProducts()
           //
         ],
       ),
@@ -737,6 +754,12 @@ class _CatalogState extends State<Catalog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [_buttonOnSale()],
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [_buttonOwnProducts()],
                 ),
               )
             ],
@@ -1151,16 +1174,85 @@ class _CatalogState extends State<Catalog> {
     );
   }
 
+  ElevatedButton _buttonOwnProducts() {
+    return ElevatedButton(
+      onPressed: () {
+        setState(() {
+          isSelectedOwn = !isSelectedOwn;
+          // print("$isSelectedOwn");
+          if (isSelectedOwn) {
+            var idMaster =
+                sharedPrefs!.getString("idComercialMasterSeller").toString();
+            print("add seller_owned");
+            arrayFiltersAnd
+                .removeWhere((filter) => filter.containsKey("seller_owned"));
+            arrayFiltersAnd.add({"seller_owned": idMaster});
+            setState(() {
+              _getProductModelCatalog();
+            });
+          } else {
+            print("remove seller_owned");
+
+            arrayFiltersAnd
+                .removeWhere((filter) => filter.containsKey("seller_owned"));
+            arrayFiltersAnd.add({"seller_owned": "0"});
+            setState(() {
+              _getProductModelCatalog();
+            });
+          }
+          // print(arrayFiltersAnd);
+        });
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isSelectedOwn ? Colors.indigo[50] : Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(50),
+          side: const BorderSide(
+            width: 1,
+            color: Colors.indigo,
+          ),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isSelectedOwn ? Colors.indigo[50] : Colors.white,
+            ),
+            child: Icon(
+              isSelectedOwn ? Icons.home : Icons.home_outlined,
+              color: Colors.indigo[900],
+            ),
+          ),
+          const SizedBox(width: 5),
+          Text(
+            'Mis Productos',
+            style: GoogleFonts.robotoCondensed(
+              fontSize: 16,
+              color: Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   _resetFilter() {
     selectedProvider = 'TODO';
     selectedCategory = 'TODO';
     selectedCategoriesList = [];
-    arrayFiltersAnd = [];
+    arrayFiltersAnd = [
+      {"seller_owned": "0"}
+    ];
     outFilter = [];
     _minPriceController.clear();
     _maxPriceController.clear();
     isSelectedFavorites = false;
     isSelectedOnSale = false;
+    isSelectedOwn = false;
     filterps = [];
   }
 
@@ -1891,8 +1983,11 @@ class _CatalogState extends State<Catalog> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          // _buttonCreateGuide(product, context),
-                          // const SizedBox(width: 30),
+                          Visibility(
+                            visible: idUser == 2,
+                            child: _buttonCreateGuide(product, context),
+                          ),
+                          const SizedBox(width: 30),
                           _buttonAddFavorite(
                               product, isFavorite, labelIsFavorite, context),
                           const SizedBox(width: 30),
@@ -1932,6 +2027,27 @@ class _CatalogState extends State<Catalog> {
     );
   }
 
+  // Future<dynamic> showInfoProduct(BuildContext context) {
+  //   return showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       return StatefulBuilder(
+  //         builder: (context, setState) {
+  //           //
+  //           // return const AlertDialog(
+  //           //   // shape: RoundedRectangleBorder(
+  //           //   //     borderRadius: BorderRadius.all(Radius.circular(20.0))),
+  //           //   contentPadding: EdgeInsets.all(0),
+  //           //   content: AddOrderSellersLaravel(),
+  //           // );
+  //         },
+  //       );
+  //     },
+  //   ).then((value) => setState(() {
+  //         _getProductModelCatalog();
+  //       }));
+  // }
+
   addOrderDialog(ProductModel product) {
     double screenWidthDialog = MediaQuery.of(context).size.width;
 
@@ -1941,6 +2057,20 @@ class _CatalogState extends State<Catalog> {
     return showDialog(
       context: context,
       builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            //
+            return AlertDialog(
+              // shape: RoundedRectangleBorder(
+              //     borderRadius: BorderRadius.all(Radius.circular(20.0))),
+              contentPadding: EdgeInsets.all(0),
+              content: ProductAddOrder(
+                product: product,
+              ),
+            );
+          },
+        );
+        /*
         return Dialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(0.0),
@@ -1953,6 +2083,7 @@ class _CatalogState extends State<Catalog> {
             ),
           ),
         );
+        */
       },
     ).then((value) {});
   }

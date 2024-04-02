@@ -16,6 +16,7 @@ class ProductModel {
   int? approved;
   int? active;
   int? warehouseId;
+  int? seller_owned;
   String? createdAt;
   String? updatedAt;
   // Considerar si necesitas un objeto relacionado como en ProviderModel
@@ -34,6 +35,7 @@ class ProductModel {
     this.approved,
     this.active,
     this.warehouseId,
+    this.seller_owned,
     this.createdAt,
     this.updatedAt,
     this.warehouse,
@@ -117,6 +119,7 @@ class ProductModel {
       features: json['features'],
       approved: json['approved'],
       active: json['active'],
+      seller_owned: json['seller_owned'],
       createdAt: json['created_at'],
       warehouseId: json['warehouse_id'],
       warehouse: warehouseModel,
@@ -136,6 +139,7 @@ class ProductModel {
       'features': features,
       'approved': approved,
       'active': active,
+      'seller_owned': seller_owned,
       'created_at': createdAt,
       'warehouse_id': warehouseId,
       'warehouse': warehouse?.toJson(),

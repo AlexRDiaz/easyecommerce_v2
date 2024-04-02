@@ -435,7 +435,7 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
           content: Container(
             width: screenWith > 600 ? screenWith * 0.35 : screenWith,
             height:
-                screenWith > 600 ? screenHeight * 0.75 : screenHeight * 0.85,
+                screenWith > 600 ? screenHeight * 0.80 : screenHeight * 0.90,
             color: Colors.white,
             padding: EdgeInsets.all(20),
             child: Form(
@@ -752,19 +752,18 @@ class _AddCarrierExternalState extends State<AddCarrierExternal> {
                             if (formKeyCosts.currentState!.validate()) {
                               //
                               costsToSend = {
-                                "local_local_normal":
-                                    localLocalNormalController.text != ""
-                                        ? localLocalNormalController.text
-                                        : 0,
-                                "local_local_especial":
+                                "normal1": localLocalNormalController.text != ""
+                                    ? localLocalNormalController.text
+                                    : 0,
+                                "especial1":
                                     localLocalEspecialController.text != ""
                                         ? localLocalEspecialController.text
                                         : 0,
-                                "local_provincia_normal":
+                                "normal2":
                                     localProvinciaNormalController.text != ""
                                         ? localProvinciaNormalController.text
                                         : 0,
-                                "local_provincia_especial":
+                                "especial2":
                                     localProvinciaEspecialController.text != ""
                                         ? localProvinciaEspecialController.text
                                         : 0,

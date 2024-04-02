@@ -352,6 +352,8 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
   @override
   void didChangeDependencies() {
     var currentIndex = sharedPrefs!.getString("index");
+    print("currentIndex: $currentIndex");
+
     currentView = {
       "page": sharedPrefs!.getString("index") != null
           ? pagesProvider[int.parse(sharedPrefs!.getString("index").toString())]
@@ -625,13 +627,13 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
                               'Sub Proveedores',
                               Icon(Icons.supervisor_account,
                                   color: colorlabels)),
+                          _buildMenuItem('Agregar bodegas', 'Bodegas',
+                              Icon(Icons.warehouse, color: colorlabels)),
                           _buildMenuItem(
                               'Agregar productos',
                               'Productos',
                               Icon(Icons.shopping_bag_rounded,
                                   color: colorlabels)),
-                          _buildMenuItem('Agregar bodegas', 'Bodegas',
-                              Icon(Icons.warehouse, color: colorlabels)),
                         ]),
                         _buildMenu('Reportes',
                             Icon(Icons.report, color: colorlabels), [

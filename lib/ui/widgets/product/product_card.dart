@@ -6,6 +6,8 @@ import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/models/product_model.dart';
 import 'package:frontend/models/product_seller.dart';
+import 'package:frontend/models/reserve_model.dart';
+import 'package:frontend/models/user_model.dart';
 import 'package:frontend/ui/widgets/product/product_carousel.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -32,6 +34,8 @@ class ProductCard extends StatelessWidget {
     int isFavorite = 2;
     int isOnSale = 2;
 
+    int totalReservas = 0;
+
     //
     List<ProductSellerModel>? productsellerList = product.productseller;
     if (productsellerList != null) {
@@ -49,6 +53,22 @@ class ProductCard extends StatelessWidget {
           }
         } else {
           // print("Si esta en la productSeller pero no esta tienda");
+        }
+      }
+    }
+
+    if (product.seller_owned != 0) {
+      List<ReserveModel>? reservesList = product.reserves;
+      if (reservesList != null) {
+        for (var reserva in reservesList) {
+          var idMaster =
+              sharedPrefs!.getString("idComercialMasterSeller").toString();
+          ReserveModel reserve = reserva;
+          if (idMaster == reserve.idComercial.toString()) {
+            totalReservas += reserve.stock!;
+          } else {
+            // print("Existen reservas pero NO de este userMaster");
+          }
         }
       }
     }
@@ -300,6 +320,7 @@ class ProductCard extends StatelessWidget {
                         ),
                       ],
                     ),
+
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -320,7 +341,9 @@ class ProductCard extends StatelessWidget {
                           width: 3,
                         ),
                         Text(
-                          '${product.stock}',
+                          product.seller_owned != 0
+                              ? totalReservas.toString()
+                              : product.stock.toString(),
                           // style: TextStyle(
                           //   color: Colors.black,
                           //   fontSize: textSize,

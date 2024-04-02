@@ -63,6 +63,9 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
 
   XFile? pickedImage = null;
 
+  List<String> provinciasToSelect = [];
+  String? selectedProvincia;
+
   @override
   void initState() {
     _controller = WrehouseController();
@@ -80,6 +83,12 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
   Future loadData() async {
     if (activeRoutes.isEmpty) {
       activeRoutes = await Connections().getActiveRoutes();
+    }
+    var provinciasList = [];
+    provinciasToSelect = [];
+    provinciasList = await Connections().getProvincias();
+    for (var i = 0; i < provinciasList.length; i++) {
+      provinciasToSelect.add('${provinciasList[i]}');
     }
   }
 
@@ -276,6 +285,45 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
                       labelText: 'Descripción',
                       icon: Icons.description,
                     ),
+                    Text(
+                      "Provincia",
+                      style:
+                          TextStyle(color: Color.fromARGB(255, 107, 105, 105)),
+                    ),
+                    SizedBox(
+                      width: 200,
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          isExpanded: true,
+                          hint: Text(
+                            'Provincia',
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: Theme.of(context).hintColor,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          items: provinciasToSelect
+                              .map((item) => DropdownMenuItem(
+                                    value: item,
+                                    child: Text(
+                                      item.split('-')[0],
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ))
+                              .toList(),
+                          value: selectedProvincia,
+                          onChanged: (value) async {
+                            setState(() {
+                              selectedProvincia = value as String;
+                            });
+                            // print(newProvincia);
+                          },
+                        ),
+                      ),
+                    ),
+
                     // Container(height: 80, child: ImagePickerExample()),
                     SizedBox(height: 25),
                     Row(children: [
@@ -492,6 +540,9 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
                                     reference: _referenceController.text,
                                     description: _decriptionController.text,
                                     url_image: responseChargeImage[1],
+                                    id_provincia: int.parse(selectedProvincia
+                                        .toString()
+                                        .split('-')[1]),
                                     city: _cityController.text,
                                     collection: {
                                       "collectionDays": selectedDays,
@@ -804,6 +855,9 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
                                     reference: _referenceController.text,
                                     description: _decriptionController.text,
                                     url_image: responseChargeImage[1],
+                                    id_provincia: int.parse(selectedProvincia
+                                        .toString()
+                                        .split('-')[1]),
                                     city: _cityController.text,
                                     collection: {
                                       "collectionDays": selectedDays,
