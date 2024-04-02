@@ -22,15 +22,15 @@ import 'package:async/async.dart';
 class Connections {
   String server = generalServer;
   String serverLaravel = generalServerApiLaravel;
-  Future<bool> login({identifier, password}) async {
+  login({identifier, password}) async {
     try {
       var request = await http.post(Uri.parse("$serverLaravel/api/login"),
           body: {"email": identifier, "password": password});
       var response = await request.body;
       var decodeData = json.decode(response);
       if (request.statusCode != 200) {
-        var m = decodeData['user']['id'];
-        return false;
+        // var m = decodeData['user']['id'];
+        return decodeData;
       } else {
         var getUserSpecificRequest = await http.get(
             Uri.parse("$serverLaravel/api/users/${decodeData['user']['id']}"));
@@ -196,7 +196,7 @@ class Connections {
         return true;
       }
     } catch (e) {
-      print(e);
+      print(">> $e");
       return false;
     }
   }
@@ -3757,7 +3757,7 @@ class Connections {
         search =
             ''; // No hay valor después de "id:", establecer search como vacío
       }
-      dateStart = '1/1/2024';
+      dateStart = '1/1/2023';
     }
 
     print(json.encode({
@@ -8129,16 +8129,25 @@ class Connections {
     }
   }
 
-  updateProductVariantStock(skuProduct, quantity, type, idComercial) async {
+  // updateProductVariantStock(skuProduct, quantity, type, idComercial) async {
+  updateProductVariantStock(variant_detail, type, idComercial) async {
+    print(json.encode({
+      // "sku_product": skuProduct,
+      // "quantity": quantity,
+      "type": type,
+      "id_comercial": idComercial,
+      "variant_detail": variant_detail
+    }));
     try {
       var response =
           await http.post(Uri.parse("$serverLaravel/api/products/updatestock"),
               headers: {'Content-Type': 'application/json'},
               body: json.encode({
-                "sku_product": skuProduct,
-                "quantity": quantity,
+                // "sku_product": skuProduct,
+                // "quantity": quantity,
                 "type": type,
-                "id_comercial": idComercial
+                "id_comercial": idComercial,
+                "variant_detail": variant_detail
               }));
 
       if (response.statusCode == 200) {
@@ -9227,6 +9236,27 @@ class Connections {
         return 1;
       } else {
         return 0;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  updateUserActiveStatus(
+    id,
+    active,
+  ) async {
+    try {
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/users/update-active/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"active": active}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return decodeData;
       }
     } catch (e) {
       return 2;

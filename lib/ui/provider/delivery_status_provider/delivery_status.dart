@@ -859,25 +859,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                           (index) => DataRow(
                             cells: [
                               DataCell(
-                                  Row(
-                                    children: [
                                       Text(data[index]['fecha_entrega']
                                           .toString()),
-                                      data[index]['status'] == 'NOVEDAD' &&
-                                              data[index]
-                                                      ['estado_devolucion'] ==
-                                                  'PENDIENTE'
-                                          ? IconButton(
-                                              icon:
-                                                  Icon(Icons.schedule_outlined),
-                                              onPressed: () async {
-                                                reSchedule(data[index]['id'],
-                                                    'REAGENDADO');
-                                              },
-                                            )
-                                          : Container(),
-                                    ],
-                                  ), onTap: () {
+                                  onTap: () {
                                 showInfo(context, index);
                               }),
                               DataCell(
