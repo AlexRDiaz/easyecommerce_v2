@@ -9,8 +9,10 @@ class SubProviderController extends ControllerMVC {
 
   // Método para agregar un nuevo proveedor
   addSubProvider(UserModel user) async {
-    await Connections().createSubProvider(user);
-    setState(() {});
+    var response = await Connections().createSubProvider(user);
+    return response;
+
+    // setState(() {});
   }
 
   editSubProvider(UserModel user) async {

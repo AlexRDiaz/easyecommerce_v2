@@ -43,7 +43,9 @@ class _ProductsViewState extends State<ProductsView> {
   int pageCount = 100;
   bool isLoading = false;
   bool isFirst = false;
-  List populate = ["warehouse.provider", "reserve.seller"];
+  // List populate = ["warehouse.provider", "reserve.seller"];
+  List populate = ["warehouses", "reserve.seller"];
+
   List arrayFiltersAnd = [
     // {"warehouse.warehouse_id": 1}
   ];
@@ -73,9 +75,23 @@ class _ProductsViewState extends State<ProductsView> {
   bool edited = false;
   bool warehouseActAprob = false;
   String idProv = sharedPrefs!.getString("idProvider").toString();
+  String idProvUser = sharedPrefs!.getString("idProviderUserMaster").toString();
+  String idUser = sharedPrefs!.getString("id").toString();
+  int provType = 0;
+  String specialProv = sharedPrefs!.getString("special").toString();
 
   @override
   void initState() {
+    print("idProv-prin: $idProv-$idProvUser");
+    print("idProv: $idUser");
+    if (idProvUser == idUser) {
+      provType = 1; //prov principal
+    } else if (idProvUser != idUser) {
+      provType = 2; //prov principal
+    }
+    print("tipo prov: $provType");
+    print("special prov?: $specialProv");
+
     data = [];
     _productController = ProductController();
     _warehouseController = WrehouseController();
@@ -88,16 +104,27 @@ class _ProductsViewState extends State<ProductsView> {
   }
 
   Future<List<ProductModel>> _getProductModelData() async {
-    await _productController.loadProductsByProvider(
-        idProv,
+    // await _productController.loadProductsByProvider(
+    //     idProv,
+    //     populate,
+    //     pageSize,
+    //     currentPage,
+    //     arrayFiltersOr,
+    //     arrayFiltersAnd,
+    //     sortFieldDefaultValue.toString(),
+    //     _search.text,
+    //     "");
+    // return _productController.products;
+    arrayFiltersAnd = [];
+    await _productController.loadBySubProvider(
         populate,
         pageSize,
         currentPage,
         arrayFiltersOr,
         arrayFiltersAnd,
         sortFieldDefaultValue.toString(),
-        _search.text,
-        "");
+        _search.text);
+
     return _productController.products;
   }
 
@@ -140,17 +167,39 @@ class _ProductsViewState extends State<ProductsView> {
 
     products = await _getProductModelData();
 
-    var response = await _productController.loadProductsByProvider(
-        sharedPrefs!.getString("idProvider"),
+    // var response = await _productController.loadProductsByProvider(
+    //     sharedPrefs!.getString("idProvider"),
+    //     populate,
+    //     pageSize,
+    //     currentPage,
+    //     arrayFiltersOr,
+    //     arrayFiltersAnd,
+    //     sortFieldDefaultValue.toString(),
+    //     _search.text,
+    //     "");
+
+    if (provType == 1) {
+      //prov principal
+      if (int.parse(specialProv.toString()) == 1) {
+        //prov principal y especial
+        arrayFiltersAnd.add({"/approved": 1});
+        print("provPrincipal 1");
+      } else {
+        arrayFiltersAnd.add({"/warehouses.provider_id": idProv});
+        print("provPrincipal 2");
+      }
+    } else if (provType == 2) {
+      //prov principal
+      arrayFiltersAnd.add({"/warehouses.up_users.id_user": idUser});
+    }
+    var response = await _productController.loadBySubProvider(
         populate,
         pageSize,
         currentPage,
         arrayFiltersOr,
         arrayFiltersAnd,
         sortFieldDefaultValue.toString(),
-        _search.text,
-        "");
-
+        _search.text);
     data = response['data'];
     // print(data);
     // total = response['total'];
@@ -196,7 +245,8 @@ class _ProductsViewState extends State<ProductsView> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         getLoadingModal(context, false);
       });
-      var response = await Connections().historyByProduct(productId,pageSizeIntern,pageCountIntern);
+      var response = await Connections()
+          .historyByProduct(productId, pageSizeIntern, pageCountIntern);
       setState(() {
         dataHistory = response['data'];
         pageCountIntern = response['last_page'];
@@ -688,8 +738,10 @@ class _ProductsViewState extends State<ProductsView> {
                               UIUtils.formatDate(
                                   data[index]['created_at'].toString()))),
                           DataCell(
-                            Text(data[index]['warehouse']['branch_name']
-                                .toString()),
+                            Text(getWarehousesNames(data[index]['warehouses'])
+                                // data[index]['warehouses']['branch_name']
+                                //     .toString(),
+                                ),
                           ),
                           DataCell(
                             data[index]['approved'] == 1
@@ -937,6 +989,21 @@ class _ProductsViewState extends State<ProductsView> {
     List<String> urlsImgsList = (jsonDecode(urlImgData) as List).cast<String>();
     String url = urlsImgsList[0];
     return url;
+  }
+
+  String getWarehousesNames(dynamic warehouses) {
+    String names = "";
+    if (warehouses != null) {
+      for (var warehouse in warehouses) {
+        if (warehouse['branch_name'] != null) {
+          names += "${warehouse['branch_name']}/ ";
+        }
+      }
+      if (names.isNotEmpty) {
+        names = names.substring(0, names.length - 2);
+      }
+    }
+    return names;
   }
 
   Future<dynamic> showDialogInfoData(data) {
@@ -1611,12 +1678,12 @@ class _ProductsViewState extends State<ProductsView> {
                                             children: [
                                               Row(
                                                 children: [
-                                                  Text(
-                                                    product
-                                                        .warehouse!.branchName
-                                                        .toString(),
-                                                    style: customTextStyleText,
-                                                  ),
+                                                  // Text(
+                                                  //   product
+                                                  //       .warehouse!.branchName
+                                                  //       .toString(),
+                                                  //   style: customTextStyleText,
+                                                  // ),
                                                 ],
                                               ),
                                             ],
@@ -1661,7 +1728,8 @@ class _ProductsViewState extends State<ProductsView> {
     ProductModel product = ProductModel.fromJson(data);
 
     int? productId = product.productId;
-    var response = await Connections().historyByProduct(productId,pageSizeIntern,pageCountIntern);
+    var response = await Connections()
+        .historyByProduct(productId, pageSizeIntern, pageCountIntern);
 
     dataHistory = response['data'] ?? [];
     pageCountIntern = response['last_page'];
@@ -1733,8 +1801,7 @@ class _ProductsViewState extends State<ProductsView> {
                                 child: Row(
                                   children: [
                                     Container(
-                                        width:
-                                            screenWidth*0.5,
+                                        width: screenWidth * 0.5,
                                         child:
                                             numberPaginatorIntern(productId)),
                                   ],

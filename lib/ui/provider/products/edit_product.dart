@@ -166,8 +166,10 @@ class _EditProductState extends State<EditProduct> {
     isVariable = int.parse(product.isvariable.toString());
     typeValue = product.isvariable == 1 ? "VARIABLE" : "SIMPLE";
     _priceController.text = product.price.toString();
-    warehouseValue =
-        '${product.warehouse!.id.toString()}-${product.warehouse!.branchName.toString()}-${product.warehouse!.city.toString()}';
+    //Actualizar version access to bodega
+
+    // warehouseValue =
+    //     '${product.warehouse!.id.toString()}-${product.warehouse!.branchName.toString()}-${product.warehouse!.city.toString()}';
 
     urlsImgsList = product.urlImg != null &&
             product.urlImg.isNotEmpty &&

@@ -1714,21 +1714,23 @@ class _CatalogState extends State<Catalog> {
                                           children: [
                                             _textTitle("Bodega:"),
                                             const SizedBox(width: 10),
-                                            _text(product.warehouse!.branchName
-                                                .toString()),
+                                            //Actualizar version access to bodega
+
+                                            // _text(product.warehouse!.branchName
+                                            //     .toString()),
                                           ],
                                         ),
                                         Row(
                                           children: [
                                             _textTitle("Atención al cliente:"),
                                             const SizedBox(width: 10),
-                                            _text(product.warehouse!
-                                                        .customerphoneNumber !=
-                                                    null
-                                                ? product.warehouse!
-                                                    .customerphoneNumber
-                                                    .toString()
-                                                : "")
+                                            // _text(product.warehouse!
+                                            //             .customerphoneNumber !=
+                                            //         null
+                                            //     ? product.warehouse!
+                                            //         .customerphoneNumber
+                                            //         .toString()
+                                            //     : "")
                                           ],
                                         ),
                                       ],
@@ -1952,23 +1954,27 @@ class _CatalogState extends State<Catalog> {
                                 const Text(
                                   "Bodega:",
                                 ),
-                                Text(
-                                  product.warehouse!.branchName.toString(),
-                                ),
+                                Text(""
+                                    //Actualizar version access to bodega
+
+                                    // product.warehouse!.branchName.toString(),
+                                    ),
                                 Row(
                                   children: [
                                     const Text(
                                       "Atención al cliente:",
                                     ),
                                     const SizedBox(width: 5),
-                                    Text(
-                                      product.warehouse!.customerphoneNumber !=
-                                              null
-                                          ? product
-                                              .warehouse!.customerphoneNumber
-                                              .toString()
-                                          : "",
-                                    ),
+                                    Text(""
+                                        //Actualizar version access to bodega
+
+                                        // product.warehouse!.customerphoneNumber !=
+                                        //         null
+                                        //     ? product
+                                        //         .warehouse!.customerphoneNumber
+                                        //         .toString()
+                                        //     : "",
+                                        ),
                                   ],
                                 ),
                               ],

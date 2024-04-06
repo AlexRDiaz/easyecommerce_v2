@@ -377,7 +377,9 @@ class ProductCard extends StatelessWidget {
                           width: 3,
                         ),
                         Text(
-                          product.warehouse!.branchName.toString(),
+                          //Actualizar version access to bodega
+                          "",
+                          // product.warehouse!.branchName.toString(),
                           // style: TextStyle(
                           //   color: Colors.black,
                           //   fontSize: textSize,

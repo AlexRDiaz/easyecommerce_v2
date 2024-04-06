@@ -622,13 +622,13 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
                       children: [
                         _buildMenu(
                             'Crear', Icon(Icons.person, color: colorlabels), [
+                          _buildMenuItem('Agregar bodegas', 'Bodegas',
+                              Icon(Icons.warehouse, color: colorlabels)),
                           _buildMenuItem(
                               'Agregar proveedor',
                               'Sub Proveedores',
                               Icon(Icons.supervisor_account,
                                   color: colorlabels)),
-                          _buildMenuItem('Agregar bodegas', 'Bodegas',
-                              Icon(Icons.warehouse, color: colorlabels)),
                           _buildMenuItem(
                               'Agregar productos',
                               'Productos',
@@ -641,10 +641,11 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
                               'Mis Transacciones',
                               'Mis Transacciones',
                               Icon(Icons.wallet, color: colorlabels)),
-                              _buildMenuItem(
+                          _buildMenuItem(
                               'Estado de Entregas',
                               'Estado de Entregas',
-                              Icon(Icons.emoji_transportation, color: colorlabels)),
+                              Icon(Icons.emoji_transportation,
+                                  color: colorlabels)),
                         ]),
                         _buildMenu(
                             'Imprimir', Icon(Icons.print, color: colorlabels), [

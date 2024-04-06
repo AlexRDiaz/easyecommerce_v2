@@ -20,7 +20,8 @@ class ProductModel {
   String? createdAt;
   String? updatedAt;
   // Considerar si necesitas un objeto relacionado como en ProviderModel
-  WarehouseModel? warehouse;
+  // WarehouseModel? warehouse;
+  List<WarehouseModel>? warehouses;
   List<ProductSellerModel>? productseller;
   List<ReserveModel>? reserves;
 
@@ -38,13 +39,14 @@ class ProductModel {
     this.seller_owned,
     this.createdAt,
     this.updatedAt,
-    this.warehouse,
+    this.warehouses,
     this.productseller,
     this.reserves,
   });
 
   // Método para crear un objeto ProductModel desde un mapa
   factory ProductModel.fromJson(Map<String, dynamic> json) {
+    /*
     dynamic warehouseData;
 
     if (json['warehouse'] != null) {
@@ -64,6 +66,28 @@ class ProductModel {
     WarehouseModel? warehouseModel;
     if (warehouseData != null) {
       warehouseModel = WarehouseModel.fromJson(warehouseData);
+    }
+    */
+
+    dynamic warehousesData;
+
+    if (json['warehouses'] != null) {
+      var warehouseValue = json['warehouses'];
+      if (warehouseValue is List<dynamic>) {
+        try {
+          // Aquí tratamos productsellerValue como una lista de objetos JSON
+          warehousesData = warehouseValue;
+        } catch (e) {
+          print('Error decoding warehouses list: $e');
+        }
+      }
+    }
+
+    List<WarehouseModel>? warehousesModel;
+    if (warehousesData != null) {
+      // Aquí tratamos productsellerData como una lista de objetos JSON
+      warehousesModel = List<WarehouseModel>.from(
+          warehousesData.map((item) => WarehouseModel.fromJson(item)));
     }
 
     dynamic productsellerData;
@@ -122,7 +146,7 @@ class ProductModel {
       seller_owned: json['seller_owned'],
       createdAt: json['created_at'],
       warehouseId: json['warehouse_id'],
-      warehouse: warehouseModel,
+      warehouses: warehousesModel,
       productseller: productsellerModels,
       reserves: reservesModels,
     );
@@ -142,7 +166,8 @@ class ProductModel {
       'seller_owned': seller_owned,
       'created_at': createdAt,
       'warehouse_id': warehouseId,
-      'warehouse': warehouse?.toJson(),
+      // 'warehouse': warehouse?.toJson(),
+      'warehouses': warehouses?.map((item) => item.toJson()).toList(),
       'productseller': productseller?.map((item) => item.toJson()).toList(),
       'reserve': reserves?.map((item) => item.toJson()).toList(),
     };

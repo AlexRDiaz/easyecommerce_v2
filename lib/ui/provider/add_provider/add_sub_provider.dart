@@ -2,14 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animated_icons/icons8.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/main.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:frontend/models/user_model.dart';
+import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/ui/logistic/add_provider/controllers/provider_controller.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/provider/add_provider/controllers/sub_provider_controller.dart';
+import 'package:frontend/ui/provider/warehouses/controllers/warehouses_controller.dart';
 import 'package:frontend/ui/sellers/add_seller_user/custom_filter_seller_user.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/html_editor.dart';
+import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/my_carousel.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -42,13 +46,40 @@ class _AddSubProviderState extends StateMVC<AddSubProvider> {
       _selectedImageURL; // Esta variable almacenará la URL de la imagen seleccionada
   final List<dynamic> accessTemp = [];
   List vistas = [];
+  List<WarehouseModel> warehousesList = [];
   List<String> warehousesToSelect = [];
   String? selectedWarehouse;
+  late WrehouseController _warehouseController;
+  String idProv = sharedPrefs!.getString("idProvider").toString();
+  List<Map<String, String>> selectedWarehouses = [];
 
   @override
   void initState() {
     _controller = SubProviderController();
+    _warehouseController = WrehouseController();
+    getWarehouses();
+
     super.initState();
+  }
+
+  Future<List<WarehouseModel>> _getWarehousesData() async {
+    await _warehouseController.loadWarehouses(idProv);
+    return _warehouseController.warehouses;
+  }
+
+  getWarehouses() async {
+    var responseBodegas = await _getWarehousesData();
+    warehousesList = responseBodegas;
+    for (var warehouse in warehousesList) {
+      if (warehouse.approved == 1 && warehouse.active == 1) {
+        // if (warehouse.active == 1) {
+        setState(() {
+          warehousesToSelect
+              .add('${warehouse.id}-${warehouse.branchName}-${warehouse.city}');
+        });
+      }
+    }
+    print(warehousesToSelect);
   }
 
   @override
@@ -163,7 +194,7 @@ class _AddSubProviderState extends StateMVC<AddSubProvider> {
                       return null;
                     },
                   ),
-                  /*
+
                   const SizedBox(height: 10),
                   Row(
                     children: [
@@ -204,6 +235,16 @@ class _AddSubProviderState extends StateMVC<AddSubProvider> {
                           onChanged: (value) {
                             setState(() {
                               selectedWarehouse = value as String;
+                              selectedWarehouses.add({
+                                "id": selectedWarehouse
+                                    .toString()
+                                    .split("-")[0]
+                                    .toString(),
+                                "name": selectedWarehouse
+                                    .toString()
+                                    .split("-")[1]
+                                    .toString(),
+                              });
                             });
                           },
                           decoration: InputDecoration(
@@ -217,7 +258,29 @@ class _AddSubProviderState extends StateMVC<AddSubProvider> {
                       ),
                     ],
                   ),
-                  */
+                  Row(
+                    children: [
+                      Wrap(
+                        spacing: 8.0,
+                        runSpacing: 8.0,
+                        children:
+                            List.generate(selectedWarehouses.length, (index) {
+                          String categoryName =
+                              selectedWarehouses[index]["name"] ?? "";
+
+                          return Chip(
+                            label: Text(categoryName),
+                            onDeleted: () {
+                              setState(() {
+                                selectedWarehouses.removeAt(index);
+                                // print("catAct: $selectedCategoriesMap");
+                              });
+                            },
+                          );
+                        }),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 10),
                   const Text(
                     "ACCESOS ACTUALES",
@@ -253,18 +316,30 @@ class _AddSubProviderState extends StateMVC<AddSubProvider> {
 
           ElevatedButton(
             onPressed: () async {
-              print("vistas: $vistas");
-              _controller.addSubProvider(UserModel(
-                  username: _usernameController.text,
-                  email: _emailController.text,
-                  blocked: false,
-                  permisos: vistas));
+              getLoadingModal(context, false);
 
+              // print("vistas: $vistas");
+              // print("selectedWarehouses: $selectedWarehouses");
+
+              var res = await _controller.addSubProvider(UserModel(
+                username: _usernameController.text,
+                email: _emailController.text,
+                blocked: false,
+                permisos: vistas,
+              ));
+              // print(res);
+              for (var warehouse in selectedWarehouses) {
+                Connections().newProviderWarehouse(res, warehouse['id']);
+                // print("ID: ${warehouse['id']}, Name: ${warehouse['name']}");
+              }
+
+              Navigator.pop(context);
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(
-              primary: Colors.blue, // Cambia el color de fondo del botón
-              onPrimary: Colors.white, // Cambia el color del texto del botón
+              foregroundColor: Colors.white,
+              backgroundColor:
+                  Colors.blue, // Cambia el color del texto del botón
               padding: EdgeInsets.symmetric(
                   vertical: 15,
                   horizontal: 40), // Ajusta el espaciado interno del botón

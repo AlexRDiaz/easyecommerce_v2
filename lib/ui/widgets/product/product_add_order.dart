@@ -151,8 +151,11 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
     }
 
     // print(costShippingSeller);
-    origen_prov = widget.product.warehouse?.id_provincia.toString();
-    origen_city = widget.product.warehouse?.city.toString();
+    //Actualizar version access to bodega
+    // origen_prov = widget.product.warehouse?.id_provincia.toString();
+    // origen_city = widget.product.warehouse?.city.toString();
+    origen_prov = "";
+    origen_city = "";
 
     setState(() {});
 
@@ -1216,9 +1219,9 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
 
                                 print(messageVar);
 
-                                String remitente_address = widget
-                                    .product.warehouse!.address
-                                    .toString();
+                                //Actualizar version access to bodega
+                                String remitente_address = "";
+                                // widget.product.warehouse!.address.toString();
 
                                 String remitente_prov_ref = "";
                                 String remitente_city_ref = "";
@@ -1240,9 +1243,11 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                           origen_prov
                                     },
                                     {
-                                      "/coverage_external.ciudad": widget
-                                          .product.warehouse!.city
-                                          .toString()
+                                      "/coverage_external.ciudad":
+                                          //Actualizar version access to bodega
+                                          ""
+                                      // widget.product.warehouse!.city
+                                      //     .toString()
                                     }
                                   ]);
 

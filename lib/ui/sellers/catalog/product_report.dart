@@ -112,7 +112,9 @@ class ProductReport {
         "Handle": productName,
         "Title": productName,
         "Body (HTML)": description,
-        "Vendor": product.warehouse?.branchName,
+        //Actualizar version access to bodega
+        // "Vendor": product.warehouse?.branchName,
+        "Vendor": "",
         "Product Category": product.productName.toString(), //Category
         "Type": type,
         "Tags": "",
@@ -226,7 +228,9 @@ class ProductReport {
         "Handle": '$productName',
         "Title": '$productName',
         "Body (HTML)": '$description',
-        "Vendor": product.warehouse?.branchName,
+        // "Vendor": product.warehouse?.branchName,
+        //Actualizar version access to bodega
+        "Vendor": "",
         "Product Category": firstCategory,
         "Type": type,
         "Tags": "",
@@ -309,7 +313,10 @@ class ProductReport {
       // print("It's varaible");
       ProductModel product = dataProduct;
       String productName = product.productName.toString();
-      String vendor = product.warehouse!.branchName.toString();
+      // String vendor = product.warehouse!.branchName.toString();
+      //Actualizar version access to bodega
+      String vendor = "";
+
       // Decodificar el JSON
       Map<String, dynamic> features = jsonDecode(product.features);
 

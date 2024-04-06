@@ -193,7 +193,7 @@ class _AddProviderState extends StateMVC<AddProvider> {
                       ),
                     ),
                   ),
-                  /*
+
                   Row(
                     children: [
                       const Text('Proveedor Especial?'),
@@ -211,7 +211,7 @@ class _AddProviderState extends StateMVC<AddProvider> {
                       ),
                     ],
                   )
-                  */
+
                   // Container(
                   //   margin: EdgeInsets.symmetric(vertical: 10.0),
                   //   padding: EdgeInsets.all(8.0),
@@ -284,6 +284,7 @@ class _AddProviderState extends StateMVC<AddProvider> {
                     name: _nameController.text,
                     phone: _phone1Controller.text,
                     description: _descriptionController.text,
+                    special: provSpecial ? 1 : 0,
                     user: UserModel(
                       username: _usernameController.text,
                       email: _emailController.text,

@@ -2405,7 +2405,7 @@ class _AddProductState extends State<AddProduct> {
                                       // print(response);
 
                                       Navigator.pop(context);
-                                      Navigator.pop(context);
+                                      // Navigator.pop(context);
                                     }
                                   }
                                 },

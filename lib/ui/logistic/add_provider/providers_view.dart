@@ -115,11 +115,13 @@ class _ProviderViewState extends State<ProviderView> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.only(
-            left: MediaQuery.of(context).size.width * 0.020,
-            right: MediaQuery.of(context).size.width * 0.020),
+            left: screenWidth * 0.020, right: screenWidth * 0.020),
         child: Column(
           children: [
             Padding(
@@ -165,6 +167,7 @@ class _ProviderViewState extends State<ProviderView> {
 
                   return Container(
                     color: Colors.white,
+                    height: screenHeight * 0.7,
                     child: SfDataGrid(
                       source: providerModelDataSource,
                       columnWidthMode: ColumnWidthMode.fill,

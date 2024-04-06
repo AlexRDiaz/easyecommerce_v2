@@ -511,8 +511,10 @@ class _ProductInfoState extends State<ProductInfo> {
                                           Row(
                                             children: [
                                               Text(
-                                                product.warehouse!.branchName
-                                                    .toString(),
+                                                //Actualizar version access to bodega
+                                                "",
+                                                // product.warehouse!.branchName
+                                                //     .toString(),
                                                 style: customTextStyleText,
                                               ),
                                             ],
@@ -537,13 +539,15 @@ class _ProductInfoState extends State<ProductInfo> {
                                               ),
                                               const SizedBox(width: 10),
                                               Text(
-                                                product.warehouse!
-                                                            .customerphoneNumber !=
-                                                        null
-                                                    ? product.warehouse!
-                                                        .customerphoneNumber
-                                                        .toString()
-                                                    : "",
+                                                //Actualizar version access to bodega
+                                                "",
+                                                // product.warehouse!
+                                                //             .customerphoneNumber !=
+                                                //         null
+                                                //     ? product.warehouse!
+                                                //         .customerphoneNumber
+                                                //         .toString()
+                                                //     : "",
                                                 style: customTextStyleText,
                                               ),
                                             ],
