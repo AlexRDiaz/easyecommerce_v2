@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:frontend/helpers/responsive.dart';
+import 'package:frontend/ui/sellers/delivery_status/alert_dialog.dart';
 import 'package:frontend/ui/transport/delivery_status_transport/Opcion.dart';
 
 class OptionsWidget extends StatefulWidget {
@@ -19,8 +20,8 @@ class OptionsWidget extends StatefulWidget {
 }
 
 class _OptionsWidgetState extends State<OptionsWidget> {
-  List<bool> hoveredList = List.generate(9, (_) => false);
-  List<bool> selectedList = List.generate(9, (_) => false);
+  List<bool> hoveredList = List.generate(11, (_) => false);
+  List<bool> selectedList = List.generate(11, (_) => false);
   int selectedIndex = -1;
 
   // Variable para almacenar el valor actual del String
@@ -92,19 +93,56 @@ class _OptionsWidgetState extends State<OptionsWidget> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  widget.options[index].icono,
-                                  const Text('= '),
-                                  Container(
-                                      padding: const EdgeInsets.all(3),
-                                      decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius:
-                                              BorderRadius.circular(15)),
-                                      child: Text(widget.options[index].valor
-                                          .toString()))
+                                  widget.options[index].filtro !=
+                                          "Referenciados"
+                                      ? widget.options[index].icono
+                                      : Container(),
+                                  widget.options[index].filtro !=
+                                          "Referenciados"
+                                      ? const Text('= ')
+                                      : Container(),
+                                  widget.options[index].filtro !=
+                                          "Referenciados"
+                                      ? Container(
+                                          padding: const EdgeInsets.all(3),
+                                          decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(15)),
+                                          child: Text(widget
+                                              .options[index].valor
+                                              .toString()))
+                                      : Container(
+                                          child: TextButton(
+                                            child: Text("Referenciados",style: TextStyle(fontSize: 12,color: Colors.white),),
+                                          // icon: Icon(Icons.check_circle),
+                                          // color: Colors.white,
+                                          // iconSize: 5,
+                                          onPressed: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                // Usamos Dialog en lugar de AlertDialog directamente para poder controlar el tamaño.
+                                                return Dialog(
+                                                  // Sin margen para el Dialog, haciendo que se expanda lo máximo posible.
+                                                  insetPadding:
+                                                      EdgeInsets.all(0),
+                                                  child: FractionallySizedBox(
+                                                    widthFactor:
+                                                        0.5, // Esto hace que el diálogo sea el 80% del ancho de la pantalla
+                                                    child: Container(
+                                                      height: 650,
+                                                      child: AlertDialogReferer()),
+                                                  ),
+                                                );
+                                              },
+                                            );
+                                          },
+                                        ))
                                 ],
                               ),
-                              SizedBox(height: 5),
+                              // SizedBox(height: 5),
+                              widget.options[index].titulo.toString() != "Referenciados" ?
                               Text(
                                 widget.options[index].titulo,
                                 style: const TextStyle(
@@ -112,7 +150,7 @@ class _OptionsWidgetState extends State<OptionsWidget> {
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12,
                                 ),
-                              ),
+                              ):Container(),
                             ],
                           ),
                         ),

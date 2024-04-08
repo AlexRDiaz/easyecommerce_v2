@@ -14,8 +14,8 @@ class BuildInfoContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double textSizeTitle = screenWidth > 600 ? 22 : 14;
-    double textSizeText = screenWidth > 600 ? 16 : 11;
+    double textSizeTitle = screenWidth > 600 ? 14 : 14;
+    double textSizeText = screenWidth > 600 ? 12 : 11;
 
     return Container(
       // height: 75,

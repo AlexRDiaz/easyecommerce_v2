@@ -55,10 +55,13 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   int enRuta = 0;
   int programado = 0;
   int enOficina = 0;
+  int pProveedor = 0;
   double costoDeEntregas = 0;
+  double totalProductWarehouse = 0;
   double devoluciones = 0;
   double utilidad = 0;
   double totalValoresRecibidos = 0;
+  double refererValue = 0 ;
   double costoTransportadora = 0;
   bool isFirst = true;
   int counterLoad = 0;
@@ -264,7 +267,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       dataCounters = responseCounters;
       valuesTransporter = responseValues['data'];
       data = responseLaravel['data'];
-      print(">> $data");
+      // print(">> $data");
       // totallast = responseLaravel['total'];
       totallast = dataCounters['TOTAL'];
       pageCount = responseLaravel['last_page'];
@@ -444,6 +447,18 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           filtro: 'EN OFICINA',
           valor: enOficina,
           color: const Color(0xFF4B4C4B)),
+      Opcion(
+          icono: Icon(Icons.supervised_user_circle_rounded),
+          titulo: 'P. Proveedor',
+          filtro: 'null',
+          valor: pProveedor,
+          color: Color.fromARGB(255, 2, 87, 247)),
+      Opcion(
+          icono: Icon(Icons.person_add_rounded),
+          titulo: 'Referenciados',
+          filtro: 'Referenciados',
+          valor: 0,
+          color: Color.fromARGB(255, 4, 233, 233)),
     ];
 
     return CustomProgressModal(
@@ -492,7 +507,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                 child: boxValues(
                                     totalValoresRecibidos:
                                         totalValoresRecibidos,
+                                    referenciados: refererValue,
                                     costoDeEntregas: costoDeEntregas,
+                                    costoProveedor: totalProductWarehouse,
                                     devoluciones: devoluciones,
                                     utilidad: utilidad),
                               ),
@@ -526,7 +543,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                 child: boxValues(
                                     totalValoresRecibidos:
                                         totalValoresRecibidos,
+                                    referenciados: refererValue,
                                     costoDeEntregas: costoDeEntregas,
+                                    costoProveedor: totalProductWarehouse,
                                     devoluciones: devoluciones,
                                     utilidad: utilidad),
                               ),
@@ -1108,8 +1127,11 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                 showInfo(context, index);
                               }),
                               DataCell(
-                                  Text(data[index]['value_product_warehouse'] != null ? data[index]['value_product_warehouse'].toString() :" "),
-                                  onTap: () {
+                                  Text(data[index]['value_product_warehouse'] !=
+                                          null
+                                      ? data[index]['value_product_warehouse']
+                                          .toString()
+                                      : " "), onTap: () {
                                 showInfo(context, index);
                               }),
                               DataCell(
@@ -1261,6 +1283,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     estadoLogisticoController.text = "TODO";
     estadoDevolucionController.text = "TODO";
     arrayFiltersAnd = [];
+    arrayFiltersNotEq = [];
     _controllers.searchController.text = "";
 
     // paginatorController.navigateToPage(0);
@@ -1269,19 +1292,27 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
 //money
   calculateValues() {
     totalValoresRecibidos = 0;
+    refererValue = 0;
     costoDeEntregas = 0;
+    totalProductWarehouse = 0;
     devoluciones = 0;
 
     setState(() {
       totalValoresRecibidos =
           double.parse(valuesTransporter['totalValoresRecibidos'].toString());
+      refererValue =
+          double.parse(valuesTransporter['totalReferer'].toString());
       costoDeEntregas =
           double.parse(valuesTransporter['totalShippingCost'].toString());
+      totalProductWarehouse =
+          double.parse(valuesTransporter['totalProductWarehouse'].toString());
       devoluciones =
           double.parse(valuesTransporter['totalCostoDevolucion'].toString());
-      utilidad = (valuesTransporter['totalValoresRecibidos']) -
+      utilidad = (valuesTransporter['totalValoresRecibidos']+refererValue) -
           (valuesTransporter['totalShippingCost'] +
-              valuesTransporter['totalCostoDevolucion']);
+              valuesTransporter['totalCostoDevolucion'] +
+              // +valuesTransporter['totalProductWarehouse']
+              totalProductWarehouse);
       utilidad = double.parse(utilidad.toString());
     });
   }
@@ -1300,9 +1331,15 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   addFilter(value) {
     resetFilters();
 
-    arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
-    if (value["filtro"] != "Total") {
+    if (value["filtro"] != "Total" && value["filtro"] != "null" && value["filtro"] != "Referenciados") {
+      arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
       arrayFiltersAnd.add({"status": value["filtro"]});
+    } else if (value["filtro"] == "null") {
+      arrayFiltersNotEq.removeWhere(
+          (element) => element.containsKey("value_product_warehouse"));
+      arrayFiltersNotEq.add({"value_product_warehouse": value["filtro"]});
+    } else if(value["filtro"] == "Referenciados"){
+      
     }
 
     setState(() {
@@ -2027,6 +2064,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     enRuta = 0;
     programado = 0;
     enOficina = 0;
+    pProveedor = 0;
 
     setState(() {
       entregados = int.parse(dataCounters['ENTREGADO'].toString()) ?? 0;
@@ -2038,6 +2076,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       enRuta = int.parse(dataCounters['EN RUTA'].toString()) ?? 0;
       programado = int.parse(dataCounters['PEDIDO PROGRAMADO'].toString()) ?? 0;
       enOficina = int.parse(dataCounters['EN OFICINA'].toString()) ?? 0;
+      pProveedor = int.parse(dataCounters['P. PROVEEDOR'].toString()) ?? 0;
     });
   }
 

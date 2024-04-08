@@ -34,12 +34,14 @@ class _AddLogisticsUserLaravelState extends State<AddLogisticsUserLaravel> {
   int pageCount = 1;
   bool isLoading = false;
   int total = 0;
+  bool _switchValue = false;
 
   String model = "UpUsersRolesFrontLink";
 
   var sortFieldDefaultValue = "";
   List populate = ["up_user", "roles_front"];
   List arrayFiltersAnd = [
+    {"/up_user.active": "1"},
     {"/roles_front_id": "1"}
   ];
   List arrayFiltersOr = ["up_user.username"];
@@ -107,6 +109,26 @@ class _AddLogisticsUserLaravelState extends State<AddLogisticsUserLaravel> {
               child: _modelTextField(
                   text: "Busqueda", controller: _controllers.searchController),
             ),
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Text("Usuarios Actuales"),
+              Switch(
+                value: _switchValue,
+                onChanged: (newValue) {
+                  setState(() {
+                    _switchValue = newValue;
+                    // Modificar el valor de active en arrayFiltersAnd
+                    if (_switchValue) {
+                      arrayFiltersAnd[0]["/up_user.active"] = "0";
+                    } else {
+                      arrayFiltersAnd[0]["/up_user.active"] = "1";
+                    }
+                    // Volver a cargar los datos con los nuevos filtros
+                    loadData();
+                  });
+                },
+              ),
+              Text("Usuarios Eliminados"),
+            ]),
             Expanded(
               child: Container(
                   margin: EdgeInsets.all(10.0),
@@ -229,20 +251,90 @@ class _AddLogisticsUserLaravelState extends State<AddLogisticsUserLaravel> {
                     // Navigators().pushNamed(context,
                     //     '/layout/logistic/logistic-user/info?id=${data[index]['id']}');
                   }),
-                  DataCell(GestureDetector(
-                    onTap: () async {
-                      // getLoadingModal(context, false);
-                      await Connections()
-                          .deleteUser(data[index]['up_user']['id'].toString());
+                  DataCell(data[index]["up_user"] != null &&
+                          data[index]["up_user"].isNotEmpty &&
+                          (data[index]["up_user"]['active'] == true ||
+                              data[index]["up_user"]['active'].toString() ==
+                                  "1")
+                      ? GestureDetector(
+                          onTap: () async {
+                            // getLoadingModal(context, false);
+                            AwesomeDialog(
+                              width: 500,
+                              context: context,
+                              dialogType: DialogType.error,
+                              animType: AnimType.rightSlide,
+                              title: 'Seguro de Eliminar Usuario?',
+                              desc:
+                                  'Se eliminara el usuario selecionado del sistema, puede recuperarlo desde el apartado Usuarios Eliminados.',
+                              btnOkText: "Aceptar",
+                              btnCancelText: "Cancelar",
+                              btnOkColor: colors.colorGreen,
+                              btnCancelOnPress: () {},
+                              btnOkOnPress: () async {
+                                // getLoadingModal(context, false);
+                                // await Connections().deleteUser(dataL[index]['id']);
+                                // ! --------------- USANDO ACTUALMENTE---------------------
+                                // await Connections().deleteUser(
+                                //     dataL[index]["up_user"]['id'].toString());
+                                // await Connections().deleteSellers(
+                                //     dataL[index]["up_user"]['vendedores'][0]['id']);
+                                await Connections().updateUserActiveStatus(
+                                    data[index]["up_user"]['id'].toString(), 0);
 
-                      // Navigator.pop(context);
-                      await loadData();
-                    },
-                    child: Icon(
-                      Icons.delete_forever_outlined,
-                      color: Colors.redAccent,
-                    ),
-                  )),
+                                // ! ------------------------------------
+
+                                await loadData();
+                              },
+                            ).show();
+
+                            // await Connections()
+                            //     .deleteUser(data[index]['up_user']['id'].toString());
+
+                            // Navigator.pop(context);
+                            // await loadData();
+                          },
+                          child: Icon(
+                            Icons.delete_forever_outlined,
+                            color: Colors.redAccent,
+                          ),
+                        )
+                      : GestureDetector(
+                          onTap: () async {
+                            AwesomeDialog(
+                              width: 500,
+                              context: context,
+                              dialogType: DialogType.error,
+                              animType: AnimType.rightSlide,
+                              title: 'Seguro de Restaurar el Usuario?',
+                              desc:
+                                  'Se restaurara el usuario seleccionado en la plataforma.',
+                              btnOkText: "Aceptar",
+                              btnCancelText: "Cancelar",
+                              btnOkColor: colors.colorGreen,
+                              btnCancelOnPress: () {},
+                              btnOkOnPress: () async {
+                                // getLoadingModal(context, false);
+                                // await Connections().deleteUser(dataL[index]['id']);
+                                // ! --------------- USANDO ACTUALMENTE---------------------
+                                // await Connections().deleteUser(
+                                //     dataL[index]["up_user"]['id'].toString());
+                                // await Connections().deleteSellers(
+                                //     dataL[index]["up_user"]['vendedores'][0]['id']);
+                                await Connections().updateUserActiveStatus(
+                                    data[index]["up_user"]['id'].toString(), 1);
+
+                                // ! ------------------------------------
+
+                                await loadData();
+                              },
+                            ).show();
+                          },
+                          child: Icon(
+                            Icons.screen_rotation_alt_outlined,
+                            color: Colors.green,
+                          ),
+                        )),
                 ])));
   }
 

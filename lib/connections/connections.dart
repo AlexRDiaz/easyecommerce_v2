@@ -3417,7 +3417,19 @@ class Connections {
     // print("todo and: \n $filtersAndAll");
 
     String urlnew = "$serverLaravel/api/pedidos-shopify/filter";
-
+    print(json.encode({
+      "populate": populate,
+      "date_filter": dateFilter,
+      "start": sharedPrefs!.getString("dateDesdeVendedor"),
+      "end": sharedPrefs!.getString("dateHastaVendedor"),
+      "page_size": sizePage,
+      "page_number": currentPage,
+      "or": arrayFiltersOrCont,
+      "not": not,
+      "sort": sortField,
+      "and": filtersAndAll,
+      "search": search
+    }));
     try {
       var requestlaravel = await http.post(Uri.parse(urlnew),
           headers: {'Content-Type': 'application/json'},
@@ -9251,6 +9263,47 @@ class Connections {
           Uri.parse("$serverLaravel/api/users/update-active/$id"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({"active": active}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return decodeData;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  updateUserActiveStatusTransport(
+    id,
+    active,
+  ) async {
+    try {
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/users/update-trans-active/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"active": active}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return decodeData;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  getReferersOfS(
+    id,
+  ) async {
+    try {
+      var request = await http.post(
+          Uri.parse("$serverLaravel/api/all-referers-of"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"id": id}));
       var response = await request.body;
       var decodeData = json.decode(response);
       if (request.statusCode != 200) {

@@ -190,7 +190,7 @@ class _AddSellersState extends State<AddSellers> {
         //   margin: const EdgeInsets.all(10.0),
         //   child:
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Text("Activos"),
+          Text("Usuarios Actuales"),
           Switch(
             value: _switchValue,
             onChanged: (newValue) {
@@ -207,7 +207,7 @@ class _AddSellersState extends State<AddSellers> {
               });
             },
           ),
-          Text("Inactivos"),
+          Text("Usuarios Eliminados"),
         ]),
         //     const Icon(
         //       Icons.check_circle,
@@ -846,7 +846,7 @@ class _AddSellersState extends State<AddSellers> {
                               animType: AnimType.rightSlide,
                               title: 'Seguro de Eliminar Usuario?',
                               desc:
-                                  'Si tiene asignado algun pedido en el sistema puede causar conflictos internos.',
+                                  'Se eliminara el usuario selecionado del sistema, puede recuperarlo desde el apartado Usuarios Eliminados.',
                               btnOkText: "Aceptar",
                               btnCancelText: "Cancelar",
                               btnOkColor: colors.colorGreen,

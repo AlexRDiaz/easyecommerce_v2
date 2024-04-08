@@ -33,6 +33,7 @@ class _AddCarrierState extends State<AddCarrier> {
   int total = 0;
   int actives = 0;
   int inactives = 0;
+  bool _switchValue = false;
 
   String model = "Transportadora";
 
@@ -41,7 +42,10 @@ class _AddCarrierState extends State<AddCarrier> {
     'rutas',
     'transportadoras_users_permissions_user_links.up_user'
   ];
-  List arrayFiltersAnd = [];
+  List arrayFiltersAnd = [
+    {"/transportadoras_users_permissions_user_links.up_user.active": "1"},
+    // {"/active":"1"}
+  ];
   List arrayFiltersOr = ["nombre", "costo_transportadora", "telefono_1"];
   // List arrayFiltersNot = [{"transportadoras_users_permissions_user_links.up_user.blocked":"0"}];
   List arrayFiltersNot = [];
@@ -162,6 +166,30 @@ class _AddCarrierState extends State<AddCarrier> {
           child: _modelTextField(
               text: "Buscar", controller: _controllers.searchController),
         ),
+        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Text("Usuarios Actuales"),
+          Switch(
+            value: _switchValue,
+            onChanged: (newValue) {
+              setState(() {
+                _switchValue = newValue;
+                // Modificar el valor de active en arrayFiltersAnd
+                if (_switchValue) {
+                  arrayFiltersAnd[0][
+                          "/transportadoras_users_permissions_user_links.up_user.active"] =
+                      "0";
+                } else {
+                  arrayFiltersAnd[0][
+                          "/transportadoras_users_permissions_user_links.up_user.active"] =
+                      "1";
+                }
+                // Volver a cargar los datos con los nuevos filtros
+                loadData();
+              });
+            },
+          ),
+          Text("Usuarios Eliminados"),
+        ]),
         Container(
           margin: const EdgeInsets.all(10.0),
           child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -210,6 +238,30 @@ class _AddCarrierState extends State<AddCarrier> {
           child: _modelTextField(
               text: "Buscar", controller: _controllers.searchController),
         ),
+        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Text("Usuarios Actuales"),
+          Switch(
+            value: _switchValue,
+            onChanged: (newValue) {
+              setState(() {
+                _switchValue = newValue;
+                // Modificar el valor de active en arrayFiltersAnd
+                if (_switchValue) {
+                  arrayFiltersAnd[0][
+                          "/transportadoras_users_permissions_user_links.up_user.active"] =
+                      "0";
+                } else {
+                  arrayFiltersAnd[0][
+                          "/transportadoras_users_permissions_user_links.up_user.active"] =
+                      "1";
+                }
+                // Volver a cargar los datos con los nuevos filtros
+                loadData();
+              });
+            },
+          ),
+          Text("Usuarios Eliminados"),
+        ]),
         Container(
           margin: const EdgeInsets.all(10.0),
           child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -333,9 +385,7 @@ class _AddCarrierState extends State<AddCarrier> {
                     await showDialog(
                         context: context,
                         builder: (context) {
-                          return UpdateCarrierModalLaravel(
-                              dataT: dataL[index]
-                              );
+                          return UpdateCarrierModalLaravel(dataT: dataL[index]);
                         });
                     loadData();
                   }),
@@ -733,49 +783,111 @@ class _AddCarrierState extends State<AddCarrier> {
                           .toString(),
                     ),
                   ),
-                  DataCell(GestureDetector(
-                    onTap: () async {
-                      AwesomeDialog(
-                        width: 500,
-                        context: context,
-                        dialogType: DialogType.error,
-                        animType: AnimType.rightSlide,
-                        title: 'Seguro de Eliminar Usuario?',
-                        desc:
-                            'Si tiene asignado algun pedido en el sistema puede causar conflictos internos.',
-                        btnOkText: "Aceptar",
-                        btnCancelText: "Cancelar",
-                        btnOkColor: colors.colorGreen,
-                        btnCancelOnPress: () {},
-                        btnOkOnPress: () async {
-                          // getLoadingModal(context, false);
-                          await Connections().deleteUser(dataL[index][
-                                          'transportadoras_users_permissions_user_links'] !=
-                                      null &&
-                                  dataL[index][
-                                          'transportadoras_users_permissions_user_links']
-                                      .isNotEmpty
-                              ? dataL[index]['transportadoras_users_permissions_user_links']
-                                          [0]['up_user'] !=
-                                      null
-                                  ? dataL[index]
-                                              ['transportadoras_users_permissions_user_links']
-                                          [0]['up_user']['id']
-                                      .toString()
-                                  : ""
-                              : "");
-                          await Connections()
-                              .deleteTransporter(dataL[index]['id']);
-                          // Navigator.pop(context);
-                          await loadData();
-                        },
-                      ).show();
-                    },
-                    child: Icon(
-                      Icons.delete_forever_outlined,
-                      color: Colors.redAccent,
-                    ),
-                  )),
+                  DataCell(dataL[index]["transportadoras_users_permissions_user_links"] != null &&
+                          dataL[index]["transportadoras_users_permissions_user_links"]
+                              .isNotEmpty &&
+                          dataL[index]["transportadoras_users_permissions_user_links"]
+                                  [0]['up_user'] !=
+                              null &&
+                          dataL[index]["transportadoras_users_permissions_user_links"]
+                                  [0]['up_user']
+                              .isNotEmpty &&
+                          (dataL[index]["transportadoras_users_permissions_user_links"]
+                                      [0]['up_user']['active'] ==
+                                  true ||
+                              dataL[index]["transportadoras_users_permissions_user_links"]
+                                          [0]['up_user']['active']
+                                      .toString() ==
+                                  "1")
+                      ? GestureDetector(
+                          onTap: () async {
+                            AwesomeDialog(
+                              width: 500,
+                              context: context,
+                              dialogType: DialogType.error,
+                              animType: AnimType.rightSlide,
+                              title: 'Seguro de Eliminar Usuario?',
+                              desc:
+                                  'Se eliminara el usuario selecionado del sistema, puede recuperarlo desde el apartado Usuarios Eliminados.',
+                              btnOkText: "Aceptar",
+                              btnCancelText: "Cancelar",
+                              btnOkColor: colors.colorGreen,
+                              btnCancelOnPress: () {},
+                              btnOkOnPress: () async {
+                                // getLoadingModal(context, false);
+                                // await Connections().deleteUser(dataL[index][
+                                //                 'transportadoras_users_permissions_user_links'] !=
+                                //             null &&
+                                //         dataL[index][
+                                //                 'transportadoras_users_permissions_user_links']
+                                //             .isNotEmpty
+                                //     ? dataL[index]['transportadoras_users_permissions_user_links']
+                                //                 [0]['up_user'] !=
+                                //             null
+                                //         ? dataL[index]
+                                //                     ['transportadoras_users_permissions_user_links']
+                                //                 [0]['up_user']['id']
+                                //             .toString()
+                                //         : ""
+                                //     : "");
+                                // await Connections()
+                                //     .deleteTransporter(dataL[index]['id']);
+                                await Connections().updateUserActiveStatus(
+                                    dataL[index][
+                                                'transportadoras_users_permissions_user_links']
+                                            [0]['up_user']['id']
+                                        .toString(),
+                                    0);
+                                // Navigator.pop(context);
+                                await loadData();
+                              },
+                            ).show();
+                          },
+                          child: Icon(
+                            Icons.delete_forever_outlined,
+                            color: Colors.redAccent,
+                          ),
+                        )
+                      : GestureDetector(
+                          onTap: () async {
+                            AwesomeDialog(
+                              width: 500,
+                              context: context,
+                              dialogType: DialogType.error,
+                              animType: AnimType.rightSlide,
+                              title: 'Seguro de Restaurar el Usuario?',
+                              desc:
+                                  'Se restaurara el usuario seleccionado en la plataforma.',
+                              btnOkText: "Aceptar",
+                              btnCancelText: "Cancelar",
+                              btnOkColor: colors.colorGreen,
+                              btnCancelOnPress: () {},
+                              btnOkOnPress: () async {
+                                // getLoadingModal(context, false);
+                                // await Connections().deleteUser(dataL[index]['id']);
+                                // ! --------------- USANDO ACTUALMENTE---------------------
+                                // await Connections().deleteUser(
+                                //     dataL[index]["up_user"]['id'].toString());
+                                // await Connections().deleteSellers(
+                                //     dataL[index]["up_user"]['vendedores'][0]['id']);
+                                await Connections().updateUserActiveStatus(
+                                    dataL[index][
+                                                'transportadoras_users_permissions_user_links']
+                                            [0]['up_user']['id']
+                                        .toString(),
+                                    1);
+
+                                // ! ------------------------------------
+
+                                await loadData();
+                              },
+                            ).show();
+                          },
+                          child: Icon(
+                            Icons.screen_rotation_alt_outlined,
+                            color: Colors.green,
+                          ),
+                        )),
                 ])));
   }
 

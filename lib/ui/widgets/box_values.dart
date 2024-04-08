@@ -6,13 +6,17 @@ class boxValues extends StatelessWidget {
   const boxValues({
     super.key,
     required this.totalValoresRecibidos,
+    required this.referenciados,
     required this.costoDeEntregas,
+    required this.costoProveedor,
     required this.devoluciones,
     required this.utilidad,
   });
 
   final double totalValoresRecibidos;
+  final double referenciados;
   final double costoDeEntregas;
+  final double costoProveedor;
   final double devoluciones;
   final double utilidad;
 
@@ -26,9 +30,17 @@ class boxValues extends StatelessWidget {
               title: 'Valores recibidos',
               value: '\$${totalValoresRecibidos.toStringAsFixed(2)}'),
           const SizedBox(width: 1),
+          // BuildInfoContainer(
+          //     title: 'C. Referenciados',
+          //     value: '\$${referenciados.toStringAsFixed(2)}'),
+          // const SizedBox(width: 1),
           BuildInfoContainer(
               title: 'Costo de envío',
               value: '\$${costoDeEntregas.toStringAsFixed(2)}'),
+          const SizedBox(width: 1),
+          BuildInfoContainer(
+              title: 'Costo Proveedor',
+              value: '\$${costoProveedor.toStringAsFixed(2)}'),
           const SizedBox(width: 1),
           BuildInfoContainer(
             title: 'Devoluciones',
