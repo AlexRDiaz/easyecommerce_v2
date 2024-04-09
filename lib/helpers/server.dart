@@ -13,3 +13,6 @@ String generalServeserverppweb = "https://easyentregas.easyecomerce.com";
 
 String generalServerApiLaravel =
     "https://easyecommercelaravel-production.up.railway.app";
+
+String generalServerApiLaravelEasy =
+    "https://devapi.easyecomerce.com/apitest/public/index.php";

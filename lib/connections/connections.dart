@@ -6834,7 +6834,8 @@ class Connections {
   getCarriersExternal(or, search) async {
     try {
       var response = await http.post(
-          Uri.parse("$serverLaravel/api/carrierexternal/all"),
+          Uri.parse("$generalServerApiLaravelEasy/api/carrierexternal/all"),
+          //serverLaravel
           headers: {'Content-Type': 'application/json'},
           body: json.encode({"or": or, "search": search}));
       if (response.statusCode == 200) {
@@ -6853,7 +6854,8 @@ class Connections {
   getCarrierExternalById(id) async {
     try {
       var response = await http.get(
-          Uri.parse("$serverLaravel/api/carrierexternal/$id"),
+          Uri.parse("$generalServerApiLaravelEasy/api/carrierexternal/$id"),
+          //serverLaravel
           headers: {'Content-Type': 'application/json'});
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -6875,7 +6877,9 @@ class Connections {
         "id_provincia": idProv,
       }));
       var response = await http.post(
-          Uri.parse("$serverLaravel/api/carrierexternal/coveragebyprov"),
+          Uri.parse(
+              "$generalServerApiLaravelEasy/api/carrierexternal/coveragebyprov"),
+          //serverLaravel
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
             "id_provincia": idProv,
@@ -6955,17 +6959,18 @@ class Connections {
   //  *
   getCoverageAll(page_size, current_page, or, and, sort, search) async {
     try {
-      var response =
-          await http.post(Uri.parse("$serverLaravel/api/carriercoverage/all"),
-              headers: {'Content-Type': 'application/json'},
-              body: json.encode({
-                "page_size": page_size,
-                "page_number": current_page,
-                "or": or,
-                "and": and,
-                "sort": sort,
-                "search": search
-              }));
+      var response = await http.post(
+          Uri.parse("$generalServerApiLaravelEasy/api/carriercoverage/all"),
+          //serverLaravel
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "page_size": page_size,
+            "page_number": current_page,
+            "or": or,
+            "and": and,
+            "sort": sort,
+            "search": search
+          }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         // print(decodeData);

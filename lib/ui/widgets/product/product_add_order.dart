@@ -1347,7 +1347,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                 );
 
                                 // print(response);
-/*
+
                                 if (selectedCarrierType == "Externo" &&
                                     selectedCarrierExternal
                                             .toString()
@@ -1370,7 +1370,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                     //
                                   }
                                 }
-*/
+
                                 var _url = Uri.parse(
                                   """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda ${comercial}, Me comunico con usted para confirmar su pedido de compra de: ${_producto.text}${messageVar}${_productoE.text.isNotEmpty ? ' y ${_productoE.text}' : ''}, por un valor total de: \$${priceTotal}. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
                                 );
