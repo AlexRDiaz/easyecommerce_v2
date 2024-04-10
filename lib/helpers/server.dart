@@ -11,5 +11,8 @@ String generalServeserverppweb = "http://localhost:8022";
 //     "https://devapi.easyecomerce.com/apitest/public/index.php";
 // String generalServeserverppweb = "https://easyentregas.easyecomerce.com";
 
-// String generalServerApiLaravel =
-    // "https://easyecommercelaravel-production.up.railway.app";
+String generalServerApiLaravel =
+    "https://easyecommercelaravel-production.up.railway.app";
+
+String generalServerApiLaravelEasy =
+    "https://devapi.easyecomerce.com/apitest/public/index.php";
