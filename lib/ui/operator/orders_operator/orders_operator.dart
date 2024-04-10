@@ -257,7 +257,7 @@ class _OrdersOperatorState extends State<OrdersOperator> {
                                     style: TextStyle(
                                         color: GetColor(data[index]
                                             ['attributes']['Status'])),
-                                    '${data[index]['attributes']['Name_Comercial'].toString()}-${data[index]['attributes']['NumeroOrden'].toString()}')),
+                                    '${data[index]['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['attributes']['Nombre_Comercial']}-${data[index]['attributes']['NumeroOrden'].toString()}')),
                             DataCell(Row(
                               children: [
                                 GestureDetector(

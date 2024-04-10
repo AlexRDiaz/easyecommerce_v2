@@ -3168,10 +3168,22 @@ class Connections {
     return decodeData['data'];
   }
 
+  // getOrdersForOperator(code) async {
+  //   var request = await http.get(
+  //     Uri.parse(
+  //         "$server/api/pedidos-shopifies?populate=transportadora&populate=pedido_fecha&populate=sub_ruta&populate=operadore&populate=operadore.user&filters[\$and][0][operadore][user][id][\$eq]=${sharedPrefs!.getString("id").toString()}&filters[\$and][1][NumeroOrden][\$contains]=$code&filters[\$or][2][Status][\$eq]=PEDIDO PROGRAMADO&filters[\$or][3][Status][\$eq]=REAGENDADO&filters[\$and][4][Estado_Interno][\$eq]=CONFIRMADO&filters[\$and][5][Estado_Logistico][\$eq]=ENVIADO&pagination[limit]=-1"),
+  //     headers: {'Content-Type': 'application/json'},
+  //   );
+  //   var response = await request.body;
+  //   var decodeData = json.decode(response);
+
+  //   return decodeData['data'];
+  // }
+
   getOrdersForOperator(code) async {
     var request = await http.get(
       Uri.parse(
-          "$server/api/pedidos-shopifies?populate=transportadora&populate=pedido_fecha&populate=sub_ruta&populate=operadore&populate=operadore.user&filters[\$and][0][operadore][user][id][\$eq]=${sharedPrefs!.getString("id").toString()}&filters[\$and][1][NumeroOrden][\$contains]=$code&filters[\$or][2][Status][\$eq]=PEDIDO PROGRAMADO&filters[\$or][3][Status][\$eq]=REAGENDADO&filters[\$and][4][Estado_Interno][\$eq]=CONFIRMADO&filters[\$and][5][Estado_Logistico][\$eq]=ENVIADO&pagination[limit]=-1"),
+          "$server/api/pedidos-shopifies?populate=transportadora&populate=pedido_fecha&populate=sub_ruta&populate=operadore&populate=operadore.user&populate=users.vendedores&filters[\$and][0][operadore][user][id][\$eq]=${sharedPrefs!.getString("id").toString()}&filters[\$and][1][NumeroOrden][\$contains]=$code&filters[\$or][2][Status][\$eq]=PEDIDO PROGRAMADO&filters[\$or][3][Status][\$eq]=REAGENDADO&filters[\$and][4][Estado_Interno][\$eq]=CONFIRMADO&filters[\$and][5][Estado_Logistico][\$eq]=ENVIADO&pagination[limit]=-1"),
       headers: {'Content-Type': 'application/json'},
     );
     var response = await request.body;

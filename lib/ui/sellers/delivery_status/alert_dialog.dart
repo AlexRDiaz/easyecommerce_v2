@@ -613,7 +613,8 @@ class _AlertDialogRefererState extends State<AlertDialogReferer> {
                   context),
             ),
             Container(
-              height: MediaQuery.of(context).size.height * 0.58,
+              // height: MediaQuery.of(context).size.height * 0.50,
+              height: 490,
               child: Padding(
                 padding: const EdgeInsets.all(2.0),
                 child: DataTable2(

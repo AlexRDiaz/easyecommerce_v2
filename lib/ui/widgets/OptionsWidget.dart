@@ -131,7 +131,7 @@ class _OptionsWidgetState extends State<OptionsWidget> {
                                                     widthFactor:
                                                         0.5, // Esto hace que el diálogo sea el 80% del ancho de la pantalla
                                                     child: Container(
-                                                      height: 650,
+                                                      height: 670,
                                                       child: AlertDialogReferer()),
                                                   ),
                                                 );
