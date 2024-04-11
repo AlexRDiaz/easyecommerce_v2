@@ -6227,8 +6227,11 @@ class Connections {
   getProductsCatalog(populate, page_size, current_page, or, and, outFilter,
       filterps, sort, search) async {
     try {
+      //old version
+      // await http.post(Uri.parse("$serverLaravel/api/products/all"),
+
       var response =
-          await http.post(Uri.parse("$serverLaravel/api/products/all"),
+          await http.post(Uri.parse("$serverLaravel/api/catalog/all"),
               headers: {'Content-Type': 'application/json'},
               body: json.encode({
                 "populate": populate,
@@ -7183,6 +7186,34 @@ class Connections {
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         return decodeData['warehouses'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  //  *
+  updateProductWarehouse(idProduct, idWarehouseOld, idWarehouseNew) async {
+    try {
+      // print(json.encode({
+      //   "idProduct": idProduct,
+      //   "idWarehouse_old": idWarehouseOld,
+      //   "idWarehouse_new": idWarehouseNew
+      // }));
+      var response = await http.put(
+          Uri.parse("$serverLaravel/api/productwarehouse/update"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "idProduct": idProduct,
+            "idWarehouse_old": idWarehouseOld,
+            "idWarehouse_new": idWarehouseNew
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return 0;
       } else {
         return 1;
       }

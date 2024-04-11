@@ -113,33 +113,53 @@ class _EditProductState extends State<EditProduct> {
   String variablesTextEdit = "";
   int stockOriginal = 0;
 
+  String warehouseValueOriginal = "";
+
+  String idProvUser = sharedPrefs!.getString("idProviderUserMaster").toString();
+  String idUser = sharedPrefs!.getString("id").toString();
+  int provType = 0;
+  String specialProv = sharedPrefs!.getString("special").toString() == "null"
+      ? "0"
+      : sharedPrefs!.getString("special").toString();
+
+  bool multiWarehouse = false;
+
   @override
   void initState() {
     super.initState();
     _productController = ProductController();
     _warehouseController = WrehouseController();
+    if (idProvUser == idUser) {
+      provType = 1; //prov principal
+    } else if (idProvUser != idUser) {
+      provType = 2; //subprov
+    }
     loadTextEdtingControllers(widget.data);
-    getWarehouses();
-    getCategories();
-  }
 
-  Future<List<WarehouseModel>> _getWarehousesData() async {
-    await _warehouseController.loadWarehouses(
-        sharedPrefs!.getString("idProvider").toString()); //byprovider loged
-    return _warehouseController.warehouses;
+    getCategories();
+    getWarehouses();
   }
 
   getWarehouses() async {
-    var responseBodegas = await _getWarehousesData();
-    warehousesList = responseBodegas;
+    print("getWarehouses");
+    await _warehouseController
+        .loadWarehouses(sharedPrefs!.getString("idProvider").toString());
+    warehousesList = _warehouseController.warehouses;
     for (var warehouse in warehousesList) {
       if (warehouse.approved == 1 && warehouse.active == 1) {
-        setState(() {
-          warehousesToSelect
-              .add('${warehouse.id}-${warehouse.branchName}-${warehouse.city}');
-        });
+        warehousesToSelect
+            .add('${warehouse.id}-${warehouse.branchName}-${warehouse.city}');
       }
     }
+    print("ññññ $warehousesToSelect");
+
+    if (!warehousesToSelect.contains(warehouseValue)) {
+      warehousesToSelect.add(warehouseValue);
+    }
+
+    // print("warehouseValue: $warehouseValue");
+    // print("warehousesToSelect: $warehousesToSelect");
+    setState(() {});
   }
 
   getCategories() async {
@@ -155,6 +175,8 @@ class _EditProductState extends State<EditProduct> {
   }
 
   loadTextEdtingControllers(newData) {
+    // print(newData);
+    print("loadTextEdtingControllers");
     ProductModel product = ProductModel.fromJson(newData);
     codigo = product.productId.toString();
     _nameController.text = product.productName.toString();
@@ -170,6 +192,8 @@ class _EditProductState extends State<EditProduct> {
 
     // warehouseValue =
     //     '${product.warehouse!.id.toString()}-${product.warehouse!.branchName.toString()}-${product.warehouse!.city.toString()}';
+    warehouseValue = getFirstWarehouseNameModel(product.warehouses);
+    warehouseValueOriginal = warehouseValue;
 
     urlsImgsList = product.urlImg != null &&
             product.urlImg.isNotEmpty &&
@@ -193,7 +217,7 @@ class _EditProductState extends State<EditProduct> {
       return "${category['name']}-${category['id']}";
     }).toList();
 
-    selectedCategories.forEach((selectedCat) {
+    for (var selectedCat in selectedCategories) {
       List<String> parts = selectedCat.split('-');
 
       if (!selectedCategoriesMap
@@ -205,7 +229,7 @@ class _EditProductState extends State<EditProduct> {
           });
         });
       }
-    });
+    }
 
     // print(selectedCategoriesMap);
     //no cambia si no cambia variables
@@ -271,6 +295,9 @@ class _EditProductState extends State<EditProduct> {
     sizesToSelect = optionsList[0]["sizes"]!;
     colorsToSelect = optionsList[1]["colors"]!;
     dimensionToSelect = optionsList[2]["dimensions"]!;
+    // print("specialProv: $specialProv");
+    // print("provType: $provType");
+    // print("multiWarehouse: $multiWarehouse");
 
     setState(() {});
   }
@@ -299,9 +326,23 @@ class _EditProductState extends State<EditProduct> {
     print('SKU $sku no encontrado en la lista de variantes');
   }
 
+  String getFirstWarehouseNameModel(dynamic warehouses) {
+    String name = "";
+    List<WarehouseModel>? warehousesList = warehouses;
+    if (warehousesList!.length > 1) {
+      multiWarehouse = true;
+    }
+    if (warehousesList != null && warehousesList.isNotEmpty) {
+      WarehouseModel firstWarehouse = warehousesList.first;
+      name =
+          "${firstWarehouse.id.toString()}-${firstWarehouse.branchName.toString()}-${firstWarehouse.city.toString()}";
+    }
+    return name;
+  }
+
   @override
   Widget build(BuildContext context) {
-    double screenWidthDialog = MediaQuery.of(context).size.width * 0.40;
+    double screenWidthDialog = MediaQuery.of(context).size.width * 0.50;
     double screenHeight = MediaQuery.of(context).size.height;
     double fontSizeTitle = 16;
     double fontSizeText = 14;
@@ -596,32 +637,36 @@ class _EditProductState extends State<EditProduct> {
                           ],
                         ),
                       ),
-                      Row(
-                        children: [
-                          const SizedBox(height: 10),
-                          ElevatedButton(
-                            onPressed: () {
-                              //
-                              setState(() {
-                                showToEditStock = true;
-                              });
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.indigo[300],
-                            ),
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  "Editar Stock",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
+                      Visibility(
+                        visible: (specialProv == "2") == false,
+                        // visible: true,
+                        child: Row(
+                          children: [
+                            const SizedBox(height: 10),
+                            ElevatedButton(
+                              onPressed: () {
+                                //
+                                setState(() {
+                                  showToEditStock = true;
+                                });
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.indigo[300],
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    "Editar Stock",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       Visibility(
                         // visible: typeValue == "VARIABLE",
@@ -1851,55 +1896,49 @@ class _EditProductState extends State<EditProduct> {
                         ],
                       ),
                       const SizedBox(height: 20),
+                      const Text('Bodega:'),
                       Row(
                         children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('Bodega:'),
-                                const SizedBox(height: 3),
-                                SizedBox(
-                                  width: (screenWidthDialog / 2) - 10,
-                                  child: DropdownButtonFormField<String>(
-                                    isExpanded: true,
-                                    hint: Text(
-                                      'Seleccione Bodega',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Theme.of(context).hintColor,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    items: warehousesToSelect.map((item) {
-                                      return DropdownMenuItem(
-                                        value: item,
-                                        child: Text(
-                                          item,
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      );
-                                    }).toList(),
-                                    value: warehouseValue,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        warehouseValue = value as String;
-                                      });
-                                    },
-                                    decoration: InputDecoration(
-                                      fillColor: Colors.white,
-                                      filled: true,
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(5.0),
-                                      ),
+                          SizedBox(
+                            width: (screenWidthDialog / 2) - 10,
+                            child: DropdownButtonFormField<String>(
+                              isExpanded: true,
+                              hint: Text(
+                                'Seleccione Bodega',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Theme.of(context).hintColor,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              items: warehousesToSelect.map((item) {
+                                return DropdownMenuItem(
+                                  value: item,
+                                  child: Text(
+                                    item,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
+                                );
+                              }).toList(),
+                              value: warehouseValue,
+                              onChanged: (value) {
+                                setState(() {
+                                  warehouseValue = value as String;
+                                });
+                                print("warehouseValue: $warehouseValue");
+                                print(
+                                    "warehouseValueOriginal: $warehouseValueOriginal");
+                              },
+                              decoration: InputDecoration(
+                                fillColor: Colors.white,
+                                filled: true,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(5.0),
                                 ),
-                              ],
+                              ),
                             ),
                           ),
                         ],
@@ -1993,28 +2032,29 @@ class _EditProductState extends State<EditProduct> {
                               ],
                             ),
                             const SizedBox(height: 15),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                if (imgsTemporales
-                                    .isEmpty) // Mostrar solo si imgsTemporales está vacío
-                                  for (String imageUrl in urlsImgsList)
-                                    if (imageUrl.isNotEmpty &&
-                                        imageUrl != "" &&
-                                        imageUrl.toString() != "[]")
-                                      Container(
-                                        margin:
-                                            const EdgeInsets.only(right: 10),
-                                        child: SizedBox(
-                                          width: 250,
-                                          height: 300,
-                                          child: Image.network(
-                                            "$generalServer${imageUrl.toString()}",
-                                            fit: BoxFit.fill,
-                                          ),
-                                        ),
-                                      ),
-                              ],
+                            Visibility(
+                              visible: imgsTemporales.isEmpty,
+                              child: SizedBox(
+                                height: 300,
+                                child: GridView.builder(
+                                  shrinkWrap: true,
+                                  gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    crossAxisSpacing: 10,
+                                    mainAxisSpacing: 10,
+                                    childAspectRatio: 1,
+                                  ),
+                                  itemCount: urlsImgsList.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    return Image.network(
+                                      "$generalServer${urlsImgsList[index].toString()}",
+                                      fit: BoxFit.fill,
+                                    );
+                                  },
+                                ),
+                              ),
                             ),
                             Visibility(
                               visible: imgsTemporales.isNotEmpty,
@@ -2163,6 +2203,35 @@ class _EditProductState extends State<EditProduct> {
                                           "NO need to upt variantsStockToUpt");
                                     }
 
+                                    if (warehouseValueOriginal
+                                            .toString()
+                                            .split("-")[0]
+                                            .toString() !=
+                                        warehouseValue
+                                            .toString()
+                                            .split("-")[0]
+                                            .toString()) {
+                                      //
+                                      print(
+                                          "Cambios de Bodega!! Need update ProductWarehouseLink");
+                                      var responseUptPW = await Connections()
+                                          .updateProductWarehouse(
+                                              widget.data['product_id'],
+                                              warehouseValueOriginal
+                                                  .toString()
+                                                  .split("-")[0]
+                                                  .toString(),
+                                              warehouseValue
+                                                  .toString()
+                                                  .split("-")[0]
+                                                  .toString());
+
+                                      if (responseUptPW == null) {
+                                        print("Error,update Bodega");
+                                      }
+                                    } else {
+                                      print("No hubo cambios de Bodega");
+                                    }
                                     widget.hasEdited(true);
                                     Navigator.pop(context);
                                     Navigator.pop(context);

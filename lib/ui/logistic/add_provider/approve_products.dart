@@ -14,6 +14,7 @@ import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/product/product_info.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mvc_pattern/mvc_pattern.dart';
 
 class ApproveProducts extends StatefulWidget {
   final ProviderModel provider;
@@ -37,7 +38,8 @@ class _ApproveProductsState extends State<ApproveProducts> {
   int pageCount = 100;
   bool isLoading = false;
   bool isFirst = false;
-  List populate = ["warehouse.provider"];
+  // List populate = ["warehouse.provider"];
+  List populate = ["warehouses"];
   List arrayFiltersAnd = [];
   List arrayFiltersOr = ["product_id", "product_name"];
   var sortFieldDefaultValue = "product_id:DESC";
@@ -75,24 +77,38 @@ class _ApproveProductsState extends State<ApproveProducts> {
   }
 
   Future<List<ProductModel>> _getProductModelData() async {
-    await _productController.loadProductsByProvider(
-        widget.provider.id,
+    //prov principal y especial
+    // arrayFiltersAnd.add({"/approved": 2});
+    arrayFiltersAnd.add({"/warehouses.provider_id": widget.provider.id});
+
+    // await _productController.loadProductsByProvider(
+    //     widget.provider.id,
+    //     populate,
+    //     pageSize,
+    //     currentPage,
+    //     arrayFiltersOr,
+    //     arrayFiltersAnd,
+    //     sortFieldDefaultValue.toString(),
+    //     _search.text,
+    //     "approve");
+    // List<ProductModel> filteredProducts = _productController.products
+    //     .where((product) => product.approved == 2)
+    //     .toList();
+    // return filteredProducts;
+
+    //new version
+    await _productController.loadBySubProvider(
         populate,
         pageSize,
         currentPage,
         arrayFiltersOr,
         arrayFiltersAnd,
         sortFieldDefaultValue.toString(),
-        _search.text,
-        "approve");
-    // List<ProductModel> filteredProducts = _productController.products
-    //     .where((product) => product.approved == 2)
-    //     .toList();
-    // return filteredProducts;
+        _search.text);
     return _productController.products;
   }
 
-  //getWarehouses
+  //SpecialsWarehouses
   getSpecialsWarehouses() async {
     var data = await Connections().getSpecialsWarehouses();
     // print("all specials: $data");
@@ -188,7 +204,7 @@ class _ApproveProductsState extends State<ApproveProducts> {
                           if (value is String) {
                             arrayFiltersAnd = [];
                             arrayFiltersAnd.add({
-                              "warehouse.warehouse_id": selectedWarehouse
+                              "/warehouses.warehouse_id": selectedWarehouse
                                   .toString()
                                   .split("-")[0]
                                   .toString()
@@ -327,14 +343,13 @@ class _ApproveProductsState extends State<ApproveProducts> {
                               },
                             ),
                             DataCell(
-                              Text(
-                                //Actualizar version access to bodega
-                                "",
+                              Text(getWarehousesNamesModel(
+                                      products[index].warehouses)
 //                                 products[index]
 //                                   .warehouse!
 //                                   .branchName
 //                                   .toString(),
-                              ),
+                                  ),
                               onTap: () {
                                 showProductInfoDialog(products[index]);
                               },
@@ -548,6 +563,21 @@ class _ApproveProductsState extends State<ApproveProducts> {
     );
   }
 
+  String getWarehousesNamesModel(warehouses) {
+    String names = "";
+    List<WarehouseModel>? warehousesList = warehouses;
+
+    if (warehousesList != null) {
+      for (WarehouseModel warehouse in warehousesList) {
+        names += "${warehouse.branchName}/ ";
+      }
+    }
+    if (names.isNotEmpty) {
+      names = names.substring(0, names.length - 2);
+    }
+    return names;
+  }
+
   Future<dynamic> showAddToWarehouse(
       BuildContext context, ProductModel product) {
     return showDialog(
@@ -644,7 +674,7 @@ class _ApproveProductsState extends State<ApproveProducts> {
                                 .toString()
                                 .split("-")[0]
                                 .toString());
-                        // print(response);
+                        print(response);
                         if (response != 0) {
                           // ignore: use_build_context_synchronously
                           showSuccessModal(
@@ -652,6 +682,7 @@ class _ApproveProductsState extends State<ApproveProducts> {
                               "Ocurrió un error durante la solicitud.",
                               Icons8.warning_1);
                         }
+                        Navigator.pop(context);
                       },
                       child: Text("Añadir"),
                     )
@@ -717,19 +748,18 @@ class _ApproveProductsState extends State<ApproveProducts> {
     return showDialog(
         context: context,
         builder: (context) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(0.0),
-            ),
-            contentPadding: EdgeInsets.all(0),
-            content: Container(
-              padding: EdgeInsets.all(0),
-              // color: Colors.amber,
-              width: MediaQuery.of(context).size.width * 0.90,
-              child: ProductInfo(
-                product: product,
-              ),
-            ),
+          return StatefulBuilder(
+            builder: (context, setState) {
+              //
+              return AlertDialog(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                contentPadding: EdgeInsets.all(0),
+                content: ProductInfo(
+                  product: product,
+                ),
+              );
+            },
           );
         }).then((value) {});
   }

@@ -8,6 +8,7 @@ import 'package:frontend/models/product_model.dart';
 import 'package:frontend/models/product_seller.dart';
 import 'package:frontend/models/reserve_model.dart';
 import 'package:frontend/models/user_model.dart';
+import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/ui/widgets/product/product_carousel.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -219,11 +220,6 @@ class ProductCard extends StatelessWidget {
                       children: [
                         Text(
                           'Producto:',
-                          // style: TextStyle(
-                          //   color: Colors.grey,
-                          //   fontSize: textSize,
-                          //   fontFamily: 'Arial',
-                          // ),
                           style: GoogleFonts.dmSerifDisplay(
                             // fontWeight: FontWeight.bold,
                             fontSize: textSize,
@@ -236,11 +232,6 @@ class ProductCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             '${product.productName}',
-                            // style: TextStyle(
-                            //   color: Colors.black,
-                            //   fontSize: textSize,
-                            //   fontFamily: 'Arial',
-                            // ),
                             style: GoogleFonts.dmSans(
                               fontSize: textSize,
                               color: Colors.black,
@@ -256,11 +247,6 @@ class ProductCard extends StatelessWidget {
                       children: [
                         Text(
                           'Precio:',
-                          // style: TextStyle(
-                          //   color: Colors.grey,
-                          //   fontSize: textSize,
-                          //   fontFamily: 'Arial',
-                          // ),
                           style: GoogleFonts.dmSerifDisplay(
                             // fontWeight: FontWeight.bold,
                             fontSize: textSize,
@@ -272,11 +258,6 @@ class ProductCard extends StatelessWidget {
                         ),
                         Text(
                           '\$${product.price}',
-                          // style: TextStyle(
-                          //   color: Colors.indigo[900],
-                          //   fontSize: textSize,
-                          //   fontFamily: 'Arial',
-                          // ),
                           style: GoogleFonts.dmSans(
                             fontSize: textSize,
                             color: Colors.indigo,
@@ -291,11 +272,6 @@ class ProductCard extends StatelessWidget {
                       children: [
                         Text(
                           'Precio Sugerido:',
-                          // style: TextStyle(
-                          //   color: Colors.grey,
-                          //   fontSize: textSize,
-                          //   fontFamily: 'Arial',
-                          // ),
                           style: GoogleFonts.dmSerifDisplay(
                             // fontWeight: FontWeight.bold,
                             fontSize: textSize,
@@ -307,11 +283,6 @@ class ProductCard extends StatelessWidget {
                         ),
                         Text(
                           '\$$priceSuggested',
-                          // style: TextStyle(
-                          //   color: Colors.black,
-                          //   fontSize: textSize,
-                          //   fontFamily: 'Arial',
-                          // ),
                           style: GoogleFonts.dmSans(
                             fontSize: textSize,
                             color: Colors.black,
@@ -326,11 +297,6 @@ class ProductCard extends StatelessWidget {
                       children: [
                         Text(
                           'Stock:',
-                          // style: TextStyle(
-                          //   color: Colors.grey,
-                          //   fontSize: textSize,
-                          //   fontFamily: 'Arial',
-                          // ),
                           style: GoogleFonts.dmSerifDisplay(
                             // fontWeight: FontWeight.bold,
                             fontSize: textSize,
@@ -344,11 +310,6 @@ class ProductCard extends StatelessWidget {
                           product.seller_owned != 0
                               ? totalReservas.toString()
                               : product.stock.toString(),
-                          // style: TextStyle(
-                          //   color: Colors.black,
-                          //   fontSize: textSize,
-                          //   fontFamily: 'Arial',
-                          // ),
                           style: GoogleFonts.dmSans(
                             fontSize: textSize,
                             color: Colors.black,
@@ -362,11 +323,6 @@ class ProductCard extends StatelessWidget {
                       children: [
                         Text(
                           'Bodega:',
-                          // style: TextStyle(
-                          //   color: Colors.grey,
-                          //   fontSize: textSize,
-                          //   fontFamily: 'Arial',
-                          // ),
                           style: GoogleFonts.dmSerifDisplay(
                             // fontWeight: FontWeight.bold,
                             fontSize: textSize,
@@ -378,13 +334,8 @@ class ProductCard extends StatelessWidget {
                         ),
                         Text(
                           //Actualizar version access to bodega
-                          "",
+                          getFirstWarehouseNameModel(product.warehouses),
                           // product.warehouse!.branchName.toString(),
-                          // style: TextStyle(
-                          //   color: Colors.black,
-                          //   fontSize: textSize,
-                          //   fontFamily: 'Arial',
-                          // ),
                           style: GoogleFonts.dmSans(
                             fontSize: textSize,
                             color: Colors.black,
@@ -419,5 +370,15 @@ class ProductCard extends StatelessWidget {
     } else {
       return Colors.purple;
     }
+  }
+
+  String getFirstWarehouseNameModel(dynamic warehouses) {
+    String name = "";
+    List<WarehouseModel>? warehousesList = warehouses;
+    if (warehousesList != null && warehousesList.isNotEmpty) {
+      WarehouseModel firstWarehouse = warehousesList.first;
+      name = firstWarehouse.branchName.toString();
+    }
+    return name;
   }
 }

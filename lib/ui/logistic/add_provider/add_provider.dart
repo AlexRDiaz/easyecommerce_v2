@@ -36,6 +36,7 @@ class _AddProviderState extends StateMVC<AddProvider> {
 
   final TextEditingController _descriptionController = TextEditingController();
   bool provSpecial = false;
+  bool provWFisico = false;
 
   String?
       _selectedImageURL; // Esta variable almacenará la URL de la imagen seleccionada
@@ -197,15 +198,31 @@ class _AddProviderState extends StateMVC<AddProvider> {
                   Row(
                     children: [
                       const Text('Proveedor Especial?'),
-                      SizedBox(width: 10),
+                      SizedBox(width: 5),
                       Checkbox(
                         value: provSpecial,
                         onChanged: (value) {
                           //
                           setState(() {
                             provSpecial = value!;
+                            provWFisico = !provSpecial;
                           });
-                          print(provSpecial);
+                          print("provSpecial:$provSpecial");
+                        },
+                        // shape: CircleBorder(),s
+                      ),
+                      SizedBox(width: 30),
+                      const Text('Proveedor Sin Bodega Fisica?'),
+                      SizedBox(width: 5),
+                      Checkbox(
+                        value: provWFisico,
+                        onChanged: (value) {
+                          //
+                          setState(() {
+                            provWFisico = value!;
+                            provSpecial = !provWFisico;
+                          });
+                          print("provWFisico:$provWFisico");
                         },
                         // shape: CircleBorder(),s
                       ),
@@ -279,12 +296,17 @@ class _AddProviderState extends StateMVC<AddProvider> {
               } else {
                 var getAccesofEspecificRol =
                     await Connections().getAccessofSpecificRol("PROVEEDOR");
-
+                int specialValue = 0;
+                if (provSpecial) {
+                  specialValue = 1;
+                } else if (provWFisico) {
+                  specialValue = 2;
+                }
                 _controller.addProvider(ProviderModel(
                     name: _nameController.text,
                     phone: _phone1Controller.text,
                     description: _descriptionController.text,
-                    special: provSpecial ? 1 : 0,
+                    special: specialValue,
                     user: UserModel(
                       username: _usernameController.text,
                       email: _emailController.text,
