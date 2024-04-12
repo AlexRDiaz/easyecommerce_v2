@@ -248,7 +248,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           selectedDateFilter);
 
       var responseValues = await Connections()
-          .getValuesSellerLaravel(arrayfiltersDefaultAnd, selectedDateFilter);
+          .getValuesSellerLaravel(arrayfiltersDefaultAnd, selectedDateFilter,sharedPrefs!.getString("idComercialMasterSeller").toString());
 
       var responseLaravel = await Connections()
           .getOrdersForSellerStateSearchForDateSellerLaravel(

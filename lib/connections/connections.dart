@@ -5347,16 +5347,16 @@ class Connections {
     }
   }
 
-  getValuesSellerLaravel(arrayfiltersDefaultAnd, dateFilter) async {
+  getValuesSellerLaravel(arrayfiltersDefaultAnd, dateFilter,idReferer) async {
     try {
-      // print(json.encode({
-      //   "date_filter": dateFilter,
-      //   "start": sharedPrefs!.getString("dateDesdeVendedor"),
-      //   "end": sharedPrefs!.getString("dateHastaVendedor"),
-      //   "or": [],
-      //   "and": arrayfiltersDefaultAnd,
-      //   "not": [],
-      // }));
+      print(json.encode({
+        "date_filter": dateFilter,
+        "start": sharedPrefs!.getString("dateDesdeVendedor"),
+        "end": sharedPrefs!.getString("dateHastaVendedor"),
+        "or": [],
+        "and": arrayfiltersDefaultAnd,
+        "not": [],
+      }));
       int res = 0;
       var request = await http.post(
           Uri.parse(
@@ -5371,6 +5371,7 @@ class Connections {
             "or": [],
             "and": arrayfiltersDefaultAnd,
             "not": [],
+            "id_referer": idReferer
           }));
 
       var response = await request.body;

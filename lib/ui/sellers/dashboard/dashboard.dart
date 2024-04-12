@@ -295,7 +295,7 @@ class _DashBoardSellersState extends State<DashBoardSellers> {
 
     // caltulated values
     var responseValues = await Connections()
-        .getValuesSellerLaravel(arrayFiltersDefaultAnd, selectedDateFilter);
+        .getValuesSellerLaravel(arrayFiltersDefaultAnd, selectedDateFilter , sharedPrefs!.getString("idComercialMasterSeller").toString());
 
     // var response =s
     //     await Connections().getOrdersDashboard(populate, arrayFiltersAnd);

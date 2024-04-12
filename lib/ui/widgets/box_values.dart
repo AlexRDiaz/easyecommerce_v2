@@ -30,10 +30,10 @@ class boxValues extends StatelessWidget {
               title: 'Valores recibidos',
               value: '\$${totalValoresRecibidos.toStringAsFixed(2)}'),
           const SizedBox(width: 1),
-          // BuildInfoContainer(
-          //     title: 'C. Referenciados',
-          //     value: '\$${referenciados.toStringAsFixed(2)}'),
-          // const SizedBox(width: 1),
+          BuildInfoContainer(
+              title: 'C. Referenciados',
+              value: '\$${referenciados.toStringAsFixed(2)}'),
+          const SizedBox(width: 1),
           BuildInfoContainer(
               title: 'Costo de envío',
               value: '\$${costoDeEntregas.toStringAsFixed(2)}'),

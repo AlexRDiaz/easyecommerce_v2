@@ -556,7 +556,7 @@ class _FullHeightContainerState extends State<FullHeightContainer> {
         await sharedPrefs!.setString("dateHastaVendedor", hoy);
         getLoadingModal(context, false);
         responseValues = await Connections()
-            .getValuesSellerLaravel(arrayfiltersDefaultAnd, selectedDateFilter);
+            .getValuesSellerLaravel(arrayfiltersDefaultAnd, selectedDateFilter,idSeller);
         retvalTotal = await Connections().getOrdenesRetiroCount(idSeller);
         resltNewWalletValueSeller = await Connections().getSaldoPorId(idSeller); 
       }
