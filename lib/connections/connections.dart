@@ -7049,9 +7049,11 @@ class Connections {
 
   //  *
   getCoverage(and) async {
+    // print(json.encode({"and": and}));
     try {
       var response = await http.post(
-          Uri.parse("$serverLaravel/api/carriercoverage/search"),
+          Uri.parse("$generalServerApiLaravelEasy/api/carriercoverage/search"),
+          //serverLaravel
           headers: {'Content-Type': 'application/json'},
           body: json.encode({"and": and}));
       if (response.statusCode == 200) {

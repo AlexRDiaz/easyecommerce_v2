@@ -1146,20 +1146,20 @@ class _OrderEntryState extends State<OrderEntry> {
                           info(context, index);
                         }),
                         DataCell(
-                          Text(data[index]['transportadora'] != null &&
-                                  data[index]['transportadora'].isNotEmpty
-                              ? data[index]['transportadora'][0]['nombre']
-                                  .toString()
-                              : ''),
-                          //habilitar para version transp. externo
                           // Text(data[index]['transportadora'] != null &&
                           //         data[index]['transportadora'].isNotEmpty
                           //     ? data[index]['transportadora'][0]['nombre']
                           //         .toString()
-                          //     : data[index]['carrier_external'] != null
-                          //         ? data[index]['carrier_external']['name']
-                          //             .toString()
-                          //         : ""),
+                          //     : ''),
+                          //habilitar para version transp. externo
+                          Text(data[index]['transportadora'] != null &&
+                                  data[index]['transportadora'].isNotEmpty
+                              ? data[index]['transportadora'][0]['nombre']
+                                  .toString()
+                              : data[index]['carrier_external'] != null
+                                  ? data[index]['carrier_external']['name']
+                                      .toString()
+                                  : ""),
                           onTap: () {
                             info(context, index);
                           },
