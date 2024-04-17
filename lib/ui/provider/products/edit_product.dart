@@ -141,7 +141,6 @@ class _EditProductState extends State<EditProduct> {
   }
 
   getWarehouses() async {
-    print("getWarehouses");
     await _warehouseController
         .loadWarehouses(sharedPrefs!.getString("idProvider").toString());
     warehousesList = _warehouseController.warehouses;
@@ -150,11 +149,6 @@ class _EditProductState extends State<EditProduct> {
         warehousesToSelect
             .add('${warehouse.id}-${warehouse.branchName}-${warehouse.city}');
       }
-    }
-    print("ññññ $warehousesToSelect");
-
-    if (!warehousesToSelect.contains(warehouseValue)) {
-      warehousesToSelect.add(warehouseValue);
     }
 
     // print("warehouseValue: $warehouseValue");
@@ -188,11 +182,10 @@ class _EditProductState extends State<EditProduct> {
     isVariable = int.parse(product.isvariable.toString());
     typeValue = product.isvariable == 1 ? "VARIABLE" : "SIMPLE";
     _priceController.text = product.price.toString();
-    //Actualizar version access to bodega
 
     // warehouseValue =
     //     '${product.warehouse!.id.toString()}-${product.warehouse!.branchName.toString()}-${product.warehouse!.city.toString()}';
-    warehouseValue = getFirstWarehouseNameModel(product.warehouses);
+    warehouseValue = getWarehouseNameModel(product.warehouses);
     warehouseValueOriginal = warehouseValue;
 
     urlsImgsList = product.urlImg != null &&
@@ -326,17 +319,22 @@ class _EditProductState extends State<EditProduct> {
     print('SKU $sku no encontrado en la lista de variantes');
   }
 
-  String getFirstWarehouseNameModel(dynamic warehouses) {
+  String getWarehouseNameModel(dynamic warehouses) {
     String name = "";
     List<WarehouseModel>? warehousesList = warehouses;
     if (warehousesList!.length > 1) {
       multiWarehouse = true;
     }
-    if (warehousesList != null && warehousesList.isNotEmpty) {
+    if (multiWarehouse && int.parse(specialProv.toString()) == 1) {
+      WarehouseModel lastWarehouse = warehousesList.last;
+      name =
+          "${lastWarehouse.id.toString()}-${lastWarehouse.branchName.toString()}-${lastWarehouse.city.toString()}";
+    } else {
       WarehouseModel firstWarehouse = warehousesList.first;
       name =
           "${firstWarehouse.id.toString()}-${firstWarehouse.branchName.toString()}-${firstWarehouse.city.toString()}";
     }
+
     return name;
   }
 
@@ -638,7 +636,10 @@ class _EditProductState extends State<EditProduct> {
                         ),
                       ),
                       Visibility(
-                        visible: (specialProv == "2") == false,
+                        visible: (int.parse(specialProv.toString()) == 1 &&
+                                multiWarehouse) ||
+                            (int.parse(specialProv.toString()) != 1 &&
+                                !multiWarehouse),
                         // visible: true,
                         child: Row(
                           children: [
@@ -1915,7 +1916,7 @@ class _EditProductState extends State<EditProduct> {
                                 return DropdownMenuItem(
                                   value: item,
                                   child: Text(
-                                    item,
+                                    "${item.split('-')[1]}-${item.split('-')[2]}",
                                     style: const TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,

@@ -333,7 +333,6 @@ class ProductCard extends StatelessWidget {
                           width: 3,
                         ),
                         Text(
-                          //Actualizar version access to bodega
                           getFirstWarehouseNameModel(product.warehouses),
                           // product.warehouse!.branchName.toString(),
                           style: GoogleFonts.dmSans(

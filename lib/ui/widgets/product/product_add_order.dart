@@ -8,6 +8,7 @@ import 'package:flutter_animated_icons/icons8.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/models/product_model.dart';
+import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/main.dart';
@@ -84,6 +85,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
   double priceTotalProduct = 0;
   double taxCostShipping = 0;
   double costEasy = 2;
+  String prov_city_address = "";
 
   var responseCarriersGeneral;
 
@@ -151,11 +153,11 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
     }
 
     // print(costShippingSeller);
-    //Actualizar version access to bodega
     // origen_prov = widget.product.warehouse?.id_provincia.toString();
     // origen_city = widget.product.warehouse?.city.toString();
-    origen_prov = "";
-    origen_city = "";
+    prov_city_address = getWarehouseAddress(widget.product.warehouses);
+
+    print("prov_city_address: $prov_city_address");
 
     setState(() {});
 
@@ -281,6 +283,22 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
     } catch (error) {
       print('Error al cargar Provincias: $error');
     }
+  }
+
+  String getWarehouseAddress(dynamic warehouses) {
+    String name = "";
+    List<WarehouseModel>? warehousesList = warehouses;
+
+    if (warehousesList?.length == 1) {
+      WarehouseModel firstWarehouse = warehousesList!.first;
+      name =
+          "${firstWarehouse.id_provincia.toString()}-${firstWarehouse.city.toString()}-${firstWarehouse.address.toString()}";
+    } else {
+      WarehouseModel lastWarehouse = warehousesList!.last;
+      name =
+          "${lastWarehouse.id_provincia.toString()}-${lastWarehouse.city.toString()}-${lastWarehouse.address.toString()}";
+    }
+    return name;
   }
 
   @override
@@ -1219,9 +1237,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
 
                                 print(messageVar);
 
-                                //Actualizar version access to bodega
-                                String remitente_address = "";
-                                // widget.product.warehouse!.address.toString();
+                                String remitente_address =
+                                    prov_city_address.split('-')[2];
 
                                 String remitente_prov_ref = "";
                                 String remitente_city_ref = "";
@@ -1240,14 +1257,11 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                     },
                                     {
                                       "/coverage_external.dpa_provincia.id":
-                                          origen_prov
+                                          prov_city_address.split('-')[0]
                                     },
                                     {
                                       "/coverage_external.ciudad":
-                                          //Actualizar version access to bodega
-                                          ""
-                                      // widget.product.warehouse!.city
-                                      //     .toString()
+                                          prov_city_address.split('-')[1]
                                     }
                                   ]);
 
@@ -1305,7 +1319,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                     "declarado": double.parse(priceTotal),
                                     "con_recaudo": recaudo ? true : false
                                   };
-                                  // print(dataIntegration);
+                                  print(dataIntegration);
                                 }
 
                                 var response =
@@ -1352,7 +1366,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                 );
 
                                 // print(response);
-/*
+
                                 if (selectedCarrierType == "Externo" &&
                                     selectedCarrierExternal
                                             .toString()
@@ -1375,7 +1389,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                     //
                                   }
                                 }
-*/
+
                                 var _url = Uri.parse(
                                   """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda ${comercial}, Me comunico con usted para confirmar su pedido de compra de: ${_producto.text}${messageVar}${_productoE.text.isNotEmpty ? ' y ${_productoE.text}' : ''}, por un valor total de: \$${priceTotal}. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
                                 );

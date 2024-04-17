@@ -51,8 +51,12 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
   int currentPage = 1;
   int pageSize = 1300;
   var arrayfiltersDefaultAnd = [
+    // {
+    //   'product.warehouse.provider.id':
+    //       sharedPrefs!.getString("idProvider").toString(),
+    // },
     {
-      'product.warehouse.provider.id':
+      'product_s.warehouses.provider_id':
           sharedPrefs!.getString("idProvider").toString(),
     },
     {"estado_interno": "CONFIRMADO"},
@@ -83,7 +87,16 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
   int counterChecks = 0;
   var idUser = sharedPrefs!.getString("id");
 
+  int provType = 0;
+  String idProv = sharedPrefs!.getString("idProvider").toString();
+  String idProvUser = sharedPrefs!.getString("idProviderUserMaster").toString();
+
   void didChangeDependencies() {
+    if (idProvUser == idUser) {
+      provType = 1; //prov principal
+    } else if (idProvUser != idUser) {
+      provType = 2; //sub principal
+    }
     loadData();
     super.didChangeDependencies();
   }
@@ -99,6 +112,12 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
       data = [];
     });
 
+    if (provType == 2) {
+      //prov principal
+      //product.warehouses.provider.id
+      arrayFiltersAnd.add({"product_s.warehouses.up_users.id_user": idUser});
+      print("sub_provProv");
+    }
 //    *
     var responseLaravel = await Connections().getOrdersForPrintGuidesLaravel(
       filtersOrCont,
@@ -692,10 +711,8 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
 
                     //new
                     responsereduceStock = await Connections()
-                        .updateProductVariantStock(
-                            data[i]['variant_details'],
-                            0,
-                            data[i]['id_comercial']);
+                        .updateProductVariantStock(data[i]['variant_details'],
+                            0, data[i]['id_comercial']);
 
                     if (responsereduceStock == 0) {
                       var responseL = await Connections().updateOrderWithTime(

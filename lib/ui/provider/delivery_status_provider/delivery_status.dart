@@ -113,8 +113,12 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   String selectedDateFilter = "FECHA ENTREGA";
 
   var arrayfiltersDefaultAnd = [
+    // {
+    //   'product.warehouse.provider.id':
+    //       sharedPrefs!.getString("idProvider").toString(),
+    // },
     {
-      'product.warehouse.provider.id':
+      'product_s.warehouses.provider_id':
           sharedPrefs!.getString("idProvider").toString(),
     },
     {'estado_interno': "CONFIRMADO"},
@@ -133,7 +137,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     'operadore',
     'operadore.user',
     'novedades',
-    'product.warehouse.provider'
+    // 'product.warehouse.provider'
+    "product_s.warehouses.provider"
   ];
 
   List filtersOrCont = [
@@ -176,7 +181,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     'PENDIENTE',
     'NO DESEA',
   ];
-  
+
   List<String> listDateFilter = [
     'FECHA ENVIO',
     'FECHA ENTREGA',
@@ -214,14 +219,25 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     'pedidoFecha',
     'ruta',
     'subRuta',
-    'product.warehouse.provider'
+    // 'product.warehouse.provider'
+    "product_s.warehouses.provider"
   ];
   //        $pedidos = PedidosShopify::with(['operadore.up_users', 'transportadora', 'users.vendedores', 'novedades', 'pedidoFecha', 'ruta', 'subRuta'])
+
+  var idUser = sharedPrefs!.getString("id");
+
+  int provType = 0;
+  String idProv = sharedPrefs!.getString("idProvider").toString();
+  String idProvUser = sharedPrefs!.getString("idProviderUserMaster").toString();
 
   @override
   void didChangeDependencies() {
     initializeDates();
-
+    if (idProvUser == idUser) {
+      provType = 1; //prov principal
+    } else if (idProvUser != idUser) {
+      provType = 2; //sub principal
+    }
     loadData();
     super.didChangeDependencies();
   }
@@ -239,7 +255,13 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       setState(() {
         isLoading = true;
       });
-
+      if (provType == 2) {
+        //prov principal
+        //product.warehouses.provider.id
+        arrayfiltersDefaultAnd
+            .add({"product_s.warehouses.up_users.id_user": idUser.toString()});
+        print("sub_provProv");
+      }
       var responseCounters = await Connections().getOrdersCountersSeller(
           populateC,
           arrayfiltersDefaultAnd,
@@ -249,9 +271,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
 
       var responseValues = await Connections()
           .getValuesProviderLaravel(arrayfiltersDefaultAnd, selectedDateFilter);
-      
+
       // print("ak-> $responseValues");
-      
+
       var responseLaravel = await Connections()
           .getOrdersForSellerStateSearchForDateSellerLaravel(
               populate,
@@ -367,13 +389,24 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       //   'id_comercial':
       //       sharedPrefs!.getString("idComercialMasterSeller").toString()
       // },
+      // {
+      //   'product.warehouse.provider.id':
+      //       sharedPrefs!.getString("idProvider").toString(),
+      // },
       {
-        'product.warehouse.provider.id':
+        'product_s.warehouses.provider_id':
             sharedPrefs!.getString("idProvider").toString(),
       },
       {'estado_interno': "CONFIRMADO"},
       {'estado_logistico': "ENVIADO"}
     ];
+    if (provType == 2) {
+      //prov principal
+      //product.warehouses.provider.id
+      DefaultAnd.add({"product_s.warehouses.up_users.id_user": idUser});
+      print("sub_provProv");
+    }
+
     var responseAll = await Connections()
         .getAllOrdersByDateRangeLaravel(DefaultAnd, status, internal);
 
@@ -498,7 +531,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                               ),
                               Container(
                                 padding: EdgeInsets.all(10),
-                                child: boxValuesProvider (
+                                child: boxValuesProvider(
                                     totalValoresRecibidos:
                                         totalValoresRecibidos,
                                     retirosefectivo: costoDeEntregas,
@@ -859,8 +892,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                           (index) => DataRow(
                             cells: [
                               DataCell(
-                                      Text(data[index]['fecha_entrega']
-                                          .toString()),
+                                  Text(data[index]['fecha_entrega'].toString()),
                                   onTap: () {
                                 showInfo(context, index);
                               }),
@@ -1112,9 +1144,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
           double.parse(valuesTransporter['totalValoresRecibidos'].toString());
       costoDeEntregas =
           double.parse(valuesTransporter['totalRetirosEfectivo'].toString());
-      devoluciones =
-          double.parse(valuesTransporter['saldoActual'].toString());
-      utilidad = (valuesTransporter['totalValoresRecibidos'] - valuesTransporter['totalRetirosEfectivo']);
+      devoluciones = double.parse(valuesTransporter['saldoActual'].toString());
+      utilidad = (valuesTransporter['totalValoresRecibidos'] -
+          valuesTransporter['totalRetirosEfectivo']);
       utilidad = double.parse(utilidad.toString());
     });
   }

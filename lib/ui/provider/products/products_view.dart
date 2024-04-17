@@ -111,31 +111,6 @@ class _ProductsViewState extends State<ProductsView> {
 // Fix the typo here
   }
 
-  Future<List<ProductModel>> _getProductModelData() async {
-    // await _productController.loadProductsByProvider(
-    //     idProv,
-    //     populate,
-    //     pageSize,
-    //     currentPage,
-    //     arrayFiltersOr,
-    //     arrayFiltersAnd,
-    //     sortFieldDefaultValue.toString(),
-    //     _search.text,
-    //     "");
-    // return _productController.products;
-    arrayFiltersAnd = [];
-    await _productController.loadBySubProvider(
-        populate,
-        pageSize,
-        currentPage,
-        arrayFiltersOr,
-        arrayFiltersAnd,
-        sortFieldDefaultValue.toString(),
-        _search.text);
-
-    return _productController.products;
-  }
-
   Future<List<WarehouseModel>> _getWarehousesData() async {
     await _warehouseController.loadWarehouses(idProv);
     return _warehouseController.warehouses;
@@ -172,8 +147,6 @@ class _ProductsViewState extends State<ProductsView> {
         warehouseActAprob = true;
       }
     }
-
-    products = await _getProductModelData();
 
     // var response = await _productController.loadProductsByProvider(
     //     sharedPrefs!.getString("idProvider"),
@@ -445,7 +418,7 @@ class _ProductsViewState extends State<ProductsView> {
                                 });
                               }
                             } else {
-                              // arrayFiltersAnd = [];
+                              arrayFiltersAnd = [];
                             }
 
                             loadData();
@@ -676,8 +649,9 @@ class _ProductsViewState extends State<ProductsView> {
                         },
                       ),
                       DataColumn2(
-                        label: const Text('Aprobado'),
-                        size: ColumnSize.S,
+                        label: const Text('Aprobado?'),
+                        // size: ColumnSize.S,
+                        fixedWidth: 100,
                         onSort: (columnIndex, ascending) {
                           // sortFunc3("producto_extra", changevalue);
                         },

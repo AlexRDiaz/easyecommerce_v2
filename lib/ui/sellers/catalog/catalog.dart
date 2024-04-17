@@ -1718,8 +1718,6 @@ class _CatalogState extends State<Catalog> {
                                           children: [
                                             _textTitle("Bodega:"),
                                             const SizedBox(width: 10),
-                                            //Actualizar version access to bodega
-
                                             _text(getFirstWarehouseNameModel(
                                                         product.warehouses)
                                                     .split('-')[0]
@@ -1969,8 +1967,6 @@ class _CatalogState extends State<Catalog> {
                                 Text(getFirstWarehouseNameModel(
                                             product.warehouses)
                                         .split('-')[0]
-                                    //Actualizar version access to bodega
-
                                     // product.warehouse!.branchName.toString(),
                                     ),
                                 Row(
@@ -1982,8 +1978,6 @@ class _CatalogState extends State<Catalog> {
                                     Text(getFirstWarehouseNameModel(
                                                 product.warehouses)
                                             .split('-')[1]
-                                        //Actualizar version access to bodega
-
                                         // product.warehouse!.customerphoneNumber !=
                                         //         null
                                         //     ? product
