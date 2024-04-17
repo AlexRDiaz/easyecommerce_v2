@@ -8,6 +8,7 @@ class ProviderModel {
   String? name;
   String? phone;
   String? description;
+  int? special;
   String? createdAt;
 
   UserModel? user;
@@ -20,6 +21,7 @@ class ProviderModel {
     this.name,
     this.phone,
     this.description,
+    this.special,
     this.createdAt,
     this.user,
     this.warehouses,
@@ -56,6 +58,7 @@ class ProviderModel {
       name: json['name'],
       phone: json['phone'],
       description: json['description'],
+      special: json['special'],
       createdAt: UIUtils.formatDate(json['created_at']),
       user: json['user'] != null ? UserModel.fromJson(json['user']) : null,
       warehouses: warehousesModels,
@@ -69,6 +72,7 @@ class ProviderModel {
       'name': name,
       'phone': phone,
       'description': description,
+      'special': special,
       'created_at': createdAt,
       'warehouses': warehouses
     };

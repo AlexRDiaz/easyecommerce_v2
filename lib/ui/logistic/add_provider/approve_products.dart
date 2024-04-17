@@ -1,5 +1,7 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animated_icons/icons8.dart';
+import 'package:frontend/connections/connections.dart';
 import 'package:frontend/models/product_model.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:frontend/models/warehouses_model.dart';
@@ -8,9 +10,11 @@ import 'package:frontend/ui/logistic/add_provider/layout_approve.dart';
 import 'package:frontend/ui/provider/products/controllers/product_controller.dart';
 import 'package:frontend/ui/provider/warehouses/controllers/warehouses_controller.dart';
 import 'package:frontend/ui/utils/utils.dart';
+import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/product/product_info.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mvc_pattern/mvc_pattern.dart';
 
 class ApproveProducts extends StatefulWidget {
   final ProviderModel provider;
@@ -34,17 +38,22 @@ class _ApproveProductsState extends State<ApproveProducts> {
   int pageCount = 100;
   bool isLoading = false;
   bool isFirst = false;
-  List populate = ["warehouse.provider"];
+  // List populate = ["warehouse.provider"];
+  List populate = ["warehouses"];
   List arrayFiltersAnd = [];
   List arrayFiltersOr = ["product_id", "product_name"];
   var sortFieldDefaultValue = "product_id:DESC";
   TextEditingController _search = TextEditingController(text: "");
+
+  List<String> specialsToSelect = [];
+  String? selectedSpecial;
 
   @override
   void initState() {
     super.initState();
     _warehouseController = WrehouseController();
     getWarehouses();
+    getSpecialsWarehouses();
     _productController = ProductController();
   }
 
@@ -68,21 +77,48 @@ class _ApproveProductsState extends State<ApproveProducts> {
   }
 
   Future<List<ProductModel>> _getProductModelData() async {
-    await _productController.loadProductsByProvider(
-        widget.provider.id,
+    //prov principal y especial
+    // arrayFiltersAnd.add({"/approved": 2});
+    arrayFiltersAnd.add({"/warehouses.provider_id": widget.provider.id});
+
+    // await _productController.loadProductsByProvider(
+    //     widget.provider.id,
+    //     populate,
+    //     pageSize,
+    //     currentPage,
+    //     arrayFiltersOr,
+    //     arrayFiltersAnd,
+    //     sortFieldDefaultValue.toString(),
+    //     _search.text,
+    //     "approve");
+    // List<ProductModel> filteredProducts = _productController.products
+    //     .where((product) => product.approved == 2)
+    //     .toList();
+    // return filteredProducts;
+
+    //new version
+    await _productController.loadBySubProvider(
         populate,
         pageSize,
         currentPage,
         arrayFiltersOr,
         arrayFiltersAnd,
         sortFieldDefaultValue.toString(),
-        _search.text,
-        "approve");
-    // List<ProductModel> filteredProducts = _productController.products
-    //     .where((product) => product.approved == 2)
-    //     .toList();
-    // return filteredProducts;
+        _search.text);
     return _productController.products;
+  }
+
+  //SpecialsWarehouses
+  getSpecialsWarehouses() async {
+    var data = await Connections().getSpecialsWarehouses();
+    // print("all specials: $data");
+    for (var bodega in data) {
+      specialsToSelect.add(
+          "${bodega['warehouse_id']}-${bodega['branch_name']}/${bodega['city']}");
+    }
+    setState(() {
+      specialsToSelect = specialsToSelect;
+    });
   }
 
   @override
@@ -168,7 +204,7 @@ class _ApproveProductsState extends State<ApproveProducts> {
                           if (value is String) {
                             arrayFiltersAnd = [];
                             arrayFiltersAnd.add({
-                              "warehouse.warehouse_id": selectedWarehouse
+                              "/warehouses.warehouse_id": selectedWarehouse
                                   .toString()
                                   .split("-")[0]
                                   .toString()
@@ -240,7 +276,7 @@ class _ApproveProductsState extends State<ApproveProducts> {
                           // fontWeight: FontWeight.bold,
                           color: Colors.black),
                       dataTextStyle: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           // fontWeight: FontWeight.bold,
                           color: Colors.black),
                       columnSpacing: 12,
@@ -279,7 +315,14 @@ class _ApproveProductsState extends State<ApproveProducts> {
                         ),
                         DataColumn2(
                           label: const Text(''), //btn
-                          size: ColumnSize.S,
+                          size: ColumnSize.M,
+                          onSort: (columnIndex, ascending) {
+                            // Lógica para ordenar
+                          },
+                        ),
+                        DataColumn2(
+                          label: const Text(''), //btn
+                          size: ColumnSize.M,
                           onSort: (columnIndex, ascending) {
                             // Lógica para ordenar
                           },
@@ -300,10 +343,13 @@ class _ApproveProductsState extends State<ApproveProducts> {
                               },
                             ),
                             DataCell(
-                              Text(products[index]
-                                  .warehouse!
-                                  .branchName
-                                  .toString()),
+                              Text(getWarehousesNamesModel(
+                                      products[index].warehouses)
+//                                 products[index]
+//                                   .warehouse!
+//                                   .branchName
+//                                   .toString(),
+                                  ),
                               onTap: () {
                                 showProductInfoDialog(products[index]);
                               },
@@ -483,6 +529,26 @@ class _ApproveProductsState extends State<ApproveProducts> {
                               ),
                             */
                             ),
+                            DataCell(
+                              Center(
+                                child: TextButton(
+                                  onPressed: () {
+                                    //
+                                    showAddToWarehouse(
+                                        context, products[index]);
+                                  },
+                                  child: Text(
+                                    "Añadir a Bodega",
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              onTap: () {
+                                // showProductInfoDialog(products[index]);
+                              },
+                            ),
                           ],
                         ),
                       ),
@@ -495,6 +561,141 @@ class _ApproveProductsState extends State<ApproveProducts> {
         ),
       ),
     );
+  }
+
+  String getWarehousesNamesModel(warehouses) {
+    String names = "";
+    List<WarehouseModel>? warehousesList = warehouses;
+
+    if (warehousesList != null) {
+      for (WarehouseModel warehouse in warehousesList) {
+        names += "${warehouse.branchName}/ ";
+      }
+    }
+    if (names.isNotEmpty) {
+      names = names.substring(0, names.length - 2);
+    }
+    return names;
+  }
+
+  Future<dynamic> showAddToWarehouse(
+      BuildContext context, ProductModel product) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            //
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(20.0))),
+              contentPadding: EdgeInsets.all(0),
+              content: Container(
+                padding: EdgeInsets.all(20),
+                width: 500,
+                height: 300,
+                child: Column(
+                  children: [
+                    const Text(
+                      "Añadir a bodega",
+                      style: TextStyle(
+                          // fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Text(
+                            "Producto: ${product.productId.toString()}-${product.productName}"),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: 300,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: DropdownButtonFormField<String>(
+                              isExpanded: true,
+                              hint: Text(
+                                'TODO',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Theme.of(context).hintColor,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              items: specialsToSelect.map((item) {
+                                var parts = item.split('-');
+                                var branchName = parts[1];
+                                return DropdownMenuItem(
+                                  value: item,
+                                  child: Text(
+                                    branchName,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                              value: selectedSpecial,
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedSpecial = value;
+                                });
+
+                                setState(() {});
+                              },
+                              decoration: InputDecoration(
+                                fillColor: Colors.white,
+                                filled: true,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(5.0),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: () async {
+                        //
+                        // print(
+                        //     "${selectedSpecial.toString().split("-")[0].toString()}");
+
+                        var response = await Connections().newProductWarehouse(
+                            product.productId.toString(),
+                            selectedSpecial
+                                .toString()
+                                .split("-")[0]
+                                .toString());
+                        print(response);
+                        if (response != 0) {
+                          // ignore: use_build_context_synchronously
+                          showSuccessModal(
+                              context,
+                              "Ocurrió un error durante la solicitud.",
+                              Icons8.warning_1);
+                        }
+                        Navigator.pop(context);
+                      },
+                      child: Text("Añadir"),
+                    )
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    ).then((value) => setState(() {
+          // loadData();
+        }));
   }
 
   _modelTextField({text, controller}) {
@@ -547,19 +748,18 @@ class _ApproveProductsState extends State<ApproveProducts> {
     return showDialog(
         context: context,
         builder: (context) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(0.0),
-            ),
-            contentPadding: EdgeInsets.all(0),
-            content: Container(
-              padding: EdgeInsets.all(0),
-              // color: Colors.amber,
-              width: MediaQuery.of(context).size.width * 0.90,
-              child: ProductInfo(
-                product: product,
-              ),
-            ),
+          return StatefulBuilder(
+            builder: (context, setState) {
+              //
+              return AlertDialog(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                contentPadding: EdgeInsets.all(0),
+                content: ProductInfo(
+                  product: product,
+                ),
+              );
+            },
           );
         }).then((value) {});
   }

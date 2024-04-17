@@ -56,10 +56,12 @@ class _CatalogState extends State<Catalog> {
   int pageCount = 100;
   bool isLoading = false;
   bool isFirst = false;
-  List populate = ["warehouse", "productseller", "reserve.seller"];
+  // List populate = ["warehouse", "productseller", "reserve.seller"];
+  List populate = ["warehouses", "productseller", "reserve.seller"];
+
   List arrayFiltersOr = ["product_name", "stock", "price"];
   List arrayFiltersAnd = [
-    {"seller_owned": "0"}
+    {"/seller_owned": "0"}
   ];
   List outFilter = [];
   List filterps = [];
@@ -142,10 +144,11 @@ class _CatalogState extends State<Catalog> {
     providersList = responseProviders;
     providersToSelect.insert(0, 'TODO');
     for (var provider in providersList) {
-      setState(() {
+      if (provider.special != 1) {
         providersToSelect.add('${provider.id}-${provider.name}');
-      });
+      }
     }
+    setState(() {});
   }
 
   getCategories() async {
@@ -179,7 +182,7 @@ class _CatalogState extends State<Catalog> {
     if (Arrayrestoration) {
       setState(() {
         arrayFiltersAnd = [
-          {"seller_owned": "0"}
+          {"/seller_owned": "0"}
         ];
       });
     }
@@ -801,8 +804,9 @@ class _CatalogState extends State<Catalog> {
         if (value != 'TODO') {
           if (value is String) {
             arrayFiltersAnd = [];
+            //{"/warehouses.provider_id": idProv}
             arrayFiltersAnd.add({
-              "warehouse.provider_id":
+              "/warehouses.provider_id":
                   selectedProvider.toString().split("-")[0].toString()
             });
           }
@@ -1185,8 +1189,8 @@ class _CatalogState extends State<Catalog> {
                 sharedPrefs!.getString("idComercialMasterSeller").toString();
             print("add seller_owned");
             arrayFiltersAnd
-                .removeWhere((filter) => filter.containsKey("seller_owned"));
-            arrayFiltersAnd.add({"seller_owned": idMaster});
+                .removeWhere((filter) => filter.containsKey("/seller_owned"));
+            arrayFiltersAnd.add({"/seller_owned": idMaster});
             setState(() {
               _getProductModelCatalog();
             });
@@ -1194,8 +1198,8 @@ class _CatalogState extends State<Catalog> {
             print("remove seller_owned");
 
             arrayFiltersAnd
-                .removeWhere((filter) => filter.containsKey("seller_owned"));
-            arrayFiltersAnd.add({"seller_owned": "0"});
+                .removeWhere((filter) => filter.containsKey("/seller_owned"));
+            arrayFiltersAnd.add({"/seller_owned": "0"});
             setState(() {
               _getProductModelCatalog();
             });
@@ -1245,7 +1249,7 @@ class _CatalogState extends State<Catalog> {
     selectedCategory = 'TODO';
     selectedCategoriesList = [];
     arrayFiltersAnd = [
-      {"seller_owned": "0"}
+      {"/seller_owned": "0"}
     ];
     outFilter = [];
     _minPriceController.clear();
@@ -1714,21 +1718,29 @@ class _CatalogState extends State<Catalog> {
                                           children: [
                                             _textTitle("Bodega:"),
                                             const SizedBox(width: 10),
-                                            _text(product.warehouse!.branchName
-                                                .toString()),
+                                            _text(getFirstWarehouseNameModel(
+                                                        product.warehouses)
+                                                    .split('-')[0]
+                                                // product.warehouse!.branchName
+                                                //   .toString()
+                                                ),
                                           ],
                                         ),
                                         Row(
                                           children: [
                                             _textTitle("Atención al cliente:"),
                                             const SizedBox(width: 10),
-                                            _text(product.warehouse!
-                                                        .customerphoneNumber !=
-                                                    null
-                                                ? product.warehouse!
-                                                    .customerphoneNumber
-                                                    .toString()
-                                                : "")
+                                            _text(getFirstWarehouseNameModel(
+                                                        product.warehouses)
+                                                    .split('-')[1]
+                                                // product.warehouse!
+                                                //           .customerphoneNumber !=
+                                                //       null
+                                                //   ? product.warehouse!
+                                                //       .customerphoneNumber
+                                                //       .toString()
+                                                //   : ""
+                                                )
                                           ],
                                         ),
                                       ],
@@ -1952,23 +1964,27 @@ class _CatalogState extends State<Catalog> {
                                 const Text(
                                   "Bodega:",
                                 ),
-                                Text(
-                                  product.warehouse!.branchName.toString(),
-                                ),
+                                Text(getFirstWarehouseNameModel(
+                                            product.warehouses)
+                                        .split('-')[0]
+                                    // product.warehouse!.branchName.toString(),
+                                    ),
                                 Row(
                                   children: [
                                     const Text(
                                       "Atención al cliente:",
                                     ),
                                     const SizedBox(width: 5),
-                                    Text(
-                                      product.warehouse!.customerphoneNumber !=
-                                              null
-                                          ? product
-                                              .warehouse!.customerphoneNumber
-                                              .toString()
-                                          : "",
-                                    ),
+                                    Text(getFirstWarehouseNameModel(
+                                                product.warehouses)
+                                            .split('-')[1]
+                                        // product.warehouse!.customerphoneNumber !=
+                                        //         null
+                                        //     ? product
+                                        //         .warehouse!.customerphoneNumber
+                                        //         .toString()
+                                        //     : "",
+                                        ),
                                   ],
                                 ),
                               ],
@@ -2025,6 +2041,17 @@ class _CatalogState extends State<Catalog> {
         );
       },
     );
+  }
+
+  String getFirstWarehouseNameModel(dynamic warehouses) {
+    String name = "";
+    List<WarehouseModel>? warehousesList = warehouses;
+    if (warehousesList != null && warehousesList.isNotEmpty) {
+      WarehouseModel firstWarehouse = warehousesList.first;
+      name =
+          "${firstWarehouse.branchName.toString()}-${firstWarehouse.customerphoneNumber != null ? firstWarehouse.customerphoneNumber.toString() : ""}";
+    }
+    return name;
   }
 
   // Future<dynamic> showInfoProduct(BuildContext context) {
@@ -2378,7 +2405,6 @@ class _CatalogState extends State<Catalog> {
                   onTap: () {
                     setState(() {
                       _search.clear();
-                      arrayFiltersAnd = [];
                     });
                   },
                   child: const Icon(Icons.close))

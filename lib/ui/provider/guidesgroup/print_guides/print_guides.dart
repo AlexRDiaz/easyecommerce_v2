@@ -30,7 +30,8 @@ class PrintGuidesProvider extends StatefulWidget {
 }
 
 class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
-  PrintGuidesControllersProvider _controllers = PrintGuidesControllersProvider();
+  PrintGuidesControllersProvider _controllers =
+      PrintGuidesControllersProvider();
   List data = [];
   List selectedCheckBox = [];
   int counterChecks = 0;
@@ -45,8 +46,12 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
   int pageSize = 1300;
   var idUser = sharedPrefs!.getString("id");
   var arrayfiltersDefaultAnd = [
+    // {
+    //   'product.warehouse.provider.id':
+    //       sharedPrefs!.getString("idProvider").toString(),
+    // },
     {
-      'product.warehouse.provider.id':
+      'product_s.warehouses.provider_id':
           sharedPrefs!.getString("idProvider").toString(),
     },
     {"estado_interno": "CONFIRMADO"},
@@ -79,8 +84,24 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
 
   bool changevalue = false;
 
+  String idProv = sharedPrefs!.getString("idProvider").toString();
+  String idProvUser = sharedPrefs!.getString("idProviderUserMaster").toString();
+  int provType = 0;
+  String specialProv = sharedPrefs!.getString("special").toString() == "null"
+      ? "0"
+      : sharedPrefs!.getString("special").toString();
+
   @override
   void didChangeDependencies() {
+    print("idProv-prin: $idProv-$idProvUser");
+    print("idProv: $idUser");
+    if (idProvUser == idUser) {
+      provType = 1; //prov principal
+    } else if (idProvUser != idUser) {
+      provType = 2; //sub principal
+    }
+    print("tipo prov: $provType");
+    print("special prov?: $specialProv");
     if (Provider.of<FiltersOrdersProviders>(context).indexActive == 2) {
       setState(() {
         _controllers.searchController.text = "d/m/a,d/m/a";
@@ -101,6 +122,13 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
+
+    if (provType == 2) {
+      //prov principal
+      //product.warehouses.provider.id
+      arrayFiltersAnd.add({"product_s.warehouses.up_users.id_user": idUser});
+      print("sub_provProv");
+    }
 
 //    *
     var responseLaravel = await Connections().getOrdersForPrintGuidesLaravel(

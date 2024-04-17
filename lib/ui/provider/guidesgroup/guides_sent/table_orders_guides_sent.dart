@@ -60,8 +60,12 @@ class _TableOrdersGuidesSentStateProvider
   int currentPage = 1;
   int pageSize = 1300;
   var filtersDefaultAnd = [
+    // {
+    //   '/product.warehouse.provider.id':
+    //       sharedPrefs!.getString("idProvider").toString(),
+    // },
     {
-      '/product.warehouse.provider.id':
+      '/product_s.warehouses.provider_id':
           sharedPrefs!.getString("idProvider").toString(),
     },
     {"/estado_logistico": "ENVIADO"}
@@ -93,8 +97,14 @@ class _TableOrdersGuidesSentStateProvider
     "ruta",
     "sentBy",
     "printedBy",
-    "product.warehouse.provider"
+    // "product.warehouse.provider"
+    "product_s.warehouses.provider"
   ];
+
+  var idUser = sharedPrefs!.getString("id");
+  String idProv = sharedPrefs!.getString("idProvider").toString();
+  String idProvUser = sharedPrefs!.getString("idProviderUserMaster").toString();
+  int provType = 0;
 
   @override
   void didChangeDependencies() {
@@ -110,6 +120,13 @@ class _TableOrdersGuidesSentStateProvider
         _controllers.searchController.clear();
       });
     }
+
+    if (idProvUser == idUser) {
+      provType = 1; //prov principal
+    } else if (idProvUser != idUser) {
+      provType = 2; //sub principal
+    }
+
     loadData();
     super.didChangeDependencies();
   }
@@ -133,6 +150,12 @@ class _TableOrdersGuidesSentStateProvider
         // print("case1-1");
 
         filtersAnd = [];
+        if (provType == 2) {
+          //prov principal
+          //product.warehouses.provider.id
+          filtersAnd.add({"/product_s.warehouses.up_users.id_user": idUser});
+          print("sub_provProv");
+        }
         filtersAnd.add({"/marca_tiempo_envio": date});
         responseL = await Connections().getOrdersForSentGuidesPrincipalLaravel(
             populate,
@@ -147,6 +170,12 @@ class _TableOrdersGuidesSentStateProvider
         // print("case1-2");
 
         filtersAnd = [];
+        if (provType == 2) {
+          //prov principal
+          //product.warehouses.provider.id
+          filtersAnd.add({"/product_s.warehouses.up_users.id_user": idUser});
+          print("sub_provProv");
+        }
         filtersAnd.add({"/marca_tiempo_envio": date});
         filtersAnd.add({
           "equals/transportadora.transportadora_id":
@@ -166,6 +195,12 @@ class _TableOrdersGuidesSentStateProvider
     } else {
       // print("case2");
       filtersAnd = [];
+      if (provType == 2) {
+        //prov principal
+        //product.warehouses.provider.id
+        filtersAnd.add({"/product_s.warehouses.up_users.id_user": idUser});
+        print("sub_provProv");
+      }
       responseL = await Connections().getOrdersForSentGuidesPrincipalLaravel(
           populate,
           filtersAnd,

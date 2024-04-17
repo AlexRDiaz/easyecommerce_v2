@@ -231,17 +231,17 @@ class _LayoutApprovePageState extends State<LayoutApprovePage> {
               duration: Duration(milliseconds: 300),
               top: 0,
               bottom: 0,
-              left: isSidebarOpen ? 260 : 0,
+              left: isSidebarOpen ? 200 : 0,
               right: 0,
               child: currentView["view"]),
           AnimatedPositioned(
             duration: Duration(milliseconds: 300),
             top: 0,
             bottom: 0,
-            left: isSidebarOpen ? 0 : -260,
+            left: isSidebarOpen ? 0 : -200,
             child: Container(
               color: colorDrawer,
-              width: 260,
+              width: 200,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [

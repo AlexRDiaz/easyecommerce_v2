@@ -9,6 +9,7 @@ import 'package:frontend/main.dart';
 import 'package:frontend/models/product_model.dart';
 import 'package:csv/csv.dart';
 import 'package:file_saver/file_saver.dart';
+import 'package:frontend/models/warehouses_model.dart';
 
 class ProductReport {
 //   *
@@ -112,7 +113,8 @@ class ProductReport {
         "Handle": productName,
         "Title": productName,
         "Body (HTML)": description,
-        "Vendor": product.warehouse?.branchName,
+        // "Vendor": product.warehouse?.branchName,
+        "Vendor": getFirstWarehouseNameModel(product.warehouses),
         "Product Category": product.productName.toString(), //Category
         "Type": type,
         "Tags": "",
@@ -226,7 +228,8 @@ class ProductReport {
         "Handle": '$productName',
         "Title": '$productName',
         "Body (HTML)": '$description',
-        "Vendor": product.warehouse?.branchName,
+        // "Vendor": product.warehouse?.branchName,
+        "Vendor": getFirstWarehouseNameModel(product.warehouses),
         "Product Category": firstCategory,
         "Type": type,
         "Tags": "",
@@ -309,7 +312,9 @@ class ProductReport {
       // print("It's varaible");
       ProductModel product = dataProduct;
       String productName = product.productName.toString();
-      String vendor = product.warehouse!.branchName.toString();
+      // String vendor = product.warehouse!.branchName.toString();
+      String vendor = getFirstWarehouseNameModel(product.warehouses);
+
       // Decodificar el JSON
       Map<String, dynamic> features = jsonDecode(product.features);
 
@@ -595,5 +600,15 @@ class ProductReport {
     List<String> urlsImgsList = (jsonDecode(urlImgData) as List).cast<String>();
     String url = urlsImgsList[0];
     return url;
+  }
+
+  String getFirstWarehouseNameModel(dynamic warehouses) {
+    String name = "";
+    List<WarehouseModel>? warehousesList = warehouses;
+    if (warehousesList != null && warehousesList.isNotEmpty) {
+      WarehouseModel firstWarehouse = warehousesList.first;
+      name = "${firstWarehouse.branchName.toString()}";
+    }
+    return name;
   }
 }

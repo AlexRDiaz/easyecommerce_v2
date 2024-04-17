@@ -845,6 +845,7 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
                           Expanded(
                             child: ElevatedButton(
                               onPressed: () async {
+                                /*
                                 var responseChargeImage =
                                     await Connections().postDoc(pickedImage!);
                                 _controller.addWarehouse(WarehouseModel(
@@ -869,7 +870,7 @@ class _AddWarehouseState extends StateMVC<AddWarehouse> {
                                     providerId: int.parse(sharedPrefs!
                                         .getString("idProvider")
                                         .toString())));
-
+*/
                                 Navigator.pop(context);
                               },
                               style: ElevatedButton.styleFrom(

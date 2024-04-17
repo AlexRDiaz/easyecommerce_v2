@@ -5,12 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:frontend/models/user_model.dart';
+import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/ui/logistic/add_provider/add_provider.dart';
 import 'package:frontend/ui/logistic/add_provider/controllers/provider_controller.dart';
 import 'package:frontend/ui/logistic/add_provider/edit_provider.dart';
 import 'package:frontend/ui/provider/add_provider/add_sub_provider.dart';
 import 'package:frontend/ui/provider/add_provider/controllers/sub_provider_controller.dart';
 import 'package:frontend/ui/provider/add_provider/edit_sub_provider.dart';
+import 'package:frontend/ui/provider/warehouses/controllers/warehouses_controller.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
@@ -30,9 +32,16 @@ class _SubProviderViewState extends State<SubProviderView> {
   bool selectable = false;
   List<dynamic> accessTemp = [];
 
+  List<WarehouseModel> warehousesList = [];
+  List<String> warehousesToSelect = [];
+  late WrehouseController _warehouseController;
+  String idProv = sharedPrefs!.getString("idProvider").toString();
+  bool warehouseActAprob = false;
+
   @override
   void initState() {
-    super.initState();
+    _warehouseController = WrehouseController();
+    getWarehouses();
     _subProviderController = SubProviderController();
     // List<String> userPermissionsSubProv =
     //     sharedPrefs!.getStringList("PERMISOS")!;
@@ -43,6 +52,8 @@ class _SubProviderViewState extends State<SubProviderView> {
     } else {
       print("permisos is null");
     }
+
+    super.initState();
   }
 
   hasEdited(value) {
@@ -75,8 +86,29 @@ class _SubProviderViewState extends State<SubProviderView> {
     });
   }
 
+  Future<List<WarehouseModel>> _getWarehousesData() async {
+    await _warehouseController.loadWarehouses(idProv);
+    return _warehouseController.warehouses;
+  }
+
+  getWarehouses() async {
+    var responseBodegas = await _getWarehousesData();
+    warehousesList = responseBodegas;
+    for (var warehouse in warehousesList) {
+      if (warehouse.approved == 1 && warehouse.active == 1) {
+        warehouseActAprob = true;
+      }
+    }
+    setState(() {
+      warehouseActAprob = warehouseActAprob;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.only(left: 20, right: 20),
@@ -105,7 +137,12 @@ class _SubProviderViewState extends State<SubProviderView> {
               child: Row(
                 children: [
                   ElevatedButton(
-                    onPressed: () => openDialog(context),
+                    onPressed: !warehouseActAprob
+                        ? null
+                        : () {
+                            //
+                            openDialog(context);
+                          },
                     child: Text("Nuevo"),
                   ),
                   // SizedBox(width: 10),
@@ -146,6 +183,7 @@ class _SubProviderViewState extends State<SubProviderView> {
 
                   return Container(
                     color: Colors.white,
+                    height: screenHeight * 0.7,
                     child: SfDataGrid(
                       source: subProviderModelDataSource,
                       columnWidthMode: ColumnWidthMode.fill,

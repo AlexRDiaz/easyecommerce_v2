@@ -105,6 +105,43 @@ class ProductController extends ControllerMVC {
     };
   }
 
+  Future<Map<String, dynamic>> loadBySubProvider(
+      populate, pageSize, currentPage, or, and, sort, search) async {
+    try {
+      var response = await Connections().getProductsBySubProvider(
+          populate, pageSize, currentPage, or, and, sort, search);
+      // print(response);
+      if (response == 1) {
+        print('Error: Status Code 1');
+      } else if (response == 2) {
+        print('Error: Status Code 2');
+      } else {
+        List<dynamic> jsonData = response['data'];
+
+        var total = response['total'];
+        var lastPage = response['last_page'];
+
+        products = jsonData.map((data) => ProductModel.fromJson(data)).toList();
+        setState(() {});
+        // Construir el objeto de respuesta
+        Map<String, dynamic> result = {
+          'data': products.map((product) => product.toJson()).toList(),
+          'total': total,
+          'last_page': lastPage,
+        };
+        return result;
+      }
+    } catch (e) {
+      // Maneja otros errores
+      print('Error al cargar productos: $e');
+    }
+    return {
+      'data': [],
+      'total': 0,
+      'last_page': 0,
+    };
+  }
+
   Future<void> loadProductsCatalog(populate, pageSize, currentPage, or, and,
       outFilter, sort, search, filterps) async {
     try {

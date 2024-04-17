@@ -36,6 +36,7 @@ class Connections {
             Uri.parse("$serverLaravel/api/users/${decodeData['user']['id']}"));
         var responseUser = await getUserSpecificRequest.body;
         var decodeDataUser = json.decode(responseUser);
+        // print(decodeDataUser);
         sharedPrefs!.setString("username", decodeData['user']['username']);
         sharedPrefs!.setString("id", decodeData['user']['id'].toString());
         sharedPrefs!.setString("email", decodeData['user']['email'].toString());
@@ -189,6 +190,9 @@ class Connections {
             finalPermisos.add(temporalPermisos.toString());
           }
           sharedPrefs!.setStringList("PERMISOS", finalPermisos);
+
+          sharedPrefs!.setString("special",
+              decodeDataUser['user']['providers'][0]['special'].toString());
         }
 
         // print(decodeData);
@@ -6097,8 +6101,7 @@ class Connections {
     }
   }
 
-  // transportadora- comprobante New
-  // http://localhost:8000/api/shippingcost/
+  //
   Future createTraspShippingCost(
       id_transp, shipping_total, total_proceeds, total_day, proof) async {
     try {
@@ -6248,8 +6251,11 @@ class Connections {
   getProductsCatalog(populate, page_size, current_page, or, and, outFilter,
       filterps, sort, search) async {
     try {
+      //old version
+      // await http.post(Uri.parse("$serverLaravel/api/products/all"),
+
       var response =
-          await http.post(Uri.parse("$serverLaravel/api/products/all"),
+          await http.post(Uri.parse("$serverLaravel/api/catalog/all"),
               headers: {'Content-Type': 'application/json'},
               body: json.encode({
                 "populate": populate,
@@ -6276,6 +6282,16 @@ class Connections {
   //  *
   getProductsByProvider(idProvider, populate, page_size, current_page, or, and,
       sort, search, to) async {
+    print(json.encode({
+      "populate": populate,
+      "page_size": page_size,
+      "page_number": current_page,
+      "or": or,
+      "and": and,
+      "sort": sort,
+      "search": search,
+      "to": to
+    }));
     try {
       var response = await http.post(
           Uri.parse("$serverLaravel/api/products/by/$idProvider"),
@@ -7116,6 +7132,127 @@ class Connections {
     }
   }
 
+  //  *
+  newProviderWarehouse(idUser, idWarehouse) async {
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/upuserswarehouse"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"idUser": idUser, "idWarehouse": idWarehouse}));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  //  *
+  getProductsBySubProvider(
+      populate, page_size, current_page, or, and, sort, search) async {
+    // print(json.encode({
+    //   "populate": populate,
+    //   "page_size": page_size,
+    //   "page_number": current_page,
+    //   "or": or,
+    //   "and": and,
+    //   "sort": sort,
+    //   "search": search,
+    // }));
+    try {
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/allbysubprov"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "populate": populate,
+                "page_size": page_size,
+                "page_number": current_page,
+                "or": or,
+                "and": and,
+                "sort": sort,
+                "search": search,
+              }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  //  *
+  newProductWarehouse(idProduct, idWarehouse) async {
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/productwarehouse"),
+          headers: {'Content-Type': 'application/json'},
+          body: json
+              .encode({"idProduct": idProduct, "idWarehouse": idWarehouse}));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return 0;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  // *
+  getSpecialsWarehouses() async {
+    try {
+      var response = await http.get(
+        Uri.parse("$serverLaravel/api/warehouses/specials"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData['warehouses'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  //  *
+  updateProductWarehouse(idProduct, idWarehouseOld, idWarehouseNew) async {
+    try {
+      // print(json.encode({
+      //   "idProduct": idProduct,
+      //   "idWarehouse_old": idWarehouseOld,
+      //   "idWarehouse_new": idWarehouseNew
+      // }));
+      var response = await http.put(
+          Uri.parse("$serverLaravel/api/productwarehouse/update"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "idProduct": idProduct,
+            "idWarehouse_old": idWarehouseOld,
+            "idWarehouse_new": idWarehouseNew
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return 0;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
   //TEST
 
   Future getOrdersTest1() async {
@@ -7666,6 +7803,7 @@ class Connections {
                 "email": provider.user!.email,
                 "provider_name": provider.name,
                 "provider_phone": provider.phone,
+                "special": provider.special,
                 "password": '123456789',
                 "description": provider.description,
                 "permisos": provider.user!.permisos,
@@ -7816,7 +7954,7 @@ class Connections {
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         // print(decodeData);
-        return decodeData['providers'];
+        return decodeData['user_id'];
       } else {
         return 1;
       }

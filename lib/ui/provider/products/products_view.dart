@@ -10,6 +10,7 @@ import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/models/product_model.dart';
+import 'package:frontend/models/product_seller.dart';
 import 'package:frontend/models/reserve_model.dart';
 import 'package:frontend/models/user_model.dart';
 import 'package:frontend/models/warehouses_model.dart';
@@ -43,7 +44,9 @@ class _ProductsViewState extends State<ProductsView> {
   int pageCount = 100;
   bool isLoading = false;
   bool isFirst = false;
-  List populate = ["warehouse.provider", "reserve.seller"];
+  // List populate = ["warehouse.provider", "reserve.seller"];
+  List populate = ["warehouses", "reserve.seller"];
+
   List arrayFiltersAnd = [
     // {"warehouse.warehouse_id": 1}
   ];
@@ -73,32 +76,39 @@ class _ProductsViewState extends State<ProductsView> {
   bool edited = false;
   bool warehouseActAprob = false;
   String idProv = sharedPrefs!.getString("idProvider").toString();
+  String idProvUser = sharedPrefs!.getString("idProviderUserMaster").toString();
+  String idUser = sharedPrefs!.getString("id").toString();
+  int provType = 0;
+  String specialProv = sharedPrefs!.getString("special").toString() == "null"
+      ? "0"
+      : sharedPrefs!.getString("special").toString();
+
+  List<String> specialsToSelect = [];
+  String? selectedSpecial;
 
   @override
   void initState() {
+    print("idProv-prin: $idProv-$idProvUser");
+    print("idProv: $idUser");
+    if (idProvUser == idUser) {
+      provType = 1; //prov principal
+    } else if (idProvUser != idUser) {
+      provType = 2; //sub principal
+    }
+    print("tipo prov: $provType");
+    print("special prov?: $specialProv");
+
     data = [];
     _productController = ProductController();
     _warehouseController = WrehouseController();
 
     loadData();
     super.initState();
+    getSpecialsWarehouses();
+
     //mvc
 
 // Fix the typo here
-  }
-
-  Future<List<ProductModel>> _getProductModelData() async {
-    await _productController.loadProductsByProvider(
-        idProv,
-        populate,
-        pageSize,
-        currentPage,
-        arrayFiltersOr,
-        arrayFiltersAnd,
-        sortFieldDefaultValue.toString(),
-        _search.text,
-        "");
-    return _productController.products;
   }
 
   Future<List<WarehouseModel>> _getWarehousesData() async {
@@ -131,26 +141,47 @@ class _ProductsViewState extends State<ProductsView> {
     warehousesToSelect.insert(0, 'TODO');
     for (var warehouse in warehousesList) {
       warehousesToSelect
-          .add('${warehouse.id}-${warehouse.branchName}-${warehouse.city}');
+          .add('${warehouse.branchName}/${warehouse.city}-${warehouse.id}');
 
       if (warehouse.approved == 1 && warehouse.active == 1) {
         warehouseActAprob = true;
       }
     }
 
-    products = await _getProductModelData();
+    // var response = await _productController.loadProductsByProvider(
+    //     sharedPrefs!.getString("idProvider"),
+    //     populate,
+    //     pageSize,
+    //     currentPage,
+    //     arrayFiltersOr,
+    //     arrayFiltersAnd,
+    //     sortFieldDefaultValue.toString(),
+    //     _search.text,
+    //     "");
 
-    var response = await _productController.loadProductsByProvider(
-        sharedPrefs!.getString("idProvider"),
+    if (provType == 1) {
+      //prov principal
+      if (int.parse(specialProv.toString()) == 1) {
+        //prov principal y especial
+        arrayFiltersAnd.add({"/approved": 1});
+        print("provPrincipal special principal 1");
+      } else {
+        arrayFiltersAnd.add({"/warehouses.provider_id": idProv});
+        print("provPrincipal no especial 2");
+      }
+    } else if (provType == 2) {
+      //prov principal
+      arrayFiltersAnd.add({"/warehouses.up_users.id_user": idUser});
+      print("sub_provProv");
+    }
+    var response = await _productController.loadBySubProvider(
         populate,
         pageSize,
         currentPage,
         arrayFiltersOr,
         arrayFiltersAnd,
         sortFieldDefaultValue.toString(),
-        _search.text,
-        "");
-
+        _search.text);
     data = response['data'];
     // print(data);
     // total = response['total'];
@@ -196,7 +227,8 @@ class _ProductsViewState extends State<ProductsView> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         getLoadingModal(context, false);
       });
-      var response = await Connections().historyByProduct(productId,pageSizeIntern,pageCountIntern);
+      var response = await Connections()
+          .historyByProduct(productId, pageSizeIntern, pageCountIntern);
       setState(() {
         dataHistory = response['data'];
         pageCountIntern = response['last_page'];
@@ -251,6 +283,19 @@ class _ProductsViewState extends State<ProductsView> {
       SnackBarHelper.showErrorSnackBar(
           context, "Ha ocurrido un error de conexión");
     }
+  }
+
+  //SpecialsWarehouses
+  getSpecialsWarehouses() async {
+    var data = await Connections().getSpecialsWarehouses();
+    // print("all specials: $data");
+    for (var bodega in data) {
+      specialsToSelect.add(
+          "${bodega['warehouse_id']}-${bodega['branch_name']}/${bodega['city']}");
+    }
+    setState(() {
+      specialsToSelect = specialsToSelect;
+    });
   }
 
   @override
@@ -348,7 +393,7 @@ class _ProductsViewState extends State<ProductsView> {
                               .map((item) => DropdownMenuItem(
                                     value: item,
                                     child: Text(
-                                      item,
+                                      item.split("-")[0].toString(),
                                       style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold,
@@ -361,14 +406,14 @@ class _ProductsViewState extends State<ProductsView> {
                             setState(() {
                               selectedWarehouse = value;
                             });
-
+                            print(selectedWarehouse);
                             if (value != 'TODO') {
                               if (value is String) {
                                 arrayFiltersAnd = [];
                                 arrayFiltersAnd.add({
-                                  "warehouse.warehouse_id": selectedWarehouse
+                                  "/warehouses.warehouse_id": selectedWarehouse
                                       .toString()
-                                      .split("-")[0]
+                                      .split("-")[1]
                                       .toString()
                                 });
                               }
@@ -525,9 +570,10 @@ class _ProductsViewState extends State<ProductsView> {
                     headingTextStyle: const TextStyle(
                         fontWeight: FontWeight.bold, color: Colors.black),
                     dataTextStyle: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black),
+                      fontSize: 12,
+                      // fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
                     columnSpacing: 12,
                     // headingRowHeight: 80,
                     horizontalMargin: 12,
@@ -535,7 +581,8 @@ class _ProductsViewState extends State<ProductsView> {
                     columns: [
                       const DataColumn2(
                         label: Text(''), //check
-                        size: ColumnSize.S,
+                        // size: ColumnSize.S,
+                        fixedWidth: 30,
                       ),
                       DataColumn2(
                         label: const Text(''), //img
@@ -573,15 +620,16 @@ class _ProductsViewState extends State<ProductsView> {
                         },
                       ),
                       DataColumn2(
-                        label: const Text('Precio Bodega'),
-                        size: ColumnSize.M,
+                        label: const Text('Precio\nBodega'),
+                        fixedWidth: 80,
+                        // size: ColumnSize.S,
                         onSort: (columnIndex, ascending) {
                           // sortFunc3("telefonoS_shipping", changevalue);
                         },
                       ),
                       DataColumn2(
-                        label: const Text('Precio Sugerido'),
-                        size: ColumnSize.M,
+                        label: const Text('Precio\nSugerido'),
+                        fixedWidth: 85,
                         onSort: (columnIndex, ascending) {
                           // sortFunc3("telefonoS_shipping", changevalue);
                         },
@@ -601,19 +649,24 @@ class _ProductsViewState extends State<ProductsView> {
                         },
                       ),
                       DataColumn2(
-                        label: const Text('Aprobado'),
-                        size: ColumnSize.S,
+                        label: const Text('Aprobado?'),
+                        // size: ColumnSize.S,
+                        fixedWidth: 100,
                         onSort: (columnIndex, ascending) {
                           // sortFunc3("producto_extra", changevalue);
                         },
                       ),
                       const DataColumn2(
-                        label: Text('Historial Stock'),
-                        size: ColumnSize.M,
+                        label: Text('Historial\nStock'),
+                        size: ColumnSize.S,
                       ),
                       const DataColumn2(
                         label: Text(''), //btns para crud
                         size: ColumnSize.L,
+                      ),
+                      const DataColumn2(
+                        label: Text(''), //btns para crud
+                        size: ColumnSize.M,
                       ),
                     ],
                     rows: List<DataRow>.generate(
@@ -688,18 +741,30 @@ class _ProductsViewState extends State<ProductsView> {
                               UIUtils.formatDate(
                                   data[index]['created_at'].toString()))),
                           DataCell(
-                            Text(data[index]['warehouse']['branch_name']
-                                .toString()),
+                            Text(getWarehousesNames(data[index]['warehouses'])
+                                // data[index]['warehouses']['branch_name']
+                                //     .toString(),
+                                ),
                           ),
                           DataCell(
                             data[index]['approved'] == 1
-                                ? const Icon(Icons.check_circle_rounded,
-                                    color: Colors.green)
+                                ? const Tooltip(
+                                    message: 'Aprobado',
+                                    child: Icon(Icons.check_circle_rounded,
+                                        color: Colors.green),
+                                  )
                                 : data[index]['approved'] == 2
-                                    ? const Icon(Icons.hourglass_bottom_sharp,
-                                        color: Colors.indigo)
-                                    : const Icon(Icons.cancel_rounded,
-                                        color: Colors.red),
+                                    ? const Tooltip(
+                                        message: 'Pendiente',
+                                        child: Icon(
+                                            Icons.hourglass_bottom_sharp,
+                                            color: Colors.indigo),
+                                      )
+                                    : const Tooltip(
+                                        message: 'Rechazado',
+                                        child: Icon(Icons.cancel_rounded,
+                                            color: Colors.red),
+                                      ),
                           ),
                           DataCell(
                             const Icon(Icons.list_alt_outlined,
@@ -708,75 +773,114 @@ class _ProductsViewState extends State<ProductsView> {
                               _historyProductInfo(data[index]);
                             },
                           ),
-                          DataCell(Row(
-                            children: [
-                              const SizedBox(width: 10),
-                              GestureDetector(
-                                onTap: () async {
-                                  //edit
-                                  // showDialogInfoData(data[index]);
+                          DataCell(
+                            Visibility(
+                              visible: (getMultiWarehouses(
+                                              data[index]['warehouses']) ==
+                                          true &&
+                                      specialProv == "1") ||
+                                  specialProv != "1",
+                              child: Row(
+                                children: [
+                                  const SizedBox(width: 10),
+                                  GestureDetector(
+                                    onTap: () async {
+                                      //edit
+                                      // showDialogInfoData(data[index]);
 
-                                  await showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return EditProduct(
-                                        data: data[index],
-                                        // function: paginateData,
-                                        hasEdited: hasEdited,
+                                      await showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return EditProduct(
+                                            data: data[index],
+                                            // function: paginateData,
+                                            hasEdited: hasEdited,
+                                          );
+                                        },
                                       );
-                                    },
-                                  );
 
-                                  // arrayFiltersAnd.clear();
-                                  // await loadData();
-                                },
-                                child: const Icon(
-                                  Icons.edit_square,
-                                  size: 20,
-                                  color: Colors.blue,
+                                      // arrayFiltersAnd.clear();
+                                      // await loadData();
+                                    },
+                                    child: const Icon(
+                                      Icons.edit_square,
+                                      size: 20,
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 20),
+                                  GestureDetector(
+                                    onTap: () async {
+                                      AwesomeDialog(
+                                        width: 500,
+                                        context: context,
+                                        dialogType: DialogType.info,
+                                        animType: AnimType.rightSlide,
+                                        title:
+                                            '¿Estás seguro de eliminar el Producto?',
+                                        desc:
+                                            '${data[index]['product_id']}-${data[index]['product_name']}',
+                                        btnOkText: "Confirmar",
+                                        btnCancelText: "Cancelar",
+                                        btnOkColor: Colors.blueAccent,
+                                        btnCancelOnPress: () {},
+                                        btnOkOnPress: () async {
+                                          getLoadingModal(context, false);
+
+                                          // await Connections().deleteProduct(
+                                          //     data[index]['product_id']);
+
+                                          _productController.disableProduct(
+                                              data[index]['product_id']);
+
+                                          Navigator.pop(context);
+                                          await loadData();
+                                        },
+                                      ).show();
+                                    },
+                                    child: const Icon(
+                                      Icons.delete,
+                                      size: 20,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Center(
+                              child:
+                                  // Text(getMultiWarehouses(
+                                  //         data[index]['warehouses'])
+                                  //     .toString())
+                                  Visibility(
+                                visible: ((specialProv.toString() == "null"
+                                                ? "0"
+                                                : specialProv.toString()) ==
+                                            "1" &&
+                                        provType == 1) &&
+                                    getMultiWarehouses(
+                                            data[index]['warehouses']) ==
+                                        false,
+                                child: TextButton(
+                                  onPressed: () {
+                                    //
+                                    showAddToWarehouse(context, data[index]);
+                                  },
+                                  child: Text(
+                                    "Añadir a Bodega",
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                    ),
+                                  ),
                                 ),
                               ),
-                              const SizedBox(width: 20),
-                              GestureDetector(
-                                onTap: () async {
-                                  AwesomeDialog(
-                                    width: 500,
-                                    context: context,
-                                    dialogType: DialogType.info,
-                                    animType: AnimType.rightSlide,
-                                    title:
-                                        '¿Estás seguro de eliminar el Producto?',
-                                    desc:
-                                        '${data[index]['product_id']}-${data[index]['product_name']}',
-                                    btnOkText: "Confirmar",
-                                    btnCancelText: "Cancelar",
-                                    btnOkColor: Colors.blueAccent,
-                                    btnCancelOnPress: () {},
-                                    btnOkOnPress: () async {
-                                      getLoadingModal(context, false);
-
-                                      // await Connections().deleteProduct(
-                                      //     data[index]['product_id']);
-
-                                      _productController.disableProduct(
-                                          data[index]['product_id']);
-
-                                      Navigator.pop(context);
-                                      await loadData();
-                                    },
-                                  ).show();
-                                },
-                                child: const Icon(
-                                  Icons.delete,
-                                  size: 20,
-                                  color: Colors.red,
-                                ),
-                              ),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                            ],
-                          )),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -937,6 +1041,45 @@ class _ProductsViewState extends State<ProductsView> {
     List<String> urlsImgsList = (jsonDecode(urlImgData) as List).cast<String>();
     String url = urlsImgsList[0];
     return url;
+  }
+
+  String getWarehousesNames(dynamic warehouses) {
+    String names = "";
+    if (warehouses != null) {
+      for (var warehouse in warehouses) {
+        if (warehouse['branch_name'] != null) {
+          names += "${warehouse['branch_name']}/ ";
+        }
+      }
+      if (names.isNotEmpty) {
+        names = names.substring(0, names.length - 2);
+      }
+    }
+    return names;
+  }
+
+  String getWarehousesNamesModel(dynamic warehouses) {
+    String names = "";
+    List<WarehouseModel>? warehousesList = warehouses;
+    if (warehousesList != null) {
+      for (WarehouseModel warehouse in warehousesList) {
+        if (warehouse.branchName != null) {
+          names += "${warehouse.branchName}/ ";
+        }
+      }
+    }
+    if (names.isNotEmpty) {
+      names = names.substring(0, names.length - 2);
+    }
+    return names;
+  }
+
+  bool getMultiWarehouses(dynamic warehouses) {
+    bool res = false;
+    if (warehouses != null) {
+      res = warehouses.length > 1 ? true : false;
+    }
+    return res;
   }
 
   Future<dynamic> showDialogInfoData(data) {
@@ -1122,77 +1265,46 @@ class _ProductsViewState extends State<ProductsView> {
                                   children: [
                                     Row(
                                       children: [
-                                        SizedBox(
-                                          width: 100,
-                                          child: Row(
-                                            children: [
-                                              Text(
-                                                "ID:",
-                                                style: customTextStyleTitle,
-                                              ),
-                                              const SizedBox(width: 10),
-                                              Text(
-                                                "${product.productId}",
-                                                style: customTextStyleText,
-                                              ),
-                                            ],
-                                          ),
+                                        Text(
+                                          "ID:",
+                                          style: customTextStyleTitle,
+                                        ),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          "${product.productId}",
+                                          style: customTextStyleText,
+                                        ),
+                                        const SizedBox(width: 20),
+                                        Text(
+                                          "Creado:",
+                                          style: customTextStyleTitle,
+                                        ),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          "${UIUtils.formatDate(product.createdAt)}",
+                                          style: customTextStyleText,
+                                        ),
+                                        const SizedBox(width: 20),
+                                        Text(
+                                          "Aprobado:",
+                                          style: customTextStyleTitle,
                                         ),
                                         const SizedBox(width: 10),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Text(
-                                                    "Creado:",
-                                                    style: customTextStyleTitle,
+                                        product.approved == 1
+                                            ? const Icon(
+                                                Icons.check_circle_rounded,
+                                                color: Colors.green,
+                                              )
+                                            : product.approved == 2
+                                                ? const Icon(
+                                                    Icons
+                                                        .hourglass_bottom_sharp,
+                                                    color: Colors.indigo,
+                                                  )
+                                                : const Icon(
+                                                    Icons.cancel_rounded,
+                                                    color: Colors.red,
                                                   ),
-                                                  const SizedBox(width: 10),
-                                                  Text(
-                                                    "${UIUtils.formatDate(product.createdAt)}",
-                                                    style: customTextStyleText,
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        const SizedBox(width: 10),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Text(
-                                                    "Aprobado:",
-                                                    style: customTextStyleTitle,
-                                                  ),
-                                                  const SizedBox(width: 10),
-                                                  product.approved == 1
-                                                      ? const Icon(
-                                                          Icons
-                                                              .check_circle_rounded,
-                                                          color: Colors.green)
-                                                      : product.approved == 2
-                                                          ? const Icon(
-                                                              Icons
-                                                                  .hourglass_bottom_sharp,
-                                                              color:
-                                                                  Colors.indigo)
-                                                          : const Icon(
-                                                              Icons
-                                                                  .cancel_rounded,
-                                                              color: Colors.red)
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
                                       ],
                                     ),
                                     const SizedBox(height: 10),
@@ -1612,9 +1724,8 @@ class _ProductsViewState extends State<ProductsView> {
                                               Row(
                                                 children: [
                                                   Text(
-                                                    product
-                                                        .warehouse!.branchName
-                                                        .toString(),
+                                                    getWarehousesNamesModel(
+                                                        product.warehouses),
                                                     style: customTextStyleText,
                                                   ),
                                                 ],
@@ -1661,7 +1772,8 @@ class _ProductsViewState extends State<ProductsView> {
     ProductModel product = ProductModel.fromJson(data);
 
     int? productId = product.productId;
-    var response = await Connections().historyByProduct(productId,pageSizeIntern,pageCountIntern);
+    var response = await Connections()
+        .historyByProduct(productId, pageSizeIntern, pageCountIntern);
 
     dataHistory = response['data'] ?? [];
     pageCountIntern = response['last_page'];
@@ -1733,8 +1845,7 @@ class _ProductsViewState extends State<ProductsView> {
                                 child: Row(
                                   children: [
                                     Container(
-                                        width:
-                                            screenWidth*0.5,
+                                        width: screenWidth * 0.5,
                                         child:
                                             numberPaginatorIntern(productId)),
                                   ],
@@ -2126,5 +2237,125 @@ class _ProductsViewState extends State<ProductsView> {
         ),
       ),
     );
+  }
+
+  Future<dynamic> showAddToWarehouse(BuildContext context, producto) {
+    ProductModel product = ProductModel.fromJson(producto);
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            //
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(20.0))),
+              contentPadding: EdgeInsets.all(0),
+              content: Container(
+                padding: EdgeInsets.all(20),
+                width: 500,
+                height: 300,
+                child: Column(
+                  children: [
+                    const Text(
+                      "Añadir a bodega",
+                      style: TextStyle(
+                          // fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Text(
+                            "Producto: ${product.productId.toString()}-${product.productName}"),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: 300,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: DropdownButtonFormField<String>(
+                              isExpanded: true,
+                              hint: Text(
+                                'TODO',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Theme.of(context).hintColor,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              items: specialsToSelect.map((item) {
+                                var parts = item.split('-');
+                                var branchName = parts[1];
+                                return DropdownMenuItem(
+                                  value: item,
+                                  child: Text(
+                                    branchName,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                              value: selectedSpecial,
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedSpecial = value;
+                                });
+
+                                setState(() {});
+                              },
+                              decoration: InputDecoration(
+                                fillColor: Colors.white,
+                                filled: true,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(5.0),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: () async {
+                        //
+                        // print(
+                        //     "${selectedSpecial.toString().split("-")[0].toString()}");
+
+                        var response = await Connections().newProductWarehouse(
+                            product.productId.toString(),
+                            selectedSpecial
+                                .toString()
+                                .split("-")[0]
+                                .toString());
+                        print(response);
+                        if (response != 0) {
+                          // ignore: use_build_context_synchronously
+                          showSuccessModal(
+                              context,
+                              "Ocurrió un error durante la solicitud.",
+                              Icons8.warning_1);
+                        }
+                        Navigator.pop(context);
+                      },
+                      child: Text("Añadir"),
+                    )
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    ).then((value) => setState(() {
+          loadData();
+        }));
   }
 }

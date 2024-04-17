@@ -113,10 +113,8 @@ class _ApproveWarehouseState extends State<ApproveWarehouse> {
                       headingTextStyle: const TextStyle(
                           // fontWeight: FontWeight.bold,
                           color: Colors.black),
-                      dataTextStyle: const TextStyle(
-                          // fontSize: 12,
-                          // fontWeight: FontWeight.bold,
-                          color: Colors.black),
+                      dataTextStyle:
+                          const TextStyle(fontSize: 13, color: Colors.black),
                       columnSpacing: 12,
                       columns: [
                         const DataColumn2(
@@ -160,7 +158,7 @@ class _ApproveWarehouseState extends State<ApproveWarehouse> {
                         ),
                         DataColumn2(
                           label: const Text(''), //btn
-                          size: ColumnSize.S,
+                          size: ColumnSize.M,
                           onSort: (columnIndex, ascending) {
                             // Lógica para ordenar
                           },
@@ -184,9 +182,11 @@ class _ApproveWarehouseState extends State<ApproveWarehouse> {
                               Text(warehouses[index].city.toString()),
                             ),
                             DataCell(
-                              Text(warehouses[index]
-                                  .customerphoneNumber
-                                  .toString()),
+                              Text(warehouses[index].customerphoneNumber == null
+                                  ? ""
+                                  : warehouses[index]
+                                      .customerphoneNumber
+                                      .toString()),
                             ),
                             // DataCell(warehouses[index].approved == 1
                             //     ? const Icon(Icons.check_circle_rounded,
