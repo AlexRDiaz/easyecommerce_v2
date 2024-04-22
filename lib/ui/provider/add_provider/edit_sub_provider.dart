@@ -78,11 +78,20 @@ class _EditSubProviderState extends StateMVC<EditSubProvider> {
     var result = await Connections().getPermissionsSellerPrincipalforNewSeller(
         sharedPrefs!.getString("id"));
 
+    var accesos = jsonDecode(result['accesos']);
+    accesos
+        .removeWhere((element) => element['view_name'] == 'Mis Transacciones');
+
+    var accesosModfiied = {"accesos": jsonEncode(accesos)};
+
+    var resultModified = json.decode(jsonEncode(accesosModfiied));
+
     accessTemp = jsonDecode(widget.provider.permisos);
 
     setState(() {
       accessTemp = accessTemp;
-      accessGeneralofRol = result;
+      // accessGeneralofRol = result;
+      accessGeneralofRol = resultModified;
     });
   }
 

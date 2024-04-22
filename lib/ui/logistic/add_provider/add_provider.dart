@@ -211,21 +211,6 @@ class _AddProviderState extends StateMVC<AddProvider> {
                         },
                         // shape: CircleBorder(),s
                       ),
-                      SizedBox(width: 30),
-                      const Text('Proveedor Sin Bodega Fisica?'),
-                      SizedBox(width: 5),
-                      Checkbox(
-                        value: provWFisico,
-                        onChanged: (value) {
-                          //
-                          setState(() {
-                            provWFisico = value!;
-                            provSpecial = !provWFisico;
-                          });
-                          print("provWFisico:$provWFisico");
-                        },
-                        // shape: CircleBorder(),s
-                      ),
                     ],
                   )
 

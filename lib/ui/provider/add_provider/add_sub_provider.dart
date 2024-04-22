@@ -44,7 +44,7 @@ class _AddSubProviderState extends StateMVC<AddSubProvider> {
   final TextEditingController _descriptionController = TextEditingController();
   String?
       _selectedImageURL; // Esta variable almacenará la URL de la imagen seleccionada
-  final List<dynamic> accessTemp = [];
+  List<dynamic> accessTemp = [];
   List vistas = [];
   List<WarehouseModel> warehousesList = [];
   List<String> warehousesToSelect = [];
@@ -57,6 +57,9 @@ class _AddSubProviderState extends StateMVC<AddSubProvider> {
   void initState() {
     _controller = SubProviderController();
     _warehouseController = WrehouseController();
+    accessTemp = widget.accessTemp;
+    accessTemp.remove('Mis Transacciones');
+
     getWarehouses();
 
     super.initState();
@@ -298,7 +301,8 @@ class _AddSubProviderState extends StateMVC<AddSubProvider> {
                     child: Builder(
                       builder: (context) {
                         return SimpleFilterChips(
-                          chipLabels: widget.accessTemp,
+                          // chipLabels: widget.accessTemp,
+                          chipLabels: accessTemp,
                           onSelectionChanged: (selectedChips) {
                             setState(() {
                               vistas = List.from(selectedChips);
