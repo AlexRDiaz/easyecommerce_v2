@@ -307,14 +307,10 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
     double screenHeight = MediaQuery.of(context).size.height;
 
     return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.0),
-        color: Colors.white,
-      ),
+      width: screenWidth > 600 ? screenWidth * 0.85 : screenWidth,
+      height: screenHeight * 0.9,
+      color: Colors.white,
       padding: EdgeInsets.all(20),
-      width: screenWidth * 70,
-      // color: Colors.amber,
-      height: MediaQuery.of(context).size.height,
       child: Form(
         key: formKey,
         child: Row(
