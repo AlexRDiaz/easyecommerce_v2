@@ -117,7 +117,7 @@ class _PrintedGuidesState extends State<PrintedGuides> {
     for (var i = 0; i < data.length; i++) {
       optionsCheckBox.add({
         "check": false,
-        "variant_details":"",
+        "variant_details": "",
         "id": "",
         "numPedido": "",
         "date": "",
@@ -420,7 +420,10 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                                     selectAll = false;
                                     if (value!) {
                                       optionsCheckBox[index]['check'] = value;
-                                      optionsCheckBox[index]['variant_details'] = data[index]['variant_details'].toString();
+                                      optionsCheckBox[index]
+                                          ['variant_details'] = data[index]
+                                              ['variant_details']
+                                          .toString();
                                       optionsCheckBox[index]['id'] =
                                           data[index]['id'].toString();
                                       optionsCheckBox[index]['numPedido'] =
@@ -473,7 +476,7 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                             DataCell(
                                 Text(
                                     // "${data[index]['attributes']['Name_Comercial'].toString()}-${data[index]['attributes']['NumeroOrden']}"
-                                    "${data[index]["users"][0]["vendedores"][0]["nombre_comercial"].toString()}-${data[index]['numero_orden']}"
+                                    "${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal'].toString() != "null" ? data[index]['tienda_temporal'] : "NaN"}-${data[index]['numero_orden']}"
                                         .toString()), onTap: () {
                               info(context, index);
                             }),

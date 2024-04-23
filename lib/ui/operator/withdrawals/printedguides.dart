@@ -525,8 +525,8 @@ class _PrintedGuidesOperatorState extends State<PrintedGuidesOperator> {
                               })),
                           DataCell(
                               Text(
-                                  // "${data[index]['attributes']['Name_Comercial'].toString()}-${data[index]['attributes']['NumeroOrden']}"
-                                  "${data[index]["users"][0]["vendedores"][0]["nombre_comercial"].toString()}-${data[index]['numero_orden']}"
+                                  // "${data[index]["users"][0]["vendedores"][0]["nombre_comercial"].toString()}-${data[index]['numero_orden']}"
+                                  "${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal'].toString() != "null" ? data[index]['tienda_temporal'] : "NaN"}-${data[index]['numero_orden']}"
                                       .toString()), onTap: () {
                             info(context, index);
                           }),

@@ -352,18 +352,19 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
   @override
   void didChangeDependencies() {
     var currentIndex = sharedPrefs!.getString("index");
-    print("currentIndex: $currentIndex");
-
-    currentView = {
-      "page": sharedPrefs!.getString("index") != null
-          ? pagesProvider[int.parse(sharedPrefs!.getString("index").toString())]
-              ["page"]
-          : "Dashboard",
-      "view": sharedPrefs!.getString("index") != null
-          ? pagesProvider[int.parse(sharedPrefs!.getString("index").toString())]
-              ["view"]
-          : WelcomeProviderScreen()
-    };
+    print(": $currentIndex");
+    print("${pages.length}");
+    // currentView = {
+    //   "page": sharedPrefs!.getString("index") != null
+    //       ? pagesProvider[int.parse(sharedPrefs!.getString("index").toString())]
+    //           ["page"]
+    //       : "Dashboard",
+    //   "view": sharedPrefs!.getString("index") != null
+    //       ? pagesProvider[int.parse(sharedPrefs!.getString("index").toString())]
+    //           ["view"]
+    //       : WelcomeProviderScreen()
+    // };
+    currentView = {"page": "Dashboard", "view": WelcomeProviderScreen()};
     if (sharedPrefs!.getString("index") != null) {
       pages = List.from(pages)
         ..[int.parse(sharedPrefs!.getString("index").toString())]['selected'] =
@@ -622,13 +623,13 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
                       children: [
                         _buildMenu(
                             'Crear', Icon(Icons.person, color: colorlabels), [
-                          _buildMenuItem('Agregar bodegas', 'Bodegas',
-                              Icon(Icons.warehouse, color: colorlabels)),
                           _buildMenuItem(
                               'Agregar proveedor',
                               'Sub Proveedores',
                               Icon(Icons.supervisor_account,
                                   color: colorlabels)),
+                          _buildMenuItem('Agregar bodegas', 'Bodegas',
+                              Icon(Icons.warehouse, color: colorlabels)),
                           _buildMenuItem(
                               'Agregar productos',
                               'Productos',
