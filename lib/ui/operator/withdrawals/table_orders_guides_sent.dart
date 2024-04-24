@@ -660,8 +660,10 @@ class _TableOrdersGuidesSentStateOperator
                           getInfoModal(index);
                         }),
                         DataCell(
-                            Text(data[index]['pedido_fecha'][0]['fecha']
-                                .toString()), onTap: () {
+                            Text(
+                              // data[index]['pedido_fecha'][0]['fecha'].toString(),
+                              data[index]['marca_t_i'] ?? "".toString(),
+                            ), onTap: () {
                           getInfoModal(index);
                         }),
                         DataCell(
@@ -1376,11 +1378,10 @@ class _TableOrdersGuidesSentStateOperator
                 },
                 idWarehouse:
                     "O-${sharedPrefs!.getString("idOperadore").toString()}",
-                    roleInvoke: "4"),
+                roleInvoke: "4"),
           ),
         );
       },
     );
   }
-
 }

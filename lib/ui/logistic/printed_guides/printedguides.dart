@@ -430,9 +430,10 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                                           "${data[index]['users'] != null ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal'].toString()}-${data[index]['numero_orden']}"
                                               .toString();
                                       optionsCheckBox[index]['date'] =
-                                          data[index]['pedido_fecha'][0]
-                                                  ['fecha']
-                                              .toString();
+                                          data[index]['marca_t_i'].toString();
+                                      // data[index]['pedido_fecha'][0]
+                                      //         ['fecha']
+                                      //     .toString();
                                       optionsCheckBox[index]['city'] =
                                           data[index]['ciudad_shipping']
                                               .toString();
@@ -454,7 +455,7 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                                           data[index]['nombre_shipping']
                                               .toString();
                                       optionsCheckBox[index]['transport'] =
-                                          "${data[index]['transportadora'] != null ? data[index]['transportadora'][0]['nombre'].toString() : ''}";
+                                          "${data[index]['transportadora'] != null && data[index]['transportadora'].isNotEmpty ? data[index]['transportadora'][0]['nombre'].toString() : ''}";
                                       optionsCheckBox[index]['address'] =
                                           data[index]['direccion_shipping']
                                               .toString();
@@ -993,7 +994,7 @@ class _PrintedGuidesState extends State<PrintedGuides> {
             optionsCheckBox[i]['price'] = data[i]['precio_total'].toString();
             optionsCheckBox[i]['name'] = data[i]['nombre_shipping'].toString();
             optionsCheckBox[i]['transport'] =
-                "${data[i]['transportadora'] != null ? data[i]['transportadora'][0]['nombre'].toString() : ''}";
+                "${data[i]['transportadora'] != null && data[i]['transportadora'].isNotEmpty ? data[i]['transportadora'][0]['nombre'].toString() : ''}";
             optionsCheckBox[i]['address'] =
                 data[i]['direccion_shipping'].toString();
             optionsCheckBox[i]['obervation'] =

@@ -573,11 +573,12 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                                     "check": value,
                                     "id": data[index]['id'].toString(),
                                     "numPedido":
-                                        "${data[index]['users'] != null ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal'].toString()}-${data[index]['numero_orden']}"
+                                        "${data[index]['users'] != null ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal'] != null ? data[index]['tienda_temporal'].toString() : "NaN"}"
                                             .toString(),
-                                    "date": data[index]['pedido_fecha'][0]
-                                            ['fecha']
-                                        .toString(),
+                                    // "date": data[index]['pedido_fecha'][0]
+                                    //         ['fecha']
+                                    //     .toString(),
+                                    "date": data[index]['marca_t_i'].toString(),
                                     "city": data[index]['ciudad_shipping']
                                         .toString(),
                                     "product":
@@ -594,7 +595,9 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                                     "name": data[index]['nombre_shipping']
                                         .toString(),
                                     "transport":
-                                        data[index]['transportadora'] != null
+                                        data[index]['transportadora'] != null &&
+                                                data[index]['transportadora']
+                                                    .isNotEmpty
                                             ? data[index]['transportadora'][0]
                                                     ['nombre']
                                                 .toString()
@@ -627,8 +630,12 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                             getInfoModal(index);
                           }),
                           DataCell(
-                              Text(data[index]['pedido_fecha'][0]['fecha']
-                                  .toString()), onTap: () {
+                              Text(
+                                // data[index]['pedido_fecha'][0]['fecha'] != []
+                                //     ? data[index]['pedido_fecha'][0]['fecha']
+                                //     : "",
+                                data[index]['marca_t_i'] ?? "".toString(),
+                              ), onTap: () {
                             getInfoModal(index);
                           }),
                           DataCell(
@@ -638,8 +645,9 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                           }),
                           DataCell(
                               Text(
-                                "${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden']}"
-                                    .toString(),
+                                //data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"
+                                "${data[index]['users'] != null ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal'] != null ? data[index]['tienda_temporal'].toString() : "NaN"}-${data[index]['numero_orden']}",
+                                // "",
                                 style: TextStyle(
                                     color: GetColor(
                                         (data[index]['revisado_seller']))!),
@@ -1153,7 +1161,7 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                 .cell(CellIndex.indexByColumnRow(
                     columnIndex: 2, rowIndex: rowIndex + 1))
                 .value =
-            "${data["users"][0]["vendedores"][0]["nombre_comercial"]}-${data["numero_orden"]}";
+            "${data['users'] != null ? data['users'][0]['vendedores'][0]['nombre_comercial'] : data['tienda_temporal'] != null ? data['tienda_temporal'].toString() : "NaN"}-${data["numero_orden"]}";
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 3, rowIndex: rowIndex + 1))
@@ -1278,7 +1286,7 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                     ],
                   ),
                   _model(
-                      "Código: ${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden']}"),
+                      "Código: ${data[index]['users'] != null ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal'] != null ? data[index]['tienda_temporal'].toString() : "NaN"}-${data[index]['numero_orden']}"),
                   _model(
                       "Marca de Tiempo Envio: ${data[index]['marca_tiempo_envio']}"),
                   _model(

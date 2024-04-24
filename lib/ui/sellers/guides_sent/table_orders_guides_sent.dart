@@ -550,11 +550,13 @@ class _TableOrdersGuidesSentStateSeller
                               getInfoModal(index);
                             }),
                             DataCell(
-                                Text(data[index]['pedido_fecha'] != null &&
-                                        data[index]['pedido_fecha'].isNotEmpty
-                                    ? data[index]['pedido_fecha'][0]['fecha']
-                                        .toString()
-                                    : ""), onTap: () {
+                                Text(
+                                  data[index]['pedido_fecha'] != null &&
+                                          data[index]['pedido_fecha'].isNotEmpty
+                                      ? data[index]['pedido_fecha'][0]['fecha']
+                                          .toString()
+                                      : "",
+                                ), onTap: () {
                               getInfoModal(index);
                             }),
                             DataCell(
@@ -567,7 +569,7 @@ class _TableOrdersGuidesSentStateSeller
                                     style: TextStyle(color: GetColor(
                                         // (data[index]['revisado']))!),
                                         (data[index]['revisado_seller']))!),
-                                    '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
+                                    '${data[index]['users'] != null ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal'] != null ? data[index]['tienda_temporal'].toString() : "NaN"}-${data[index]['numero_orden'].toString()}'),
                                 onTap: () {
                               getInfoModal(index);
                             }),

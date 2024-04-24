@@ -672,8 +672,10 @@ class _TableOrdersGuidesSentStateTransport
                           getInfoModal(index);
                         }),
                         DataCell(
-                            Text(data[index]['pedido_fecha'][0]['fecha']
-                                .toString()), onTap: () {
+                            Text(
+                              // data[index]['pedido_fecha'][0]['fecha'].toString(),
+                              data[index]['marca_t_i'] ?? "".toString(),
+                            ), onTap: () {
                           getInfoModal(index);
                         }),
                         DataCell(
@@ -1314,13 +1316,11 @@ class _TableOrdersGuidesSentStateTransport
                   loadData();
                   Navigator.pop(context);
                 },
-                idWarehouse:"",
+                idWarehouse: "",
                 roleInvoke: "3"),
           ),
         );
       },
     );
   }
-
-
 }

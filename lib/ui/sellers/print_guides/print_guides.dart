@@ -369,9 +369,11 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
                                       "numPedido":
                                           "${data[index]['users'] != null ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal'].toString()}-${data[index]['numero_orden']}"
                                               .toString(),
-                                      "date": data[index]['pedido_fecha'][0]
-                                              ['fecha']
-                                          .toString(),
+                                      "date":
+                                          data[index]['marca_t_i'].toString(),
+                                      // data[index]['pedido_fecha'][0]
+                                      //         ['fecha']
+                                      //     .toString(),
                                       "city": data[index]['ciudad_shipping']
                                           .toString(),
                                       "product":
@@ -906,7 +908,9 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
                   _model(
                       "Código: ${data[index]['name_comercial']}-${data[index]['numero_orden']}"),
                   _model(
-                      "Fecha: ${data[index]['pedido_fecha'][0]['fecha'].toString()}"),
+                    // "Fecha: ${data[index]['pedido_fecha'][0]['fecha'].toString()}",
+                    data[index]['marca_t_i'] ?? "".toString(),
+                  ),
                   _model("Nombre Cliente: ${data[index]['nombre_shipping']}"),
                   _model("Teléfono: ${data[index]['telefono_shipping']}"),
                   _model("Detalle: ${data[index]['direccion_shipping']}"),

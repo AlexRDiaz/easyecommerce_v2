@@ -393,7 +393,7 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                                         optionsCheckBox[index]['id'] =
                                             data[index]['id'].toString();
                                         optionsCheckBox[index]['numPedido'] =
-                                            "${data[index]['users'] != null ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal'].toString()}-${data[index]['numero_orden']}"
+                                            "${data[index]['users'] != null ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal'] != null ? data[index]['tienda_temporal'].toString() : "NaN"}-${data[index]['numero_orden']}"
                                                 .toString();
                                         optionsCheckBox[index]['date'] =
                                             data[index]
