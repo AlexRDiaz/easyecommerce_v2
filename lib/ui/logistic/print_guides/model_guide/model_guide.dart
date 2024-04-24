@@ -20,23 +20,26 @@ class ModelGuide extends StatefulWidget {
   final String observation;
   final String qrLink;
   final String idForBarcode;
+  final String provider;
 
-  const ModelGuide(
-      {super.key,
-      required this.numPedido,
-      required this.date,
-      required this.city,
-      required this.product,
-      required this.extraProduct,
-      required this.quantity,
-      required this.phone,
-      required this.price,
-      required this.name,
-      required this.transport,
-      required this.address,
-      required this.observation,
-      required this.qrLink,
-      required this.idForBarcode});
+  const ModelGuide({
+    super.key,
+    required this.numPedido,
+    required this.date,
+    required this.city,
+    required this.product,
+    required this.extraProduct,
+    required this.quantity,
+    required this.phone,
+    required this.price,
+    required this.name,
+    required this.transport,
+    required this.address,
+    required this.observation,
+    required this.qrLink,
+    required this.idForBarcode,
+    this.provider = '',
+  });
 
   @override
   State<ModelGuide> createState() => _ModelGuideState();
@@ -269,6 +272,20 @@ class _ModelGuideState extends State<ModelGuide> {
               ],
             ),
             addDataPackage(),
+            Visibility(
+              visible: widget.provider != "",
+              child: Container(
+                alignment: Alignment.centerRight,
+                padding: EdgeInsets.only(right: 40, bottom: 5),
+                child: Text(
+                  "Bodega: ${widget.provider.toString()}",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: size * 1.8,
+                      fontStyle: FontStyle.italic),
+                ),
+              ),
+            ),
             Divider(
               height: 10,
               color: Colors.black,

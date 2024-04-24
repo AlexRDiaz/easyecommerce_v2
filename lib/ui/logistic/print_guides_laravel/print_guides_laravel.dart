@@ -51,7 +51,12 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
 
   String model = "PedidosShopify";
   var sortFieldDefaultValue = "id:DESC";
-  List populate = ['transportadora', 'users.vendedores','ruta'];
+  List populate = [
+    'transportadora',
+    'users.vendedores',
+    'ruta',
+    'product_s.warehouses.provider'
+  ]; //product_s
   List arrayFiltersAnd = [
     {"/estado_logistico": "PENDIENTE"},
     {"/estado_interno": "CONFIRMADO"}
@@ -355,7 +360,7 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                         });
 
                         if (value!) {
-                          print(data[index]);
+                          // print(data[index]);
                           optionsCheckBox.add({
                             "check": false,
                             "id": data[index]['id'].toString(),
@@ -372,7 +377,7 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                                 data[index]['cantidad_total'].toString(),
                             "phone":
                                 data[index]['telefono_shipping'].toString(),
-                            "price": data[index]['precio_total'].toString(),  
+                            "price": data[index]['precio_total'].toString(),
                             "name": data[index]['nombre_shipping'].toString(),
                             "transport": data[index]['transportadora'] !=
                                         null &&
@@ -389,6 +394,10 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                                 ? data[index]['users'][0]['vendedores'][0]
                                         ['url_tienda']
                                     .toString()
+                                : "",
+                            "provider": data[index]['id_product'] != null
+                                ? getFirstProviderName(
+                                    data[index]['product_s']['warehouses'])
                                 : "",
                           });
                         } else {
@@ -464,6 +473,16 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                     // getInfoModal(index);
                   }),
                 ])));
+  }
+
+  String? getFirstProviderName(List<dynamic> warehouses) {
+    if (warehouses.isNotEmpty) {
+      var firstWarehouse = warehouses[0];
+      if (firstWarehouse['provider'] != null) {
+        return firstWarehouse['provider']['name'];
+      }
+    }
+    return "";
   }
 
   Widget showProgressIndicator(BuildContext context, width, height, progress) {
@@ -586,6 +605,7 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                 qrLink: checkBox['qrLink'],
                 quantity: checkBox['quantity'],
                 transport: checkBox['transport'],
+                provider: checkBox['provider'],
               ),
             ),
           );

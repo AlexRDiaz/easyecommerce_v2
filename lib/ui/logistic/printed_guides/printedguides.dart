@@ -132,6 +132,7 @@ class _PrintedGuidesState extends State<PrintedGuides> {
         "address": "",
         "obervation": "",
         "qrLink": "",
+        "provider": "",
       });
     }
     Future.delayed(Duration(milliseconds: 500), () {
@@ -465,6 +466,11 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                                           data[index]['users'][0]['vendedores']
                                                   [0]['url_tienda']
                                               .toString();
+                                      optionsCheckBox[index]['provider'] =
+                                          data[index]['id_product'] != null
+                                              ? getFirstProviderName(data[index]
+                                                  ['product_s']['warehouses'])
+                                              : "";
 
                                       counterChecks += 1;
                                     } else {
@@ -582,6 +588,16 @@ class _PrintedGuidesState extends State<PrintedGuides> {
         ),
       ),
     );
+  }
+
+  String? getFirstProviderName(List<dynamic> warehouses) {
+    if (warehouses.isNotEmpty) {
+      var firstWarehouse = warehouses[0];
+      if (firstWarehouse['provider'] != null) {
+        return firstWarehouse['provider']['name'];
+      }
+    }
+    return "";
   }
 
   _modelTextField({text, controller}) {
@@ -742,6 +758,7 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                       qrLink: optionsCheckBox[i]['qrLink'],
                       quantity: optionsCheckBox[i]['quantity'],
                       transport: optionsCheckBox[i]['transport'],
+                      provider: optionsCheckBox[i]['provider'],
                     )));
 
                     doc.addPage(pw.Page(
@@ -1001,6 +1018,9 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                 data[i]['observacion'].toString();
             optionsCheckBox[i]['qrLink'] =
                 data[i]['users'][0]['vendedores'][0]['url_tienda'].toString();
+            optionsCheckBox[i]['provider'] = data[i]['id_product'] != null
+                ? getFirstProviderName(data[i]['product_s']['warehouses'])
+                : "";
 
             counterChecks += 1;
           }

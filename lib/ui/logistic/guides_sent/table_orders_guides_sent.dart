@@ -85,6 +85,7 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
     "ruta",
     "sentBy",
     "printedBy",
+    'product_s.warehouses.provider'
   ];
   var idUser = sharedPrefs!.getString("id");
 
@@ -569,6 +570,7 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                                 });
 
                                 if (value!) {
+                                  // print(data[index]);
                                   optionsCheckBox.add({
                                     "check": value,
                                     "id": data[index]['id'].toString(),
@@ -609,6 +611,11 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                                     "qrLink": data[index]['users'][0]
                                             ['vendedores'][0]['url_tienda']
                                         .toString(),
+                                    "provider":
+                                        data[index]['id_product'] != null
+                                            ? getFirstProviderName(data[index]
+                                                ['product_s']['warehouses'])
+                                            : "",
                                   });
                                 } else {
                                   var m = data[index]['id'];
@@ -757,6 +764,16 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
     );
   }
 
+  String? getFirstProviderName(List<dynamic> warehouses) {
+    if (warehouses.isNotEmpty) {
+      var firstWarehouse = warehouses[0];
+      if (firstWarehouse['provider'] != null) {
+        return firstWarehouse['provider']['name'];
+      }
+    }
+    return "";
+  }
+
   Color? GetColor(state) {
     var color;
     if (state == 1 || state == 2) {
@@ -804,6 +821,7 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                       qrLink: optionsCheckBox[i]['qrLink'],
                       quantity: optionsCheckBox[i]['quantity'],
                       transport: optionsCheckBox[i]['transport'],
+                      provider: optionsCheckBox[i]['provider'],
                     )));
 
                     doc.addPage(pw.Page(
