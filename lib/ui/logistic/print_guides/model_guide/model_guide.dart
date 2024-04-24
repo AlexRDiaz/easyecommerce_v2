@@ -278,7 +278,7 @@ class _ModelGuideState extends State<ModelGuide> {
                 alignment: Alignment.centerRight,
                 padding: EdgeInsets.only(right: 40, bottom: 5),
                 child: Text(
-                  "Bodega: ${widget.provider.toString()}",
+                  "Proveedor: ${widget.provider.toString()}",
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: size * 1.8,

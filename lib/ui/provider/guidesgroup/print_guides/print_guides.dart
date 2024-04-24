@@ -432,6 +432,12 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
                                       "qrLink": data[index]['users'][0]
                                               ['vendedores'][0]['url_tienda']
                                           .toString(),
+                                      "provider":
+                                          data[index]['id_product'] != null &&
+                                                  data[index]['id_product'] != 0
+                                              ? getFirstProviderName(data[index]
+                                                  ['product_s']['warehouses'])
+                                              : "",
                                     });
                                   } else {
                                     var m = data[index]['id'];
@@ -615,6 +621,20 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
     );
   }
 
+  String? getFirstProviderName(List<dynamic> warehouses) {
+    if (warehouses.isNotEmpty) {
+      if (warehouses.length > 1) {
+        var firstWarehouse = warehouses[0];
+        if (firstWarehouse['provider'] != null) {
+          return firstWarehouse['provider']['name'];
+        }
+      } else {
+        return "";
+      }
+    }
+    return "";
+  }
+
   Widget showProgressIndicator(BuildContext context, width, height, progress) {
     return Container(
       decoration: BoxDecoration(
@@ -685,6 +705,7 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
                       qrLink: selectedCheckBox[i]['qrLink'],
                       quantity: selectedCheckBox[i]['quantity'],
                       transport: selectedCheckBox[i]['transport'],
+                      provider: selectedCheckBox[i]['provider'],
                     )));
                     doc.addPage(pw.Page(
                       pageFormat: PdfPageFormat(21.0 * cm, 21.0 * cm,
@@ -1014,6 +1035,7 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
           "numPedido":
               "${element['users'] != null ? element['users'][0]['vendedores'][0]['nombre_comercial'] : element['tienda_temporal'].toString()}-${element['numero_orden']}"
                   .toString(),
+          // "date": element['pedido_fecha'][0]['fecha'].toString(),
           "date": element['pedido_fecha'][0]['fecha'].toString(),
           "city": element['ciudad_shipping'].toString(),
           "product": element['producto_p'].toString(),
@@ -1029,6 +1051,10 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
           "obervation": element['observacion'].toString(),
           "qrLink":
               element['users'][0]['vendedores'][0]['url_tienda'].toString(),
+          "provider":
+              element['id_product'] != null && element['id_product'] != 0
+                  ? getFirstProviderName(element['product_s']['warehouses'])
+                  : "",
         });
       }
     } else {

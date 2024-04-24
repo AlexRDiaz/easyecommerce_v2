@@ -395,7 +395,8 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                                         ['url_tienda']
                                     .toString()
                                 : "",
-                            "provider": data[index]['id_product'] != null
+                            "provider": data[index]['id_product'] != null &&
+                                    data[index]['id_product'] != 0
                                 ? getFirstProviderName(
                                     data[index]['product_s']['warehouses'])
                                 : "",

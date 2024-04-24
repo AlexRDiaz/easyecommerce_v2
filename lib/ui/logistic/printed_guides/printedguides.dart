@@ -467,7 +467,8 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                                                   [0]['url_tienda']
                                               .toString();
                                       optionsCheckBox[index]['provider'] =
-                                          data[index]['id_product'] != null
+                                          data[index]['id_product'] != null &&
+                                                  data[index]['id_product'] != 0
                                               ? getFirstProviderName(data[index]
                                                   ['product_s']['warehouses'])
                                               : "";

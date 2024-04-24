@@ -556,6 +556,12 @@ class _TableOrdersGuidesSentStateProvider
                                       "qrLink": data[index]['users'][0]
                                               ['vendedores'][0]['url_tienda']
                                           .toString(),
+                                      "provider":
+                                          data[index]['id_product'] != null &&
+                                                  data[index]['id_product'] != 0
+                                              ? getFirstProviderName(data[index]
+                                                  ['product_s']['warehouses'])
+                                              : "",
                                     });
                                   } else {
                                     var m = data[index]['id'];
@@ -694,6 +700,20 @@ class _TableOrdersGuidesSentStateProvider
     );
   }
 
+  String? getFirstProviderName(List<dynamic> warehouses) {
+    if (warehouses.isNotEmpty) {
+      if (warehouses.length > 1) {
+        var firstWarehouse = warehouses[0];
+        if (firstWarehouse['provider'] != null) {
+          return firstWarehouse['provider']['name'];
+        }
+      } else {
+        return "";
+      }
+    }
+    return "";
+  }
+
   Container _buttons() {
     return Container(
       margin: EdgeInsets.all(3.0),
@@ -731,6 +751,7 @@ class _TableOrdersGuidesSentStateProvider
                       qrLink: selectedCheckBox[i]['qrLink'],
                       quantity: selectedCheckBox[i]['quantity'],
                       transport: selectedCheckBox[i]['transport'],
+                      provider: selectedCheckBox[i]['provider'],
                     )));
 
                     doc.addPage(pw.Page(

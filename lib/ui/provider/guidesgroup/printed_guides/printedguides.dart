@@ -163,6 +163,7 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
         "address": "",
         "obervation": "",
         "qrLink": "",
+        "provider": "",
       });
     }
     Future.delayed(Duration(milliseconds: 500), () {
@@ -454,7 +455,14 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
                                             ['qrLink'] = data[index]['users'][0]
                                                 ['vendedores'][0]['url_tienda']
                                             .toString();
-
+                                        optionsCheckBox[index]['provider'] =
+                                            data[index]['id_product'] != null &&
+                                                    data[index]['id_product'] !=
+                                                        0
+                                                ? getFirstProviderName(
+                                                    data[index]['product_s']
+                                                        ['warehouses'])
+                                                : "";
                                         counterChecks += 1;
                                       } else {
                                         optionsCheckBox[index]['check'] = value;
@@ -553,6 +561,20 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
     );
   }
 
+  String? getFirstProviderName(List<dynamic> warehouses) {
+    if (warehouses.isNotEmpty) {
+      if (warehouses.length > 1) {
+        var firstWarehouse = warehouses[0];
+        if (firstWarehouse['provider'] != null) {
+          return firstWarehouse['provider']['name'];
+        }
+      } else {
+        return "";
+      }
+    }
+    return "";
+  }
+
   _modelTextField({text, controller}) {
     return Container(
       width: double.infinity,
@@ -643,6 +665,7 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
                       qrLink: optionsCheckBox[i]['qrLink'],
                       quantity: optionsCheckBox[i]['quantity'],
                       transport: optionsCheckBox[i]['transport'],
+                      provider: optionsCheckBox[i]['provider'],
                     )));
 
                     doc.addPage(pw.Page(
@@ -891,6 +914,10 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
                 data[i]['observacion'].toString();
             optionsCheckBox[i]['qrLink'] =
                 data[i]['users'][0]['vendedores'][0]['url_tienda'].toString();
+            optionsCheckBox[i]['provider'] =
+                data[i]['id_product'] != null && data[i]['id_product'] != 0
+                    ? getFirstProviderName(data[i]['product_s']['warehouses'])
+                    : "";
 
             counterChecks += 1;
           }
