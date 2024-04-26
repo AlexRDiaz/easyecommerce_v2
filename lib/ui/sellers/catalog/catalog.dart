@@ -2000,7 +2000,7 @@ class _CatalogState extends State<Catalog> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Visibility(
-                            visible: idUser == 2,
+                            visible: idUser == 2 || idUser == 188,
                             child: _buttonCreateGuide(product, context),
                           ),
                           const SizedBox(width: 30),

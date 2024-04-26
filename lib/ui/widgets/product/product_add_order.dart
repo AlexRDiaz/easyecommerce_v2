@@ -559,6 +559,12 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                       calculateTotalWPrice();
                                       calculateTotalQuantity();
                                     });
+                                  } else {
+                                    setState(() {
+                                      variantsDetailsList.clear();
+                                      calculateTotalWPrice();
+                                      calculateTotalQuantity();
+                                    });
                                   }
                                 },
                               );
@@ -729,13 +735,20 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                             .toList(),
                         value: selectedCarrierType,
                         onChanged: (value) async {
-                          setState(() {
-                            selectedCarrierType = value as String;
-                          });
-                          if (selectedCarrierType == "Externo") {
-                            getCarriersExternals();
+                          if (variantsDetailsList.isEmpty) {
+                            showSuccessModal(
+                                context,
+                                "Por favor, debe al menos añadir un producto.",
+                                Icons8.alert);
+                          } else {
+                            setState(() {
+                              selectedCarrierType = value as String;
+                            });
+                            if (selectedCarrierType == "Externo") {
+                              getCarriersExternals();
+                            }
+                            // await getTransports();
                           }
-                          // await getTransports();
                         },
                       ),
                     ),

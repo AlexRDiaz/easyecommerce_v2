@@ -575,7 +575,7 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                                     "check": value,
                                     "id": data[index]['id'].toString(),
                                     "numPedido":
-                                        "${data[index]['users'] != null ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal'] != null ? data[index]['tienda_temporal'].toString() : "NaN"}"
+                                        "${data[index]['users'] != null ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal'] != null ? data[index]['tienda_temporal'].toString() : "NaN"}-${data[index]['numero_orden']}"
                                             .toString(),
                                     // "date": data[index]['pedido_fecha'][0]
                                     //         ['fecha']
