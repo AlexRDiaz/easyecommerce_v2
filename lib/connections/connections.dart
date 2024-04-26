@@ -1368,6 +1368,26 @@ class Connections {
     }
   }
 
+  getCarrierExternalActive() async {
+    try {
+      var response = await http.get(
+        Uri.parse("$serverLaravel/api/carrierexternal/active"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      // var decodeData = json.decode(response);
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else if (response.statusCode == 400) {
+        print("Error 400: Bad Request");
+      } else {
+        print("Error ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Ocurrió un error durante la solicitud: $error");
+    }
+  }
+
   getActiveTransportadoras() async {
     try {
       var response = await http.get(
@@ -5673,6 +5693,44 @@ class Connections {
     try {
       var request = await http.post(
           Uri.parse("$serverLaravel/api/shippingcost/bytransportadora/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(
+              // {"month": month, "year": DateTime.now().year.toString()}));
+              {"month": month, "year": year}));
+      var response = await request.body;
+
+      // if (request.statusCode != 200) {
+      //   return false;
+      // } else {
+      //   if (decodeData['data'] == null) {
+      //     return [];
+      //   } else {
+      //     return decodeData['data'];
+      //   }
+      // }
+      if (request.statusCode == 204) {
+        return [];
+      } else if (request.statusCode == 200) {
+        var decodeData = json.decode(response);
+        if (decodeData['data'] == null) {
+          return [];
+        } else {
+          return decodeData['data'];
+        }
+      }
+    } catch (e) {
+      print("error: $e");
+    }
+  }
+
+  // ! EXTERNALS
+
+  Future getOrdersSCalendarLaravelExternal(id, month, year) async {
+    print('$id: $month/$year');
+    try {
+      var request = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/shippingcost/bytransportadoraexternal/$id"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode(
               // {"month": month, "year": DateTime.now().year.toString()}));
