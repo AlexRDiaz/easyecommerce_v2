@@ -8,10 +8,13 @@ import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
+import 'package:frontend/ui/logistic/external_carrier_billing/controllers/orders_day_view.dart';
 import 'package:frontend/ui/logistic/proof_payment/create_report_proof.dart';
 import 'package:frontend/ui/logistic/vendor_invoices/controllers/controllers.dart';
+import 'package:frontend/ui/transport/payment_vouchers_transport/orders_day_view.dart';
 import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/amount_row.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../helpers/navigators.dart';
@@ -56,13 +59,10 @@ class _ExternalCarrierBilling2 extends State<ExternalCarrierBilling> {
   getOrders() async {
     selectedChecks = [];
 
-    
-
     var responseL = await Connections().getOrdersSCalendarLaravelExternal(
         selectedValueTransportator.toString().split("-")[1].toString(),
         selectedValueMonth.toString().split("-")[1].toString(),
-        selectedValueYear.toString()
-        );
+        selectedValueYear.toString());
 
     setState(() {
       if (responseL != null) {
@@ -154,7 +154,8 @@ class _ExternalCarrierBilling2 extends State<ExternalCarrierBilling> {
       }
     }
 
-    var responsetransportadoras = await Connections().getCarrierExternalActive();
+    var responsetransportadoras =
+        await Connections().getCarrierExternalActive();
     transportatorList = responsetransportadoras['transportadoras'];
     for (var i = 0; i < transportatorList.length; i++) {
       setState(() {
@@ -245,6 +246,7 @@ class _ExternalCarrierBilling2 extends State<ExternalCarrierBilling> {
                                 setState(() {
                                   selectedValueTransportator = value as String;
                                 });
+                                // print("ak-> $selectedValueTransportator");
                               },
                               //This to clear the search value when you close the menu
                               onMenuStateChange: (isOpen) {
@@ -641,29 +643,29 @@ class _ExternalCarrierBilling2 extends State<ExternalCarrierBilling> {
                                                   // fontWeight: FontWeight.bold,
                                                   ),
                                             ),
-                                          const TextSpan(text: "\n"),
-                                          if (getByDay2(index + 1)[0]
-                                                  ["daily_shipping_cost"] !=
-                                              null)
-                                            TextSpan(
-                                              text:
-                                                  "Costo Entrega: \$${getByDay2(index + 1)[0]["daily_shipping_cost"].toString()}",
-                                              style: const TextStyle(
-                                                  // fontWeight: FontWeight.bold,
-                                                  ),
-                                            ),
-                                          const TextSpan(text: "\n"),
-                                          if (getByDay2(index + 1)[0]
-                                                  ["daily_total"] !=
-                                              null)
-                                            TextSpan(
-                                              text:
-                                                  "Total: \$${getByDay2(index + 1)[0]["daily_total"].toString()}",
-                                              style: TextStyle(
-                                                // fontWeight: FontWeight.bold,
-                                                color: Colors.indigo[600],
-                                              ),
-                                            ),
+                                          // const TextSpan(text: "\n"),
+                                          // if (getByDay2(index + 1)[0]
+                                          //         ["daily_shipping_cost"] !=
+                                          //     null)
+                                          //   TextSpan(
+                                          //     text:
+                                          //         "Costo Entrega: \$${getByDay2(index + 1)[0]["daily_shipping_cost"].toString()}",
+                                          //     style: const TextStyle(
+                                          //         // fontWeight: FontWeight.bold,
+                                          //         ),
+                                          //   ),
+                                          // const TextSpan(text: "\n"),
+                                          // if (getByDay2(index + 1)[0]
+                                          //         ["daily_total"] !=
+                                          //     null)
+                                          //   TextSpan(
+                                          //     text:
+                                          //         "Total: \$${getByDay2(index + 1)[0]["daily_total"].toString()}",
+                                          //     style: TextStyle(
+                                          //       // fontWeight: FontWeight.bold,
+                                          //       color: Colors.indigo[600],
+                                          //     ),
+                                          //   ),
                                         ],
                                       ),
                                     ),
@@ -818,183 +820,413 @@ class _ExternalCarrierBilling2 extends State<ExternalCarrierBilling> {
       TextEditingController _rechazado = TextEditingController();
 
       _rechazado.text = comentario;
+      // ! ESTO SE QUITA PARA QUE FUNCIONE COMO EN TRANSPORTADORA
+      // if (status == "PENDIENTE" && dataDay[0]['url_proof_payment'] == null) {
+      //   AwesomeDialog(
+      //     width: 500,
+      //     context: context,
+      //     dialogType: DialogType.error,
+      //     animType: AnimType.rightSlide,
+      //     title: 'Se requiere que el Comprobante se encuentre en estado Pagado',
+      //     desc: '',
+      //     btnCancel: Container(),
+      //     btnOkText: "Aceptar",
+      //     btnOkColor: colors.colorGreen,
+      //     btnCancelOnPress: () {},
+      //     btnOkOnPress: () {},
+      //   ).show();
+      // } else {
+      //   showDialog(
+      //     context: context,
+      //     builder: (context) {
+      //       return AlertDialog(
+      //         content: Container(
+      //           width: 500,
+      //           height: MediaQuery.of(context).size.height,
+      //           child: ListView(
+      //             children: [
+      //               const Text(
+      //                 "Detalles",
+      //                 style: TextStyle(
+      //                     color: Colors.black, fontWeight: FontWeight.bold),
+      //               ),
+      //               Text("Valores Recibidos: \$$valoresRecibidos"),
+      //               Text("Costo Entrega: \$$costoEntrega"),
+      //               Text("Total: \$$total"),
+      //               const Divider(),
+      //               status != "DEPOSITO REALIZADO"
+      //                   ? Visibility(
+      //                       visible: true,
+      //                       child: Column(
+      //                         children: [
+      //                           TextButton(
+      //                             onPressed: () async {
+      //                               getLoadingModal(context, false);
+      //                               var data = await Connections()
+      //                                   .updateTransportadorasShippingCostLaravel(
+      //                                       "RECIBIDO", id);
 
-      if (status == "PENDIENTE" && dataDay[0]['url_proof_payment'] == null) {
-        AwesomeDialog(
-          width: 500,
-          context: context,
-          dialogType: DialogType.error,
-          animType: AnimType.rightSlide,
-          title: 'Se requiere que el Comprobante se encuentre en estado Pagado',
-          desc: '',
-          btnCancel: Container(),
-          btnOkText: "Aceptar",
-          btnOkColor: colors.colorGreen,
-          btnCancelOnPress: () {},
-          btnOkOnPress: () {},
-        ).show();
-      } else {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              content: Container(
-                width: 500,
-                height: MediaQuery.of(context).size.height,
-                child: ListView(
-                  children: [
-                    const Text(
-                      "Detalles",
-                      style: TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.bold),
-                    ),
-                    Text("Valores Recibidos: \$$valoresRecibidos"),
-                    Text("Costo Entrega: \$$costoEntrega"),
-                    Text("Total: \$$total"),
-                    const Divider(),
-                    status != "DEPOSITO REALIZADO"
-                        ? Visibility(
-                            visible: true,
-                            child: Column(
-                              children: [
-                                TextButton(
-                                  onPressed: () async {
-                                    getLoadingModal(context, false);
-                                    var data = await Connections()
-                                        .updateTransportadorasShippingCostLaravel(
-                                            "RECIBIDO", id);
+      //                               //update estado_pago_logistica  a todos los pedidos en estas fechas
+      //                               updateOrdersPerDay(
+      //                                   selectedValueTransportator
+      //                                       .toString()
+      //                                       .split("-")[1]
+      //                                       .toString(),
+      //                                   fecha,
+      //                                   "RECIBIDO",
+      //                                   "");
 
-                                    //update estado_pago_logistica  a todos los pedidos en estas fechas
-                                    updateOrdersPerDay(
-                                        selectedValueTransportator
-                                            .toString()
-                                            .split("-")[1]
-                                            .toString(),
-                                        fecha,
-                                        "RECIBIDO",
-                                        "");
+      //                               daysM = [];
+      //                               selectedChecks = [];
+      //                               counterChecks = 0;
+      //                               await getOrders();
+      //                               Navigator.pop(context);
+      //                               Navigator.pop(context);
+      //                             },
+      //                             child: const Text(
+      //                               "MARCAR RECIBIDO",
+      //                               style: TextStyle(
+      //                                 fontWeight: FontWeight.bold,
+      //                                 color: Color.fromARGB(255, 72, 186, 131),
+      //                               ),
+      //                             ),
+      //                           ),
+      //                           const SizedBox(
+      //                             height: 15,
+      //                           ),
+      //                           const Divider(),
+      //                           const Text(
+      //                             "Para marcar como rechazado primero llenar el campo de texto y luego aplastar el botón rechazado",
+      //                             style: TextStyle(
+      //                               fontSize: 10,
+      //                               color: Colors.black,
+      //                               fontWeight: FontWeight.bold,
+      //                             ),
+      //                           ),
+      //                           const SizedBox(
+      //                             height: 10,
+      //                           ),
+      //                           TextField(
+      //                             controller: _rechazado,
+      //                             style: const TextStyle(
+      //                                 fontWeight: FontWeight.bold),
+      //                             decoration: const InputDecoration(
+      //                               hintText: "Comentario de Rechazado",
+      //                             ),
+      //                           ),
+      //                           const SizedBox(
+      //                             height: 10,
+      //                           ),
+      //                           TextButton(
+      //                             onPressed: () async {
+      //                               getLoadingModal(context, false);
+      //                               var data = await Connections()
+      //                                   .updateTransportadorasShippingCostRechazadoLaravel(
+      //                                       id, _rechazado.text);
 
-                                    daysM = [];
-                                    selectedChecks = [];
-                                    counterChecks = 0;
-                                    await getOrders();
-                                    Navigator.pop(context);
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text(
-                                    "MARCAR RECIBIDO",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Color.fromARGB(255, 72, 186, 131),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 15,
-                                ),
-                                const Divider(),
-                                const Text(
-                                  "Para marcar como rechazado primero llenar el campo de texto y luego aplastar el botón rechazado",
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                TextField(
-                                  controller: _rechazado,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                  decoration: const InputDecoration(
-                                    hintText: "Comentario de Rechazado",
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                TextButton(
-                                  onPressed: () async {
-                                    getLoadingModal(context, false);
-                                    var data = await Connections()
-                                        .updateTransportadorasShippingCostRechazadoLaravel(
-                                            id, _rechazado.text);
+      //                               //update estado_pago_logistica  a todos los pedidos en estas fechas
+      //                               updateOrdersPerDay(
+      //                                   selectedValueTransportator
+      //                                       .toString()
+      //                                       .split("-")[1]
+      //                                       .toString(),
+      //                                   fecha,
+      //                                   "RECHAZADO",
+      //                                   _rechazado.text);
 
-                                    //update estado_pago_logistica  a todos los pedidos en estas fechas
-                                    updateOrdersPerDay(
-                                        selectedValueTransportator
-                                            .toString()
-                                            .split("-")[1]
-                                            .toString(),
-                                        fecha,
-                                        "RECHAZADO",
-                                        _rechazado.text);
-
-                                    daysM = [];
-                                    selectedChecks = [];
-                                    counterChecks = 0;
-                                    await getOrders();
-                                    Navigator.pop(context);
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text(
-                                    "RECHAZADO",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.redAccent,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        : Container(),
-                    const Divider(),
-                    const Text(
-                      "Comprobante:",
-                      style: TextStyle(),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    dataDay[0]['url_proof_payment'] == null
-                        ? Container()
-                        : SizedBox(
-                            width: 430,
-                            height: 400,
-                            child: ListView(
-                              children: [
-                                Image.network(
-                                  "$generalServer${dataDay[0]['url_proof_payment'].toString()}",
-                                  // fit: BoxFit.none,
-                                  fit: BoxFit.fill,
-                                ),
-                              ],
-                            ),
-                          ),
-                    const Divider(),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    TextButton(
-                        onPressed: () {
+      //                               daysM = [];
+      //                               selectedChecks = [];
+      //                               counterChecks = 0;
+      //                               await getOrders();
+      //                               Navigator.pop(context);
+      //                               Navigator.pop(context);
+      //                             },
+      //                             child: const Text(
+      //                               "RECHAZADO",
+      //                               style: TextStyle(
+      //                                 fontWeight: FontWeight.bold,
+      //                                 color: Colors.redAccent,
+      //                               ),
+      //                             ),
+      //                           ),
+      //                         ],
+      //                       ),
+      //                     )
+      //                   : Container(),
+      //               const Divider(),
+      //               const Text(
+      //                 "Comprobante:",
+      //                 style: TextStyle(),
+      //               ),
+      //               const SizedBox(
+      //                 height: 20,
+      //               ),
+      //               dataDay[0]['url_proof_payment'] == null
+      //                   ? Container()
+      //                   : SizedBox(
+      //                       width: 430,
+      //                       height: 400,
+      //                       child: ListView(
+      //                         children: [
+      //                           Image.network(
+      //                             "$generalServer${dataDay[0]['url_proof_payment'].toString()}",
+      //                             // fit: BoxFit.none,
+      //                             fit: BoxFit.fill,
+      //                           ),
+      //                         ],
+      //                       ),
+      //                     ),
+      //               const Divider(),
+      //               const SizedBox(
+      //                 height: 5,
+      //               ),
+      //               TextButton(
+      //                   onPressed: () {
+      //                     Navigator.pop(context);
+      //                   },
+      //                   child: const Text(
+      //                     "SALIR",
+      //                     style: TextStyle(
+      //                         color: Colors.blueAccent,
+      //                         fontWeight: FontWeight.bold),
+      //                   )),
+      //             ],
+      //           ),
+      //         ),
+      //       );
+      //     },
+      //   );
+      // }
+      // ! *******************************************************************
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Container(
+              width: 700,
+              height: MediaQuery.of(context).size.height,
+              child: ListView(
+                children: [
+                  const Text(
+                    "Detalles",
+                    style: TextStyle(
+                        color: Colors.black, fontWeight: FontWeight.bold),
+                  ),
+                  Text("Valores Recibidos: \$$valoresRecibidos"),
+                  // Text("Costo Entrega: \$$costoEntrega"),
+                  // Text("Total: \$$total"),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () async {
                           Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    OrdersDayViewExtenalCarrier(
+                                      chozenDate: fecha,
+                                      idExternalCarrier: int.parse(
+                                          selectedValueTransportator!
+                                              .split('-')[1]),
+                                      dailyProceeds: valoresRecibidos,
+                                      dailyShippingCost: costoEntrega,
+                                      dailyTotal: total,
+                                    )),
+                          );
                         },
                         child: const Text(
-                          "SALIR",
+                          "Detalles de Guías",
                           style: TextStyle(
-                              color: Colors.blueAccent,
-                              fontWeight: FontWeight.bold),
-                        )),
-                  ],
-                ),
+                            fontWeight: FontWeight.bold,
+                            //  fontSize: 16
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Divider(),
+                  const Text(
+                    "Comprobante:",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  ((status == "PAGADO" ||
+                              status == "PENDIENTE" ||
+                              status == "RECHAZADO") &&
+                          (dataDay[0]['url_proof_payment'] != null &&
+                              dataDay[0]['url_proof_payment'] != ""))
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IconButton(
+                              iconSize: 20,
+                              onPressed: () async {
+                                getLoadingModal(context, false);
+
+                                var responseUptDelete = await Connections()
+                                    .updateGeneralTransportadoraShippingCostLaravel(
+                                        id, {
+                                  "status": "PENDIENTE",
+                                  "url_proof_payment": ""
+                                });
+
+                                // updateOrdersPerDay(
+                                //     idTransp, fechaSelect, "PENDIENTE", "");
+
+                                daysM = [];
+                                selectedChecks = [];
+                                counterChecks = 0;
+                                await getOrders();
+                                Navigator.pop(context);
+                                Navigator.pop(context);
+                              },
+                              icon: const Icon(
+                                Icons.restore_from_trash_outlined,
+                                color: Colors.redAccent,
+                              ),
+                            ),
+                          ],
+                        )
+                      : const SizedBox(),
+                  (dataDay[0]['url_proof_payment'] == null ||
+                          dataDay[0]['url_proof_payment'] == "")
+                      ? Container()
+                      : SizedBox(
+                          width: 650,
+                          height: 500,
+                          child: ListView(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.network(
+                                    // proof,
+                                    "$generalServer${dataDay[0]['url_proof_payment'].toString()}",
+                                    //generalServerApiLaravel
+                                    // "$generalServerApiLaravel/storage${dataDay[0]['url_proof_payment'].toString()}",
+
+                                    fit: BoxFit.fill,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                  ((status == "PAGADO" ||
+                              status == "PENDIENTE" ||
+                              status == "RECHAZADO") &&
+                          (dataDay[0]['url_proof_payment'] == null ||
+                              dataDay[0]['url_proof_payment'] == ""))
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () async {
+                                final ImagePicker picker = ImagePicker();
+                                final XFile? image = await picker.pickImage(
+                                    source: ImageSource.gallery);
+
+                                if (image!.path.isNotEmpty &&
+                                    image!.path.toString() != "null") {
+                                  getLoadingModal(context, false);
+
+                                  var responseI =
+                                      await Connections().postDoc(image);
+                                  // print("responseILaravel: $responseI[1]");
+
+                                  // var responseIL =
+                                  //     await Connections().postDocLaravel(image);
+                                  // print("responseILaravel: $responseIL");
+                                  //create o update EN LA NUEVA TABLA
+                                  if (id == "new123id") {
+                                    //createTraspShippingCost
+                                    // print("createTraspShippingCost");
+
+                                    // var response = await Connections()
+                                    //     .createTraspShippingCost(
+                                    //         idTransp,
+                                    //         totalShippingCost,
+                                    //         totalProceeds,
+                                    //         total,
+                                    //         responseI[1]
+                                    //         // responseIL,
+                                    //         );
+                                  } else {
+                                    //update
+                                    // print("TSC to update");
+                                    // print(
+                                    //     "totalShippingCost: $totalShippingCost; totalProceeds: $totalProceeds; total: $total");
+                                    // var responseUpt = await Connections()
+                                    //     .updateGeneralTransportadoraShippingCostLaravel(
+                                    //         id, {
+                                    //   "status": "PAGADO",
+                                    //   "daily_shipping_cost": totalShippingCost,
+                                    //   "daily_proceeds": totalProceeds,
+                                    //   "daily_total": total,
+                                    //   "rejected_reason": "",
+                                    //   "url_proof_payment": responseI[1]
+                                    //   // "url_proof_payment": responseIL
+                                    // });
+                                    //
+                                  }
+
+                                  // updateOrdersPerDay(idTransp, fechaSelect,
+                                  //     "PAGADO", responseI[1]);
+
+                                  // ! se mantiene igual los comentarios bajo esta linea
+                                  // updateOrdersPerDay(idTransp, fechaSelect,
+                                  //     "PAGADO", responseIL);
+                                  // ! ******************************
+                                  daysM = [];
+                                  selectedChecks = [];
+                                  counterChecks = 0;
+                                  await getOrders();
+                                  Navigator.pop(context);
+                                  Navigator.pop(context);
+                                } else {
+                                  print("No img");
+                                }
+                              },
+                              //#4355B9
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF4355B9),
+                              ),
+                              child: const Text(
+                                "REALIZAR PAGO",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 12),
+                              ),
+                            ),
+                          ],
+                        )
+                      : const SizedBox(),
+                  const Divider(),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text(
+                        "SALIR",
+                        style: TextStyle(
+                            color: Colors.blueAccent,
+                            fontWeight: FontWeight.bold),
+                      )),
+                ],
               ),
-            );
-          },
-        );
-      }
+            ),
+          );
+        },
+      );
     } else {
       // print("No existen datos");
       AwesomeDialog(

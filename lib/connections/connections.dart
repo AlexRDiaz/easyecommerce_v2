@@ -5449,6 +5449,49 @@ class Connections {
     }
   }
 
+  getValuesExternalCarrierLaravel(
+      arrayfiltersDefaultAnd, dateFilter, idUser) async {
+    try {
+      print(json.encode({
+        "date_filter": dateFilter,
+        "start": sharedPrefs!.getString("dateDesdeVendedor"),
+        "end": sharedPrefs!.getString("dateHastaVendedor"),
+        "or": [],
+        "and": arrayfiltersDefaultAnd,
+        "not": [],
+        "id_user": idUser,
+      }));
+      int res = 0;
+      var request = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/pedidos-shopify/values/external_carrier"),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode({
+            "date_filter": dateFilter,
+            "start": sharedPrefs!.getString("dateDesdeVendedor"),
+            "end": sharedPrefs!.getString("dateHastaVendedor"),
+            "or": [],
+            "and": arrayfiltersDefaultAnd,
+            "not": [],
+            "id_user": idUser,
+          }));
+
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        res = 1;
+        print("res:" + res.toString());
+      } else {
+        print("res:" + res.toString());
+      }
+      return decodeData;
+    } catch (e) {
+      return (e);
+    }
+  }
+
 // ! para estado de cuente2
 
 // ** Mi cuenta vendedor
@@ -9381,6 +9424,45 @@ class Connections {
           Uri.parse("$serverLaravel/api/all-referers-of"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({"id": id}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return decodeData;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  // ! nuevo metodo
+  updatePaymentCostDelivery(ids, state) async {
+    try {
+      var request = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/pedidos-shopify/update-payment-cost-delivery"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"state": state, "ids": ids}));
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return decodeData;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  updatePaymentCostDeliveryInd(id) async {
+    try {
+      var request = await http.put(
+          Uri.parse(
+              "$serverLaravel/api/pedidos-shopify/update-payment-cost-delivery/ind/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"state": false}));
       var response = await request.body;
       var decodeData = json.decode(response);
       if (request.statusCode != 200) {

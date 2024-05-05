@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'dart:js_util';
 
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter_animated_icons/icons8.dart';
+import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/commons.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
@@ -23,6 +25,7 @@ import 'package:frontend/ui/transport/delivery_status_transport/delivery_details
 import 'package:frontend/ui/transport/my_orders_prv/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:frontend/ui/widgets/box_values.dart';
+import 'package:frontend/ui/widgets/box_values_external_carrier.dart';
 import 'package:frontend/ui/widgets/box_values_provider.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
@@ -116,6 +119,7 @@ class _DeliveryStatusExternalCarrierState
   bool changevalue = false;
 
   String selectedDateFilter = "FECHA ENTREGA";
+  String selectedExt = "Gintracom-1";
   // ! estos 3 se usan para el dorpdown de transportadoras externas
   List<String> transportator = ["TODO"];
   // String? selectedValueTransportator;
@@ -193,6 +197,11 @@ class _DeliveryStatusExternalCarrierState
   List<String> listDateFilter = [
     'FECHA ENVIO',
     'FECHA ENTREGA',
+    'FECHA DEVOLUCION'
+  ];
+
+  List<String> listExt = [
+    'Gintracom-1',
   ];
 
   List<String> listEstadoLogistico = [
@@ -264,7 +273,12 @@ class _DeliveryStatusExternalCarrierState
       // var responseValues = await Connections()
       //     .getValuesProviderLaravel(arrayfiltersDefaultAnd, selectedDateFilter);
 
-      // print("ak-> $responseValues");
+      var responseValues = await Connections().getValuesExternalCarrierLaravel(
+          arrayfiltersDefaultAnd,
+          selectedDateFilter,
+          selectedExt.split('-')[1]);
+
+      print("ak-> $responseValues");
       var responsetransportadoras =
           await Connections().getCarrierExternalActive();
       // ! *********************************
@@ -296,7 +310,7 @@ class _DeliveryStatusExternalCarrierState
               sortFieldDefaultValue);
       // print("data> $responseLaravel");
       // dataCounters = responseCounters;
-      // valuesTransporter = responseValues['data'];
+      valuesTransporter = responseValues['data'];
       data = responseLaravel['data'];
 
       // totallast = responseLaravel['total'];
@@ -306,7 +320,7 @@ class _DeliveryStatusExternalCarrierState
       paginatorController.navigateToPage(0);
 
       // updateCounters();
-      // calculateValues();
+      calculateValues();
 
       print("datos cargados correctamente");
 
@@ -419,6 +433,23 @@ class _DeliveryStatusExternalCarrierState
     //
   }
 
+  List<int> selectedIds = [];
+
+  void toggleSelection(int id, bool isSelected) {
+    setState(() {
+      if (isSelected) {
+        selectedIds.add(id);
+      } else {
+        selectedIds.remove(id);
+      }
+    });
+  }
+
+  Future<void> sendSelectedIds() async {
+    await Connections().updatePaymentCostDelivery(selectedIds, true);
+    selectedIds.clear();
+  }
+
   @override
   Widget build(BuildContext context) {
     //unit packages
@@ -527,12 +558,11 @@ class _DeliveryStatusExternalCarrierState
                               ),
                               Container(
                                 padding: EdgeInsets.all(10),
-                                child: boxValuesProvider(
+                                child: boxValuesExternalCarrier(
                                     totalValoresRecibidos:
                                         totalValoresRecibidos,
-                                    retirosefectivo: costoDeEntregas,
-                                    saldoactual: devoluciones,
-                                    utilidad: utilidad),
+                                    costoEntrega: costoDeEntregas,
+                                    costoDevolucion: devoluciones),
                               ),
                             ],
                           ),
@@ -561,12 +591,11 @@ class _DeliveryStatusExternalCarrierState
                               ),
                               Container(
                                 padding: EdgeInsets.all(10),
-                                child: boxValuesProvider(
+                                child: boxValuesExternalCarrier(
                                     totalValoresRecibidos:
                                         totalValoresRecibidos,
-                                    retirosefectivo: costoDeEntregas,
-                                    saldoactual: devoluciones,
-                                    utilidad: utilidad),
+                                    costoEntrega: costoDeEntregas,
+                                    costoDevolucion: devoluciones),
                               ),
                             ],
                           ),
@@ -587,6 +616,7 @@ class _DeliveryStatusExternalCarrierState
                                 options: opciones,
                                 currentValue: currentValue)),
                         context),
+                    // Row(children: [Text("Marcar como pagado: XXX ")]),
                     Container(
                       width: double.infinity,
                       color: currentColor.withOpacity(0.3),
@@ -594,11 +624,56 @@ class _DeliveryStatusExternalCarrierState
                       child: responsive(
                           Row(
                             children: [
-                              Expanded(
+                              Container(
+                                width: 300,
                                 child: _modelTextField(
                                     text: "Buscar",
                                     controller: _controllers.searchController),
                               ),
+                              SizedBox(
+                                width: 20.0,
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  if (selectedIds.isNotEmpty) {
+                                    sendSelectedIds();
+                                    loadData();
+                                  } else {
+                                    AwesomeDialog(
+                                      width: 500,
+                                      context: context,
+                                      dialogType: DialogType.error,
+                                      animType: AnimType.rightSlide,
+                                      title: 'Error',
+                                      desc:
+                                          'Debe seleccionar Pedidos Previamente',
+                                      btnOkText: "Aceptar",
+                                      btnOkColor: colors.colorGreen,
+                                      btnOkOnPress: () {},
+                                    ).show();
+                                  }
+
+                                  // resetFilters();
+                                  // paginatorController.navigateToPage(0);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      ColorsSystem().colorSelectMenu,
+                                ),
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      'Marcar como Pagado ',
+                                      style: TextStyle(color: Colors.white),
+                                    )
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                width: 10.0,
+                              ),
+                              Text(' : (${selectedIds.length})'),
                               const SizedBox(width: 20),
                               Tooltip(
                                 message: 'Limpiar filtros',
@@ -728,6 +803,14 @@ class _DeliveryStatusExternalCarrierState
                             size: ColumnSize.S,
                             onSort: (columnIndex, ascending) {
                               sortFunc2("fecha_entrega", changevalue);
+                            },
+                          ),
+                          DataColumn2(
+                            label: Text('Pago Costo Entrega'),
+                            //label: Text('Fecha de Entrega'),
+                            size: ColumnSize.S,
+                            onSort: (columnIndex, ascending) {
+                              // sortFunc2("fecha_entrega", changevalue);
                             },
                           ),
                           DataColumn2(
@@ -914,6 +997,36 @@ class _DeliveryStatusExternalCarrierState
                                 showInfo(context, index);
                               }),
                               DataCell(
+                                data[index]['payment_cost_delivery'] == 0
+                                    ? Checkbox(
+                                        value: selectedIds
+                                            .contains(data[index]['id']),
+                                        onChanged: (bool? newValue) {
+                                          toggleSelection(data[index]['id'],
+                                              newValue ?? false);
+                                        },
+                                      )
+                                    : GestureDetector(
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text('OK'),
+                                            SizedBox(width: 8),
+                                            Icon(Icons.sync,
+                                                color: Colors.blue),
+                                          ],
+                                        ),
+                                        onTap: () async {
+                                          // print(
+                                          // 'Cambiar estado para ID: ${data[index]['id']}');
+                                          await Connections()
+                                              .updatePaymentCostDeliveryInd(
+                                                  data[index]['id']);
+                                          loadData();
+                                        },
+                                      ),
+                              ),
+                              DataCell(
                                   Text(
                                       style: TextStyle(
                                           color: GetColor(data[index]['status']
@@ -1021,8 +1134,10 @@ class _DeliveryStatusExternalCarrierState
                                   //             ['nombre']
                                   //         .toString()
                                   //     : '')
-                                      Text(data[index]["carrier_external"] != null ? data[index]["carrier_external"]["name"].toString(): "")
-                                      , onTap: () {
+                                  Text(data[index]["carrier_external"] != null
+                                      ? data[index]["carrier_external"]["name"]
+                                          .toString()
+                                      : ""), onTap: () {
                                 showInfo(context, index);
                               }),
                               // ! pendientes
@@ -1168,16 +1283,16 @@ class _DeliveryStatusExternalCarrierState
     costoDeEntregas = 0;
     devoluciones = 0;
 
-    print("ak -> $valuesTransporter");
     setState(() {
       totalValoresRecibidos =
           double.parse(valuesTransporter['totalValoresRecibidos'].toString());
       costoDeEntregas =
-          double.parse(valuesTransporter['totalRetirosEfectivo'].toString());
-      devoluciones = double.parse(valuesTransporter['saldoActual'].toString());
-      utilidad = (valuesTransporter['totalValoresRecibidos'] -
-          valuesTransporter['totalRetirosEfectivo']);
-      utilidad = double.parse(utilidad.toString());
+          double.parse(valuesTransporter['totalCostoEntrega'].toString());
+      devoluciones =
+          double.parse(valuesTransporter['totalCostoDevolucion'].toString());
+      // utilidad = (valuesTransporter['totalValoresRecibidos'] -
+      //     valuesTransporter['totalRetirosEfectivo']);
+      // utilidad = double.parse(utilidad.toString());
     });
   }
 
@@ -1482,6 +1597,30 @@ class _DeliveryStatusExternalCarrierState
                     ),
                   ),
                   // ! *****************
+                  Container(
+                    padding: EdgeInsets.only(left: 10),
+                    width: 230,
+                    child: DropdownButtonFormField<String>(
+                      isExpanded: true,
+                      value: selectedExt,
+                      onChanged: (String? newValue) async {
+                        setState(() {
+                          selectedExt = newValue ?? "";
+                        });
+                      },
+                      decoration: InputDecoration(
+                          border: UnderlineInputBorder(
+                              borderRadius: BorderRadius.circular(10))),
+                      items:
+                          listExt.map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value, style: TextStyle(fontSize: 15)),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  // ! *****************
                   // Container(
                   //   padding: EdgeInsets.only(left: 10),
                   //   width: 230,
@@ -1665,7 +1804,7 @@ class _DeliveryStatusExternalCarrierState
               : '1/1/2200');
     });
     await loadData();
-    // calculateValues();
+    calculateValues();
     isFirst = false;
   }
 
