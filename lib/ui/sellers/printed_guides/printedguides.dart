@@ -75,6 +75,7 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
   ];
 
   List arrayFiltersAnd = [];
+  List arrayFiltersNot = [];
 
   var sortFieldDefaultValue = "id:DESC";
   var sortField = "";
@@ -105,6 +106,7 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
       filtersOrCont,
       arrayfiltersDefaultAnd,
       arrayFiltersAnd,
+      arrayFiltersNot,
       currentPage,
       pageSize,
       sortFieldDefaultValue.toString(),

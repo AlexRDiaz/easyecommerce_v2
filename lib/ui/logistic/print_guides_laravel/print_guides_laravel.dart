@@ -1,16 +1,23 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:data_table_2/data_table_2.dart';
+import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_animated_icons/icons8.dart';
+import 'package:frontend/config/colors.dart';
 
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
 // import 'package:frontend/providers/filters_orders/filters_orders.dart';
 import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
 import 'package:frontend/ui/logistic/print_guides_laravel/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
+import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/routes.dart';
@@ -55,12 +62,14 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
     'transportadora',
     'users.vendedores',
     'ruta',
-    'product_s.warehouses.provider'
-  ]; //product_s
-  List arrayFiltersAnd = [
-    {"/estado_logistico": "PENDIENTE"},
-    {"/estado_interno": "CONFIRMADO"}
+    'carrierExternal',
+    'ciudadExternal'
   ];
+  // List arrayFiltersAnd = [
+  //   {"/estado_logistico": "PENDIENTE"},
+  //   {"/estado_interno": "CONFIRMADO"}
+  // ];
+  List arrayFiltersAnd = [];
   List arrayFiltersOr = [
     "nombre_shipping",
     "numero_orden",
@@ -78,6 +87,8 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
     "observacion"
   ];
   List arrayFiltersNot = [];
+
+  bool showExternalCarriers = false;
 
   @override
   void didChangeDependencies() {
@@ -99,8 +110,27 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
 
   loadData() async {
     try {
+      // print("loadData: $externalCarriers");
       isLoading = true;
+      arrayFiltersAnd = [];
+      arrayFiltersNot = [];
 
+      if (showExternalCarriers == false) {
+        arrayFiltersAnd = [
+          {"/estado_logistico": "PENDIENTE"},
+          {"/estado_interno": "CONFIRMADO"},
+          {"/id_externo": null}
+        ];
+      } else {
+        arrayFiltersAnd = [
+          {"/estado_logistico": "PENDIENTE"},
+          {"/estado_interno": "CONFIRMADO"},
+        ];
+
+        arrayFiltersNot = [
+          {"id_externo": null}
+        ];
+      }
       var responseL = await Connections().generalData(
           pageSize,
           pageCount,
@@ -169,33 +199,235 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
             SizedBox(
               width: 10,
             ),
+            /*
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  // var pdfContent =
+                  //     await Connections().getGintraLabel("idExteralOrder");
+                  // if (pdfContent is Uint8List) {
+                  //   await Printing.layoutPdf(
+                  //     onLayout: (format) => pdfContent!,
+                  //   );
+                  // } else {
+                  //   print("Error: No se pudo obtener el PDF desde el backend.");
+                  // }
+                  Stopwatch stopwatch = Stopwatch();
+
+                  // Iniciar el cronómetro
+                  stopwatch.start();
+
+                  var idsExternals = [
+                    "EC000000010",
+                    "EC000000012",
+                    "EC000000013",
+                    "EC000000014",
+                    "EC000000015",
+                    "EC000000016",
+                    "EC000000010",
+                    "EC000000012",
+                    "EC000000013",
+                    "EC000000014",
+                    "EC000000015",
+                    "EC000000016",
+                    "EC000000010",
+                    "EC000000012",
+                    "EC000000013",
+                    "EC000000014",
+                    "EC000000015",
+                    "EC000000016",
+                    "EC000000010",
+                    "EC000000012",
+                    "EC000000013",
+                    "EC000000014",
+                    "EC000000015",
+                    "EC000000016",
+                    "EC000000010",
+                    "EC000000012",
+                    "EC000000013",
+                    "EC000000014",
+                    "EC000000015",
+                    "EC000000016",
+                    "EC000000010",
+                    "EC000000012",
+                    "EC000000013",
+                    "EC000000014",
+                    "EC000000015",
+                    "EC000000016",
+                    "EC000000010",
+                    "EC000000012",
+                    "EC000000013",
+                    "EC000000014",
+                    "EC000000015",
+                    "EC000000016",
+                    "EC000000010",
+                    "EC000000012",
+                    "EC000000013",
+                    "EC000000014",
+                    "EC000000015",
+                    "EC000000016",
+                    "EC000000010",
+                    "EC000000012",
+                    "EC000000013",
+                    "EC000000014",
+                    "EC000000015",
+                    "EC000000016",
+                    "EC000000010",
+                    "EC000000012",
+                    "EC000000013",
+                    "EC000000014",
+                    "EC000000015",
+                    "EC000000016",
+                    "EC000000010",
+                    "EC000000012",
+                    "EC000000013",
+                    "EC000000014",
+                    "EC000000015",
+                    "EC000000016",
+                    "EC000000010",
+                    "EC000000012",
+                    "EC000000013",
+                    "EC000000014",
+                    "EC000000015",
+                    "EC000000016",
+                    "EC000000010",
+                    "EC000000012",
+                    "EC000000013",
+                    "EC000000014",
+                    "EC000000015",
+                    "EC000000016",
+                    "EC000000010",
+                    "EC000000012",
+                    "EC000000013",
+                    "EC000000014",
+                    "EC000000015",
+                    "EC000000016",
+                    "EC000000010",
+                    "EC000000012",
+                    "EC000000013",
+                    "EC000000014",
+                    "EC000000015",
+                    "EC000000016"
+                  ];
+                  print("Start get pdf");
+
+                  var pdfContentTotal =
+                      await Connections().multiExternalGuidesGTM(idsExternals);
+
+                  if (pdfContentTotal is Uint8List) {
+                    await Printing.layoutPdf(
+                      onLayout: (format) => pdfContentTotal!,
+                    );
+                  } else {
+                    print("Error: No se pudo obtener el PDF desde el backend.");
+                  }
+
+                  // Detener el cronómetro
+                  stopwatch.stop();
+
+                  // Obtener la duración transcurrida
+                  Duration duration = stopwatch.elapsed;
+
+                  // Imprimir la duración transcurrida en milisegundos
+                  print(
+                      'La función tardó ${duration.inMilliseconds} milisegundos en ejecutarse.');
+                } catch (error) {
+                  print("Error: $error");
+                }
+              },
+              child: Text(
+                "Imprimir Externos",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            */
           ],
         ),
         SizedBox(
           height: 10,
         ),
-        Padding(
-          padding: const EdgeInsets.only(left: 15.0),
-          child: Row(
-            children: [
-              Text(
-                counterChecks > 0
-                    ? "Seleccionados: ${optionsCheckBox.length}"
-                    : "",
-                style:
-                    TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+        responsive(
+            Padding(
+              padding: const EdgeInsets.only(left: 15.0),
+              child: Row(
+                children: [
+                  Text(
+                    counterChecks > 0
+                        ? "Seleccionados: ${optionsCheckBox.length}"
+                        : "",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.black),
+                  ),
+                  const SizedBox(width: 20),
+                  Text(
+                    "Total: $total",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.black),
+                  ),
+                  const SizedBox(width: 30),
+                  Text(
+                    "Guías externas",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.black),
+                  ),
+                  const SizedBox(width: 5),
+                  Checkbox(
+                    value: showExternalCarriers,
+                    onChanged: (value) async {
+                      setState(() {
+                        showExternalCarriers = value!;
+                      });
+                      loadData();
+                    },
+                    activeColor: ColorsSystem().mainBlue,
+                    shape: CircleBorder(),
+                  ),
+                ],
               ),
-              SizedBox(
-                width: 5,
-              ),
-              Text(
-                "Total: $total",
-                style:
-                    TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-              ),
-            ],
-          ),
-        ),
+            ),
+            Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 15.0),
+                  child: Row(
+                    children: [
+                      Text(
+                        counterChecks > 0
+                            ? "Seleccionados: ${optionsCheckBox.length}"
+                            : "",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.black),
+                      ),
+                      const SizedBox(width: 20),
+                      Text(
+                        "Total: $total",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.black),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 15.0),
+                  child: Row(
+                    children: [
+                      Checkbox(
+                        value: showExternalCarriers,
+                        onChanged: (value) async {
+                          setState(() {
+                            showExternalCarriers = value!;
+                          });
+                          loadData();
+                        },
+                        activeColor: ColorsSystem().mainBlue,
+                        shape: CircleBorder(),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            context),
         SizedBox(
           height: 10,
         ),
@@ -213,6 +445,59 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
       ],
     );
   }
+
+  //
+  /*
+  printOnePdfExternal() async {
+    print("printOnePdfExternal");
+    int total = optionsCheckBox.length;
+    int step = 0;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 20.0),
+              Text("Cargando... $step/$total "),
+            ],
+          ),
+        );
+      },
+    );
+
+    await Future.forEach(optionsCheckBox, (checkBox) async {
+      if (checkBox['id'].toString().isNotEmpty &&
+          checkBox['id'].toString() != '') {
+        //
+        var pdfContent =
+            await Connections().getGintraLabel(checkBox['idExteralOrder']);
+        if (pdfContent is Uint8List) {
+          Navigator.pop(context);
+
+          await Printing.layoutPdf(
+            onLayout: (format) => pdfContent,
+          );
+          var responseL = await Connections().updateOrderWithTime(
+            checkBox['id'].toString(),
+            "estado_logistico:IMPRESO",
+            idUser,
+            "",
+            "",
+          );
+        } else {
+          print("Error: No se pudo obtener el PDF desde el backend.");
+        }
+        //
+      }
+    });
+
+    loadData();
+  }
+  */
 
   DataTable2 dataT() {
     return DataTable2(
@@ -360,7 +645,7 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                         });
 
                         if (value!) {
-                          // print(data[index]);
+                          print(data[index]);
                           optionsCheckBox.add({
                             "check": false,
                             "id": data[index]['id'].toString(),
@@ -369,7 +654,13 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                                     .toString(),
                             "date": data[index]['marca_t_i'].toString(),
                             // "city": data[index]['ciudad_shipping'].toString(),
-                            "city": data[index]['ruta'][0]["titulo"].toString(),
+                            "city": data[index]['ruta'] != null &&
+                                    data[index]['ruta'].toString() != "[]"
+                                ? data[index]['ruta'][0]['titulo'].toString()
+                                : data[index]['carrier_external'] != null
+                                    ? data[index]['ciudad_external']['ciudad']
+                                        .toString()
+                                    : "",
                             "product": data[index]['producto_p'].toString(),
                             "extraProduct":
                                 data[index]['producto_extra'].toString(),
@@ -395,11 +686,11 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                                         ['url_tienda']
                                     .toString()
                                 : "",
-                            "provider": data[index]['id_product'] != null &&
-                                    data[index]['id_product'] != 0
-                                ? getFirstProviderName(
-                                    data[index]['product_s']['warehouses'])
-                                : "",
+                            "idExteralOrder":
+                                data[index]['id_externo'] != null &&
+                                        data[index]['id_externo'] != 0
+                                    ? data[index]['id_externo'].toString()
+                                    : "",
                           });
                         } else {
                           var m = data[index]['id'];
@@ -424,8 +715,17 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                   DataCell(Text(
                       "${data[index]['users'] != null && data[index]['users'].toString() != "[]" ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : data[index]['tienda_temporal']}-${data[index]['numero_orden']}"
                           .toString())),
-                  DataCell(Text(data[index]['ciudad_shipping'].toString()),
-                      onTap: () {
+                  DataCell(
+                      Text(
+                        // data[index]['ciudad_shipping'].toString(),
+                        data[index]['ruta'] != null &&
+                                data[index]['ruta'].toString() != "[]"
+                            ? data[index]['ruta'][0]['titulo'].toString()
+                            : data[index]['carrier_external'] != null
+                                ? data[index]['ciudad_external']['ciudad']
+                                    .toString()
+                                : "",
+                      ), onTap: () {
                     // getInfoModal(index);
                   }),
                   DataCell(Text(data[index]['direccion_shipping'].toString()),
@@ -453,9 +753,18 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                     // getInfoModal(index);
                   }),
                   DataCell(
+                      // Text(
+                      //   "${data[index]['transportadora'] != null && data[index]['transportadora'].toString() != "[]" ? data[index]['transportadora'][0]['nombre'].toString() : ""}",
                       Text(
-                          "${data[index]['transportadora'] != null && data[index]['transportadora'].toString() != "[]" ? data[index]['transportadora'][0]['nombre'].toString() : ""}"),
-                      onTap: () {
+                        data[index]['transportadora'] != null &&
+                                data[index]['transportadora'].isNotEmpty
+                            ? data[index]['transportadora'][0]['nombre']
+                                .toString()
+                            : data[index]['carrier_external'] != null
+                                ? data[index]['carrier_external']['name']
+                                    .toString()
+                                : "",
+                      ), onTap: () {
                     // getInfoModal(index);
                   }),
                   DataCell(Text(data[index]['status'].toString()), onTap: () {
@@ -474,16 +783,6 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                     // getInfoModal(index);
                   }),
                 ])));
-  }
-
-  String? getFirstProviderName(List<dynamic> warehouses) {
-    if (warehouses.isNotEmpty) {
-      var firstWarehouse = warehouses[0];
-      if (firstWarehouse['provider'] != null) {
-        return firstWarehouse['provider']['name'];
-      }
-    }
-    return "";
   }
 
   Widget showProgressIndicator(BuildContext context, width, height, progress) {
@@ -519,7 +818,14 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           ElevatedButton(
-              onPressed: generateDocument,
+              onPressed: () {
+                if (!showExternalCarriers) {
+                  generateDocument();
+                } else {
+                  // printOnePdfExternal();
+                  generateDocumentExternal();
+                }
+              },
               child: const Text(
                 "IMPRIMIR",
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -528,22 +834,24 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
             width: 20,
           ),
           ElevatedButton(
-              onPressed: () async {
-                await showDialog(
-                    context: context,
-                    builder: (context) {
-                      return RoutesModalv2(
-                        idOrder: optionsCheckBox,
-                        someOrders: true,
-                        phoneClient: "",
-                        codigo: "",
-                        origin: " ",
-                      );
-                    });
+              onPressed: !showExternalCarriers
+                  ? () async {
+                      await showDialog(
+                          context: context,
+                          builder: (context) {
+                            return RoutesModalv2(
+                              idOrder: optionsCheckBox,
+                              someOrders: true,
+                              phoneClient: "",
+                              codigo: "",
+                              origin: " ",
+                            );
+                          });
 
-                setState(() {});
-                await loadData();
-              },
+                      setState(() {});
+                      await loadData();
+                    }
+                  : null,
               child: Text(
                 "Asignar Ruta",
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -606,7 +914,6 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                 qrLink: checkBox['qrLink'],
                 quantity: checkBox['quantity'],
                 transport: checkBox['transport'],
-                provider: checkBox['provider'],
               ),
             ),
           );
@@ -698,6 +1005,67 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
       // setState(() {
       //   isLoading = false;
       // });
+      optionsCheckBox = [];
+      loadData();
+      // isLoading = false;
+    } catch (e) {
+      print("Error al generar el documento $e");
+    }
+  }
+
+  void generateDocumentExternal() async {
+    try {
+      getLoadingModal(context, false);
+      Stopwatch stopwatch = Stopwatch();
+      stopwatch.start();
+
+      var idsExternals = [];
+
+      await Future.forEach(optionsCheckBox, (checkBox) async {
+        if (checkBox['id'].toString().isNotEmpty &&
+            checkBox['id'].toString() != '') {
+          //
+          idsExternals.add(checkBox['idExteralOrder']);
+        }
+        //
+      });
+
+      var pdfContentTotal =
+          await Connections().multiExternalGuidesGTM(idsExternals);
+
+      if (pdfContentTotal is Uint8List) {
+        await Future.forEach(optionsCheckBox, (checkBox) async {
+          if (checkBox['id'].toString().isNotEmpty &&
+              checkBox['id'].toString() != '') {
+            //
+            var responseL = await Connections().updateOrderWithTime(
+              checkBox['id'].toString(),
+              "estado_logistico:IMPRESO",
+              idUser,
+              "",
+              "",
+            );
+          }
+          //
+        });
+        Navigator.pop(context);
+        await Printing.layoutPdf(
+          onLayout: (format) => pdfContentTotal!,
+        );
+      } else {
+        Navigator.pop(context);
+        print("Error: No se pudo obtener el PDF desde el backend.");
+        // ignore: use_build_context_synchronously
+        showSuccessModal(
+            context, "Error,  No se pudo obtener el PDF.", Icons8.alert);
+      }
+      stopwatch.stop();
+      Duration duration = stopwatch.elapsed;
+      print(
+          'La función tardó ${duration.inMilliseconds} milisegundos en ejecutarse.');
+
+      _controllers.searchController.clear();
+
       optionsCheckBox = [];
       loadData();
       // isLoading = false;
@@ -922,6 +1290,10 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                   element['users'].toString() != "[]"
               ? element['users'][0]['vendedores'][0]['url_tienda'].toString()
               : "".toString(),
+          "idExteralOrder":
+              element['id_externo'] != null && element['id_externo'] != 0
+                  ? element['id_externo'].toString()
+                  : "",
         });
       }
     } else {

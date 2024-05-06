@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:flutter_animated_icons/icons8.dart';
+import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/navigators.dart';
@@ -14,6 +16,7 @@ import 'package:frontend/ui/logistic/guides_sent/controllers/controllers.dart';
 import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
 import 'package:frontend/ui/sellers/order_entry/controllers/controllers.dart';
 import 'package:frontend/ui/utils/utils.dart';
+import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/filters_orders.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/routes.dart';
@@ -74,8 +77,11 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
   ];
 
   List filtersAnd = [];
+  List arrayFiltersNot = [];
+
   var sortFieldDefaultValue = "id:DESC";
   bool changevalue = false;
+  bool showExternalCarriers = false;
 
   List populate = [
     "transportadora",
@@ -85,7 +91,9 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
     "ruta",
     "sentBy",
     "printedBy",
-    'product_s.warehouses.provider'
+    'product_s.warehouses.provider',
+    'carrierExternal',
+    'ciudadExternal'
   ];
   var idUser = sharedPrefs!.getString("id");
 
@@ -129,6 +137,11 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
           //  *
           filtersAnd = [];
           filtersAnd.add({"/marca_tiempo_envio": date});
+          // if (showExternalCarriers == false) {
+          //   filtersAnd.add({"id_externo": null});
+          // } else {
+          //   arrayFiltersNot.add({"id_externo": null});
+          // }
           responseL = await Connections()
               .getOrdersForSentGuidesPrincipalLaravel(
                   populate,
@@ -138,7 +151,8 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                   currentPage,
                   pageSize,
                   "",
-                  sortFieldDefaultValue, []);
+                  sortFieldDefaultValue,
+                  arrayFiltersNot);
 
           //  *
         } else {
@@ -156,7 +170,11 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
             "equals/transportadora.transportadora_id":
                 selectedValueTransportator.toString().split('-')[1]
           });
-
+          // if (showExternalCarriers == false) {
+          //   filtersAnd.add({"id_externo": null});
+          // } else {
+          //   arrayFiltersNot.add({"id_externo": null});
+          // }
           responseL = await Connections()
               .getOrdersForSentGuidesPrincipalLaravel(
                   populate,
@@ -166,7 +184,8 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                   currentPage,
                   pageSize,
                   "",
-                  sortFieldDefaultValue, []);
+                  sortFieldDefaultValue,
+                  arrayFiltersNot);
           //  *
         }
       } else {
@@ -177,6 +196,11 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
         //         _controllers.searchController.text);
         //  *
         filtersAnd = [];
+        // if (showExternalCarriers == false) {
+        //   filtersAnd.add({"id_externo": null});
+        // } else {
+        //   arrayFiltersNot.add({"id_externo": null});
+        // }
         responseL = await Connections().getOrdersForSentGuidesPrincipalLaravel(
             populate,
             filtersAnd,
@@ -185,7 +209,8 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
             currentPage,
             pageSize,
             _controllers.searchController.text,
-            sortFieldDefaultValue, []);
+            sortFieldDefaultValue,
+            arrayFiltersNot);
         //  *
       }
 
@@ -333,7 +358,7 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
               ),
             ),
             const SizedBox(
-              height: 10,
+              height: 5,
             ),
             Container(
               width: double.infinity,
@@ -354,9 +379,43 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
             const SizedBox(
               height: 10,
             ),
-            Align(
-                alignment: Alignment.centerLeft,
-                child: Text("Número de Ordenes: ${data.length}")),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      children: [
+                        Text(
+                          "Número de Ordenes: ${data.length}",
+                        ),
+                        const SizedBox(
+                          width: 30,
+                        ),
+                        Text(
+                          "Guías Externas",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, color: Colors.black),
+                        ),
+                        const SizedBox(width: 5),
+                        Checkbox(
+                          value: showExternalCarriers,
+                          onChanged: (value) async {
+                            setState(() {
+                              showExternalCarriers = value!;
+                            });
+                            loadData();
+                          },
+                          activeColor: ColorsSystem().mainBlue,
+                          shape: CircleBorder(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(
               height: 10,
             ),
@@ -366,7 +425,7 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                     TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                 dataTextStyle: TextStyle(
                     fontSize: 12,
-                    fontWeight: FontWeight.bold,
+                    // fontWeight: FontWeight.bold,
                     color: Colors.black),
                 columnSpacing: 12,
                 horizontalMargin: 12,
@@ -794,58 +853,64 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
         children: [
           ElevatedButton(
               onPressed: () async {
-                const double point = 1.0;
-                const double inch = 72.0;
-                const double cm = inch / 2.54;
-                const double mm = inch / 25.4;
-                getLoadingModal(context, false);
-                final doc = pw.Document();
+                if (!showExternalCarriers) {
+                  const double point = 1.0;
+                  const double inch = 72.0;
+                  const double cm = inch / 2.54;
+                  const double mm = inch / 25.4;
+                  getLoadingModal(context, false);
+                  final doc = pw.Document();
 
-                for (var i = 0; i < optionsCheckBox.length; i++) {
-                  if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
-                      optionsCheckBox[i]['id'].toString() != '' &&
-                      optionsCheckBox[i]['check'] == true) {
-                    final capturedImage =
-                        await screenshotController.captureFromWidget(Container(
-                            child: ModelGuide(
-                      address: optionsCheckBox[i]['address'],
-                      city: optionsCheckBox[i]['city'],
-                      date: optionsCheckBox[i]['date'],
-                      extraProduct: optionsCheckBox[i]['extraProduct'],
-                      idForBarcode: optionsCheckBox[i]['id'],
-                      name: optionsCheckBox[i]['name'],
-                      numPedido: optionsCheckBox[i]['numPedido'],
-                      observation: optionsCheckBox[i]['obervation'],
-                      phone: optionsCheckBox[i]['phone'],
-                      price: optionsCheckBox[i]['price'],
-                      product: optionsCheckBox[i]['product'],
-                      qrLink: optionsCheckBox[i]['qrLink'],
-                      quantity: optionsCheckBox[i]['quantity'],
-                      transport: optionsCheckBox[i]['transport'],
-                      provider: optionsCheckBox[i]['provider'],
-                    )));
+                  for (var i = 0; i < optionsCheckBox.length; i++) {
+                    if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
+                        optionsCheckBox[i]['id'].toString() != '' &&
+                        optionsCheckBox[i]['check'] == true) {
+                      final capturedImage = await screenshotController
+                          .captureFromWidget(Container(
+                              child: ModelGuide(
+                        address: optionsCheckBox[i]['address'],
+                        city: optionsCheckBox[i]['city'],
+                        date: optionsCheckBox[i]['date'],
+                        extraProduct: optionsCheckBox[i]['extraProduct'],
+                        idForBarcode: optionsCheckBox[i]['id'],
+                        name: optionsCheckBox[i]['name'],
+                        numPedido: optionsCheckBox[i]['numPedido'],
+                        observation: optionsCheckBox[i]['obervation'],
+                        phone: optionsCheckBox[i]['phone'],
+                        price: optionsCheckBox[i]['price'],
+                        product: optionsCheckBox[i]['product'],
+                        qrLink: optionsCheckBox[i]['qrLink'],
+                        quantity: optionsCheckBox[i]['quantity'],
+                        transport: optionsCheckBox[i]['transport'],
+                        provider: optionsCheckBox[i]['provider'],
+                      )));
 
-                    doc.addPage(pw.Page(
-                      pageFormat: PdfPageFormat(21.0 * cm, 21.0 * cm,
-                          marginAll: 0.1 * cm),
-                      build: (pw.Context context) {
-                        return pw.Row(
-                          children: [
-                            pw.Image(pw.MemoryImage(capturedImage),
-                                fit: pw.BoxFit.contain)
-                          ],
-                        );
-                      },
-                    ));
+                      doc.addPage(pw.Page(
+                        pageFormat: PdfPageFormat(21.0 * cm, 21.0 * cm,
+                            marginAll: 0.1 * cm),
+                        build: (pw.Context context) {
+                          return pw.Row(
+                            children: [
+                              pw.Image(pw.MemoryImage(capturedImage),
+                                  fit: pw.BoxFit.contain)
+                            ],
+                          );
+                        },
+                      ));
+                    }
                   }
-                }
-                Navigator.pop(context);
-                await Printing.layoutPdf(
-                    onLayout: (PdfPageFormat format) async => await doc.save());
-                _controllers.searchController.clear();
-                setState(() {});
+                  Navigator.pop(context);
+                  await Printing.layoutPdf(
+                      onLayout: (PdfPageFormat format) async =>
+                          await doc.save());
+                  _controllers.searchController.clear();
+                  setState(() {});
 
-                // loadData();
+                  // loadData();
+                } else {
+                  // printOnePdfExternal();
+                  generateDocumentExternal();
+                }
               },
               child: Text(
                 "IMPRIMIR",
@@ -890,6 +955,53 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
         ],
       ),
     );
+  }
+
+  void generateDocumentExternal() async {
+    try {
+      getLoadingModal(context, false);
+      Stopwatch stopwatch = Stopwatch();
+      stopwatch.start();
+
+      var idsExternals = [];
+
+      await Future.forEach(optionsCheckBox, (checkBox) async {
+        if (checkBox['id'].toString().isNotEmpty &&
+            checkBox['id'].toString() != '') {
+          //
+          idsExternals.add(checkBox['idExteralOrder']);
+        }
+        //
+      });
+
+      var pdfContentTotal =
+          await Connections().multiExternalGuidesGTM(idsExternals);
+
+      if (pdfContentTotal is Uint8List) {
+        Navigator.pop(context);
+        await Printing.layoutPdf(
+          onLayout: (format) => pdfContentTotal!,
+        );
+      } else {
+        Navigator.pop(context);
+        print("Error: No se pudo obtener el PDF desde el backend.");
+        // ignore: use_build_context_synchronously
+        showSuccessModal(
+            context, "Error,  No se pudo obtener el PDF.", Icons8.alert);
+      }
+      stopwatch.stop();
+      Duration duration = stopwatch.elapsed;
+      print(
+          'La función tardó ${duration.inMilliseconds} milisegundos en ejecutarse.');
+
+      _controllers.searchController.clear();
+
+      optionsCheckBox = [];
+      loadData();
+      // isLoading = false;
+    } catch (e) {
+      print("Error al generar el documento $e");
+    }
   }
 
   _modelTextField({text, controller}) {

@@ -78,6 +78,7 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
   ];
 
   List arrayFiltersAnd = [];
+  List arrayFiltersNot = [];
 
   var sortFieldDefaultValue = "id:DESC";
   var sortField = "";
@@ -135,6 +136,7 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
       filtersOrCont,
       arrayfiltersDefaultAnd,
       arrayFiltersAnd,
+      arrayFiltersNot,
       currentPage,
       pageSize,
       sortFieldDefaultValue.toString(),

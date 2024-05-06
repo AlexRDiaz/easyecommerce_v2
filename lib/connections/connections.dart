@@ -5988,7 +5988,7 @@ class Connections {
 
   //    * sellers: Print
   Future getOrdersForPrintGuidesLaravel(List or, List defaultAnd, List and,
-      currentPage, sizePage, sortFiled, search) async {
+      List not, currentPage, sizePage, sortFiled, search) async {
     List filtersAndAll = [];
     filtersAndAll.addAll(and);
     filtersAndAll.addAll(defaultAnd);
@@ -5999,11 +5999,11 @@ class Connections {
           body: json.encode({
             "or": or,
             "and": filtersAndAll,
+            "not": not,
             "page_size": sizePage,
             "page_number": currentPage,
             "search": search,
             "sort": sortFiled,
-            "not": []
           }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -6706,6 +6706,7 @@ class Connections {
       productId,
       variantsDetails,
       recaudo,
+      costo_envio,
       //iterno
       rutaId,
       transportadoraId,
@@ -6714,7 +6715,7 @@ class Connections {
       ciudadIdDest) async {
     try {
       String? generatedBy = sharedPrefs!.getString("id");
-      /*
+
       print(json.encode({
         "generatedBy": generatedBy,
         "IdComercial": idMaster,
@@ -6731,12 +6732,13 @@ class Connections {
         "product_id": int.parse(productId),
         "variant_details": json.encode(variantsDetails),
         "recaudo": recaudo,
+        "costo_envio": costo_envio,
         "ruta": rutaId,
         "transportadora": transportadoraId,
         "carrier_id": int.parse(carrierExternalId),
         "ciudad_des": int.parse(ciudadIdDest),
       }));
-*/
+
       var response =
           await http.post(Uri.parse("$serverLaravel/api/orderproduct"),
               headers: {'Content-Type': 'application/json'},
@@ -6756,6 +6758,7 @@ class Connections {
                 "product_id": int.parse(productId),
                 "variant_details": json.encode(variantsDetails),
                 "recaudo": recaudo,
+                "costo_envio": costo_envio,
                 "ruta": rutaId,
                 "transportadora": transportadoraId,
                 "carrier_id": int.parse(carrierExternalId),
@@ -7253,6 +7256,31 @@ class Connections {
     }
   }
 
+  //  *
+  multiExternalGuidesGTM(ids) async {
+    try {
+      // print(json.encode({"ids": json.encode(ids)}));
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/gintracom/multilabel"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"ids": json.encode(ids)}));
+      if (response.statusCode == 200) {
+        if (response.headers['content-type'] == 'application/pdf') {
+          // print("SI es un archivo PDF.");
+          return response.bodyBytes; // Devolver bodyBytes en lugar de body
+        } else {
+          // print("Error: La respuesta no es un archivo PDF.");
+          return "Error: La respuesta no es un archivo PDF.";
+        }
+      } else {
+        // print("Error: ${response.statusCode}");
+        return "Error: ${response.statusCode}";
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
   //TEST
 
   Future getOrdersTest1() async {
@@ -7368,6 +7396,16 @@ class Connections {
     List filtersAndAll = [];
     filtersAndAll.addAll(and);
     filtersAndAll.addAll(defaultAnd);
+    print(json.encode({
+      "populate": populate,
+      "or": or,
+      "and": filtersAndAll,
+      "page_size": sizePage,
+      "page_number": currentPage,
+      "search": search,
+      "sort": sortFiled,
+      "not": not
+    }));
     try {
       var response =
           await http.post(Uri.parse("$serverLaravel/api/send-guides/printg"),

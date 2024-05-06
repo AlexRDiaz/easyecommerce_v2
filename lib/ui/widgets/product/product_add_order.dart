@@ -307,10 +307,14 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
     double screenHeight = MediaQuery.of(context).size.height;
 
     return Container(
-      width: screenWidth > 600 ? screenWidth * 0.85 : screenWidth,
-      height: screenHeight * 0.9,
-      color: Colors.white,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10.0),
+        color: Colors.white,
+      ),
       padding: EdgeInsets.all(20),
+      width: screenWidth * 70,
+      // color: Colors.amber,
+      height: MediaQuery.of(context).size.height,
       child: Form(
         key: formKey,
         child: Row(
@@ -1181,7 +1185,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                             showSuccessModal(
                                 context,
                                 "Por favor, Debe seleccionar un tipo de transportadora.",
-                                Icons8.alert);
+                                Icons8.warning_1);
                           } else {
                             if (selectedCarrierType == "Externo") {
                               //
@@ -1191,7 +1195,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                 showSuccessModal(
                                     context,
                                     "Por favor, Debe seleccionar una transportadora, provincia y ciudad.",
-                                    Icons8.alert);
+                                    Icons8.warning_1);
                               } else {
                                 readySent = true;
                               }
@@ -1202,7 +1206,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                 showSuccessModal(
                                     context,
                                     "Por favor, Debe seleccionar una ciudad y una transportadora.",
-                                    Icons8.alert);
+                                    Icons8.warning_1);
                               } else {
                                 readySent = true;
                               }
@@ -1217,7 +1221,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                               showSuccessModal(
                                   context,
                                   "Por favor, Debe al menos seleccionar una variante del producto.",
-                                  Icons8.alert);
+                                  Icons8.warning_1);
                             } else {
                               if (formKey.currentState!.validate()) {
                                 print("$selectedCarrierType");
@@ -1231,20 +1235,28 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                 String idProd =
                                     widget.product.productId.toString();
 
-                                String messageVar = "";
+                                // String messageVar = "";
+                                String contenidoProd = "";
 
                                 if (widget.product.isvariable == 1) {
-                                  messageVar = " (";
+                                  // messageVar = " (";
                                   for (var variant in variantsDetailsList) {
-                                    messageVar +=
-                                        "${variant['quantity']}-${variant['variant_title']}; ";
+                                    // messageVar +=
+                                    //     "${variant['quantity']}-${variant['variant_title']}; ";
+
+                                    contenidoProd +=
+                                        '${variant['quantity']}*${_producto.text} ${variant['variant_title']} | ';
                                   }
-                                  messageVar = messageVar.substring(
-                                      1, messageVar.length - 2);
-                                  messageVar += ") ";
+                                  // messageVar = messageVar.substring(
+                                  //     1, messageVar.length - 2);
+                                  // messageVar += ") ";
+                                } else {
+                                  contenidoProd +=
+                                      '$quantityTotal*${_producto.text}';
                                 }
 
-                                print(messageVar);
+                                contenidoProd = contenidoProd.substring(
+                                    0, contenidoProd.length - 3);
 
                                 String remitente_address =
                                     prov_city_address.split('-')[2];
@@ -1322,7 +1334,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                     "peso_total": "2.00",
                                     "documento_venta": "",
                                     "contenido":
-                                        "${quantityTotal};${_producto.text}${widget.product.isvariable == 1 ? messageVar : ""};${_productoE.text}", //agregar cantidad;producto;(variantes);(producto_extra) 1;Impresora termica; azul ;Envio Prioritario
+                                        "$contenidoProd${_productoE.text.isNotEmpty ? " |${_productoE.text}" : ""}",
                                     "observacion": _observacion.text,
                                     "fecha": formattedDateTime,
                                     "declarado": double.parse(priceTotal),
@@ -1331,6 +1343,9 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                   print(dataIntegration);
                                 }
 
+                                double costDelivery = double.parse(
+                                        costShippingSeller.toString()) +
+                                    double.parse(taxCostShipping.toString());
                                 var response =
                                     await Connections().createOrderProduct(
                                   sharedPrefs!
@@ -1354,6 +1369,9 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                   idProd,
                                   variantsDetailsList,
                                   recaudo ? 1 : 0,
+                                  selectedCarrierType == "Externo"
+                                      ? costDelivery.toString()
+                                      : null,
                                   selectedCarrierType == "Interno"
                                       ? selectedValueRoute
                                           .toString()
@@ -1400,7 +1418,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                 }
 
                                 var _url = Uri.parse(
-                                  """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda ${comercial}, Me comunico con usted para confirmar su pedido de compra de: ${_producto.text}${messageVar}${_productoE.text.isNotEmpty ? ' y ${_productoE.text}' : ''}, por un valor total de: \$${priceTotal}. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                  """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " |${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
                                 );
 
                                 if (!await launchUrl(_url)) {
@@ -1621,7 +1639,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
       // print("recaudo?? YES");
       // print("priceTotalProduct: $priceTotalProduct");
 
-      if (priceTotalProduct < double.parse(costo_rec['max_price'])) {
+      if (priceTotalProduct <= double.parse(costo_rec['max_price'])) {
         double base = double.parse(costo_rec['base']);
         base = double.parse(base.toStringAsFixed(2));
 
