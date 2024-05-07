@@ -953,7 +953,7 @@ class _TableOrdersGuidesSentStateProvider
       _controllers.searchController.clear();
 
       selectedCheckBox = [];
-      loadData();
+      // loadData();
       // isLoading = false;
     } catch (e) {
       print("Error al generar el documento $e");

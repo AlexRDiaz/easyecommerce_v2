@@ -1028,7 +1028,7 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
       _controllers.searchController.clear();
 
       optionsCheckBox = [];
-      loadData();
+      // loadData();
       // isLoading = false;
     } catch (e) {
       print("Error al generar el documento $e");
