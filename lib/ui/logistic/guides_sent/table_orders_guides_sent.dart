@@ -136,12 +136,13 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
           //     _controllers.searchController.text, date);
           //  *
           filtersAnd = [];
+          arrayFiltersNot = [];
           filtersAnd.add({"/marca_tiempo_envio": date});
-          // if (showExternalCarriers == false) {
-          //   filtersAnd.add({"id_externo": null});
-          // } else {
-          //   arrayFiltersNot.add({"id_externo": null});
-          // }
+          if (showExternalCarriers == false) {
+            filtersAnd.add({"/id_externo": null});
+          } else {
+            arrayFiltersNot.add({"id_externo": null});
+          }
           responseL = await Connections()
               .getOrdersForSentGuidesPrincipalLaravel(
                   populate,
@@ -165,16 +166,18 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
           //         selectedValueTransportator.toString().split('-')[1]);
           //  *
           filtersAnd = [];
+          arrayFiltersNot = [];
+
           filtersAnd.add({"/marca_tiempo_envio": date});
           filtersAnd.add({
             "equals/transportadora.transportadora_id":
                 selectedValueTransportator.toString().split('-')[1]
           });
-          // if (showExternalCarriers == false) {
-          //   filtersAnd.add({"id_externo": null});
-          // } else {
-          //   arrayFiltersNot.add({"id_externo": null});
-          // }
+          if (showExternalCarriers == false) {
+            filtersAnd.add({"/id_externo": null});
+          } else {
+            arrayFiltersNot.add({"id_externo": null});
+          }
           responseL = await Connections()
               .getOrdersForSentGuidesPrincipalLaravel(
                   populate,
@@ -196,11 +199,13 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
         //         _controllers.searchController.text);
         //  *
         filtersAnd = [];
-        // if (showExternalCarriers == false) {
-        //   filtersAnd.add({"id_externo": null});
-        // } else {
-        //   arrayFiltersNot.add({"id_externo": null});
-        // }
+        arrayFiltersNot = [];
+
+        if (showExternalCarriers == false) {
+          filtersAnd.add({"/id_externo": null});
+        } else {
+          arrayFiltersNot.add({"id_externo": null});
+        }
         responseL = await Connections().getOrdersForSentGuidesPrincipalLaravel(
             populate,
             filtersAnd,
@@ -293,6 +298,8 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
   void resetFilters() {
     getOldValue(true);
     filtersAnd = [];
+    arrayFiltersNot = [];
+    showExternalCarriers = false;
     selectedValueTransportator = null;
     _controllers.searchController.text = "";
   }
@@ -662,7 +669,13 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                                             ? data[index]['transportadora'][0]
                                                     ['nombre']
                                                 .toString()
-                                            : '',
+                                            : data[index]['carrier_external'] !=
+                                                    null
+                                                ? data[index]
+                                                            ['carrier_external']
+                                                        ['name']
+                                                    .toString()
+                                                : "",
                                     "address": data[index]['direccion_shipping']
                                         .toString(),
                                     "obervation":
@@ -676,6 +689,12 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                                             ? getFirstProviderName(data[index]
                                                 ['product_s']['warehouses'])
                                             : "",
+                                    "idExteralOrder": data[index]
+                                                    ['id_externo'] !=
+                                                null &&
+                                            data[index]['id_externo'] != 0
+                                        ? data[index]['id_externo'].toString()
+                                        : "",
                                   });
                                 } else {
                                   var m = data[index]['id'];
@@ -759,11 +778,21 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                             getInfoModal(index);
                           }),
                           DataCell(
-                            Text(data[index]['transportadora'] != null &&
-                                    data[index]['transportadora'].isNotEmpty
-                                ? data[index]['transportadora'][0]['nombre']
-                                    .toString()
-                                : ''),
+                            Text(
+                              // data[index]['transportadora'] != null &&
+                              //         data[index]['transportadora'].isNotEmpty
+                              //     ? data[index]['transportadora'][0]['nombre']
+                              //         .toString()
+                              //     : '',
+                              data[index]['transportadora'] != null &&
+                                      data[index]['transportadora'].isNotEmpty
+                                  ? data[index]['transportadora'][0]['nombre']
+                                      .toString()
+                                  : data[index]['carrier_external'] != null
+                                      ? data[index]['carrier_external']['name']
+                                          .toString()
+                                      : "",
+                            ),
                           ),
                           DataCell(Text(data[index]['status'].toString()),
                               onTap: () {
@@ -920,34 +949,36 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
             width: 20,
           ),
           ElevatedButton(
-              onPressed: () async {
-                // for (var i = 0; i < optionsCheckBox.length; i++) {
-                //   if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
-                //       optionsCheckBox[i]['id'].toString() != '' &&
-                //       optionsCheckBox[i]['check'] == true) {
-                //     var response = await Connections()
-                //         .updateOrderInteralStatusInOrderPrinted(
-                //             "PENDIENTE", optionsCheckBox[i]['id'].toString());
-                //   }
-                // }
-                await showDialog(
-                    context: context,
-                    builder: (context) {
-                      return RoutesModalv2(
-                          idOrder: optionsCheckBox,
-                          someOrders: true,
-                          phoneClient: "",
-                          codigo: "",
-                          origin: "sent");
-                    });
+              onPressed: !showExternalCarriers
+                  ? () async {
+                      // for (var i = 0; i < optionsCheckBox.length; i++) {
+                      //   if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
+                      //       optionsCheckBox[i]['id'].toString() != '' &&
+                      //       optionsCheckBox[i]['check'] == true) {
+                      //     var response = await Connections()
+                      //         .updateOrderInteralStatusInOrderPrinted(
+                      //             "PENDIENTE", optionsCheckBox[i]['id'].toString());
+                      //   }
+                      // }
+                      await showDialog(
+                          context: context,
+                          builder: (context) {
+                            return RoutesModalv2(
+                                idOrder: optionsCheckBox,
+                                someOrders: true,
+                                phoneClient: "",
+                                codigo: "",
+                                origin: "sent");
+                          });
 
-                // setState(() {});
-                // loadData();
-                setState(() {});
-                optionsCheckBox = [];
-                getOldValue(true);
-                await loadData();
-              },
+                      // setState(() {});
+                      // loadData();
+                      setState(() {});
+                      optionsCheckBox = [];
+                      getOldValue(true);
+                      await loadData();
+                    }
+                  : null,
               child: Text(
                 "Ruta",
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -1105,14 +1136,16 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                         ))
                     .toList(),
                 value: selectedValueTransportator,
-                onChanged: (value) async {
-                  filtersAnd = [];
-                  _controllers.searchController.clear();
-                  setState(() {
-                    selectedValueTransportator = value as String;
-                  });
-                  await loadData();
-                },
+                onChanged: !showExternalCarriers
+                    ? (value) async {
+                        filtersAnd = [];
+                        _controllers.searchController.clear();
+                        setState(() {
+                          selectedValueTransportator = value as String;
+                        });
+                        await loadData();
+                      }
+                    : null,
 
                 //This to clear the search value when you close the menu
                 onMenuStateChange: (isOpen) {
@@ -1302,10 +1335,17 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                 columnIndex: 4, rowIndex: rowIndex + 1))
             .value = data["ciudad_shipping"];
         if (data["transportadora"].isEmpty) {
-          sheet
-              .cell(CellIndex.indexByColumnRow(
-                  columnIndex: 5, rowIndex: rowIndex + 1))
-              .value = "";
+          if (data['carrier_external'] != null) {
+            sheet
+                .cell(CellIndex.indexByColumnRow(
+                    columnIndex: 5, rowIndex: rowIndex + 1))
+                .value = data['carrier_external']['name'].toString();
+          } else {
+            sheet
+                .cell(CellIndex.indexByColumnRow(
+                    columnIndex: 5, rowIndex: rowIndex + 1))
+                .value = "";
+          }
         } else {
           sheet
               .cell(CellIndex.indexByColumnRow(

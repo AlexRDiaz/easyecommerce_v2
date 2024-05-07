@@ -7396,16 +7396,16 @@ class Connections {
     List filtersAndAll = [];
     filtersAndAll.addAll(and);
     filtersAndAll.addAll(defaultAnd);
-    print(json.encode({
-      "populate": populate,
-      "or": or,
-      "and": filtersAndAll,
-      "page_size": sizePage,
-      "page_number": currentPage,
-      "search": search,
-      "sort": sortFiled,
-      "not": not
-    }));
+    // print(json.encode({
+    //   "populate": populate,
+    //   "or": or,
+    //   "and": filtersAndAll,
+    //   "page_size": sizePage,
+    //   "page_number": currentPage,
+    //   "search": search,
+    //   "sort": sortFiled,
+    //   "not": not
+    // }));
     try {
       var response =
           await http.post(Uri.parse("$serverLaravel/api/send-guides/printg"),

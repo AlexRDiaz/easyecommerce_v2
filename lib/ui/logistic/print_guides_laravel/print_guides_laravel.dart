@@ -62,6 +62,7 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
     'transportadora',
     'users.vendedores',
     'ruta',
+    'product_s.warehouses.provider',
     'carrierExternal',
     'ciudadExternal'
   ];
@@ -672,11 +673,13 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                             "name": data[index]['nombre_shipping'].toString(),
                             "transport": data[index]['transportadora'] !=
                                         null &&
-                                    data[index]['transportadora'].toString() !=
-                                        "[]"
+                                    data[index]['transportadora'].isNotEmpty
                                 ? data[index]['transportadora'][0]['nombre']
                                     .toString()
-                                : "",
+                                : data[index]['carrier_external'] != null
+                                    ? data[index]['carrier_external']['name']
+                                        .toString()
+                                    : "",
                             "address":
                                 data[index]['direccion_shipping'].toString(),
                             "obervation": data[index]['observacion'].toString(),
@@ -685,6 +688,11 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                                 ? data[index]['users'][0]['vendedores'][0]
                                         ['url_tienda']
                                     .toString()
+                                : "",
+                            "provider": data[index]['id_product'] != null &&
+                                    data[index]['id_product'] != 0
+                                ? getFirstProviderName(
+                                    data[index]['product_s']['warehouses'])
                                 : "",
                             "idExteralOrder":
                                 data[index]['id_externo'] != null &&
@@ -717,14 +725,14 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                           .toString())),
                   DataCell(
                       Text(
-                        // data[index]['ciudad_shipping'].toString(),
-                        data[index]['ruta'] != null &&
-                                data[index]['ruta'].toString() != "[]"
-                            ? data[index]['ruta'][0]['titulo'].toString()
-                            : data[index]['carrier_external'] != null
-                                ? data[index]['ciudad_external']['ciudad']
-                                    .toString()
-                                : "",
+                        data[index]['ciudad_shipping'].toString(),
+                        // data[index]['ruta'] != null &&
+                        //         data[index]['ruta'].toString() != "[]"
+                        //     ? data[index]['ruta'][0]['titulo'].toString()
+                        //     : data[index]['carrier_external'] != null
+                        //         ? data[index]['ciudad_external']['ciudad']
+                        //             .toString()
+                        //         : "",
                       ), onTap: () {
                     // getInfoModal(index);
                   }),
@@ -914,6 +922,7 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                 qrLink: checkBox['qrLink'],
                 quantity: checkBox['quantity'],
                 transport: checkBox['transport'],
+                provider: checkBox['provider'],
               ),
             ),
           );
@@ -1272,7 +1281,11 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
               "${element['users'] != null && element['users'].toString() != "[]" ? element['users'][0]['vendedores'][0]['nombre_comercial'] : element['tienda_temporal']}-${element['numero_orden']}"
                   .toString(),
           "date": element['marca_t_i'].toString(),
-          "city": element['ruta'][0]["titulo"].toString(),
+          "city": element['ruta'] != null && element['ruta'].toString() != "[]"
+              ? element['ruta'][0]['titulo'].toString()
+              : element['carrier_external'] != null
+                  ? element['ciudad_external']['ciudad'].toString()
+                  : "",
           // "city": element['ciudad_shipping'].toString(),
           "product": element['producto_p'].toString(),
           "extraProduct": element['producto_extra'].toString(),
@@ -1281,15 +1294,21 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
           "price": element['precio_total'].toString(),
           "name": element['nombre_shipping'].toString(),
           "transport": element['transportadora'] != null &&
-                  element['transportadora'].toString() != "[]"
+                  element['transportadora'].isNotEmpty
               ? element['transportadora'][0]['nombre'].toString()
-              : "",
+              : element['carrier_external'] != null
+                  ? element['carrier_external']['name'].toString()
+                  : "",
           "address": element['direccion_shipping'].toString(),
           "obervation": element['observacion'].toString(),
           "qrLink": element['users'] != null &&
                   element['users'].toString() != "[]"
               ? element['users'][0]['vendedores'][0]['url_tienda'].toString()
               : "".toString(),
+          "provider":
+              element['id_product'] != null && element['id_product'] != 0
+                  ? getFirstProviderName(element['product_s']['warehouses'])
+                  : "",
           "idExteralOrder":
               element['id_externo'] != null && element['id_externo'] != 0
                   ? element['id_externo'].toString()
@@ -1306,5 +1325,15 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
     setState(() {
       counterChecks = optionsCheckBox.length;
     });
+  }
+
+  String? getFirstProviderName(List<dynamic> warehouses) {
+    if (warehouses.isNotEmpty) {
+      var firstWarehouse = warehouses[0];
+      if (firstWarehouse['provider'] != null) {
+        return firstWarehouse['provider']['name'];
+      }
+    }
+    return "";
   }
 }

@@ -157,7 +157,7 @@ class _PrintedGuideInfoStateProvider extends State<PrintedGuideInfoProvider> {
                         height: 20,
                       ),
                       Text(
-                        " Transportadora: ${data['transportadora'] != null ? data['transportadora'][0]['nombre'].toString() : ''}",
+                        " Transportadora: ${data['transportadora'] != null && data['transportadora'].isNotEmpty ? data['transportadora'][0]['nombre'].toString() : data['carrier_external'] != null ? data['carrier_external']['name'].toString() : ""}",
                         style: const TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
@@ -202,8 +202,8 @@ class _PrintedGuideInfoStateProvider extends State<PrintedGuideInfoProvider> {
                 getLoadingModal(context, false);
 
                 var responsereduceStock = await Connections()
-                    .updateProductVariantStock(data['variant_details'],
-                        0, data['id_comercial']);
+                    .updateProductVariantStock(
+                        data['variant_details'], 0, data['id_comercial']);
 
                 if (responsereduceStock == 0) {
                   var responseL = await Connections().updateOrderWithTime(

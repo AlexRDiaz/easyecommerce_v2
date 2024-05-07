@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:flutter_animated_icons/icons8.dart';
+import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/navigators.dart';
@@ -16,6 +18,7 @@ import 'package:frontend/ui/sellers/guides_sent/controllers/controllers.dart';
 import 'package:frontend/ui/sellers/order_entry/controllers/controllers.dart';
 import 'package:frontend/ui/transport/my_orders_prv/scanner_orders_prv.dart';
 import 'package:frontend/ui/utils/utils.dart';
+import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/filters_orders.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/logistic/scanner_printed.dart';
@@ -86,6 +89,8 @@ class _TableOrdersGuidesSentStateProvider
   ];
 
   List filtersAnd = [];
+  List arrayFiltersNot = [];
+
   var sortFieldDefaultValue = "id:DESC";
   bool changevalue = false;
 
@@ -98,13 +103,16 @@ class _TableOrdersGuidesSentStateProvider
     "sentBy",
     "printedBy",
     // "product.warehouse.provider"
-    "product_s.warehouses.provider"
+    "product_s.warehouses.provider",
+    'carrierExternal',
+    'ciudadExternal'
   ];
 
   var idUser = sharedPrefs!.getString("id");
   String idProv = sharedPrefs!.getString("idProvider").toString();
   String idProvUser = sharedPrefs!.getString("idProviderUserMaster").toString();
   int provType = 0;
+  bool showExternalCarriers = false;
 
   @override
   void didChangeDependencies() {
@@ -150,6 +158,8 @@ class _TableOrdersGuidesSentStateProvider
         // print("case1-1");
 
         filtersAnd = [];
+        arrayFiltersNot = [];
+
         if (provType == 2) {
           //prov principal
           //product.warehouses.provider.id
@@ -157,6 +167,12 @@ class _TableOrdersGuidesSentStateProvider
           print("sub_provProv");
         }
         filtersAnd.add({"/marca_tiempo_envio": date});
+        if (showExternalCarriers == false) {
+          filtersAnd.add({"/id_externo": null});
+        } else {
+          arrayFiltersNot.add({"id_externo": null});
+        }
+
         responseL = await Connections().getOrdersForSentGuidesPrincipalLaravel(
             populate,
             filtersAnd,
@@ -165,11 +181,14 @@ class _TableOrdersGuidesSentStateProvider
             currentPage,
             pageSize,
             "",
-            sortFieldDefaultValue, []);
+            sortFieldDefaultValue,
+            arrayFiltersNot);
       } else {
         // print("case1-2");
 
         filtersAnd = [];
+        arrayFiltersNot = [];
+
         if (provType == 2) {
           //prov principal
           //product.warehouses.provider.id
@@ -181,6 +200,11 @@ class _TableOrdersGuidesSentStateProvider
           "equals/transportadora.transportadora_id":
               selectedValueTransportator.toString().split('-')[1]
         });
+        if (showExternalCarriers == false) {
+          filtersAnd.add({"/id_externo": null});
+        } else {
+          arrayFiltersNot.add({"id_externo": null});
+        }
 
         responseL = await Connections().getOrdersForSentGuidesPrincipalLaravel(
             populate,
@@ -190,16 +214,25 @@ class _TableOrdersGuidesSentStateProvider
             currentPage,
             pageSize,
             "",
-            sortFieldDefaultValue, []);
+            sortFieldDefaultValue,
+            arrayFiltersNot);
       }
     } else {
       // print("case2");
       filtersAnd = [];
+      arrayFiltersNot = [];
+
       if (provType == 2) {
         //prov principal
         //product.warehouses.provider.id
         filtersAnd.add({"/product_s.warehouses.up_users.id_user": idUser});
         print("sub_provProv");
+      }
+
+      if (showExternalCarriers == false) {
+        filtersAnd.add({"/id_externo": null});
+      } else {
+        arrayFiltersNot.add({"id_externo": null});
       }
       responseL = await Connections().getOrdersForSentGuidesPrincipalLaravel(
           populate,
@@ -209,7 +242,8 @@ class _TableOrdersGuidesSentStateProvider
           currentPage,
           pageSize,
           _controllers.searchController.text,
-          sortFieldDefaultValue, []);
+          sortFieldDefaultValue,
+          arrayFiltersNot);
     }
 
     data = responseL['data'];
@@ -267,6 +301,8 @@ class _TableOrdersGuidesSentStateProvider
   void resetFilters() {
     getOldValue(true);
     filtersAnd = [];
+    arrayFiltersNot = [];
+    showExternalCarriers = false;
     selectedValueTransportator = null;
     _controllers.searchController.text = "";
   }
@@ -339,9 +375,43 @@ class _TableOrdersGuidesSentStateProvider
             const SizedBox(
               height: 10,
             ),
-            Align(
-                alignment: Alignment.centerLeft,
-                child: Text("Número de Ordenes: ${data.length}")),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      children: [
+                        Text(
+                          "Número de Ordenes: ${data.length}",
+                        ),
+                        const SizedBox(
+                          width: 30,
+                        ),
+                        Text(
+                          "Guías Externas",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, color: Colors.black),
+                        ),
+                        const SizedBox(width: 5),
+                        Checkbox(
+                          value: showExternalCarriers,
+                          onChanged: (value) async {
+                            setState(() {
+                              showExternalCarriers = value!;
+                            });
+                            loadData();
+                          },
+                          activeColor: ColorsSystem().mainBlue,
+                          shape: CircleBorder(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(
               height: 10,
             ),
@@ -351,7 +421,7 @@ class _TableOrdersGuidesSentStateProvider
                       fontWeight: FontWeight.bold, color: Colors.black),
                   dataTextStyle: const TextStyle(
                       fontSize: 12,
-                      fontWeight: FontWeight.bold,
+                      // fontWeight: FontWeight.bold,
                       color: Colors.black),
                   columnSpacing: 12,
                   horizontalMargin: 12,
@@ -542,12 +612,21 @@ class _TableOrdersGuidesSentStateProvider
                                           .toString(),
                                       "name": data[index]['nombre_shipping']
                                           .toString(),
-                                      "transport":
-                                          data[index]['transportadora'] != null
-                                              ? data[index]['transportadora'][0]
-                                                      ['nombre']
+                                      "transport": data[index]
+                                                      ['transportadora'] !=
+                                                  null &&
+                                              data[index]
+                                                      ['transportadora']
+                                                  .isNotEmpty
+                                          ? data[index]['transportadora'][0]
+                                                  ['nombre']
+                                              .toString()
+                                          : data[index]['carrier_external'] !=
+                                                  null
+                                              ? data[index]['carrier_external']
+                                                      ['name']
                                                   .toString()
-                                              : '',
+                                              : "",
                                       "address": data[index]
                                               ['direccion_shipping']
                                           .toString(),
@@ -562,6 +641,12 @@ class _TableOrdersGuidesSentStateProvider
                                               ? getFirstProviderName(data[index]
                                                   ['product_s']['warehouses'])
                                               : "",
+                                      "idExteralOrder": data[index]
+                                                      ['id_externo'] !=
+                                                  null &&
+                                              data[index]['id_externo'] != 0
+                                          ? data[index]['id_externo'].toString()
+                                          : "",
                                     });
                                   } else {
                                     var m = data[index]['id'];
@@ -638,11 +723,22 @@ class _TableOrdersGuidesSentStateProvider
                               getInfoModal(index);
                             }),
                             DataCell(
-                              Text(data[index]['transportadora'] != null &&
-                                      data[index]['transportadora'].isNotEmpty
-                                  ? data[index]['transportadora'][0]['nombre']
-                                      .toString()
-                                  : ''),
+                              Text(
+                                // data[index]['transportadora'] != null &&
+                                //         data[index]['transportadora'].isNotEmpty
+                                //     ? data[index]['transportadora'][0]['nombre']
+                                //         .toString()
+                                //     : '',
+                                data[index]['transportadora'] != null &&
+                                        data[index]['transportadora'].isNotEmpty
+                                    ? data[index]['transportadora'][0]['nombre']
+                                        .toString()
+                                    : data[index]['carrier_external'] != null
+                                        ? data[index]['carrier_external']
+                                                ['name']
+                                            .toString()
+                                        : "",
+                              ),
                             ),
                             DataCell(Text(data[index]['status'].toString()),
                                 onTap: () {
@@ -723,58 +819,64 @@ class _TableOrdersGuidesSentStateProvider
         children: [
           ElevatedButton(
               onPressed: () async {
-                const double point = 1.0;
-                const double inch = 72.0;
-                const double cm = inch / 2.54;
-                const double mm = inch / 25.4;
-                getLoadingModal(context, false);
-                final doc = pw.Document();
+                if (!showExternalCarriers) {
+                  const double point = 1.0;
+                  const double inch = 72.0;
+                  const double cm = inch / 2.54;
+                  const double mm = inch / 25.4;
+                  getLoadingModal(context, false);
+                  final doc = pw.Document();
 
-                for (var i = 0; i < selectedCheckBox.length; i++) {
-                  if (selectedCheckBox[i]['id'].toString().isNotEmpty &&
-                      selectedCheckBox[i]['id'].toString() != '' &&
-                      selectedCheckBox[i]['check'] == true) {
-                    final capturedImage =
-                        await screenshotController.captureFromWidget(Container(
-                            child: ModelGuide(
-                      address: selectedCheckBox[i]['address'],
-                      city: selectedCheckBox[i]['city'],
-                      date: selectedCheckBox[i]['date'],
-                      extraProduct: selectedCheckBox[i]['extraProduct'],
-                      idForBarcode: selectedCheckBox[i]['id'],
-                      name: selectedCheckBox[i]['name'],
-                      numPedido: selectedCheckBox[i]['numPedido'],
-                      observation: selectedCheckBox[i]['obervation'],
-                      phone: selectedCheckBox[i]['phone'],
-                      price: selectedCheckBox[i]['price'],
-                      product: selectedCheckBox[i]['product'],
-                      qrLink: selectedCheckBox[i]['qrLink'],
-                      quantity: selectedCheckBox[i]['quantity'],
-                      transport: selectedCheckBox[i]['transport'],
-                      provider: selectedCheckBox[i]['provider'],
-                    )));
+                  for (var i = 0; i < selectedCheckBox.length; i++) {
+                    if (selectedCheckBox[i]['id'].toString().isNotEmpty &&
+                        selectedCheckBox[i]['id'].toString() != '' &&
+                        selectedCheckBox[i]['check'] == true) {
+                      final capturedImage = await screenshotController
+                          .captureFromWidget(Container(
+                              child: ModelGuide(
+                        address: selectedCheckBox[i]['address'],
+                        city: selectedCheckBox[i]['city'],
+                        date: selectedCheckBox[i]['date'],
+                        extraProduct: selectedCheckBox[i]['extraProduct'],
+                        idForBarcode: selectedCheckBox[i]['id'],
+                        name: selectedCheckBox[i]['name'],
+                        numPedido: selectedCheckBox[i]['numPedido'],
+                        observation: selectedCheckBox[i]['obervation'],
+                        phone: selectedCheckBox[i]['phone'],
+                        price: selectedCheckBox[i]['price'],
+                        product: selectedCheckBox[i]['product'],
+                        qrLink: selectedCheckBox[i]['qrLink'],
+                        quantity: selectedCheckBox[i]['quantity'],
+                        transport: selectedCheckBox[i]['transport'],
+                        provider: selectedCheckBox[i]['provider'],
+                      )));
 
-                    doc.addPage(pw.Page(
-                      pageFormat: const PdfPageFormat(21.0 * cm, 21.0 * cm,
-                          marginAll: 0.1 * cm),
-                      build: (pw.Context context) {
-                        return pw.Row(
-                          children: [
-                            pw.Image(pw.MemoryImage(capturedImage),
-                                fit: pw.BoxFit.contain)
-                          ],
-                        );
-                      },
-                    ));
+                      doc.addPage(pw.Page(
+                        pageFormat: const PdfPageFormat(21.0 * cm, 21.0 * cm,
+                            marginAll: 0.1 * cm),
+                        build: (pw.Context context) {
+                          return pw.Row(
+                            children: [
+                              pw.Image(pw.MemoryImage(capturedImage),
+                                  fit: pw.BoxFit.contain)
+                            ],
+                          );
+                        },
+                      ));
+                    }
                   }
-                }
-                Navigator.pop(context);
-                await Printing.layoutPdf(
-                    onLayout: (PdfPageFormat format) async => await doc.save());
-                _controllers.searchController.clear();
-                setState(() {});
+                  Navigator.pop(context);
+                  await Printing.layoutPdf(
+                      onLayout: (PdfPageFormat format) async =>
+                          await doc.save());
+                  _controllers.searchController.clear();
+                  setState(() {});
 
-                // loadData();
+                  // loadData();
+                } else {
+                  // printOnePdfExternal();
+                  generateDocumentExternal();
+                }
               },
               child: const Text(
                 "IMPRIMIR",
@@ -809,6 +911,53 @@ class _TableOrdersGuidesSentStateProvider
         ],
       ),
     );
+  }
+
+  void generateDocumentExternal() async {
+    try {
+      getLoadingModal(context, false);
+      Stopwatch stopwatch = Stopwatch();
+      stopwatch.start();
+
+      var idsExternals = [];
+
+      await Future.forEach(selectedCheckBox, (checkBox) async {
+        if (checkBox['id'].toString().isNotEmpty &&
+            checkBox['id'].toString() != '') {
+          //
+          idsExternals.add(checkBox['idExteralOrder']);
+        }
+        //
+      });
+
+      var pdfContentTotal =
+          await Connections().multiExternalGuidesGTM(idsExternals);
+
+      if (pdfContentTotal is Uint8List) {
+        Navigator.pop(context);
+        await Printing.layoutPdf(
+          onLayout: (format) => pdfContentTotal!,
+        );
+      } else {
+        Navigator.pop(context);
+        print("Error: No se pudo obtener el PDF desde el backend.");
+        // ignore: use_build_context_synchronously
+        showSuccessModal(
+            context, "Error,  No se pudo obtener el PDF.", Icons8.alert);
+      }
+      stopwatch.stop();
+      Duration duration = stopwatch.elapsed;
+      print(
+          'La función tardó ${duration.inMilliseconds} milisegundos en ejecutarse.');
+
+      _controllers.searchController.clear();
+
+      selectedCheckBox = [];
+      loadData();
+      // isLoading = false;
+    } catch (e) {
+      print("Error al generar el documento $e");
+    }
   }
 
   getOldValue(Arrayrestoration) {
@@ -915,14 +1064,16 @@ class _TableOrdersGuidesSentStateProvider
                       ))
                   .toList(),
               value: selectedValueTransportator,
-              onChanged: (value) async {
-                filtersAnd = [];
-                _controllers.searchController.clear();
-                setState(() {
-                  selectedValueTransportator = value as String;
-                });
-                await loadData();
-              },
+              onChanged: !showExternalCarriers
+                  ? (value) async {
+                      filtersAnd = [];
+                      _controllers.searchController.clear();
+                      setState(() {
+                        selectedValueTransportator = value as String;
+                      });
+                      await loadData();
+                    }
+                  : null,
 
               //This to clear the search value when you close the menu
               onMenuStateChange: (isOpen) {

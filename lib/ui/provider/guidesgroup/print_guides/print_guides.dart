@@ -4,6 +4,8 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_animated_icons/icons8.dart';
+import 'package:frontend/config/colors.dart';
 
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/providers/filters_orders/filters_orders.dart';
@@ -11,6 +13,7 @@ import 'package:frontend/ui/logistic/print_guides/controllers/controllers.dart';
 import 'package:frontend/ui/logistic/print_guides/model_guide/model_guide.dart';
 import 'package:frontend/ui/provider/guidesgroup/print_guides/controllers/controllers.dart';
 import 'package:frontend/ui/sellers/print_guides/controllers/controllers.dart';
+import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/routes/routes.dart';
@@ -91,6 +94,7 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
   String specialProv = sharedPrefs!.getString("special").toString() == "null"
       ? "0"
       : sharedPrefs!.getString("special").toString();
+  bool showExternalCarriers = false;
 
   @override
   void didChangeDependencies() {
@@ -131,6 +135,13 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
       print("sub_provProv");
     }
 
+    if (showExternalCarriers == false) {
+      arrayFiltersAnd.add({"id_externo": null});
+    } else {
+      arrayFiltersNot = [
+        {"id_externo": null}
+      ];
+    }
 //    *
     var responseLaravel = await Connections().getOrdersForPrintGuidesLaravel(
       filtersOrCont,
@@ -242,6 +253,24 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
                   "Contador: ${data.length}",
                   style: const TextStyle(
                       fontWeight: FontWeight.bold, color: Colors.black),
+                ),
+                const SizedBox(width: 30),
+                Text(
+                  "Guías externas",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.black),
+                ),
+                const SizedBox(width: 5),
+                Checkbox(
+                  value: showExternalCarriers,
+                  onChanged: (value) async {
+                    setState(() {
+                      showExternalCarriers = value!;
+                    });
+                    loadData();
+                  },
+                  activeColor: ColorsSystem().mainBlue,
+                  shape: CircleBorder(),
                 ),
               ],
             ),
@@ -420,12 +449,21 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
                                           .toString(),
                                       "name": data[index]['nombre_shipping']
                                           .toString(),
-                                      "transport":
-                                          data[index]['transportadora'] != null
-                                              ? data[index]['transportadora'][0]
-                                                      ['nombre']
+                                      "transport": data[index]
+                                                      ['transportadora'] !=
+                                                  null &&
+                                              data[index]
+                                                      ['transportadora']
+                                                  .isNotEmpty
+                                          ? data[index]['transportadora'][0]
+                                                  ['nombre']
+                                              .toString()
+                                          : data[index]['carrier_external'] !=
+                                                  null
+                                              ? data[index]['carrier_external']
+                                                      ['name']
                                                   .toString()
-                                              : '',
+                                              : "",
                                       "address": data[index]
                                               ['direccion_shipping']
                                           .toString(),
@@ -440,6 +478,12 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
                                               ? getFirstProviderName(data[index]
                                                   ['product_s']['warehouses'])
                                               : "",
+                                      "idExteralOrder": data[index]
+                                                      ['id_externo'] !=
+                                                  null &&
+                                              data[index]['id_externo'] != 0
+                                          ? data[index]['id_externo'].toString()
+                                          : "",
                                     });
                                   } else {
                                     var m = data[index]['id'];
@@ -505,11 +549,26 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
                               getInfoModal(index);
                             }),
                             DataCell(
-                                Text(data[index]['transportadora'] != null &&
-                                        data[index]['transportadora'].isNotEmpty
-                                    ? data[index]['transportadora'][0]['nombre']
-                                        .toString()
-                                    : ''), onTap: () {
+                                Text(
+                                    // data[index]['transportadora'] != null &&
+                                    //         data[index]['transportadora']
+                                    //             .isNotEmpty
+                                    //     ? data[index]['transportadora'][0]
+                                    //             ['nombre']
+                                    //         .toString()
+                                    //     : '',
+                                    data[index]['transportadora'] != null &&
+                                            data[index]['transportadora']
+                                                .isNotEmpty
+                                        ? data[index]['transportadora'][0]
+                                                ['nombre']
+                                            .toString()
+                                        : data[index]['carrier_external'] !=
+                                                null
+                                            ? data[index]['carrier_external']
+                                                    ['name']
+                                                .toString()
+                                            : ""), onTap: () {
                               getInfoModal(index);
                             }),
                             DataCell(Text(data[index]['status'].toString()),
@@ -679,71 +738,76 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
         children: [
           ElevatedButton(
               onPressed: () async {
-                const double point = 1.0;
-                const double inch = 72.0;
-                const double cm = inch / 2.54;
-                const double mm = inch / 25.4;
-                getLoadingModal(context, false);
-                final doc = pw.Document();
+                if (!showExternalCarriers) {
+                  const double point = 1.0;
+                  const double inch = 72.0;
+                  const double cm = inch / 2.54;
+                  const double mm = inch / 25.4;
+                  getLoadingModal(context, false);
+                  final doc = pw.Document();
 
-                for (var i = 0; i < selectedCheckBox.length; i++) {
-                  // print(optionsCheckBox[i]);
-                  if (selectedCheckBox[i]['id'].toString().isNotEmpty &&
-                      selectedCheckBox[i]['id'].toString() != '') {
-                    final capturedImage =
-                        await screenshotController.captureFromWidget(Container(
-                            child: ModelGuide(
-                      address: selectedCheckBox[i]['address'],
-                      city: selectedCheckBox[i]['city'],
-                      date: selectedCheckBox[i]['date'],
-                      extraProduct: selectedCheckBox[i]['extraProduct'],
-                      idForBarcode: selectedCheckBox[i]['id'],
-                      name: selectedCheckBox[i]['name'],
-                      numPedido: selectedCheckBox[i]['numPedido'],
-                      observation: selectedCheckBox[i]['obervation'],
-                      phone: selectedCheckBox[i]['phone'],
-                      price: selectedCheckBox[i]['price'],
-                      product: selectedCheckBox[i]['product'],
-                      qrLink: selectedCheckBox[i]['qrLink'],
-                      quantity: selectedCheckBox[i]['quantity'],
-                      transport: selectedCheckBox[i]['transport'],
-                      provider: selectedCheckBox[i]['provider'],
-                    )));
-                    doc.addPage(pw.Page(
-                      pageFormat: PdfPageFormat(21.0 * cm, 21.0 * cm,
-                          marginAll: 0.1 * cm),
-                      build: (pw.Context context) {
-                        return pw.Row(
-                          children: [
-                            pw.Image(pw.MemoryImage(capturedImage),
-                                fit: pw.BoxFit.contain)
-                          ],
-                        );
-                      },
-                    ));
+                  for (var i = 0; i < selectedCheckBox.length; i++) {
+                    // print(optionsCheckBox[i]);
+                    if (selectedCheckBox[i]['id'].toString().isNotEmpty &&
+                        selectedCheckBox[i]['id'].toString() != '') {
+                      final capturedImage = await screenshotController
+                          .captureFromWidget(Container(
+                              child: ModelGuide(
+                        address: selectedCheckBox[i]['address'],
+                        city: selectedCheckBox[i]['city'],
+                        date: selectedCheckBox[i]['date'],
+                        extraProduct: selectedCheckBox[i]['extraProduct'],
+                        idForBarcode: selectedCheckBox[i]['id'],
+                        name: selectedCheckBox[i]['name'],
+                        numPedido: selectedCheckBox[i]['numPedido'],
+                        observation: selectedCheckBox[i]['obervation'],
+                        phone: selectedCheckBox[i]['phone'],
+                        price: selectedCheckBox[i]['price'],
+                        product: selectedCheckBox[i]['product'],
+                        qrLink: selectedCheckBox[i]['qrLink'],
+                        quantity: selectedCheckBox[i]['quantity'],
+                        transport: selectedCheckBox[i]['transport'],
+                        provider: selectedCheckBox[i]['provider'],
+                      )));
+                      doc.addPage(pw.Page(
+                        pageFormat: PdfPageFormat(21.0 * cm, 21.0 * cm,
+                            marginAll: 0.1 * cm),
+                        build: (pw.Context context) {
+                          return pw.Row(
+                            children: [
+                              pw.Image(pw.MemoryImage(capturedImage),
+                                  fit: pw.BoxFit.contain)
+                            ],
+                          );
+                        },
+                      ));
 
-                    // var responseL = await Connections().updatenueva(
-                    //     selectedCheckBox[i]['id'].toString(),
-                    //     {"estado_logistico": "IMPRESO", "printed_by": idUser});
+                      // var responseL = await Connections().updatenueva(
+                      //     selectedCheckBox[i]['id'].toString(),
+                      //     {"estado_logistico": "IMPRESO", "printed_by": idUser});
 
-                    //new
-                    var responseL = await Connections().updateOrderWithTime(
-                        selectedCheckBox[i]['id'].toString(),
-                        "estado_logistico:IMPRESO",
-                        idUser,
-                        "",
-                        "");
+                      //new
+                      var responseL = await Connections().updateOrderWithTime(
+                          selectedCheckBox[i]['id'].toString(),
+                          "estado_logistico:IMPRESO",
+                          idUser,
+                          "",
+                          "");
+                    }
                   }
+                  Navigator.pop(context);
+                  await Printing.layoutPdf(
+                      onLayout: (PdfPageFormat format) async =>
+                          await doc.save());
+                  _controllers.searchController.clear();
+                  setState(() {});
+                  selectedCheckBox = [];
+                  selectAll = false;
+                  getOldValue(true);
+                  loadData();
+                } else {
+                  generateDocumentExternal();
                 }
-                Navigator.pop(context);
-                await Printing.layoutPdf(
-                    onLayout: (PdfPageFormat format) async => await doc.save());
-                _controllers.searchController.clear();
-                setState(() {});
-                selectedCheckBox = [];
-                selectAll = false;
-                getOldValue(true);
-                loadData();
               },
               child: const Text(
                 "IMPRIMIR",
@@ -753,24 +817,26 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
             width: 20,
           ),
           ElevatedButton(
-              onPressed: () async {
-                await showDialog(
-                    context: context,
-                    builder: (context) {
-                      return RoutesModalv2(
-                          idOrder: selectedCheckBox,
-                          someOrders: true,
-                          phoneClient: "",
-                          codigo: "",
-                          origin: "print");
-                    });
+              onPressed: !showExternalCarriers
+                  ? () async {
+                      await showDialog(
+                          context: context,
+                          builder: (context) {
+                            return RoutesModalv2(
+                                idOrder: selectedCheckBox,
+                                someOrders: true,
+                                phoneClient: "",
+                                codigo: "",
+                                origin: "print");
+                          });
 
-                setState(() {});
-                selectedCheckBox = [];
-                selectAll = false;
-                getOldValue(true);
-                await loadData();
-              },
+                      setState(() {});
+                      selectedCheckBox = [];
+                      selectAll = false;
+                      getOldValue(true);
+                      await loadData();
+                    }
+                  : null,
               child: const Text(
                 "Asignar Ruta",
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -778,6 +844,67 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
         ],
       ),
     );
+  }
+
+  void generateDocumentExternal() async {
+    try {
+      getLoadingModal(context, false);
+      Stopwatch stopwatch = Stopwatch();
+      stopwatch.start();
+
+      var idsExternals = [];
+
+      await Future.forEach(selectedCheckBox, (checkBox) async {
+        if (checkBox['id'].toString().isNotEmpty &&
+            checkBox['id'].toString() != '') {
+          //
+          idsExternals.add(checkBox['idExteralOrder']);
+        }
+        //
+      });
+
+      var pdfContentTotal =
+          await Connections().multiExternalGuidesGTM(idsExternals);
+
+      if (pdfContentTotal is Uint8List) {
+        await Future.forEach(selectedCheckBox, (checkBox) async {
+          if (checkBox['id'].toString().isNotEmpty &&
+              checkBox['id'].toString() != '') {
+            //
+            var responseL = await Connections().updateOrderWithTime(
+              checkBox['id'].toString(),
+              "estado_logistico:IMPRESO",
+              idUser,
+              "",
+              "",
+            );
+          }
+          //
+        });
+        Navigator.pop(context);
+        await Printing.layoutPdf(
+          onLayout: (format) => pdfContentTotal!,
+        );
+      } else {
+        Navigator.pop(context);
+        print("Error: No se pudo obtener el PDF desde el backend.");
+        // ignore: use_build_context_synchronously
+        showSuccessModal(
+            context, "Error,  No se pudo obtener el PDF.", Icons8.alert);
+      }
+      stopwatch.stop();
+      Duration duration = stopwatch.elapsed;
+      print(
+          'La función tardó ${duration.inMilliseconds} milisegundos en ejecutarse.');
+
+      _controllers.searchController.clear();
+
+      selectedCheckBox = [];
+      loadData();
+      // isLoading = false;
+    } catch (e) {
+      print("Error al generar el documento $e");
+    }
   }
 
   _modelTextField({text, controller}) {
@@ -1046,9 +1173,12 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
           "phone": element['telefono_shipping'].toString(),
           "price": element['precio_total'].toString(),
           "name": element['nombre_shipping'].toString(),
-          "transport": element['transportadora'] != null
+          "transport": element['transportadora'] != null &&
+                  element['transportadora'].isNotEmpty
               ? element['transportadora'][0]['nombre'].toString()
-              : '',
+              : element['carrier_external'] != null
+                  ? element['carrier_external']['name'].toString()
+                  : "",
           "address": element['direccion_shipping'].toString(),
           "obervation": element['observacion'].toString(),
           "qrLink":

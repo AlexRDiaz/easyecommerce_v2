@@ -90,6 +90,9 @@ class _PrintedGuidesState extends State<PrintedGuides> {
     });
     // response =
     //     await Connections().getOrdersForPrintedGuides(_controllers.search.text);
+    arrayFiltersAnd = [];
+    arrayFiltersNot = [];
+
     if (showExternalCarriers == false) {
       arrayFiltersAnd = [
         {"estado_interno": "CONFIRMADO"},
@@ -147,6 +150,7 @@ class _PrintedGuidesState extends State<PrintedGuides> {
         "address": "",
         "obervation": "",
         "qrLink": "",
+        "provider": "",
         "idExteralOrder": "",
       });
     }
@@ -260,7 +264,6 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                           const SizedBox(
                             width: 30,
                           ),
-                          /*
                           Text(
                             "Guías Externas",
                             style: TextStyle(
@@ -279,7 +282,6 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                             activeColor: ColorsSystem().mainBlue,
                             shape: CircleBorder(),
                           ),
-                          */
                         ],
                       ),
                     ),
@@ -513,14 +515,19 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                                       optionsCheckBox[index]['name'] =
                                           data[index]['nombre_shipping']
                                               .toString();
-                                      optionsCheckBox[index]['transport'] =
-                                          data[index]['transportadora'] !=
-                                                      null &&
-                                                  data[index]['transportadora']
-                                                          .toString() !=
-                                                      "[]"
-                                              ? data[index]['transportadora'][0]
-                                                      ['nombre']
+                                      optionsCheckBox[index]
+                                          ['transport'] = data[index]
+                                                      ['transportadora'] !=
+                                                  null &&
+                                              data[index]['transportadora']
+                                                  .isNotEmpty
+                                          ? data[index]['transportadora'][0]
+                                                  ['nombre']
+                                              .toString()
+                                          : data[index]['carrier_external'] !=
+                                                  null
+                                              ? data[index]['carrier_external']
+                                                      ['name']
                                                   .toString()
                                               : "";
                                       optionsCheckBox[index]['address'] =
@@ -532,6 +539,12 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                                           data[index]['users'][0]['vendedores']
                                                   [0]['url_tienda']
                                               .toString();
+                                      optionsCheckBox[index]['provider'] =
+                                          data[index]['id_product'] != null &&
+                                                  data[index]['id_product'] != 0
+                                              ? getFirstProviderName(data[index]
+                                                  ['product_s']['warehouses'])
+                                              : "";
                                       optionsCheckBox[index]['idExteralOrder'] =
                                           data[index]['id_externo'] != null &&
                                                   data[index]['id_externo'] != 0
@@ -558,16 +571,16 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                                 // data[index]['attributes']
                                 //       ['CiudadShipping']
                                 Text(
-                                  // data[index]['ciudad_shipping'].toString(),
-                                  data[index]['ruta'] != null &&
-                                          data[index]['ruta'].toString() != "[]"
-                                      ? data[index]['ruta'][0]['titulo']
-                                          .toString()
-                                      : data[index]['carrier_external'] != null
-                                          ? data[index]['ciudad_external']
-                                                  ['ciudad']
-                                              .toString()
-                                          : "",
+                                  data[index]['ciudad_shipping'].toString(),
+                                  // data[index]['ruta'] != null &&
+                                  //         data[index]['ruta'].toString() != "[]"
+                                  //     ? data[index]['ruta'][0]['titulo']
+                                  //         .toString()
+                                  //     : data[index]['carrier_external'] != null
+                                  //         ? data[index]['ciudad_external']
+                                  //                 ['ciudad']
+                                  //             .toString()
+                                  //         : "",
                                 ), onTap: () {
                               info(context, index);
                             }),
@@ -680,6 +693,16 @@ class _PrintedGuidesState extends State<PrintedGuides> {
         ),
       ),
     );
+  }
+
+  String? getFirstProviderName(List<dynamic> warehouses) {
+    if (warehouses.isNotEmpty) {
+      var firstWarehouse = warehouses[0];
+      if (firstWarehouse['provider'] != null) {
+        return firstWarehouse['provider']['name'];
+      }
+    }
+    return "";
   }
 
   _modelTextField({text, controller}) {
@@ -841,6 +864,7 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                         qrLink: optionsCheckBox[i]['qrLink'],
                         quantity: optionsCheckBox[i]['quantity'],
                         transport: optionsCheckBox[i]['transport'],
+                        provider: optionsCheckBox[i]['provider'],
                       )));
 
                       doc.addPage(pw.Page(
@@ -1152,15 +1176,21 @@ class _PrintedGuidesState extends State<PrintedGuides> {
             optionsCheckBox[i]['name'] = data[i]['nombre_shipping'].toString();
             optionsCheckBox[i]['transport'] =
                 data[i]['transportadora'] != null &&
-                        data[i]['transportadora'].toString() != "[]"
+                        data[i]['transportadora'].isNotEmpty
                     ? data[i]['transportadora'][0]['nombre'].toString()
-                    : "";
+                    : data[i]['carrier_external'] != null
+                        ? data[i]['carrier_external']['name'].toString()
+                        : "";
             optionsCheckBox[i]['address'] =
                 data[i]['direccion_shipping'].toString();
             optionsCheckBox[i]['obervation'] =
                 data[i]['observacion'].toString();
             optionsCheckBox[i]['qrLink'] =
                 data[i]['users'][0]['vendedores'][0]['url_tienda'].toString();
+            optionsCheckBox[i]['provider'] =
+                data[i]['id_product'] != null && data[i]['id_product'] != 0
+                    ? getFirstProviderName(data[i]['product_s']['warehouses'])
+                    : "";
             optionsCheckBox[i]["idExteralOrder"] =
                 data[i]['id_externo'] != null && data[i]['id_externo'] != 0
                     ? data[i]['id_externo'].toString()
