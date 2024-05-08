@@ -1461,15 +1461,30 @@ class _CatalogState extends State<Catalog> {
                           getLoadingModal(context, true);
 
                           if (product.isvariable == 1) {
+                            String variablesSkuId = "";
+
+                            List<Map<String, dynamic>>? variants =
+                                (features["variants"] as List<dynamic>)
+                                    .cast<Map<String, dynamic>>();
+
+                            variablesText = variants!.map((variable) {
+                              if (variable.containsKey('sku')) {
+                                variablesSkuId +=
+                                    "${variable['sku']}C${product.productId.toString()}\n";
+                              }
+                            }).join('\n\n');
+
                             Clipboard.setData(
-                                ClipboardData(text: variablesSKU));
+                                ClipboardData(text: variablesSkuId));
 
                             Get.snackbar(
                               'SKUs COPIADOS',
                               'Copiado al Clipboard',
                             );
                           } else {
-                            Clipboard.setData(ClipboardData(text: sku));
+                            Clipboard.setData(ClipboardData(
+                                text:
+                                    "${sku}C${product.productId.toString()}"));
 
                             Get.snackbar(
                               'SKU COPIADO',
