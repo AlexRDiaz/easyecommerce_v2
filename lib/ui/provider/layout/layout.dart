@@ -352,8 +352,8 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
   @override
   void didChangeDependencies() {
     var currentIndex = sharedPrefs!.getString("index");
-    print(": $currentIndex");
-    print("${pages.length}");
+    // print(": $currentIndex");
+    // print("${pages.length}");
     // currentView = {
     //   "page": sharedPrefs!.getString("index") != null
     //       ? pagesProvider[int.parse(sharedPrefs!.getString("index").toString())]
@@ -364,12 +364,35 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
     //           ["view"]
     //       : WelcomeProviderScreen()
     // };
-    currentView = {"page": "Dashboard", "view": WelcomeProviderScreen()};
-    if (sharedPrefs!.getString("index") != null) {
-      pages = List.from(pages)
-        ..[int.parse(sharedPrefs!.getString("index").toString())]['selected'] =
-            true;
+    print(".... --- .-.. .-");
+    if (currentIndex != null) {
+      if ((int.parse(currentIndex!) > pages.length) ||
+          sharedPrefs!.getString("index") == "null") {
+        print(".---- ...-- > -.. .. .- -. .- -.-.");
+        currentView = {"page": "Dashboard", "view": WelcomeProviderScreen()};
+      } else {
+        // currentView = {"page": "Dashboard", "view": WelcomeProviderScreen()};
+        // if (sharedPrefs!.getString("index") != null) {
+        //   pages = List.from(pages)
+        //     ..[int.parse(sharedPrefs!.getString("index").toString())]
+        //         ['selected'] = true;
+        // }
+        currentView = {
+          "page": sharedPrefs!.getString("index") != null
+              ? pagesProvider[
+                  int.parse(sharedPrefs!.getString("index").toString())]["page"]
+              : "Dashboard",
+          "view": sharedPrefs!.getString("index") != null
+              ? pagesProvider[
+                  int.parse(sharedPrefs!.getString("index").toString())]["view"]
+              : WelcomeProviderScreen()
+        };
+      }
+    } else {
+      print(".---- ...--");
+      currentView = {"page": "Dashboard", "view": WelcomeProviderScreen()};
     }
+
     super.didChangeDependencies();
   }
 

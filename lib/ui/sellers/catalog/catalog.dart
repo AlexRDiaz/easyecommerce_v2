@@ -1451,6 +1451,47 @@ class _CatalogState extends State<Catalog> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
+                      ElevatedButton(
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(
+                            ColorsSystem().colorPrincipalBrand,
+                          ),
+                        ),
+                        onPressed: () async {
+                          getLoadingModal(context, true);
+
+                          if (product.isvariable == 1) {
+                            Clipboard.setData(
+                                ClipboardData(text: variablesSKU));
+
+                            Get.snackbar(
+                              'SKUs COPIADOS',
+                              'Copiado al Clipboard',
+                            );
+                          } else {
+                            Clipboard.setData(ClipboardData(text: sku));
+
+                            Get.snackbar(
+                              'SKU COPIADO',
+                              'Copiado al Clipboard',
+                            );
+                          }
+                          Navigator.of(context).pop();
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              product.isvariable == 1
+                                  ? "Copiar SKUs"
+                                  : "Copiar SKU",
+                            ),
+                            const SizedBox(width: 8),
+                            const Icon(Icons.copy_rounded),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 20),
                       Tooltip(
                         message: 'Descargar archivo CSV',
                         child: ElevatedButton(
@@ -2396,6 +2437,7 @@ class _CatalogState extends State<Catalog> {
           setState(() {
             _search.text = value;
           });
+          _getProductModelCatalog();
         },
         decoration: InputDecoration(
           labelText: 'Buscar producto',
@@ -2406,6 +2448,8 @@ class _CatalogState extends State<Catalog> {
                     setState(() {
                       _search.clear();
                     });
+
+                    _getProductModelCatalog();
                   },
                   child: const Icon(Icons.close))
               : null,

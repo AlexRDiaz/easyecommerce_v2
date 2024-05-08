@@ -1250,13 +1250,12 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                   // messageVar = messageVar.substring(
                                   //     1, messageVar.length - 2);
                                   // messageVar += ") ";
+                                  contenidoProd = contenidoProd.substring(
+                                      0, contenidoProd.length - 3);
                                 } else {
                                   contenidoProd +=
                                       '$quantityTotal*${_producto.text}';
                                 }
-
-                                contenidoProd = contenidoProd.substring(
-                                    0, contenidoProd.length - 3);
 
                                 String remitente_address =
                                     prov_city_address.split('-')[2];
@@ -1334,7 +1333,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                     "peso_total": "2.00",
                                     "documento_venta": "",
                                     "contenido":
-                                        "$contenidoProd${_productoE.text.isNotEmpty ? " |${_productoE.text}" : ""}",
+                                        "$contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}",
                                     "observacion": _observacion.text,
                                     "fecha": formattedDateTime,
                                     "declarado": double.parse(priceTotal),
@@ -1346,6 +1345,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                 double costDelivery = double.parse(
                                         costShippingSeller.toString()) +
                                     double.parse(taxCostShipping.toString());
+
                                 var response =
                                     await Connections().createOrderProduct(
                                   sharedPrefs!
@@ -1418,7 +1418,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                 }
 
                                 var _url = Uri.parse(
-                                  """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " |${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                  """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
                                 );
 
                                 if (!await launchUrl(_url)) {
