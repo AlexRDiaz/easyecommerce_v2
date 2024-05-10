@@ -61,7 +61,7 @@ class _CatalogState extends State<Catalog> {
 
   List arrayFiltersOr = ["product_name", "stock", "price"];
   List arrayFiltersAnd = [
-    {"/seller_owned": "0"}
+    {"equals/seller_owned": "0"}
   ];
   List outFilter = [];
   List filterps = [];
@@ -182,7 +182,7 @@ class _CatalogState extends State<Catalog> {
     if (Arrayrestoration) {
       setState(() {
         arrayFiltersAnd = [
-          {"/seller_owned": "0"}
+          {"equals/seller_owned": "0"}
         ];
       });
     }
@@ -1188,18 +1188,18 @@ class _CatalogState extends State<Catalog> {
             var idMaster =
                 sharedPrefs!.getString("idComercialMasterSeller").toString();
             print("add seller_owned");
-            arrayFiltersAnd
-                .removeWhere((filter) => filter.containsKey("/seller_owned"));
-            arrayFiltersAnd.add({"/seller_owned": idMaster});
+            arrayFiltersAnd.removeWhere(
+                (filter) => filter.containsKey("equals/seller_owned"));
+            arrayFiltersAnd.add({"equals/seller_owned": idMaster});
             setState(() {
               _getProductModelCatalog();
             });
           } else {
             print("remove seller_owned");
 
-            arrayFiltersAnd
-                .removeWhere((filter) => filter.containsKey("/seller_owned"));
-            arrayFiltersAnd.add({"/seller_owned": "0"});
+            arrayFiltersAnd.removeWhere(
+                (filter) => filter.containsKey("equals/seller_owned"));
+            arrayFiltersAnd.add({"equals/seller_owned": "0"});
             setState(() {
               _getProductModelCatalog();
             });
@@ -1249,7 +1249,7 @@ class _CatalogState extends State<Catalog> {
     selectedCategory = 'TODO';
     selectedCategoriesList = [];
     arrayFiltersAnd = [
-      {"/seller_owned": "0"}
+      {"equals/seller_owned": "0"}
     ];
     outFilter = [];
     _minPriceController.clear();
@@ -1316,7 +1316,7 @@ class _CatalogState extends State<Catalog> {
     List<dynamic> categories;
 
     String reservesText = "";
-
+    int reserveStock = 0;
     List<ReserveModel>? reservesList = product.reserves;
     if (reservesList != null) {
       for (int i = 0; i < reservesList.length; i++) {
@@ -1327,6 +1327,7 @@ class _CatalogState extends State<Catalog> {
         if (int.parse(idMaster) == int.parse(reserve.idComercial.toString())) {
           UserModel? userSeller = reserve.user;
           reservesText += "SKU: ${reserve.sku}\nCantidad: ${reserve.stock}";
+          reserveStock += int.parse(reserve.stock.toString());
           if (i < reservesList.length - 1) {
             reservesText += "\n\n";
           }
@@ -1417,6 +1418,9 @@ class _CatalogState extends State<Catalog> {
       labelIsOnSale = "Dejar de vender";
     }
 
+    print("stock G: ${product.stock.toString()}");
+    print("reservas: ${reserveStock.toString()}");
+
     // print("isFavorite: $isFavorite");
     // print("isOnSale: $isOnSale");
 
@@ -1451,96 +1455,104 @@ class _CatalogState extends State<Catalog> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      ElevatedButton(
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all(
-                            ColorsSystem().colorPrincipalBrand,
-                          ),
-                        ),
-                        onPressed: () async {
-                          getLoadingModal(context, true);
-
-                          if (product.isvariable == 1) {
-                            String variablesSkuId = "";
-
-                            List<Map<String, dynamic>>? variants =
-                                (features["variants"] as List<dynamic>)
-                                    .cast<Map<String, dynamic>>();
-
-                            variablesText = variants!.map((variable) {
-                              if (variable.containsKey('sku')) {
-                                variablesSkuId +=
-                                    "${variable['sku']}C${product.productId.toString()}\n";
-                              }
-                            }).join('\n\n');
-
-                            Clipboard.setData(
-                                ClipboardData(text: variablesSkuId));
-
-                            Get.snackbar(
-                              'SKUs COPIADOS',
-                              'Copiado al Clipboard',
-                            );
-                          } else {
-                            Clipboard.setData(ClipboardData(
-                                text:
-                                    "${sku}C${product.productId.toString()}"));
-
-                            Get.snackbar(
-                              'SKU COPIADO',
-                              'Copiado al Clipboard',
-                            );
-                          }
-                          Navigator.of(context).pop();
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              product.isvariable == 1
-                                  ? "Copiar SKUs"
-                                  : "Copiar SKU",
-                            ),
-                            const SizedBox(width: 8),
-                            const Icon(Icons.copy_rounded),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Tooltip(
-                        message: 'Descargar archivo CSV',
+                      Visibility(
+                        visible: int.parse(product.stock.toString()) > 0 ||
+                            reserveStock > 0,
                         child: ElevatedButton(
                           style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all(
-                              Colors.green,
+                              ColorsSystem().colorPrincipalBrand,
                             ),
                           ),
                           onPressed: () async {
                             getLoadingModal(context, true);
-                            try {
-                              // await getReport.generateExcelFileWithData(product);
-                              if (product.isvariable == 1) {
-                                await getReport
-                                    .generateCsvFileProductVariant(product);
-                              } else {
-                                await getReport
-                                    .generateCsvFileProductSimple(product);
-                              }
-                              Navigator.of(context).pop();
-                            } catch (e) {
-                              Navigator.of(context).pop();
-                              print("error: $e");
-                              SnackBarHelper.showErrorSnackBar(context,
-                                  "Ha ocurrido un error al generar el reporte");
+
+                            if (product.isvariable == 1) {
+                              String variablesSkuId = "";
+
+                              List<Map<String, dynamic>>? variants =
+                                  (features["variants"] as List<dynamic>)
+                                      .cast<Map<String, dynamic>>();
+
+                              variablesText = variants!.map((variable) {
+                                if (variable.containsKey('sku')) {
+                                  variablesSkuId +=
+                                      "${variable['sku']}C${product.productId.toString()}\n";
+                                }
+                              }).join('\n\n');
+
+                              Clipboard.setData(
+                                  ClipboardData(text: variablesSkuId));
+
+                              Get.snackbar(
+                                'SKUs COPIADOS',
+                                'Copiado al Clipboard',
+                              );
+                            } else {
+                              Clipboard.setData(ClipboardData(
+                                  text:
+                                      "${sku}C${product.productId.toString()}"));
+
+                              Get.snackbar(
+                                'SKU COPIADO',
+                                'Copiado al Clipboard',
+                              );
                             }
+                            Navigator.of(context).pop();
                           },
-                          child: const Row(
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.file_download_sharp),
-                              SizedBox(width: 8),
-                              Text(''),
+                              Text(
+                                product.isvariable == 1
+                                    ? "Copiar SKUs"
+                                    : "Copiar SKU",
+                              ),
+                              const SizedBox(width: 8),
+                              const Icon(Icons.copy_rounded),
                             ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      Visibility(
+                        visible: int.parse(product.stock.toString()) > 0 ||
+                            reserveStock > 0,
+                        child: Tooltip(
+                          message: 'Descargar archivo CSV',
+                          child: ElevatedButton(
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all(
+                                Colors.green,
+                              ),
+                            ),
+                            onPressed: () async {
+                              getLoadingModal(context, true);
+                              try {
+                                // await getReport.generateExcelFileWithData(product);
+                                if (product.isvariable == 1) {
+                                  await getReport
+                                      .generateCsvFileProductVariant(product);
+                                } else {
+                                  await getReport
+                                      .generateCsvFileProductSimple(product);
+                                }
+                                Navigator.of(context).pop();
+                              } catch (e) {
+                                Navigator.of(context).pop();
+                                print("error: $e");
+                                SnackBarHelper.showErrorSnackBar(context,
+                                    "Ha ocurrido un error al generar el reporte");
+                              }
+                            },
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.file_download_sharp),
+                                SizedBox(width: 8),
+                                Text(''),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -2056,7 +2068,9 @@ class _CatalogState extends State<Catalog> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Visibility(
-                            visible: idUser == 2 || idUser == 188,
+                            visible: (idUser == 2 || idUser == 188) &&
+                                (int.parse(product.stock.toString()) > 0 ||
+                                    reserveStock > 0),
                             child: _buttonCreateGuide(product, context),
                           ),
                           const SizedBox(width: 30),

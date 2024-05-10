@@ -60,7 +60,7 @@ class _TableOrdersGuidesSentStateSeller
   int pageSize = 1300;
   var filtersDefaultAnd = [
     {
-      '/id_comercial':
+      'equals/id_comercial':
           sharedPrefs!.getString("idComercialMasterSeller").toString(),
     },
     {"/estado_logistico": "ENVIADO"}

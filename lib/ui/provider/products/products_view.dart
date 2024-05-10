@@ -40,7 +40,7 @@ class _ProductsViewState extends State<ProductsView> {
   NumberPaginatorController paginatorController = NumberPaginatorController();
   NumberPaginatorController paginatorControllerI = NumberPaginatorController();
   int currentPage = 1;
-  int pageSize = 70;
+  int pageSize = 75;
   int pageCount = 100;
   bool isLoading = false;
   bool isFirst = false;
@@ -124,103 +124,117 @@ class _ProductsViewState extends State<ProductsView> {
   }
 
   loadData() async {
-    // try {
-    setState(() {
+    try {
+      setState(() {
+        warehousesToSelect = [];
+        isLoading = true;
+        currentPage = 1;
+      });
+      print("loadData");
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
+
+      // print(data2);
+      //
+      var responseBodegas = await _getWarehousesData();
+      warehousesList = responseBodegas;
       warehousesToSelect = [];
-      isLoading = true;
-    });
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getLoadingModal(context, false);
-    });
-
-    // print(data2);
-    //
-    var responseBodegas = await _getWarehousesData();
-    warehousesList = responseBodegas;
-    warehousesToSelect.insert(0, 'TODO');
-    for (var warehouse in warehousesList) {
-      warehousesToSelect
-          .add('${warehouse.branchName}/${warehouse.city}-${warehouse.id}');
-
-      if (warehouse.approved == 1 && warehouse.active == 1) {
-        warehouseActAprob = true;
+      bool containsTodo = false;
+      warehousesToSelect.forEach((String item) {
+        if (item.contains("TODO")) {
+          containsTodo = true;
+        }
+      });
+      if (!containsTodo) {
+        warehousesToSelect.insert(0, 'TODO');
       }
-    }
 
-    // var response = await _productController.loadProductsByProvider(
-    //     sharedPrefs!.getString("idProvider"),
-    //     populate,
-    //     pageSize,
-    //     currentPage,
-    //     arrayFiltersOr,
-    //     arrayFiltersAnd,
-    //     sortFieldDefaultValue.toString(),
-    //     _search.text,
-    //     "");
+      for (var warehouse in warehousesList) {
+        warehousesToSelect
+            .add('${warehouse.branchName}/${warehouse.city}-${warehouse.id}');
 
-    if (provType == 1) {
-      //prov principal
-      if (int.parse(specialProv.toString()) == 1) {
-        //prov principal y especial
-        arrayFiltersAnd.add({"/approved": 1});
-        print("provPrincipal special principal 1");
-      } else {
-        arrayFiltersAnd.add({"/warehouses.provider_id": idProv});
-        print("provPrincipal no especial 2");
+        if (warehouse.approved == 1 && warehouse.active == 1) {
+          warehouseActAprob = true;
+        }
       }
-    } else if (provType == 2) {
-      //prov principal
-      arrayFiltersAnd.add({"/warehouses.up_users.id_user": idUser});
-      print("sub_provProv");
-    }
-    var response = await _productController.loadBySubProvider(
-        populate,
-        pageSize,
-        currentPage,
-        arrayFiltersOr,
-        arrayFiltersAnd,
-        sortFieldDefaultValue.toString(),
-        _search.text);
-    data = response['data'];
-    // print(data);
-    // total = response['total'];
-    // pageCount = response['last_page'];
 
-    for (Map producto in data) {
-      var selectedItem = selectedCheckBox
-          .where((elemento) => elemento["product_id"] == producto["product_id"])
-          .toList();
-      if (selectedItem.isNotEmpty) {
-        producto['check'] = true;
-      } else {
-        producto['check'] = false;
+      // var response = await _productController.loadProductsByProvider(
+      //     sharedPrefs!.getString("idProvider"),
+      //     populate,
+      //     pageSize,
+      //     currentPage,
+      //     arrayFiltersOr,
+      //     arrayFiltersAnd,
+      //     sortFieldDefaultValue.toString(),
+      //     _search.text,
+      //     "");
+
+      if (provType == 1) {
+        //prov principal
+        if (int.parse(specialProv.toString()) == 1) {
+          //prov principal y especial
+          arrayFiltersAnd.add({"/approved": 1});
+          print("provPrincipal special principal 1");
+        } else {
+          arrayFiltersAnd.add({"/warehouses.provider_id": idProv});
+          print("provPrincipal no especial 2");
+        }
+      } else if (provType == 2) {
+        //prov principal
+        arrayFiltersAnd.add({"/warehouses.up_users.id_user": idUser});
+        print("sub_provProv");
       }
+      var response = await _productController.loadBySubProvider(
+          populate,
+          pageSize,
+          currentPage,
+          arrayFiltersOr,
+          arrayFiltersAnd,
+          sortFieldDefaultValue.toString(),
+          _search.text);
+      data = response['data'];
+      // print(data);
+      // total = response['total'];
+      // pageCount = response['last_page'];
+
+      for (Map producto in data) {
+        var selectedItem = selectedCheckBox
+            .where(
+                (elemento) => elemento["product_id"] == producto["product_id"])
+            .toList();
+        if (selectedItem.isNotEmpty) {
+          producto['check'] = true;
+        } else {
+          producto['check'] = false;
+        }
+      }
+      // print("prductos: $data");
+      // print("data2: $data");
+
+      total = response['total'];
+      pageCount = response['last_page'];
+      setState(() {
+        paginatorController.navigateToPage(0);
+      });
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
+      // print("datos cargados correctamente");
+      setState(() {
+        isFirst = false;
+        isLoading = false;
+      });
+      //
+    } catch (e) {
+      SnackBarHelper.showErrorSnackBar(
+          context, "Ha ocurrido un error de conexión");
     }
-    // print("prductos: $data");
-    // print("data2: $data");
-
-    total = response['total'];
-    pageCount = response['last_page'];
-
-    paginatorController.navigateToPage(0);
-    Future.delayed(Duration(milliseconds: 500), () {
-      Navigator.pop(context);
-    });
-    // print("datos cargados correctamente");
-    setState(() {
-      isFirst = false;
-      isLoading = false;
-    });
-    //
-    // } catch (e) {
-    //   SnackBarHelper.showErrorSnackBar(
-    //       context, "Ha ocurrido un error de conexión");
-    // }
   }
 
   paginateDataIntern(productId) async {
     setState(() {
+      warehousesToSelect = [];
       isLoading = true;
     });
     try {
@@ -250,27 +264,78 @@ class _ProductsViewState extends State<ProductsView> {
 
   paginateData() async {
     setState(() {
+      warehousesToSelect = [];
       isLoading = true;
     });
     try {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         getLoadingModal(context, false);
       });
+      print("paginateData");
+      var responseBodegas = await _getWarehousesData();
+      warehousesList = responseBodegas;
+      warehousesToSelect = [];
+      bool containsTodo = false;
+      warehousesToSelect.forEach((String item) {
+        if (item.contains("TODO")) {
+          containsTodo = true;
+        }
+      });
+      if (!containsTodo) {
+        warehousesToSelect.insert(0, 'TODO');
+      }
 
-      // var response = await Connections().getProductsByProvider(
-      //     sharedPrefs!.getString("idProvider"),
-      //     populate,
-      //     pageSize,
-      //     currentPage,
-      //     arrayFiltersOr,
-      //     arrayFiltersAnd,
-      //     sortFieldDefaultValue.toString(),
-      //     _search.text);
+      for (var warehouse in warehousesList) {
+        warehousesToSelect
+            .add('${warehouse.branchName}/${warehouse.city}-${warehouse.id}');
 
-      // setState(() {
-      //   data = response['data'];
-      //   pageCount = response['last_page'];
-      // });
+        if (warehouse.approved == 1 && warehouse.active == 1) {
+          warehouseActAprob = true;
+        }
+      }
+      print("${warehousesToSelect.length.toString()}");
+
+      if (provType == 1) {
+        //prov principal
+        if (int.parse(specialProv.toString()) == 1) {
+          //prov principal y especial
+          arrayFiltersAnd.add({"/approved": 1});
+          print("provPrincipal special principal 1");
+        } else {
+          arrayFiltersAnd.add({"/warehouses.provider_id": idProv});
+          print("provPrincipal no especial 2");
+        }
+      } else if (provType == 2) {
+        //prov principal
+        arrayFiltersAnd.add({"/warehouses.up_users.id_user": idUser});
+        print("sub_provProv");
+      }
+      var response = await _productController.loadBySubProvider(
+          populate,
+          pageSize,
+          currentPage,
+          arrayFiltersOr,
+          arrayFiltersAnd,
+          sortFieldDefaultValue.toString(),
+          _search.text);
+      data = response['data'];
+      setState(() {
+        dataHistory = response['data'];
+        pageCountIntern = response['last_page'];
+        totalIntern = response['total'];
+      });
+
+      for (Map producto in data) {
+        var selectedItem = selectedCheckBox
+            .where(
+                (elemento) => elemento["product_id"] == producto["product_id"])
+            .toList();
+        if (selectedItem.isNotEmpty) {
+          producto['check'] = true;
+        } else {
+          producto['check'] = false;
+        }
+      }
       Future.delayed(Duration(milliseconds: 500), () {
         Navigator.pop(context);
       });
@@ -720,9 +785,15 @@ class _ProductsViewState extends State<ProductsView> {
                           ),
                           DataCell(
                             Text(data[index]['product_id'].toString()),
+                            onTap: () {
+                              _showProductInfo(data[index]);
+                            },
                           ),
                           DataCell(
                             Text(data[index]['product_name']),
+                            onTap: () {
+                              _showProductInfo(data[index]);
+                            },
                           ),
                           DataCell(Text(data[index]['isvariable'] == 1
                               ? "VARIABLE"
@@ -793,6 +864,8 @@ class _ProductsViewState extends State<ProductsView> {
                                         builder: (context) {
                                           return EditProduct(
                                             data: data[index],
+                                            specialOwn: getMultiWarehouses(
+                                                data[index]['warehouses']),
                                             // function: paginateData,
                                             hasEdited: hasEdited,
                                           );
@@ -1075,14 +1148,38 @@ class _ProductsViewState extends State<ProductsView> {
   }
 
   bool getMultiWarehouses(dynamic warehouses) {
+    // print("bool getMultiWarehouses");
     bool res = false;
     if (warehouses != null) {
-      res = warehouses.length > 1 ? true : false;
+      // print(specialProv);
+      if (int.parse(specialProv.toString()) == 1) {
+        res = warehouses.length > 1 ? true : false;
+        if (warehouses.length > 1) {
+          res = true;
+        } else if (warehouses.length == 1) {
+          String idWare = "";
+          for (var warehouse in warehouses) {
+            idWare = warehouse['warehouse_id'].toString();
+          }
+          warehousesToSelect.insert(0, 'TODO');
+          for (var warehouse in warehousesList) {
+            String idws = warehouse.id.toString();
+            if (idWare == idws) {
+              res = true;
+            }
+          }
+        } else {
+          res = false;
+        }
+      } else {
+        res = warehouses.length > 1 ? true : false;
+      }
     }
+
     return res;
   }
 
-  Future<dynamic> showDialogInfoData(data) {
+  Future<dynamic> showDialogInfoData(data, isown) {
     return showDialog(
         context: context,
         builder: (context) {
@@ -1105,6 +1202,7 @@ class _ProductsViewState extends State<ProductsView> {
                   Expanded(
                       child: EditProduct(
                     data: data,
+                    specialOwn: isown,
                     hasEdited: hasEdited,
                     // function: loadData(),
                   ))

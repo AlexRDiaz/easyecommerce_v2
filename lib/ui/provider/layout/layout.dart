@@ -366,8 +366,7 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
     // };
     print(".... --- .-.. .-");
     if (currentIndex != null) {
-      if ((int.parse(currentIndex!) > pages.length) ||
-          sharedPrefs!.getString("index") == "null") {
+      if ((int.parse(currentIndex) > pages.length)) {
         print(".---- ...-- > -.. .. .- -. .- -.-.");
         currentView = {"page": "Dashboard", "view": WelcomeProviderScreen()};
       } else {

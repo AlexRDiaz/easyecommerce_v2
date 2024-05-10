@@ -118,6 +118,7 @@ class _AddProductState extends State<AddProduct> {
   bool sellerOwner = false;
   final TextEditingController _emailSellerOwnerController =
       TextEditingController();
+  ScrollController _scrollController = ScrollController();
 
   bool containsEmoji(String text) {
     final emojiPattern = RegExp(
@@ -199,6 +200,7 @@ class _AddProductState extends State<AddProduct> {
           child: Form(
             key: formKey,
             child: ListView(
+              controller: _scrollController,
               children: [
                 Column(
                   children: [
@@ -561,396 +563,6 @@ class _AddProductState extends State<AddProduct> {
                               ],
                             ),
                           ),
-                          /*
-                          const SizedBox(width: 20),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Visibility(
-                                  visible:
-                                      selectedVariablesList.contains("Tallas"),
-                                  child: DropdownButtonFormField<String>(
-                                    isExpanded: true,
-                                    hint: Text(
-                                      'Seleccione Talla',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Theme.of(context).hintColor,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    items: sizesToSelect
-                                        .map((item) => DropdownMenuItem(
-                                              value: item,
-                                              child: Text(
-                                                item,
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ))
-                                        .toList(),
-                                    value: chosenSize,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        chosenSize = value;
-                                      });
-                                    },
-                                    decoration: InputDecoration(
-                                      fillColor: Colors.white,
-                                      filled: true,
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(5.0),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Visibility(
-                                  visible:
-                                      selectedVariablesList.contains("Colores"),
-                                  child: DropdownButtonFormField<String>(
-                                    isExpanded: true,
-                                    hint: Text(
-                                      'Seleccione Color',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Theme.of(context).hintColor,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    items: colorsToSelect
-                                        .map((item) => DropdownMenuItem(
-                                              value: item,
-                                              child: Text(
-                                                item,
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ))
-                                        .toList(),
-                                    value: chosenColor,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        chosenColor = value;
-                                      });
-                                    },
-                                    decoration: InputDecoration(
-                                      fillColor: Colors.white,
-                                      filled: true,
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(5.0),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 5),
-                                Visibility(
-                                  visible:
-                                      selectedVariablesList.contains("Tamaños"),
-                                  child: DropdownButtonFormField<String>(
-                                    isExpanded: true,
-                                    hint: Text(
-                                      'Seleccione Tamaño',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Theme.of(context).hintColor,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    items: dimensionToSelect
-                                        .map((item) => DropdownMenuItem(
-                                              value: item,
-                                              child: Text(
-                                                item,
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ))
-                                        .toList(),
-                                    value: chosenDimension,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        chosenDimension = value;
-                                      });
-                                    },
-                                    decoration: InputDecoration(
-                                      fillColor: Colors.white,
-                                      filled: true,
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(5.0),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 20),
-                          // Visibility(
-                          //   visible: selectedSizes.isNotEmpty ||
-                          //       selectedColores.isNotEmpty ||
-                          //       selectedDimensions.isNotEmpty,
-                          Visibility(
-                            visible: selectedVariablesList.isNotEmpty,
-                            child: Expanded(
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  TextFieldWithIcon(
-                                                    controller:
-                                                        _inventaryController,
-                                                    labelText: 'Cantidad',
-                                                    icon: Icons.numbers,
-                                                    inputType:
-                                                        TextInputType.number,
-                                                    inputFormatters: <TextInputFormatter>[
-                                                      FilteringTextInputFormatter
-                                                          .digitsOnly
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  ElevatedButton(
-                                    onPressed: () async {
-                                      // print(
-                                      //     _inventaryController.text.toString());
-                                      // print(
-                                      //     _priceUnitController.text.toString());
-                                      // print(_skuController.text.toString());
-
-                                      if (((int.parse(_inventaryController
-                                                      .text) <
-                                                  1) ||
-                                              (_inventaryController
-                                                  .text.isEmpty) ||
-                                              (_inventaryController.text ==
-                                                  "")) &&
-                                          (_skuController.text != "" ||
-                                              _skuController.text.isEmpty)) {
-                                        showSuccessModal(
-                                            context,
-                                            "Por favor, ingrese una Cantidad y SKU válida.",
-                                            Icons8.warning_1);
-                                      } else {
-                                        //
-                                        var variant;
-                                        int idRandom =
-                                            Random().nextInt(9000000) + 1000000;
-
-                                        if (selectedVariablesList
-                                                .contains("Tallas") &&
-                                            selectedVariablesList
-                                                .contains("Colores")) {
-                                          variant = {
-                                            "id": idRandom,
-                                            "sku":
-                                                "${_skuController.text.toUpperCase()}${chosenSize}${chosenColor?.toUpperCase()}",
-                                            "size": "$chosenSize",
-                                            "color": "$chosenColor",
-                                            "inventory_quantity":
-                                                _inventaryController.text,
-                                            "price":
-                                                _priceSuggestedController.text,
-                                          };
-                                          //
-                                          List<String> claves = [
-                                            "size",
-                                            "color"
-                                          ];
-                                          if (varianteExistente(
-                                              variantsList, variant, claves)) {
-                                            // print(
-                                            //     "Ya existe una variante con talla: $chosenSize y color: $chosenColor");
-                                          } else {
-                                            variantsList.add(variant);
-                                            selectedSizes.add(chosenSize!);
-                                            selectedColores.add(chosenColor!);
-
-                                            calcuateStockTotal(
-                                                _inventaryController.text);
-                                          }
-                                          //
-                                        } else if (selectedVariablesList
-                                                .contains("Tamaño") &&
-                                            selectedVariablesList
-                                                .contains("Colores")) {
-                                          variant = {
-                                            "id": idRandom,
-                                            "sku":
-                                                "${_skuController.text.toUpperCase()}${chosenDimension?.isNotEmpty == true ? chosenDimension![0].toUpperCase() : ""}${chosenColor?.toUpperCase()}",
-                                            "dimension": "$chosenDimension",
-                                            "color": "$chosenColor",
-                                            "inventory_quantity":
-                                                _inventaryController.text,
-                                            "price":
-                                                _priceSuggestedController.text,
-                                          };
-                                          //
-                                          List<String> claves = [
-                                            "dimension",
-                                            "color"
-                                          ];
-                                          if (varianteExistente(
-                                              variantsList, variant, claves)) {
-                                            // print(
-                                            //     "Ya existe una variante con tamaño: $chosenDimension y color: $chosenColor");
-                                          } else {
-                                            variantsList.add(variant);
-                                            selectedDimensions
-                                                .add(chosenDimension!);
-                                            selectedColores.add(chosenColor!);
-
-                                            calcuateStockTotal(
-                                                _inventaryController.text);
-                                          }
-                                          //
-                                        } else if (selectedVariablesList
-                                            .contains("Tallas")) {
-                                          variant = {
-                                            "id": idRandom,
-                                            "sku":
-                                                "${_skuController.text.toUpperCase()}${chosenSize}",
-                                            "size": "$chosenSize",
-                                            "inventory_quantity":
-                                                _inventaryController.text,
-                                            "price":
-                                                _priceSuggestedController.text,
-                                          };
-                                          //
-                                          List<String> claves = ["size"];
-                                          if (varianteExistente(
-                                              variantsList, variant, claves)) {
-                                            // print(
-                                            //     "Ya existe una variante con talla: $chosenSize");
-                                          } else {
-                                            variantsList.add(variant);
-                                            selectedSizes.add(chosenSize!);
-
-                                            calcuateStockTotal(
-                                                _inventaryController.text);
-                                          }
-                                          //
-                                        } else if (selectedVariablesList
-                                            .contains("Colores")) {
-                                          variant = {
-                                            "id": idRandom,
-                                            "sku":
-                                                "${_skuController.text.toUpperCase()}${chosenColor?.toUpperCase()}",
-                                            "color": "$chosenColor",
-                                            "inventory_quantity":
-                                                _inventaryController.text,
-                                            "price":
-                                                _priceSuggestedController.text,
-                                          };
-                                          //
-                                          List<String> claves = ["color"];
-                                          if (varianteExistente(
-                                              variantsList, variant, claves)) {
-                                            // print(
-                                            //     "Ya existe una variante con color: $chosenColor");
-                                          } else {
-                                            variantsList.add(variant);
-                                            selectedColores.add(chosenColor!);
-
-                                            calcuateStockTotal(
-                                                _inventaryController.text);
-                                          }
-                                          //
-                                        } else if (selectedVariablesList
-                                            .contains("Tamaños")) {
-                                          variant = {
-                                            "id": idRandom,
-                                            "sku":
-                                                "${_skuController.text.toUpperCase()}${chosenDimension?.isNotEmpty == true ? chosenDimension![0].toUpperCase() : ""}",
-                                            "dimension": "$chosenDimension",
-                                            "inventory_quantity":
-                                                _inventaryController.text,
-                                            "price":
-                                                _priceSuggestedController.text,
-                                          };
-                                          //
-                                          List<String> claves = ["dimension"];
-                                          if (varianteExistente(
-                                              variantsList, variant, claves)) {
-                                            // print(
-                                            //     "Ya existe una variante con tamaño: $chosenDimension");
-                                          } else {
-                                            variantsList.add(variant);
-                                            selectedDimensions
-                                                .add(chosenDimension!);
-
-                                            calcuateStockTotal(
-                                                _inventaryController.text);
-                                          }
-                                          //
-                                        }
-
-                                        // variablesList.add(variant);
-                                        // print(variantsList);
-                                        //
-
-                                        // print(variablesList);
-                                        // print("selectedColores act:");
-                                        // print(selectedColores);
-                                        // print("selectedSizes act:");
-                                        // print(selectedSizes);
-                                        // print("selectedDimensions act:");
-                                        // print(selectedDimensions);
-
-                                        _priceUnitController.text =
-                                            _priceController.text;
-                                        _inventaryController.clear();
-
-                                        setState(() {});
-
-                                        // print(selectedColores);
-                                        // print(selectedTallas);
-                                        // print(selectedDimensions);
-                                      }
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.green[400],
-                                    ),
-                                    child: const Text(
-                                      "Añadir",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          */
                         ],
                       ),
                     ),
@@ -1007,46 +619,6 @@ class _AddProductState extends State<AddProduct> {
                                         icon: Icons.numbers,
                                         applyValidator: false,
                                       ),
-                                      /*
-                                      DropdownButtonFormField<String>(
-                                        isExpanded: true,
-                                        hint: Text(
-                                          'Seleccione Talla',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Theme.of(context).hintColor,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        items: sizesToSelect
-                                            .map((item) => DropdownMenuItem(
-                                                  value: item,
-                                                  child: Text(
-                                                    item,
-                                                    style: const TextStyle(
-                                                      fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                ))
-                                            .toList(),
-                                        value: chosenSize,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            chosenSize = value;
-                                          });
-                                        },
-                                        decoration: InputDecoration(
-                                          fillColor: Colors.white,
-                                          filled: true,
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5.0),
-                                          ),
-                                        ),
-                                      ),
-                                      */
                                       const SizedBox(height: 10),
                                     ],
                                   ),
@@ -1062,46 +634,6 @@ class _AddProductState extends State<AddProduct> {
                                         icon: Icons.color_lens,
                                         applyValidator: false,
                                       ),
-                                      /*
-                                      DropdownButtonFormField<String>(
-                                        isExpanded: true,
-                                        hint: Text(
-                                          'Seleccione Color',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Theme.of(context).hintColor,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        items: colorsToSelect
-                                            .map((item) => DropdownMenuItem(
-                                                  value: item,
-                                                  child: Text(
-                                                    item,
-                                                    style: const TextStyle(
-                                                      fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                ))
-                                            .toList(),
-                                        value: chosenColor,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            chosenColor = value;
-                                          });
-                                        },
-                                        decoration: InputDecoration(
-                                          fillColor: Colors.white,
-                                          filled: true,
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5.0),
-                                          ),
-                                        ),
-                                      ),
-                                      */
                                       const SizedBox(height: 10),
                                     ],
                                   ),
@@ -1115,45 +647,6 @@ class _AddProductState extends State<AddProduct> {
                                     icon: Icons.numbers,
                                     applyValidator: false,
                                   ),
-                                  /*
-                                  DropdownButtonFormField<String>(
-                                    isExpanded: true,
-                                    hint: Text(
-                                      'Seleccione Tamaño',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Theme.of(context).hintColor,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    items: dimensionToSelect
-                                        .map((item) => DropdownMenuItem(
-                                              value: item,
-                                              child: Text(
-                                                item,
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ))
-                                        .toList(),
-                                    value: chosenDimension,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        chosenDimension = value;
-                                      });
-                                    },
-                                    decoration: InputDecoration(
-                                      fillColor: Colors.white,
-                                      filled: true,
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(5.0),
-                                      ),
-                                    ),
-                                  ),
-                                  */
                                 ),
                               ],
                             ),
@@ -1533,52 +1026,6 @@ class _AddProductState extends State<AddProduct> {
                         Expanded(child: Text('Categoría')),
                       ],
                     ),
-
-                    //version cat-easy con id taxonomy
-                    /*v3
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                width: screenWidthDialog,
-                                child: MenuCategories(
-                                  onItemSelected: (selectedValue) {
-                                    selectedCategory = selectedValue;
-
-                                    // if (!selectedCategories
-                                    //     .contains(selectedCategory)) {
-                                    //   setState(() {
-                                    //     selectedCategories
-                                    //         .add(selectedCategory!);
-                                    //   });
-                                    // }
-                                    List<String> parts =
-                                        selectedCategory!.split('-');
-
-                                    if (!selectedCategoriesMap.any((category) =>
-                                        category["id"] == parts[1])) {
-                                      setState(() {
-                                        selectedCategoriesMap.add({
-                                          "id": parts[1],
-                                          "name": parts[0],
-                                        });
-                                      });
-                                    }
-                                    // print("selectedCategoriesMap");
-                                    // print(selectedCategoriesMap);
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    */
-                    //v4
                     Row(
                       children: [
                         Expanded(
@@ -2223,11 +1670,14 @@ class _AddProductState extends State<AddProduct> {
                                         // selectedCategories.isEmpty ||
                                         // selectedCategory == null ||
                                         selectedCategoriesMap.isEmpty ||
-                                        selectedWarehouse == null) {
+                                        selectedWarehouse == null ||
+                                        imgsTemporales.isEmpty) {
+                                      Navigator.pop(context);
+
                                       // ignore: use_build_context_synchronously
                                       showSuccessModal(
                                           context,
-                                          "Por favor, Es necesario que seleccione el Tipo, Categoría/as y Bodega.",
+                                          "Por favor, es necesario que seleccione el Tipo, Categoría/s, Bodega y cargue al menos una imagen.",
                                           Icons8.warning_1);
                                     } else {
                                       //
@@ -2241,51 +1691,66 @@ class _AddProductState extends State<AddProduct> {
                                                 _emailSellerOwnerController.text
                                                     .toString());
 
-                                        if (response != 1 || response != 2) {
-                                          id_comercial = response['vendedores']
-                                              [0]['id_master'];
-                                          if (selectedType == "VARIABLE") {
-                                            //
-                                            // print(variantsList);
-                                            for (var variant in variantsList) {
-                                              var reserva = {
-                                                "sku": variant['sku'],
-                                                "stock": variant[
-                                                    'inventory_quantity'],
-                                                "email":
-                                                    _emailSellerOwnerController
-                                                        .text,
-                                                "id_comercial": id_comercial,
-                                                "priceW":
-                                                    _priceWarehouseController
-                                                        .text,
-                                              };
-                                              reservasToSend.add(reserva);
-                                            }
-                                          } else {
-                                            setState(() {
-                                              var reserva = {
-                                                "sku": _skuController.text
-                                                    .toUpperCase(),
-                                                "stock": _stockController.text,
-                                                "email":
-                                                    _emailSellerOwnerController
-                                                        .text,
-                                                "id_comercial": id_comercial,
-                                                "priceW":
-                                                    _priceWarehouseController
-                                                        .text,
-                                              };
-                                              reservasToSend.add(reserva);
-                                            });
-                                          }
-                                        } else if (response == []) {
+                                        if (response == 1 || response == 2) {
                                           Navigator.pop(context);
                                           // ignore: use_build_context_synchronously
                                           showSuccessModal(
                                               context,
-                                              "Error, No existe este correo o no tiene una tienda relacionada.",
+                                              "Error, Este correo no se encuentra registrado.",
                                               Icons8.warning_1);
+                                        } else {
+                                          if (response['vendedores']
+                                                  .toString() !=
+                                              "[]") {
+                                            id_comercial =
+                                                response['vendedores'][0]
+                                                    ['id_master'];
+                                            if (selectedType == "VARIABLE") {
+                                              //
+                                              // print(variantsList);
+                                              for (var variant
+                                                  in variantsList) {
+                                                var reserva = {
+                                                  "sku": variant['sku'],
+                                                  "stock": variant[
+                                                      'inventory_quantity'],
+                                                  "email":
+                                                      _emailSellerOwnerController
+                                                          .text,
+                                                  "id_comercial": id_comercial,
+                                                  "priceW":
+                                                      _priceWarehouseController
+                                                          .text,
+                                                };
+                                                reservasToSend.add(reserva);
+                                              }
+                                            } else {
+                                              setState(() {
+                                                var reserva = {
+                                                  "sku": _skuController.text
+                                                      .toUpperCase(),
+                                                  "stock":
+                                                      _stockController.text,
+                                                  "email":
+                                                      _emailSellerOwnerController
+                                                          .text,
+                                                  "id_comercial": id_comercial,
+                                                  "priceW":
+                                                      _priceWarehouseController
+                                                          .text,
+                                                };
+                                                reservasToSend.add(reserva);
+                                              });
+                                            }
+                                          } else {
+                                            //
+                                            Navigator.pop(context);
+                                            // ignore: use_build_context_synchronously
+                                            showSuccessModal(
+                                                context,
+                                                "Error, Este correo no tiene una tienda relacionada.",
+                                                Icons8.warning_1);
+                                          }
                                         }
                                       }
 
@@ -2355,58 +1820,139 @@ class _AddProductState extends State<AddProduct> {
                                       };
 
                                       // print("featuresToSend: $featuresToSend");
+                                      if (urlsImgsListToSend.isNotEmpty) {
+                                        //cuando ya se haya guardado las img en el servidor
+                                        var response = await _productController
+                                            .addProduct(ProductModel(
+                                          productName: _nameController.text,
+                                          stock:
+                                              int.parse(_stockController.text),
+                                          price: double.parse(
+                                              _priceWarehouseController.text),
+                                          urlImg: urlsImgsListToSend,
+                                          isvariable: isVariable,
+                                          features: featuresToSend,
+                                          warehouseId: int.parse(
+                                              selectedWarehouse
+                                                  .toString()
+                                                  .split("-")[0]
+                                                  .toString()),
+                                          seller_owned: sellerOwner
+                                              ? int.parse(
+                                                  id_comercial.toString())
+                                              : 0,
+                                        ));
+                                        var dataProductNew;
 
-                                      var response = await _productController
-                                          .addProduct(ProductModel(
-                                        productName: _nameController.text,
-                                        stock: int.parse(_stockController.text),
-                                        price: double.parse(
-                                            _priceWarehouseController.text),
-                                        urlImg: urlsImgsListToSend,
-                                        isvariable: isVariable,
-                                        features: featuresToSend,
-                                        warehouseId: int.parse(selectedWarehouse
-                                            .toString()
-                                            .split("-")[0]
-                                            .toString()),
-                                        seller_owned: sellerOwner
-                                            ? int.parse(id_comercial.toString())
-                                            : 0,
-                                      ));
-                                      Navigator.pop(context);
-                                      var dataProductNew = response;
-                                      dataProductNew = response;
+                                        if (response == []) {
+                                          Navigator.pop(context);
 
-                                      String productId =
-                                          response["product_id"].toString();
+                                          // ignore: use_build_context_synchronously
+                                          AwesomeDialog(
+                                            width: 500,
+                                            context: context,
+                                            dialogType: DialogType.error,
+                                            animType: AnimType.rightSlide,
+                                            title:
+                                                'Se ha producido un error al crear el producto.',
+                                            desc: '',
+                                            btnCancelText: "Cancelar",
+                                            btnOkText: "Aceptar",
+                                            btnOkColor: Colors.green,
+                                            btnOkOnPress: () async {},
+                                            btnCancelOnPress: () async {},
+                                          ).show();
+                                          //
+                                        } else {
+                                          dataProductNew = response;
 
-                                      if (reservasToSend.isNotEmpty) {
-                                        print("need to send reservasToSend");
-                                        print(reservasToSend);
-                                        for (var reserva in reservasToSend) {
-                                          var response =
-                                              await Connections().createReserve(
-                                            productId,
-                                            reserva['sku'],
-                                            reserva['stock'],
-                                            reserva['id_comercial'],
-                                            reserva['priceW'],
-                                          );
-                                          if (response == 0) {
-                                            print("successful reservar");
+                                          String productId =
+                                              response["product_id"].toString();
+
+                                          Navigator.pop(context);
+
+                                          // ignore: use_build_context_synchronously
+                                          AwesomeDialog(
+                                            width: 500,
+                                            context: context,
+                                            dialogType: DialogType.success,
+                                            animType: AnimType.rightSlide,
+                                            title: 'Producto creado con éxito.',
+                                            desc: '',
+                                            btnOkText: "Aceptar",
+                                            btnOkColor: Colors.green,
+                                            btnOkOnPress: () async {
+                                              Navigator.pop(context);
+                                            },
+                                          ).show();
+
+                                          if (reservasToSend.isNotEmpty) {
+                                            print(
+                                                "need to send reservasToSend");
+                                            print(reservasToSend);
+                                            for (var reserva
+                                                in reservasToSend) {
+                                              var response = await Connections()
+                                                  .createReserve(
+                                                productId,
+                                                reserva['sku'],
+                                                reserva['stock'],
+                                                reserva['id_comercial'],
+                                                reserva['priceW'],
+                                              );
+                                              if (response == 0) {
+                                                print("successful reservar");
+                                              } else {
+                                                print("error al reservar");
+
+                                                // ignore: use_build_context_synchronously
+                                                AwesomeDialog(
+                                                  width: 500,
+                                                  context: context,
+                                                  dialogType: DialogType.error,
+                                                  animType: AnimType.rightSlide,
+                                                  title:
+                                                      'Se ha producido un error al reservar el producto.',
+                                                  desc: '',
+                                                  btnCancelText: "Cancelar",
+                                                  btnOkText: "Aceptar",
+                                                  btnOkColor: Colors.green,
+                                                  btnOkOnPress: () async {},
+                                                  btnCancelOnPress: () async {},
+                                                ).show();
+                                              }
+                                            }
                                           } else {
-                                            print("error al reservar");
+                                            print("NO hay reservasToSend");
                                           }
+                                          // print(response);
                                         }
                                       } else {
-                                        print(
-                                            "NO need to upt variantsStockToUpt");
-                                      }
-                                      // print(response);
+                                        Navigator.pop(context);
 
-                                      // Navigator.pop(context);
-                                      Navigator.pop(context);
+                                        // ignore: use_build_context_synchronously
+                                        showSuccessModal(
+                                            context,
+                                            "Se ha producido un error al crear el producto. No fue posible guardar la/s imágenes.",
+                                            Icons8.warning_1);
+                                      }
                                     }
+                                  } else {
+                                    // ignore: use_build_context_synchronously
+                                    showSuccessModal(
+                                        context,
+                                        "Existen campos vacíos.",
+                                        Icons8.warning_1);
+
+                                    // Posición a desplazarte (en este caso, el inicio, que es 0.0)
+                                    // Duración de la animación
+                                    // Curva de animación
+                                    _scrollController.animateTo(
+                                      0.0,
+                                      duration:
+                                          const Duration(milliseconds: 500),
+                                      curve: Curves.easeInOut,
+                                    );
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(

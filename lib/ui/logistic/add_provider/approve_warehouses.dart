@@ -31,12 +31,12 @@ class _ApproveWarehouseState extends State<ApproveWarehouse> {
 
   Future<List<WarehouseModel>> _getWarehouseModelData() async {
     await _warehouseController.loadWarehouses(widget.provider.id.toString());
-    return _warehouseController.warehouses;
-    // List<WarehouseModel> filteredWarehouses = _warehouseController.warehouses
-    //     .where((warehouse) => warehouse.active == 1 && warehouse.approved == 2)
-    //     .toList();
+    // return _warehouseController.warehouses;
+    List<WarehouseModel> filteredWarehouses = _warehouseController.warehouses
+        .where((warehouse) => warehouse.active == 1)
+        .toList();
 
-    // return filteredWarehouses;
+    return filteredWarehouses;
   }
 
   @override

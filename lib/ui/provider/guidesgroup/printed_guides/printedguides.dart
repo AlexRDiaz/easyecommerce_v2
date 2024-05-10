@@ -262,7 +262,7 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
                 height: 10,
               ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
                     child: Align(
@@ -296,6 +296,26 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
                           ),
                         ],
                       ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: ElevatedButton(
+                          onPressed: () async {
+                            await showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return ScannerPrinted(from: "logistic");
+                                });
+                            counterChecks = 0;
+                            getOldValue(true);
+                            await loadData();
+                          },
+                          child: const Text(
+                            "SCANNER",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          )),
                     ),
                   ),
                 ],
