@@ -200,9 +200,7 @@ class _DeliveryStatusExternalCarrierState
     'FECHA DEVOLUCION'
   ];
 
-  List<String> listExt = [
-    'Gintracom-1',
-  ];
+  List<String> listExt = ['Gintracom-1'];
 
   List<String> listEstadoLogistico = [
     'TODO',
@@ -263,12 +261,12 @@ class _DeliveryStatusExternalCarrierState
         isLoading = true;
       });
 
-      // var responseCounters = await Connections().getOrdersCountersSeller(
-      //     populateC,
-      //     arrayfiltersDefaultAnd,
-      //     [],
-      //     arrayFiltersNotEq,
-      //     selectedDateFilter);
+      var responseCounters = await Connections().getOrdersCountersSeller(
+          populateC,
+          arrayfiltersDefaultAnd,
+          [],
+          arrayFiltersNotEq,
+          selectedDateFilter);
 
       // var responseValues = await Connections()
       //     .getValuesProviderLaravel(arrayfiltersDefaultAnd, selectedDateFilter);
@@ -309,17 +307,17 @@ class _DeliveryStatusExternalCarrierState
               arrayFiltersNotEq,
               sortFieldDefaultValue);
       // print("data> $responseLaravel");
-      // dataCounters = responseCounters;
+      dataCounters = responseCounters;
       valuesTransporter = responseValues['data'];
       data = responseLaravel['data'];
 
       // totallast = responseLaravel['total'];
-      // totallast = dataCounters['TOTAL'];
+      totallast = dataCounters['TOTAL'];
       pageCount = responseLaravel['last_page'];
 
       paginatorController.navigateToPage(0);
 
-      // updateCounters();
+      updateCounters();
       calculateValues();
 
       print("datos cargados correctamente");
@@ -1140,11 +1138,20 @@ class _DeliveryStatusExternalCarrierState
                                       : ""), onTap: () {
                                 showInfo(context, index);
                               }),
-                              // ! pendientes
-                              DataCell(Text("1"), onTap: () {
+                              DataCell(
+                                  Text(data[index]['costo_transportadora'] !=
+                                          null
+                                      ? data[index]['costo_transportadora']
+                                          .toString()
+                                      : ""), onTap: () {
                                 showInfo(context, index);
                               }),
-                              DataCell(Text("2"), onTap: () {
+                              DataCell(
+                                  Text(data[index]['cost_refound_external'] !=
+                                          null
+                                      ? data[index]['cost_refound_external']
+                                          .toString()
+                                      : ""), onTap: () {
                                 showInfo(context, index);
                               }),
                             ],
@@ -1604,6 +1611,7 @@ class _DeliveryStatusExternalCarrierState
                       isExpanded: true,
                       value: selectedExt,
                       onChanged: (String? newValue) async {
+                        // String filter = "carrier_external_id";
                         setState(() {
                           selectedExt = newValue ?? "";
                         });
@@ -1620,6 +1628,8 @@ class _DeliveryStatusExternalCarrierState
                       }).toList(),
                     ),
                   ),
+                  // SelectFilter('test', 'carrier_external_id',
+                  //     externalCarrierController, listExt),
                   // ! *****************
                   // Container(
                   //   padding: EdgeInsets.only(left: 10),
@@ -2061,28 +2071,28 @@ class _DeliveryStatusExternalCarrierState
     reSchedule(value['id'], value['status']);
   }
 
-  // updateCounters() {
-  //   entregados = 0;
-  //   noEntregados = 0;
-  //   conNovedad = 0;
-  //   novedadResuelta = 0;
-  //   reagendados = 0;
-  //   enRuta = 0;
-  //   programado = 0;
-  //   enOficina = 0;
+  updateCounters() {
+    entregados = 0;
+    noEntregados = 0;
+    conNovedad = 0;
+    novedadResuelta = 0;
+    reagendados = 0;
+    enRuta = 0;
+    programado = 0;
+    enOficina = 0;
 
-  //   setState(() {
-  //     entregados = int.parse(dataCounters['ENTREGADO'].toString()) ?? 0;
-  //     noEntregados = int.parse(dataCounters['NO ENTREGADO'].toString()) ?? 0;
-  //     conNovedad = int.parse(dataCounters['NOVEDAD'].toString()) ?? 0;
-  //     novedadResuelta =
-  //         int.parse(dataCounters['NOVEDAD RESUELTA'].toString()) ?? 0;
-  //     reagendados = int.parse(dataCounters['REAGENDADO'].toString()) ?? 0;
-  //     enRuta = int.parse(dataCounters['EN RUTA'].toString()) ?? 0;
-  //     programado = int.parse(dataCounters['PEDIDO PROGRAMADO'].toString()) ?? 0;
-  //     enOficina = int.parse(dataCounters['EN OFICINA'].toString()) ?? 0;
-  //   });
-  // }
+    setState(() {
+      entregados = int.parse(dataCounters['ENTREGADO'].toString()) ?? 0;
+      noEntregados = int.parse(dataCounters['NO ENTREGADO'].toString()) ?? 0;
+      conNovedad = int.parse(dataCounters['NOVEDAD'].toString()) ?? 0;
+      novedadResuelta =
+          int.parse(dataCounters['NOVEDAD RESUELTA'].toString()) ?? 0;
+      reagendados = int.parse(dataCounters['REAGENDADO'].toString()) ?? 0;
+      enRuta = int.parse(dataCounters['EN RUTA'].toString()) ?? 0;
+      programado = int.parse(dataCounters['PEDIDO PROGRAMADO'].toString()) ?? 0;
+      enOficina = int.parse(dataCounters['EN OFICINA'].toString()) ?? 0;
+    });
+  }
 
   Future<void> sendWhatsAppMessageConfirm(
       BuildContext context, Map<dynamic, dynamic> data) async {
