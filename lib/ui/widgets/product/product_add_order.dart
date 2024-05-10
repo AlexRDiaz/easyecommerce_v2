@@ -1400,20 +1400,20 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                             .split("-")[1] ==
                                         "1") {
                                   if (response != 1 || response != 2) {
-                                    //send Gintra
-                                    print("send Gintra");
-                                    var responseGintra = await Connections()
-                                        .postOrdersGintra(dataIntegration);
-                                    print("responseInteg");
-                                    print(responseGintra);
+                                    // ! send Gintra
+                                    // print("send Gintra");
+                                    // var responseGintra = await Connections()
+                                    //     .postOrdersGintra(dataIntegration);
+                                    // print("responseInteg");
+                                    // print(responseGintra);
 
-                                    if (responseGintra != []) {
-                                      await Connections().updatenueva(
-                                          response['id'], {
-                                        "id_externo": responseGintra['guia']
-                                      });
-                                    }
-                                    //
+                                    // if (responseGintra != []) {
+                                    //   await Connections().updatenueva(
+                                    //       response['id'], {
+                                    //     "id_externo": responseGintra['guia']
+                                    //   });
+                                    // }
+                                    // ! ************* 
                                   }
                                 }
 
