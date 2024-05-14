@@ -94,6 +94,7 @@ class _TableOrdersGuidesSentStateSeller
     "ruta",
     "sentBy",
     "printedBy",
+    "pedidoCarrier"
   ];
 
   @override
@@ -519,12 +520,21 @@ class _TableOrdersGuidesSentStateSeller
                                           .toString(),
                                       "name": data[index]['nombre_shipping']
                                           .toString(),
-                                      "transport":
-                                          data[index]['transportadora'] != null
-                                              ? data[index]['transportadora'][0]
-                                                      ['nombre']
+                                      "transport": data[index]
+                                                      ['transportadora'] !=
+                                                  null &&
+                                              data[index]
+                                                      ['transportadora']
+                                                  .isNotEmpty
+                                          ? data[index]['transportadora'][0]
+                                                  ['nombre']
+                                              .toString()
+                                          : data[index]['pedido_carrier']
+                                                  .isNotEmpty
+                                              ? data[index]['pedido_carrier'][0]
+                                                      ['carrier']['name']
                                                   .toString()
-                                              : '',
+                                              : "",
                                       "address": data[index]
                                               ['direccion_shipping']
                                           .toString(),
@@ -615,7 +625,11 @@ class _TableOrdersGuidesSentStateSeller
                                       data[index]['transportadora'].isNotEmpty
                                   ? data[index]['transportadora'][0]['nombre']
                                       .toString()
-                                  : ''),
+                                  : data[index]['pedido_carrier'].isNotEmpty
+                                      ? data[index]['pedido_carrier'][0]
+                                              ['carrier']['name']
+                                          .toString()
+                                      : ""),
                             ),
                             DataCell(Text(data[index]['status'].toString()),
                                 onTap: () {
@@ -1083,7 +1097,11 @@ class _TableOrdersGuidesSentStateSeller
                             data['transportadora'] != null &&
                                     data['transportadora'].isNotEmpty
                                 ? data['transportadora'][0]['nombre'].toString()
-                                : '',
+                                : data['pedido_carrier'].isNotEmpty
+                                    ? data['pedido_carrier'][0]['carrier']
+                                            ['name']
+                                        .toString()
+                                    : "",
                           ),
                           _buildTableCell(data["producto_p"]),
                           _buildTableCell(data["cantidad_total"].toString()),
@@ -1183,10 +1201,18 @@ class _TableOrdersGuidesSentStateSeller
                 columnIndex: 4, rowIndex: rowIndex + 1))
             .value = data["ciudad_shipping"];
         if (data["transportadora"].isEmpty) {
-          sheet
-              .cell(CellIndex.indexByColumnRow(
-                  columnIndex: 5, rowIndex: rowIndex + 1))
-              .value = "";
+          if (data['pedido_carrier'].isNotEmpty) {
+            sheet
+                    .cell(CellIndex.indexByColumnRow(
+                        columnIndex: 5, rowIndex: rowIndex + 1))
+                    .value =
+                data['pedido_carrier'][0]['carrier']['name'].toString();
+          } else {
+            sheet
+                .cell(CellIndex.indexByColumnRow(
+                    columnIndex: 5, rowIndex: rowIndex + 1))
+                .value = "";
+          }
         } else {
           sheet
               .cell(CellIndex.indexByColumnRow(

@@ -391,12 +391,21 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
                                           .toString(),
                                       "name": data[index]['nombre_shipping']
                                           .toString(),
-                                      "transport":
-                                          data[index]['transportadora'] != null
-                                              ? data[index]['transportadora'][0]
-                                                      ['nombre']
+                                      "transport": data[index]
+                                                      ['transportadora'] !=
+                                                  null &&
+                                              data[index]
+                                                      ['transportadora']
+                                                  .isNotEmpty
+                                          ? data[index]['transportadora'][0]
+                                                  ['nombre']
+                                              .toString()
+                                          : data[index]['pedido_carrier']
+                                                  .isNotEmpty
+                                              ? data[index]['pedido_carrier'][0]
+                                                      ['carrier']['name']
                                                   .toString()
-                                              : '',
+                                              : "",
                                       "address": data[index]
                                               ['direccion_shipping']
                                           .toString(),
@@ -474,7 +483,11 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
                                         data[index]['transportadora'].isNotEmpty
                                     ? data[index]['transportadora'][0]['nombre']
                                         .toString()
-                                    : ''), onTap: () {
+                                    : data[index]['pedido_carrier'].isNotEmpty
+                                        ? data[index]['pedido_carrier'][0]
+                                                ['carrier']['name']
+                                            .toString()
+                                        : ""), onTap: () {
                               getInfoModal(index);
                             }),
                             DataCell(Text(data[index]['status'].toString()),
@@ -995,9 +1008,12 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
           "phone": element['telefono_shipping'].toString(),
           "price": element['precio_total'].toString(),
           "name": element['nombre_shipping'].toString(),
-          "transport": element['transportadora'] != null
+          "transport": element['transportadora'] != null &&
+                  element['transportadora'].isNotEmpty
               ? element['transportadora'][0]['nombre'].toString()
-              : '',
+              : element['pedido_carrier'].isNotEmpty
+                  ? element['pedido_carrier'][0]['carrier']['name'].toString()
+                  : "",
           "address": element['direccion_shipping'].toString(),
           "obervation": element['observacion'].toString(),
           "qrLink":

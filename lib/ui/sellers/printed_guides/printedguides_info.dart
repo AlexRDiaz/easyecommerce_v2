@@ -155,7 +155,7 @@ class _PrintedGuideInfoStateSeller extends State<PrintedGuideInfoSeller> {
                         height: 20,
                       ),
                       Text(
-                        " Transportadora: ${data['transportadora'] != null ? data['transportadora'][0]['nombre'].toString() : ''}",
+                        " Transportadora: ${data['transportadora'] != null && data['transportadora'].isNotEmpty ? data['transportadora'][0]['nombre'].toString() : data['pedido_carrier'].isNotEmpty ? data['pedido_carrier'][0]['carrier']['name'].toString() : ""}",
                         style: const TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),
@@ -204,12 +204,12 @@ class _PrintedGuideInfoStateSeller extends State<PrintedGuideInfoSeller> {
                 //         data['cantidad_total'], 0, data['id_comercial']);
 
                 // if (responsereduceStock == 0) {
-                  var responseL = await Connections().updateOrderWithTime(
-                      widget.id.toString(),
-                      "estado_logistico:ENVIADO",
-                      idUser,
-                      "",
-                      "");
+                var responseL = await Connections().updateOrderWithTime(
+                    widget.id.toString(),
+                    "estado_logistico:ENVIADO",
+                    idUser,
+                    "",
+                    "");
                 // }
 
                 Navigator.pop(context);

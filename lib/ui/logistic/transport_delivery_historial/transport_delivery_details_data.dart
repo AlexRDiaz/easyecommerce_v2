@@ -159,11 +159,15 @@ class _TransportDeliveryHistoryDetailsDataState
     _tipoDePago.text = data['tipo_pago'] ?? "ninguno";
     _ruta.text = data['ruta'] != null && data['ruta'].toString() != "[]"
         ? data['ruta'][0]['titulo'].toString()
-        : "";
+        : data['pedido_carrier'].isNotEmpty
+            ? data['pedido_carrier'][0]['city_external']['ciudad'].toString()
+            : "";
     _transportadora.text = data['transportadora'] != null &&
             data['transportadora'].toString() != "[]"
         ? data['transportadora'][0]['nombre'].toString()
-        : "";
+        : data['pedido_carrier'].isNotEmpty
+            ? data['pedido_carrier'][0]['carrier']['name'].toString()
+            : "";
     _subRuta.text = //   data['sub_ruta'] != null &&
         data['sub_ruta'].toString() != "[]"
             ? data['sub_ruta'][0]['titulo'].toString()
@@ -1148,8 +1152,13 @@ class _TransportDeliveryHistoryDetailsDataState
                               .toString()
                           : "",
                       quantity: data['cantidad_total'].toString(),
-                      transport:
-                          "${data['transportadora'] != null ? data['transportadora'][0]['nombre'].toString() : ''}",
+                      transport: data['transportadora'] != null &&
+                              data['transportadora'].toString() != "[]"
+                          ? data['transportadora'][0]['nombre'].toString()
+                          : data['pedido_carrier'].isNotEmpty
+                              ? data['pedido_carrier'][0]['carrier']['name']
+                                  .toString()
+                              : "",
                     ),
                   ),
                 );

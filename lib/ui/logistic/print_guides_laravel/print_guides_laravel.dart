@@ -63,8 +63,7 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
     'users.vendedores',
     'ruta',
     'product_s.warehouses.provider',
-    'carrierExternal',
-    'ciudadExternal'
+    "pedidoCarrier"
   ];
   // List arrayFiltersAnd = [
   //   {"/estado_logistico": "PENDIENTE"},
@@ -671,15 +670,16 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                                 data[index]['telefono_shipping'].toString(),
                             "price": data[index]['precio_total'].toString(),
                             "name": data[index]['nombre_shipping'].toString(),
-                            "transport": data[index]['transportadora'] !=
-                                        null &&
-                                    data[index]['transportadora'].isNotEmpty
-                                ? data[index]['transportadora'][0]['nombre']
-                                    .toString()
-                                : data[index]['carrier_external'] != null
-                                    ? data[index]['carrier_external']['name']
+                            "transport":
+                                data[index]['transportadora'] != null &&
+                                        data[index]['transportadora'].isNotEmpty
+                                    ? data[index]['transportadora'][0]['nombre']
                                         .toString()
-                                    : "",
+                                    : data[index]['pedido_carrier'].isNotEmpty
+                                        ? data[index]['pedido_carrier'][0]
+                                                ['carrier']['name']
+                                            .toString()
+                                        : "",
                             "address":
                                 data[index]['direccion_shipping'].toString(),
                             "obervation": data[index]['observacion'].toString(),
@@ -768,8 +768,9 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                                 data[index]['transportadora'].isNotEmpty
                             ? data[index]['transportadora'][0]['nombre']
                                 .toString()
-                            : data[index]['carrier_external'] != null
-                                ? data[index]['carrier_external']['name']
+                            : data[index]['pedido_carrier'].isNotEmpty
+                                ? data[index]['pedido_carrier'][0]['carrier']
+                                        ['name']
                                     .toString()
                                 : "",
                       ), onTap: () {
@@ -1296,8 +1297,8 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
           "transport": element['transportadora'] != null &&
                   element['transportadora'].isNotEmpty
               ? element['transportadora'][0]['nombre'].toString()
-              : element['carrier_external'] != null
-                  ? element['carrier_external']['name'].toString()
+              : element['pedido_carrier'].isNotEmpty
+                  ? element['pedido_carrier'][0]['carrier']['name'].toString()
                   : "",
           "address": element['direccion_shipping'].toString(),
           "obervation": element['observacion'].toString(),

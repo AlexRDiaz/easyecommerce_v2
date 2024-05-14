@@ -5353,6 +5353,7 @@ class Connections {
 
   getValuesSellerLaravel(arrayfiltersDefaultAnd, dateFilter) async {
     try {
+      // print("getValuesSellerLaravel");
       // print(json.encode({
       //   "date_filter": dateFilter,
       //   "start": sharedPrefs!.getString("dateDesdeVendedor"),
@@ -5387,6 +5388,7 @@ class Connections {
       }
       return decodeData;
     } catch (e) {
+      print(e);
       return (e);
     }
   }
@@ -5992,6 +5994,15 @@ class Connections {
     List filtersAndAll = [];
     filtersAndAll.addAll(and);
     filtersAndAll.addAll(defaultAnd);
+    // print(json.encode({
+    //   "or": or,
+    //   "and": filtersAndAll,
+    //   "not": not,
+    //   "page_size": sizePage,
+    //   "page_number": currentPage,
+    //   "search": search,
+    //   "sort": sortFiled,
+    // }));
     try {
       var response = await http.post(
           Uri.parse("$serverLaravel/api/pedidos-shopifies-prtgd"),
@@ -6716,28 +6727,28 @@ class Connections {
     try {
       String? generatedBy = sharedPrefs!.getString("id");
 
-      print(json.encode({
-        "generatedBy": generatedBy,
-        "IdComercial": idMaster,
-        "Name_Comercial": nameComercial,
-        "NombreShipping": nombre.toString(),
-        "DireccionShipping": direccion.toString(),
-        "TelefonoShipping": telefono.toString(),
-        "CiudadShipping": ciudad.toString(),
-        "ProductoP": productoP.toString(),
-        "ProductoExtra": productoE.toString(),
-        "Cantidad_Total": cantidadT.toString(),
-        "PrecioTotal": precio.toString(),
-        "Observacion": observacion.toString(),
-        "product_id": int.parse(productId),
-        "variant_details": json.encode(variantsDetails),
-        "recaudo": recaudo,
-        "costo_envio": costo_envio,
-        "ruta": rutaId,
-        "transportadora": transportadoraId,
-        "carrier_id": int.parse(carrierExternalId),
-        "ciudad_des": int.parse(ciudadIdDest),
-      }));
+      // print(json.encode({
+      //   "generatedBy": generatedBy,
+      //   "IdComercial": idMaster,
+      //   "Name_Comercial": nameComercial,
+      //   "NombreShipping": nombre.toString(),
+      //   "DireccionShipping": direccion.toString(),
+      //   "TelefonoShipping": telefono.toString(),
+      //   "CiudadShipping": ciudad.toString(),
+      //   "ProductoP": productoP.toString(),
+      //   "ProductoExtra": productoE.toString(),
+      //   "Cantidad_Total": cantidadT.toString(),
+      //   "PrecioTotal": precio.toString(),
+      //   "Observacion": observacion.toString(),
+      //   "product_id": int.parse(productId),
+      //   "variant_details": json.encode(variantsDetails),
+      //   "recaudo": recaudo,
+      //   "costo_envio": costo_envio,
+      //   "ruta": rutaId,
+      //   "transportadora": transportadoraId,
+      //   "carrier_id": int.parse(carrierExternalId),
+      //   "ciudad_des": int.parse(ciudadIdDest),
+      // }));
 
       var response =
           await http.post(Uri.parse("$serverLaravel/api/orderproduct"),
@@ -7275,6 +7286,108 @@ class Connections {
       } else {
         // print("Error: ${response.statusCode}");
         return "Error: ${response.statusCode}";
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  //  *
+  createUpdateOrderCarrier(idOrder, idCarrier, idCity) async {
+    try {
+      // print(json.encode({"ids": json.encode(ids)}));
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/ordercarrier"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "order_id": idOrder,
+            "carrier_id": idCarrier,
+            "city_external_id": idCity
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return 0;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  //  *
+  UpdateOrderCarrier(id, datajson) async {
+    try {
+      // print(json.encode({"ids": json.encode(ids)}));
+      var response = await http.put(
+          Uri.parse("$serverLaravel/api/ordercarrier/$id"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(datajson));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return 0;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  //  *
+  UpdateOrderCarrierbyOrder(idOrder, datajson) async {
+    try {
+      // print(json.encode({"ids": json.encode(ids)}));
+      var response = await http.put(
+          Uri.parse("$serverLaravel/api/ordercarrier/byorder/$idOrder"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(datajson));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        // print(decodeData);
+        return 0;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      return 2;
+    }
+  }
+
+  //*
+  Future createStockHistoryReserve(
+      id, sku, units, seller_owned, description, type) async {
+    int res;
+    print(json.encode({
+      "product_id": int.parse(id),
+      "sku_product": sku,
+      "units": int.parse(units),
+      "seller_owned": int.parse(seller_owned),
+      "description": description,
+      "type": int.parse(type)
+    }));
+    try {
+      var response =
+          await http.put(Uri.parse("$serverLaravel/api/reserve/editstock"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "product_id": int.parse(id),
+                "sku_product": sku,
+                "units": int.parse(units),
+                "seller_owned": int.parse(seller_owned),
+                "description": description,
+                "type": int.parse(type)
+              }));
+
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return 0;
+      } else {
+        return 1;
       }
     } catch (error) {
       return 2;

@@ -175,7 +175,8 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
     "pedidoFecha",
     "ruta",
     "subRuta",
-    "receivedBy"
+    "receivedBy",
+    "pedidoCarrier"
   ];
 
   getOldValue(Arrayrestoration) {
@@ -991,7 +992,11 @@ class _ReturnsInWarehouseState extends State<ReturnsInWarehouse> {
                                 data[index]['transportadora'].isNotEmpty
                             ? data[index]['transportadora'][0]['nombre']
                                 .toString()
-                            : ''),
+                            : data[index]['pedido_carrier'].isNotEmpty
+                                ? data[index]['pedido_carrier'][0]['carrier']
+                                        ['name']
+                                    .toString()
+                                : ""),
                       ),
                       DataCell(
                           Text(

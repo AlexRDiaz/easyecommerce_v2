@@ -134,7 +134,8 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
       arrayFiltersAnd.add({"product_s.warehouses.up_users.id_user": idUser});
       print("sub_provProv");
     }
-
+    arrayFiltersAnd = [];
+    arrayFiltersNot = [];
     if (showExternalCarriers == false) {
       arrayFiltersAnd.add({"id_externo": null});
     } else {
@@ -458,10 +459,10 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
                                           ? data[index]['transportadora'][0]
                                                   ['nombre']
                                               .toString()
-                                          : data[index]['carrier_external'] !=
-                                                  null
-                                              ? data[index]['carrier_external']
-                                                      ['name']
+                                          : data[index]['pedido_carrier']
+                                                  .isNotEmpty
+                                              ? data[index]['pedido_carrier'][0]
+                                                      ['carrier']['name']
                                                   .toString()
                                               : "",
                                       "address": data[index]
@@ -563,10 +564,10 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
                                         ? data[index]['transportadora'][0]
                                                 ['nombre']
                                             .toString()
-                                        : data[index]['carrier_external'] !=
-                                                null
-                                            ? data[index]['carrier_external']
-                                                    ['name']
+                                        : data[index]['pedido_carrier']
+                                                .isNotEmpty
+                                            ? data[index]['pedido_carrier'][0]
+                                                    ['carrier']['name']
                                                 .toString()
                                             : ""), onTap: () {
                               getInfoModal(index);
@@ -1088,7 +1089,7 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
                       "Código: ${data[index]['name_comercial']}-${data[index]['numero_orden']}"),
                   _model(
                     // "Fecha: ${data[index]['pedido_fecha'][0]['fecha'].toString()}",
-                    data[index]['marca_t_i'] ?? "".toString(),
+                    "Fecha: ${data[index]['marca_t_i'] ?? "".toString()} ",
                   ),
                   _model("Nombre Cliente: ${data[index]['nombre_shipping']}"),
                   _model("Teléfono: ${data[index]['telefono_shipping']}"),
@@ -1176,8 +1177,8 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
           "transport": element['transportadora'] != null &&
                   element['transportadora'].isNotEmpty
               ? element['transportadora'][0]['nombre'].toString()
-              : element['carrier_external'] != null
-                  ? element['carrier_external']['name'].toString()
+              : element['pedido_carrier'].isNotEmpty
+                  ? element['pedido_carrier'][0]['carrier']['name'].toString()
                   : "",
           "address": element['direccion_shipping'].toString(),
           "obervation": element['observacion'].toString(),

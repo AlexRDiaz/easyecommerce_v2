@@ -352,44 +352,50 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
   @override
   void didChangeDependencies() {
     var currentIndex = sharedPrefs!.getString("index");
-    // print(": $currentIndex");
-    // print("${pages.length}");
-    // currentView = {
-    //   "page": sharedPrefs!.getString("index") != null
-    //       ? pagesProvider[int.parse(sharedPrefs!.getString("index").toString())]
-    //           ["page"]
-    //       : "Dashboard",
-    //   "view": sharedPrefs!.getString("index") != null
-    //       ? pagesProvider[int.parse(sharedPrefs!.getString("index").toString())]
-    //           ["view"]
-    //       : WelcomeProviderScreen()
-    // };
-    print(".... --- .-.. .-");
-    if (currentIndex != null) {
-      if ((int.parse(currentIndex) > pages.length)) {
-        print(".---- ...-- > -.. .. .- -. .- -.-.");
-        currentView = {"page": "Dashboard", "view": WelcomeProviderScreen()};
+    print("currentIndex: $currentIndex");
+    try {
+      // print("${pages.length}");
+      // currentView = {
+      //   "page": sharedPrefs!.getString("index") != null
+      //       ? pagesProvider[int.parse(sharedPrefs!.getString("index").toString())]
+      //           ["page"]
+      //       : "Dashboard",
+      //   "view": sharedPrefs!.getString("index") != null
+      //       ? pagesProvider[int.parse(sharedPrefs!.getString("index").toString())]
+      //           ["view"]
+      //       : WelcomeProviderScreen()
+      // };
+      print(".... --- .-.. .-");
+      if (currentIndex != null) {
+        if ((int.parse(currentIndex) > pages.length)) {
+          print(".---- ...-- > -.. .. .- -. .- -.-.");
+          currentView = {"page": "Dashboard", "view": WelcomeProviderScreen()};
+        } else {
+          // currentView = {"page": "Dashboard", "view": WelcomeProviderScreen()};
+          // if (sharedPrefs!.getString("index") != null) {
+          //   pages = List.from(pages)
+          //     ..[int.parse(sharedPrefs!.getString("index").toString())]
+          //         ['selected'] = true;
+          // }
+          currentView = {
+            "page": sharedPrefs!.getString("index") != null
+                ? pagesProvider[
+                        int.parse(sharedPrefs!.getString("index").toString())]
+                    ["page"]
+                : "Dashboard",
+            "view": sharedPrefs!.getString("index") != null
+                ? pagesProvider[
+                        int.parse(sharedPrefs!.getString("index").toString())]
+                    ["view"]
+                : WelcomeProviderScreen()
+          };
+        }
       } else {
-        // currentView = {"page": "Dashboard", "view": WelcomeProviderScreen()};
-        // if (sharedPrefs!.getString("index") != null) {
-        //   pages = List.from(pages)
-        //     ..[int.parse(sharedPrefs!.getString("index").toString())]
-        //         ['selected'] = true;
-        // }
-        currentView = {
-          "page": sharedPrefs!.getString("index") != null
-              ? pagesProvider[
-                  int.parse(sharedPrefs!.getString("index").toString())]["page"]
-              : "Dashboard",
-          "view": sharedPrefs!.getString("index") != null
-              ? pagesProvider[
-                  int.parse(sharedPrefs!.getString("index").toString())]["view"]
-              : WelcomeProviderScreen()
-        };
+        print(".---- ...--");
+        currentView = {"page": "Dashboard", "view": WelcomeProviderScreen()};
       }
-    } else {
-      print(".---- ...--");
-      currentView = {"page": "Dashboard", "view": WelcomeProviderScreen()};
+    } catch (e) {
+      print(e);
     }
 
     super.didChangeDependencies();
