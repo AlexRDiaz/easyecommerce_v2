@@ -706,6 +706,10 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                             label: Text(""),
                             fixedWidth: 100,
                           ),
+                           const DataColumn2(
+                            label: Text("ID COMERCIAL"),
+                            fixedWidth: 100,
+                          ),
                           DataColumn2(
                             label: InputFilter('Fecha Entrega',
                                 fechaEntregaController, 'fecha_entrega'),
@@ -970,6 +974,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                       : Container(), onTap: () {
                                 showInfo(context, index);
                               }),
+                              DataCell(
+                                Text(data[index]['id_comercial'])
+                              ),
                               DataCell(
                                   Row(
                                     children: [

@@ -46,6 +46,8 @@ class _MyWalletState extends State<MyWallet> {
   bool isLoading = false;
   String start = "";
   String end = "";
+  int totalrecords = 0;
+
 
   List arrayFiltersAnd = [];
   List arrayFiltersDefaultAnd = [
@@ -148,6 +150,7 @@ class _MyWalletState extends State<MyWallet> {
       setState(() {
         data = response["data"];
         pageCount = response['last_page'];
+        totalrecords = response['total'];
         paginatorController.navigateToPage(0);
         isLoading = false;
       });
@@ -360,6 +363,7 @@ class _MyWalletState extends State<MyWallet> {
               IconButton(
                   onPressed: () => loadData(),
                   icon: Icon(Icons.replay_outlined)),
+              Text("Registros: ${totalrecords}"),
               Spacer(),
               Container(width: width * 0.3, child: numberPaginator()),
 
