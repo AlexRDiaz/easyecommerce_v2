@@ -2,6 +2,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/server.dart';
@@ -665,7 +666,22 @@ class _ProofPaymentState extends State<ProofPayment> {
                                                             getByDayPrice(
                                                                 index + 1)[1]))
                                                     .toStringAsFixed(2))),
-                                  ))
+                                  )),
+                                  Tooltip(
+                                    message: 'Ver Comprobante',
+                                    child: IconButton(
+                                      icon: Icon(Icons.photo),
+                                      color: ColorsSystem().colorVioletDateText,
+                                      onPressed: () {
+                                        try {
+                                          launchUrl(Uri.parse(
+                                              "$generalServer${getByDay(index + 1)[0]['comprobante']}"));
+                                        } catch (e) {
+                                          print(e);
+                                        }
+                                      },
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
