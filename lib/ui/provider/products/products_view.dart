@@ -56,7 +56,7 @@ class _ProductsViewState extends State<ProductsView> {
   List data = [];
   List dataHistory = [];
   int currentPageIntern = 1;
-  int pageSizeIntern = 20;
+  int pageSizeIntern = 100;
   int pageCountIntern = 0;
   int totalIntern = 0;
   int counterChecks = 0;
