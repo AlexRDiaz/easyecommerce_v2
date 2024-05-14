@@ -21,6 +21,8 @@ import 'package:frontend/ui/logistic/carriers_external/carriers_external_views.d
 import 'package:frontend/ui/logistic/dashboard/dashboard.dart';
 import 'package:frontend/ui/logistic/delivery_historial/delivery_historial.dart';
 import 'package:frontend/ui/logistic/delivery_status/delivery_status.dart';
+import 'package:frontend/ui/logistic/delivery_status_carrier_external/delivery_status.dart';
+import 'package:frontend/ui/logistic/external_carrier_billing/proof_payment_new.dart';
 import 'package:frontend/ui/logistic/guides_sent/guides_sent.dart';
 import 'package:frontend/ui/logistic/guides_sent/table_orders_guides_sent.dart';
 import 'package:frontend/ui/logistic/income_and_expenses/income_and_expenses.dart';
@@ -126,6 +128,14 @@ class _LayoutPageState extends State<LayoutPage> {
       getOption(
         "Comprobantes de Pago2",
         ProofPayment2(),
+      ),
+      getOption(
+        "Facturacion Transportadora Externa",
+        ExternalCarrierBilling(),
+      ),
+      getOption(
+        "Estados de entrega transportadora externa",
+        DeliveryStatusExternalCarrier(),
       ),
       getOption(
         "Saldo Contable",

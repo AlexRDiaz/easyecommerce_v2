@@ -320,9 +320,11 @@ class _ProductsViewState extends State<ProductsView> {
           _search.text);
       data = response['data'];
       setState(() {
-        dataHistory = response['data'];
-        pageCountIntern = response['last_page'];
-        totalIntern = response['total'];
+        // dataHistory = response['data'];
+        // pageCountIntern = response['last_page'];
+        pageCount = response['last_page'];
+        // totalIntern = response['total'];
+        total = response['total'];
       });
 
       for (Map producto in data) {
@@ -2137,10 +2139,10 @@ class _ProductsViewState extends State<ProductsView> {
         ),
       ),
       controller: paginatorControllerI,
-      numberPages: pageCount > 0 ? pageCount : 1,
+      numberPages: pageCountIntern > 0 ? pageCountIntern : 1,
       onPageChange: (index) async {
         setState(() {
-          currentPage = index + 1;
+          currentPageIntern = index + 1;
         });
         if (!isLoading) {
           await paginateDataIntern(id);

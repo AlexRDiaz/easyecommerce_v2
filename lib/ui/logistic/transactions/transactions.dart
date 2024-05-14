@@ -1011,6 +1011,7 @@ class _TransactionsState extends State<Transactions> {
   int currentPage = 1;
   int pageSize = 100;
   int pageCount = 0;
+  int totalrecords = 0;
   String saldo = '0';
   List data = [];
   bool isLoading = false;
@@ -1126,6 +1127,7 @@ class _TransactionsState extends State<Transactions> {
       setState(() {
         data = response["data"];
         pageCount = response['last_page'];
+        totalrecords = response['total'];
         paginatorController.navigateToPage(0);
         isLoading = false;
       });
@@ -1332,6 +1334,7 @@ class _TransactionsState extends State<Transactions> {
               IconButton(
                   onPressed: () => loadData(),
                   icon: Icon(Icons.replay_outlined)),
+              Text("Registros: ${totalrecords}"),
               Spacer(),
               Container(width: width * 0.3, child: numberPaginator()),
             ],

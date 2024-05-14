@@ -158,7 +158,8 @@ class _TransportProDeliveryHistoryDetails
                               (data['estado_devolucion'].toString() !=
                                               "PENDIENTE" ||
                                           data['status'].toString() ==
-                                              "ENTREGADO") ||
+                                              "ENTREGADO" || data['status'].toString() ==
+                                              "NO ENTREGADO"  ) ||
                                       btnRuta == false
                                   ? Container()
                                   : Row(
@@ -189,6 +190,7 @@ class _TransportProDeliveryHistoryDetails
                                         const SizedBox(
                                           width: 20,
                                         ),
+                                        data['status']!="NO ENTREGADO" ?
                                         ElevatedButton(
                                             onPressed: operador != "" &&
                                                     btnStatus == true
@@ -245,7 +247,8 @@ class _TransportProDeliveryHistoryDetails
                                                   : "Estado Entrega",
                                               style: const TextStyle(
                                                   fontWeight: FontWeight.bold),
-                                            )),
+                                            ))
+                                        : Container()
                                       ],
                                     ),
                             ],
