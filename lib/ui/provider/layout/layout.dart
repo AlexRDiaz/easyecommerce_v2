@@ -396,6 +396,7 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
       }
     } catch (e) {
       print(e);
+      currentView = {"page": "Dashboard", "view": WelcomeProviderScreen()};
     }
 
     super.didChangeDependencies();
