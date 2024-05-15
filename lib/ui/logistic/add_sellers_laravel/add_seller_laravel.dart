@@ -796,8 +796,7 @@ class _AddSellersState extends State<AddSellers> {
                       color: Colors.redAccent,
                     ),
                   )),
-                  DataCell(
-                    GestureDetector(
+                  DataCell(GestureDetector(
                     onTap: () async {
                       AwesomeDialog(
                         width: 500,
@@ -836,7 +835,9 @@ class _AddSellersState extends State<AddSellers> {
                       onTap: () {}),
                   DataCell(dataL[index]["up_user"] != null &&
                           dataL[index]["up_user"].isNotEmpty &&
-                          (dataL[index]["up_user"]['active']== true || dataL[index]["up_user"]['active'].toString() == "1")
+                          (dataL[index]["up_user"]['active'] == true ||
+                              dataL[index]["up_user"]['active'].toString() ==
+                                  "1")
                       ? GestureDetector(
                           onTap: () async {
                             AwesomeDialog(
@@ -1134,7 +1135,9 @@ class _AddSellersState extends State<AddSellers> {
                                             onPressed: () {
                                               Clipboard.setData(ClipboardData(
                                                   text:
-                                                      "${serverUrlByShopify}/$id"));
+                                                      // "${serverUrlByShopify}/$id"));
+                                                      "${serverUrlByShopifyLaravel}/$id"));
+
                                               Get.snackbar('COPIADO',
                                                   'Copiado al Clipboard');
                                             },
@@ -1145,7 +1148,8 @@ class _AddSellersState extends State<AddSellers> {
                                             )),
                                         Flexible(
                                             child: Text(
-                                          'Identificador: ${serverUrlByShopify}/$id',
+                                          // 'Identificador: ${serverUrlByShopify}/$id',
+                                          'Identificador: ${serverUrlByShopifyLaravel}/$id',
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold),
                                         ))

@@ -309,7 +309,9 @@ class _EditSellersState extends State<EditSellers> {
           TextButton(
               onPressed: () {
                 Clipboard.setData(
-                    ClipboardData(text: "${serverUrlByShopify}/$idShopify"));
+                    // ClipboardData(text: "${serverUrlByShopify}/$idShopify"));
+                    ClipboardData(
+                        text: "${serverUrlByShopifyLaravel}/$idShopify"));
                 Get.snackbar('COPIADO', 'Copiado al Clipboard');
               },
               child: Text(
@@ -327,7 +329,8 @@ class _EditSellersState extends State<EditSellers> {
             height: 10,
           ),
           Text(
-            '${serverUrlByShopify}/$idShopify',
+            // '${serverUrlByShopify}/$idShopify',
+            '${serverUrlByShopifyLaravel}/$idShopify',
             style: TextStyle(),
           ),
         ],

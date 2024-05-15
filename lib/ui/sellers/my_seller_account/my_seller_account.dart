@@ -335,7 +335,8 @@ class _MySellerAccountState extends State<MySellerAccount> {
               // Puedes aplicar otros estilos aquí si es necesario
             ),
             readOnly: true,
-            initialValue: '${serverUrlByShopify}/$idShopify',
+            // initialValue: '${serverUrlByShopify}/$idShopify',
+            initialValue: '${serverUrlByShopifyLaravel}/$idShopify',
             decoration: InputDecoration(
               fillColor: Colors.white, // Color del fondo del TextFormField
               filled: true,
@@ -361,7 +362,10 @@ class _MySellerAccountState extends State<MySellerAccount> {
               suffixIcon: GestureDetector(
                 onTap: () {
                   Clipboard.setData(
-                      ClipboardData(text: "${serverUrlByShopify}/$idShopify"));
+                      // ClipboardData(text: "${serverUrlByShopify}/$idShopify"));
+                      ClipboardData(
+                          text: "${serverUrlByShopifyLaravel}/$idShopify"));
+
                   Get.snackbar('COPIADO', 'Copiado al Clipboard');
                 },
                 child: const Icon(

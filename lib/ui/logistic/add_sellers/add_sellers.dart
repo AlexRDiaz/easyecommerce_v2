@@ -416,7 +416,10 @@ class _AddSellersStrappiState extends State<AddSellersStrappi> {
                                                       Clipboard.setData(
                                                           ClipboardData(
                                                               text:
-                                                                  "${serverUrlByShopify}/$id"));
+                                                                  "${serverUrlByShopifyLaravel}/$id"));
+
+                                                      // "${serverUrlByShopify}/$id"));
+
                                                       Get.snackbar('COPIADO',
                                                           'Copiado al Clipboard');
                                                     },
@@ -428,7 +431,8 @@ class _AddSellersStrappiState extends State<AddSellersStrappi> {
                                                     )),
                                                 Flexible(
                                                     child: Text(
-                                                  'Identificador: ${serverUrlByShopify}/$id',
+                                                  // 'Identificador: ${serverUrlByShopify}/$id',
+                                                  'Identificador: ${serverUrlByShopifyLaravel}/$id',
                                                   style: TextStyle(
                                                       fontWeight:
                                                           FontWeight.bold),

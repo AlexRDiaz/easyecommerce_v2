@@ -38,7 +38,6 @@ class _EditSellersLaravelState extends State<EditSellersLaravel> {
   bool isLoading = false;
 
   var data = {};
-  
 
   @override
   void didChangeDependencies() {
@@ -79,7 +78,9 @@ class _EditSellersLaravelState extends State<EditSellersLaravel> {
           height: MediaQuery.of(context).size.height,
           child: ListView(
             padding: EdgeInsets.all(12.0),
-            children: [responsive(webContainer(context), webContainer(context), context)],
+            children: [
+              responsive(webContainer(context), webContainer(context), context)
+            ],
           ),
         )));
   }
@@ -156,11 +157,13 @@ class _EditSellersLaravelState extends State<EditSellersLaravel> {
         ElevatedButton(
             onPressed: () async {
               // getLoadingModal(context, false
-              var response = await Connections().updatePassWordbyIdLaravel(idUser, "123456789");
+              var response = await Connections()
+                  .updatePassWordbyIdLaravel(idUser, "123456789");
 
               // print(response);
               // Navigator.pop(context);
-              if (response["message"] == "Actualización de contraseña exitosa")  {
+              if (response["message"] ==
+                  "Actualización de contraseña exitosa") {
                 AwesomeDialog(
                   width: 500,
                   context: context,
@@ -321,7 +324,9 @@ class _EditSellersLaravelState extends State<EditSellersLaravel> {
           TextButton(
               onPressed: () {
                 Clipboard.setData(
-                    ClipboardData(text: "${serverUrlByShopify}/$idShopify"));
+                    // ClipboardData(text: "${serverUrlByShopify}/$idShopify"));
+                    ClipboardData(
+                        text: "${serverUrlByShopifyLaravel}/$idShopify"));
                 Get.snackbar('COPIADO', 'Copiado al Clipboard');
               },
               child: Text(
@@ -339,7 +344,8 @@ class _EditSellersLaravelState extends State<EditSellersLaravel> {
             height: 10,
           ),
           Text(
-            '${serverUrlByShopify}/$idShopify',
+            // '${serverUrlByShopify}/$idShopify',
+            '${serverUrlByShopifyLaravel}/$idShopify',
             style: TextStyle(),
           ),
         ],
