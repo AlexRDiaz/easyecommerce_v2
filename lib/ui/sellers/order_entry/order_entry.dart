@@ -109,7 +109,8 @@ class _OrderEntryState extends State<OrderEntry> {
     // 'pedidoFecha',
     'ruta',
     // 'subRuta'
-    'carrierExternal',
+    // 'carrierExternal',
+    'pedidoCarrier'
   ];
   List arrayFiltersAnd = [];
   List arrayFiltersOr = [
@@ -870,11 +871,8 @@ class _OrderEntryState extends State<OrderEntry> {
                             child: Padding(
                                 padding: EdgeInsets.all(2.0),
                                 child: (data[index]['estado_logistico']
-                                                .toString() ==
-                                            "IMPRESO" &&
-                                        data[index]['estado_interno']
-                                                .toString() ==
-                                            "CONFIRMADO")
+                                            .toString() !=
+                                        "PENDIENTE")
                                     ? Row(
                                         children: [
                                           TextButton(
@@ -1151,13 +1149,13 @@ class _OrderEntryState extends State<OrderEntry> {
                           //     ? data[index]['transportadora'][0]['nombre']
                           //         .toString()
                           //     : ''),
-                          //habilitar para version transp. externo
                           Text(data[index]['transportadora'] != null &&
                                   data[index]['transportadora'].isNotEmpty
                               ? data[index]['transportadora'][0]['nombre']
                                   .toString()
-                              : data[index]['carrier_external'] != null
-                                  ? data[index]['carrier_external']['name']
+                              : data[index]['pedido_carrier'].isNotEmpty
+                                  ? data[index]['pedido_carrier'][0]['carrier']
+                                          ['name']
                                       .toString()
                                   : ""),
                           onTap: () {

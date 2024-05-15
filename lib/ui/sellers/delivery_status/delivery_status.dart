@@ -61,7 +61,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   double devoluciones = 0;
   double utilidad = 0;
   double totalValoresRecibidos = 0;
-  double refererValue = 0 ;
+  double refererValue = 0;
   double costoTransportadora = 0;
   bool isFirst = true;
   int counterLoad = 0;
@@ -135,7 +135,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     'sub_ruta',
     'operadore',
     'operadore.user',
-    'novedades'
+    'novedades',
+    "pedidoCarrier"
   ];
 
   List filtersOrCont = [
@@ -214,7 +215,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     'novedades',
     'pedidoFecha',
     'ruta',
-    'subRuta'
+    'subRuta',
+    "pedidoCarrier"
   ];
   //        $pedidos = PedidosShopify::with(['operadore.up_users', 'transportadora', 'users.vendedores', 'novedades', 'pedidoFecha', 'ruta', 'subRuta'])
 
@@ -1087,43 +1089,53 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                 showInfo(context, index);
                               }),
                               DataCell(
-                                  Text(data[index]['users'] != null
-                                      ? data[index]['status'].toString() ==
-                                                  "ENTREGADO" ||
-                                              data[index]['status']
-                                                      .toString() ==
-                                                  "NO ENTREGADO"
-                                          ? data[index]['users'][0]
-                                                      ['vendedores'][0]
-                                                  ['costo_envio']
-                                              .toString()
-                                          : ""
-                                      : ""), onTap: () {
+                                  Text(data[index]['pedido_carrier'].isNotEmpty
+                                      ? data[index]['costo_envio'].toString()
+                                      : data[index]['pedido_carrier'].isEmpty &&
+                                              data[index]['users'] != null
+                                          ? data[index]['status'].toString() ==
+                                                      "ENTREGADO" ||
+                                                  data[index]['status']
+                                                          .toString() ==
+                                                      "NO ENTREGADO"
+                                              ? data[index]['users'][0]
+                                                          ['vendedores'][0]
+                                                      ['costo_envio']
+                                                  .toString()
+                                              : ""
+                                          : ""), onTap: () {
                                 showInfo(context, index);
                               }),
                               DataCell(
-                                  Text(data[index]['users'] != null
-                                      ? data[index]['status'].toString() ==
-                                              "NOVEDAD"
-                                          ? data[index]['estado_devolucion']
-                                                          .toString() ==
-                                                      "ENTREGADO EN OFICINA" ||
-                                                  data[index]['status']
-                                                          .toString() ==
-                                                      "DEVOLUCION EN RUTA" ||
-                                                  data[index]['estado_devolucion']
-                                                          .toString() ==
-                                                      "EN BODEGA" ||
-                                                  data[index]['estado_devolucion']
-                                                          .toString() ==
-                                                      "EN BODEGA PROVEEDOR"
-                                              ? data[index]['users'][0]
-                                                          ['vendedores'][0]
-                                                      ['costo_devolucion']
-                                                  .toString()
-                                              : ""
-                                          : ""
-                                      : ""), onTap: () {
+                                  Text(
+                                    data[index]['pedido_carrier'].isNotEmpty
+                                        ? data[index]['costo_devolucion']
+                                            .toString()
+                                        : data[index]['pedido_carrier'].isEmpty &&
+                                                data[index]['users'] != null
+                                            ? data[index]['status']
+                                                        .toString() ==
+                                                    "NOVEDAD"
+                                                ? data[index]['estado_devolucion']
+                                                                .toString() ==
+                                                            "ENTREGADO EN OFICINA" ||
+                                                        data[index]['status']
+                                                                .toString() ==
+                                                            "DEVOLUCION EN RUTA" ||
+                                                        data[index]['estado_devolucion']
+                                                                .toString() ==
+                                                            "EN BODEGA" ||
+                                                        data[index]['estado_devolucion']
+                                                                .toString() ==
+                                                            "EN BODEGA PROVEEDOR"
+                                                    ? data[index]['users'][0]
+                                                                ['vendedores'][0]
+                                                            ['costo_devolucion']
+                                                        .toString()
+                                                    : ""
+                                                : ""
+                                            : "",
+                                  ), onTap: () {
                                 showInfo(context, index);
                               }),
                               DataCell(
@@ -1159,7 +1171,11 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                       ? data[index]['transportadora'][0]
                                               ['nombre']
                                           .toString()
-                                      : ''), onTap: () {
+                                      : data[index]['pedido_carrier'].isNotEmpty
+                                          ? data[index]['pedido_carrier'][0]
+                                                  ['carrier']['name']
+                                              .toString()
+                                          : ""), onTap: () {
                                 showInfo(context, index);
                               }),
                             ],
@@ -1300,15 +1316,14 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     setState(() {
       totalValoresRecibidos =
           double.parse(valuesTransporter['totalValoresRecibidos'].toString());
-      refererValue =
-          double.parse(valuesTransporter['totalReferer'].toString());
+      refererValue = double.parse(valuesTransporter['totalReferer'].toString());
       costoDeEntregas =
           double.parse(valuesTransporter['totalShippingCost'].toString());
       totalProductWarehouse =
           double.parse(valuesTransporter['totalProductWarehouse'].toString());
       devoluciones =
           double.parse(valuesTransporter['totalCostoDevolucion'].toString());
-      utilidad = (valuesTransporter['totalValoresRecibidos']+refererValue) -
+      utilidad = (valuesTransporter['totalValoresRecibidos'] + refererValue) -
           (valuesTransporter['totalShippingCost'] +
               valuesTransporter['totalCostoDevolucion'] +
               // +valuesTransporter['totalProductWarehouse']
@@ -1331,16 +1346,16 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
   addFilter(value) {
     resetFilters();
 
-    if (value["filtro"] != "Total" && value["filtro"] != "null" && value["filtro"] != "Referenciados") {
+    if (value["filtro"] != "Total" &&
+        value["filtro"] != "null" &&
+        value["filtro"] != "Referenciados") {
       arrayFiltersAnd.removeWhere((element) => element.containsKey("status"));
       arrayFiltersAnd.add({"status": value["filtro"]});
     } else if (value["filtro"] == "null") {
       arrayFiltersNotEq.removeWhere(
           (element) => element.containsKey("value_product_warehouse"));
       arrayFiltersNotEq.add({"value_product_warehouse": value["filtro"]});
-    } else if(value["filtro"] == "Referenciados"){
-      
-    }
+    } else if (value["filtro"] == "Referenciados") {}
 
     setState(() {
       currentColor = value['color'];

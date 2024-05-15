@@ -2068,7 +2068,8 @@ class _CatalogState extends State<Catalog> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Visibility(
-                            visible: (idUser == 2 || idUser == 188) &&
+                            visible:
+                                // (idUser == 2 || idUser == 188) &&
                                 (int.parse(product.stock.toString()) > 0 ||
                                     reserveStock > 0),
                             child: _buttonCreateGuide(product, context),

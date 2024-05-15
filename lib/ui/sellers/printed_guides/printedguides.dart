@@ -428,8 +428,21 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                                         optionsCheckBox[index]['name'] =
                                             data[index]['nombre_shipping']
                                                 .toString();
-                                        optionsCheckBox[index]['transport'] =
-                                            "${data[index]['transportadora'] != null ? data[index]['transportadora'][0]['nombre'].toString() : ''}";
+                                        optionsCheckBox[index]
+                                            ['transport'] = data[index]
+                                                        ['transportadora'] !=
+                                                    null &&
+                                                data[index]['transportadora']
+                                                    .isNotEmpty
+                                            ? data[index]['transportadora'][0]
+                                                    ['nombre']
+                                                .toString()
+                                            : data[index]['pedido_carrier']
+                                                    .isNotEmpty
+                                                ? data[index]['pedido_carrier']
+                                                        [0]['carrier']['name']
+                                                    .toString()
+                                                : "";
                                         optionsCheckBox[index]['address'] =
                                             data[index]['direccion_shipping']
                                                 .toString();
@@ -513,7 +526,11 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                                       ? data[index]['transportadora'][0]
                                               ['nombre']
                                           .toString()
-                                      : ''), onTap: () {
+                                      : data[index]['pedido_carrier'].isNotEmpty
+                                          ? data[index]['pedido_carrier'][0]
+                                                  ['carrier']['name']
+                                              .toString()
+                                          : ""), onTap: () {
                                 info(context, index);
                               }),
                               DataCell(
@@ -863,8 +880,13 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                 data[i]['telefono_shipping'].toString();
             optionsCheckBox[i]['price'] = data[i]['precio_total'].toString();
             optionsCheckBox[i]['name'] = data[i]['nombre_shipping'].toString();
-            optionsCheckBox[i]['transport'] =
-                "${data[i]['transportadora'] != null ? data[i]['transportadora'][0]['nombre'].toString() : ''}";
+            optionsCheckBox[i]
+                ['transport'] = data[i]['transportadora'] != null &&
+                    data[i]['transportadora'].isNotEmpty
+                ? data[i]['transportadora'][0]['nombre'].toString()
+                : data[i]['pedido_carrier'].isNotEmpty
+                    ? data[i]['pedido_carrier'][0]['carrier']['name'].toString()
+                    : "";
             optionsCheckBox[i]['address'] =
                 data[i]['direccion_shipping'].toString();
             optionsCheckBox[i]['obervation'] =

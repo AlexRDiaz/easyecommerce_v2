@@ -163,7 +163,8 @@ class _ReturnsState extends State<Returns> {
     "pedidoFecha",
     "ruta",
     "subRuta",
-    "receivedBy"
+    "receivedBy",
+    "pedidoCarrier"
   ];
 
   @override
@@ -796,11 +797,17 @@ class _ReturnsState extends State<Returns> {
                                 fontWeight: FontWeight.bold, fontSize: 10),
                           ))),
                       DataCell(
-                        Text(data[index]['transportadora'] != null &&
-                                data[index]['transportadora'].isNotEmpty
-                            ? data[index]['transportadora'][0]['nombre']
-                                .toString()
-                            : ''),
+                        Text(
+                          data[index]['transportadora'] != null &&
+                                  data[index]['transportadora'].isNotEmpty
+                              ? data[index]['transportadora'][0]['nombre']
+                                  .toString()
+                              : data[index]['pedido_carrier'].isNotEmpty
+                                  ? data[index]['pedido_carrier'][0]['carrier']
+                                          ['name']
+                                      .toString()
+                                  : "",
+                        ),
                       ),
                       DataCell(
                           Text(

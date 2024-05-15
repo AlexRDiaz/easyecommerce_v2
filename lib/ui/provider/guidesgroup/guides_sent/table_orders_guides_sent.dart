@@ -105,7 +105,8 @@ class _TableOrdersGuidesSentStateProvider
     // "product.warehouse.provider"
     "product_s.warehouses.provider",
     'carrierExternal',
-    'ciudadExternal'
+    'ciudadExternal',
+    "pedidoCarrier"
   ];
 
   var idUser = sharedPrefs!.getString("id");
@@ -621,10 +622,10 @@ class _TableOrdersGuidesSentStateProvider
                                           ? data[index]['transportadora'][0]
                                                   ['nombre']
                                               .toString()
-                                          : data[index]['carrier_external'] !=
-                                                  null
-                                              ? data[index]['carrier_external']
-                                                      ['name']
+                                          : data[index]['pedido_carrier']
+                                                  .isNotEmpty
+                                              ? data[index]['pedido_carrier'][0]
+                                                      ['carrier']['name']
                                                   .toString()
                                               : "",
                                       "address": data[index]
@@ -733,9 +734,9 @@ class _TableOrdersGuidesSentStateProvider
                                         data[index]['transportadora'].isNotEmpty
                                     ? data[index]['transportadora'][0]['nombre']
                                         .toString()
-                                    : data[index]['carrier_external'] != null
-                                        ? data[index]['carrier_external']
-                                                ['name']
+                                    : data[index]['pedido_carrier'].isNotEmpty
+                                        ? data[index]['pedido_carrier'][0]
+                                                ['carrier']['name']
                                             .toString()
                                         : "",
                               ),
@@ -1270,7 +1271,11 @@ class _TableOrdersGuidesSentStateProvider
                             data['transportadora'] != null &&
                                     data['transportadora'].isNotEmpty
                                 ? data['transportadora'][0]['nombre'].toString()
-                                : '',
+                                : data['pedido_carrier'].isNotEmpty
+                                    ? data['pedido_carrier'][0]['carrier']
+                                            ['name']
+                                        .toString()
+                                    : "",
                           ),
                           _buildTableCell(data["producto_p"]),
                           _buildTableCell(data["cantidad_total"].toString()),
@@ -1370,10 +1375,18 @@ class _TableOrdersGuidesSentStateProvider
                 columnIndex: 4, rowIndex: rowIndex + 1))
             .value = data["ciudad_shipping"];
         if (data["transportadora"].isEmpty) {
-          sheet
-              .cell(CellIndex.indexByColumnRow(
-                  columnIndex: 5, rowIndex: rowIndex + 1))
-              .value = "";
+          if (data['pedido_carrier'].isNotEmpty) {
+            sheet
+                    .cell(CellIndex.indexByColumnRow(
+                        columnIndex: 5, rowIndex: rowIndex + 1))
+                    .value =
+                data['pedido_carrier'][0]['carrier']['name'].toString();
+          } else {
+            sheet
+                .cell(CellIndex.indexByColumnRow(
+                    columnIndex: 5, rowIndex: rowIndex + 1))
+                .value = "";
+          }
         } else {
           sheet
               .cell(CellIndex.indexByColumnRow(

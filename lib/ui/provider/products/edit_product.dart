@@ -11,6 +11,7 @@ import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/models/product_model.dart';
+import 'package:frontend/models/reserve_model.dart';
 import 'package:frontend/models/warehouses_model.dart';
 import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_snackbar.dart';
 import 'package:frontend/ui/provider/products/controllers/product_controller.dart';
@@ -129,6 +130,9 @@ class _EditProductState extends State<EditProduct> {
 
   bool multiWarehouse = false;
   bool isown = false;
+  int seller_owned = 0;
+  List variantsListNoChanges = [];
+  List<String> variantOriginLabels = [];
 
   @override
   void initState() {
@@ -189,6 +193,7 @@ class _EditProductState extends State<EditProduct> {
     isVariable = int.parse(product.isvariable.toString());
     typeValue = product.isvariable == 1 ? "VARIABLE" : "SIMPLE";
     _priceController.text = product.price.toString();
+    seller_owned = product.seller_owned ?? 0;
 
     // warehouseValue =
     //     '${product.warehouse!.id.toString()}-${product.warehouse!.branchName.toString()}-${product.warehouse!.city.toString()}';
@@ -239,7 +244,7 @@ class _EditProductState extends State<EditProduct> {
       optionsTypesOriginal = dataFeatures["options"];
       variantsListCopy = dataFeatures["variants"];
       // print(variantsListOriginal);
-
+/*
       for (var variant in variantsListOriginal) {
         if (variant.containsKey('color')) {
           variantsToSelect.add('${variant["sku"]}-${variant["color"]}');
@@ -290,6 +295,33 @@ class _EditProductState extends State<EditProduct> {
 
         return variableDetails.join(';  ');
       }).join('\n');
+*/
+      //new version
+      variantOriginLabels = [];
+
+      for (var variant in variantsListOriginal) {
+        List<String> valuesToConcatenate = [];
+
+        // Agregar todos los valores excepto "id,sku,inventory_quantity,price"
+        for (var entry in variant.entries) {
+          if (entry.key != "id" &&
+              entry.key != "sku" &&
+              entry.key != "inventory_quantity" &&
+              entry.key != "price") {
+            valuesToConcatenate.add(entry.value.toString());
+          }
+        }
+
+        // Unir los valores con /
+        String concatenatedValues = valuesToConcatenate.join('/');
+
+        variantOriginLabels.add(
+            "${variant['sku']}; $concatenatedValues; Cantidad:${variant['inventory_quantity']}");
+
+        variantsToSelect.add('${variant["sku"]}-$concatenatedValues');
+      }
+
+      variablesText = variantOriginLabels.join('\n');
     }
 
     sizesToSelect = optionsList[0]["sizes"]!;
@@ -298,6 +330,51 @@ class _EditProductState extends State<EditProduct> {
     // print("specialProv: $specialProv");
     // print("provType: $provType");
     // print("multiWarehouse: $multiWarehouse");
+
+    print("variantsToSelect: $variablesText");
+
+    if (seller_owned != 0) {
+      print("IS seller_owned");
+      int reserveStock = 0;
+      List<ReserveModel>? reservesList = product.reserves;
+      if (reservesList != null) {
+        for (int i = 0; i < reservesList.length; i++) {
+          ReserveModel reserve = reservesList[i];
+          //
+          reserveStock += int.parse(reserve.stock.toString());
+          if (product.isvariable == 1) {
+            for (int j = 0; j < variantOriginLabels.length; j++) {
+              String skuV = variantOriginLabels[j].split(";")[0];
+              String variantsV = variantOriginLabels[j].split(";")[1];
+              // String quantityV = variantOriginLabels[j].split(";")[2];
+              if (skuV == reserve.sku.toString()) {
+                int newQuantity = int.parse(reserve.stock.toString());
+                String updatedVariant =
+                    "$skuV; $variantsV; Cantidad:${newQuantity.toString()}";
+                variantOriginLabels[j] = updatedVariant;
+                break;
+              }
+            }
+            variablesText = variantOriginLabels.join('\n');
+
+            for (var element in variantsListCopy) {
+              if (element['sku'] == reserve.sku.toString()) {
+                //
+                element['inventory_quantity'] = (reserve.stock.toString());
+              }
+            }
+          }
+          //
+        }
+      }
+
+      // print("reserveStock: $reserveStock");
+      // print("variantsListCopy: $variantsListCopy");
+
+      _stockController.text = reserveStock.toString();
+      stockOriginal = int.parse(reserveStock.toString());
+      stock = reserveStock.toString();
+    }
 
     setState(() {});
   }
@@ -1331,6 +1408,12 @@ class _EditProductState extends State<EditProduct> {
 
                                     // print("variantsListOriginal");
                                     // print(variantsListOriginal);
+                                    // print("seller_owned: $seller_owned");
+                                    var feat =
+                                        jsonDecode(widget.data['features']);
+                                    variantsListNoChanges = feat["variants"];
+                                    // print(
+                                    //     "variantsListNoChanges: $variantsListNoChanges");
 
                                     var featuresToSend = {
                                       "guide_name": _nameGuideController.text,
@@ -1343,14 +1426,18 @@ class _EditProductState extends State<EditProduct> {
                                       "description":
                                           _descriptionController.text,
                                       "type": typeValue,
-                                      "variants": variantsListOriginal,
+                                      "variants": seller_owned != 0
+                                          ? variantsListNoChanges
+                                          : variantsListOriginal,
                                       "options": optionsTypesOriginal
                                     };
 
                                     _productController.editProduct(ProductModel(
                                       productId: widget.data['product_id'],
                                       productName: _nameController.text,
-                                      stock: stockOriginal,
+                                      stock: seller_owned != 0
+                                          ? widget.data['stock']
+                                          : stockOriginal,
                                       price:
                                           double.parse(_priceController.text),
                                       urlImg: imgsTemporales.isNotEmpty
@@ -1366,23 +1453,47 @@ class _EditProductState extends State<EditProduct> {
 
                                     // print("variantsStockToUpt can:");
                                     // print(variantsStockToUpt.length);
-                                    if (variantsStockToUpt.isNotEmpty) {
-                                      // print("need to upt variantsStockToUpt:");
-                                      // print(variantsStockToUpt.length);
 
-                                      for (var variant in variantsStockToUpt) {
-                                        var response = await Connections()
-                                            .createStockHistory(
-                                                codigo,
-                                                variant['sku'],
-                                                variant['units'],
-                                                variant['description'],
-                                                variant['type'].toString());
-                                        if (response == 0) {
-                                          print("successful");
-                                        } else {
-                                          print("error");
+                                    if (variantsStockToUpt.isNotEmpty) {
+                                      print("need to upt variantsStockToUpt:");
+                                      print(variantsStockToUpt.length);
+                                      if (seller_owned != 0) {
+                                        print("is seller_owned");
+
+                                        for (var variant
+                                            in variantsStockToUpt) {
+                                          var response = await Connections()
+                                              .createStockHistoryReserve(
+                                                  codigo,
+                                                  variant['sku'],
+                                                  variant['units'],
+                                                  seller_owned.toString(),
+                                                  variant['description'],
+                                                  variant['type'].toString());
+                                          if (response == 0) {
+                                            print("successful");
+                                          } else {
+                                            print("error");
+                                          }
                                         }
+                                        //
+                                      } else {
+                                        for (var variant
+                                            in variantsStockToUpt) {
+                                          var response = await Connections()
+                                              .createStockHistory(
+                                                  codigo,
+                                                  variant['sku'],
+                                                  variant['units'],
+                                                  variant['description'],
+                                                  variant['type'].toString());
+                                          if (response == 0) {
+                                            print("successful");
+                                          } else {
+                                            print("error");
+                                          }
+                                        }
+                                        //
                                       }
                                     } else {
                                       print(
@@ -1522,7 +1633,34 @@ class _EditProductState extends State<EditProduct> {
     List<Map<String, dynamic>>? variantsEdit =
         (variantsListCopy as List<dynamic>).cast<Map<String, dynamic>>();
 
+//new version
+    List<String> variantOriginLabelsEdit = [];
+
+    for (var variant in variantsEdit) {
+      List<String> valuesToConcatenate = [];
+
+      // Agregar todos los valores excepto "id", "sku", "inventory_quantity" y "price"
+      for (var entry in variant.entries) {
+        if (entry.key != "id" &&
+            entry.key != "sku" &&
+            entry.key != "inventory_quantity" &&
+            entry.key != "price") {
+          valuesToConcatenate.add(entry.value.toString());
+        }
+      }
+
+      // Unir los valores con "/"
+      String concatenatedValues = valuesToConcatenate.join('/');
+
+      // Agregar la etiqueta de la variante a la lista
+      variantOriginLabelsEdit.add(
+          "${variant['sku']}; $concatenatedValues; Cantidad:${variant['inventory_quantity'].toString()}");
+    }
     setState(() {
+      variablesTextEdit = variantOriginLabelsEdit.join('\n');
+    });
+    setState(() {
+      /*
       variablesTextEdit = variantsEdit.map((variable) {
         List<String> variableDetails = [];
 
@@ -1544,6 +1682,7 @@ class _EditProductState extends State<EditProduct> {
 
         return variableDetails.join(';  ');
       }).join('\n');
+      */
     });
   }
 

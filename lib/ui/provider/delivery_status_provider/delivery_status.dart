@@ -220,7 +220,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
     'ruta',
     'subRuta',
     // 'product.warehouse.provider'
-    "product_s.warehouses.provider"
+    "product_s.warehouses.provider",
+    "pedidoCarrier"
   ];
   //        $pedidos = PedidosShopify::with(['operadore.up_users', 'transportadora', 'users.vendedores', 'novedades', 'pedidoFecha', 'ruta', 'subRuta'])
 
@@ -997,13 +998,20 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                 showInfo(context, index);
                               }),
                               DataCell(
-                                  Text(data[index]['transportadora'] != null &&
-                                          data[index]['transportadora']
-                                              .isNotEmpty
-                                      ? data[index]['transportadora'][0]
-                                              ['nombre']
-                                          .toString()
-                                      : ''), onTap: () {
+                                  Text(
+                                    data[index]['transportadora'] != null &&
+                                            data[index]['transportadora']
+                                                .isNotEmpty
+                                        ? data[index]['transportadora'][0]
+                                                ['nombre']
+                                            .toString()
+                                        : data[index]['pedido_carrier']
+                                                .isNotEmpty
+                                            ? data[index]['pedido_carrier'][0]
+                                                    ['carrier']['name']
+                                                .toString()
+                                            : "",
+                                  ), onTap: () {
                                 showInfo(context, index);
                               }),
                             ],

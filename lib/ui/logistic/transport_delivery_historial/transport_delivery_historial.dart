@@ -103,7 +103,8 @@ class _TransportDeliveryHistorialState
     'operadore',
     "operadore.user",
     "users",
-    "users.vendedores"
+    "users.vendedores",
+    "pedidoCarrier"
   ];
   List arrayFiltersAnd = [];
   List arrayFiltersOr = [
@@ -584,8 +585,8 @@ class _TransportDeliveryHistorialState
                         },
                       ),
                       DataColumn2(
-                        label: InputFilter('Id Pedido', 'IdPedido',
-                            idPedidoController, '/id'),
+                        label: InputFilter(
+                            'Id Pedido', 'IdPedido', idPedidoController, '/id'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
                           sortFunc("IdPedido");
@@ -1690,7 +1691,10 @@ class _TransportDeliveryHistorialState
       }),
       DataCell(
           Text(
-            data[index]['producto_extra'].toString(),
+            data[index]['producto_extra'] == null ||
+                    data[index]['producto_extra'].toString() == "null"
+                ? ""
+                : data[index]['producto_extra'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
@@ -1708,7 +1712,10 @@ class _TransportDeliveryHistorialState
       }),
       DataCell(
           Text(
-            data[index]['observacion'].toString(),
+            data[index]['observacion'] == null ||
+                    data[index]['observacion'].toString() == "null"
+                ? ""
+                : data[index]['observacion'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
@@ -1717,7 +1724,10 @@ class _TransportDeliveryHistorialState
       }),
       DataCell(
           Text(
-            '${data[index]['comentario'].toString()}',
+            data[index]['comentario'] == null ||
+                    data[index]['comentario'].toString() == "null"
+                ? ""
+                : data[index]['comentario'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
@@ -1735,7 +1745,10 @@ class _TransportDeliveryHistorialState
       }),
       DataCell(
           Text(
-            data[index]['tipo_pago'].toString(),
+            data[index]['tipo_pago'] == null ||
+                    data[index]['tipo_pago'].toString() == "null"
+                ? ""
+                : data[index]['tipo_pago'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
@@ -1744,10 +1757,18 @@ class _TransportDeliveryHistorialState
       }),
       DataCell(
           Text(
+            // data[index]['ruta'] != null &&
+            //         data[index]['ruta'].toString() != "[]"
+            //     ? data[index]['ruta'][0]['titulo'].toString()
+            //     : "",
             data[index]['ruta'] != null &&
                     data[index]['ruta'].toString() != "[]"
                 ? data[index]['ruta'][0]['titulo'].toString()
-                : "",
+                : data[index]['pedido_carrier'].isNotEmpty
+                    ? data[index]['pedido_carrier'][0]['city_external']
+                            ['ciudad']
+                        .toString()
+                    : "",
             style: TextStyle(
               color: rowColor,
             ),
@@ -1757,9 +1778,12 @@ class _TransportDeliveryHistorialState
       DataCell(
           Text(
             data[index]['transportadora'] != null &&
-                    data[index]['transportadora'].toString() != "[]"
+                    data[index]['transportadora'].isNotEmpty
                 ? data[index]['transportadora'][0]['nombre'].toString()
-                : "",
+                : data[index]['pedido_carrier'].isNotEmpty
+                    ? data[index]['pedido_carrier'][0]['carrier']['name']
+                        .toString()
+                    : "",
             style: TextStyle(
               color: rowColor,
             ),
@@ -1792,7 +1816,10 @@ class _TransportDeliveryHistorialState
           onTap: () {}),
       DataCell(
           Text(
-            data[index]['fecha_entrega'].toString(),
+            data[index]['fecha_entrega'] == null ||
+                    data[index]['fecha_entrega'].toString() == "null"
+                ? ""
+                : data[index]['fecha_entrega'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
@@ -1904,7 +1931,10 @@ class _TransportDeliveryHistorialState
       }),
       DataCell(
           Text(
-            data[index]['marca_t_d'].toString(),
+            data[index]['marca_t_d'] == null ||
+                    data[index]['marca_t_d'].toString() == "null"
+                ? ""
+                : data[index]['marca_t_d'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
@@ -1913,7 +1943,10 @@ class _TransportDeliveryHistorialState
       }),
       DataCell(
           Text(
-            data[index]['estado_pago_logistica'].toString(),
+            data[index]['estado_pago_logistica'] == null ||
+                    data[index]['estado_pago_logistica'].toString() == "null"
+                ? ""
+                : data[index]['estado_pago_logistica'].toString(),
             style: TextStyle(
               color: rowColor,
             ),

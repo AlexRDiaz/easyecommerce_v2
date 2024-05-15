@@ -157,7 +157,7 @@ class _PrintedGuideInfoStateProvider extends State<PrintedGuideInfoProvider> {
                         height: 20,
                       ),
                       Text(
-                        " Transportadora: ${data['transportadora'] != null && data['transportadora'].isNotEmpty ? data['transportadora'][0]['nombre'].toString() : data['carrier_external'] != null ? data['carrier_external']['name'].toString() : ""}",
+                        " Transportadora: ${data['transportadora'] != null && data['transportadora'].isNotEmpty ? data['transportadora'][0]['nombre'].toString() : data['pedido_carrier'].isNotEmpty ? data['pedido_carrier'][0]['carrier']['name'].toString() : ""}",
                         style: const TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18),
                       ),

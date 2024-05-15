@@ -1259,6 +1259,7 @@ class _ProductsViewState extends State<ProductsView> {
     sku = features["sku"];
 
     String reservesText = "";
+    int reserveStock = 0;
 
     List<ReserveModel>? reservesList = product.reserves;
     if (reservesList != null) {
@@ -1267,6 +1268,8 @@ class _ProductsViewState extends State<ProductsView> {
         UserModel? userSeller = reserve.user;
         reservesText +=
             "SKU: ${reserve.sku} \nVendedor: ${userSeller?.email}\nCantidad: ${reserve.stock}";
+        reserveStock += int.parse(reserve.stock.toString());
+
         if (i < reservesList.length - 1) {
           reservesText += "\n\n";
         }
@@ -1692,23 +1695,30 @@ class _ProductsViewState extends State<ProductsView> {
                                     Visibility(
                                       visible: reservesText != "",
                                       child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
                                         children: [
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Row(
-                                                  children: [
-                                                    Text(
-                                                      "Reservas:",
-                                                      style:
-                                                          customTextStyleTitle,
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
+                                          Text(
+                                            "Stock Reservas:",
+                                            style: customTextStyleTitle,
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            reserveStock.toString(),
+                                            style: customTextStyleText,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Visibility(
+                                      visible: reservesText != "",
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Reservas:",
+                                            style: customTextStyleTitle,
                                           ),
                                         ],
                                       ),
@@ -1717,22 +1727,15 @@ class _ProductsViewState extends State<ProductsView> {
                                       visible: reservesText != "",
                                       child: Row(
                                         children: [
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Row(
-                                                  children: [
-                                                    Text(
-                                                      reservesText,
-                                                      style:
-                                                          customTextStyleText,
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                reservesText,
+                                                style: customTextStyleText,
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
@@ -1891,7 +1894,7 @@ class _ProductsViewState extends State<ProductsView> {
       builder: (context) {
         return AlertDialog(
           content: Container(
-            width: screenWidth * 0.50,
+            width: screenWidth * 0.70,
             height: screenHeight,
             child: ListView(
               children: [
@@ -1964,7 +1967,7 @@ class _ProductsViewState extends State<ProductsView> {
                                     const BorderRadius.all(Radius.circular(4)),
                                 border: Border.all(color: Colors.blueGrey),
                               ),
-                              // dataRowHeight: 120,
+                              headingRowHeight: 60,
                               dataRowColor:
                                   MaterialStateColor.resolveWith((states) {
                                 return Colors.white;
@@ -1997,11 +2000,19 @@ class _ProductsViewState extends State<ProductsView> {
                                   size: ColumnSize.S,
                                 ),
                                 DataColumn2(
-                                  label: Text('Stock Actual'),
+                                  label: Text('Stock\nActual'),
                                   size: ColumnSize.S,
                                 ),
                                 DataColumn2(
-                                  label: Text('Stock Anterior'),
+                                  label: Text('Stock\nAnterior'),
+                                  size: ColumnSize.S,
+                                ),
+                                DataColumn2(
+                                  label: Text('Stock\nActual\nReserva'),
+                                  size: ColumnSize.S,
+                                ),
+                                DataColumn2(
+                                  label: Text('Stock\nAnterior\nReserva'),
                                   size: ColumnSize.S,
                                 ),
                                 DataColumn2(
@@ -2032,12 +2043,43 @@ class _ProductsViewState extends State<ProductsView> {
                                         dataHistory[index]['units'].toString()),
                                   ),
                                   DataCell(
-                                    Text(dataHistory[index]['current_stock']
-                                        .toString()),
+                                    Text(
+                                      dataHistory[index]['current_stock'] ==
+                                              null
+                                          ? ""
+                                          : dataHistory[index]['current_stock']
+                                              .toString(),
+                                    ),
                                   ),
                                   DataCell(
-                                    Text(dataHistory[index]['last_stock']
-                                        .toString()),
+                                    Text(
+                                      dataHistory[index]['last_stock'] == null
+                                          ? ""
+                                          : dataHistory[index]['last_stock']
+                                              .toString(),
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                      dataHistory[index]
+                                                  ['current_stock_reserve'] ==
+                                              null
+                                          ? ""
+                                          : dataHistory[index]
+                                                  ['current_stock_reserve']
+                                              .toString(),
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                      dataHistory[index]
+                                                  ['last_stock_reserve'] ==
+                                              null
+                                          ? ""
+                                          : dataHistory[index]
+                                                  ['last_stock_reserve']
+                                              .toString(),
+                                    ),
                                   ),
                                   DataCell(
                                     Text(dataHistory[index]['description']

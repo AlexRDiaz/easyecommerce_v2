@@ -67,7 +67,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
   int quantityTotal = 0;
 
   //
-  List<String> carriersTypeToSelect = ["Interno", "Externo"];
+  // List<String> carriersTypeToSelect = ["Interno", "Externo"];
+  List<String> carriersTypeToSelect = ["Interno"];
   String? selectedCarrierExternal;
   List<String> provinciasToSelect = [];
   String? selectedProvincia;
@@ -88,6 +89,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
   String prov_city_address = "";
 
   var responseCarriersGeneral;
+  double iva = 0.15;
 
   bool containsEmoji(String text) {
     final emojiPattern = RegExp(
@@ -100,7 +102,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
   @override
   void didChangeDependencies() {
     getRoutes();
-    getCarriersExternals();
+    // getCarriersExternals();
 
     getData();
     super.didChangeDependencies();
@@ -1394,28 +1396,29 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
 
                                 // print(response);
 
-                                if (selectedCarrierType == "Externo" &&
-                                    selectedCarrierExternal
-                                            .toString()
-                                            .split("-")[1] ==
-                                        "1") {
-                                  if (response != 1 || response != 2) {
-                                    // ! send Gintra
-                                    // print("send Gintra");
-                                    // var responseGintra = await Connections()
-                                    //     .postOrdersGintra(dataIntegration);
-                                    // print("responseInteg");
-                                    // print(responseGintra);
+                                // if (selectedCarrierType == "Externo" &&
+                                //     selectedCarrierExternal
+                                //             .toString()
+                                //             .split("-")[1] ==
+                                //         "1") {
+                                //   if (response != 1 || response != 2) {
+                                //     //send Gintra
+                                //     print("send Gintra");
+                                //     var responseGintra = await Connections()
+                                //         .postOrdersGintra(dataIntegration);
+                                //     print("responseInteg");
+                                //     print(responseGintra);
 
-                                    // if (responseGintra != []) {
-                                    //   await Connections().updatenueva(
-                                    //       response['id'], {
-                                    //     "id_externo": responseGintra['guia']
-                                    //   });
-                                    // }
-                                    // ! ************* 
-                                  }
-                                }
+                                //     if (responseGintra != []) {
+                                //       await Connections()
+                                //           .UpdateOrderCarrierbyOrder(
+                                //               response['id'], {
+                                //         "external_id": responseGintra['guia']
+                                //       });
+                                //     }
+                                //     //
+                                //   }
+                                // }
 
                                 var _url = Uri.parse(
                                   """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
@@ -1625,46 +1628,53 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
         deliveryPrice = double.parse(costs["especial2"].toString());
       }
     }
-    // print("after type: $deliveryPrice");
+    deliveryPrice = deliveryPrice + (deliveryPrice * iva);
+    deliveryPrice = double.parse(deliveryPrice.toStringAsFixed(2));
+    // print("after type + iva: $deliveryPrice");
 
     double costo_seguro =
         (priceTotalProduct * (double.parse(costs["costo_seguro"]))) / 100;
     costo_seguro = double.parse(costo_seguro.toStringAsFixed(2));
+    costo_seguro = costo_seguro + (costo_seguro * iva);
+    costo_seguro = double.parse(costo_seguro.toStringAsFixed(2));
+
     deliveryPrice += costo_seguro;
     // print("after costo_seguro: $deliveryPrice");
 
     var costo_rec = (costs["costo_recaudo"]);
-
+    double costo_recaudo = 0;
     if (recaudo) {
       // print("recaudo?? YES");
       // print("priceTotalProduct: $priceTotalProduct");
 
       if (priceTotalProduct <= double.parse(costo_rec['max_price'])) {
         double base = double.parse(costo_rec['base']);
+        base = base + (base * iva);
         base = double.parse(base.toStringAsFixed(2));
-
-        deliveryPrice += base;
+        costo_recaudo = base;
       } else {
         double incremental =
             (priceTotalProduct * double.parse(costo_rec['incremental'])) / 100;
         incremental = double.parse(incremental.toStringAsFixed(2));
-
-        deliveryPrice += incremental;
+        incremental = incremental + (incremental * iva);
+        incremental = double.parse(incremental.toStringAsFixed(2));
+        costo_recaudo = incremental;
       }
     }
+    deliveryPrice += costo_recaudo;
     // print("after recaudo: $deliveryPrice");
+
     deliveryPrice = double.parse(deliveryPrice.toStringAsFixed(2));
 
-    double iva = deliveryPrice * (15 / 100);
     deliveryPrice = costEasy + deliveryPrice;
-    iva = double.parse(iva.toStringAsFixed(2));
-    //falta iva
+    double deliveryPriceTax = deliveryPrice * iva;
+    //
     setState(() {
       costShippingSeller = deliveryPrice;
-      taxCostShipping = iva;
+      taxCostShipping = deliveryPriceTax;
     });
-    double totalProfit =
-        priceTotalProduct - (priceWarehouseTotal + deliveryPrice + iva);
+    double totalProfit = priceTotalProduct -
+        (priceWarehouseTotal + deliveryPrice + deliveryPriceTax);
 
     totalProfit = double.parse(totalProfit.toStringAsFixed(2));
 
