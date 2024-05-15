@@ -40,7 +40,7 @@ class _ScannerPrintedDevolucionesState
               child: BarcodeKeyboardListener(
                 bufferDuration: Duration(milliseconds: 200),
                 onBarcodeScanned: (barcode) async {
-                  // barcode = "196963";
+                  // barcode = "246434";
                   // var responseOrder =
                   //     await Connections().getOrderByID(barcode.toString());
                   var responseOrder =

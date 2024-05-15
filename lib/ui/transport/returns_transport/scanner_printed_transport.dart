@@ -19,6 +19,8 @@ class _ScannerPrintedTransportState extends State<ScannerPrintedTransport> {
   String? _barcode;
   late bool visible;
   String? _resTransaction;
+  bool resStatus = true;
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -38,7 +40,7 @@ class _ScannerPrintedTransportState extends State<ScannerPrintedTransport> {
                   if (!visible) return;
                   getLoadingModal(context, false);
 
-                  // barcode = "196564";
+                  // barcode = "246418";
 
                   // var responseOrder = await Connections().getOrderByID(barcode);
                   var responseOrder =
@@ -90,6 +92,7 @@ class _ScannerPrintedTransportState extends State<ScannerPrintedTransport> {
                     }
                   } else {
                     setState(() {
+                      resStatus = false;
                       _barcode =
                           "No se puede alterar el pedido con código ${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']}";
                     });
@@ -111,7 +114,7 @@ class _ScannerPrintedTransportState extends State<ScannerPrintedTransport> {
                             : 'ORDEN PROCESADA: $_barcode',
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: _barcode == null
+                            color: _barcode == null || !resStatus
                                 ? Colors.redAccent
                                 : Colors.green)),
                     Text(

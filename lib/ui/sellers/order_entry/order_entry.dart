@@ -8,6 +8,7 @@ import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/providers/filters_orders/filters_orders.dart';
 import 'package:frontend/ui/sellers/order_entry/calendar_modal.dart';
+import 'package:frontend/ui/sellers/order_entry/confirm_carrier.dart';
 import 'package:frontend/ui/sellers/order_entry/controllers/controllers.dart';
 import 'package:frontend/ui/sellers/order_entry/order_info.dart';
 import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
@@ -110,6 +111,7 @@ class _OrderEntryState extends State<OrderEntry> {
     'ruta',
     // 'subRuta'
     // 'carrierExternal',
+    'product.warehouses',
     'pedidoCarrier'
   ];
   List arrayFiltersAnd = [];
@@ -430,21 +432,21 @@ class _OrderEntryState extends State<OrderEntry> {
                               const SizedBox(
                                 width: 10,
                               ),
-                              ElevatedButton(
-                                  onPressed: () async {
-                                    await showDialog(
-                                        context: (context),
-                                        builder: (context) {
-                                          // return const AddOrderSellers();
-                                          return const AddOrderSellersLaravel();
-                                        });
-                                    await loadData();
+                              // ElevatedButton(
+                              //     onPressed: () async {
+                              //       await showDialog(
+                              //           context: (context),
+                              //           builder: (context) {
+                              //             // return const AddOrderSellers();
+                              //             return const AddOrderSellersLaravel();
+                              //           });
+                              //       await loadData();
 
-                                    // showNuevo(context);
-                                  },
-                                  child: const Row(
-                                    children: [Text(" Nuevo"), Icon(Icons.add)],
-                                  )),
+                              //       // showNuevo(context);
+                              //     },
+                              //     child: const Row(
+                              //       children: [Text(" Nuevo"), Icon(Icons.add)],
+                              //     )),
                             ],
                           ),
                         ),
@@ -986,6 +988,7 @@ class _OrderEntryState extends State<OrderEntry> {
                                               shape: RoundedRectangleBorder(),
                                             ),
                                             onPressed: () async {
+                                              /*
                                               setState(() {});
                                               await showDialog(
                                                 context: context,
@@ -1002,6 +1005,9 @@ class _OrderEntryState extends State<OrderEntry> {
                                                 },
                                               );
                                               loadData();
+                                              */
+                                              showConfirmar(
+                                                  context, data[index]);
                                             },
                                             child: Icon(Icons.check,
                                                 color: Colors.white),
@@ -1302,7 +1308,7 @@ class _OrderEntryState extends State<OrderEntry> {
     }
     return openDialog(
         context,
-        MediaQuery.of(context).size.width * 0.6,
+        MediaQuery.of(context).size.width * 0.8,
         MediaQuery.of(context).size.height,
         responsive(
             Container(
@@ -1566,6 +1572,27 @@ class _OrderEntryState extends State<OrderEntry> {
               //     borderRadius: BorderRadius.all(Radius.circular(20.0))),
               contentPadding: EdgeInsets.all(0),
               content: AddOrderSellersLaravel(),
+            );
+          },
+        );
+      },
+    ).then((value) => setState(() {
+          loadData();
+        }));
+  }
+
+  Future<dynamic> showConfirmar(BuildContext context, order) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            //
+            return AlertDialog(
+              contentPadding: EdgeInsets.all(0),
+              content: ConfirmCarrier(
+                order: order,
+              ),
             );
           },
         );
