@@ -61,7 +61,7 @@ class _ProfileViewState extends State<ProfileView> {
                         IconButton(
                           onPressed: () {
                             Navigator.of(context)
-                                .pushReplacementNamed('/layout/sellers');
+                                .pushReplacementNamed('/layout/provider');
                           },
                           icon: Icon(Icons.home), // Icono de Home
                           iconSize: 30, // Tamaño del icono
