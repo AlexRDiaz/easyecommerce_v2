@@ -61,22 +61,27 @@ class _LayoutSellersPageState extends State<LayoutSellersPage> {
 
   @override
   void didChangeDependencies() {
-    // navigation = Provider.of<NavigationProviderSellers>(context);
-    var currentIndex = sharedPrefs!.getString("index");
-    currentView = {
-      "page": sharedPrefs!.getString("index") != null
-          ? pagesSeller[int.parse(sharedPrefs!.getString("index").toString())]
-              ["page"]
-          : "Dashboard",
-      "view": sharedPrefs!.getString("index") != null
-          ? pagesSeller[int.parse(sharedPrefs!.getString("index").toString())]
-              ["view"]
-          : DashBoardSellers()
-    };
-    if (sharedPrefs!.getString("index") != null) {
-      pagesSeller = List.from(pagesSeller)
-        ..[int.parse(sharedPrefs!.getString("index").toString())]['selected'] =
-            true;
+    try {
+      // navigation = Provider.of<NavigationProviderSellers>(context);
+      var currentIndex = sharedPrefs!.getString("index");
+      currentView = {
+        "page": sharedPrefs!.getString("index") != null
+            ? pagesSeller[int.parse(sharedPrefs!.getString("index").toString())]
+                ["page"]
+            : "Dashboard",
+        "view": sharedPrefs!.getString("index") != null
+            ? pagesSeller[int.parse(sharedPrefs!.getString("index").toString())]
+                ["view"]
+            : DashBoardSellers()
+      };
+      if (sharedPrefs!.getString("index") != null) {
+        pagesSeller = List.from(pagesSeller)
+          ..[int.parse(sharedPrefs!.getString("index").toString())]
+              ['selected'] = true;
+      }
+    } catch (e) {
+      print(e);
+      currentView = {"page": "Dashboard", "view": DashBoardSellers()};
     }
     super.didChangeDependencies();
   }

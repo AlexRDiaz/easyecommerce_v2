@@ -65,6 +65,8 @@ class _ProofPaymentState extends State<ProofPayment> {
           "id": response[i]['id'].toString(),
           "total": response[i]['PrecioTotal'].toString(),
           "Status": response[i]['Status'].toString(),
+          "Estado_Interno": response[i]['Estado_Interno'].toString(),
+          "Estado_Logistico": response[i]['Estado_Logistico'].toString(),
           "CostoTrans":
               response[i]['transportadora']['Costo_Transportadora'].toString()
         });
@@ -101,14 +103,21 @@ class _ProofPaymentState extends State<ProofPayment> {
         }
 
         String status = item["Status"];
+        String estado_interno = item["Estado_Interno"];
+        String estado_logistico = item["Estado_Logistico"];
+
         // Actualizar los valores del mapa si el día ya está en el mapa
         if (mapData.containsKey(day)) {
           setState(() {
-            if (status == "ENTREGADO") {
+            if (status == "ENTREGADO" &&
+                estado_interno == "CONFIRMADO" &&
+                estado_logistico == "ENVIADO") {
               mapData[day]["Status"] = status;
               mapData[day]["total"] += total;
             }
-            if (status == "ENTREGADO" || status == "NO ENTREGADO") {
+            if ((status == "ENTREGADO" || status == "NO ENTREGADO") &&
+                estado_interno == "CONFIRMADO" &&
+                estado_logistico == "ENVIADO") {
               mapData[day]["CostoTrans"] += costoTrans;
             }
           });
@@ -118,15 +127,21 @@ class _ProofPaymentState extends State<ProofPayment> {
               "total": 0.0,
               "CostoTrans": 0.0,
               "id": id,
-              "Status": status
+              "Status": status,
+              "Estado_Interno": estado_interno,
+              "Estado_Logistico": estado_logistico
             };
             setState(() {
-              if (status == "ENTREGADO") {
+              if (status == "ENTREGADO" &&
+                  estado_interno == "CONFIRMADO" &&
+                  estado_logistico == "ENVIADO") {
                 mapData[day]["Status"] = status;
 
                 mapData[day]["total"] += total;
               }
-              if (status == "ENTREGADO" || status == "NO ENTREGADO") {
+              if ((status == "ENTREGADO" || status == "NO ENTREGADO") &&
+                  estado_interno == "CONFIRMADO" &&
+                  estado_logistico == "ENVIADO") {
                 mapData[day]["CostoTrans"] += costoTrans;
               }
             });
