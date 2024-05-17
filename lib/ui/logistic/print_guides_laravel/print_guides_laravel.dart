@@ -571,6 +571,13 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
             },
           ),
           DataColumn2(
+            label: const Text('ID Producto'),
+            size: ColumnSize.S,
+            onSort: (columnIndex, ascending) {
+              sortFunc("id_product", changevalue);
+            },
+          ),
+          DataColumn2(
             label: Text('Cantidad'),
             size: ColumnSize.M,
             onSort: (columnIndex, ascending) {
@@ -744,6 +751,16 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                       onTap: () {
                     // getInfoModal(index);
                   }),
+                  DataCell(
+                    Center(
+                      child: Text(
+                        data[index]['id_product'] != null &&
+                                data[index]['id_product'] != 0
+                            ? data[index]['id_product'].toString()
+                            : "",
+                      ),
+                    ),
+                  ),
                   DataCell(Text(data[index]['cantidad_total'].toString()),
                       onTap: () {
                     // getInfoModal(index);
@@ -752,7 +769,11 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                       onTap: () {
                     // getInfoModal(index);
                   }),
-                  DataCell(Text(data[index]['producto_extra'].toString()),
+                  DataCell(
+                      Text(data[index]['producto_extra'] == null ||
+                              data[index]['producto_extra'] == "null"
+                          ? ""
+                          : data[index]['producto_extra'].toString()),
                       onTap: () {
                     // getInfoModal(index);
                   }),

@@ -317,9 +317,6 @@ class _TableOrdersGuidesSentStateProvider
         width: double.infinity,
         child: Column(
           children: [
-            const SizedBox(
-              height: 15,
-            ),
             Align(
               alignment: Alignment.centerRight,
               child: GestureDetector(
@@ -354,9 +351,7 @@ class _TableOrdersGuidesSentStateProvider
                 ),
               ),
             ),
-            const SizedBox(
-              height: 10,
-            ),
+            const SizedBox(height: 5),
             SizedBox(
               width: double.infinity,
               child: Row(
@@ -479,6 +474,13 @@ class _TableOrdersGuidesSentStateProvider
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
                         sortFunc("telefono_shipping", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: const Text('ID Producto'),
+                      size: ColumnSize.S,
+                      onSort: (columnIndex, ascending) {
+                        sortFunc("id_product", changevalue);
                       },
                     ),
                     DataColumn2(
@@ -699,6 +701,17 @@ class _TableOrdersGuidesSentStateProvider
                             DataCell(
                                 Text(data[index]['telefono_shipping']
                                     .toString()), onTap: () {
+                              getInfoModal(index);
+                            }),
+                            DataCell(
+                                Center(
+                                  child: Text(
+                                    data[index]['id_product'] != null &&
+                                            data[index]['id_product'] != 0
+                                        ? data[index]['id_product'].toString()
+                                        : "",
+                                  ),
+                                ), onTap: () {
                               getInfoModal(index);
                             }),
                             DataCell(
@@ -1087,53 +1100,60 @@ class _TableOrdersGuidesSentStateProvider
           ),
           Row(
             children: [
-              const SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () {
-                  // print("data");
-                  // print(data);
-                  // generatePDFFileWithData(data);
-                  generateExcelFileWithData(data);
-                  // print("general");
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 58, 163, 81),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      IconData(0xf6df, fontFamily: 'MaterialIcons'),
-                      size: 24,
-                      color: Colors.white,
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // print("data");
+                      // print(data);
+                      // generatePDFFileWithData(data);
+                      generateExcelFileWithData(data);
+                      // print("general");
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 58, 163, 81),
                     ),
-                    Text(
-                      "Descargar reporte",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          IconData(0xf6df, fontFamily: 'MaterialIcons'),
+                          size: 24,
+                          color: Colors.white,
+                        ),
+                        Text(
+                          "Descargar reporte",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Container(
-                child: ElevatedButton(
-                  onPressed: () async {
-                    await showDialog(
-                        context: context,
-                        builder: (context) {
-                          return ScannerSent(
-                            from: "provider",
-                          );
-                        });
-                    await loadData();
-                  },
-                  child: const Text(
-                    "SCANNER",
-                    style: TextStyle(fontWeight: FontWeight.bold),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      await showDialog(
+                          context: context,
+                          builder: (context) {
+                            return ScannerSent(
+                              from: "provider",
+                            );
+                          });
+                      await loadData();
+                    },
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(
+                        ColorsSystem().mainBlue,
+                      ),
+                    ),
+                    child: const Text(
+                      "SCANNER",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
               ),

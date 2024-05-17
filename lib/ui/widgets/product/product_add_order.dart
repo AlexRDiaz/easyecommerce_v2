@@ -1538,13 +1538,12 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
   Future<double> calculateProfit() async {
     costShippingSeller =
         double.parse(sharedPrefs!.getString("seller_costo_envio").toString());
-
-    double iva = costShippingSeller * (15 / 100);
-    iva = double.parse(iva.toStringAsFixed(2));
+    double deliveryPriceTax = costShippingSeller * iva;
+    deliveryPriceTax = double.parse(deliveryPriceTax.toStringAsFixed(2));
 
     setState(() {
       costShippingSeller = costShippingSeller;
-      taxCostShipping = iva;
+      taxCostShipping = deliveryPriceTax;
     });
 
     double totalProfit =
@@ -1668,6 +1667,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
 
     deliveryPrice = costEasy + deliveryPrice;
     double deliveryPriceTax = deliveryPrice * iva;
+    deliveryPriceTax = double.parse(deliveryPriceTax.toStringAsFixed(2));
     //
     setState(() {
       costShippingSeller = deliveryPrice;
@@ -1685,24 +1685,36 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
     return ElevatedButton(
       onPressed: () async {
         bool existVariant = false;
+
         for (var variant in variantsDetailsList) {
-          if (variant['sku'].toString() == chosenSku.toString()) {
+          String skuV = variant['sku'];
+          int lastIndex = skuV.lastIndexOf("C");
+          String justsku = skuV.substring(0, lastIndex);
+
+          if (justsku == chosenSku.toString()) {
             existVariant = true;
             break;
           }
         }
         if (!existVariant) {
+          // print("NO existVariant");
+
           var variant = await generateVariantData(chosenSku);
           setState(() {
             variantsDetailsList.add(variant);
           });
         } else {
           //upt
-          variantsDetailsList = [];
-          var variant = await generateVariantData(chosenSku);
-          setState(() {
-            variantsDetailsList.add(variant);
-          });
+          // print("SI existVariant");
+
+          for (var variant in variantsDetailsList) {
+            String skuV = variant['sku'];
+            String justsku = skuV.split("C")[0];
+            if (justsku == chosenSku.toString()) {
+              variant['quantity'] = quantity;
+              break;
+            }
+          }
         }
 
         calculateTotalWPrice();
@@ -1730,21 +1742,39 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
           : () async {
               bool existVariant = false;
               for (var variant in variantsDetailsList) {
-                if (variant['sku'].toString() == chosenSku.toString()) {
+                String skuV = variant['sku'];
+                int lastIndex = skuV.lastIndexOf("C");
+                String justsku = skuV.substring(0, lastIndex);
+
+                if (justsku == chosenSku.toString()) {
                   existVariant = true;
                   break;
                 }
               }
               if (!existVariant) {
+                // print("NO existVariant");
+
                 var variant = await generateVariantData(chosenSku);
                 setState(() {
                   variantsDetailsList.add(variant);
                 });
-                calculateTotalWPrice();
-                calculateTotalQuantity();
+
                 // print("variantsDetailsList");
                 // print(variantsDetailsList);
+              } else {
+                // print("SI existVariant");
+
+                for (var variant in variantsDetailsList) {
+                  String skuV = variant['sku'];
+                  String justsku = skuV.split("C")[0];
+                  if (justsku == chosenSku.toString()) {
+                    variant['quantity'] = quantity;
+                    break;
+                  }
+                }
               }
+              calculateTotalWPrice();
+              calculateTotalQuantity();
             },
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.green,

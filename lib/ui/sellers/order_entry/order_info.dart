@@ -137,12 +137,11 @@ class _OrderInfoState extends State<OrderInfo> {
       //         data['transportadora'].toString() != "[]"
       //     ? data['transportadora'][0]['nombre'].toString()
       //     : "";
-      route =
-          data['transportadora'] != null && data['transportadora'].isNotEmpty
-              ? data['transportadora'][0]['nombre'].toString()
-              : data['pedido_carrier'].isNotEmpty
-                  ? data['pedido_carrier'][0]['carrier']['name'].toString()
-                  : "";
+      route = data['ruta'] != null && data['ruta'].toString() != "[]"
+          ? data['ruta'][0]['titulo'].toString()
+          : data['pedido_carrier'].isNotEmpty
+              ? data['pedido_carrier'][0]['city_external']['ciudad'].toString()
+              : "";
       carrier =
           data['transportadora'] != null && data['transportadora'].isNotEmpty
               ? data['transportadora'][0]['nombre'].toString()
@@ -260,12 +259,11 @@ class _OrderInfoState extends State<OrderInfo> {
       //         data['transportadora'].toString() != "[]"
       //     ? data['transportadora'][0]['nombre'].toString()
       //     : "";
-      route =
-          data['transportadora'] != null && data['transportadora'].isNotEmpty
-              ? data['transportadora'][0]['nombre'].toString()
-              : data['pedido_carrier'].isNotEmpty
-                  ? data['pedido_carrier'][0]['carrier']['name'].toString()
-                  : "";
+      route = data['ruta'] != null && data['ruta'].toString() != "[]"
+          ? data['ruta'][0]['titulo'].toString()
+          : data['pedido_carrier'].isNotEmpty
+              ? data['pedido_carrier'][0]['city_external']['ciudad'].toString()
+              : "";
       carrier =
           data['transportadora'] != null && data['transportadora'].isNotEmpty
               ? data['transportadora'][0]['nombre'].toString()

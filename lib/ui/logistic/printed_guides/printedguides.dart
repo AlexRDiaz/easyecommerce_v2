@@ -371,6 +371,13 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                         },
                       ),
                       DataColumn2(
+                        label: const Text('ID Producto'),
+                        size: ColumnSize.S,
+                        onSort: (columnIndex, ascending) {
+                          sortFunc("id_product", changevalue);
+                        },
+                      ),
+                      DataColumn2(
                         label: const Text('Cantidad'),
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
@@ -596,6 +603,17 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                                 //         ['DireccionShipping']
                                 Text(data[index]['direccion_shipping']
                                     .toString()), onTap: () {
+                              info(context, index);
+                            }),
+                            DataCell(
+                                Center(
+                                  child: Text(
+                                    data[index]['id_product'] != null &&
+                                            data[index]['id_product'] != 0
+                                        ? data[index]['id_product'].toString()
+                                        : "",
+                                  ),
+                                ), onTap: () {
                               info(context, index);
                             }),
                             DataCell(

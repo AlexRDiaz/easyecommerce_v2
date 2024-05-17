@@ -127,15 +127,15 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getLoadingModal(context, false);
     });
-
+    arrayFiltersAnd = [];
+    arrayFiltersNot = [];
     if (provType == 2) {
       //prov principal
       //product.warehouses.provider.id
       arrayFiltersAnd.add({"product_s.warehouses.up_users.id_user": idUser});
       print("sub_provProv");
     }
-    arrayFiltersAnd = [];
-    arrayFiltersNot = [];
+
     if (showExternalCarriers == false) {
       arrayFiltersAnd.add({"id_externo": null});
     } else {
@@ -284,7 +284,7 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
                       fontWeight: FontWeight.bold, color: Colors.black),
                   dataTextStyle: const TextStyle(
                       fontSize: 12,
-                      fontWeight: FontWeight.bold,
+                      // fontWeight: FontWeight.bold,
                       color: Colors.black),
                   columnSpacing: 12,
                   horizontalMargin: 12,
@@ -347,6 +347,13 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
                         sortFunc("telefono_shipping", changevalue);
+                      },
+                    ),
+                    DataColumn2(
+                      label: const Text('ID Producto'),
+                      size: ColumnSize.S,
+                      onSort: (columnIndex, ascending) {
+                        sortFunc("id_product", changevalue);
                       },
                     ),
                     DataColumn2(
@@ -525,6 +532,17 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
                             DataCell(
                                 Text(data[index]['telefono_shipping']
                                     .toString()), onTap: () {
+                              getInfoModal(index);
+                            }),
+                            DataCell(
+                                Center(
+                                  child: Text(
+                                    data[index]['id_product'] != null &&
+                                            data[index]['id_product'] != 0
+                                        ? data[index]['id_product'].toString()
+                                        : "",
+                                  ),
+                                ), onTap: () {
                               getInfoModal(index);
                             }),
                             DataCell(

@@ -312,6 +312,11 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
                             getOldValue(true);
                             await loadData();
                           },
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(
+                              ColorsSystem().mainBlue,
+                            ),
+                          ),
                           child: const Text(
                             "SCANNER",
                             style: TextStyle(fontWeight: FontWeight.bold),
@@ -329,7 +334,7 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
                         fontWeight: FontWeight.bold, color: Colors.black),
                     dataTextStyle: const TextStyle(
                         fontSize: 12,
-                        fontWeight: FontWeight.bold,
+                        // fontWeight: FontWeight.bold,
                         color: Colors.black),
                     columnSpacing: 12,
                     horizontalMargin: 12,
@@ -378,6 +383,13 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
                         size: ColumnSize.M,
                         onSort: (columnIndex, ascending) {
                           sortFunc("direccion_shipping", changevalue);
+                        },
+                      ),
+                      DataColumn2(
+                        label: const Text('ID Producto'),
+                        size: ColumnSize.S,
+                        onSort: (columnIndex, ascending) {
+                          sortFunc("id_product", changevalue);
                         },
                       ),
                       DataColumn2(
@@ -559,6 +571,17 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
                               DataCell(
                                   Text(data[index]['direccion_shipping']
                                       .toString()), onTap: () {
+                                info(context, index);
+                              }),
+                              DataCell(
+                                  Center(
+                                    child: Text(
+                                      data[index]['id_product'] != null &&
+                                              data[index]['id_product'] != 0
+                                          ? data[index]['id_product'].toString()
+                                          : "",
+                                    ),
+                                  ), onTap: () {
                                 info(context, index);
                               }),
                               DataCell(

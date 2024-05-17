@@ -503,6 +503,13 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                     },
                   ),
                   DataColumn2(
+                    label: const Text('ID Producto'),
+                    size: ColumnSize.S,
+                    onSort: (columnIndex, ascending) {
+                      sortFunc("id_product", changevalue);
+                    },
+                  ),
+                  DataColumn2(
                     label: const Text('Cantidad'),
                     size: ColumnSize.M,
                     onSort: (columnIndex, ascending) {
@@ -752,6 +759,17 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                           DataCell(
                               Text(data[index]['telefono_shipping'].toString()),
                               onTap: () {
+                            getInfoModal(index);
+                          }),
+                          DataCell(
+                              Center(
+                                child: Text(
+                                  data[index]['id_product'] != null &&
+                                          data[index]['id_product'] != 0
+                                      ? data[index]['id_product'].toString()
+                                      : "",
+                                ),
+                              ), onTap: () {
                             getInfoModal(index);
                           }),
                           DataCell(
@@ -1196,6 +1214,11 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                       );
                       await loadData();
                     },
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(
+                        ColorsSystem().mainBlue,
+                      ),
+                    ),
                     child: const Text(
                       "SCANNER",
                       style: TextStyle(fontWeight: FontWeight.bold),
