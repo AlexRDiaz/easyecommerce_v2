@@ -6345,7 +6345,7 @@ class Connections {
             "isvariable": product.isvariable,
             "features": json.encode(product.features),
             "warehouse_id": product.warehouseId,
-            "seller_owned": product.seller_owned,
+            "seller_owned": product.sellerOwnedId,
           }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);

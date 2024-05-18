@@ -193,7 +193,7 @@ class _EditProductState extends State<EditProduct> {
     isVariable = int.parse(product.isvariable.toString());
     typeValue = product.isvariable == 1 ? "VARIABLE" : "SIMPLE";
     _priceController.text = product.price.toString();
-    seller_owned = product.seller_owned ?? 0;
+    seller_owned = product.sellerOwnedId ?? 0;
 
     // warehouseValue =
     //     '${product.warehouse!.id.toString()}-${product.warehouse!.branchName.toString()}-${product.warehouse!.city.toString()}';

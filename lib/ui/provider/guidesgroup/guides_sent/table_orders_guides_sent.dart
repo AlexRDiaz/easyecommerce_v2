@@ -645,10 +645,11 @@ class _TableOrdersGuidesSentStateProvider
                                                   ['product_s']['warehouses'])
                                               : "",
                                       "idExteralOrder": data[index]
-                                                      ['id_externo'] !=
-                                                  null &&
-                                              data[index]['id_externo'] != 0
-                                          ? data[index]['id_externo'].toString()
+                                                  ['pedido_carrier']
+                                              .isNotEmpty
+                                          ? data[index]['pedido_carrier'][0]
+                                                  ['external_id']
+                                              .toString()
                                           : "",
                                     });
                                   } else {

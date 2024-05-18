@@ -1837,10 +1837,10 @@ class _AddProductState extends State<AddProduct> {
                                                   .toString()
                                                   .split("-")[0]
                                                   .toString()),
-                                          seller_owned: sellerOwner
+                                          sellerOwnedId: sellerOwner
                                               ? int.parse(
                                                   id_comercial.toString())
-                                              : 0,
+                                              : null,
                                         ));
                                         var dataProductNew;
 

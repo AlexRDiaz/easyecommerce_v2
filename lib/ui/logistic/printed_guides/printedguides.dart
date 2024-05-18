@@ -499,9 +499,10 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                                                   "[]"
                                           ? data[index]['ruta'][0]['titulo']
                                               .toString()
-                                          : data[index]['carrier_external'] !=
-                                                  null
-                                              ? data[index]['ciudad_external']
+                                          : data[index]['pedido_carrier']
+                                                  .isNotEmpty
+                                              ? data[index]['pedido_carrier'][0]
+                                                          ['city_external']
                                                       ['ciudad']
                                                   .toString()
                                               : "";
@@ -553,9 +554,10 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                                                   ['product_s']['warehouses'])
                                               : "";
                                       optionsCheckBox[index]['idExteralOrder'] =
-                                          data[index]['id_externo'] != null &&
-                                                  data[index]['id_externo'] != 0
-                                              ? data[index]['id_externo']
+                                          data[index]['pedido_carrier']
+                                                  .isNotEmpty
+                                              ? data[index]['pedido_carrier'][0]
+                                                      ['external_id']
                                                   .toString()
                                               : "";
 
@@ -1176,12 +1178,13 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                     .toString();
             optionsCheckBox[i]['date'] =
                 data[i]['pedido_fecha'][0]['fecha'].toString();
-            optionsCheckBox[i]['city'] =
-                data[i]['ruta'] != null && data[i]['ruta'].toString() != "[]"
-                    ? data[i]['ruta'][0]['titulo'].toString()
-                    : data[i]['carrier_external'] != null
-                        ? data[i]['ciudad_external']['ciudad'].toString()
-                        : "";
+            optionsCheckBox[i]['city'] = data[i]['ruta'] != null &&
+                    data[i]['ruta'].toString() != "[]"
+                ? data[i]['ruta'][0]['titulo'].toString()
+                : data[i]['pedido_carrier'].isNotEmpty
+                    ? data[i]['pedido_carrier'][0]['city_external']['ciudad']
+                        .toString()
+                    : "";
             // data[i]['ciudad_shipping'].toString();
             optionsCheckBox[i]['product'] = data[i]['producto_p'].toString();
             optionsCheckBox[i]['extraProduct'] =

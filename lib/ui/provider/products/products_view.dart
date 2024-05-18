@@ -45,7 +45,7 @@ class _ProductsViewState extends State<ProductsView> {
   bool isLoading = false;
   bool isFirst = false;
   // List populate = ["warehouse.provider", "reserve.seller"];
-  List populate = ["warehouses", "reserve.seller"];
+  List populate = ["warehouses", "reserve.seller", "owner"];
 
   List arrayFiltersAnd = [
     // {"warehouse.warehouse_id": 1}
@@ -194,7 +194,7 @@ class _ProductsViewState extends State<ProductsView> {
           sortFieldDefaultValue.toString(),
           _search.text);
       data = response['data'];
-      // print(data);
+      // print(data[0]);
       // total = response['total'];
       // pageCount = response['last_page'];
 
@@ -715,6 +715,11 @@ class _ProductsViewState extends State<ProductsView> {
                           // sortFunc3("producto_p", changevalue);
                         },
                       ),
+                      if (int.parse(specialProv.toString()) == 1)
+                        const DataColumn2(
+                          label: Text('Propietario'),
+                          size: ColumnSize.L,
+                        ),
                       DataColumn2(
                         label: const Text('Aprobado?'),
                         // size: ColumnSize.S,
@@ -725,16 +730,17 @@ class _ProductsViewState extends State<ProductsView> {
                       ),
                       const DataColumn2(
                         label: Text('Historial\nStock'),
-                        size: ColumnSize.S,
+                        fixedWidth: 70,
                       ),
                       const DataColumn2(
                         label: Text(''), //btns para crud
                         size: ColumnSize.L,
                       ),
-                      const DataColumn2(
-                        label: Text(''), //btns para crud
-                        size: ColumnSize.M,
-                      ),
+                      if (int.parse(specialProv.toString()) == 1)
+                        const DataColumn2(
+                          label: Text(''), //btns para crud
+                          size: ColumnSize.M,
+                        ),
                     ],
                     rows: List<DataRow>.generate(
                       data.length,
@@ -819,6 +825,16 @@ class _ProductsViewState extends State<ProductsView> {
                                 //     .toString(),
                                 ),
                           ),
+                          if (int.parse(specialProv.toString()) == 1)
+                            DataCell(
+                              Text(data[index]['seller_owned'] == null ||
+                                      data[index]['seller_owned'].toString() ==
+                                          "0"
+                                  ? ""
+                                  : data[index]['owner']['vendedores'][0]
+                                          ['nombre_comercial']
+                                      .toString()),
+                            ),
                           DataCell(
                             data[index]['approved'] == 1
                                 ? const Tooltip(
@@ -926,36 +942,37 @@ class _ProductsViewState extends State<ProductsView> {
                               ),
                             ),
                           ),
-                          DataCell(
-                            Center(
-                              child:
-                                  // Text(getMultiWarehouses(
-                                  //         data[index]['warehouses'])
-                                  //     .toString())
-                                  Visibility(
-                                visible: ((specialProv.toString() == "null"
-                                                ? "0"
-                                                : specialProv.toString()) ==
-                                            "1" &&
-                                        provType == 1) &&
-                                    getMultiWarehouses(
-                                            data[index]['warehouses']) ==
-                                        false,
-                                child: TextButton(
-                                  onPressed: () {
-                                    //
-                                    showAddToWarehouse(context, data[index]);
-                                  },
-                                  child: Text(
-                                    "Añadir a Bodega",
-                                    style: TextStyle(
-                                      fontSize: 13,
+                          if (int.parse(specialProv.toString()) == 1)
+                            DataCell(
+                              Center(
+                                child:
+                                    // Text(getMultiWarehouses(
+                                    //         data[index]['warehouses'])
+                                    //     .toString())
+                                    Visibility(
+                                  visible: ((specialProv.toString() == "null"
+                                                  ? "0"
+                                                  : specialProv.toString()) ==
+                                              "1" &&
+                                          provType == 1) &&
+                                      getMultiWarehouses(
+                                              data[index]['warehouses']) ==
+                                          false,
+                                  child: TextButton(
+                                    onPressed: () {
+                                      //
+                                      showAddToWarehouse(context, data[index]);
+                                    },
+                                    child: Text(
+                                      "Añadir a Bodega",
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
                         ],
                       ),
                     ),
@@ -1978,7 +1995,7 @@ class _ProductsViewState extends State<ProductsView> {
                                   color: Colors.black),
                               dataTextStyle: const TextStyle(
                                   fontSize: 12,
-                                  fontWeight: FontWeight.bold,
+                                  // fontWeight: FontWeight.bold,
                                   color: Colors.black),
                               columnSpacing: 12,
                               horizontalMargin: 12,
@@ -2000,19 +2017,19 @@ class _ProductsViewState extends State<ProductsView> {
                                   size: ColumnSize.S,
                                 ),
                                 DataColumn2(
-                                  label: Text('Stock\nActual'),
-                                  size: ColumnSize.S,
-                                ),
-                                DataColumn2(
                                   label: Text('Stock\nAnterior'),
                                   size: ColumnSize.S,
                                 ),
                                 DataColumn2(
-                                  label: Text('Stock\nActual\nReserva'),
+                                  label: Text('Stock\nActual'),
                                   size: ColumnSize.S,
                                 ),
                                 DataColumn2(
                                   label: Text('Stock\nAnterior\nReserva'),
+                                  size: ColumnSize.S,
+                                ),
+                                DataColumn2(
+                                  label: Text('Stock\nActual\nReserva'),
                                   size: ColumnSize.S,
                                 ),
                                 DataColumn2(
@@ -2044,15 +2061,6 @@ class _ProductsViewState extends State<ProductsView> {
                                   ),
                                   DataCell(
                                     Text(
-                                      dataHistory[index]['current_stock'] ==
-                                              null
-                                          ? ""
-                                          : dataHistory[index]['current_stock']
-                                              .toString(),
-                                    ),
-                                  ),
-                                  DataCell(
-                                    Text(
                                       dataHistory[index]['last_stock'] == null
                                           ? ""
                                           : dataHistory[index]['last_stock']
@@ -2061,12 +2069,10 @@ class _ProductsViewState extends State<ProductsView> {
                                   ),
                                   DataCell(
                                     Text(
-                                      dataHistory[index]
-                                                  ['current_stock_reserve'] ==
+                                      dataHistory[index]['current_stock'] ==
                                               null
                                           ? ""
-                                          : dataHistory[index]
-                                                  ['current_stock_reserve']
+                                          : dataHistory[index]['current_stock']
                                               .toString(),
                                     ),
                                   ),
@@ -2078,6 +2084,17 @@ class _ProductsViewState extends State<ProductsView> {
                                           ? ""
                                           : dataHistory[index]
                                                   ['last_stock_reserve']
+                                              .toString(),
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                      dataHistory[index]
+                                                  ['current_stock_reserve'] ==
+                                              null
+                                          ? ""
+                                          : dataHistory[index]
+                                                  ['current_stock_reserve']
                                               .toString(),
                                     ),
                                   ),

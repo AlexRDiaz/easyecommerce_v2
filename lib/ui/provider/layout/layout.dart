@@ -352,6 +352,8 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
   @override
   void didChangeDependencies() {
     try {
+      print(".");
+
       var currentIndex = sharedPrefs!.getString("index");
       print("currentIndex: $currentIndex");
       // print("${pages.length}");
@@ -365,12 +367,13 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
       //           ["view"]
       //       : WelcomeProviderScreen()
       // };
-      print(".... --- .-.. .-");
+      print("..");
       if (currentIndex != null) {
         if ((int.parse(currentIndex) > pages.length)) {
-          print(".---- ...-- > -.. .. .- -. .- -.-.");
+          print("...");
           currentView = {"page": "Dashboard", "view": WelcomeProviderScreen()};
         } else {
+          print("!...");
           // currentView = {"page": "Dashboard", "view": WelcomeProviderScreen()};
           // if (sharedPrefs!.getString("index") != null) {
           //   pages = List.from(pages)
@@ -395,7 +398,7 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
         currentView = {"page": "Dashboard", "view": WelcomeProviderScreen()};
       }
     } catch (e) {
-      print(e);
+      print(">Error: $e");
       currentView = {"page": "Dashboard", "view": WelcomeProviderScreen()};
     }
 
@@ -803,6 +806,7 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
 
                   pages = List.from(pages)..[selectedIndex]['selected'] = true;
                 });
+
                 Provider.of<NavigationProviderProvider>(context, listen: false)
                     .changeIndex(selectedIndex, selectedView['page']);
               },

@@ -694,12 +694,12 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                                             ? getFirstProviderName(data[index]
                                                 ['product_s']['warehouses'])
                                             : "",
-                                    "idExteralOrder": data[index]
-                                                    ['id_externo'] !=
-                                                null &&
-                                            data[index]['id_externo'] != 0
-                                        ? data[index]['id_externo'].toString()
-                                        : "",
+                                    "idExteralOrder":
+                                        data[index]['pedido_carrier'].isNotEmpty
+                                            ? data[index]['pedido_carrier'][0]
+                                                    ['external_id']
+                                                .toString()
+                                            : "",
                                   });
                                 } else {
                                   var m = data[index]['id'];

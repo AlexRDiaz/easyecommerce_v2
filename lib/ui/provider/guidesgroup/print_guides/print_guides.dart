@@ -487,10 +487,11 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
                                                   ['product_s']['warehouses'])
                                               : "",
                                       "idExteralOrder": data[index]
-                                                      ['id_externo'] !=
-                                                  null &&
-                                              data[index]['id_externo'] != 0
-                                          ? data[index]['id_externo'].toString()
+                                                  ['pedido_carrier']
+                                              .isNotEmpty
+                                          ? data[index]['pedido_carrier'][0]
+                                                  ['external_id']
+                                              .toString()
                                           : "",
                                     });
                                   } else {
@@ -1206,6 +1207,9 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
               element['id_product'] != null && element['id_product'] != 0
                   ? getFirstProviderName(element['product_s']['warehouses'])
                   : "",
+          "idExteralOrder": element['pedido_carrier'].isNotEmpty
+              ? element['pedido_carrier'][0]['external_id'].toString()
+              : "",
         });
       }
     } else {

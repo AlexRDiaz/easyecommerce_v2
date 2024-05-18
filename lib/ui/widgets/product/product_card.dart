@@ -58,7 +58,7 @@ class ProductCard extends StatelessWidget {
       }
     }
 
-    if (product.seller_owned != 0) {
+    if (product.sellerOwnedId != 0) {
       List<ReserveModel>? reservesList = product.reserves;
       if (reservesList != null) {
         for (var reserva in reservesList) {
@@ -307,7 +307,7 @@ class ProductCard extends StatelessWidget {
                           width: 3,
                         ),
                         Text(
-                          product.seller_owned != 0
+                          product.sellerOwnedId != 0
                               ? totalReservas.toString()
                               : product.stock.toString(),
                           style: GoogleFonts.dmSans(

@@ -664,8 +664,9 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                             "city": data[index]['ruta'] != null &&
                                     data[index]['ruta'].toString() != "[]"
                                 ? data[index]['ruta'][0]['titulo'].toString()
-                                : data[index]['carrier_external'] != null
-                                    ? data[index]['ciudad_external']['ciudad']
+                                : data[index]['pedido_carrier'].isNotEmpty
+                                    ? data[index]['pedido_carrier'][0]
+                                            ['city_external']['ciudad']
                                         .toString()
                                     : "",
                             "product": data[index]['producto_p'].toString(),
@@ -702,9 +703,10 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                                     data[index]['product_s']['warehouses'])
                                 : "",
                             "idExteralOrder":
-                                data[index]['id_externo'] != null &&
-                                        data[index]['id_externo'] != 0
-                                    ? data[index]['id_externo'].toString()
+                                data[index]['pedido_carrier'].isNotEmpty
+                                    ? data[index]['pedido_carrier'][0]
+                                            ['external_id']
+                                        .toString()
                                     : "",
                           });
                         } else {
@@ -1305,8 +1307,9 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
           "date": element['marca_t_i'].toString(),
           "city": element['ruta'] != null && element['ruta'].toString() != "[]"
               ? element['ruta'][0]['titulo'].toString()
-              : element['carrier_external'] != null
-                  ? element['ciudad_external']['ciudad'].toString()
+              : element['pedido_carrier'].isNotEmpty
+                  ? element['pedido_carrier'][0]['city_external']['ciudad']
+                      .toString()
                   : "",
           // "city": element['ciudad_shipping'].toString(),
           "product": element['producto_p'].toString(),
@@ -1331,10 +1334,9 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
               element['id_product'] != null && element['id_product'] != 0
                   ? getFirstProviderName(element['product_s']['warehouses'])
                   : "",
-          "idExteralOrder":
-              element['id_externo'] != null && element['id_externo'] != 0
-                  ? element['id_externo'].toString()
-                  : "",
+          "idExteralOrder": element['pedido_carrier'].isNotEmpty
+              ? element['pedido_carrier'][0]['external_id'].toString()
+              : "",
         });
       }
     } else {

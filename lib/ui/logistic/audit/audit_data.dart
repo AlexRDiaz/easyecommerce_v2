@@ -88,8 +88,8 @@ class _AuditState extends State<Audit> {
 
   List defaultArrayFiltersAnd = [
     // {"equals/estado_devolucion": "PENDIENTE"},
-    // {"/estado_interno": "CONFIRMADO"},
-    // {"/estado_logistico": "ENVIADO"}
+    {"/estado_interno": "CONFIRMADO"},
+    {"/estado_logistico": "ENVIADO"}
   ];
   List arrayFiltersAnd = [];
   List arrayFiltersOr = [
@@ -165,16 +165,13 @@ class _AuditState extends State<Audit> {
   TextEditingController transportadorasController =
       TextEditingController(text: "TODO");
 
-
   String filterDate = "FECHA ENTREGA";
-
 
   @override
   void dispose() {
     // Asegúrate de desechar el controlador cuando el widget sea descartado
     super.dispose();
   }
-
 
   @override
   void didChangeDependencies() {
@@ -206,8 +203,7 @@ class _AuditState extends State<Audit> {
           sortFieldDefaultValue.toString(),
           sharedPrefs!.getString("dateDesdeLogistica").toString(),
           sharedPrefs!.getString("dateHastaLogistica").toString(),
-          filterDate 
-          );
+          filterDate);
 
       respvalues = await Connections().getByDateRangeValuesAudit(
           sharedPrefs!.getString("dateDesdeLogistica").toString(),
@@ -283,7 +279,7 @@ class _AuditState extends State<Audit> {
           sortFieldDefaultValue.toString(),
           sharedPrefs!.getString("dateDesdeLogistica").toString(),
           sharedPrefs!.getString("dateHastaLogistica").toString(),
-          filterDate );
+          filterDate);
 
       setState(() {
         data = [];

@@ -537,10 +537,10 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
                                                 : "";
                                         optionsCheckBox[index]
                                             ['idExteralOrder'] = data[index]
-                                                        ['id_externo'] !=
-                                                    null &&
-                                                data[index]['id_externo'] != 0
-                                            ? data[index]['id_externo']
+                                                    ['pedido_carrier']
+                                                .isNotEmpty
+                                            ? data[index]['pedido_carrier'][0]
+                                                    ['external_id']
                                                 .toString()
                                             : "";
 
@@ -1083,8 +1083,8 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
                     ? getFirstProviderName(data[i]['product_s']['warehouses'])
                     : "";
             optionsCheckBox[i]["idExteralOrder"] =
-                data[i]['id_externo'] != null && data[i]['id_externo'] != 0
-                    ? data[i]['id_externo'].toString()
+                data[i]['pedido_carrier'].isNotEmpty
+                    ? data[i]['pedido_carrier'][0]['external_id'].toString()
                     : "";
 
             counterChecks += 1;
