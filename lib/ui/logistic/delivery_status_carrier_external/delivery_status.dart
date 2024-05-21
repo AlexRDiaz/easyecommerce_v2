@@ -149,7 +149,8 @@ class _DeliveryStatusExternalCarrierState
     'operadore.user',
     'novedades',
     'product.warehouse.provider',
-    'carrierExternal'
+    'carrierExternal',
+    'pedidoCarrier'
   ];
 
   List filtersOrCont = [
@@ -235,7 +236,8 @@ class _DeliveryStatusExternalCarrierState
     'ruta',
     'subRuta',
     'product.warehouse.provider',
-    'carrierExternal'
+    'carrierExternal',
+    'pedidoCarrier'
   ];
   //        $pedidos = PedidosShopify::with(['operadore.up_users', 'transportadora', 'users.vendedores', 'novedades', 'pedidoFecha', 'ruta', 'subRuta'])
 
@@ -1147,12 +1149,17 @@ class _DeliveryStatusExternalCarrierState
                                 showInfo(context, index);
                               }),
                               DataCell(
-                                  Text(data[index]['cost_refound_external'] !=
-                                          null
-                                      ? data[index]['cost_refound_external']
-                                          .toString()
-                                      : ""), onTap: () {
-                                showInfo(context, index);
+                                  Text(
+                                    data[index]['pedidoCarrier'] != null &&
+                                            data[index]['pedidoCarrier']
+                                                    ['cost_refound_external'] !=
+                                                null
+                                        ? data[index]['pedidoCarrier']
+                                                ['cost_refound_external']
+                                            .toString()
+                                        : "",
+                                  ), onTap: () {
+                                showInfo(context, index); 
                               }),
                             ],
                           ),
