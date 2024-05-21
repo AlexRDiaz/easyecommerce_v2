@@ -87,6 +87,8 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
 
   var data = {};
   int idUser = int.parse(sharedPrefs!.getString("id").toString());
+  int idMaster =
+      int.parse(sharedPrefs!.getString("idComercialMasterSeller").toString());
 
   List<Map<String, dynamic>> variantDetails = [];
 
@@ -144,7 +146,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
 
     if (data['id_product'] != null) {
       // carriersTypeToSelect = ["Interno", "Externo"];
-      if (idUser == 2 || idUser == 188) {
+      if (idUser == 2 || idMaster == 188) {
         carriersTypeToSelect = ["Interno", "Externo"];
       } else {
         carriersTypeToSelect = ["Interno"];

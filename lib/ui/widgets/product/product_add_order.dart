@@ -91,6 +91,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
   var responseCarriersGeneral;
   double iva = 0.15;
   int idUser = int.parse(sharedPrefs!.getString("id").toString());
+  int idMaster =
+      int.parse(sharedPrefs!.getString("idComercialMasterSeller").toString());
 
   bool containsEmoji(String text) {
     final emojiPattern = RegExp(
@@ -102,7 +104,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
 
   @override
   void didChangeDependencies() {
-    if (idUser == 2 || idUser == 188) {
+    if (idUser == 2 || idMaster == 188) {
       carriersTypeToSelect = ["Interno", "Externo"];
     } else {
       carriersTypeToSelect = ["Interno"];

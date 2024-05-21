@@ -113,6 +113,8 @@ class _OrderInfoState extends State<OrderInfo> {
   TextEditingController _quantitySelectVariant =
       TextEditingController(text: "");
   int idUser = int.parse(sharedPrefs!.getString("id").toString());
+  int idMaster =
+      int.parse(sharedPrefs!.getString("idComercialMasterSeller").toString());
 
   @override
   void didChangeDependencies() {
@@ -184,7 +186,9 @@ class _OrderInfoState extends State<OrderInfo> {
         : "";
     List<Map<String, dynamic>> variantDetails = [];
 
-    if (data['variant_details'] != null) {
+    if (data['id_product'] != null &&
+        data['id_product'] != 0 &&
+        data['variant_details'] != null) {
       //
       variantDetails = jsonDecode(variants).cast<Map<String, dynamic>>();
       for (var detail in variantDetails) {
@@ -213,7 +217,7 @@ class _OrderInfoState extends State<OrderInfo> {
 
     if (data['id_product'] != null && data['id_product'] != 0) {
       // carriersTypeToSelect = ["Interno", "Externo"];
-      if (idUser == 2 || idUser == 188) {
+      if (idUser == 2 || idMaster == 188) {
         carriersTypeToSelect = ["Interno", "Externo"];
       } else {
         carriersTypeToSelect = ["Interno"];
