@@ -217,6 +217,9 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
 
   getCarriersExternals() async {
     try {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
       setState(() {
         carriersExternalsToSelect = [];
         selectedCarrierExternal = null;
@@ -231,13 +234,19 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
       setState(() {
         carriersExternalsToSelect = carriersExternalsToSelect;
       });
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
     } catch (error) {
-      print('Error al cargar ciudades: $error');
+      print('Error al cargar TranspExter: $error');
     }
   }
 
   getProvincias() async {
     try {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
       setState(() {
         provinciasToSelect = [];
         selectedProvincia = null;
@@ -248,6 +257,9 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
       for (var i = 0; i < provinciasList.length; i++) {
         provinciasToSelect.add('${provinciasList[i]}');
       }
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
       setState(() {});
     } catch (error) {
       print('Error al cargar Provincias: $error');
@@ -256,6 +268,9 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
 
   getCiudades() async {
     try {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
       var dataCities;
       setState(() {
         citiesToSelect = [];
@@ -287,9 +302,12 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
           citiesToSelect.add(ciudad);
         }
       }
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
       setState(() {});
     } catch (error) {
-      print('Error al cargar Provincias: $error');
+      print('Error al cargar Ciudades: $error');
     }
   }
 
@@ -1189,253 +1207,256 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                       ElevatedButton(
                         onPressed: () async {
                           bool readySent = false;
-                          if (selectedCarrierType == null) {
-                            showSuccessModal(
-                                context,
-                                "Por favor, Debe seleccionar un tipo de transportadora.",
-                                Icons8.warning_1);
-                          } else {
-                            if (selectedCarrierType == "Externo") {
-                              //
-                              if (selectedCarrierExternal == null ||
-                                  selectedProvincia == null ||
-                                  selectedCity == null) {
-                                showSuccessModal(
-                                    context,
-                                    "Por favor, Debe seleccionar una transportadora, provincia y ciudad.",
-                                    Icons8.warning_1);
-                              } else {
-                                readySent = true;
-                              }
-                            } else {
-                              //
-                              if (selectedValueRoute == null ||
-                                  selectedValueTransport == null) {
-                                showSuccessModal(
-                                    context,
-                                    "Por favor, Debe seleccionar una ciudad y una transportadora.",
-                                    Icons8.warning_1);
-                              } else {
-                                readySent = true;
-                              }
-                            }
-                          }
-
-                          if (readySent) {
-                            // if (widget.product.isvariable == 1 &&
-                            //     chosenVariant == null) {
-                            if (widget.product.isvariable == 1 &&
-                                variantsDetailsList.isEmpty) {
+                          if (formKey.currentState!.validate()) {
+                            if (selectedCarrierType == null) {
                               showSuccessModal(
                                   context,
-                                  "Por favor, Debe al menos seleccionar una variante del producto.",
+                                  "Por favor, Debe seleccionar un tipo de transportadora.",
                                   Icons8.warning_1);
                             } else {
-                              if (formKey.currentState!.validate()) {
-                                print("$selectedCarrierType");
-                                getLoadingModal(context, false);
-
-                                String priceTotal =
-                                    "${_precioTotalEnt.text}.${_precioTotalDec.text}";
-
-                                // String sku =
-                                //     "${chosenSku}C${widget.product.productId}";
-                                String idProd =
-                                    widget.product.productId.toString();
-
-                                // String messageVar = "";
-                                String contenidoProd = "";
-
-                                if (widget.product.isvariable == 1) {
-                                  // messageVar = " (";
-                                  for (var variant in variantsDetailsList) {
-                                    // messageVar +=
-                                    //     "${variant['quantity']}-${variant['variant_title']}; ";
-
-                                    contenidoProd +=
-                                        '${variant['quantity']}*${_producto.text} ${variant['variant_title']} | ';
-                                  }
-                                  // messageVar = messageVar.substring(
-                                  //     1, messageVar.length - 2);
-                                  // messageVar += ") ";
-                                  contenidoProd = contenidoProd.substring(
-                                      0, contenidoProd.length - 3);
+                              if (selectedCarrierType == "Externo") {
+                                //
+                                if (selectedCarrierExternal == null ||
+                                    selectedProvincia == null ||
+                                    selectedCity == null) {
+                                  showSuccessModal(
+                                      context,
+                                      "Por favor, Debe seleccionar una transportadora, provincia y ciudad.",
+                                      Icons8.warning_1);
                                 } else {
-                                  contenidoProd +=
-                                      '$quantityTotal*${_producto.text}';
+                                  readySent = true;
                                 }
-
-                                String remitente_address =
-                                    prov_city_address.split('-')[2];
-
-                                String remitente_prov_ref = "";
-                                String remitente_city_ref = "";
-                                String destinatario_prov_ref = "";
-                                String destinatario_city_ref = "";
-                                var dataIntegration;
-
-                                if (selectedCarrierType == "Externo") {
-                                  var responseProvCityRem =
-                                      await Connections().getCoverage([
-                                    {
-                                      "/carriers_external_simple.id":
-                                          selectedCarrierExternal
-                                              .toString()
-                                              .split("-")[1]
-                                    },
-                                    {
-                                      "/coverage_external.dpa_provincia.id":
-                                          prov_city_address.split('-')[0]
-                                    },
-                                    {
-                                      "/coverage_external.ciudad":
-                                          prov_city_address.split('-')[1]
-                                    }
-                                  ]);
-
-                                  // print(responseProvCityRem);
-                                  remitente_prov_ref =
-                                      responseProvCityRem['id_prov_ref'];
-                                  remitente_city_ref =
-                                      responseProvCityRem['id_ciudad_ref'];
-                                  // print("REMITENTE:");
-                                  // print(
-                                  //     "$origen_prov: $remitente_city_ref-${responseProvCityRem['coverage_external']['dpa_provincia']['provincia']}");
-                                  // print(
-                                  //     "${widget.product.warehouse!.city.toString()}: $remitente_city_ref");
-
-                                  destinatario_prov_ref =
-                                      selectedCity.toString().split("-")[3];
-                                  destinatario_city_ref =
-                                      selectedCity.toString().split("-")[4];
-
-                                  // print("DESTINATARIO:");
-                                  // print(
-                                  //     "${selectedProvincia.toString().split("-")[0]}: $destinatario_prov_ref");
-                                  // print(
-                                  //     "${selectedCity.toString().split("-")[0]}: $destinatario_city_ref");
-
-                                  DateTime now = DateTime.now();
-                                  String formattedDateTime =
-                                      DateFormat('yyyy-MM-dd HH:mm:ss')
-                                          .format(now);
-
-                                  dataIntegration = {
-                                    "remitente": {
-                                      "nombre": sharedPrefs!
-                                          .getString("NameComercialSeller"),
-                                      "telefono": sharedPrefs!
-                                          .getString("seller_telefono"),
-                                      "provincia": remitente_prov_ref,
-                                      "ciudad": remitente_city_ref,
-                                      "direccion": remitente_address
-                                    },
-                                    "destinatario": {
-                                      "nombre": _nombre.text,
-                                      "telefono": _telefono.text,
-                                      "provincia": destinatario_prov_ref,
-                                      "ciudad": destinatario_city_ref,
-                                      "direccion": _direccion.text
-                                    },
-                                    "cant_paquetes": "1",
-                                    "peso_total": "2.00",
-                                    "documento_venta": "",
-                                    "contenido":
-                                        "$contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}",
-                                    "observacion": _observacion.text,
-                                    "fecha": formattedDateTime,
-                                    "declarado": double.parse(priceTotal),
-                                    "con_recaudo": recaudo ? true : false
-                                  };
-                                  print(dataIntegration);
+                              } else {
+                                //
+                                if (selectedValueRoute == null ||
+                                    selectedValueTransport == null) {
+                                  showSuccessModal(
+                                      context,
+                                      "Por favor, Debe seleccionar una ciudad y una transportadora.",
+                                      Icons8.warning_1);
+                                } else {
+                                  readySent = true;
                                 }
+                              }
+                            }
 
-                                double costDelivery = double.parse(
-                                        costShippingSeller.toString()) +
-                                    double.parse(taxCostShipping.toString());
+                            if (readySent) {
+                              // if (widget.product.isvariable == 1 &&
+                              //     chosenVariant == null) {
+                              if (widget.product.isvariable == 1 &&
+                                  variantsDetailsList.isEmpty) {
+                                showSuccessModal(
+                                    context,
+                                    "Por favor, Debe al menos seleccionar una variante del producto.",
+                                    Icons8.warning_1);
+                              } else {
+                                if (formKey.currentState!.validate()) {
+                                  print("$selectedCarrierType");
+                                  getLoadingModal(context, false);
 
-                                var response =
-                                    await Connections().createOrderProduct(
-                                  sharedPrefs!
-                                      .getString("idComercialMasterSeller"),
-                                  sharedPrefs!.getString("NameComercialSeller"),
-                                  _nombre.text,
-                                  _direccion.text,
-                                  _telefono.text,
-                                  selectedCarrierType == "Externo"
-                                      ? selectedCity.toString().split("-")[0]
-                                      : selectedValueRoute
-                                          .toString()
-                                          .split("-")[0],
-                                  _producto.text,
-                                  _productoE.text,
-                                  // _cantidad.text,
-                                  quantityTotal,
-                                  priceTotal,
-                                  _observacion.text,
-                                  // sku,
-                                  idProd,
-                                  variantsDetailsList,
-                                  recaudo ? 1 : 0,
-                                  selectedCarrierType == "Externo"
-                                      ? costDelivery.toString()
-                                      : null,
-                                  selectedCarrierType == "Interno"
-                                      ? selectedValueRoute
-                                          .toString()
-                                          .split("-")[1]
-                                      : "0",
-                                  selectedCarrierType == "Interno"
-                                      ? selectedValueTransport
-                                          .toString()
-                                          .split("-")[1]
-                                      : "0",
-                                  selectedCarrierType == "Externo"
-                                      ? selectedCarrierExternal
-                                          .toString()
-                                          .split("-")[1]
-                                      : "0",
-                                  selectedCarrierType == "Externo"
-                                      ? selectedCity.toString().split("-")[1]
-                                      : "0",
-                                );
+                                  String priceTotal =
+                                      "${_precioTotalEnt.text}.${_precioTotalDec.text}";
 
-                                // print(response);
+                                  // String sku =
+                                  //     "${chosenSku}C${widget.product.productId}";
+                                  String idProd =
+                                      widget.product.productId.toString();
 
-                                if (selectedCarrierType == "Externo" &&
-                                    selectedCarrierExternal
-                                            .toString()
-                                            .split("-")[1] ==
-                                        "1") {
-                                  if (response != 1 || response != 2) {
-                                    //send Gintra
-                                    print("send Gintra");
-                                    var responseGintra = await Connections()
-                                        .postOrdersGintra(dataIntegration);
-                                    print("responseInteg");
-                                    print(responseGintra);
+                                  // String messageVar = "";
+                                  String contenidoProd = "";
 
-                                    if (responseGintra != []) {
-                                      await Connections()
-                                          .UpdateOrderCarrierbyOrder(
-                                              response['id'], {
-                                        "external_id": responseGintra['guia']
-                                      });
+                                  if (widget.product.isvariable == 1) {
+                                    // messageVar = " (";
+                                    for (var variant in variantsDetailsList) {
+                                      // messageVar +=
+                                      //     "${variant['quantity']}-${variant['variant_title']}; ";
+
+                                      contenidoProd +=
+                                          '${variant['quantity']}*${_producto.text} ${variant['variant_title']} | ';
                                     }
-                                    //
+                                    // messageVar = messageVar.substring(
+                                    //     1, messageVar.length - 2);
+                                    // messageVar += ") ";
+                                    contenidoProd = contenidoProd.substring(
+                                        0, contenidoProd.length - 3);
+                                  } else {
+                                    contenidoProd +=
+                                        '$quantityTotal*${_producto.text}';
                                   }
+
+                                  String remitente_address =
+                                      prov_city_address.split('-')[2];
+
+                                  String remitente_prov_ref = "";
+                                  String remitente_city_ref = "";
+                                  String destinatario_prov_ref = "";
+                                  String destinatario_city_ref = "";
+                                  var dataIntegration;
+
+                                  if (selectedCarrierType == "Externo") {
+                                    var responseProvCityRem =
+                                        await Connections().getCoverage([
+                                      {
+                                        "/carriers_external_simple.id":
+                                            selectedCarrierExternal
+                                                .toString()
+                                                .split("-")[1]
+                                      },
+                                      {
+                                        "/coverage_external.dpa_provincia.id":
+                                            prov_city_address.split('-')[0]
+                                      },
+                                      {
+                                        "/coverage_external.ciudad":
+                                            prov_city_address.split('-')[1]
+                                      }
+                                    ]);
+
+                                    // print(responseProvCityRem);
+                                    remitente_prov_ref =
+                                        responseProvCityRem['id_prov_ref'];
+                                    remitente_city_ref =
+                                        responseProvCityRem['id_ciudad_ref'];
+                                    // print("REMITENTE:");
+                                    // print(
+                                    //     "$origen_prov: $remitente_city_ref-${responseProvCityRem['coverage_external']['dpa_provincia']['provincia']}");
+                                    // print(
+                                    //     "${widget.product.warehouse!.city.toString()}: $remitente_city_ref");
+
+                                    destinatario_prov_ref =
+                                        selectedCity.toString().split("-")[3];
+                                    destinatario_city_ref =
+                                        selectedCity.toString().split("-")[4];
+
+                                    // print("DESTINATARIO:");
+                                    // print(
+                                    //     "${selectedProvincia.toString().split("-")[0]}: $destinatario_prov_ref");
+                                    // print(
+                                    //     "${selectedCity.toString().split("-")[0]}: $destinatario_city_ref");
+
+                                    DateTime now = DateTime.now();
+                                    String formattedDateTime =
+                                        DateFormat('yyyy-MM-dd HH:mm:ss')
+                                            .format(now);
+
+                                    dataIntegration = {
+                                      "remitente": {
+                                        "nombre": sharedPrefs!
+                                            .getString("NameComercialSeller"),
+                                        "telefono": sharedPrefs!
+                                            .getString("seller_telefono"),
+                                        "provincia": remitente_prov_ref,
+                                        "ciudad": remitente_city_ref,
+                                        "direccion": remitente_address
+                                      },
+                                      "destinatario": {
+                                        "nombre": _nombre.text,
+                                        "telefono": _telefono.text,
+                                        "provincia": destinatario_prov_ref,
+                                        "ciudad": destinatario_city_ref,
+                                        "direccion": _direccion.text
+                                      },
+                                      "cant_paquetes": "1",
+                                      "peso_total": "2.00",
+                                      "documento_venta": "",
+                                      "contenido":
+                                          "$contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}",
+                                      "observacion": _observacion.text,
+                                      "fecha": formattedDateTime,
+                                      "declarado": double.parse(priceTotal),
+                                      "con_recaudo": recaudo ? true : false
+                                    };
+                                    print(dataIntegration);
+                                  }
+
+                                  double costDelivery = double.parse(
+                                          costShippingSeller.toString()) +
+                                      double.parse(taxCostShipping.toString());
+
+                                  var response =
+                                      await Connections().createOrderProduct(
+                                    sharedPrefs!
+                                        .getString("idComercialMasterSeller"),
+                                    sharedPrefs!
+                                        .getString("NameComercialSeller"),
+                                    _nombre.text,
+                                    _direccion.text,
+                                    _telefono.text,
+                                    selectedCarrierType == "Externo"
+                                        ? selectedCity.toString().split("-")[0]
+                                        : selectedValueRoute
+                                            .toString()
+                                            .split("-")[0],
+                                    _producto.text,
+                                    _productoE.text,
+                                    // _cantidad.text,
+                                    quantityTotal,
+                                    priceTotal,
+                                    _observacion.text,
+                                    // sku,
+                                    idProd,
+                                    variantsDetailsList,
+                                    recaudo ? 1 : 0,
+                                    selectedCarrierType == "Externo"
+                                        ? costDelivery.toString()
+                                        : null,
+                                    selectedCarrierType == "Interno"
+                                        ? selectedValueRoute
+                                            .toString()
+                                            .split("-")[1]
+                                        : "0",
+                                    selectedCarrierType == "Interno"
+                                        ? selectedValueTransport
+                                            .toString()
+                                            .split("-")[1]
+                                        : "0",
+                                    selectedCarrierType == "Externo"
+                                        ? selectedCarrierExternal
+                                            .toString()
+                                            .split("-")[1]
+                                        : "0",
+                                    selectedCarrierType == "Externo"
+                                        ? selectedCity.toString().split("-")[1]
+                                        : "0",
+                                  );
+
+                                  // print(response);
+
+                                  if (selectedCarrierType == "Externo" &&
+                                      selectedCarrierExternal
+                                              .toString()
+                                              .split("-")[1] ==
+                                          "1") {
+                                    if (response != 1 || response != 2) {
+                                      //send Gintra
+                                      print("send Gintra");
+                                      var responseGintra = await Connections()
+                                          .postOrdersGintra(dataIntegration);
+                                      print("responseInteg");
+                                      print(responseGintra);
+
+                                      if (responseGintra != []) {
+                                        await Connections()
+                                            .UpdateOrderCarrierbyOrder(
+                                                response['id'], {
+                                          "external_id": responseGintra['guia']
+                                        });
+                                      }
+                                      //
+                                    }
+                                  }
+
+                                  var _url = Uri.parse(
+                                    """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                  );
+
+                                  if (!await launchUrl(_url)) {
+                                    throw Exception('Could not launch $_url');
+                                  }
+
+                                  Navigator.pop(context);
+                                  Navigator.pop(context);
                                 }
-
-                                var _url = Uri.parse(
-                                  """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
-                                );
-
-                                if (!await launchUrl(_url)) {
-                                  throw Exception('Could not launch $_url');
-                                }
-
-                                Navigator.pop(context);
-                                Navigator.pop(context);
                               }
                             }
                           }

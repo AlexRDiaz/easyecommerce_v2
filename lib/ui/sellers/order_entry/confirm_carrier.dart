@@ -88,6 +88,8 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
   var data = {};
   int idUser = int.parse(sharedPrefs!.getString("id").toString());
 
+  List<Map<String, dynamic>> variantDetails = [];
+
   @override
   void didChangeDependencies() {
     getRoutes();
@@ -117,7 +119,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
     var variants = data['variant_details'] != null
         ? data['variant_details'].toString()
         : "";
-    List<Map<String, dynamic>> variantDetails = [];
+    variantDetails = [];
 
     if (data['variant_details'] != null) {
       //
@@ -226,6 +228,9 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
 
   getCarriersExternals() async {
     try {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
       setState(() {
         carriersExternalsToSelect = [];
         selectedCarrierExternal = null;
@@ -240,13 +245,19 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
       setState(() {
         carriersExternalsToSelect = carriersExternalsToSelect;
       });
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
     } catch (error) {
-      print('Error al cargar ciudades: $error');
+      print('Error al cargar TranspExter: $error');
     }
   }
 
   getProvincias() async {
     try {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
       setState(() {
         provinciasToSelect = [];
         selectedProvincia = null;
@@ -257,6 +268,9 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
       for (var i = 0; i < provinciasList.length; i++) {
         provinciasToSelect.add('${provinciasList[i]}');
       }
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
       setState(() {});
     } catch (error) {
       print('Error al cargar Provincias: $error');
@@ -265,6 +279,9 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
 
   getCiudades() async {
     try {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLoadingModal(context, false);
+      });
       var dataCities;
       setState(() {
         citiesToSelect = [];
@@ -296,9 +313,12 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
           citiesToSelect.add(ciudad);
         }
       }
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
       setState(() {});
     } catch (error) {
-      print('Error al cargar Provincias: $error');
+      print('Error al cargar Ciudades: $error');
     }
   }
 
@@ -829,18 +849,26 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                               idProd = data['id_product'].toString();
                             }
 
-                            String messageVar = "";
+                            String contenidoProd = "";
+                            if (data['id_product'] != null &&
+                                data['id_product'] != 0) {
+                              if (isvariable == 1) {
+                                for (var variant in variantDetails) {
+                                  contenidoProd +=
+                                      '${variant['quantity']}*${_producto.text} ${variant['variant_title']} | ';
+                                }
 
-                            if (quantity_variant != "") {
-                              messageVar = " (";
-                              messageVar += quantity_variant;
-                              messageVar += ") ";
+                                contenidoProd = contenidoProd.substring(
+                                    0, contenidoProd.length - 3);
+                              } else {
+                                contenidoProd +=
+                                    '$quantityTotal*${_producto.text}';
+                              }
+                            } else {
+                              //
+                              contenidoProd += '${_cantidad}*${_producto.text}';
                             }
 
-                            print(messageVar);
-
-                            //if exist transportadora so need to update relacion
-                            //if exist carrierExternal solo puede actualizarse con otra externa
                             var responseNewRouteTransp;
                             var responseGintraNew;
                             var responseUpdtRT;
@@ -854,7 +882,6 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                             String destinatario_city_ref = "";
                             var dataIntegration;
 
-//falta poner un getLoadingModal y nav para cerrar el mismo al terminar
                             if (selectedCarrierType == "Externo") {
                               remitente_address =
                                   prov_city_address.split('-')[2];
@@ -924,7 +951,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                 "peso_total": "2.00",
                                 "documento_venta": "",
                                 "contenido":
-                                    "${quantityTotal};${_producto.text}${isvariable == 1 ? messageVar : ""};${_productoE.text}", //agregar cantidad;producto;(variantes);(producto_extra) 1;Impresora termica; azul ;Envio Prioritario
+                                    "$contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}",
                                 "observacion": _observacion.text,
                                 "fecha": formattedDateTime,
                                 "declarado": double.parse(priceTotal),
@@ -967,6 +994,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
 
                                 // print("recaudo: ${recaudo ? 1 : 0}");
                                 // print(dataIntegration);
+                                print("a Una Externa");
 
                                 if (selectedCarrierExternal
                                         .toString()
@@ -974,10 +1002,11 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                     "1") {
                                   //send Gintra
                                   print("send Gintra");
+
                                   responseGintraNew = await Connections()
                                       .postOrdersGintra(dataIntegration);
-                                  // print("responseInteg");
-                                  // print(responseGintra);
+                                  // // print("responseInteg");
+                                  print(responseGintraNew);
 
                                   if (responseGintraNew != []) {
                                     await Connections()
@@ -995,8 +1024,10 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                                 .split("-")[1],
                                             selectedCity
                                                 .toString()
-                                                .split("-")[0],
+                                                .split("-")[1],
                                             responseGintraNew['guia']);
+
+                                    print("created UpdateOrderCarrier");
 
                                     var response3 = await Connections()
                                         .updateOrderWithTime(
@@ -1007,6 +1038,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                             "");
                                     print(
                                         "updated estado_interno:CONFIRMADO with others");
+
                                     Navigator.pop(context);
                                     Navigator.pop(context);
                                   }
@@ -1074,6 +1106,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                         "id_externo": responseGintraNew['guia'],
                                         "recaudo": recaudo ? 1 : 0,
                                       });
+
                                       //crear un nuevo pedido_carrier_link
                                       await Connections()
                                           .createUpdateOrderCarrier(
@@ -1083,11 +1116,10 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                                   .split("-")[1],
                                               selectedCity
                                                   .toString()
-                                                  .split("-")[0],
+                                                  .split("-")[1],
                                               responseGintraNew['guia']);
 
-                                      await Connections()
-                                          .deleteRutaTransportadora(data['id']);
+                                      print("created UpdateOrderCarrier");
 
                                       var response3 = await Connections()
                                           .updateOrderWithTime(
@@ -1098,6 +1130,10 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                               "");
                                       print(
                                           "updated estado_interno:CONFIRMADO with others");
+
+                                      await Connections()
+                                          .deleteRutaTransportadora(data['id']);
+
                                       Navigator.pop(context);
                                       Navigator.pop(context);
                                     }
@@ -1109,9 +1145,48 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                 //
 
                                 print("Actualizar carrier_external");
-                                print("Not yet");
-                                Navigator.pop(context);
-                                Navigator.pop(context);
+
+                                if (selectedCarrierType == "Interno") {
+                                  //
+                                  print("a Transport Interna");
+                                  //este caso faltaria notificar a gtm que ya no quiere
+                                  responseUpdtRT = await Connections()
+                                      .updateOrderRouteAndTransportLaravel(
+                                          selectedValueRoute
+                                              .toString()
+                                              .split("-")[1],
+                                          selectedValueTransport
+                                              .toString()
+                                              .split("-")[1],
+                                          data['id']);
+
+                                  var response2 = await Connections()
+                                      .updatenueva(data['id'], {"recaudo": 1});
+
+                                  //eliminar relacion pedido_Carrier_link
+                                  await Connections()
+                                      .deleteOrderCarrierExternal(data['id']);
+
+                                  var response3 = await Connections()
+                                      .updateOrderWithTime(
+                                          data['id'],
+                                          "estado_interno:CONFIRMADO",
+                                          sharedPrefs!.getString("id"),
+                                          "",
+                                          "");
+                                  print(
+                                      "updated estado_interno:CONFIRMADO with others");
+
+                                  Navigator.pop(context);
+                                  Navigator.pop(context);
+                                } else {
+                                  //
+                                  print("a externa");
+                                  print("Not yet");
+
+                                  Navigator.pop(context);
+                                  Navigator.pop(context);
+                                }
                               }
 
                               //

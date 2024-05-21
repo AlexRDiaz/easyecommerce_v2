@@ -7410,7 +7410,12 @@ class Connections {
   //  *
   createUpdateOrderCarrier(idOrder, idCarrier, idCity, externalid) async {
     try {
-      // print(json.encode({"ids": json.encode(ids)}));
+      // print(json.encode({
+      //   "order_id": idOrder,
+      //   "carrier_id": idCarrier,
+      //   "city_external_id": idCity,
+      //   "external_id": externalid
+      // }));
       var response =
           await http.post(Uri.parse("$serverLaravel/api/ordercarrier"),
               headers: {'Content-Type': 'application/json'},
@@ -7510,10 +7515,33 @@ class Connections {
     }
   }
 
+  //  *
   Future deleteRutaTransportadora(id) async {
     try {
       var request = await http.delete(
         Uri.parse("$serverLaravel/api/rutatransp/delete/$id"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (decodeData['code'] != 200) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      print(e);
+
+      return false;
+    }
+  }
+
+  //  *
+  Future deleteOrderCarrierExternal(OrderId) async {
+    try {
+      var request = await http.delete(
+        Uri.parse("$serverLaravel/api/ordercarrier/$OrderId"),
         headers: {'Content-Type': 'application/json'},
       );
       var response = await request.body;
