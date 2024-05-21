@@ -114,6 +114,8 @@ class _TableOrdersGuidesSentStateProvider
   String idProvUser = sharedPrefs!.getString("idProviderUserMaster").toString();
   int provType = 0;
   bool showExternalCarriers = false;
+  List relationsToInclude = [];
+  List relationsToExclude = [];
 
   @override
   void didChangeDependencies() {
@@ -169,9 +171,13 @@ class _TableOrdersGuidesSentStateProvider
         }
         filtersAnd.add({"/marca_tiempo_envio": date});
         if (showExternalCarriers == false) {
-          filtersAnd.add({"/id_externo": null});
+          // filtersAnd.add({"/id_externo": null});
+          relationsToInclude = ['ruta', 'transportadora'];
+          relationsToExclude = ['pedidoCarrier'];
         } else {
-          arrayFiltersNot.add({"id_externo": null});
+          // arrayFiltersNot.add({"id_externo": null});
+          relationsToInclude = ['pedidoCarrier'];
+          relationsToExclude = ['ruta', 'transportadora'];
         }
 
         responseL = await Connections().getOrdersForSentGuidesPrincipalLaravel(
@@ -179,6 +185,8 @@ class _TableOrdersGuidesSentStateProvider
             filtersAnd,
             filtersDefaultAnd,
             filtersOrCont,
+            relationsToInclude,
+            relationsToExclude,
             currentPage,
             pageSize,
             "",
@@ -201,10 +209,15 @@ class _TableOrdersGuidesSentStateProvider
           "equals/transportadora.transportadora_id":
               selectedValueTransportator.toString().split('-')[1]
         });
+
         if (showExternalCarriers == false) {
-          filtersAnd.add({"/id_externo": null});
+          // filtersAnd.add({"/id_externo": null});
+          relationsToInclude = ['ruta', 'transportadora'];
+          relationsToExclude = ['pedidoCarrier'];
         } else {
-          arrayFiltersNot.add({"id_externo": null});
+          // arrayFiltersNot.add({"id_externo": null});
+          relationsToInclude = ['pedidoCarrier'];
+          relationsToExclude = ['ruta', 'transportadora'];
         }
 
         responseL = await Connections().getOrdersForSentGuidesPrincipalLaravel(
@@ -212,6 +225,8 @@ class _TableOrdersGuidesSentStateProvider
             filtersAnd,
             filtersDefaultAnd,
             filtersOrCont,
+            relationsToInclude,
+            relationsToExclude,
             currentPage,
             pageSize,
             "",
@@ -231,15 +246,22 @@ class _TableOrdersGuidesSentStateProvider
       }
 
       if (showExternalCarriers == false) {
-        filtersAnd.add({"/id_externo": null});
+        // filtersAnd.add({"/id_externo": null});
+        relationsToInclude = ['ruta', 'transportadora'];
+        relationsToExclude = ['pedidoCarrier'];
       } else {
-        arrayFiltersNot.add({"id_externo": null});
+        // arrayFiltersNot.add({"id_externo": null});
+        relationsToInclude = ['pedidoCarrier'];
+        relationsToExclude = ['ruta', 'transportadora'];
       }
+
       responseL = await Connections().getOrdersForSentGuidesPrincipalLaravel(
           populate,
           filtersAnd,
           filtersDefaultAnd,
           filtersOrCont,
+          relationsToInclude,
+          relationsToExclude,
           currentPage,
           pageSize,
           _controllers.searchController.text,
@@ -303,6 +325,8 @@ class _TableOrdersGuidesSentStateProvider
     getOldValue(true);
     filtersAnd = [];
     arrayFiltersNot = [];
+    relationsToInclude = [];
+    relationsToExclude = [];
     showExternalCarriers = false;
     selectedValueTransportator = null;
     _controllers.searchController.text = "";
@@ -385,7 +409,7 @@ class _TableOrdersGuidesSentStateProvider
                         const SizedBox(
                           width: 30,
                         ),
-                        Text(
+                        const Text(
                           "Guías Externas",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, color: Colors.black),
@@ -901,24 +925,26 @@ class _TableOrdersGuidesSentStateProvider
             width: 20,
           ),
           ElevatedButton(
-              onPressed: () async {
-                await showDialog(
-                    context: context,
-                    builder: (context) {
-                      return RoutesModalv2(
-                          idOrder: selectedCheckBox,
-                          someOrders: true,
-                          phoneClient: "",
-                          codigo: "",
-                          origin: "sent");
-                    });
+              onPressed: !showExternalCarriers
+                  ? () async {
+                      await showDialog(
+                          context: context,
+                          builder: (context) {
+                            return RoutesModalv2(
+                                idOrder: selectedCheckBox,
+                                someOrders: true,
+                                phoneClient: "",
+                                codigo: "",
+                                origin: "sent");
+                          });
 
-                setState(() {});
-                selectedCheckBox = [];
-                // selectAll = false;
-                getOldValue(true);
-                await loadData();
-              },
+                      setState(() {});
+                      selectedCheckBox = [];
+                      // selectAll = false;
+                      getOldValue(true);
+                      await loadData();
+                    }
+                  : null,
               child: const Text(
                 "Ruta",
                 style: TextStyle(fontWeight: FontWeight.bold),

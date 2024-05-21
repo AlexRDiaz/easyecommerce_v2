@@ -77,13 +77,15 @@ class _VendorWithDrawalRequestLaravelState
         arrayFiltersNot,
         arrayFiltersAnd,
         arrayFiltersOr,
+        [],
+        [],
         _controllers.searchController.text,
         model,
         "",
         "",
         "",
         sortFieldDefaultValue);
-        print("ak> $response");
+    print("ak> $response");
     setState(() {
       data = [];
       data = response['data'];
@@ -296,11 +298,7 @@ class _VendorWithDrawalRequestLaravelState
                           'user',
                         ];
                         arrayFiltersAnd = [];
-                        arrayFiltersOr = [
-                          "user.username",
-                          "user.id",
-                          "name"
-                        ];
+                        arrayFiltersOr = ["user.username", "user.id", "name"];
                         arrayFiltersNot = [];
                         await loadData();
                       }),

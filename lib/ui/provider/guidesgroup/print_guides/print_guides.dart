@@ -95,6 +95,8 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
       ? "0"
       : sharedPrefs!.getString("special").toString();
   bool showExternalCarriers = false;
+  List relationsToInclude = [];
+  List relationsToExclude = [];
 
   @override
   void didChangeDependencies() {
@@ -137,11 +139,15 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
     }
 
     if (showExternalCarriers == false) {
-      arrayFiltersAnd.add({"id_externo": null});
+      // arrayFiltersAnd.add({"id_externo": null});
+      relationsToInclude = ['ruta', 'transportadora'];
+      relationsToExclude = ['pedidoCarrier'];
     } else {
-      arrayFiltersNot = [
-        {"id_externo": null}
-      ];
+      // arrayFiltersNot = [
+      //   {"id_externo": null}
+      // ];
+      relationsToInclude = ['pedidoCarrier'];
+      relationsToExclude = ['ruta', 'transportadora'];
     }
 //    *
     var responseLaravel = await Connections().getOrdersForPrintGuidesLaravel(
@@ -149,6 +155,8 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
       arrayfiltersDefaultAnd,
       arrayFiltersAnd,
       arrayFiltersNot,
+      relationsToInclude,
+      relationsToExclude,
       currentPage,
       pageSize,
       sortFieldDefaultValue.toString(),
@@ -256,7 +264,7 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
                       fontWeight: FontWeight.bold, color: Colors.black),
                 ),
                 const SizedBox(width: 30),
-                Text(
+                const Text(
                   "Guías externas",
                   style: TextStyle(
                       fontWeight: FontWeight.bold, color: Colors.black),

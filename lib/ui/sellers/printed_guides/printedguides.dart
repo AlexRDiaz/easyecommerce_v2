@@ -1,7 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:flutter_animated_icons/icons8.dart';
+import 'package:frontend/config/colors.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/navigators.dart';
@@ -14,6 +18,7 @@ import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_sna
 import 'package:frontend/ui/sellers/printed_guides/controllers/controllers.dart';
 import 'package:frontend/ui/sellers/printed_guides/printedguides_info.dart';
 import 'package:frontend/ui/utils/utils.dart';
+import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 import 'package:frontend/ui/widgets/loading.dart';
 import 'package:frontend/ui/widgets/logistic/scanner_printed.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -84,6 +89,9 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
 
   int counterChecks = 0;
   var idUser = sharedPrefs!.getString("id");
+  bool showExternalCarriers = false;
+  List relationsToInclude = [];
+  List relationsToExclude = [];
 
   void didChangeDependencies() {
     loadData();
@@ -101,12 +109,21 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
       data = [];
     });
 
-//    *
+    if (showExternalCarriers == false) {
+      relationsToInclude = ['ruta', 'transportadora'];
+      relationsToExclude = ['pedidoCarrier'];
+    } else {
+      relationsToInclude = ['pedidoCarrier'];
+      relationsToExclude = ['ruta', 'transportadora'];
+    }
+    //    *
     var responseLaravel = await Connections().getOrdersForPrintGuidesLaravel(
       filtersOrCont,
       arrayfiltersDefaultAnd,
       arrayFiltersAnd,
       arrayFiltersNot,
+      relationsToInclude,
+      relationsToExclude,
       currentPage,
       pageSize,
       sortFieldDefaultValue.toString(),
@@ -227,6 +244,73 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                 height: 10,
               ),
               Row(
+                children: [
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Row(
+                        children: [
+                          Text(
+                            "Contador: ${data.length}",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            width: 30,
+                          ),
+                          const Text(
+                            "Guías Externas",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black),
+                          ),
+                          const SizedBox(width: 5),
+                          Checkbox(
+                            value: showExternalCarriers,
+                            onChanged: (value) async {
+                              setState(() {
+                                showExternalCarriers = value!;
+                              });
+                              loadData();
+                            },
+                            activeColor: ColorsSystem().mainBlue,
+                            shape: CircleBorder(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          await showDialog(
+                              context: context,
+                              builder: (context) {
+                                return ScannerPrinted(
+                                  from: "seller",
+                                );
+                              });
+                          counterChecks = 0;
+                          getOldValue(true);
+                          await loadData();
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(
+                            ColorsSystem().mainBlue,
+                          ),
+                        ),
+                        child: const Text(
+                          "SCANNER",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              /*
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
@@ -258,6 +342,7 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                   ),
                 ],
               ),
+              */
               const SizedBox(
                 height: 10,
               ),
@@ -453,6 +538,14 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                                             ['qrLink'] = data[index]['users'][0]
                                                 ['vendedores'][0]['url_tienda']
                                             .toString();
+                                        optionsCheckBox[index]
+                                            ['idExteralOrder'] = data[index]
+                                                    ['pedido_carrier']
+                                                .isNotEmpty
+                                            ? data[index]['pedido_carrier'][0]
+                                                    ['external_id']
+                                                .toString()
+                                            : "";
 
                                         counterChecks += 1;
                                       } else {
@@ -617,55 +710,61 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
         children: [
           ElevatedButton(
               onPressed: () async {
-                const double point = 1.0;
-                const double inch = 72.0;
-                const double cm = inch / 2.54;
-                const double mm = inch / 25.4;
+                if (!showExternalCarriers) {
+                  const double point = 1.0;
+                  const double inch = 72.0;
+                  const double cm = inch / 2.54;
+                  const double mm = inch / 25.4;
 
-                getLoadingModal(context, false);
-                final doc = pw.Document();
+                  getLoadingModal(context, false);
+                  final doc = pw.Document();
 
-                for (var i = 0; i < optionsCheckBox.length; i++) {
-                  if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
-                      optionsCheckBox[i]['id'].toString() != '' &&
-                      optionsCheckBox[i]['check'] == true) {
-                    final capturedImage =
-                        await screenshotController.captureFromWidget(Container(
-                            child: ModelGuide(
-                      address: optionsCheckBox[i]['address'],
-                      city: optionsCheckBox[i]['city'],
-                      date: optionsCheckBox[i]['date'],
-                      extraProduct: optionsCheckBox[i]['extraProduct'],
-                      idForBarcode: optionsCheckBox[i]['id'],
-                      name: optionsCheckBox[i]['name'],
-                      numPedido: optionsCheckBox[i]['numPedido'],
-                      observation: optionsCheckBox[i]['obervation'],
-                      phone: optionsCheckBox[i]['phone'],
-                      price: optionsCheckBox[i]['price'],
-                      product: optionsCheckBox[i]['product'],
-                      qrLink: optionsCheckBox[i]['qrLink'],
-                      quantity: optionsCheckBox[i]['quantity'],
-                      transport: optionsCheckBox[i]['transport'],
-                    )));
+                  for (var i = 0; i < optionsCheckBox.length; i++) {
+                    if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
+                        optionsCheckBox[i]['id'].toString() != '' &&
+                        optionsCheckBox[i]['check'] == true) {
+                      final capturedImage = await screenshotController
+                          .captureFromWidget(Container(
+                              child: ModelGuide(
+                        address: optionsCheckBox[i]['address'],
+                        city: optionsCheckBox[i]['city'],
+                        date: optionsCheckBox[i]['date'],
+                        extraProduct: optionsCheckBox[i]['extraProduct'],
+                        idForBarcode: optionsCheckBox[i]['id'],
+                        name: optionsCheckBox[i]['name'],
+                        numPedido: optionsCheckBox[i]['numPedido'],
+                        observation: optionsCheckBox[i]['obervation'],
+                        phone: optionsCheckBox[i]['phone'],
+                        price: optionsCheckBox[i]['price'],
+                        product: optionsCheckBox[i]['product'],
+                        qrLink: optionsCheckBox[i]['qrLink'],
+                        quantity: optionsCheckBox[i]['quantity'],
+                        transport: optionsCheckBox[i]['transport'],
+                      )));
 
-                    doc.addPage(pw.Page(
-                      pageFormat: PdfPageFormat(21.0 * cm, 21.0 * cm,
-                          marginAll: 0.1 * cm),
-                      build: (pw.Context context) {
-                        return pw.Row(
-                          children: [
-                            pw.Image(pw.MemoryImage(capturedImage),
-                                fit: pw.BoxFit.contain)
-                          ],
-                        );
-                      },
-                    ));
+                      doc.addPage(pw.Page(
+                        pageFormat: PdfPageFormat(21.0 * cm, 21.0 * cm,
+                            marginAll: 0.1 * cm),
+                        build: (pw.Context context) {
+                          return pw.Row(
+                            children: [
+                              pw.Image(pw.MemoryImage(capturedImage),
+                                  fit: pw.BoxFit.contain)
+                            ],
+                          );
+                        },
+                      ));
+                    }
                   }
+                  Navigator.pop(context);
+                  await Printing.layoutPdf(
+                      onLayout: (PdfPageFormat format) async =>
+                          await doc.save());
+                  setState(() {});
+                } else {
+                  // printOnePdfExternal();
+                  generateDocumentExternal();
                 }
-                Navigator.pop(context);
-                await Printing.layoutPdf(
-                    onLayout: (PdfPageFormat format) async => await doc.save());
-                setState(() {});
               },
               child: const Text(
                 "IMPRIMIR",
@@ -776,6 +875,53 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
         ],
       ),
     );
+  }
+
+  void generateDocumentExternal() async {
+    try {
+      getLoadingModal(context, false);
+      Stopwatch stopwatch = Stopwatch();
+      stopwatch.start();
+
+      var idsExternals = [];
+
+      await Future.forEach(optionsCheckBox, (checkBox) async {
+        if (checkBox['id'].toString().isNotEmpty &&
+            checkBox['id'].toString() != '') {
+          //
+          idsExternals.add(checkBox['idExteralOrder']);
+        }
+        //
+      });
+
+      var pdfContentTotal =
+          await Connections().multiExternalGuidesGTM(idsExternals);
+
+      if (pdfContentTotal is Uint8List) {
+        Navigator.pop(context);
+        await Printing.layoutPdf(
+          onLayout: (format) => pdfContentTotal!,
+        );
+      } else {
+        Navigator.pop(context);
+        print("Error: No se pudo obtener el PDF desde el backend.");
+        // ignore: use_build_context_synchronously
+        showSuccessModal(
+            context, "Error,  No se pudo obtener el PDF.", Icons8.alert);
+      }
+      stopwatch.stop();
+      Duration duration = stopwatch.elapsed;
+      print(
+          'La función tardó ${duration.inMilliseconds} milisegundos en ejecutarse.');
+
+      _controllers.search.clear();
+
+      optionsCheckBox = [];
+      loadData();
+      // isLoading = false;
+    } catch (e) {
+      print("Error al generar el documento $e");
+    }
   }
 
   sortFunc(filtro, changeval) {
@@ -893,7 +1039,10 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                 data[i]['observacion'].toString();
             optionsCheckBox[i]['qrLink'] =
                 data[i]['users'][0]['vendedores'][0]['url_tienda'].toString();
-
+            optionsCheckBox[i]["idExteralOrder"] =
+                data[i]['id_externo'] != null && data[i]['id_externo'] != 0
+                    ? data[i]['id_externo'].toString()
+                    : "";
             counterChecks += 1;
           }
           //   print("tamanio a imprimir"+optionsCheckBox.length.toString());

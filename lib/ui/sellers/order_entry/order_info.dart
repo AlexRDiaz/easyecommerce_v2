@@ -112,6 +112,7 @@ class _OrderInfoState extends State<OrderInfo> {
   TextEditingController _quantityCurrent = TextEditingController(text: "");
   TextEditingController _quantitySelectVariant =
       TextEditingController(text: "");
+  int idUser = int.parse(sharedPrefs!.getString("id").toString());
 
   @override
   void didChangeDependencies() {
@@ -212,7 +213,11 @@ class _OrderInfoState extends State<OrderInfo> {
 
     if (data['id_product'] != null && data['id_product'] != 0) {
       // carriersTypeToSelect = ["Interno", "Externo"];
-      carriersTypeToSelect = ["Interno"];
+      if (idUser == 2 || idUser == 188) {
+        carriersTypeToSelect = ["Interno", "Externo"];
+      } else {
+        carriersTypeToSelect = ["Interno"];
+      }
     } else {
       carriersTypeToSelect = ["Interno"];
     }
@@ -1829,7 +1834,7 @@ class _OrderInfoState extends State<OrderInfo> {
                       double.parse(costShippingSeller.toString()) +
                           double.parse(taxCostShipping.toString());
                   if (data['transportadora'].isEmpty &&
-                      data['carrier_external'] == null) {
+                      data['pedido_carrier'].isEmpty) {
                     //
                     print("Nuevo no tiene ninguna Transport");
                     if (selectedCarrierType == "Interno") {
@@ -1840,23 +1845,30 @@ class _OrderInfoState extends State<OrderInfo> {
                               selectedValueRoute.toString().split("-")[1],
                               selectedValueTransport.toString().split("-")[1],
                               data['id']);
-                      var response2 = await Connections().updatenueva(
-                          data['id'], {
-                        "carrier_external_id": null,
-                        "ciudad_external_id": null,
-                        "recaudo": 1
-                      });
+                      var response2 = await Connections()
+                          .updatenueva(data['id'], {"recaudo": 1});
+
+                      var response3 = await Connections().updateOrderWithTime(
+                          data['id'],
+                          "estado_interno:CONFIRMADO",
+                          sharedPrefs!.getString("id"),
+                          "",
+                          "");
+                      print("updated estado_interno:CONFIRMADO with others");
+
+                      await updateData();
+                      Navigator.pop(context);
                     } else {
                       //
 
-                      print("recaudo: ${recaudo ? 1 : 0}");
-                      print(dataIntegration);
+                      // print("recaudo: ${recaudo ? 1 : 0}");
+                      // print(dataIntegration);
 
                       if (selectedCarrierExternal.toString().split("-")[1] ==
                           "1") {
                         //send Gintra
                         print("send Gintra");
-                        /*
+
                         responseGintraNew = await Connections()
                             .postOrdersGintra(dataIntegration);
                         // // print("responseInteg");
@@ -1865,16 +1877,29 @@ class _OrderInfoState extends State<OrderInfo> {
                         if (responseGintraNew != []) {
                           await Connections().updatenueva(data['id'], {
                             "id_externo": responseGintraNew['guia'],
-                            "carrier_external_id": selectedCarrierExternal
-                                .toString()
-                                .split("-")[1],
-                            "ciudad_external_id":
-                                selectedCity.toString().split("-")[0],
                             "recaudo": recaudo ? 1 : 0,
-                            "costo_envio": costDelivery.toString()
                           });
+
+                          //crear un nuevo pedido_carrier_link
+                          await Connections().createUpdateOrderCarrier(
+                              data['id'],
+                              selectedCarrierExternal.toString().split("-")[1],
+                              selectedCity.toString().split("-")[0],
+                              responseGintraNew['guia']);
+
+                          var response3 = await Connections()
+                              .updateOrderWithTime(
+                                  data['id'],
+                                  "estado_interno:CONFIRMADO",
+                                  sharedPrefs!.getString("id"),
+                                  "",
+                                  "");
+                          print(
+                              "updated estado_interno:CONFIRMADO with others");
+
+                          await updateData();
+                          Navigator.pop(context);
                         }
-                        */
                       }
 
                       //
@@ -1897,18 +1922,29 @@ class _OrderInfoState extends State<OrderInfo> {
                                 data['id']);
                         var response2 = await Connections()
                             .updatenueva(data['id'], {"recaudo": 1});
+
+                        var response3 = await Connections().updateOrderWithTime(
+                            data['id'],
+                            "estado_interno:CONFIRMADO",
+                            sharedPrefs!.getString("id"),
+                            "",
+                            "");
+                        print("updated estado_interno:CONFIRMADO with others");
+
+                        await updateData();
+                        Navigator.pop(context);
                       } else {
                         //
                         print("a un Externo");
                         //limpiar la relacion con transp_interna actual
-                        print("recaudo: ${recaudo ? 1 : 0}");
+                        // print("recaudo: ${recaudo ? 1 : 0}");
                         print(dataIntegration);
 
                         if (selectedCarrierExternal.toString().split("-")[1] ==
                             "1") {
                           //send Gintra
                           print("send Gintra");
-                          /*
+
                           responseGintraNew = await Connections()
                               .postOrdersGintra(dataIntegration);
                           // // print("responseInteg");
@@ -1917,65 +1953,74 @@ class _OrderInfoState extends State<OrderInfo> {
                           if (responseGintraNew != []) {
                             await Connections().updatenueva(data['id'], {
                               "id_externo": responseGintraNew['guia'],
-                              "carrier_external_id": selectedCarrierExternal
-                                  .toString()
-                                  .split("-")[1],
-                              "ciudad_external_id":
-                                  selectedCity.toString().split("-")[0],
                               "recaudo": recaudo ? 1 : 0,
-                              "costo_envio": costDelivery.toString()
                             });
+                            //crear un nuevo pedido_carrier_link
+                            await Connections().createUpdateOrderCarrier(
+                                data['id'],
+                                selectedCarrierExternal
+                                    .toString()
+                                    .split("-")[1],
+                                selectedCity.toString().split("-")[0],
+                                responseGintraNew['guia']);
 
-                            // await Connections()
-                            //     .deleteRutaTransportadora(data['id']);
+                            await Connections()
+                                .deleteRutaTransportadora(data['id']);
+
+                            var response3 = await Connections()
+                                .updateOrderWithTime(
+                                    data['id'],
+                                    "estado_interno:CONFIRMADO",
+                                    sharedPrefs!.getString("id"),
+                                    "",
+                                    "");
+                            print(
+                                "updated estado_interno:CONFIRMADO with others");
+
+                            await updateData();
+                            Navigator.pop(context);
                           }
-                          */
                         }
 
                         //
                       }
                       //
-                    } else if (data['carrier_external'] != null) {
+                    } else if (data['pedido_carrier'].isNotEmpty) {
                       //
-                      //si eligio interno ahora impiar  carrier_external_id y ciudad_external_id y avisar a transportadora externa
-                      //si eligio externo solo actualizar y enviar updt si es un nuevo carrier_external_id
-                      print("Actualizar carrier_external");
 
+                      print("Actualizar carrier_external");
+                      print("Not yet");
+                      Navigator.pop(context);
+                      /*
                       if (selectedCarrierType == "Interno") {
                         //
-                        print("a Transport");
-                        //como el de aca maneja ambos casos no habria problema para actualizar o crear relacion
-                        responseUpdtRT = await Connections()
-                            .updateOrderRouteAndTransportLaravel(
-                                selectedValueRoute.toString().split("-")[1],
-                                selectedValueTransport.toString().split("-")[1],
-                                data['id']);
-                        var response2 = await Connections()
-                            .updatenueva(data['id'], {"recaudo": 1});
+                        print("a Transport Interna");
+                        //este caso aun no porque no tengo como notificar a gtm que ya no quiere
+                        // responseUpdtRT = await Connections()
+                        //     .updateOrderRouteAndTransportLaravel(
+                        //         selectedValueRoute.toString().split("-")[1],
+                        //         selectedValueTransport.toString().split("-")[1],
+                        //         data['id']);
+                        // var response2 = await Connections()
+                        //     .updatenueva(data['id'], {"recaudo": 1});
 
-                        var response3 = await Connections().updatenueva(
-                            data['id'], {
-                          "carrier_external_id": null,
-                          "ciudad_external_id": null,
-                          "recaudo": 1
-                        });
-                        //just hace eso o tambien necesita reportar a la externa
+                        //eliminar relacion pedido_Carrier_link
                       } else {
                         //
                         print("a externa");
-                        print(dataIntegration);
+                        // print(dataIntegration);
 
                         if (data['carrier_external']['id'].toString() !=
                             selectedCarrierExternal.toString().split("-")[1]) {
-                          //updt de la ciudad no se puede porque no hay endpoint para actualizar algo asi
-
+                          //!! updt de la ciudad no se puede porque no hay endpoint para actualizar algo asi
+                          /* 
                           if (selectedCarrierExternal
                                   .toString()
                                   .split("-")[1] ==
                               "1") {
                             //send Gintra
                             print("send Gintra");
-                            /*
+
                             responseGintraUpdt = await Connections()
                                 .postOrdersGintra(dataIntegration);
                             // // print("responseInteg");
@@ -1993,30 +2038,15 @@ class _OrderInfoState extends State<OrderInfo> {
                                 "costo_envio": costDelivery.toString()
                               });
                             }
-                            */
                           }
+                          */
                         }
+                        
                       }
+                      */
                     }
 
                     //
-                  }
-
-                  if (responseNewRouteTransp != [] ||
-                      responseGintraNew != [] ||
-                      responseUpdtRT != [] ||
-                      responseGintraUpdt != []) {
-                    //
-                    var response3 = await Connections().updateOrderWithTime(
-                        data['id'],
-                        "estado_interno:CONFIRMADO",
-                        sharedPrefs!.getString("id"),
-                        "",
-                        "");
-                    print("updated estado_interno:CONFIRMADO with others");
-
-                    await updateData();
-                    Navigator.pop(context);
                   }
                 }
               },

@@ -63,6 +63,8 @@ class _AddLogisticsUserLaravelState extends State<AddLogisticsUserLaravel> {
           arrayFiltersNot,
           arrayFiltersAnd,
           arrayFiltersOr,
+          [],
+          [],
           _controllers.searchController.text,
           model,
           "",

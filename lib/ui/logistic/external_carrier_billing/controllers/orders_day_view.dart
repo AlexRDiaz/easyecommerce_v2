@@ -115,6 +115,8 @@ class _OrdersDayViewExtenalCarrierState
           arrayFiltersNot,
           arrayFiltersAnd,
           arrayFiltersOr,
+          [],
+          [],
           "",
           "TransaccionPedidoTransportadora",
           // "",

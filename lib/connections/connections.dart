@@ -6090,20 +6090,32 @@ class Connections {
   }
 
   //    * sellers: Print
-  Future getOrdersForPrintGuidesLaravel(List or, List defaultAnd, List and,
-      List not, currentPage, sizePage, sortFiled, search) async {
+  Future getOrdersForPrintGuidesLaravel(
+      List or,
+      List defaultAnd,
+      List and,
+      List not,
+      List arrayInclude,
+      List arrayExclude,
+      currentPage,
+      sizePage,
+      sortFiled,
+      search) async {
     List filtersAndAll = [];
     filtersAndAll.addAll(and);
     filtersAndAll.addAll(defaultAnd);
-    // print(json.encode({
-    //   "or": or,
-    //   "and": filtersAndAll,
-    //   "not": not,
-    //   "page_size": sizePage,
-    //   "page_number": currentPage,
-    //   "search": search,
-    //   "sort": sortFiled,
-    // }));
+    print("to print guides");
+    print(json.encode({
+      "or": or,
+      "and": filtersAndAll,
+      "not": not,
+      "page_size": sizePage,
+      "page_number": currentPage,
+      "search": search,
+      "sort": sortFiled,
+      "include": arrayInclude,
+      "exclude": arrayExclude,
+    }));
     try {
       var response = await http.post(
           Uri.parse("$serverLaravel/api/pedidos-shopifies-prtgd"),
@@ -6116,6 +6128,8 @@ class Connections {
             "page_number": currentPage,
             "search": search,
             "sort": sortFiled,
+            "include": arrayInclude,
+            "exclude": arrayExclude,
           }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -7394,17 +7408,18 @@ class Connections {
   }
 
   //  *
-  createUpdateOrderCarrier(idOrder, idCarrier, idCity) async {
+  createUpdateOrderCarrier(idOrder, idCarrier, idCity, externalid) async {
     try {
       // print(json.encode({"ids": json.encode(ids)}));
-      var response = await http.post(
-          Uri.parse("$serverLaravel/api/ordercarrier"),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({
-            "order_id": idOrder,
-            "carrier_id": idCarrier,
-            "city_external_id": idCity
-          }));
+      var response =
+          await http.post(Uri.parse("$serverLaravel/api/ordercarrier"),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                "order_id": idOrder,
+                "carrier_id": idCarrier,
+                "city_external_id": idCity,
+                "external_id": externalid
+              }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         // print(decodeData);
@@ -7492,6 +7507,27 @@ class Connections {
       }
     } catch (error) {
       return 2;
+    }
+  }
+
+  Future deleteRutaTransportadora(id) async {
+    try {
+      var request = await http.delete(
+        Uri.parse("$serverLaravel/api/rutatransp/delete/$id"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (decodeData['code'] != 200) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      print(e);
+
+      return false;
     }
   }
 
@@ -7602,6 +7638,8 @@ class Connections {
       List and,
       List defaultAnd,
       List or,
+      List arrayInclude,
+      List arrayExclude,
       currentPage,
       sizePage,
       search,
@@ -7632,7 +7670,9 @@ class Connections {
                 "page_number": currentPage,
                 "search": search,
                 "sort": sortFiled,
-                "not": not
+                "not": not,
+                "include": arrayInclude,
+                "exclude": arrayExclude,
               }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
@@ -9159,6 +9199,8 @@ class Connections {
       List arrayFiltersNot,
       List arrayFiltersAnd,
       List arrayFiltersOr,
+      List arrayInclude,
+      List arrayExclude,
       String searchValue,
       String model,
       String dateFilter,
@@ -9175,7 +9217,9 @@ class Connections {
         "and": arrayFiltersAnd,
         "not": arrayFiltersNot,
         "or": arrayFiltersOr,
-        "sort": sortField
+        "sort": sortField,
+        "include": arrayInclude,
+        "exclude": arrayExclude,
       };
 
       if (dateFilter.isNotEmpty) {

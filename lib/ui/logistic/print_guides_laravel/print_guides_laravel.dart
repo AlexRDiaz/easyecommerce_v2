@@ -89,6 +89,10 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
   List arrayFiltersNot = [];
 
   bool showExternalCarriers = false;
+  // List relationsToInclude = ['ruta', 'transportadora'];
+  // List relationsToExclude = ['pedidoCarrier'];
+  List relationsToInclude = [];
+  List relationsToExclude = [];
 
   @override
   void didChangeDependencies() {
@@ -119,8 +123,10 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
         arrayFiltersAnd = [
           {"/estado_logistico": "PENDIENTE"},
           {"/estado_interno": "CONFIRMADO"},
-          {"/id_externo": null}
+          // {"/id_externo": null}
         ];
+        relationsToInclude = ['ruta', 'transportadora'];
+        relationsToExclude = ['pedidoCarrier'];
       } else {
         arrayFiltersAnd = [
           {"/estado_logistico": "PENDIENTE"},
@@ -128,8 +134,10 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
         ];
 
         arrayFiltersNot = [
-          {"id_externo": null}
+          // {"id_externo": null}
         ];
+        relationsToInclude = ['pedidoCarrier'];
+        relationsToExclude = ['ruta', 'transportadora'];
       }
       var responseL = await Connections().generalData(
           pageSize,
@@ -138,6 +146,8 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
           arrayFiltersNot,
           arrayFiltersAnd,
           arrayFiltersOr,
+          relationsToInclude,
+          relationsToExclude,
           _controllers.searchController.text,
           model,
           "",

@@ -61,7 +61,7 @@ class _CatalogState extends State<Catalog> {
 
   List arrayFiltersOr = ["product_name", "stock", "price"];
   List arrayFiltersAnd = [
-    {"equals/seller_owned": "0"}
+    {"equals/seller_owned": null}
   ];
   List outFilter = [];
   List filterps = [];
@@ -182,7 +182,7 @@ class _CatalogState extends State<Catalog> {
     if (Arrayrestoration) {
       setState(() {
         arrayFiltersAnd = [
-          {"equals/seller_owned": "0"}
+          {"equals/seller_owned": null}
         ];
       });
     }
@@ -1199,7 +1199,7 @@ class _CatalogState extends State<Catalog> {
 
             arrayFiltersAnd.removeWhere(
                 (filter) => filter.containsKey("equals/seller_owned"));
-            arrayFiltersAnd.add({"equals/seller_owned": "0"});
+            arrayFiltersAnd.add({"equals/seller_owned": null});
             setState(() {
               _getProductModelCatalog();
             });
@@ -1249,7 +1249,7 @@ class _CatalogState extends State<Catalog> {
     selectedCategory = 'TODO';
     selectedCategoriesList = [];
     arrayFiltersAnd = [
-      {"equals/seller_owned": "0"}
+      {"equals/seller_owned": null}
     ];
     outFilter = [];
     _minPriceController.clear();

@@ -95,6 +95,8 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
     "pedidoCarrier"
   ];
   var idUser = sharedPrefs!.getString("id");
+  List relationsToInclude = [];
+  List relationsToExclude = [];
 
   @override
   void didChangeDependencies() {
@@ -138,9 +140,13 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
           arrayFiltersNot = [];
           filtersAnd.add({"/marca_tiempo_envio": date});
           if (showExternalCarriers == false) {
-            filtersAnd.add({"/id_externo": null});
+            // filtersAnd.add({"/id_externo": null});
+            relationsToInclude = ['ruta', 'transportadora'];
+            relationsToExclude = ['pedidoCarrier'];
           } else {
-            arrayFiltersNot.add({"id_externo": null});
+            // arrayFiltersNot.add({"id_externo": null});
+            relationsToInclude = ['pedidoCarrier'];
+            relationsToExclude = ['ruta', 'transportadora'];
           }
           responseL = await Connections()
               .getOrdersForSentGuidesPrincipalLaravel(
@@ -148,6 +154,8 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                   filtersAnd,
                   filtersDefaultAnd,
                   filtersOrCont,
+                  relationsToInclude,
+                  relationsToExclude,
                   currentPage,
                   pageSize,
                   "",
@@ -173,9 +181,13 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                 selectedValueTransportator.toString().split('-')[1]
           });
           if (showExternalCarriers == false) {
-            filtersAnd.add({"/id_externo": null});
+            // filtersAnd.add({"/id_externo": null});
+            relationsToInclude = ['ruta', 'transportadora'];
+            relationsToExclude = ['pedidoCarrier'];
           } else {
-            arrayFiltersNot.add({"id_externo": null});
+            // arrayFiltersNot.add({"id_externo": null});
+            relationsToInclude = ['pedidoCarrier'];
+            relationsToExclude = ['ruta', 'transportadora'];
           }
           responseL = await Connections()
               .getOrdersForSentGuidesPrincipalLaravel(
@@ -183,6 +195,8 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
                   filtersAnd,
                   filtersDefaultAnd,
                   filtersOrCont,
+                  relationsToInclude,
+                  relationsToExclude,
                   currentPage,
                   pageSize,
                   "",
@@ -201,15 +215,21 @@ class _TableOrdersGuidesSentState extends State<TableOrdersGuidesSent> {
         arrayFiltersNot = [];
 
         if (showExternalCarriers == false) {
-          filtersAnd.add({"/id_externo": null});
+          // filtersAnd.add({"/id_externo": null});
+          relationsToInclude = ['ruta', 'transportadora'];
+          relationsToExclude = ['pedidoCarrier'];
         } else {
-          arrayFiltersNot.add({"id_externo": null});
+          // arrayFiltersNot.add({"id_externo": null});
+          relationsToInclude = ['pedidoCarrier'];
+          relationsToExclude = ['ruta', 'transportadora'];
         }
         responseL = await Connections().getOrdersForSentGuidesPrincipalLaravel(
             populate,
             filtersAnd,
             filtersDefaultAnd,
             filtersOrCont,
+            relationsToInclude,
+            relationsToExclude,
             currentPage,
             pageSize,
             _controllers.searchController.text,

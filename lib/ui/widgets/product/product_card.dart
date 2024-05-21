@@ -58,7 +58,7 @@ class ProductCard extends StatelessWidget {
       }
     }
 
-    if (product.sellerOwnedId != 0) {
+    if (product.sellerOwnedId != 0 || product.sellerOwnedId != null) {
       List<ReserveModel>? reservesList = product.reserves;
       if (reservesList != null) {
         for (var reserva in reservesList) {
@@ -84,6 +84,13 @@ class ProductCard extends StatelessWidget {
     double iconSize = screenWidth > 600 ? 70 : 25;
     double imgHeight = screenWidth > 600 ? 260 : 200;
 
+/*
+    print("${product.productName.toString()}");
+    print("${product.sellerOwnedId.toString()}");
+
+    print("stock: ${product.stock.toString()}");
+    print("reserves: ${totalReservas.toString()}");
+    */
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(5),
@@ -307,9 +314,10 @@ class ProductCard extends StatelessWidget {
                           width: 3,
                         ),
                         Text(
-                          product.sellerOwnedId != 0
-                              ? totalReservas.toString()
-                              : product.stock.toString(),
+                          product.sellerOwnedId == 0 ||
+                                  product.sellerOwnedId == null
+                              ? product.stock.toString()
+                              : totalReservas.toString(),
                           style: GoogleFonts.dmSans(
                             fontSize: textSize,
                             color: Colors.black,

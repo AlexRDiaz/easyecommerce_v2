@@ -66,6 +66,9 @@ class _PrintedGuidesState extends State<PrintedGuides> {
   List arrayFiltersAnd = [];
   List arrayFiltersNot = [];
 
+  List relationsToInclude = [];
+  List relationsToExclude = [];
+
   int currentPage = 1;
   int pageSize = 1300;
   var sortFieldDefaultValue = "id:DESC";
@@ -98,8 +101,10 @@ class _PrintedGuidesState extends State<PrintedGuides> {
         {"estado_interno": "CONFIRMADO"},
         {"estado_logistico": "IMPRESO"},
         {"status": "PEDIDO PROGRAMADO"},
-        {"id_externo": null}
+        // {"id_externo": null}
       ];
+      relationsToInclude = ['ruta', 'transportadora'];
+      relationsToExclude = ['pedidoCarrier'];
     } else {
       arrayFiltersAnd = [
         {"estado_interno": "CONFIRMADO"},
@@ -108,14 +113,18 @@ class _PrintedGuidesState extends State<PrintedGuides> {
       ];
 
       arrayFiltersNot = [
-        {"id_externo": null}
+        // {"id_externo": null}
       ];
+      relationsToInclude = ['pedidoCarrier'];
+      relationsToExclude = ['ruta', 'transportadora'];
     }
     var responseLaravel = await Connections().getOrdersForPrintGuidesLaravel(
       filtersOrCont,
       arrayfiltersDefaultAnd,
       arrayFiltersAnd,
       arrayFiltersNot,
+      relationsToInclude,
+      relationsToExclude,
       currentPage,
       pageSize,
       sortFieldDefaultValue.toString(),

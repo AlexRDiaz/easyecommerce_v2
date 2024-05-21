@@ -67,8 +67,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
   int quantityTotal = 0;
 
   //
-  // List<String> carriersTypeToSelect = ["Interno", "Externo"];
-  List<String> carriersTypeToSelect = ["Interno"];
+  List<String> carriersTypeToSelect = [];
+  // List<String> carriersTypeToSelect = ["Interno"];
   String? selectedCarrierExternal;
   List<String> provinciasToSelect = [];
   String? selectedProvincia;
@@ -90,6 +90,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
 
   var responseCarriersGeneral;
   double iva = 0.15;
+  int idUser = int.parse(sharedPrefs!.getString("id").toString());
 
   bool containsEmoji(String text) {
     final emojiPattern = RegExp(
@@ -101,8 +102,13 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
 
   @override
   void didChangeDependencies() {
+    if (idUser == 2 || idUser == 188) {
+      carriersTypeToSelect = ["Interno", "Externo"];
+    } else {
+      carriersTypeToSelect = ["Interno"];
+    }
     getRoutes();
-    // getCarriersExternals();
+    getCarriersExternals();
 
     getData();
     super.didChangeDependencies();
@@ -1396,29 +1402,29 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
 
                                 // print(response);
 
-                                // if (selectedCarrierType == "Externo" &&
-                                //     selectedCarrierExternal
-                                //             .toString()
-                                //             .split("-")[1] ==
-                                //         "1") {
-                                //   if (response != 1 || response != 2) {
-                                //     //send Gintra
-                                //     print("send Gintra");
-                                //     var responseGintra = await Connections()
-                                //         .postOrdersGintra(dataIntegration);
-                                //     print("responseInteg");
-                                //     print(responseGintra);
+                                if (selectedCarrierType == "Externo" &&
+                                    selectedCarrierExternal
+                                            .toString()
+                                            .split("-")[1] ==
+                                        "1") {
+                                  if (response != 1 || response != 2) {
+                                    //send Gintra
+                                    print("send Gintra");
+                                    var responseGintra = await Connections()
+                                        .postOrdersGintra(dataIntegration);
+                                    print("responseInteg");
+                                    print(responseGintra);
 
-                                //     if (responseGintra != []) {
-                                //       await Connections()
-                                //           .UpdateOrderCarrierbyOrder(
-                                //               response['id'], {
-                                //         "external_id": responseGintra['guia']
-                                //       });
-                                //     }
-                                //     //
-                                //   }
-                                // }
+                                    if (responseGintra != []) {
+                                      await Connections()
+                                          .UpdateOrderCarrierbyOrder(
+                                              response['id'], {
+                                        "external_id": responseGintra['guia']
+                                      });
+                                    }
+                                    //
+                                  }
+                                }
 
                                 var _url = Uri.parse(
                                   """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",

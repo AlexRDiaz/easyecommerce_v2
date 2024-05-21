@@ -971,6 +971,58 @@ class _InfoCarrierExternalState extends State<InfoCarrierExternal> {
                                       text: "Local",
                                     ),
                                     TextSpan(
+                                      text: "-Local Normal",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                "(Normal 1)",
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    SizedBox(
+                      width: 120,
+                      child: TextFieldWithIcon(
+                        controller: localLocalNormalController,
+                        labelText: "",
+                        icon: Icons.monetization_on,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 230,
+                      //      color: Colors.deepPurple.shade100,
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              RichText(
+                                text: const TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: "Local",
+                                    ),
+                                    TextSpan(
                                       text: "-Local Especial",
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold),

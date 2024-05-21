@@ -83,6 +83,8 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
         widget.arrayFiltersNot,
         widget.arrayFiltersAnd,
         widget.arrayFiltersOr,
+        [],
+        [],
         inputcontroller.text,
         widget.model,
         "",
@@ -113,6 +115,8 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
           widget.arrayFiltersNot,
           widget.arrayFiltersAnd,
           widget.arrayFiltersOr,
+          [],
+          [],
           inputcontroller.text,
           widget.model,
           "",
@@ -461,7 +465,8 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
                           style: TextStyle(
                             fontSize: 20.0,
                             color: data[index]['rol_id'].toString() == "5"
-                            ? Colors.deepPurple : Colors.blue,
+                                ? Colors.deepPurple
+                                : Colors.blue,
                           ),
                         ),
                         Text(
@@ -469,7 +474,8 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
                           style: TextStyle(
                             fontSize: 20.0,
                             color: data[index]['rol_id'].toString() == "5"
-                            ? Colors.deepPurple : Colors.blue,
+                                ? Colors.deepPurple
+                                : Colors.blue,
                           ),
                         ),
                       ],
@@ -485,10 +491,9 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
                                   .black), // Tamaño de fuente y color base
                           children: <TextSpan>[
                             TextSpan(
-                              text:  data[index]['rol_id']
-                                                          .toString() ==
-                                                      "5"
-                                                  ? "Proveedor ":'Tienda: ',
+                              text: data[index]['rol_id'].toString() == "5"
+                                  ? "Proveedor "
+                                  : 'Tienda: ',
                               style: TextStyle(
                                   fontWeight: FontWeight
                                       .bold), // Estilo para "Vendedor: "
@@ -522,10 +527,9 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
                           ),
                           children: <TextSpan>[
                             TextSpan(
-                              text:  data[index]['rol_id']
-                                                          .toString() ==
-                                                      "5"
-                                                  ? "Id Proveedor: ":'Id Vendedor: ',
+                              text: data[index]['rol_id'].toString() == "5"
+                                  ? "Id Proveedor: "
+                                  : 'Id Vendedor: ',
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                             TextSpan(
@@ -551,10 +555,9 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
                                   .black), // Tamaño de fuente y color base
                           children: <TextSpan>[
                             TextSpan(
-                              text:  data[index]['rol_id']
-                                                          .toString() ==
-                                                      "5"
-                                                  ? "Proveedor: " :'Vendedor: ',
+                              text: data[index]['rol_id'].toString() == "5"
+                                  ? "Proveedor: "
+                                  : 'Vendedor: ',
                               style: TextStyle(
                                   fontWeight: FontWeight
                                       .bold), // Estilo para "Vendedor: "
@@ -880,10 +883,9 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
                       ),
                       children: <TextSpan>[
                         TextSpan(
-                          text:  data[index]['rol_id']
-                                                          .toString() ==
-                                                      "5"
-                                                  ? "Id Proveedor:" :'Id Vendedor: ',
+                          text: data[index]['rol_id'].toString() == "5"
+                              ? "Id Proveedor:"
+                              : 'Id Vendedor: ',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         TextSpan(
@@ -907,10 +909,9 @@ class _AprovedSellerWithdrawalsState extends State<AprovedSellerWithdrawals> {
                           color: Colors.black), // Tamaño de fuente y color base
                       children: <TextSpan>[
                         TextSpan(
-                          text: data[index]['rol_id']
-                                                          .toString() ==
-                                                      "5"
-                                                  ? "Proveedor: " : 'Vendedor: ',
+                          text: data[index]['rol_id'].toString() == "5"
+                              ? "Proveedor: "
+                              : 'Vendedor: ',
                           style: TextStyle(
                               fontWeight:
                                   FontWeight.bold), // Estilo para "Vendedor: "
