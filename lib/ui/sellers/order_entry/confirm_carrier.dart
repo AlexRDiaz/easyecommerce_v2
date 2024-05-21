@@ -146,7 +146,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
 
     if (data['id_product'] != null) {
       // carriersTypeToSelect = ["Interno", "Externo"];
-      if (idUser == 2 || idMaster == 188) {
+      if (idUser == 2 || idMaster == 188 || idMaster == 189) {
         carriersTypeToSelect = ["Interno", "Externo"];
       } else {
         carriersTypeToSelect = ["Interno"];

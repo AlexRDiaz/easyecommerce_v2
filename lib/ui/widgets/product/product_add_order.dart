@@ -104,7 +104,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
 
   @override
   void didChangeDependencies() {
-    if (idUser == 2 || idMaster == 188) {
+    if (idUser == 2 || idMaster == 188 || idMaster == 189) {
       carriersTypeToSelect = ["Interno", "Externo"];
     } else {
       carriersTypeToSelect = ["Interno"];

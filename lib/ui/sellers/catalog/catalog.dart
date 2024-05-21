@@ -1418,8 +1418,8 @@ class _CatalogState extends State<Catalog> {
       labelIsOnSale = "Dejar de vender";
     }
 
-    print("stock G: ${product.stock.toString()}");
-    print("reservas: ${reserveStock.toString()}");
+    print("G: ${product.stock.toString()}");
+    print("R: ${reserveStock.toString()}");
 
     // print("isFavorite: $isFavorite");
     // print("isOnSale: $isOnSale");

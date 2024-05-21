@@ -217,7 +217,7 @@ class _OrderInfoState extends State<OrderInfo> {
 
     if (data['id_product'] != null && data['id_product'] != 0) {
       // carriersTypeToSelect = ["Interno", "Externo"];
-      if (idUser == 2 || idMaster == 188) {
+      if (idUser == 2 || idMaster == 188 || idMaster == 189) {
         carriersTypeToSelect = ["Interno", "Externo"];
       } else {
         carriersTypeToSelect = ["Interno"];

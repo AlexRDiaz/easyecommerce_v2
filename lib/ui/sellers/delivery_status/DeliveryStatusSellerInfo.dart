@@ -235,7 +235,11 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                                                             return PhotoViewGalleryPageOptions(
                                                               imageProvider:
                                                                   NetworkImage(
-                                                                "$generalServer${data['novedades'][index]['url_image'].toString()}",
+                                                                // "$generalServer${data['novedades'][index]['url_image'].toString()}",
+                                                                data['pedido_carrier']
+                                                                        .isNotEmpty
+                                                                    ? "$serverGTMimg${data['novedades'][index]['url_image'].toString()}"
+                                                                    : "$generalServer${data['novedades'][index]['url_image'].toString()}",
                                                               ),
                                                               minScale:
                                                                   PhotoViewComputedScale
@@ -275,7 +279,11 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                                                         255, 117, 115, 115),
                                                     image: DecorationImage(
                                                       image: NetworkImage(
-                                                        "$generalServer${data['novedades'][index]['url_image'].toString()}",
+                                                        // "$generalServer${data['novedades'][index]['url_image'].toString()}",
+                                                        data['pedido_carrier']
+                                                                .isNotEmpty
+                                                            ? "$serverGTMimg${data['novedades'][index]['url_image'].toString()}"
+                                                            : "$generalServer${data['novedades'][index]['url_image'].toString()}",
                                                       ),
                                                       fit: BoxFit.cover,
                                                     ),
