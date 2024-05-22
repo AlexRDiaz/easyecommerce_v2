@@ -1256,8 +1256,7 @@ class _OrderInfoState extends State<OrderInfo> {
                         const SizedBox(
                           width: 20,
                         ),
-                        (estadoInterno == "CONFIRMADO" &&
-                                estadoLogistic != "PENDIENTE")
+                        (estadoLogistic != "PENDIENTE")
                             ? Container()
                             : Align(
                                 alignment: Alignment.topLeft,
