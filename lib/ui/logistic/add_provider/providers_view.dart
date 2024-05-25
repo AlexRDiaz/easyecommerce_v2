@@ -1,6 +1,7 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/config/colors.dart';
+import 'package:frontend/config/exports.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:frontend/ui/logistic/add_provider/add_provider.dart';
 import 'package:frontend/ui/logistic/add_provider/approve_products.dart';
@@ -119,35 +120,51 @@ class _ProviderViewState extends State<ProviderView> {
     double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          openDialog(context);
+        },
+        backgroundColor: colors.colorGreen,
+        child: const Center(
+          child: Icon(
+            Icons.add,
+            color: Colors.white,
+            size: 30,
+          ),
+        ),
+      ),
       body: Padding(
         padding: EdgeInsets.only(
             left: screenWidth * 0.020, right: screenWidth * 0.020),
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                controller: _searchController,
-                decoration: const InputDecoration(
-                  labelText: 'Buscar proveedor',
-                  prefixIcon: Icon(Icons.search),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.6,
+                      child: TextField(
+                        controller: _searchController,
+                        decoration: const InputDecoration(
+                          labelText: 'Buscar proveedor',
+                          prefixIcon: Icon(Icons.search),
+                        ),
+                        onSubmitted: (value) {
+                          _providerController.searchController.text = value;
+                          setState(() {
+                            _getProviderModelData();
+                          });
+                        },
+                      ),
+                    ),
+                  ),
                 ),
-                onSubmitted: (value) {
-                  _providerController.searchController.text = value;
-                  setState(() {
-                    _getProviderModelData();
-                  });
-                },
-              ),
+              ],
             ),
-            const SizedBox(height: 10),
-            TextButton(
-              onPressed: () {
-                openDialog(context);
-              },
-              child: const Text("Nuevo"),
-            ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
             FutureBuilder<List<ProviderModel>>(
               future: _getProviderModelData(),
               builder: (context, snapshot) {
@@ -167,7 +184,7 @@ class _ProviderViewState extends State<ProviderView> {
 
                   return Container(
                     color: Colors.white,
-                    height: screenHeight * 0.7,
+                    height: screenHeight * 0.8,
                     child: SfDataGrid(
                       source: providerModelDataSource,
                       columnWidthMode: ColumnWidthMode.fill,

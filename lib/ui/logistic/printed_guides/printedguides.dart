@@ -161,6 +161,7 @@ class _PrintedGuidesState extends State<PrintedGuides> {
         "qrLink": "",
         "provider": "",
         "idExteralOrder": "",
+        "id_comercial": "",
       });
     }
     Future.delayed(Duration(milliseconds: 500), () {
@@ -569,6 +570,9 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                                                       ['external_id']
                                                   .toString()
                                               : "";
+                                      optionsCheckBox[index]['id_comercial'] =
+                                          data[index]['id_comercial']
+                                              .toString();
 
                                       counterChecks += 1;
                                     } else {
@@ -1013,24 +1017,26 @@ class _PrintedGuidesState extends State<PrintedGuides> {
             width: 20,
           ),
           ElevatedButton(
-              onPressed: () async {
-                getLoadingModal(context, false);
+              onPressed: !showExternalCarriers
+                  ? () async {
+                      getLoadingModal(context, false);
 
-                for (var i = 0; i < optionsCheckBox.length; i++) {
-                  if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
-                      optionsCheckBox[i]['id'].toString() != '' &&
-                      optionsCheckBox[i]['check'] == true) {
-                    var response = await Connections().updatenueva(
-                        optionsCheckBox[i]['id'],
-                        {"estado_interno": "RECHAZADO"});
-                  }
-                }
-                Navigator.pop(context);
+                      for (var i = 0; i < optionsCheckBox.length; i++) {
+                        if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
+                            optionsCheckBox[i]['id'].toString() != '' &&
+                            optionsCheckBox[i]['check'] == true) {
+                          var response = await Connections().updatenueva(
+                              optionsCheckBox[i]['id'],
+                              {"estado_interno": "RECHAZADO"});
+                        }
+                      }
+                      Navigator.pop(context);
 
-                setState(() {});
+                      setState(() {});
 
-                await loadData();
-              },
+                      await loadData();
+                    }
+                  : null,
               child: const Text(
                 "RECHAZADO",
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -1225,6 +1231,10 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                 data[i]['id_externo'] != null && data[i]['id_externo'] != 0
                     ? data[i]['id_externo'].toString()
                     : "";
+            optionsCheckBox[i]['variant_details'] =
+                data[i]['variant_details'].toString();
+            optionsCheckBox[i]['id_comercial'] =
+                data[i]['id_comercial'].toString();
             counterChecks += 1;
           }
           //   print("tamanio a imprimir"+optionsCheckBox.length.toString());

@@ -132,7 +132,7 @@ class _HtmlEditorState extends State<HtmlEditor> {
               ));
             },
             onFocusChanged: (focus) {
-              debugPrint('has focus $focus');
+              // debugPrint('has focus $focus');
               setState(() {
                 _hasFocus = focus;
               });
@@ -141,12 +141,17 @@ class _HtmlEditorState extends State<HtmlEditor> {
               widget.getValue(text);
             },
             onEditorCreated: () {
-              debugPrint('Editor has been loaded');
+              // debugPrint('Editor has been loaded');
               //   setHtmlText('Testing text on load');
             },
-            onEditorResized: (height) => debugPrint('Editor resized $height'),
-            onSelectionChanged: (sel) =>
-                debugPrint('index ${sel.index}, range ${sel.length}'),
+            onEditorResized: (height) => {
+              //
+              // debugPrint('Editor resized $height'),
+            },
+            onSelectionChanged: (sel) => {
+              //
+              // debugPrint('index ${sel.index}, range ${sel.length}'),
+            },
           ),
         ),
       ],

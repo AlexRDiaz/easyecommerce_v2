@@ -93,6 +93,15 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
   List<Map<String, dynamic>> variantDetails = [];
   double iva = 0.15;
 
+  double totalCost = 0;
+  bool isCarrierExternal = false;
+  bool isCarrierInternal = false;
+
+  String estadoLogistic = "";
+  String idCarrierExternal = "";
+  String idProvExternal = "";
+  String tipoCobertura = "";
+
   @override
   void didChangeDependencies() {
     getRoutes();
@@ -110,6 +119,8 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
     _telefono.text = data['telefono_shipping'].toString();
     _producto.text = data['producto_p'].toString();
     _cantidad.text = data['cantidad_total'].toString();
+    estadoLogistic = data['estado_logistico'].toString();
+
     _productoE.text =
         data['producto_extra'] != null && data['producto_extra'] != "null"
             ? data['producto_extra'].toString()
@@ -123,6 +134,15 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
         ? data['variant_details'].toString()
         : "";
     variantDetails = [];
+
+    isCarrierExternal = data['pedido_carrier'].isNotEmpty ? true : false;
+    isCarrierInternal = data['transportadora'].isNotEmpty ? true : false;
+    // print("isCarrierExternal: $isCarrierExternal");
+    // print("isCarrierInternal: $isCarrierInternal");
+    // print("estadoLogistic: $estadoLogistic");
+    if (isCarrierExternal) {
+      selectedCarrierType = "Externo";
+    }
 
     if (data['id_product'] != null &&
         data['id_product'] != 0 &&
@@ -144,7 +164,8 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
 
       prov_city_address = getWarehouseAddress(data['product']['warehouses']);
 
-      // print("prov_city_address: $prov_city_address");
+      print("p_c_dir: $prov_city_address");
+      print("var: $isvariable");
     }
 
     if (data['id_product'] != null && data['id_product'] != 0) {
@@ -175,11 +196,11 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
         if (warehousesList?.length == 1) {
           WarehouseModel firstWarehouse = warehousesList!.first;
           name =
-              "${firstWarehouse.id_provincia.toString()}-${firstWarehouse.city.toString()}-${firstWarehouse.address.toString()}";
+              "${firstWarehouse.id_provincia.toString()}|${firstWarehouse.city.toString()}|${firstWarehouse.address.toString()}";
         } else {
           WarehouseModel lastWarehouse = warehousesList!.last;
           name =
-              "${lastWarehouse.id_provincia.toString()}-${lastWarehouse.city.toString()}-${lastWarehouse.address.toString()}";
+              "${lastWarehouse.id_provincia.toString()}|${lastWarehouse.city.toString()}|${lastWarehouse.address.toString()}";
         }
       } else {
         print('El elemento de la lista no es un mapa válido: $warehouseJson');
@@ -393,15 +414,17 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                             ))
                         .toList(),
                     value: selectedCarrierType,
-                    onChanged: (value) async {
-                      setState(() {
-                        selectedCarrierType = value as String;
-                      });
-                      if (selectedCarrierType == "Externo") {
-                        getCarriersExternals();
-                      }
-                      // await getTransports();
-                    },
+                    onChanged: !isCarrierExternal
+                        ? (value) async {
+                            setState(() {
+                              selectedCarrierType = value as String;
+                            });
+                            if (selectedCarrierType == "Externo") {
+                              getCarriersExternals();
+                            }
+                            // await getTransports();
+                          }
+                        : null,
                   ),
                 ),
               ),
@@ -493,7 +516,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
               ),
               //externo
               Visibility(
-                visible: selectedCarrierType == "Externo",
+                visible: selectedCarrierType == "Externo" && !isCarrierExternal,
                 child: SizedBox(
                   width: screenWidth > 600 ? 350 : 250,
                   child: DropdownButtonHideUnderline(
@@ -529,7 +552,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                 ),
               ),
               Visibility(
-                visible: selectedCarrierType == "Externo",
+                visible: selectedCarrierType == "Externo" && !isCarrierExternal,
                 child: SizedBox(
                   width: screenWidth > 600 ? 350 : 250,
                   child: DropdownButtonHideUnderline(
@@ -565,7 +588,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                 ),
               ),
               Visibility(
-                visible: selectedCarrierType == "Externo",
+                visible: selectedCarrierType == "Externo" && !isCarrierExternal,
                 child: SizedBox(
                   width: screenWidth > 600 ? 350 : 250,
                   child: DropdownButtonHideUnderline(
@@ -601,7 +624,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                 ),
               ),
               Visibility(
-                visible: selectedCarrierType == "Externo",
+                visible: selectedCarrierType == "Externo" && !isCarrierExternal,
                 child: Row(
                   children: [
                     Checkbox(
@@ -656,6 +679,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                         labelText: "Precio Total",
                         labelStyle: TextStyle(fontWeight: FontWeight.bold),
                       ),
+                      enabled: !isCarrierExternal,
                       inputFormatters: <TextInputFormatter>[
                         FilteringTextInputFormatter.allow(
                             RegExp(r'^\d+\.?\d{0,2}$')),
@@ -664,26 +688,75 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                   ),
                   const SizedBox(width: 20),
                   ElevatedButton(
-                    onPressed: () async {
-                      priceTotalProduct = double.parse(_precioTotal.text);
-                      var resTotalProfit;
-                      if (selectedCarrierType == "Externo") {
-                        resTotalProfit = await calculateProfitCarrierExternal();
-                      } else {
-                        resTotalProfit = await calculateProfit();
-                      }
+                    onPressed: (isCarrierExternal || isCarrierInternal) ||
+                            ((selectedCarrierType == "Externo" &&
+                                    selectedProvincia != null &&
+                                    selectedCity != null) ||
+                                (selectedCarrierType == "Interno" &&
+                                    selectedValueTransport != null))
+                        ? () async {
+                            priceTotalProduct = double.parse(_precioTotal.text);
+                            var resTotalProfit;
+                            if (selectedCarrierType == "Externo") {
+                              if (!isCarrierExternal) {
+                                idCarrierExternal = selectedCarrierExternal
+                                    .toString()
+                                    .split("-")[1];
+                                idProvExternal =
+                                    selectedProvincia.toString().split("-")[1];
+                                tipoCobertura =
+                                    selectedCity.toString().split("-")[2];
+                              } else if (isCarrierExternal) {
+                                //
+                                idCarrierExternal = data['pedido_carrier'][0]
+                                        ['carrier_id']
+                                    .toString();
+                                idProvExternal = data['pedido_carrier'][0]
+                                        ['city_external']['id_provincia']
+                                    .toString();
+                                String idCiudad = data['pedido_carrier'][0]
+                                        ['city_external_id']
+                                    .toString();
+                                var responseCities =
+                                    await Connections().getCoverage([
+                                  {
+                                    "equals/carriers_external_simple.id":
+                                        idCarrierExternal.toString()
+                                  },
+                                  {
+                                    "equals/coverage_external.dpa_provincia.id":
+                                        idProvExternal.toString()
+                                  },
+                                  {"equals/id_coverage": idCiudad.toString()}
+                                ]);
+                                var dataTempCities = responseCities;
 
-                      setState(() {
-                        profit = double.parse(resTotalProfit.toString());
-                      });
-                    },
+                                tipoCobertura = dataTempCities['type'];
+                                print("tipoCobertura: $tipoCobertura");
+                              }
+
+                              resTotalProfit =
+                                  await calculateProfitCarrierExternal();
+                            } else {
+                              resTotalProfit = await calculateProfit();
+                            }
+
+                            setState(() {
+                              profit = double.parse(resTotalProfit.toString());
+                            });
+                          }
+                        : null,
                     style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.zero,
                       backgroundColor: Colors.deepPurple,
-                      shape: const CircleBorder(),
+                      // shape: const CircleBorder(),
                     ),
-                    child:
-                        const Icon(Icons.check, color: Colors.white, size: 20),
+                    child: const Text(
+                      "Calcular",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -777,262 +850,350 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                 ],
               ),
               const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0EEE8F4),
-                      // backgroundColor: Colors.transparent,
-                      side: const BorderSide(
-                          color: Color(0xFF031749),
-                          width: 2), // Borde del botón
-                    ),
-                    child: const Text(
-                      "CANCELAR",
-                      style: TextStyle(
-                        color: Color(0xFF031749), // Color del texto
-                        fontWeight: FontWeight.bold,
+              Visibility(
+                visible: (isCarrierInternal && estadoLogistic == "PENDIENTE") ||
+                    (!isCarrierExternal && !isCarrierInternal),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0EEE8F4),
+                        // backgroundColor: Colors.transparent,
+                        side: const BorderSide(
+                            color: Color(0xFF031749),
+                            width: 2), // Borde del botón
+                      ),
+                      child: const Text(
+                        "CANCELAR",
+                        style: TextStyle(
+                          color: Color(0xFF031749), // Color del texto
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Row(
-                    children: [
-                      ElevatedButton(
-                        onPressed: () async {
-                          bool readySent = false;
-                          if (selectedCarrierType == null) {
-                            showSuccessModal(
-                                context,
-                                "Por favor, Debe seleccionar un tipo de transportadora.",
-                                Icons8.alert);
-                          } else {
-                            if (selectedCarrierType == "Externo") {
-                              //
-                              if (selectedCarrierExternal == null ||
-                                  selectedProvincia == null ||
-                                  selectedCity == null) {
-                                showSuccessModal(
-                                    context,
-                                    "Por favor, Debe seleccionar una transportadora, provincia y ciudad.",
-                                    Icons8.alert);
-                              } else {
-                                readySent = true;
-                              }
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Row(
+                      children: [
+                        ElevatedButton(
+                          onPressed: () async {
+                            bool readySent = false;
+                            if (selectedCarrierType == null) {
+                              showSuccessModal(
+                                  context,
+                                  "Por favor, Debe seleccionar un tipo de transportadora.",
+                                  Icons8.alert);
                             } else {
-                              //
-                              if (selectedValueRoute == null ||
-                                  selectedValueTransport == null) {
-                                showSuccessModal(
-                                    context,
-                                    "Por favor, Debe seleccionar una ciudad y una transportadora.",
-                                    Icons8.alert);
+                              if (selectedCarrierType == "Externo") {
+                                //
+                                if (selectedCarrierExternal == null ||
+                                    selectedProvincia == null ||
+                                    selectedCity == null) {
+                                  showSuccessModal(
+                                      context,
+                                      "Por favor, Debe seleccionar una transportadora, provincia y ciudad.",
+                                      Icons8.alert);
+                                } else {
+                                  readySent = true;
+                                }
                               } else {
-                                readySent = true;
+                                //
+                                if (selectedValueRoute == null ||
+                                    selectedValueTransport == null) {
+                                  showSuccessModal(
+                                      context,
+                                      "Por favor, Debe seleccionar una ciudad y una transportadora.",
+                                      Icons8.alert);
+                                } else {
+                                  readySent = true;
+                                }
                               }
                             }
-                          }
 
-                          if (readySent) {
-                            getLoadingModal(context, false);
+                            if (readySent) {
+                              getLoadingModal(context, false);
 
-                            // if (widget.product.isvariable == 1 &&
-                            //     chosenVariant == null) {
+                              // if (widget.product.isvariable == 1 &&
+                              //     chosenVariant == null) {
 
-                            String priceTotal = "${_precioTotal.text}";
+                              String priceTotal = "${_precioTotal.text}";
 
-                            // String sku =
-                            //     "${chosenSku}C${widget.product.productId}";
-                            String idProd = "";
-                            if (data['id_product'] != null) {
-                              idProd = data['id_product'].toString();
-                            }
+                              // String sku =
+                              //     "${chosenSku}C${widget.product.productId}";
+                              String idProd = "";
+                              if (data['id_product'] != null) {
+                                idProd = data['id_product'].toString();
+                              }
 
-                            String contenidoProd = "";
-                            if (data['id_product'] != null &&
-                                data['id_product'] != 0) {
-                              if (isvariable == 1) {
-                                for (var variant in variantDetails) {
+                              String contenidoProd = "";
+                              if (data['id_product'] != null &&
+                                  data['id_product'] != 0) {
+                                if (isvariable == 1) {
+                                  for (var variant in variantDetails) {
+                                    contenidoProd +=
+                                        '${variant['quantity']}*${_producto.text} ${variant['variant_title']} | ';
+                                  }
+
+                                  contenidoProd = contenidoProd.substring(
+                                      0, contenidoProd.length - 3);
+                                } else {
                                   contenidoProd +=
-                                      '${variant['quantity']}*${_producto.text} ${variant['variant_title']} | ';
+                                      '${_cantidad.text}*${_producto.text}';
                                 }
-
-                                contenidoProd = contenidoProd.substring(
-                                    0, contenidoProd.length - 3);
                               } else {
+                                //
                                 contenidoProd +=
-                                    '$quantityTotal*${_producto.text}';
+                                    '${_cantidad.text}*${_producto.text}';
                               }
-                            } else {
-                              //
-                              contenidoProd += '${_cantidad}*${_producto.text}';
-                            }
 
-                            var responseNewRouteTransp;
-                            var responseGintraNew;
-                            var responseUpdtRT;
-                            var responseGintraUpdt;
+                              var responseNewRouteTransp;
+                              var responseGintraNew;
+                              var responseUpdtRT;
+                              var responseGintraUpdt;
 
-                            String remitente_address = "";
+                              String remitente_address = "";
 
-                            String remitente_prov_ref = "";
-                            String remitente_city_ref = "";
-                            String destinatario_prov_ref = "";
-                            String destinatario_city_ref = "";
-                            var dataIntegration;
+                              String remitente_prov_ref = "";
+                              String remitente_city_ref = "";
+                              String destinatario_prov_ref = "";
+                              String destinatario_city_ref = "";
+                              var dataIntegration;
 
-                            if (selectedCarrierType == "Externo") {
-                              remitente_address =
-                                  prov_city_address.split('-')[2];
+                              if (selectedCarrierType == "Externo") {
+                                remitente_address =
+                                    prov_city_address.split('|')[2];
 
-                              var responseProvCityRem =
-                                  await Connections().getCoverage([
-                                {
-                                  "/carriers_external_simple.id":
-                                      selectedCarrierExternal
+                                var responseProvCityRem =
+                                    await Connections().getCoverage([
+                                  {
+                                    "/carriers_external_simple.id":
+                                        selectedCarrierExternal
+                                            .toString()
+                                            .split("-")[1]
+                                  },
+                                  {
+                                    "/coverage_external.dpa_provincia.id":
+                                        prov_city_address.split('|')[0]
+                                  },
+                                  {
+                                    "/coverage_external.ciudad":
+                                        prov_city_address.split('|')[1]
+                                  }
+                                ]);
+
+                                // print(responseProvCityRem);
+                                remitente_prov_ref =
+                                    responseProvCityRem['id_prov_ref'];
+                                remitente_city_ref =
+                                    responseProvCityRem['id_ciudad_ref'];
+                                // print("REMITENTE:");
+                                // print(
+                                //     "$origen_prov: $remitente_city_ref-${responseProvCityRem['coverage_external']['dpa_provincia']['provincia']}");
+                                // print(
+                                //     "${widget.product.warehouse!.city.toString()}: $remitente_city_ref");
+
+                                destinatario_prov_ref =
+                                    selectedCity.toString().split("-")[3];
+                                destinatario_city_ref =
+                                    selectedCity.toString().split("-")[4];
+
+                                // print("DESTINATARIO:");
+                                // print(
+                                //     "${selectedProvincia.toString().split("-")[0]}: $destinatario_prov_ref");
+                                // print(
+                                //     "${selectedCity.toString().split("-")[0]}: $destinatario_city_ref");
+
+                                DateTime now = DateTime.now();
+                                String formattedDateTime =
+                                    DateFormat('yyyy-MM-dd HH:mm:ss')
+                                        .format(now);
+
+                                dataIntegration = {
+                                  "remitente": {
+                                    "nombre":
+                                        "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()}",
+                                    "telefono": "",
+                                    // "telefono":
+                                    //     sharedPrefs!.getString("seller_telefono"),
+                                    "provincia": remitente_prov_ref,
+                                    "ciudad": remitente_city_ref,
+                                    "direccion": remitente_address
+                                  },
+                                  "destinatario": {
+                                    "nombre": _nombre.text,
+                                    "telefono": _telefono.text,
+                                    "provincia": destinatario_prov_ref,
+                                    "ciudad": destinatario_city_ref,
+                                    "direccion": _direccion.text
+                                  },
+                                  "cant_paquetes": "1",
+                                  "peso_total": "2.00",
+                                  "documento_venta": "",
+                                  "contenido":
+                                      "$contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}",
+                                  "observacion": _observacion.text,
+                                  "fecha": formattedDateTime,
+                                  "declarado": double.parse(priceTotal),
+                                  "con_recaudo": recaudo ? true : false
+                                };
+                              }
+
+                              if (data['transportadora'].isEmpty &&
+                                  data['pedido_carrier'].isEmpty) {
+                                //
+                                print("Nuevo no tiene ninguna Transport");
+                                if (selectedCarrierType == "Interno") {
+                                  //
+
+                                  responseNewRouteTransp = await Connections()
+                                      .updateOrderRouteAndTransportLaravel(
+                                          selectedValueRoute
+                                              .toString()
+                                              .split("-")[1],
+                                          selectedValueTransport
+                                              .toString()
+                                              .split("-")[1],
+                                          data['id']);
+                                  var response2 = await Connections()
+                                      .updatenueva(data['id'], {"recaudo": 1});
+
+                                  var response3 = await Connections()
+                                      .updateOrderWithTime(
+                                          data['id'],
+                                          "estado_interno:CONFIRMADO",
+                                          sharedPrefs!.getString("id"),
+                                          "",
+                                          "");
+                                  print(
+                                      "updated estado_interno:CONFIRMADO with others");
+
+                                  Navigator.pop(context);
+                                  Navigator.pop(context);
+                                  var _url = Uri.parse(
+                                    """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                  );
+
+                                  if (!await launchUrl(_url)) {
+                                    throw Exception('Could not launch $_url');
+                                  }
+                                } else {
+                                  //
+
+                                  // print("recaudo: ${recaudo ? 1 : 0}");
+                                  // print(dataIntegration);
+                                  print("a Una Externa");
+
+                                  if (selectedCarrierExternal
                                           .toString()
-                                          .split("-")[1]
-                                },
-                                {
-                                  "/coverage_external.dpa_provincia.id":
-                                      prov_city_address.split('-')[0]
-                                },
-                                {
-                                  "/coverage_external.ciudad":
-                                      prov_city_address.split('-')[1]
+                                          .split("-")[1] ==
+                                      "1") {
+                                    //send Gintra
+                                    print("send Gintra");
+
+                                    var responseOrderCarrierExt =
+                                        await Connections()
+                                            .getOrderCarrierExternal(
+                                                data['id']);
+
+                                    if (responseOrderCarrierExt == 1) {
+                                      print(
+                                          "enviar a gtm y crear un ordercarrier");
+                                      // /*
+                                      responseGintraNew = await Connections()
+                                          .postOrdersGintra(dataIntegration);
+                                      // // print("responseInteg");
+                                      print(responseGintraNew);
+
+                                      if (responseGintraNew != []) {
+                                        await Connections()
+                                            .updatenueva(data['id'], {
+                                          "id_externo":
+                                              responseGintraNew['guia'],
+                                          "recaudo": recaudo ? 1 : 0,
+                                        });
+
+                                        //crear un nuevo pedido_carrier_link
+                                        await Connections()
+                                            .createUpdateOrderCarrier(
+                                                data['id'],
+                                                selectedCarrierExternal
+                                                    .toString()
+                                                    .split("-")[1],
+                                                selectedCity
+                                                    .toString()
+                                                    .split("-")[1],
+                                                responseGintraNew['guia']);
+
+                                        print("created UpdateOrderCarrier");
+
+                                        var response3 = await Connections()
+                                            .updateOrderWithTime(
+                                                data['id'],
+                                                "estado_interno:CONFIRMADO",
+                                                sharedPrefs!.getString("id"),
+                                                "",
+                                                "");
+                                        print(
+                                            "updated estado_interno:CONFIRMADO with others");
+
+                                        var _url = Uri.parse(
+                                          """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                        );
+
+                                        if (!await launchUrl(_url)) {
+                                          throw Exception(
+                                              'Could not launch $_url');
+                                        }
+
+                                        Navigator.pop(context);
+                                        Navigator.pop(context);
+                                      }
+                                      // */
+                                    } else if (responseOrderCarrierExt == 0) {
+                                      //
+
+                                      // ignore: use_build_context_synchronously
+                                      showSuccessModal(
+                                          context,
+                                          "Error, Este pedido ya tiene una Transportadora Externa.",
+                                          Icons8.alert);
+
+                                      Navigator.pop(context);
+                                      Navigator.pop(context);
+                                    }
+                                  }
+
+                                  //
                                 }
-                              ]);
-
-                              // print(responseProvCityRem);
-                              remitente_prov_ref =
-                                  responseProvCityRem['id_prov_ref'];
-                              remitente_city_ref =
-                                  responseProvCityRem['id_ciudad_ref'];
-                              // print("REMITENTE:");
-                              // print(
-                              //     "$origen_prov: $remitente_city_ref-${responseProvCityRem['coverage_external']['dpa_provincia']['provincia']}");
-                              // print(
-                              //     "${widget.product.warehouse!.city.toString()}: $remitente_city_ref");
-
-                              destinatario_prov_ref =
-                                  selectedCity.toString().split("-")[3];
-                              destinatario_city_ref =
-                                  selectedCity.toString().split("-")[4];
-
-                              // print("DESTINATARIO:");
-                              // print(
-                              //     "${selectedProvincia.toString().split("-")[0]}: $destinatario_prov_ref");
-                              // print(
-                              //     "${selectedCity.toString().split("-")[0]}: $destinatario_city_ref");
-
-                              DateTime now = DateTime.now();
-                              String formattedDateTime =
-                                  DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
-
-                              dataIntegration = {
-                                "remitente": {
-                                  "nombre": sharedPrefs!
-                                      .getString("NameComercialSeller"),
-                                  "telefono":
-                                      sharedPrefs!.getString("seller_telefono"),
-                                  "provincia": remitente_prov_ref,
-                                  "ciudad": remitente_city_ref,
-                                  "direccion": remitente_address
-                                },
-                                "destinatario": {
-                                  "nombre": _nombre.text,
-                                  "telefono": _telefono.text,
-                                  "provincia": destinatario_prov_ref,
-                                  "ciudad": destinatario_city_ref,
-                                  "direccion": _direccion.text
-                                },
-                                "cant_paquetes": "1",
-                                "peso_total": "2.00",
-                                "documento_venta": "",
-                                "contenido":
-                                    "$contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}",
-                                "observacion": _observacion.text,
-                                "fecha": formattedDateTime,
-                                "declarado": double.parse(priceTotal),
-                                "con_recaudo": recaudo ? true : false
-                              };
-                            }
-
-                            if (data['transportadora'].isEmpty &&
-                                data['pedido_carrier'].isEmpty) {
-                              //
-                              print("Nuevo no tiene ninguna Transport");
-                              if (selectedCarrierType == "Interno") {
-                                //
-
-                                responseNewRouteTransp = await Connections()
-                                    .updateOrderRouteAndTransportLaravel(
-                                        selectedValueRoute
-                                            .toString()
-                                            .split("-")[1],
-                                        selectedValueTransport
-                                            .toString()
-                                            .split("-")[1],
-                                        data['id']);
-                                var response2 = await Connections()
-                                    .updatenueva(data['id'], {"recaudo": 1});
-
-                                var response3 = await Connections()
-                                    .updateOrderWithTime(
-                                        data['id'],
-                                        "estado_interno:CONFIRMADO",
-                                        sharedPrefs!.getString("id"),
-                                        "",
-                                        "");
-                                print(
-                                    "updated estado_interno:CONFIRMADO with others");
-                                Navigator.pop(context);
-                                Navigator.pop(context);
                               } else {
-                                //
+                                print("Actualizar");
+                                //if exist carrierExternal solo puede actualizarse con otra externa
+                                if (data['transportadora'].isNotEmpty) {
+                                  //
+                                  print("Actualizar Transport");
+                                  //
 
-                                // print("recaudo: ${recaudo ? 1 : 0}");
-                                // print(dataIntegration);
-                                print("a Una Externa");
+                                  if (selectedCarrierType == "Interno") {
+                                    //
+                                    print("a otro Transport");
 
-                                if (selectedCarrierExternal
-                                        .toString()
-                                        .split("-")[1] ==
-                                    "1") {
-                                  //send Gintra
-                                  print("send Gintra");
-
-                                  responseGintraNew = await Connections()
-                                      .postOrdersGintra(dataIntegration);
-                                  // // print("responseInteg");
-                                  print(responseGintraNew);
-
-                                  if (responseGintraNew != []) {
-                                    await Connections()
-                                        .updatenueva(data['id'], {
-                                      "id_externo": responseGintraNew['guia'],
-                                      "recaudo": recaudo ? 1 : 0,
-                                    });
-
-                                    //crear un nuevo pedido_carrier_link
-                                    await Connections()
-                                        .createUpdateOrderCarrier(
-                                            data['id'],
-                                            selectedCarrierExternal
+                                    responseUpdtRT = await Connections()
+                                        .updateOrderRouteAndTransportLaravel(
+                                            selectedValueRoute
                                                 .toString()
                                                 .split("-")[1],
-                                            selectedCity
+                                            selectedValueTransport
                                                 .toString()
                                                 .split("-")[1],
-                                            responseGintraNew['guia']);
-
-                                    print("created UpdateOrderCarrier");
+                                            data['id']);
+                                    var response2 = await Connections()
+                                        .updatenueva(
+                                            data['id'], {"recaudo": 1});
 
                                     var response3 = await Connections()
                                         .updateOrderWithTime(
@@ -1044,173 +1205,183 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                     print(
                                         "updated estado_interno:CONFIRMADO with others");
 
-                                    Navigator.pop(context);
-                                    Navigator.pop(context);
-                                  }
-                                }
+                                    var _url = Uri.parse(
+                                      """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                    );
 
-                                //
-                              }
-                            } else {
-                              print("Actualizar");
-                              //if exist carrierExternal solo puede actualizarse con otra externa
-                              if (data['transportadora'].isNotEmpty) {
-                                //
-                                print("Actualizar Transport");
-                                //
-
-                                if (selectedCarrierType == "Interno") {
-                                  //
-                                  print("a otro Transport");
-
-                                  responseUpdtRT = await Connections()
-                                      .updateOrderRouteAndTransportLaravel(
-                                          selectedValueRoute
-                                              .toString()
-                                              .split("-")[1],
-                                          selectedValueTransport
-                                              .toString()
-                                              .split("-")[1],
-                                          data['id']);
-                                  var response2 = await Connections()
-                                      .updatenueva(data['id'], {"recaudo": 1});
-
-                                  var response3 = await Connections()
-                                      .updateOrderWithTime(
-                                          data['id'],
-                                          "estado_interno:CONFIRMADO",
-                                          sharedPrefs!.getString("id"),
-                                          "",
-                                          "");
-                                  print(
-                                      "updated estado_interno:CONFIRMADO with others");
-                                  Navigator.pop(context);
-                                  Navigator.pop(context);
-                                } else {
-                                  //
-                                  print("a un Externo");
-                                  //limpiar la relacion con transp_interna actual
-                                  // print("recaudo: ${recaudo ? 1 : 0}");
-                                  print(dataIntegration);
-
-                                  if (selectedCarrierExternal
-                                          .toString()
-                                          .split("-")[1] ==
-                                      "1") {
-                                    //send Gintra
-                                    print("send Gintra");
-
-                                    responseGintraNew = await Connections()
-                                        .postOrdersGintra(dataIntegration);
-                                    // // print("responseInteg");
-                                    // // print(responseGintra);
-
-                                    if (responseGintraNew != []) {
-                                      await Connections()
-                                          .updatenueva(data['id'], {
-                                        "id_externo": responseGintraNew['guia'],
-                                        "recaudo": recaudo ? 1 : 0,
-                                      });
-
-                                      //crear un nuevo pedido_carrier_link
-                                      await Connections()
-                                          .createUpdateOrderCarrier(
-                                              data['id'],
-                                              selectedCarrierExternal
-                                                  .toString()
-                                                  .split("-")[1],
-                                              selectedCity
-                                                  .toString()
-                                                  .split("-")[1],
-                                              responseGintraNew['guia']);
-
-                                      print("created UpdateOrderCarrier");
-
-                                      var response3 = await Connections()
-                                          .updateOrderWithTime(
-                                              data['id'],
-                                              "estado_interno:CONFIRMADO",
-                                              sharedPrefs!.getString("id"),
-                                              "",
-                                              "");
-                                      print(
-                                          "updated estado_interno:CONFIRMADO with others");
-
-                                      await Connections()
-                                          .deleteRutaTransportadora(data['id']);
-
-                                      Navigator.pop(context);
-                                      Navigator.pop(context);
+                                    if (!await launchUrl(_url)) {
+                                      throw Exception('Could not launch $_url');
                                     }
+
+                                    Navigator.pop(context);
+                                    Navigator.pop(context);
+                                  } else {
+                                    //
+                                    print("a un Externo");
+                                    //limpiar la relacion con transp_interna actual
+                                    // print("recaudo: ${recaudo ? 1 : 0}");
+                                    print(dataIntegration);
+
+                                    if (selectedCarrierExternal
+                                            .toString()
+                                            .split("-")[1] ==
+                                        "1") {
+                                      //send Gintra
+                                      print("send Gintra");
+                                      var responseOrderCarrierExt =
+                                          await Connections()
+                                              .getOrderCarrierExternal(
+                                                  data['id']);
+
+                                      if (responseOrderCarrierExt == 1) {
+                                        print(
+                                            "enviar a gtm y crear un ordercarrier");
+                                        // /*
+                                        responseGintraNew = await Connections()
+                                            .postOrdersGintra(dataIntegration);
+                                        // // print("responseInteg");
+                                        // // print(responseGintra);
+
+                                        if (responseGintraNew != []) {
+                                          await Connections()
+                                              .updatenueva(data['id'], {
+                                            "id_externo":
+                                                responseGintraNew['guia'],
+                                            "recaudo": recaudo ? 1 : 0,
+                                          });
+
+                                          //crear un nuevo pedido_carrier_link
+                                          await Connections()
+                                              .createUpdateOrderCarrier(
+                                                  data['id'],
+                                                  selectedCarrierExternal
+                                                      .toString()
+                                                      .split("-")[1],
+                                                  selectedCity
+                                                      .toString()
+                                                      .split("-")[1],
+                                                  responseGintraNew['guia']);
+
+                                          print("created UpdateOrderCarrier");
+
+                                          var response3 = await Connections()
+                                              .updateOrderWithTime(
+                                                  data['id'],
+                                                  "estado_interno:CONFIRMADO",
+                                                  sharedPrefs!.getString("id"),
+                                                  "",
+                                                  "");
+                                          print(
+                                              "updated estado_interno:CONFIRMADO with others");
+
+                                          await Connections()
+                                              .deleteRutaTransportadora(
+                                                  data['id']);
+
+                                          var _url = Uri.parse(
+                                            """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                          );
+
+                                          if (!await launchUrl(_url)) {
+                                            throw Exception(
+                                                'Could not launch $_url');
+                                          }
+
+                                          Navigator.pop(context);
+                                          Navigator.pop(context);
+                                        }
+                                        // */
+                                      } else if (responseOrderCarrierExt == 0) {
+                                        //
+
+                                        // ignore: use_build_context_synchronously
+                                        showSuccessModal(
+                                            context,
+                                            "Error, Este pedido ya tiene una Transportadora Externa.",
+                                            Icons8.alert);
+
+                                        Navigator.pop(context);
+                                        Navigator.pop(context);
+                                      }
+                                    }
+
+                                    //
                                   }
-
+                                } else if (data['pedido_carrier'].isNotEmpty) {
                                   //
+
+                                  print("Actualizar carrier_external");
+
+                                  if (selectedCarrierType == "Interno") {
+                                    //
+                                    print("a Transport Interna");
+                                    //este caso faltaria notificar a gtm que ya no quiere
+                                    responseUpdtRT = await Connections()
+                                        .updateOrderRouteAndTransportLaravel(
+                                            selectedValueRoute
+                                                .toString()
+                                                .split("-")[1],
+                                            selectedValueTransport
+                                                .toString()
+                                                .split("-")[1],
+                                            data['id']);
+
+                                    var response2 = await Connections()
+                                        .updatenueva(
+                                            data['id'], {"recaudo": 1});
+
+                                    //eliminar relacion pedido_Carrier_link
+                                    await Connections()
+                                        .deleteOrderCarrierExternal(data['id']);
+
+                                    var response3 = await Connections()
+                                        .updateOrderWithTime(
+                                            data['id'],
+                                            "estado_interno:CONFIRMADO",
+                                            sharedPrefs!.getString("id"),
+                                            "",
+                                            "");
+                                    print(
+                                        "updated estado_interno:CONFIRMADO with others");
+
+                                    var _url = Uri.parse(
+                                      """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                    );
+
+                                    if (!await launchUrl(_url)) {
+                                      throw Exception('Could not launch $_url');
+                                    }
+
+                                    Navigator.pop(context);
+                                    Navigator.pop(context);
+                                  } else {
+                                    //
+                                    print("a externa");
+                                    print("Not yet");
+
+                                    Navigator.pop(context);
+                                    Navigator.pop(context);
+                                  }
                                 }
-                              } else if (data['pedido_carrier'].isNotEmpty) {
+
                                 //
-
-                                print("Actualizar carrier_external");
-
-                                if (selectedCarrierType == "Interno") {
-                                  //
-                                  print("a Transport Interna");
-                                  //este caso faltaria notificar a gtm que ya no quiere
-                                  responseUpdtRT = await Connections()
-                                      .updateOrderRouteAndTransportLaravel(
-                                          selectedValueRoute
-                                              .toString()
-                                              .split("-")[1],
-                                          selectedValueTransport
-                                              .toString()
-                                              .split("-")[1],
-                                          data['id']);
-
-                                  var response2 = await Connections()
-                                      .updatenueva(data['id'], {"recaudo": 1});
-
-                                  //eliminar relacion pedido_Carrier_link
-                                  await Connections()
-                                      .deleteOrderCarrierExternal(data['id']);
-
-                                  var response3 = await Connections()
-                                      .updateOrderWithTime(
-                                          data['id'],
-                                          "estado_interno:CONFIRMADO",
-                                          sharedPrefs!.getString("id"),
-                                          "",
-                                          "");
-                                  print(
-                                      "updated estado_interno:CONFIRMADO with others");
-
-                                  Navigator.pop(context);
-                                  Navigator.pop(context);
-                                } else {
-                                  //
-                                  print("a externa");
-                                  print("Not yet");
-
-                                  Navigator.pop(context);
-                                  Navigator.pop(context);
-                                }
                               }
-
-                              //
                             }
-                          }
-                        },
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all(
-                            Color(0xFF031749),
+                          },
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(
+                              Color(0xFF031749),
+                            ),
+                          ),
+                          child: const Text(
+                            "GUARDAR",
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
-                        child: const Text(
-                          "GUARDAR",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -1220,45 +1391,43 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
   }
 
   Future<double> calculateProfitCarrierExternal() async {
-    String origen_prov = prov_city_address.split('-')[0].toString();
+    String origen_prov = prov_city_address.split('|')[0].toString();
 
-    var costs =
-        getCostsByIdCarrier(selectedCarrierExternal.toString().split("-")[1]);
+    var costs = getCostsByIdCarrier(idCarrierExternal);
     // print(costs);
 
-    String tipoCobertura = selectedCity.toString().split("-")[2];
     double deliveryPrice = 0;
-    if (selectedProvincia.toString().split("-")[1] == origen_prov) {
+    if (idProvExternal == origen_prov) {
       print("Provincial");
       // print("${selectedCity.toString()}");
       if (tipoCobertura == "Normal") {
         deliveryPrice = double.parse(costs["normal1"].toString());
-        // print("normal1: $deliveryPrice");
+        print("normal1: $deliveryPrice");
       } else {
         deliveryPrice = double.parse(costs["especial1"].toString());
-        // print("especial1: $deliveryPrice");
+        print("especial1: $deliveryPrice");
       }
     } else {
       print("Nacional");
       // print("${selectedCity.toString()}");
       if (tipoCobertura == "Normal") {
         deliveryPrice = double.parse(costs["normal2"].toString());
-        // print("normal2: $deliveryPrice");
+        print("normal2: $deliveryPrice");
       } else {
         deliveryPrice = double.parse(costs["especial2"].toString());
-        // print("especial2: $deliveryPrice");
+        print("especial2: $deliveryPrice");
       }
     }
     deliveryPrice = deliveryPrice + (deliveryPrice * iva);
     deliveryPrice = (deliveryPrice * 100).roundToDouble() / 100;
-    // print("after type + iva: $deliveryPrice");
+    print("after type + iva: $deliveryPrice");
 
     double costoSeguro =
         (priceTotalProduct * (double.parse(costs["costo_seguro"]))) / 100;
     costoSeguro = (costoSeguro * 100).roundToDouble() / 100;
     costoSeguro = costoSeguro + (costoSeguro * iva);
     costoSeguro = (costoSeguro * 100).roundToDouble() / 100;
-    // print("costo_seguro: $costoSeguro");
+    print("costo_seguro: $costoSeguro");
 
     deliveryPrice += costoSeguro;
 
@@ -1273,7 +1442,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
         base = base + (base * iva);
         base = (base * 100).roundToDouble() / 100;
         costo_recaudo = base;
-        // print("costo_recaudo base: $costo_recaudo");
+        print("costo_recaudo base: $costo_recaudo");
       } else {
         double incremental =
             (priceTotalProduct * double.parse(costo_rec['incremental'])) / 100;
@@ -1281,24 +1450,26 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
         incremental = incremental + (incremental * iva);
         incremental = (incremental * 100).roundToDouble() / 100;
         costo_recaudo = incremental;
-        // print("costo_recaudo incremental: $costo_recaudo");
+        print("costo_recaudo incremental: $costo_recaudo");
       }
     }
 
     deliveryPrice += costo_recaudo;
     deliveryPrice = (deliveryPrice * 100).roundToDouble() / 100;
-    // print("costo entrega after recaudo: $deliveryPrice");
+    print("costo entrega after recaudo: $deliveryPrice");
 
     deliveryPrice = costEasy + deliveryPrice;
     double deliveryPriceTax = deliveryPrice * iva;
     deliveryPriceTax = (deliveryPriceTax * 100).roundToDouble() / 100;
 
-    // print("costo deliveryPriceSeller: ${deliveryPrice + deliveryPriceTax}");
+    print("costo deliveryPriceSeller: ${deliveryPrice + deliveryPriceTax}");
+    totalCost = deliveryPrice + deliveryPriceTax;
 
     //
     setState(() {
       costShippingSeller = deliveryPrice;
       taxCostShipping = deliveryPriceTax;
+      totalCost = (totalCost * 100).roundToDouble() / 100;
     });
     double totalProfit = priceTotalProduct -
         (priceWarehouseTotal + deliveryPrice + deliveryPriceTax);

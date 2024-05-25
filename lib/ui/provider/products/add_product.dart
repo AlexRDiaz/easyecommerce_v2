@@ -618,6 +618,11 @@ class _AddProductState extends State<AddProduct> {
                                         labelText: 'Ingrese Talla',
                                         icon: Icons.numbers,
                                         applyValidator: false,
+                                        inputFormatters: [
+                                          FilteringTextInputFormatter.deny(
+                                            RegExp(r'\|'),
+                                          ),
+                                        ],
                                       ),
                                       const SizedBox(height: 10),
                                     ],
@@ -633,6 +638,11 @@ class _AddProductState extends State<AddProduct> {
                                         labelText: 'Ingrese Color',
                                         icon: Icons.color_lens,
                                         applyValidator: false,
+                                        inputFormatters: [
+                                          FilteringTextInputFormatter.deny(
+                                            RegExp(r'\|'),
+                                          ),
+                                        ],
                                       ),
                                       const SizedBox(height: 10),
                                     ],
@@ -646,6 +656,11 @@ class _AddProductState extends State<AddProduct> {
                                     labelText: 'Ingrese Tamaño',
                                     icon: Icons.numbers,
                                     applyValidator: false,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.deny(
+                                        RegExp(r'\|'),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],

@@ -318,7 +318,7 @@ class _EditProductState extends State<EditProduct> {
         variantOriginLabels.add(
             "${variant['sku']}; $concatenatedValues; Cantidad:${variant['inventory_quantity']}");
 
-        variantsToSelect.add('${variant["sku"]}-$concatenatedValues');
+        variantsToSelect.add('${variant["sku"]}|$concatenatedValues');
       }
 
       variablesText = variantOriginLabels.join('\n');
@@ -781,7 +781,7 @@ class _EditProductState extends State<EditProduct> {
                                         return DropdownMenuItem(
                                           value: item,
                                           child: Text(
-                                            item,
+                                            item.split('|')[1].toString(),
                                             style: const TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.bold,
@@ -865,7 +865,7 @@ class _EditProductState extends State<EditProduct> {
                                 } else {
                                   if (isVariable == 1) {
                                     String skuVariant =
-                                        chosenVariant.toString().split("-")[0];
+                                        chosenVariant.toString().split("|")[0];
                                     if (!variantsStockToUpt.any((category) =>
                                         category["sku"] == skuVariant)) {
                                       variantsStockToUpt.add({
@@ -948,7 +948,7 @@ class _EditProductState extends State<EditProduct> {
                                 } else {
                                   if (isVariable == 1) {
                                     String skuVariant =
-                                        chosenVariant.toString().split("-")[0];
+                                        chosenVariant.toString().split("|")[0];
                                     if (!variantsStockToUpt.any((category) =>
                                         category["sku"] == skuVariant)) {
                                       variantsStockToUpt.add({

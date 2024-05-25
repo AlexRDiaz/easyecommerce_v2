@@ -316,6 +316,13 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
                       size: ColumnSize.S,
                     ),
                     DataColumn2(
+                      label: const Text('Id'),
+                      size: ColumnSize.S,
+                      onSort: (columnIndex, ascending) {
+                        sortFunc("id", changevalue);
+                      },
+                    ),
+                    DataColumn2(
                       label: const Text('Nombre Cliente'),
                       size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
@@ -512,6 +519,10 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
                                     counterChecks = selectedCheckBox.length;
                                   });
                                 })),
+                            DataCell(Text(data[index]['id'].toString()),
+                                onTap: () {
+                              getInfoModal(index);
+                            }),
                             DataCell(
                                 Text(data[index]['nombre_shipping'].toString()),
                                 onTap: () {

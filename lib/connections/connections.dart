@@ -76,7 +76,7 @@ class Connections {
               decodeDataUser['user']['vendedores'][0]['costo_envio']
                   .toString());
           sharedPrefs!.setString("seller_telefono",
-              decodeDataUser['user']['vendedores'][0]['telefono_1'].toString());
+              decodeDataUser['user']['vendedores'][0]['telefono_2'].toString());
           List temporalPermisos =
               jsonDecode(decodeDataUser['user']['permisos']);
           List<String> finalPermisos = [];
@@ -6104,18 +6104,18 @@ class Connections {
     List filtersAndAll = [];
     filtersAndAll.addAll(and);
     filtersAndAll.addAll(defaultAnd);
-    print("to print guides");
-    print(json.encode({
-      "or": or,
-      "and": filtersAndAll,
-      "not": not,
-      "page_size": sizePage,
-      "page_number": currentPage,
-      "search": search,
-      "sort": sortFiled,
-      "include": arrayInclude,
-      "exclude": arrayExclude,
-    }));
+    // print("to print guides");
+    // print(json.encode({
+    //   "or": or,
+    //   "and": filtersAndAll,
+    //   "not": not,
+    //   "page_size": sizePage,
+    //   "page_number": currentPage,
+    //   "search": search,
+    //   "sort": sortFiled,
+    //   "include": arrayInclude,
+    //   "exclude": arrayExclude,
+    // }));
     try {
       var response = await http.post(
           Uri.parse("$serverLaravel/api/pedidos-shopifies-prtgd"),
@@ -7556,6 +7556,28 @@ class Connections {
       print(e);
 
       return false;
+    }
+  }
+
+  //  *
+  Future getOrderCarrierExternal(OrderId) async {
+    try {
+      var request = await http.get(
+        Uri.parse("$serverLaravel/api/ordercarrier/$OrderId"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      var response = await request.body;
+      var decodeData = json.decode(response);
+
+      if (decodeData['code'] == 200) {
+        // return decodeData;
+        return 0;
+      } else {
+        return 1;
+      }
+    } catch (e) {
+      print(e);
+      return 2;
     }
   }
 

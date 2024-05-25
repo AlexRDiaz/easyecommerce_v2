@@ -679,12 +679,13 @@ class _ProductsViewState extends State<ProductsView> {
                           // sortFunc3("nombre_shipping", changevalue);
                         },
                       ),
-                      DataColumn2(
-                        label: const Text('Stock'),
-                        size: ColumnSize.S,
-                        onSort: (columnIndex, ascending) {
-                          // sortFunc3("direccion_shipping", changevalue);
-                        },
+                      const DataColumn2(
+                        label: Text('Stock'),
+                        fixedWidth: 80,
+                      ),
+                      const DataColumn2(
+                        label: Text('Stock\nReserva'),
+                        fixedWidth: 80,
                       ),
                       DataColumn2(
                         label: const Text('Precio\nBodega'),
@@ -808,6 +809,9 @@ class _ProductsViewState extends State<ProductsView> {
                               : "SIMPLE")),
                           DataCell(
                             Text(data[index]['stock'].toString()),
+                          ),
+                          DataCell(
+                            Text(getTotalReserves(data[index]['reserve'])),
                           ),
                           DataCell(
                             Text('\$${data[index]['price'].toString()}'),
@@ -1198,6 +1202,24 @@ class _ProductsViewState extends State<ProductsView> {
     return res;
   }
 
+  String getTotalReserves(dynamic reserves) {
+    int reserveStock = 0;
+
+    // List<ReserveModel>? reservesList = reserves;
+    List<ReserveModel> reservesList = (reserves as List)
+        .map(
+            (reserve) => ReserveModel.fromJson(reserve as Map<String, dynamic>))
+        .toList();
+    if (reservesList != null) {
+      for (int i = 0; i < reservesList.length; i++) {
+        ReserveModel reserve = reservesList[i];
+
+        reserveStock += int.parse(reserve.stock.toString());
+      }
+    }
+    return reserveStock.toString();
+  }
+
   Future<dynamic> showDialogInfoData(data, isown) {
     return showDialog(
         context: context,
@@ -1284,7 +1306,7 @@ class _ProductsViewState extends State<ProductsView> {
         ReserveModel reserve = reservesList[i];
         UserModel? userSeller = reserve.user;
         reservesText +=
-            "SKU: ${reserve.sku} \nVendedor: ${userSeller?.email}\nCantidad: ${reserve.stock}";
+            "SKU: ${reserve.sku} \nVendedor: \n${userSeller?.username}/${userSeller?.email}\nCantidad: ${reserve.stock}";
         reserveStock += int.parse(reserve.stock.toString());
 
         if (i < reservesList.length - 1) {

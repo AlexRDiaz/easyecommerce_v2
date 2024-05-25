@@ -1,5 +1,6 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animated_icons/icons8.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
@@ -133,6 +134,9 @@ class _AddProviderState extends StateMVC<AddProvider> {
                         borderRadius: BorderRadius.circular(10.0),
                       ),
                     ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9+]')),
+                    ],
                     validator: (value) {
                       if (value!.isEmpty) {
                         return 'Por favor, ingresa tu número de teléfono';
@@ -265,9 +269,8 @@ class _AddProviderState extends StateMVC<AddProvider> {
               // await loadData();
               if (_nameController.text == "" ||
                   _phone1Controller.text == "" ||
-                  _descriptionController.text == "" ||
-                  _emailController == "" ||
-                  _usernameController == "") {
+                  _emailController.text == "" ||
+                  _usernameController.text == "") {
                 AwesomeDialog(
                   width: 500,
                   context: context,
@@ -279,26 +282,46 @@ class _AddProviderState extends StateMVC<AddProvider> {
                   btnOkOnPress: () {},
                 ).show();
               } else {
-                var getAccesofEspecificRol =
-                    await Connections().getAccessofSpecificRol("PROVEEDOR");
-                int specialValue = 0;
-                if (provSpecial) {
-                  specialValue = 1;
-                } else if (provWFisico) {
-                  specialValue = 2;
-                }
-                _controller.addProvider(ProviderModel(
-                    name: _nameController.text,
-                    phone: _phone1Controller.text,
-                    description: _descriptionController.text,
-                    special: specialValue,
-                    user: UserModel(
-                      username: _usernameController.text,
-                      email: _emailController.text,
-                      permisos: getAccesofEspecificRol,
-                    )));
+                var response = await Connections()
+                    .getPersonalInfoAccountByEmail(
+                        _emailController.text.toString());
 
-                Navigator.pop(context);
+                if (response == 2) {
+                  print("No se pudo establecer conexión, inténtelo de nuevo");
+                } else {
+                  if (response == 1) {
+                    //
+
+                    var getAccesofEspecificRol =
+                        await Connections().getAccessofSpecificRol("PROVEEDOR");
+                    int specialValue = 0;
+                    if (provSpecial) {
+                      specialValue = 1;
+                    } else if (provWFisico) {
+                      specialValue = 2;
+                    }
+                    _controller.addProvider(ProviderModel(
+                        name: _nameController.text,
+                        phone: _phone1Controller.text,
+                        description: _descriptionController.text,
+                        special: specialValue,
+                        user: UserModel(
+                          username: _usernameController.text,
+                          email: _emailController.text,
+                          permisos: getAccesofEspecificRol,
+                        )));
+
+                    Navigator.pop(context);
+                  } else if (response != null) {
+                    // Navigator.pop(context);
+
+                    // ignore: use_build_context_synchronously
+                    showSuccessModal(
+                        context,
+                        "Error, Este correo ya se encuentra registrado.",
+                        Icons8.warning_1);
+                  }
+                }
               }
             },
             style: ElevatedButton.styleFrom(

@@ -91,6 +91,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
   int idUser = int.parse(sharedPrefs!.getString("id").toString());
   int idMaster =
       int.parse(sharedPrefs!.getString("idComercialMasterSeller").toString());
+  double totalCost = 0;
 
   bool containsEmoji(String text) {
     final emojiPattern = RegExp(
@@ -284,11 +285,11 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
           [],
           [
             {
-              "/carriers_external_simple.id":
+              "equals/carriers_external_simple.id":
                   selectedCarrierExternal.toString().split("-")[1]
             },
             {
-              "/coverage_external.dpa_provincia.id":
+              "equals/coverage_external.dpa_provincia.id":
                   selectedProvincia.toString().split("-")[1]
             }
           ],
@@ -318,11 +319,11 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
     if (warehousesList?.length == 1) {
       WarehouseModel firstWarehouse = warehousesList!.first;
       name =
-          "${firstWarehouse.id_provincia.toString()}-${firstWarehouse.city.toString()}-${firstWarehouse.address.toString()}";
+          "${firstWarehouse.id_provincia.toString()}|${firstWarehouse.city.toString()}|${firstWarehouse.address.toString()}";
     } else {
       WarehouseModel lastWarehouse = warehousesList!.last;
       name =
-          "${lastWarehouse.id_provincia.toString()}-${lastWarehouse.city.toString()}-${lastWarehouse.address.toString()}";
+          "${lastWarehouse.id_provincia.toString()}|${lastWarehouse.city.toString()}|${lastWarehouse.address.toString()}";
     }
     return name;
   }
@@ -1080,12 +1081,15 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                           });
                         },
                         style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.zero,
                           backgroundColor: Colors.deepPurple,
-                          shape: const CircleBorder(),
                         ),
-                        child: const Icon(Icons.check,
-                            color: Colors.white, size: 20),
+                        child: const Text(
+                          "Calcular",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -1101,80 +1105,48 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                   const SizedBox(height: 10),
                   Row(
                     children: [
-                      const Text(
-                        "Precio de venta:",
-                      ),
-                      const SizedBox(width: 10),
-                      SizedBox(
-                        // width: 200,
-                        width: screenWidth > 600 ? 200 : 150,
-                        child: Text(
-                          "\$ ${priceTotalProduct.toString()}",
-                        ),
+                      Text(
+                        "Precio de venta: \$ ${priceTotalProduct.toString()}",
                       ),
                     ],
                   ),
                   const SizedBox(height: 5),
                   Row(
                     children: [
-                      const Text(
-                        "Precio Bodega:",
-                      ),
-                      const SizedBox(width: 10),
-                      SizedBox(
-                        // width: 200,
-                        width: screenWidth > 600 ? 200 : 150,
-                        child: Text(
-                          "\$ ${priceWarehouseTotal.toString()}",
-                        ),
+                      Text(
+                        "Precio Bodega: \$ ${priceWarehouseTotal.toString()}",
                       ),
                     ],
                   ),
                   const SizedBox(height: 5),
                   Row(
                     children: [
-                      const Text(
-                        "Costo Transporte:",
-                      ),
-                      const SizedBox(width: 10),
-                      SizedBox(
-                        // width: 200,
-                        width: screenWidth > 600 ? 200 : 150,
-                        child: Text(
-                          '\$ ${costShippingSeller.toString()}',
-                        ),
+                      Text(
+                        "Costo Transporte: \$ ${costShippingSeller.toString()}",
                       ),
                     ],
                   ),
                   const SizedBox(height: 5),
                   Row(
                     children: [
-                      const Text(
-                        "Iva 15%:",
-                      ),
-                      const SizedBox(width: 10),
-                      SizedBox(
-                        // width: 200,
-                        width: screenWidth > 600 ? 200 : 150,
-                        child: Text(
-                          '\$ ${taxCostShipping.toString()}',
-                        ),
+                      Text(
+                        "Iva 15%: \$ ${taxCostShipping.toString()}",
                       ),
                     ],
                   ),
                   const SizedBox(height: 5),
                   Row(
                     children: [
-                      const Text(
-                        "Total a recibir:",
+                      Text(
+                        "Total Flete: \$ ${totalCost.toString()}",
                       ),
-                      const SizedBox(width: 10),
-                      SizedBox(
-                        // width: 200,
-                        width: screenWidth > 600 ? 200 : 150,
-                        child: Text(
-                          "\$ ${profit.toString()}",
-                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 5),
+                  Row(
+                    children: [
+                      Text(
+                        "Total a recibir: \$ ${profit.toString()}",
                       ),
                     ],
                   ),
@@ -1285,7 +1257,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                   }
 
                                   String remitente_address =
-                                      prov_city_address.split('-')[2];
+                                      prov_city_address.split('|')[2];
 
                                   String remitente_prov_ref = "";
                                   String remitente_city_ref = "";
@@ -1304,11 +1276,11 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                       },
                                       {
                                         "/coverage_external.dpa_provincia.id":
-                                            prov_city_address.split('-')[0]
+                                            prov_city_address.split('|')[0]
                                       },
                                       {
                                         "/coverage_external.ciudad":
-                                            prov_city_address.split('-')[1]
+                                            prov_city_address.split('|')[1]
                                       }
                                     ]);
 
@@ -1333,40 +1305,6 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                     //     "${selectedProvincia.toString().split("-")[0]}: $destinatario_prov_ref");
                                     // print(
                                     //     "${selectedCity.toString().split("-")[0]}: $destinatario_city_ref");
-
-                                    DateTime now = DateTime.now();
-                                    String formattedDateTime =
-                                        DateFormat('yyyy-MM-dd HH:mm:ss')
-                                            .format(now);
-
-                                    dataIntegration = {
-                                      "remitente": {
-                                        "nombre": sharedPrefs!
-                                            .getString("NameComercialSeller"),
-                                        "telefono": sharedPrefs!
-                                            .getString("seller_telefono"),
-                                        "provincia": remitente_prov_ref,
-                                        "ciudad": remitente_city_ref,
-                                        "direccion": remitente_address
-                                      },
-                                      "destinatario": {
-                                        "nombre": _nombre.text,
-                                        "telefono": _telefono.text,
-                                        "provincia": destinatario_prov_ref,
-                                        "ciudad": destinatario_city_ref,
-                                        "direccion": _direccion.text
-                                      },
-                                      "cant_paquetes": "1",
-                                      "peso_total": "2.00",
-                                      "documento_venta": "",
-                                      "contenido":
-                                          "$contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}",
-                                      "observacion": _observacion.text,
-                                      "fecha": formattedDateTime,
-                                      "declarado": double.parse(priceTotal),
-                                      "con_recaudo": recaudo ? true : false
-                                    };
-                                    print(dataIntegration);
                                   }
 
                                   double costDelivery = double.parse(
@@ -1428,6 +1366,42 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                               .split("-")[1] ==
                                           "1") {
                                     if (response != 1 || response != 2) {
+                                      DateTime now = DateTime.now();
+
+                                      String formattedDateTime =
+                                          DateFormat('yyyy-MM-dd HH:mm:ss')
+                                              .format(now);
+
+                                      dataIntegration = {
+                                        "remitente": {
+                                          "nombre":
+                                              "${sharedPrefs!.getString("NameComercialSeller")}-${response['numero_orden'].toString()}",
+                                          "telefono": "",
+                                          // "telefono": sharedPrefs!
+                                          //     .getString("seller_telefono"),
+                                          "provincia": remitente_prov_ref,
+                                          "ciudad": remitente_city_ref,
+                                          "direccion": remitente_address
+                                        },
+                                        "destinatario": {
+                                          "nombre": _nombre.text,
+                                          "telefono": _telefono.text,
+                                          "provincia": destinatario_prov_ref,
+                                          "ciudad": destinatario_city_ref,
+                                          "direccion": _direccion.text
+                                        },
+                                        "cant_paquetes": "1",
+                                        "peso_total": "2.00",
+                                        "documento_venta": "",
+                                        "contenido":
+                                            "$contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}",
+                                        "observacion": _observacion.text,
+                                        "fecha": formattedDateTime,
+                                        "declarado": double.parse(priceTotal),
+                                        "con_recaudo": recaudo ? true : false
+                                      };
+                                      print(dataIntegration);
+
                                       //send Gintra
                                       print("send Gintra");
                                       var responseGintra = await Connections()
@@ -1567,14 +1541,15 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
         double.parse(sharedPrefs!.getString("seller_costo_envio").toString());
     double deliveryPriceTax = costShippingSeller * iva;
     deliveryPriceTax = (deliveryPriceTax * 100).roundToDouble() / 100;
+    totalCost = costShippingSeller + deliveryPriceTax;
 
     setState(() {
       costShippingSeller = costShippingSeller;
       taxCostShipping = deliveryPriceTax;
+      totalCost = (totalCost * 100).roundToDouble() / 100;
     });
 
-    double totalProfit =
-        priceTotalProduct - (priceWarehouseTotal + costShippingSeller + iva);
+    double totalProfit = priceTotalProduct - (priceWarehouseTotal + totalCost);
 
     totalProfit = (totalProfit * 100).roundToDouble() / 100;
 
@@ -1623,7 +1598,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
   }
 
   Future<double> calculateProfitCarrierExternal() async {
-    String origen_prov = prov_city_address.split('-')[0].toString();
+    String origen_prov = prov_city_address.split('|')[0].toString();
 
     var costs =
         getCostsByIdCarrier(selectedCarrierExternal.toString().split("-")[1]);
@@ -1697,11 +1672,12 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
     deliveryPriceTax = (deliveryPriceTax * 100).roundToDouble() / 100;
 
     // print("costo deliveryPriceSeller: ${deliveryPrice + deliveryPriceTax}");
-
+    totalCost = deliveryPrice + deliveryPriceTax;
     //
     setState(() {
       costShippingSeller = deliveryPrice;
       taxCostShipping = deliveryPriceTax;
+      totalCost = (totalCost * 100).roundToDouble() / 100;
     });
     double totalProfit = priceTotalProduct -
         (priceWarehouseTotal + deliveryPrice + deliveryPriceTax);
