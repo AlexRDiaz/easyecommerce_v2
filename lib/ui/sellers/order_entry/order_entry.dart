@@ -1320,6 +1320,7 @@ class _OrderEntryState extends State<OrderEntry> {
                     alignment: Alignment.centerRight,
                     child: GestureDetector(
                       onTap: () {
+                        loadData();
                         Navigator.pop(context);
                       },
                       child: const Icon(Icons.close),
@@ -1377,6 +1378,7 @@ class _OrderEntryState extends State<OrderEntry> {
                       alignment: Alignment.centerRight,
                       child: GestureDetector(
                         onTap: () {
+                          loadData();
                           Navigator.pop(context);
                         },
                         child: Icon(Icons.close),
