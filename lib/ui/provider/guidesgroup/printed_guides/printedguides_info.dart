@@ -203,7 +203,10 @@ class _PrintedGuideInfoStateProvider extends State<PrintedGuideInfoProvider> {
 
                 var responsereduceStock = await Connections()
                     .updateProductVariantStock(
-                        data['variant_details'], 0, data['id_comercial']);
+                        data['variant_details'],
+                        0,
+                        data['id_comercial'],
+                        "${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data['numero_orden']}");
 
                 if (responsereduceStock == 0) {
                   var responseL = await Connections().updateOrderWithTime(

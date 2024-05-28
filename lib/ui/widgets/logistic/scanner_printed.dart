@@ -89,7 +89,8 @@ class _ScannerPrintedState extends State<ScannerPrinted> {
                           .updateProductVariantStock(
                               responseOrder['variant_details'],
                               0,
-                              responseOrder['id_comercial']);
+                              responseOrder['id_comercial'],
+                              "${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']}");
 
                       if (responsereduceStock == 0) {
                         responseL = await Connections().updateOrderWithTime(

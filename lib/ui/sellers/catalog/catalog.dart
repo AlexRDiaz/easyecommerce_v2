@@ -98,10 +98,10 @@ class _CatalogState extends State<Catalog> {
   void initState() {
     super.initState();
     _productController = ProductController();
-    _providerController = ProviderController();
-    // _warehouseController = WrehouseController();
-    getProviders();
-    // getWarehouses();
+    // _providerController = ProviderController();
+    _warehouseController = WrehouseController();
+    // getProviders();
+    getWarehouses();
     getCategories();
     _getProductModelCatalog();
   }
@@ -405,7 +405,8 @@ class _CatalogState extends State<Catalog> {
           const SizedBox(height: 20),
           //
           Text(
-            'Proveedor',
+            // 'Proveedor',
+            'Bodega',
             style: GoogleFonts.robotoCondensed(
               fontWeight: FontWeight.bold,
               fontSize: 16,
@@ -413,7 +414,8 @@ class _CatalogState extends State<Catalog> {
             ),
           ),
           const SizedBox(height: 5),
-          _selectProvider(),
+          // _selectProvider(),
+          _selectWarehosues(),
           //
           const SizedBox(height: 20),
           //
@@ -684,7 +686,8 @@ class _CatalogState extends State<Catalog> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Proveedor',
+                      // 'Proveedor',
+                      'Bodega',
                       style: GoogleFonts.robotoCondensed(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
@@ -692,7 +695,8 @@ class _CatalogState extends State<Catalog> {
                       ),
                     ),
                     const SizedBox(height: 5),
-                    _selectProvider()
+                    // _selectProvider()
+                    _selectWarehosues()
                   ],
                 ),
               ),
@@ -813,6 +817,63 @@ class _CatalogState extends State<Catalog> {
         } else {
           arrayFiltersAnd = [];
         }
+        setState(() {
+          _getProductModelCatalog();
+        });
+      },
+      decoration: InputDecoration(
+        fillColor: Colors.white,
+        filled: true,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(5.0),
+        ),
+      ),
+    );
+  }
+
+  DropdownButtonFormField _selectWarehosues() {
+    return DropdownButtonFormField<String>(
+      isExpanded: true,
+      hint: Text(
+        'Seleccione una opción',
+        style: GoogleFonts.roboto(
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+          color: Theme.of(context).hintColor,
+        ),
+      ),
+      items: warehousesToSelect
+          .map((item) => DropdownMenuItem(
+                value: item,
+                child: Text(
+                  item == 'TODO' ? 'TODO' : '${item.split('-')[1]}',
+                  style: GoogleFonts.roboto(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: Theme.of(context).hintColor,
+                  ),
+                ),
+              ))
+          .toList(),
+      value: selectedWarehouse,
+      onChanged: (value) {
+        setState(() {
+          selectedWarehouse = value;
+        });
+
+        // Si el valor es "TODO", eliminar todas las entradas "equals/warehouse_id"
+        if (value == 'TODO') {
+          arrayFiltersAnd.removeWhere(
+              (filter) => filter.containsKey("equals/warehouse_id"));
+        } else {
+          arrayFiltersAnd.removeWhere(
+              (filter) => filter.containsKey("equals/warehouse_id"));
+          arrayFiltersAnd.add({
+            "equals/warehouse_id":
+                selectedWarehouse.toString().split("-")[0].toString()
+          });
+        }
+
         setState(() {
           _getProductModelCatalog();
         });
@@ -1246,6 +1307,7 @@ class _CatalogState extends State<Catalog> {
 
   _resetFilter() {
     selectedProvider = 'TODO';
+    selectedWarehouse = "TODO";
     selectedCategory = 'TODO';
     selectedCategoriesList = [];
     arrayFiltersAnd = [

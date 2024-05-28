@@ -7581,6 +7581,31 @@ class Connections {
     }
   }
 
+  // *
+  getCurrentStock(idComercial, variant_detail) async {
+    print(json.encode(
+        {"id_comercial": idComercial, "variant_detail": variant_detail}));
+    try {
+      var response = await http.post(Uri.parse("$serverLaravel/api/checkstock"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "id_comercial": idComercial,
+            "variant_detail": (variant_detail)
+
+            // "variant_detail": json.encode(variant_detail)
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      print(error);
+      return 2;
+    }
+  }
+
   //TEST
 
   Future getOrdersTest1() async {
@@ -8641,13 +8666,14 @@ class Connections {
   }
 
   // updateProductVariantStock(skuProduct, quantity, type, idComercial) async {
-  updateProductVariantStock(variant_detail, type, idComercial) async {
+  updateProductVariantStock(variant_detail, type, idComercial, code) async {
     print(json.encode({
       // "sku_product": skuProduct,
       // "quantity": quantity,
       "type": type,
       "id_comercial": idComercial,
-      "variant_detail": variant_detail
+      "variant_detail": variant_detail,
+      "code": code,
     }));
     try {
       var response =
@@ -8658,7 +8684,8 @@ class Connections {
                 // "quantity": quantity,
                 "type": type,
                 "id_comercial": idComercial,
-                "variant_detail": variant_detail
+                "variant_detail": variant_detail,
+                "code": code,
               }));
 
       if (response.statusCode == 200) {

@@ -50,7 +50,13 @@ class _ProductsViewState extends State<ProductsView> {
   List arrayFiltersAnd = [
     // {"warehouse.warehouse_id": 1}
   ];
-  List arrayFiltersOr = ["product_id", "product_name", "stock", "price"];
+  List arrayFiltersOr = [
+    "product_id",
+    "product_name",
+    "stock",
+    "price",
+    "owner.vendedores.nombre_comercial"
+  ];
   var sortFieldDefaultValue = "product_id:DESC";
 
   List data = [];
@@ -174,15 +180,15 @@ class _ProductsViewState extends State<ProductsView> {
         //prov principal
         if (int.parse(specialProv.toString()) == 1) {
           //prov principal y especial
-          arrayFiltersAnd.add({"/approved": 1});
+          arrayFiltersAnd.add({"equals/approved": 1});
           print("provPrincipal special principal 1");
         } else {
-          arrayFiltersAnd.add({"/warehouses.provider_id": idProv});
+          arrayFiltersAnd.add({"equals/warehouses.provider_id": idProv});
           print("provPrincipal no especial 2");
         }
       } else if (provType == 2) {
         //prov principal
-        arrayFiltersAnd.add({"/warehouses.up_users.id_user": idUser});
+        arrayFiltersAnd.add({"equals/warehouses.up_users.id_user": idUser});
         print("sub_provProv");
       }
       var response = await _productController.loadBySubProvider(
@@ -214,9 +220,11 @@ class _ProductsViewState extends State<ProductsView> {
 
       total = response['total'];
       pageCount = response['last_page'];
+
       setState(() {
         paginatorController.navigateToPage(0);
       });
+
       Future.delayed(Duration(milliseconds: 500), () {
         Navigator.pop(context);
       });
@@ -227,6 +235,10 @@ class _ProductsViewState extends State<ProductsView> {
       });
       //
     } catch (e) {
+      // print("Error: $e");
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.pop(context);
+      });
       SnackBarHelper.showErrorSnackBar(
           context, "Ha ocurrido un error de conexión");
     }
@@ -241,16 +253,20 @@ class _ProductsViewState extends State<ProductsView> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         getLoadingModal(context, false);
       });
+
       var response = await Connections()
           .historyByProduct(productId, pageSizeIntern, pageCountIntern);
+
       setState(() {
         dataHistory = response['data'];
         pageCountIntern = response['last_page'];
         totalIntern = response['total'];
       });
+
       Future.delayed(Duration(milliseconds: 500), () {
         Navigator.pop(context);
       });
+
       setState(() {
         isFirst = false;
         isLoading = false;
@@ -299,15 +315,15 @@ class _ProductsViewState extends State<ProductsView> {
         //prov principal
         if (int.parse(specialProv.toString()) == 1) {
           //prov principal y especial
-          arrayFiltersAnd.add({"/approved": 1});
+          arrayFiltersAnd.add({"equals/approved": 1});
           print("provPrincipal special principal 1");
         } else {
-          arrayFiltersAnd.add({"/warehouses.provider_id": idProv});
+          arrayFiltersAnd.add({"equals/warehouses.provider_id": idProv});
           print("provPrincipal no especial 2");
         }
       } else if (provType == 2) {
         //prov principal
-        arrayFiltersAnd.add({"/warehouses.up_users.id_user": idUser});
+        arrayFiltersAnd.add({"equals/warehouses.up_users.id_user": idUser});
         print("sub_provProv");
       }
       var response = await _productController.loadBySubProvider(
@@ -478,10 +494,11 @@ class _ProductsViewState extends State<ProductsView> {
                               if (value is String) {
                                 arrayFiltersAnd = [];
                                 arrayFiltersAnd.add({
-                                  "/warehouses.warehouse_id": selectedWarehouse
-                                      .toString()
-                                      .split("-")[1]
-                                      .toString()
+                                  "equals/warehouses.warehouse_id":
+                                      selectedWarehouse
+                                          .toString()
+                                          .split("-")[1]
+                                          .toString()
                                 });
                               }
                             } else {

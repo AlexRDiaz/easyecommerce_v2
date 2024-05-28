@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -912,6 +913,71 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                 } else {
                                   readySent = true;
                                 }
+                              }
+                            }
+
+                            //check stock
+
+                            if (data['id_product'] != null &&
+                                data['id_product'] != 0 &&
+                                data['variant_details'] != null) {
+                              getLoadingModal(context, false);
+
+                              var responseCurrentStock = await Connections()
+                                  .getCurrentStock(
+                                      sharedPrefs!
+                                          .getString("idComercialMasterSeller")
+                                          .toString(),
+                                      variantDetails);
+
+                              // print("$responseCurrentStock");
+                              bool $isAllAvailable = true;
+                              String $textRes = "";
+                              if (responseCurrentStock != 1 ||
+                                  responseCurrentStock != 2) {
+                                var listStock = responseCurrentStock;
+
+                                for (String item in listStock) {
+                                  List<String> parts = item.split('|');
+                                  String code = parts[0];
+                                  int available = int.parse(parts[1]);
+                                  int currentStock = int.parse(parts[2]);
+                                  int request = int.parse(parts[3]);
+
+                                  if (available != 1) {
+                                    // print("$available");
+                                    $isAllAvailable = false;
+                                    $textRes +=
+                                        "$code; Solicitado: ${request.toString()}; Disponible: ${currentStock.toString()}\n";
+                                  }
+                                }
+                              }
+
+                              // print("isAllAvailable: ${$isAllAvailable}");
+                              Navigator.pop(context);
+
+                              if (!$isAllAvailable) {
+                                readySent = false;
+
+                                // print("${$textRes}}");
+
+                                // ignore: use_build_context_synchronously
+                                AwesomeDialog(
+                                  width: 500,
+                                  context: context,
+                                  dialogType: DialogType.info,
+                                  animType: AnimType.rightSlide,
+                                  title:
+                                      "No existe la cantidad requerida del/los producto(s).",
+                                  desc: $textRes,
+                                  btnCancel: Container(),
+                                  btnOkText: "Aceptar",
+                                  btnOkColor: Colors.green,
+                                  btnOkOnPress: () async {},
+                                  btnCancelOnPress: () async {},
+                                ).show();
+                              } else {
+                                readySent = true;
                               }
                             }
 

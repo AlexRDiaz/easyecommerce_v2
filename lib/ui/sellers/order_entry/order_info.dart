@@ -1493,7 +1493,7 @@ class _OrderInfoState extends State<OrderInfo> {
                     ? (value) async {
                         setState(() {
                           selectedValueRoute = value as String;
-                          print(selectedValueRoute);
+                          // print(selectedValueRoute);
                           transports.clear();
                           selectedValueTransport = null;
                         });
@@ -1534,7 +1534,7 @@ class _OrderInfoState extends State<OrderInfo> {
                     : (value) {
                         setState(() {
                           selectedValueTransport = value as String;
-                          print(selectedValueTransport);
+                          // print(selectedValueTransport);
                         });
                       },
               ),
@@ -1928,6 +1928,110 @@ class _OrderInfoState extends State<OrderInfo> {
                         } else {
                           readySent = true;
                         }
+                      }
+                    }
+                    //check stock
+                    getLoadingModal(context, false);
+
+                    if (data['variant_details'] != null) {
+                      //
+                      print("tiene variant_details");
+
+                      if (data['id_product'] != null &&
+                          data['id_product'] != 0) {
+                        //
+                        print("tiene id_product");
+
+                        if (isvariable == 1) {
+                          print("is variable upt ");
+                          print("variantsCurrentList: $variantsCurrentList");
+                        } else {
+                          variantsCurrentList[0]['quantity'] = int.parse(
+                              _controllers.cantidadEditController.text);
+
+                          print("variantsCurrentList: $variantsCurrentList");
+                        }
+                        var response2 =
+                            await Connections().updatenueva(data['id'], {
+                          "variant_details": variantsCurrentList,
+                        });
+                      } else {
+                        //
+                        print("NO tiene id_product");
+                      }
+                    } else {
+                      //
+                      print("NO tiene variants_details");
+                    }
+                    await Connections().updatenueva(data['id'], {
+                      "cantidad_total":
+                          _controllers.cantidadEditController.text.toString(),
+                    });
+                    getTotalQuantity();
+
+                    await updateData();
+                    Navigator.pop(context);
+
+                    if (data['id_product'] != null &&
+                        data['id_product'] != 0 &&
+                        data['variant_details'] != null) {
+                      getLoadingModal(context, false);
+
+                      var responseCurrentStock = await Connections()
+                          .getCurrentStock(
+                              sharedPrefs!
+                                  .getString("idComercialMasterSeller")
+                                  .toString(),
+                              variantsCurrentList);
+
+                      print("$responseCurrentStock");
+                      bool $isAllAvailable = true;
+                      String $textRes = "";
+                      if (responseCurrentStock != 1 ||
+                          responseCurrentStock != 2) {
+                        var listStock = responseCurrentStock;
+
+                        for (String item in listStock) {
+                          List<String> parts = item.split('|');
+                          String code = parts[0];
+                          int available = int.parse(parts[1]);
+                          int currentStock = int.parse(parts[2]);
+                          int request = int.parse(parts[3]);
+
+                          if (available != 1) {
+                            print("$available");
+                            $isAllAvailable = false;
+                            $textRes +=
+                                "$code; Solicitado: ${request.toString()}; Disponible: ${currentStock.toString()}\n";
+                          }
+                        }
+                      }
+
+                      // print("isAllAvailable: ${$isAllAvailable}");
+                      Navigator.pop(context);
+
+                      if (!$isAllAvailable) {
+                        readySent = false;
+
+                        print("${$textRes}}");
+
+                        // ignore: use_build_context_synchronously
+                        AwesomeDialog(
+                          width: 500,
+                          context: context,
+                          dialogType: DialogType.info,
+                          animType: AnimType.rightSlide,
+                          title:
+                              "No existe la cantidad requerida del/los producto(s).",
+                          desc: $textRes,
+                          btnCancel: Container(),
+                          btnOkText: "Aceptar",
+                          btnOkColor: Colors.green,
+                          btnOkOnPress: () async {},
+                          btnCancelOnPress: () async {},
+                        ).show();
+                      } else {
+                        readySent = true;
                       }
                     }
 
@@ -2348,7 +2452,7 @@ class _OrderInfoState extends State<OrderInfo> {
                             Navigator.pop(context);
 
                             // print(dataIntegration);
-/*
+                            /*
                           if (data['carrier_external']['id'].toString() !=
                               selectedCarrierExternal
                                   .toString()
@@ -2380,7 +2484,7 @@ class _OrderInfoState extends State<OrderInfo> {
                               });
                             }
                           }
-                         
+
                           } 
                           */
                           }

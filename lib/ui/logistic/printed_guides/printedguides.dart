@@ -976,7 +976,8 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                         .updateProductVariantStock(
                             optionsCheckBox[i]['variant_details'],
                             0,
-                            optionsCheckBox[i]['id_comercial']);
+                            optionsCheckBox[i]['id_comercial'],
+                            optionsCheckBox[i]['numPedido']);
 
                     if (responsereduceStock == 0) {
                       var responseL = await Connections().updateOrderWithTime(

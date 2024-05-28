@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -1224,212 +1225,279 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                               } else {
                                 if (formKey.currentState!.validate()) {
                                   print("$selectedCarrierType");
+
+                                  //check stock
                                   getLoadingModal(context, false);
 
-                                  String priceTotal =
-                                      "${_precioTotalEnt.text}.${_precioTotalDec.text}";
+                                  var responseCurrentStock = await Connections()
+                                      .getCurrentStock(
+                                          sharedPrefs!
+                                              .getString(
+                                                  "idComercialMasterSeller")
+                                              .toString(),
+                                          variantsDetailsList);
 
-                                  // String sku =
-                                  //     "${chosenSku}C${widget.product.productId}";
-                                  String idProd =
-                                      widget.product.productId.toString();
+                                  print("$responseCurrentStock");
+                                  bool $isAllAvailable = true;
+                                  String $textRes = "";
+                                  if (responseCurrentStock != 1 ||
+                                      responseCurrentStock != 2) {
+                                    var listStock = responseCurrentStock;
 
-                                  // String messageVar = "";
-                                  String contenidoProd = "";
+                                    for (String item in listStock) {
+                                      List<String> parts = item.split('|');
+                                      String code = parts[0];
+                                      int available = int.parse(parts[1]);
+                                      int currentStock = int.parse(parts[2]);
+                                      int request = int.parse(parts[3]);
 
-                                  if (widget.product.isvariable == 1) {
-                                    // messageVar = " (";
-                                    for (var variant in variantsDetailsList) {
-                                      // messageVar +=
-                                      //     "${variant['quantity']}-${variant['variant_title']}; ";
-
-                                      contenidoProd +=
-                                          '${variant['quantity']}*${_producto.text} ${variant['variant_title']} | ';
+                                      if (available != 1) {
+                                        print("$available");
+                                        $isAllAvailable = false;
+                                        $textRes +=
+                                            "$code; Solicitado: ${request.toString()}; Disponible: ${currentStock.toString()}\n";
+                                      }
                                     }
-                                    // messageVar = messageVar.substring(
-                                    //     1, messageVar.length - 2);
-                                    // messageVar += ") ";
-                                    contenidoProd = contenidoProd.substring(
-                                        0, contenidoProd.length - 3);
+                                  }
+
+                                  print("isAllAvailable: ${$isAllAvailable}");
+
+                                  if (!$isAllAvailable) {
+                                    print("${$textRes}}");
+                                    Navigator.pop(context);
+
+                                    // ignore: use_build_context_synchronously
+                                    AwesomeDialog(
+                                      width: 500,
+                                      context: context,
+                                      dialogType: DialogType.info,
+                                      animType: AnimType.rightSlide,
+                                      title:
+                                          "No existe la cantidad requerida del/los producto(s).",
+                                      desc: $textRes,
+                                      btnCancel: Container(),
+                                      btnOkText: "Aceptar",
+                                      btnOkColor: Colors.green,
+                                      btnOkOnPress: () async {},
+                                      btnCancelOnPress: () async {},
+                                    ).show();
                                   } else {
-                                    contenidoProd +=
-                                        '$quantityTotal*${_producto.text}';
-                                  }
+                                    //
+                                    Navigator.pop(context);
 
-                                  String remitente_address =
-                                      prov_city_address.split('|')[2];
+                                    getLoadingModal(context, false);
 
-                                  String remitente_prov_ref = "";
-                                  String remitente_city_ref = "";
-                                  String destinatario_prov_ref = "";
-                                  String destinatario_city_ref = "";
-                                  var dataIntegration;
+                                    String priceTotal =
+                                        "${_precioTotalEnt.text}.${_precioTotalDec.text}";
 
-                                  if (selectedCarrierType == "Externo") {
-                                    var responseProvCityRem =
-                                        await Connections().getCoverage([
-                                      {
-                                        "/carriers_external_simple.id":
-                                            selectedCarrierExternal
-                                                .toString()
-                                                .split("-")[1]
-                                      },
-                                      {
-                                        "/coverage_external.dpa_provincia.id":
-                                            prov_city_address.split('|')[0]
-                                      },
-                                      {
-                                        "/coverage_external.ciudad":
-                                            prov_city_address.split('|')[1]
+                                    // String sku =
+                                    //     "${chosenSku}C${widget.product.productId}";
+                                    String idProd =
+                                        widget.product.productId.toString();
+
+                                    // String messageVar = "";
+                                    String contenidoProd = "";
+
+                                    if (widget.product.isvariable == 1) {
+                                      // messageVar = " (";
+                                      for (var variant in variantsDetailsList) {
+                                        // messageVar +=
+                                        //     "${variant['quantity']}-${variant['variant_title']}; ";
+
+                                        contenidoProd +=
+                                            '${variant['quantity']}*${_producto.text} ${variant['variant_title']} | ';
                                       }
-                                    ]);
-
-                                    // print(responseProvCityRem);
-                                    remitente_prov_ref =
-                                        responseProvCityRem['id_prov_ref'];
-                                    remitente_city_ref =
-                                        responseProvCityRem['id_ciudad_ref'];
-                                    // print("REMITENTE:");
-                                    // print(
-                                    //     "$origen_prov: $remitente_city_ref-${responseProvCityRem['coverage_external']['dpa_provincia']['provincia']}");
-                                    // print(
-                                    //     "${widget.product.warehouse!.city.toString()}: $remitente_city_ref");
-
-                                    destinatario_prov_ref =
-                                        selectedCity.toString().split("-")[3];
-                                    destinatario_city_ref =
-                                        selectedCity.toString().split("-")[4];
-
-                                    // print("DESTINATARIO:");
-                                    // print(
-                                    //     "${selectedProvincia.toString().split("-")[0]}: $destinatario_prov_ref");
-                                    // print(
-                                    //     "${selectedCity.toString().split("-")[0]}: $destinatario_city_ref");
-                                  }
-
-                                  double costDelivery = double.parse(
-                                          costShippingSeller.toString()) +
-                                      double.parse(taxCostShipping.toString());
-
-                                  var response =
-                                      await Connections().createOrderProduct(
-                                    sharedPrefs!
-                                        .getString("idComercialMasterSeller"),
-                                    sharedPrefs!
-                                        .getString("NameComercialSeller"),
-                                    _nombre.text,
-                                    _direccion.text,
-                                    _telefono.text,
-                                    selectedCarrierType == "Externo"
-                                        ? selectedCity.toString().split("-")[0]
-                                        : selectedValueRoute
-                                            .toString()
-                                            .split("-")[0],
-                                    _producto.text,
-                                    _productoE.text,
-                                    // _cantidad.text,
-                                    quantityTotal,
-                                    priceTotal,
-                                    _observacion.text,
-                                    // sku,
-                                    idProd,
-                                    variantsDetailsList,
-                                    recaudo ? 1 : 0,
-                                    selectedCarrierType == "Externo"
-                                        ? costDelivery.toString()
-                                        : null,
-                                    selectedCarrierType == "Interno"
-                                        ? selectedValueRoute
-                                            .toString()
-                                            .split("-")[1]
-                                        : "0",
-                                    selectedCarrierType == "Interno"
-                                        ? selectedValueTransport
-                                            .toString()
-                                            .split("-")[1]
-                                        : "0",
-                                    selectedCarrierType == "Externo"
-                                        ? selectedCarrierExternal
-                                            .toString()
-                                            .split("-")[1]
-                                        : "0",
-                                    selectedCarrierType == "Externo"
-                                        ? selectedCity.toString().split("-")[1]
-                                        : "0",
-                                  );
-
-                                  // print(response);
-
-                                  if (selectedCarrierType == "Externo" &&
-                                      selectedCarrierExternal
-                                              .toString()
-                                              .split("-")[1] ==
-                                          "1") {
-                                    if (response != 1 || response != 2) {
-                                      DateTime now = DateTime.now();
-
-                                      String formattedDateTime =
-                                          DateFormat('yyyy-MM-dd HH:mm:ss')
-                                              .format(now);
-
-                                      dataIntegration = {
-                                        "remitente": {
-                                          "nombre":
-                                              "${sharedPrefs!.getString("NameComercialSeller")}-${response['numero_orden'].toString()}",
-                                          "telefono": "",
-                                          // "telefono": sharedPrefs!
-                                          //     .getString("seller_telefono"),
-                                          "provincia": remitente_prov_ref,
-                                          "ciudad": remitente_city_ref,
-                                          "direccion": remitente_address
-                                        },
-                                        "destinatario": {
-                                          "nombre": _nombre.text,
-                                          "telefono": _telefono.text,
-                                          "provincia": destinatario_prov_ref,
-                                          "ciudad": destinatario_city_ref,
-                                          "direccion": _direccion.text
-                                        },
-                                        "cant_paquetes": "1",
-                                        "peso_total": "2.00",
-                                        "documento_venta": "",
-                                        "contenido":
-                                            "$contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}",
-                                        "observacion": _observacion.text,
-                                        "fecha": formattedDateTime,
-                                        "declarado": double.parse(priceTotal),
-                                        "con_recaudo": recaudo ? true : false
-                                      };
-                                      print(dataIntegration);
-
-                                      //send Gintra
-                                      print("send Gintra");
-                                      var responseGintra = await Connections()
-                                          .postOrdersGintra(dataIntegration);
-                                      print("responseInteg");
-                                      print(responseGintra);
-
-                                      if (responseGintra != []) {
-                                        await Connections()
-                                            .UpdateOrderCarrierbyOrder(
-                                                response['id'], {
-                                          "external_id": responseGintra['guia']
-                                        });
-                                      }
-                                      //
+                                      // messageVar = messageVar.substring(
+                                      //     1, messageVar.length - 2);
+                                      // messageVar += ") ";
+                                      contenidoProd = contenidoProd.substring(
+                                          0, contenidoProd.length - 3);
+                                    } else {
+                                      contenidoProd +=
+                                          '$quantityTotal*${_producto.text}';
                                     }
+
+                                    String remitente_address =
+                                        prov_city_address.split('|')[2];
+
+                                    String remitente_prov_ref = "";
+                                    String remitente_city_ref = "";
+                                    String destinatario_prov_ref = "";
+                                    String destinatario_city_ref = "";
+                                    var dataIntegration;
+
+                                    if (selectedCarrierType == "Externo") {
+                                      var responseProvCityRem =
+                                          await Connections().getCoverage([
+                                        {
+                                          "equals/carriers_external_simple.id":
+                                              selectedCarrierExternal
+                                                  .toString()
+                                                  .split("-")[1]
+                                        },
+                                        {
+                                          "equals/coverage_external.dpa_provincia.id":
+                                              prov_city_address.split('|')[0]
+                                        },
+                                        {
+                                          "equals/coverage_external.ciudad":
+                                              prov_city_address.split('|')[1]
+                                        }
+                                      ]);
+
+                                      // print(responseProvCityRem);
+                                      remitente_prov_ref =
+                                          responseProvCityRem['id_prov_ref'];
+                                      remitente_city_ref =
+                                          responseProvCityRem['id_ciudad_ref'];
+                                      // print("REMITENTE:");
+                                      // print(
+                                      //     "$origen_prov: $remitente_city_ref-${responseProvCityRem['coverage_external']['dpa_provincia']['provincia']}");
+                                      // print(
+                                      //     "${widget.product.warehouse!.city.toString()}: $remitente_city_ref");
+
+                                      destinatario_prov_ref =
+                                          selectedCity.toString().split("-")[3];
+                                      destinatario_city_ref =
+                                          selectedCity.toString().split("-")[4];
+
+                                      // print("DESTINATARIO:");
+                                      // print(
+                                      //     "${selectedProvincia.toString().split("-")[0]}: $destinatario_prov_ref");
+                                      // print(
+                                      //     "${selectedCity.toString().split("-")[0]}: $destinatario_city_ref");
+                                    }
+
+                                    double costDelivery = double.parse(
+                                            costShippingSeller.toString()) +
+                                        double.parse(
+                                            taxCostShipping.toString());
+
+                                    var response =
+                                        await Connections().createOrderProduct(
+                                      sharedPrefs!
+                                          .getString("idComercialMasterSeller"),
+                                      sharedPrefs!
+                                          .getString("NameComercialSeller"),
+                                      _nombre.text,
+                                      _direccion.text,
+                                      _telefono.text,
+                                      selectedCarrierType == "Externo"
+                                          ? selectedCity
+                                              .toString()
+                                              .split("-")[0]
+                                          : selectedValueRoute
+                                              .toString()
+                                              .split("-")[0],
+                                      _producto.text,
+                                      _productoE.text,
+                                      // _cantidad.text,
+                                      quantityTotal,
+                                      priceTotal,
+                                      _observacion.text,
+                                      // sku,
+                                      idProd,
+                                      variantsDetailsList,
+                                      recaudo ? 1 : 0,
+                                      selectedCarrierType == "Externo"
+                                          ? costDelivery.toString()
+                                          : null,
+                                      selectedCarrierType == "Interno"
+                                          ? selectedValueRoute
+                                              .toString()
+                                              .split("-")[1]
+                                          : "0",
+                                      selectedCarrierType == "Interno"
+                                          ? selectedValueTransport
+                                              .toString()
+                                              .split("-")[1]
+                                          : "0",
+                                      selectedCarrierType == "Externo"
+                                          ? selectedCarrierExternal
+                                              .toString()
+                                              .split("-")[1]
+                                          : "0",
+                                      selectedCarrierType == "Externo"
+                                          ? selectedCity
+                                              .toString()
+                                              .split("-")[1]
+                                          : "0",
+                                    );
+
+                                    // print(response);
+
+                                    if (selectedCarrierType == "Externo" &&
+                                        selectedCarrierExternal
+                                                .toString()
+                                                .split("-")[1] ==
+                                            "1") {
+                                      if (response != 1 || response != 2) {
+                                        DateTime now = DateTime.now();
+
+                                        String formattedDateTime =
+                                            DateFormat('yyyy-MM-dd HH:mm:ss')
+                                                .format(now);
+
+                                        dataIntegration = {
+                                          "remitente": {
+                                            "nombre":
+                                                "${sharedPrefs!.getString("NameComercialSeller")}-${response['numero_orden'].toString()}",
+                                            "telefono": "",
+                                            // "telefono": sharedPrefs!
+                                            //     .getString("seller_telefono"),
+                                            "provincia": remitente_prov_ref,
+                                            "ciudad": remitente_city_ref,
+                                            "direccion": remitente_address
+                                          },
+                                          "destinatario": {
+                                            "nombre": _nombre.text,
+                                            "telefono": _telefono.text,
+                                            "provincia": destinatario_prov_ref,
+                                            "ciudad": destinatario_city_ref,
+                                            "direccion": _direccion.text
+                                          },
+                                          "cant_paquetes": "1",
+                                          "peso_total": "2.00",
+                                          "documento_venta": "",
+                                          "contenido":
+                                              "$contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}",
+                                          "observacion": _observacion.text,
+                                          "fecha": formattedDateTime,
+                                          "declarado": double.parse(priceTotal),
+                                          "con_recaudo": recaudo ? true : false
+                                        };
+                                        print(dataIntegration);
+
+                                        //send Gintra
+                                        print("send Gintra");
+                                        var responseGintra = await Connections()
+                                            .postOrdersGintra(dataIntegration);
+                                        print("responseInteg");
+                                        print(responseGintra);
+
+                                        if (responseGintra != []) {
+                                          await Connections()
+                                              .UpdateOrderCarrierbyOrder(
+                                                  response['id'], {
+                                            "external_id":
+                                                responseGintra['guia']
+                                          });
+                                        }
+                                        //
+                                      }
+                                    }
+
+                                    var _url = Uri.parse(
+                                      """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                    );
+
+                                    if (!await launchUrl(_url)) {
+                                      throw Exception('Could not launch $_url');
+                                    }
+
+                                    Navigator.pop(context);
+                                    Navigator.pop(context);
                                   }
-
-                                  var _url = Uri.parse(
-                                    """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
-                                  );
-
-                                  if (!await launchUrl(_url)) {
-                                    throw Exception('Could not launch $_url');
-                                  }
-
-                                  Navigator.pop(context);
-                                  Navigator.pop(context);
                                 }
                               }
                             }
