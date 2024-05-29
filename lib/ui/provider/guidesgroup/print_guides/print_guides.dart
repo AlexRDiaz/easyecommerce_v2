@@ -723,14 +723,14 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
 
   String? getFirstProviderName(List<dynamic> warehouses) {
     if (warehouses.isNotEmpty) {
-      if (warehouses.length > 1) {
-        var firstWarehouse = warehouses[0];
-        if (firstWarehouse['provider'] != null) {
-          return firstWarehouse['provider']['name'];
-        }
-      } else {
-        return "";
+      // if (warehouses.length > 1) {
+      var firstWarehouse = warehouses[0];
+      if (firstWarehouse['provider'] != null) {
+        return firstWarehouse['provider']['name'];
       }
+      // } else {
+      //   return "";
+      // }
     }
     return "";
   }

@@ -172,7 +172,9 @@ class _OrderInfoState extends State<OrderInfo> {
 
     if (data['id_product'] != null &&
         data['id_product'] != 0 &&
-        data['variant_details'] != null) {
+        data['variant_details'] != null &&
+        data['variant_details'].toString() != "[]" &&
+        data['variant_details'].isNotEmpty) {
       isvariable = data['product']['isvariable'];
       priceWarehouseTotal = double.parse(data['product']['price'].toString());
 
@@ -208,17 +210,21 @@ class _OrderInfoState extends State<OrderInfo> {
       }
       //
     } else {
-      print("no id_p");
+      print("no id_p or var_det !!");
     }
 
-    var variants = data['variant_details'] != null
+    var variants = data['variant_details'] != null &&
+            data['variant_details'].toString() != "[]" &&
+            data['variant_details'].isNotEmpty
         ? data['variant_details'].toString()
         : "";
     List<Map<String, dynamic>> variantDetails = [];
 
     if (data['id_product'] != null &&
         data['id_product'] != 0 &&
-        data['variant_details'] != null) {
+        data['variant_details'] != null &&
+        data['variant_details'].toString() != "[]" &&
+        data['variant_details'].isNotEmpty) {
       //
       variantDetails = jsonDecode(variants).cast<Map<String, dynamic>>();
       for (var detail in variantDetails) {
