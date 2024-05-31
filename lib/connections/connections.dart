@@ -8022,6 +8022,33 @@ class Connections {
     }
   }
 
+
+  programedOrder(idOrigen) async {
+    // String? generatedBy = sharedPrefs!.getString("id");
+    print(json.encode(
+        {"id_origen": idOrigen}));
+    try {
+      var response = await http.post(
+          Uri.parse(
+            "$serverLaravel/api/transacciones/pedido-programado",
+          ),
+          body: json.encode({
+            "id_origen": idOrigen
+          }));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        print(decodeData);
+        return decodeData;
+      } else {
+        print("try error");
+        return 1;
+      }
+    } catch (error) {
+      print("catch error");
+      return 2;
+    }
+  }
+
   getExistTransaction(tipo, id_origen, origen, id_vendedor) async {
     try {
       var response =

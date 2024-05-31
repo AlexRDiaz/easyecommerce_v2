@@ -998,6 +998,45 @@ class _TransportDeliveryHistoryDetailsDataState
             //     ),
             //   ),
             // ),
+            // ! *************
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () async {
+                getLoadingModal(context, false);
+                // var response = await Connections().updateOrderLogisticStatus(
+                //   "IMPRESO",
+                //   widget.data['id'],
+                // );
+
+                //new
+                var response = await Connections().updateOrderWithTime(
+                    widget.data['id'].toString(),
+                    "estado_logistico:PENDIENTE",
+                    idUser,
+                    "",
+                    "");
+
+                Navigator.pop(context);
+                showCustomModal(response, context);
+                await Future.delayed(const Duration(seconds: 3), () {
+                  Navigator.pop(context);
+                });
+
+                await loadData();
+              },
+              child: SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: Center(
+                  child: Text(
+                    "PENDIENTE",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ),
+            
+            // ! *************
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
