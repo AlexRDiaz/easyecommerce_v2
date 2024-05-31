@@ -1213,7 +1213,7 @@ class _UpdateStatusOperatorHistorialState
                                 // ids.add(transaction["id"]);
                               // }
                               var res = await Connections()
-                                  .programedOrder(widget.id);
+                                  .programedOrder(widget.id,_controllerModalText.text);
 
                               requestResetOrders(res);
                             },

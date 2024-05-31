@@ -8023,7 +8023,7 @@ class Connections {
   }
 
 
-  programedOrder(idOrigen) async {
+  programedOrder(idOrigen,comentario) async {
     // String? generatedBy = sharedPrefs!.getString("id");
     print(json.encode(
         {"id_origen": idOrigen}));
@@ -8033,7 +8033,9 @@ class Connections {
             "$serverLaravel/api/transacciones/pedido-programado",
           ),
           body: json.encode({
-            "id_origen": idOrigen
+            "id_origen": idOrigen,
+            "comentario": comentario
+            
           }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
