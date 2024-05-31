@@ -1390,21 +1390,27 @@ class _TableOrdersGuidesSentStateProvider
           .value = 'Fecha de Entrega';
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 0))
-          .value = 'Codigo de pedido';
+          .value = 'ID';
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: 0))
-          .value = 'Nombre del cliente';
+          .value = 'Codigo de pedido';
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 4, rowIndex: 0))
-          .value = 'Ciudad';
+          .value = 'Nombre del cliente';
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 5, rowIndex: 0))
-          .value = 'Transportadora';
+          .value = 'Ciudad';
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 6, rowIndex: 0))
-          .value = 'Producto';
+          .value = 'Transportadora';
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 7, rowIndex: 0))
+          .value = 'ID Producto';
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 8, rowIndex: 0))
+          .value = 'Producto';
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 9, rowIndex: 0))
           .value = 'Cantidad';
 
       for (int rowIndex = 0; rowIndex < sortedData.length; rowIndex++) {
@@ -1418,46 +1424,56 @@ class _TableOrdersGuidesSentStateProvider
                 columnIndex: 1, rowIndex: rowIndex + 1))
             .value = data["fecha_entrega"];
         sheet
+            .cell(CellIndex.indexByColumnRow(
+                columnIndex: 2, rowIndex: rowIndex + 1))
+            .value = data["id"];
+        sheet
                 .cell(CellIndex.indexByColumnRow(
-                    columnIndex: 2, rowIndex: rowIndex + 1))
+                    columnIndex: 3, rowIndex: rowIndex + 1))
                 .value =
             "${data['users'] != null && data['users'].isNotEmpty ? data['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data["numero_orden"]}";
         name_comercial =
             sharedPrefs!.getString("NameComercialSeller").toString();
         sheet
             .cell(CellIndex.indexByColumnRow(
-                columnIndex: 3, rowIndex: rowIndex + 1))
+                columnIndex: 4, rowIndex: rowIndex + 1))
             .value = data["nombre_shipping"];
         sheet
             .cell(CellIndex.indexByColumnRow(
-                columnIndex: 4, rowIndex: rowIndex + 1))
+                columnIndex: 5, rowIndex: rowIndex + 1))
             .value = data["ciudad_shipping"];
+
         if (data["transportadora"].isEmpty) {
           if (data['pedido_carrier'].isNotEmpty) {
             sheet
                     .cell(CellIndex.indexByColumnRow(
-                        columnIndex: 5, rowIndex: rowIndex + 1))
+                        columnIndex: 6, rowIndex: rowIndex + 1))
                     .value =
                 data['pedido_carrier'][0]['carrier']['name'].toString();
           } else {
             sheet
                 .cell(CellIndex.indexByColumnRow(
-                    columnIndex: 5, rowIndex: rowIndex + 1))
+                    columnIndex: 6, rowIndex: rowIndex + 1))
                 .value = "";
           }
         } else {
           sheet
               .cell(CellIndex.indexByColumnRow(
-                  columnIndex: 5, rowIndex: rowIndex + 1))
+                  columnIndex: 6, rowIndex: rowIndex + 1))
               .value = data["transportadora"][0]["nombre"];
         }
-        sheet
-            .cell(CellIndex.indexByColumnRow(
-                columnIndex: 6, rowIndex: rowIndex + 1))
-            .value = data["producto_p"];
+
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 7, rowIndex: rowIndex + 1))
+            .value = data["id_product"];
+        sheet
+            .cell(CellIndex.indexByColumnRow(
+                columnIndex: 8, rowIndex: rowIndex + 1))
+            .value = data["producto_p"];
+        sheet
+            .cell(CellIndex.indexByColumnRow(
+                columnIndex: 9, rowIndex: rowIndex + 1))
             .value = data["cantidad_total"];
 
         numItem++;
@@ -1466,7 +1482,7 @@ class _TableOrdersGuidesSentStateProvider
 
       var nombreFile =
           // "Guias_Enviadas_$name_comercial-EasyEcommerce-${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
-          "Guias_Enviadas_$name_comercial-EasyEcommerce-$date";
+          "Guias_Enviadas-EasyEcommerce-$date";
 
       excel.save(fileName: '${nombreFile}.xlsx');
     } catch (e) {

@@ -920,7 +920,9 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
 
                             if (data['id_product'] != null &&
                                 data['id_product'] != 0 &&
-                                data['variant_details'] != null) {
+                                data['variant_details'] != null &&
+                                data['variant_details'].toString() != "[]" &&
+                                data['variant_details'].isNotEmpty) {
                               getLoadingModal(context, false);
 
                               var responseCurrentStock = await Connections()
@@ -933,6 +935,8 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                               // print("$responseCurrentStock");
                               bool $isAllAvailable = true;
                               String $textRes = "";
+                              List<int> arrayAvailables = [];
+
                               if (responseCurrentStock != 1 ||
                                   responseCurrentStock != 2) {
                                 var listStock = responseCurrentStock;
@@ -944,15 +948,29 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                   int currentStock = int.parse(parts[2]);
                                   int request = int.parse(parts[3]);
 
+                                  arrayAvailables.add(available);
                                   if (available != 1) {
                                     // print("$available");
                                     $isAllAvailable = false;
-                                    $textRes +=
-                                        "$code; Solicitado: ${request.toString()}; Disponible: ${currentStock.toString()}\n";
+                                    if (available == 0 || available == 2) {
+                                      $textRes +=
+                                          "$code; Solicitado: ${request.toString()}; Disponible: ${currentStock.toString()}\n";
+                                    } else if (available == 3) {
+                                      $textRes +=
+                                          "$code; Este producto no tiene este SKU.\n";
+                                    } else if (available == 4) {
+                                      $textRes +=
+                                          "$code; Formato incorrecto del SKU.\n";
+                                    }
                                   }
                                 }
+                                bool case34 = arrayAvailables
+                                    .any((num) => num == 3 || num == 4);
+                                if (case34) {
+                                  $textRes +=
+                                      "\nValidar si los SKU ingresados en Shopify son correctos; en caso contrario, crear una nueva guía desde el Catálogo.";
+                                }
                               }
-
                               // print("isAllAvailable: ${$isAllAvailable}");
                               Navigator.pop(context);
 
@@ -1126,7 +1144,10 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                               .split("-")[1],
                                           data['id']);
                                   var response2 = await Connections()
-                                      .updatenueva(data['id'], {"recaudo": 1});
+                                      .updatenueva(data['id'], {
+                                    "recaudo": 1,
+                                    "precio_total": priceTotal.toString()
+                                  });
 
                                   var response3 = await Connections()
                                       .updateOrderWithTime(
@@ -1141,7 +1162,8 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                   Navigator.pop(context);
                                   Navigator.pop(context);
                                   var _url = Uri.parse(
-                                    """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                    """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_producto.text}${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                    // """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
                                   );
 
                                   if (!await launchUrl(_url)) {
@@ -1181,6 +1203,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                           "id_externo":
                                               responseGintraNew['guia'],
                                           "recaudo": recaudo ? 1 : 0,
+                                          "precio_total": priceTotal.toString()
                                         });
 
                                         //crear un nuevo pedido_carrier_link
@@ -1208,7 +1231,8 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                             "updated estado_interno:CONFIRMADO with others");
 
                                         var _url = Uri.parse(
-                                          """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                          """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_producto.text}${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                          // """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
                                         );
 
                                         if (!await launchUrl(_url)) {
@@ -1258,8 +1282,10 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                                 .split("-")[1],
                                             data['id']);
                                     var response2 = await Connections()
-                                        .updatenueva(
-                                            data['id'], {"recaudo": 1});
+                                        .updatenueva(data['id'], {
+                                      "recaudo": 1,
+                                      "precio_total": priceTotal.toString()
+                                    });
 
                                     var response3 = await Connections()
                                         .updateOrderWithTime(
@@ -1272,7 +1298,8 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                         "updated estado_interno:CONFIRMADO with others");
 
                                     var _url = Uri.parse(
-                                      """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                      """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_producto.text}${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                      // """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
                                     );
 
                                     if (!await launchUrl(_url)) {
@@ -1314,6 +1341,8 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                             "id_externo":
                                                 responseGintraNew['guia'],
                                             "recaudo": recaudo ? 1 : 0,
+                                            "precio_total":
+                                                priceTotal.toString()
                                           });
 
                                           //crear un nuevo pedido_carrier_link
@@ -1345,7 +1374,8 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                                   data['id']);
 
                                           var _url = Uri.parse(
-                                            """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                            """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_producto.text}${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                            // """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
                                           );
 
                                           if (!await launchUrl(_url)) {
@@ -1393,8 +1423,10 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                             data['id']);
 
                                     var response2 = await Connections()
-                                        .updatenueva(
-                                            data['id'], {"recaudo": 1});
+                                        .updatenueva(data['id'], {
+                                      "recaudo": 1,
+                                      "precio_total": priceTotal.toString()
+                                    });
 
                                     //eliminar relacion pedido_Carrier_link
                                     await Connections()
@@ -1411,7 +1443,8 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                         "updated estado_interno:CONFIRMADO with others");
 
                                     var _url = Uri.parse(
-                                      """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                      """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_producto.text}${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                      // """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
                                     );
 
                                     if (!await launchUrl(_url)) {

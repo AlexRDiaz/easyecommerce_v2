@@ -7583,8 +7583,8 @@ class Connections {
 
   // *
   getCurrentStock(idComercial, variant_detail) async {
-    print(json.encode(
-        {"id_comercial": idComercial, "variant_detail": variant_detail}));
+    // print(json.encode(
+    //     {"id_comercial": idComercial, "variant_detail": variant_detail}));
     try {
       var response = await http.post(Uri.parse("$serverLaravel/api/checkstock"),
           headers: {'Content-Type': 'application/json'},

@@ -1240,6 +1240,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                   print("$responseCurrentStock");
                                   bool $isAllAvailable = true;
                                   String $textRes = "";
+                                  List<int> arrayAvailables = [];
+
                                   if (responseCurrentStock != 1 ||
                                       responseCurrentStock != 2) {
                                     var listStock = responseCurrentStock;
@@ -1251,19 +1253,34 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                       int currentStock = int.parse(parts[2]);
                                       int request = int.parse(parts[3]);
 
+                                      arrayAvailables.add(available);
                                       if (available != 1) {
-                                        print("$available");
+                                        // print("$available");
                                         $isAllAvailable = false;
-                                        $textRes +=
-                                            "$code; Solicitado: ${request.toString()}; Disponible: ${currentStock.toString()}\n";
+                                        if (available == 0 || available == 2) {
+                                          $textRes +=
+                                              "$code; Solicitado: ${request.toString()}; Disponible: ${currentStock.toString()}\n";
+                                        } else if (available == 3) {
+                                          $textRes +=
+                                              "$code; Este producto no tiene este SKU.\n";
+                                        } else if (available == 4) {
+                                          $textRes +=
+                                              "$code; Formato incorrecto del SKU.\n";
+                                        }
                                       }
+                                    }
+                                    bool case34 = arrayAvailables
+                                        .any((num) => num == 3 || num == 4);
+                                    if (case34) {
+                                      $textRes +=
+                                          "\nValidar si los SKU ingresados en Shopify son correctos; en caso contrario, crear una nueva guía desde el Catálogo.";
                                     }
                                   }
 
-                                  print("isAllAvailable: ${$isAllAvailable}");
+                                  // print("isAllAvailable: ${$isAllAvailable}");
 
                                   if (!$isAllAvailable) {
-                                    print("${$textRes}}");
+                                    // print("${$textRes}}");
                                     Navigator.pop(context);
 
                                     // ignore: use_build_context_synchronously
@@ -1297,23 +1314,30 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
 
                                     // String messageVar = "";
                                     String contenidoProd = "";
+                                    String labelProducto = "";
 
                                     if (widget.product.isvariable == 1) {
-                                      // messageVar = " (";
+                                      labelProducto = "${_producto.text} ";
                                       for (var variant in variantsDetailsList) {
                                         // messageVar +=
                                         //     "${variant['quantity']}-${variant['variant_title']}; ";
 
                                         contenidoProd +=
                                             '${variant['quantity']}*${_producto.text} ${variant['variant_title']} | ';
+                                        labelProducto +=
+                                            '${variant['quantity']}*${variant['variant_title']} | ';
                                       }
                                       // messageVar = messageVar.substring(
                                       //     1, messageVar.length - 2);
                                       // messageVar += ") ";
                                       contenidoProd = contenidoProd.substring(
                                           0, contenidoProd.length - 3);
+                                      labelProducto = labelProducto.substring(
+                                          0, labelProducto.length - 3);
                                     } else {
                                       contenidoProd +=
+                                          '$quantityTotal*${_producto.text}';
+                                      labelProducto +=
                                           '$quantityTotal*${_producto.text}';
                                     }
 
@@ -1373,6 +1397,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                         double.parse(
                                             taxCostShipping.toString());
 
+                                    // print("$labelProducto");
+
                                     var response =
                                         await Connections().createOrderProduct(
                                       sharedPrefs!
@@ -1389,7 +1415,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                           : selectedValueRoute
                                               .toString()
                                               .split("-")[0],
-                                      _producto.text,
+                                      // _producto.text,
+                                      labelProducto,
                                       _productoE.text,
                                       // _cantidad.text,
                                       quantityTotal,
@@ -1488,7 +1515,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                     }
 
                                     var _url = Uri.parse(
-                                      """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                      """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $labelProducto${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
                                     );
 
                                     if (!await launchUrl(_url)) {

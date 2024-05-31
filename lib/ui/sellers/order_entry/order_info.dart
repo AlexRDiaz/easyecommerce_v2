@@ -1701,7 +1701,7 @@ class _OrderInfoState extends State<OrderInfo> {
         Row(
           children: [
             SizedBox(
-              width: screenWidth > 600 ? 180 : 150,
+              width: 150,
               child: TextField(
                 style: const TextStyle(fontWeight: FontWeight.bold),
                 controller: _controllers.precioTotalEditController,
@@ -1937,111 +1937,136 @@ class _OrderInfoState extends State<OrderInfo> {
                       }
                     }
                     //check stock
-                    getLoadingModal(context, false);
-
-                    if (data['variant_details'] != null) {
-                      //
-                      print("tiene variant_details");
-
-                      if (data['id_product'] != null &&
-                          data['id_product'] != 0) {
-                        //
-                        print("tiene id_product");
-
-                        if (isvariable == 1) {
-                          print("is variable upt ");
-                          print("variantsCurrentList: $variantsCurrentList");
-                        } else {
-                          variantsCurrentList[0]['quantity'] = int.parse(
-                              _controllers.cantidadEditController.text);
-
-                          print("variantsCurrentList: $variantsCurrentList");
-                        }
-                        var response2 =
-                            await Connections().updatenueva(data['id'], {
-                          "variant_details": variantsCurrentList,
-                        });
-                      } else {
-                        //
-                        print("NO tiene id_product");
-                      }
-                    } else {
-                      //
-                      print("NO tiene variants_details");
-                    }
-                    await Connections().updatenueva(data['id'], {
-                      "cantidad_total":
-                          _controllers.cantidadEditController.text.toString(),
-                    });
-                    getTotalQuantity();
-
-                    await updateData();
-                    Navigator.pop(context);
-
-                    if (data['id_product'] != null &&
-                        data['id_product'] != 0 &&
-                        data['variant_details'] != null) {
+                    if (readySent) {
                       getLoadingModal(context, false);
 
-                      var responseCurrentStock = await Connections()
-                          .getCurrentStock(
-                              sharedPrefs!
-                                  .getString("idComercialMasterSeller")
-                                  .toString(),
-                              variantsCurrentList);
+                      if (data['variant_details'] != null &&
+                          data['variant_details'].toString() != "[]" &&
+                          data['variant_details'].isNotEmpty) {
+                        //
+                        print("tiene variant_details");
 
-                      print("$responseCurrentStock");
-                      bool $isAllAvailable = true;
-                      String $textRes = "";
-                      if (responseCurrentStock != 1 ||
-                          responseCurrentStock != 2) {
-                        var listStock = responseCurrentStock;
+                        if (data['id_product'] != null &&
+                            data['id_product'] != 0) {
+                          //
+                          print("tiene id_product");
 
-                        for (String item in listStock) {
-                          List<String> parts = item.split('|');
-                          String code = parts[0];
-                          int available = int.parse(parts[1]);
-                          int currentStock = int.parse(parts[2]);
-                          int request = int.parse(parts[3]);
+                          if (isvariable == 1) {
+                            print("is variable upt ");
+                            // print("variantsCurrentList: $variantsCurrentList");
+                          } else {
+                            variantsCurrentList[0]['quantity'] = int.parse(
+                                _controllers.cantidadEditController.text);
 
-                          if (available != 1) {
-                            print("$available");
-                            $isAllAvailable = false;
-                            $textRes +=
-                                "$code; Solicitado: ${request.toString()}; Disponible: ${currentStock.toString()}\n";
+                            // print("variantsCurrentList: $variantsCurrentList");
                           }
+                          var response2 =
+                              await Connections().updatenueva(data['id'], {
+                            "variant_details": variantsCurrentList,
+                          });
+                        } else {
+                          //
+                          print("NO tiene id_product");
                         }
+                      } else {
+                        //
+                        print("NO tiene variants_details");
                       }
+                      await Connections().updatenueva(data['id'], {
+                        "cantidad_total":
+                            _controllers.cantidadEditController.text.toString(),
+                      });
+                      getTotalQuantity();
 
-                      // print("isAllAvailable: ${$isAllAvailable}");
+                      await updateData();
                       Navigator.pop(context);
 
-                      if (!$isAllAvailable) {
-                        readySent = false;
+                      if (data['id_product'] != null &&
+                          data['id_product'] != 0 &&
+                          data['variant_details'] != null &&
+                          data['variant_details'].toString() != "[]" &&
+                          data['variant_details'].isNotEmpty) {
+                        getLoadingModal(context, false);
 
-                        print("${$textRes}}");
+                        var responseCurrentStock = await Connections()
+                            .getCurrentStock(
+                                sharedPrefs!
+                                    .getString("idComercialMasterSeller")
+                                    .toString(),
+                                variantsCurrentList);
 
-                        // ignore: use_build_context_synchronously
-                        AwesomeDialog(
-                          width: 500,
-                          context: context,
-                          dialogType: DialogType.info,
-                          animType: AnimType.rightSlide,
-                          title:
-                              "No existe la cantidad requerida del/los producto(s).",
-                          desc: $textRes,
-                          btnCancel: Container(),
-                          btnOkText: "Aceptar",
-                          btnOkColor: Colors.green,
-                          btnOkOnPress: () async {},
-                          btnCancelOnPress: () async {},
-                        ).show();
-                      } else {
-                        readySent = true;
+                        print("$responseCurrentStock");
+                        bool $isAllAvailable = true;
+                        String $textRes = "";
+                        List<int> arrayAvailables = [];
+
+                        if (responseCurrentStock != 1 ||
+                            responseCurrentStock != 2) {
+                          var listStock = responseCurrentStock;
+
+                          for (String item in listStock) {
+                            List<String> parts = item.split('|');
+                            String code = parts[0];
+                            int available = int.parse(parts[1]);
+                            int currentStock = int.parse(parts[2]);
+                            int request = int.parse(parts[3]);
+
+                            arrayAvailables.add(available);
+                            if (available != 1) {
+                              // print("$available");
+                              $isAllAvailable = false;
+                              if (available == 0 || available == 2) {
+                                $textRes +=
+                                    "$code; Solicitado: ${request.toString()}; Disponible: ${currentStock.toString()}\n";
+                              } else if (available == 3) {
+                                $textRes +=
+                                    "$code; Este producto no tiene este SKU.\n";
+                              } else if (available == 4) {
+                                $textRes +=
+                                    "$code; Formato incorrecto del SKU.\n";
+                              }
+                            }
+                          }
+                          bool case34 = arrayAvailables
+                              .any((num) => num == 3 || num == 4);
+                          if (case34) {
+                            $textRes +=
+                                "\nValidar si los SKU ingresados en Shopify son correctos; en caso contrario, crear una nueva guía desde el Catálogo.";
+                          }
+                        }
+
+                        // print("isAllAvailable: ${$isAllAvailable}");
+                        Navigator.pop(context);
+
+                        if (!$isAllAvailable) {
+                          readySent = false;
+
+                          // print("${$textRes}}");
+
+                          // ignore: use_build_context_synchronously
+                          AwesomeDialog(
+                            width: 500,
+                            context: context,
+                            dialogType: DialogType.info,
+                            animType: AnimType.rightSlide,
+                            title: "No se puede procesar la solicitud",
+                            // "No se puede procesar la solicitud: cantidad insuficiente, SKU incorrecto o SKU no corresponde al producto.",
+                            desc: $textRes,
+                            btnCancel: Container(),
+                            btnOkText: "Aceptar",
+                            btnOkColor: Colors.green,
+                            btnOkOnPress: () async {},
+                            btnCancelOnPress: () async {},
+                          ).show();
+                        } else {
+                          readySent = true;
+                        }
                       }
                     }
 
                     if (readySent) {
+                      print("readySent");
+
                       getLoadingModal(context, false);
 
                       // if (widget.product.isvariable == 1 &&
@@ -2059,7 +2084,7 @@ class _OrderInfoState extends State<OrderInfo> {
                       }
 
                       String contenidoProd = "";
-                      print("variantsCurrentList: $variantsCurrentList");
+                      // print("variantsCurrentList: $variantsCurrentList");
                       if (data['id_product'] != null &&
                           data['id_product'] != 0) {
                         if (isvariable == 1) {
@@ -2114,7 +2139,7 @@ class _OrderInfoState extends State<OrderInfo> {
                           }
                         ]);
 
-                        print(responseProvCityRem);
+                        // print(responseProvCityRem);
                         remitente_prov_ref = responseProvCityRem['id_prov_ref'];
                         remitente_city_ref =
                             responseProvCityRem['id_ciudad_ref'];
@@ -2138,8 +2163,8 @@ class _OrderInfoState extends State<OrderInfo> {
                         DateTime now = DateTime.now();
                         String formattedDateTime =
                             DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
-                        print(
-                            "telefono_2: ${sharedPrefs!.getString("seller_telefono")}");
+                        // print(
+                        //     "telefono_2: ${sharedPrefs!.getString("seller_telefono")}");
                         dataIntegration = {
                           "remitente": {
                             "nombre":
@@ -2190,8 +2215,11 @@ class _OrderInfoState extends State<OrderInfo> {
                                       .toString()
                                       .split("-")[1],
                                   data['id']);
-                          var response2 = await Connections()
-                              .updatenueva(data['id'], {"recaudo": 1});
+                          var response2 = await Connections().updatenueva(
+                              data['id'], {
+                            "recaudo": 1,
+                            "precio_total": priceTotal.toString()
+                          });
 
                           var response3 = await Connections()
                               .updateOrderWithTime(
@@ -2207,7 +2235,8 @@ class _OrderInfoState extends State<OrderInfo> {
                           Navigator.pop(context);
 
                           var _url = Uri.parse(
-                            """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
+                            """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_controllers.productoEditController.text}${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
+                            // """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
                           );
 
                           if (!await launchUrl(_url)) {
@@ -2242,6 +2271,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                 await Connections().updatenueva(data['id'], {
                                   "id_externo": responseGintraNew['guia'],
                                   "recaudo": recaudo ? 1 : 0,
+                                  "precio_total": priceTotal.toString()
                                 });
 
                                 //crear un nuevo pedido_carrier_link
@@ -2269,7 +2299,8 @@ class _OrderInfoState extends State<OrderInfo> {
                                 Navigator.pop(context);
 
                                 var _url = Uri.parse(
-                                  """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                  """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_controllers.productoEditController.text}${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                  // """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
                                 );
 
                                 if (!await launchUrl(_url)) {
@@ -2310,8 +2341,11 @@ class _OrderInfoState extends State<OrderInfo> {
                                         .toString()
                                         .split("-")[1],
                                     data['id']);
-                            var response2 = await Connections()
-                                .updatenueva(data['id'], {"recaudo": 1});
+                            var response2 = await Connections().updatenueva(
+                                data['id'], {
+                              "recaudo": 1,
+                              "precio_total": priceTotal.toString()
+                            });
 
                             var response3 = await Connections()
                                 .updateOrderWithTime(
@@ -2327,7 +2361,8 @@ class _OrderInfoState extends State<OrderInfo> {
                             Navigator.pop(context);
 
                             var _url = Uri.parse(
-                              """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
+                              """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_controllers.productoEditController.text}${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
+                              // """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
                             );
 
                             if (!await launchUrl(_url)) {
@@ -2362,6 +2397,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                   await Connections().updatenueva(data['id'], {
                                     "id_externo": responseGintraNew['guia'],
                                     "recaudo": recaudo ? 1 : 0,
+                                    "precio_total": priceTotal.toString()
                                   });
 
                                   //crear un nuevo pedido_carrier_link
@@ -2392,7 +2428,8 @@ class _OrderInfoState extends State<OrderInfo> {
                                   Navigator.pop(context);
 
                                   var _url = Uri.parse(
-                                    """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                    """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_controllers.productoEditController.text}${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                    // """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
                                   );
 
                                   if (!await launchUrl(_url)) {
@@ -2432,8 +2469,11 @@ class _OrderInfoState extends State<OrderInfo> {
                                         .split("-")[1],
                                     data['id']);
 
-                            var response2 = await Connections()
-                                .updatenueva(data['id'], {"recaudo": 1});
+                            var response2 = await Connections().updatenueva(
+                                data['id'], {
+                              "recaudo": 1,
+                              "precio_total": priceTotal.toString()
+                            });
 
                             //eliminar relacion pedido_Carrier_link
                             await Connections()
