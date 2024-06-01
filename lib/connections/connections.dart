@@ -7606,6 +7606,25 @@ class Connections {
     }
   }
 
+  // *
+  getWarehousesBySubProv(id) async {
+    try {
+      var response = await http.get(
+        Uri.parse("$serverLaravel/api/subprov/warehouses/$id"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      print(error);
+      return 2;
+    }
+  }
+
   //TEST
 
   Future getOrdersTest1() async {
@@ -8123,11 +8142,11 @@ class Connections {
     }
   }
 
-  getSubProviders(search) async {
+  getSubProviders(idProvMaster, search) async {
     try {
       var response = await http.get(
         Uri.parse(
-            "$serverLaravel/api/users/subproviders/${sharedPrefs!.getString("id")}/$search"),
+            "$serverLaravel/api/users/subproviders/$idProvMaster/$search"),
         headers: {'Content-Type': 'application/json'},
       );
       if (response.statusCode == 200) {

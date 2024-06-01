@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/connections/connections.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:frontend/models/user_model.dart';
@@ -37,6 +38,8 @@ class _SubProviderViewState extends State<SubProviderView> {
   late WrehouseController _warehouseController;
   String idProv = sharedPrefs!.getString("idProvider").toString();
   bool warehouseActAprob = false;
+  String idProvMaster =
+      sharedPrefs!.getString("idProviderUserMaster").toString();
 
   @override
   void initState() {
@@ -118,7 +121,7 @@ class _SubProviderViewState extends State<SubProviderView> {
               padding: const EdgeInsets.all(8.0),
               child: TextField(
                 controller: _subProviderController.searchController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Buscar proveedor',
                   prefixIcon: Icon(Icons.search),
                 ),
@@ -259,7 +262,30 @@ class _SubProviderViewState extends State<SubProviderView> {
     );
   }
 
-  void _showDialog(selectedRow) {
+  Future<void> _showDialog(selectedRow) async {
+    var responseWarehouses =
+        await Connections().getWarehousesBySubProv(selectedRow.id);
+    String textWarehouses = "";
+    List<String> warehousesList = [];
+
+    if (responseWarehouses is List) {
+      for (var element in responseWarehouses) {
+        if (element is String) {
+          warehousesList.add(element);
+        } else {
+          print('Error: Elemento no es una cadena');
+        }
+      }
+
+      if (warehousesList.isNotEmpty) {
+        for (var element in warehousesList) {
+          textWarehouses += element.split('|')[1];
+        }
+      }
+    } else {
+      print('Error: La respuesta no es una lista.');
+    }
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -272,6 +298,9 @@ class _SubProviderViewState extends State<SubProviderView> {
               children: [
                 Container(child: Text(selectedRow.username.toString())),
                 Container(child: Text(selectedRow.email.toString())),
+                Container(
+                  child: Text("Bodega: $textWarehouses"),
+                )
               ],
             ),
           ),
@@ -281,7 +310,7 @@ class _SubProviderViewState extends State<SubProviderView> {
   }
 
   Future<List<UserModel>> _getSubProviderModelData() async {
-    await _subProviderController.loadSubProviders();
+    await _subProviderController.loadSubProviders(idProvMaster);
     return _subProviderController.users;
   }
 

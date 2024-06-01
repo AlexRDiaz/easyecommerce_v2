@@ -52,6 +52,9 @@ class _AddSubProviderState extends StateMVC<AddSubProvider> {
   late WrehouseController _warehouseController;
   String idProv = sharedPrefs!.getString("idProvider").toString();
   List<Map<String, String>> selectedWarehouses = [];
+  String idProvMaster =
+      sharedPrefs!.getString("idProviderUserMaster").toString();
+  String idUser = sharedPrefs!.getString("id").toString();
 
   @override
   void initState() {
@@ -199,67 +202,71 @@ class _AddSubProviderState extends StateMVC<AddSubProvider> {
                   ),
 
                   const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      const Text(
-                        "Bodega",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 15),
-                      ),
-                      const SizedBox(width: 10),
-                      SizedBox(
-                        width: 250,
-                        child: DropdownButtonFormField<String>(
-                          isExpanded: true,
-                          hint: Text(
-                            'Seleccione Bodega',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Theme.of(context).hintColor,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          items: warehousesToSelect.map((item) {
-                            var parts = item.split('-');
-                            var branchName = parts[1];
-                            var city = parts[2];
-                            return DropdownMenuItem(
-                              value: item,
-                              child: Text(
-                                '$branchName - $city',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                  Visibility(
+                    visible: int.parse(idUser.toString()) ==
+                        int.parse(idProvMaster.toString()),
+                    child: Row(
+                      children: [
+                        const Text(
+                          "Bodega",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 15),
+                        ),
+                        const SizedBox(width: 10),
+                        SizedBox(
+                          width: 250,
+                          child: DropdownButtonFormField<String>(
+                            isExpanded: true,
+                            hint: Text(
+                              'Seleccione Bodega',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Theme.of(context).hintColor,
+                                fontWeight: FontWeight.bold,
                               ),
-                            );
-                          }).toList(),
-                          value: selectedWarehouse,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedWarehouse = value as String;
-                              selectedWarehouses.add({
-                                "id": selectedWarehouse
-                                    .toString()
-                                    .split("-")[0]
-                                    .toString(),
-                                "name": selectedWarehouse
-                                    .toString()
-                                    .split("-")[1]
-                                    .toString(),
+                            ),
+                            items: warehousesToSelect.map((item) {
+                              var parts = item.split('-');
+                              var branchName = parts[1];
+                              var city = parts[2];
+                              return DropdownMenuItem(
+                                value: item,
+                                child: Text(
+                                  '$branchName - $city',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                            value: selectedWarehouse,
+                            onChanged: (value) {
+                              setState(() {
+                                selectedWarehouse = value as String;
+                                selectedWarehouses.add({
+                                  "id": selectedWarehouse
+                                      .toString()
+                                      .split("-")[0]
+                                      .toString(),
+                                  "name": selectedWarehouse
+                                      .toString()
+                                      .split("-")[1]
+                                      .toString(),
+                                });
                               });
-                            });
-                          },
-                          decoration: InputDecoration(
-                            fillColor: Colors.white,
-                            filled: true,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(5.0),
+                            },
+                            decoration: InputDecoration(
+                              fillColor: Colors.white,
+                              filled: true,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5.0),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   Row(
                     children: [
@@ -320,25 +327,68 @@ class _AddSubProviderState extends StateMVC<AddSubProvider> {
 
           ElevatedButton(
             onPressed: () async {
-              getLoadingModal(context, false);
+              if (_formKey.currentState!.validate()) {
+                getLoadingModal(context, false);
 
-              // print("vistas: $vistas");
-              // print("selectedWarehouses: $selectedWarehouses");
+                // print("vistas: $vistas");
+                // print("selectedWarehouses: $selectedWarehouses");
 
-              var res = await _controller.addSubProvider(UserModel(
-                username: _usernameController.text,
-                email: _emailController.text,
-                blocked: false,
-                permisos: vistas,
-              ));
-              // print(res);
-              for (var warehouse in selectedWarehouses) {
-                Connections().newProviderWarehouse(res, warehouse['id']);
-                // print("ID: ${warehouse['id']}, Name: ${warehouse['name']}");
+                if (int.parse(idUser.toString()) !=
+                    int.parse(idProvMaster.toString())) {
+                  var responseWarehouses =
+                      await Connections().getWarehousesBySubProv(idUser);
+
+                  List<String> warehousesList = [];
+                  print(responseWarehouses);
+
+                  if (responseWarehouses is List) {
+                    for (var element in responseWarehouses) {
+                      if (element is String) {
+                        warehousesList.add(element);
+                      } else {
+                        print('Error: Elemento no es una cadena');
+                      }
+                    }
+
+                    if (warehousesList.isNotEmpty) {
+                      for (var element in warehousesList) {
+                        selectedWarehouses.add({
+                          "id": element.split('|')[0],
+                          "name": element.split('|')[1]
+                        });
+                      }
+                    }
+                  } else {
+                    print('Error: La respuesta no es una lista.');
+                  }
+                }
+
+                print("selectedWarehouses: $selectedWarehouses");
+                if (selectedWarehouses.isEmpty) {
+                  Navigator.pop(context);
+
+                  // ignore: use_build_context_synchronously
+                  showSuccessModal(
+                      context,
+                      "Por favor, Debe seleccionar al menos una Bodega.",
+                      Icons8.alert);
+                } else {
+                  var res = await _controller.addSubProvider(UserModel(
+                    username: _usernameController.text,
+                    email: _emailController.text,
+                    blocked: false,
+                    permisos: vistas,
+                  ));
+                  // print(res);
+                  for (var warehouse in selectedWarehouses) {
+                    Connections().newProviderWarehouse(res, warehouse['id']);
+                    // print("ID: ${warehouse['id']}, Name: ${warehouse['name']}");
+                  }
+
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                }
               }
-
-              Navigator.pop(context);
-              Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(
               foregroundColor: Colors.white,
