@@ -279,7 +279,7 @@ class _SubProviderViewState extends State<SubProviderView> {
 
       if (warehousesList.isNotEmpty) {
         for (var element in warehousesList) {
-          textWarehouses += element.split('|')[1];
+          textWarehouses += "${element.split('|')[1]} ";
         }
       }
     } else {
