@@ -1101,81 +1101,83 @@ class _UpdateStatusOperatorHistorialState
               onPressed: () async {
                 //  getLoadingModal(context, false);
 
-                listToRollback =
-                    await Connections().getListToRollback(widget.id);
-                if (listToRollback.isNotEmpty) {
-                  // ignore: use_build_context_synchronously
-                  openDialog(
-                      context,
-                      500,
-                      500,
-                      Container(
-                          child: Column(
-                        children: [
-                          Text("Estas transacciones se restaurarán"),
-                          Container(
-                            height: 100,
-                            child: ListView.builder(
-                              itemCount: listToRollback.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                return ListTile(
-                                  title: Text(listToRollback[index]["tipo"]
-                                          .toString() +
-                                      " / " +
-                                      listToRollback[index]["codigo"]
-                                          .toString() +
-                                      " / " +
-                                      listToRollback[index]["codigo"]
-                                          .toString() +
-                                      " / " +
-                                      listToRollback[index]["monto"]
-                                          .toString() +
-                                      " / " +
-                                      listToRollback[index]["comentario"]
-                                          .toString()),
-                                  onTap: () {},
-                                );
-                              },
-                            ),
-                          ),
-                          Container(
-                            height: 200,
-                            child: ListView(children: [
-                              Text("Se reestablecerán los siguientes valores"),
-                              Text(""),
-                              Text("costo_devolucion"),
-                              Text("costo_envio"),
-                              Text("costo_transportadora"),
-                              Text(""),
-                              Text("Se asignarán los siguientes estados"),
-                              Text(""),
-                              Text("estado_devolucion=PENDIENTE"),
-                              Text("estado_interno=PENDIENTE"),
-                              Text("estado_logistico=PENDIENTE"),
-                              Text("estado_pagado=PENDIENTE"),
-                            ]),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          FilledButton.tonal(
-                            onPressed: () async {
-                              List ids = [];
-                              for (var transaction in listToRollback) {
-                                ids.add(transaction["id"]);
-                              }
-                              var res = await Connections()
-                                  .rollbackTransaction([ids], widget.id);
+                // listToRollback =
+                //     await Connections().getListToRollback(widget.id);
+                // if (listToRollback.isNotEmpty) {
+                //   // ignore: use_build_context_synchronously
+                //   openDialog(
+                //       context,
+                //       500,
+                //       500,
+                //       Container(
+                //           child: Column(
+                //         children: [
+                //           Text("Estas transacciones se restaurarán"),
+                //           Container(
+                //             height: 100,
+                //             child: ListView.builder(
+                //               itemCount: listToRollback.length,
+                //               itemBuilder: (BuildContext context, int index) {
+                //                 return ListTile(
+                //                   title: Text(listToRollback[index]["tipo"]
+                //                           .toString() +
+                //                       " / " +
+                //                       listToRollback[index]["codigo"]
+                //                           .toString() +
+                //                       " / " +
+                //                       listToRollback[index]["codigo"]
+                //                           .toString() +
+                //                       " / " +
+                //                       listToRollback[index]["monto"]
+                //                           .toString() +
+                //                       " / " +
+                //                       listToRollback[index]["comentario"]
+                //                           .toString()),
+                //                   onTap: () {},
+                //                 );
+                //               },
+                //             ),
+                //           ),
+                //           Container(
+                //             height: 200,
+                //             child: ListView(children: [
+                //               Text("Se reestablecerán los siguientes valores"),
+                //               Text(""),
+                //               Text("costo_devolucion"),
+                //               Text("costo_envio"),
+                //               Text("costo_transportadora"),
+                //               Text(""),
+                //               Text("Se asignarán los siguientes estados"),
+                //               Text(""),
+                //               Text("estado_devolucion=PENDIENTE"),
+                //               Text("estado_interno=PENDIENTE"),
+                //               Text("estado_logistico=PENDIENTE"),
+                //               Text("estado_pagado=PENDIENTE"),
+                //             ]),
+                //           ),
+                //           SizedBox(
+                //             height: 10,
+                //           ),
+                //           FilledButton.tonal(
+                //             onPressed: () async {
+                //               List ids = [];
+                //               for (var transaction in listToRollback) {
+                //                 ids.add(transaction["id"]);
+                //               }
+                //               var res = await Connections()
+                //                   .rollbackTransaction([ids], widget.id);
 
-                              requestResetOrders(res);
-                            },
-                            child: Text("Continuar"),
-                          )
-                        ],
-                      )),
-                      () {});
-                } else {
-                  // ignore: use_build_context_synchronously
+                //               requestResetOrders(res);
+                //             },
+                //             child: Text("Continuar"),
+                //           )
+                //         ],
+                //       )),
+                //       () {});
+                
+                // } else {
+                //   // ignore: use_build_context_synchronously
+                  
                   openDialog(
                       context,
                       500,
@@ -1192,9 +1194,9 @@ class _UpdateStatusOperatorHistorialState
                               Text("costo_devolucion"),
                               Text("costo_envio"),
                               Text("costo_transportadora"),
-                              Text(""),
+                              Text("-------------"),
                               Text("Se asignarán los siguientes estados"),
-                              Text(""),
+                              Text("-------------"),
                               Text("estado_devolucion=PENDIENTE"),
                               Text("estado_interno=PENDIENTE"),
                               Text("estado_logistico=PENDIENTE"),
@@ -1206,12 +1208,12 @@ class _UpdateStatusOperatorHistorialState
                           ),
                           FilledButton.tonal(
                             onPressed: () async {
-                              List ids = [];
-                              for (var transaction in listToRollback) {
-                                ids.add(transaction["id"]);
-                              }
+                              // List ids = [];
+                              // for (var transaction in listToRollback) {
+                                // ids.add(transaction["id"]);
+                              // }
                               var res = await Connections()
-                                  .rollbackTransaction([ids], widget.id);
+                                  .programedOrder(widget.id,_controllerModalText.text);
 
                               requestResetOrders(res);
                             },
@@ -1220,7 +1222,8 @@ class _UpdateStatusOperatorHistorialState
                         ],
                       )),
                       () {});
-                }
+                
+                // }
                 setState(() {
                   _controllerModalText.clear();
                 });
