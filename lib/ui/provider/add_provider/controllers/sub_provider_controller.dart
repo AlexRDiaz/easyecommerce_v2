@@ -36,9 +36,10 @@ class SubProviderController extends ControllerMVC {
     });
   }
 
-  Future<void> loadSubProviders() async {
+  Future<void> loadSubProviders(idProvMaster) async {
     try {
-      var data = await Connections().getSubProviders(searchController.text);
+      var data = await Connections()
+          .getSubProviders(idProvMaster, searchController.text);
       if (data == 1) {
         // Maneja el caso de error 1
         print('Error: Status Code 1');
