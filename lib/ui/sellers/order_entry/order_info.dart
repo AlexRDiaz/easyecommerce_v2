@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -124,6 +125,11 @@ class _OrderInfoState extends State<OrderInfo> {
   String idProvExternal = "";
   String tipoCobertura = "";
 
+  String productPname = "";
+  String productFirstId = "";
+  String productFirstName = "";
+  String productFirstPrice = "";
+
   @override
   void didChangeDependencies() {
     getRoutes();
@@ -141,6 +147,7 @@ class _OrderInfoState extends State<OrderInfo> {
       estadoEntrega = data['status'].toString();
       estadoLogistic = data['estado_logistico'].toString();
       estadoInterno = data['estado_interno'].toString();
+      productPname = data['producto_p'].toString();
       // route = data['ruta'] != null && data['ruta'].toString() != "[]"
       //     ? data['ruta'][0]['titulo'].toString()
       //     : "";
@@ -175,7 +182,12 @@ class _OrderInfoState extends State<OrderInfo> {
         data['variant_details'] != null &&
         data['variant_details'].toString() != "[]" &&
         data['variant_details'].isNotEmpty) {
+      productFirstId = data['product']['product_id'].toString();
+      productFirstName = data['product']['product_name'].toString();
+      productFirstPrice = data['product']['price'].toString();
+
       isvariable = data['product']['isvariable'];
+
       priceWarehouseTotal = double.parse(data['product']['price'].toString());
 
       prov_city_address = getWarehouseAddress(data['product']['warehouses']);
@@ -252,12 +264,12 @@ class _OrderInfoState extends State<OrderInfo> {
     // print("variantsCurrentToSelect: $variantsCurrentToSelect");
 
     if (data['id_product'] != null && data['id_product'] != 0) {
-      // carriersTypeToSelect = ["Interno", "Externo"];
-      if (idUser == 2 || idMaster == 188 || idMaster == 189) {
-        carriersTypeToSelect = ["Interno", "Externo"];
-      } else {
-        carriersTypeToSelect = ["Interno"];
-      }
+      carriersTypeToSelect = ["Interno", "Externo"];
+      // if (idUser == 2 || idMaster == 188 || idMaster == 189) {
+      //   carriersTypeToSelect = ["Interno", "Externo"];
+      // } else {
+      //   carriersTypeToSelect = ["Interno"];
+      // }
     } else {
       carriersTypeToSelect = ["Interno"];
     }
@@ -275,14 +287,16 @@ class _OrderInfoState extends State<OrderInfo> {
     variantsCurrentToSelect = [];
     for (var variant in variantsCurrentList) {
       String sku = variant['sku'];
-      String variantTitle = variant['variant_title'] == null ||
-              variant['variant_title'].toString() == "null" ||
-              variant['variant_title'].toString() == ""
-          ? ""
-          : variant['variant_title'];
-      // int quantity = variant['quantity'];
-      String variantString = '$sku|$variantTitle';
-      variantsCurrentToSelect.add(variantString);
+      if (sku != "null" && sku != "") {
+        String variantTitle = variant['variant_title'] == null ||
+                variant['variant_title'].toString() == "null" ||
+                variant['variant_title'].toString() == ""
+            ? variant['title']
+            : variant['variant_title'];
+        // int quantity = variant['quantity'];
+        String variantString = '$sku|$variantTitle';
+        variantsCurrentToSelect.add(variantString);
+      }
     }
     setState(() {
       variantsCurrentToSelect = variantsCurrentToSelect;
@@ -297,6 +311,7 @@ class _OrderInfoState extends State<OrderInfo> {
     setState(() {
       estadoEntrega = data['status'].toString();
       estadoLogistic = data['estado_logistico'].toString();
+      productPname = data['producto_p'].toString();
       // route = data['ruta'] != null && data['ruta'].toString() != "[]"
       //     ? data['ruta'][0]['titulo'].toString()
       //     : "";
@@ -580,116 +595,166 @@ class _OrderInfoState extends State<OrderInfo> {
                                       width: 20,
                                     ),
                                     ElevatedButton(
-                                        onPressed: !isCarrierExternal
-                                            ? () async {
-                                                if (formKey.currentState!
-                                                    .validate()) {
-                                                  getLoadingModal(
-                                                      context, false);
+                                      onPressed: !isCarrierExternal
+                                          ? () async {
+                                              if (formKey.currentState!
+                                                  .validate()) {
+                                                getLoadingModal(context, false);
+                                                print("**********************");
+
+                                                String labelProducto = "";
+
+                                                if (data['variant_details'] !=
+                                                    null) {
+                                                  //
                                                   print(
-                                                      "**********************");
-                                                  if (data['variant_details'] !=
-                                                      null) {
+                                                      "tiene variant_details");
+
+                                                  if (data['id_product'] !=
+                                                          null &&
+                                                      data['id_product'] != 0) {
                                                     //
-                                                    print(
-                                                        "tiene variant_details");
+                                                    print("tiene id_product");
 
-                                                    if (data['id_product'] !=
-                                                            null &&
-                                                        data['id_product'] !=
-                                                            0) {
-                                                      //
-                                                      print("tiene id_product");
+                                                    List<Map<String, dynamic>>
+                                                        groupedProducts =
+                                                        groupProducts(
+                                                            variantsCurrentList);
+                                                    // print(
+                                                    //     "groupedProducts: $groupedProducts");
 
-                                                      if (isvariable == 1) {
-                                                        print(
-                                                            "is variable upt ");
-                                                        print(
-                                                            "variantsCurrentList: $variantsCurrentList");
-                                                      } else {
-                                                        variantsCurrentList[0]
-                                                                ['quantity'] =
-                                                            int.parse(_controllers
-                                                                .cantidadEditController
-                                                                .text);
+                                                    if (isvariable == 1) {
+                                                      print("is variable upt ");
+                                                      // print(
+                                                      //     "variantsCurrentList: $variantsCurrentList");
 
-                                                        print(
-                                                            "variantsCurrentList: $variantsCurrentList");
+                                                      for (var product
+                                                          in groupedProducts) {
+                                                        labelProducto +=
+                                                            '${product['name']} ${product['variants']}; \n';
                                                       }
-                                                      var response2 =
-                                                          await Connections()
-                                                              .updatenueva(
-                                                                  data['id'], {
-                                                        "variant_details":
-                                                            variantsCurrentList,
-                                                      });
+
+                                                      labelProducto =
+                                                          labelProducto.substring(
+                                                              0,
+                                                              labelProducto
+                                                                      .length -
+                                                                  3);
                                                     } else {
-                                                      //
+                                                      variantsCurrentList[0]
+                                                              ['quantity'] =
+                                                          int.parse(_controllers
+                                                              .cantidadEditController
+                                                              .text);
+
                                                       print(
-                                                          "NO tiene id_product");
+                                                          "variantsCurrentList: $variantsCurrentList");
+
+                                                      for (var variant
+                                                          in variantsCurrentList) {
+                                                        labelProducto +=
+                                                            '${variant['quantity']}*${variant['title']}; \n';
+                                                      }
                                                     }
+
+                                                    if (isvariable == 1) {
+                                                      print("is variable upt ");
+                                                      // print(
+                                                      //     "variantsCurrentList: $variantsCurrentList");
+                                                      getTotalQuantity();
+                                                    } else {
+                                                      variantsCurrentList[0]
+                                                              ['quantity'] =
+                                                          int.parse(_controllers
+                                                              .cantidadEditController
+                                                              .text);
+
+                                                      // print(
+                                                      //     "variantsCurrentList: $variantsCurrentList");
+                                                    }
+                                                    var response2 =
+                                                        await Connections()
+                                                            .updatenueva(
+                                                                data['id'], {
+                                                      "variant_details":
+                                                          variantsCurrentList,
+                                                    });
                                                   } else {
                                                     //
                                                     print(
-                                                        "NO tiene variants_details");
+                                                        "NO tiene id_product");
                                                   }
-
-                                                  await _controllers.updateInfo(
-                                                      id: widget.order["id"],
-                                                      success: () async {
-                                                        Navigator.pop(context);
-                                                        AwesomeDialog(
-                                                          width: 500,
-                                                          context: context,
-                                                          dialogType: DialogType
-                                                              .success,
-                                                          animType: AnimType
-                                                              .rightSlide,
-                                                          title: 'Guardado',
-                                                          desc: '',
-                                                          btnCancel:
-                                                              Container(),
-                                                          btnOkText: "Aceptar",
-                                                          btnOkColor:
-                                                              colors.colorGreen,
-                                                          btnCancelOnPress:
-                                                              () {},
-                                                          btnOkOnPress: () {},
-                                                        ).show();
-                                                        await updateData();
-                                                      },
-                                                      error: () {
-                                                        Navigator.pop(context);
-
-                                                        AwesomeDialog(
-                                                          width: 500,
-                                                          context: context,
-                                                          dialogType:
-                                                              DialogType.error,
-                                                          animType: AnimType
-                                                              .rightSlide,
-                                                          title:
-                                                              'Data Incorrecta',
-                                                          desc:
-                                                              'Vuelve a intentarlo',
-                                                          btnCancel:
-                                                              Container(),
-                                                          btnOkText: "Aceptar",
-                                                          btnOkColor:
-                                                              colors.colorGreen,
-                                                          btnCancelOnPress:
-                                                              () {},
-                                                          btnOkOnPress: () {},
-                                                        ).show();
-                                                      });
+                                                } else {
+                                                  //
+                                                  print(
+                                                      "NO tiene variants_details");
                                                 }
+
+                                                // print(
+                                                //     "labelProducto: $labelProducto");
+
+                                                await _controllers.updateInfo(
+                                                    id: widget.order["id"],
+                                                    success: () async {
+                                                      Navigator.pop(context);
+                                                      AwesomeDialog(
+                                                        width: 500,
+                                                        context: context,
+                                                        dialogType:
+                                                            DialogType.success,
+                                                        animType:
+                                                            AnimType.rightSlide,
+                                                        title: 'Guardado',
+                                                        desc: '',
+                                                        btnCancel: Container(),
+                                                        btnOkText: "Aceptar",
+                                                        btnOkColor:
+                                                            colors.colorGreen,
+                                                        btnCancelOnPress: () {},
+                                                        btnOkOnPress: () {},
+                                                      ).show();
+
+                                                      await Connections()
+                                                          .updatenueva(
+                                                              data['id'], {
+                                                        "producto_p":
+                                                            labelProducto,
+                                                      });
+                                                      print(
+                                                          "updated producto_p");
+                                                      await updateData();
+                                                    },
+                                                    error: () {
+                                                      Navigator.pop(context);
+
+                                                      AwesomeDialog(
+                                                        width: 500,
+                                                        context: context,
+                                                        dialogType:
+                                                            DialogType.error,
+                                                        animType:
+                                                            AnimType.rightSlide,
+                                                        title:
+                                                            'Data Incorrecta',
+                                                        desc:
+                                                            'Vuelve a intentarlo',
+                                                        btnCancel: Container(),
+                                                        btnOkText: "Aceptar",
+                                                        btnOkColor:
+                                                            colors.colorGreen,
+                                                        btnCancelOnPress: () {},
+                                                        btnOkOnPress: () {},
+                                                      ).show();
+                                                    });
                                               }
-                                            : null,
-                                        child: Text(
-                                          "Guardar",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold),
-                                        )),
+                                            }
+                                          : null,
+                                      child: const Text(
+                                        "Guardar",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
                                   ],
                                 ),
                                 Text(
@@ -778,6 +843,20 @@ class _OrderInfoState extends State<OrderInfo> {
                                 Text(
                                   "ID Producto: ${data['id_product'] != null && data['id_product'] != 0 ? data['id_product'].toString() : ""}",
                                 ),
+                                const SizedBox(height: 10),
+                                const Text(
+                                  "Producto",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  productPname,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                /*
                                 TextFormField(
                                   style: const TextStyle(
                                       fontWeight: FontWeight.bold),
@@ -795,12 +874,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                     }
                                   },
                                 ),
-                                // Visibility(
-                                //   visible: isvariable == 1,
-                                //   child: Text(
-                                //     quantity_variant,
-                                //   ),
-                                // ),
+                                */
                                 Visibility(
                                   visible: (isCarrierInternal &&
                                           estadoLogistic == "PENDIENTE" &&
@@ -825,7 +899,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                         child: DropdownButtonFormField<String>(
                                           isExpanded: true,
                                           hint: Text(
-                                            'Seleccione Variante Seleccionada',
+                                            'Seleccione Variante Existente',
                                             style: TextStyle(
                                               fontSize: 14,
                                               color:
@@ -839,6 +913,8 @@ class _OrderInfoState extends State<OrderInfo> {
                                               value: item,
                                               child: Text(
                                                 item.split('|')[1],
+                                                // child: Text(
+                                                //   item,
                                                 style: const TextStyle(
                                                   fontSize: 14,
                                                   fontWeight: FontWeight.bold,
@@ -922,9 +998,8 @@ class _OrderInfoState extends State<OrderInfo> {
                                         child: const Text(
                                           "Editar",
                                           style: TextStyle(
-                                            color: Color(
-                                                0xFF031749), // Color del texto
-                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                            // fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       ),
@@ -945,9 +1020,8 @@ class _OrderInfoState extends State<OrderInfo> {
                                         child: const Text(
                                           "Nuevo",
                                           style: TextStyle(
-                                            color: Color(
-                                                0xFF031749), // Color del texto
-                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                            // fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       ),
@@ -1038,31 +1112,35 @@ class _OrderInfoState extends State<OrderInfo> {
                                               .toString();
                                           //armar {} y añadir en variantsCurrentToSelect
                                           print(chosenSku);
-                                          var variantToUpdate =
-                                              variantsCurrentList.firstWhere(
-                                            (variant) =>
-                                                variant['sku'] ==
-                                                "${chosenSku}C${data['product']['product_id']}",
-                                            orElse: () => null,
-                                          );
+                                          try {
+                                            var variantToUpdate =
+                                                variantsCurrentList.firstWhere(
+                                              (variant) =>
+                                                  variant['sku'] ==
+                                                  "${chosenSku}C$productFirstId",
+                                              orElse: () => null,
+                                            );
 
-                                          if (variantToUpdate != null) {
-                                            // No es necesario parsear a int
-                                            print("Ya existe esta variante");
-                                          } else {
-                                            var variantResult =
-                                                await generateVariantData(
-                                                    chosenSku);
-                                            variantsCurrentList
-                                                .add(variantResult);
+                                            if (variantToUpdate != null) {
+                                              // No es necesario parsear a int
+                                              print("Ya existe esta variante");
+                                            } else {
+                                              var variantResult =
+                                                  await generateVariantData(
+                                                      chosenSku);
+                                              variantsCurrentList
+                                                  .add(variantResult);
 
-                                            print(
-                                                "variantsCurrentList actual:");
-                                            print(variantsCurrentList);
-                                            buildVariantsCurrentToSelect();
-                                            getTotalQuantity();
-                                            chosenVariant = null;
-                                            _quantitySelectVariant.clear();
+                                              print(
+                                                  "variantsCurrentList actual:");
+                                              print(variantsCurrentList);
+                                              buildVariantsCurrentToSelect();
+                                              getTotalQuantity();
+                                              chosenVariant = null;
+                                              _quantitySelectVariant.clear();
+                                            }
+                                          } catch (e) {
+                                            print("Error: $e");
                                           }
                                         },
                                         style: ElevatedButton.styleFrom(
@@ -1072,16 +1150,14 @@ class _OrderInfoState extends State<OrderInfo> {
                                         child: const Text(
                                           "Añadir",
                                           style: TextStyle(
-                                            color: Color(
-                                                0xFF031749), // Color del texto
-                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                            // fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
-                                const SizedBox(height: 5),
                                 Visibility(
                                   visible: isvariable == 1,
                                   child: Wrap(
@@ -1090,7 +1166,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                     children: variantsCurrentList
                                         .map<Widget>((variable) {
                                       String chipLabel =
-                                          "${variable['quantity']}*${variable['variant_title']}";
+                                          "${variable['quantity']}*${variable['variant_title'].toString() != "null" && variable['variant_title'].toString() != "" ? variable['variant_title'] : variable['title']}";
 
                                       return Chip(
                                         label: Text(chipLabel),
@@ -1212,179 +1288,6 @@ class _OrderInfoState extends State<OrderInfo> {
                                   // "  Transportadora: ${data['transportadora'] != null && data['transportadora'].isNotEmpty ? data['transportadora'][0]['nombre'].toString() : ''}",
                                   "Transportadora: $carrier",
                                 ),
-                                /* old version
-                                Text(
-                                  "  Código: ${sharedPrefs!.getString("NameComercialSeller").toString()}-${data['numero_orden'].toString()}",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18),
-                                ),
-                                SizedBox(
-                                  height: 20,
-                                ),
-                                Text(
-                                  // "  Fecha: ${data['pedido_fecha'][0]['fecha'].toString()}",
-                                  "  Fecha: ${data['marca_t_i'].toString()}",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18),
-                                ),
-                                SizedBox(
-                                  height: 20,
-                                ),
-                                _modelTextFormField2(
-                                    text: "Ciudad",
-                                    controller:
-                                        _controllers.ciudadEditController,
-                                    keyboardType: TextInputType.text,
-                                    inputFormatters: [],
-                                    validator: (String? value) {
-                                      if (value == null || value.isEmpty) {
-                                        return "Campo requerido";
-                                      }
-                                      // else if (containsEmoji(value)) {
-                                      //   return "No se permiten emojis en este campo";
-                                      // }
-                                    }),
-                                _modelTextFormField2(
-                                    text: "Nombre Cliente",
-                                    controller:
-                                        _controllers.nombreEditController,
-                                    keyboardType: TextInputType.text,
-                                    inputFormatters: [],
-                                    validator: (String? value) {
-                                      if (value == null || value.isEmpty) {
-                                        return "Campo requerido";
-                                      }
-                                      // else if (containsEmoji(value)) {
-                                      //   return "No se permiten emojis en este campo";
-                                      // }
-                                    }),
-                                _modelTextFormField2(
-                                    text: "Dirección",
-                                    controller:
-                                        _controllers.direccionEditController,
-                                    keyboardType: TextInputType.text,
-                                    inputFormatters: [],
-                                    validator: (String? value) {
-                                      if (value == null || value.isEmpty) {
-                                        return "Campo requerido";
-                                      }
-                                      // else if (containsEmoji(value)) {
-                                      //   return "No se permiten emojis en este campo";
-                                      // }
-                                    }),
-                                _modelTextFormField2(
-                                    text: "Teléfono",
-                                    controller:
-                                        _controllers.telefonoEditController,
-                                    keyboardType: TextInputType.text,
-                                    inputFormatters: [
-                                      FilteringTextInputFormatter.allow(
-                                          RegExp(r'[0-9+]')),
-                                    ],
-                                    validator: (String? value) {
-                                      if (value == null || value.isEmpty) {
-                                        return "Campo requerido";
-                                      }
-                                    }),
-                                _modelTextFormField2(
-                                    text: "Cantidad",
-                                    controller:
-                                        _controllers.cantidadEditController,
-                                    keyboardType: TextInputType.number,
-                                    inputFormatters: <TextInputFormatter>[
-                                      FilteringTextInputFormatter.digitsOnly
-                                    ],
-                                    validator: (String? value) {
-                                      if (value == null || value.isEmpty) {
-                                        return "Campo requerido";
-                                      }
-                                    }),
-                                _modelTextFormField2(
-                                    text: "Producto",
-                                    controller:
-                                        _controllers.productoEditController,
-                                    keyboardType: TextInputType.text,
-                                    inputFormatters: [],
-                                    validator: (String? value) {
-                                      if (value == null || value.isEmpty) {
-                                        return "Campo requerido";
-                                      }
-                                      // else if (containsEmoji(value)) {
-                                      //   return "No se permiten emojis en este campo";
-                                      // }
-                                    }),
-                                _modelTextField(
-                                    text: "Producto Extra",
-                                    controller: _controllers
-                                        .productoExtraEditController),
-                                _modelTextFormField2(
-                                    text: "Precio Total",
-                                    controller:
-                                        _controllers.precioTotalEditController,
-                                    keyboardType: TextInputType.number,
-                                    inputFormatters: <TextInputFormatter>[
-                                      FilteringTextInputFormatter.allow(RegExp(
-                                          r'^\d+\.?\d{0,2}$')), // "." y hasta 2 decimales
-                                    ],
-                                    validator: (String? value) {
-                                      if (value == null || value.isEmpty) {
-                                        return "Campo requerido";
-                                      }
-                                    }),
-                                _modelTextField(
-                                    text: "Observacion",
-                                    controller:
-                                        _controllers.observacionEditController),
-                                SizedBox(
-                                  height: 20,
-                                ),
-                                Text(
-                                  "  Confirmado: ${data['estado_interno'].toString()}",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18),
-                                ),
-                                SizedBox(
-                                  height: 20,
-                                ),
-                                Text(
-                                  "  Estado Entrega: $estadoEntrega",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18),
-                                ),
-                                SizedBox(
-                                  height: 20,
-                                ),
-                                Text(
-                                  "  Estado Logístico: $estadoLogistic",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18),
-                                ),
-                                SizedBox(
-                                  height: 20,
-                                ),
-                                Text(
-                                  "  Ciudad: ${data['ruta'] != null && data['ruta'].isNotEmpty ? data['ruta'][0]['titulo'].toString() : ''}",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 20,
-                                ),
-                                Text(
-                                  // "  Transportadora: ${data['transportadora'] != null && data['transportadora'].isNotEmpty ? data['transportadora'][0]['nombre'].toString() : ''}",
-                                  "  Transportadora: $carrier",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18),
-                                ),
-                                */
                                 SizedBox(
                                   height: 20,
                                 ),
@@ -1410,6 +1313,90 @@ class _OrderInfoState extends State<OrderInfo> {
         ),
       ),
     );
+  }
+
+  String formatLabelProducto(List<dynamic> variantsList) {
+    Map<String, List<String>> products = {};
+
+    for (var variant in variantsList) {
+      String title = variant['title'];
+      int quantity = variant['quantity'];
+      String? variantTitle = variant['variant_title'];
+
+      if (!products.containsKey(title)) {
+        products[title] = [];
+      }
+
+      if (variantTitle != null && variantTitle.isNotEmpty) {
+        products[title]!.add('$quantity*$variantTitle');
+      } else {
+        products[title]!.add('$quantity');
+      }
+    }
+
+    List<String> productStrings = [];
+    products.forEach((title, variants) {
+      productStrings.add('$title ${variants.join("|")}');
+    });
+
+    return productStrings.join(' ; ');
+  }
+
+  List<Map<String, dynamic>> groupProducts(List<dynamic> variantsList) {
+    Map<String, Map<String, dynamic>> groupedProducts = {};
+
+    // Recorre cada variante en la lista
+    for (var variant in variantsList) {
+      String? sku = variant['sku'];
+      String title = variant['title'];
+      String name = variant['name'].toString();
+      int quantity = variant['quantity'];
+      String? variantTitle = variant['variant_title'];
+
+      // Generar una clave única para productos sin SKU
+      String uniqueKey = sku ?? name;
+
+      if (sku != null) {
+        // Verificar si el SKU contiene 'C'
+        if (sku.contains('C')) {
+          // Divide el SKU por la última 'C'
+          int lastCIndex = sku.lastIndexOf('C');
+          String skuRest = sku.substring(lastCIndex + 1); // "1638"
+          uniqueKey = skuRest;
+        } else {
+          uniqueKey = sku;
+        }
+      }
+
+      // Si la clave única no está en el mapa, se añade
+      if (!groupedProducts.containsKey(uniqueKey)) {
+        groupedProducts[uniqueKey] = {
+          'id': uniqueKey, // Usar uniqueKey como id
+          'name': title,
+          'variants': []
+        };
+      }
+
+      // Añade la variante al producto en el formato adecuado solo si variantTitle no es nulo
+      if (variantTitle != null && variantTitle.isNotEmpty) {
+        groupedProducts[uniqueKey]!['variants']!
+            .add('($quantity*$variantTitle)');
+      } else {
+        groupedProducts[uniqueKey]!['variants']!.add('($quantity)');
+      }
+    }
+
+    // Convierte el mapa a una lista de productos con el formato deseado
+    List<Map<String, dynamic>> productList = [];
+    groupedProducts.forEach((skuKey, product) {
+      productList.add({
+        'id': product['id'],
+        'name': product['name'],
+        'variants': product['variants'].join(' / ')
+      });
+    });
+
+    return productList;
   }
 
   Column _sectionCarriers(BuildContext context) {
@@ -1940,6 +1927,8 @@ class _OrderInfoState extends State<OrderInfo> {
                     if (readySent) {
                       getLoadingModal(context, false);
 
+                      String labelProducto = "";
+
                       if (data['variant_details'] != null &&
                           data['variant_details'].toString() != "[]" &&
                           data['variant_details'].isNotEmpty) {
@@ -1951,18 +1940,42 @@ class _OrderInfoState extends State<OrderInfo> {
                           //
                           print("tiene id_product");
 
+                          List<Map<String, dynamic>> groupedProducts =
+                              groupProducts(variantsCurrentList);
+                          // print("groupedProducts: $groupedProducts");
+
                           if (isvariable == 1) {
                             print("is variable upt ");
                             // print("variantsCurrentList: $variantsCurrentList");
+
+                            for (var product in groupedProducts) {
+                              labelProducto += labelProducto +=
+                                  '${product['name']} ${product['variants']}; \n';
+                            }
+
+                            labelProducto = labelProducto.substring(
+                                0, labelProducto.length - 3);
+
+                            getTotalQuantity();
                           } else {
+                            print("NOT variable upt ");
+
                             variantsCurrentList[0]['quantity'] = int.parse(
                                 _controllers.cantidadEditController.text);
 
                             // print("variantsCurrentList: $variantsCurrentList");
+                            for (var variant in variantsCurrentList) {
+                              labelProducto +=
+                                  '${variant['quantity']}*${variant['title']}; \n';
+                            }
                           }
-                          var response2 =
-                              await Connections().updatenueva(data['id'], {
+
+                          await Connections().updatenueva(data['id'], {
                             "variant_details": variantsCurrentList,
+                            "producto_p": labelProducto,
+                            "cantidad_total": _controllers
+                                .cantidadEditController.text
+                                .toString(),
                           });
                         } else {
                           //
@@ -1971,12 +1984,12 @@ class _OrderInfoState extends State<OrderInfo> {
                       } else {
                         //
                         print("NO tiene variants_details");
+                        await Connections().updatenueva(data['id'], {
+                          "cantidad_total": _controllers
+                              .cantidadEditController.text
+                              .toString(),
+                        });
                       }
-                      await Connections().updatenueva(data['id'], {
-                        "cantidad_total":
-                            _controllers.cantidadEditController.text.toString(),
-                      });
-                      getTotalQuantity();
 
                       await updateData();
                       Navigator.pop(context);
@@ -2090,14 +2103,17 @@ class _OrderInfoState extends State<OrderInfo> {
                         if (isvariable == 1) {
                           for (var variant in variantsCurrentList) {
                             contenidoProd +=
-                                '${variant['quantity']}*${_controllers.productoEditController.text} ${variant['variant_title']} | ';
+                                '${variant['quantity']}*${variant['title']} ${variant['variant_title']} | ';
                           }
 
                           contenidoProd = contenidoProd.substring(
                               0, contenidoProd.length - 3);
                         } else {
-                          contenidoProd +=
-                              "${_controllers.cantidadEditController.text}*${_controllers.productoEditController.text}";
+                          contenidoProd =
+                              '${variantsCurrentList[0]['quantity']}*${variantsCurrentList[0]['title']}';
+
+                          // contenidoProd +=
+                          //     "${_controllers.cantidadEditController.text}*${_controllers.productoEditController.text}";
                           // '$quantityTotal*${_controllers.productoEditController.text}';
                         }
                       } else {
@@ -2119,7 +2135,6 @@ class _OrderInfoState extends State<OrderInfo> {
                       String destinatario_city_ref = "";
                       var dataIntegration;
 
-                      //falta poner un getLoadingModal y nav para cerrar el mismo al terminar
                       if (selectedCarrierType == "Externo") {
                         remitente_address = prov_city_address.split('|')[2];
 
@@ -2201,6 +2216,8 @@ class _OrderInfoState extends State<OrderInfo> {
                       double costDelivery =
                           double.parse(costShippingSeller.toString()) +
                               double.parse(taxCostShipping.toString());
+
+                      // /*
                       if (data['transportadora'].isEmpty &&
                           data['pedido_carrier'].isEmpty) {
                         //
@@ -2538,6 +2555,7 @@ class _OrderInfoState extends State<OrderInfo> {
 
                         //
                       }
+                      // */
                     }
                   }
                 },
@@ -2547,7 +2565,7 @@ class _OrderInfoState extends State<OrderInfo> {
                   ),
                 ),
                 child: const Text(
-                  "GUARDAR",
+                  "ACEPTAR",
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
@@ -2817,19 +2835,28 @@ class _OrderInfoState extends State<OrderInfo> {
         availableKeys.map((key) => variantFound?[key]).join('/');
 
     double priceT = (int.parse(quantity.toString()) *
-        double.parse(data['product']['price'].toString()));
+        double.parse(productFirstPrice.toString()));
+
+    int idGen = int.parse(generateCombination());
 
     Map<String, dynamic> variant = {
-      "id": data['product']['product_id'],
-      "name": 1101,
+      "id": idGen,
+      "name": productFirstId,
       "quantity": int.parse(_quantitySelectVariant.text),
       "price": priceT,
-      "title": _controllers.productoEditController.text,
-      "variant_title": isvariable == 1 ? variantTitle : variantFound?['sku'],
-      "sku": "${variantFound?['sku']}C${data['product']['product_id']}",
+      "title": productFirstName,
+      "variant_title": isvariable == 1 ? variantTitle : null,
+      "sku": "${variantFound?['sku']}C$productFirstId",
     };
 
     return variant;
+  }
+
+  String generateCombination() {
+    const fixedNumber = 1301;
+    final random = Random();
+    final randomNumber = random.nextInt(900000000) + 100000000;
+    return '$fixedNumber$randomNumber';
   }
 
   void updateQuantity(

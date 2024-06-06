@@ -414,8 +414,13 @@ class _PrintGuidesStateSeller extends State<PrintGuidesSeller> {
                                       "product":
                                           data[index]['producto_p'].toString(),
                                       "extraProduct": data[index]
-                                              ['producto_extra']
-                                          .toString(),
+                                                      ['producto_extra'] ==
+                                                  null ||
+                                              data[index]['producto_extra'] ==
+                                                  "null"
+                                          ? ""
+                                          : data[index]['producto_extra']
+                                              .toString(),
                                       "quantity": data[index]['cantidad_total']
                                           .toString(),
                                       "phone": data[index]['telefono_shipping']

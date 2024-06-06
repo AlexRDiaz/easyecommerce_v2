@@ -508,8 +508,14 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
                                         optionsCheckBox[index]['product'] =
                                             data[index]['producto_p']
                                                 .toString();
-                                        optionsCheckBox[index]['extraProduct'] =
-                                            data[index]['producto_extra']
+                                        optionsCheckBox[index]
+                                            ['extraProduct'] = data[index]
+                                                        ['producto_extra'] ==
+                                                    null ||
+                                                data[index]['producto_extra'] ==
+                                                    "null"
+                                            ? ""
+                                            : data[index]['producto_extra']
                                                 .toString();
                                         optionsCheckBox[index]['quantity'] =
                                             data[index]['cantidad_total']
@@ -874,8 +880,12 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
 
                     //new
                     responsereduceStock = await Connections()
-                        .updateProductVariantStock(data[i]['variant_details'],
-                            0, data[i]['id_comercial'], data[i]['numPedido']);
+                        .updateProductVariantStock(
+                            optionsCheckBox[i]['variant_details'],
+                            0,
+                            optionsCheckBox[i]['id_comercial'],
+                            optionsCheckBox[i]['id'],
+                            optionsCheckBox[i]['numPedido']);
 
                     if (responsereduceStock == 0) {
                       var responseL = await Connections().updateOrderWithTime(
@@ -1088,7 +1098,10 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
             optionsCheckBox[i]['city'] = data[i]['ciudad_shipping'].toString();
             optionsCheckBox[i]['product'] = data[i]['producto_p'].toString();
             optionsCheckBox[i]['extraProduct'] =
-                data[i]['producto_extra'].toString();
+                data[i]['producto_extra'] == null ||
+                        data[i]['producto_extra'] == "null"
+                    ? ""
+                    : data[i]['producto_extra'].toString();
             optionsCheckBox[i]['quantity'] =
                 data[i]['cantidad_total'].toString();
             optionsCheckBox[i]['phone'] =

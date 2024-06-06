@@ -63,11 +63,11 @@ class _ModelGuideState extends State<ModelGuide> {
       {'param': 'Teléfono', 'value': widget.phone},
       {'param': 'Cantidad', 'value': widget.quantity},
       {'param': 'Producto', 'value': widget.product},
-      {
-        'param': 'Producto extra',
-        'value': widget.extraProduct != "null" ? widget.extraProduct : ""
-      },
-      {'param': 'Precio total', 'value': '\$${widget.price}'},
+      // {
+      //   'param': 'Producto extra',
+      //   'value': widget.extraProduct != "null" ? widget.extraProduct : ""
+      // },
+      // {'param': 'Precio total', 'value': '\$${widget.price}'},
     ];
 
     var paramsDatosEnvio = [
@@ -171,12 +171,14 @@ class _ModelGuideState extends State<ModelGuide> {
                   ),
                 ),
                 Expanded(
-                  child: Text(
+                    child: Flexible(
+                        child: Row(children: [
+                  Text(
                     element['value'].toString(),
                     style: TextStyle(
                         fontSize: size * 1.3, fontFamily: 'RobotoMono'),
                   ),
-                ),
+                ]))),
               ],
             ),
           ),
@@ -271,7 +273,182 @@ class _ModelGuideState extends State<ModelGuide> {
                 ),
               ],
             ),
-            addDataPackage(),
+            // addDataPackage(),
+            Container(
+              alignment: Alignment.centerLeft,
+              padding: EdgeInsets.only(left: 40),
+              child: Row(
+                children: [
+                  Container(
+                    width: 6.2 * cm,
+                    child: Text(
+                      'Fecha:',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: size * 1.3,
+                          fontFamily: 'RobotoMono'),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      widget.date.toString(),
+                      style: TextStyle(
+                          fontSize: size * 1.3, fontFamily: 'RobotoMono'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              alignment: Alignment.centerLeft,
+              padding: EdgeInsets.only(left: 40),
+              child: Row(
+                children: [
+                  Container(
+                    width: 6.2 * cm,
+                    child: Text(
+                      'Nombre:',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: size * 1.3,
+                          fontFamily: 'RobotoMono'),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      widget.name.toString(),
+                      style: TextStyle(
+                          fontSize: size * 1.3, fontFamily: 'RobotoMono'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              alignment: Alignment.centerLeft,
+              padding: EdgeInsets.only(left: 40),
+              child: Row(
+                children: [
+                  Container(
+                    width: 6.2 * cm,
+                    child: Text(
+                      'Teléfono:',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: size * 1.3,
+                          fontFamily: 'RobotoMono'),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      widget.phone.toString(),
+                      style: TextStyle(
+                          fontSize: size * 1.3, fontFamily: 'RobotoMono'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              alignment: Alignment.centerLeft,
+              padding: EdgeInsets.only(left: 40, bottom: 5),
+              child: Row(
+                children: [
+                  Container(
+                    width: 6.2 * cm,
+                    child: Text(
+                      'Cantidad:',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: size * 1.3,
+                          fontFamily: 'RobotoMono'),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      widget.quantity.toString(),
+                      style: TextStyle(
+                          fontSize: size * 1.3, fontFamily: 'RobotoMono'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              alignment: Alignment.centerLeft,
+              padding: EdgeInsets.only(left: 40, bottom: 5),
+              child: Row(
+                children: [
+                  Container(
+                    width: 6.2 * cm,
+                    child: Text(
+                      'Producto:',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: size * 1.3,
+                          fontFamily: 'RobotoMono'),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      widget.product.toString(),
+                      style: TextStyle(
+                          fontSize: size * 1.3, fontFamily: 'RobotoMono'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              alignment: Alignment.centerLeft,
+              padding: EdgeInsets.only(left: 40),
+              child: Row(
+                children: [
+                  Container(
+                    width: 6.2 * cm,
+                    child: Text(
+                      'Producto extra:',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: size * 1.3,
+                          fontFamily: 'RobotoMono'),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      widget.extraProduct.toString(),
+                      style: TextStyle(
+                          fontSize: size * 1.3, fontFamily: 'RobotoMono'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              alignment: Alignment.centerLeft,
+              padding: EdgeInsets.only(left: 40, bottom: 20),
+              child: Row(
+                children: [
+                  Container(
+                    width: 6.2 * cm,
+                    child: Text(
+                      'Precio total:',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: size * 1.3,
+                          fontFamily: 'RobotoMono'),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      '\$${widget.price.toString()}',
+                      style: TextStyle(
+                          fontSize: size * 1.3, fontFamily: 'RobotoMono'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Visibility(
               visible: widget.provider != "",
               child: Container(

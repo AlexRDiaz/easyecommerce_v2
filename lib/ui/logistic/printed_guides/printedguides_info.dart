@@ -207,6 +207,7 @@ class _PrintedGuideInfoState extends State<PrintedGuideInfo> {
                         data['variant_details'],
                         0,
                         data['id_comercial'],
+                        data['id'],
                         "${data['users'] != null ? data['users'][0]['vendedores'][0]['nombre_comercial'] : data['tienda_temporal'].toString()}-${data['numero_orden']}");
 
                 if (responsereduceStock == 0) {

@@ -8041,21 +8041,15 @@ class Connections {
     }
   }
 
-
-  programedOrder(idOrigen,comentario) async {
+  programedOrder(idOrigen, comentario) async {
     // String? generatedBy = sharedPrefs!.getString("id");
-    print(json.encode(
-        {"id_origen": idOrigen}));
+    print(json.encode({"id_origen": idOrigen}));
     try {
       var response = await http.post(
           Uri.parse(
             "$serverLaravel/api/transacciones/pedido-programado",
           ),
-          body: json.encode({
-            "id_origen": idOrigen,
-            "comentario": comentario
-            
-          }));
+          body: json.encode({"id_origen": idOrigen, "comentario": comentario}));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         print(decodeData);
@@ -8714,13 +8708,15 @@ class Connections {
   }
 
   // updateProductVariantStock(skuProduct, quantity, type, idComercial) async {
-  updateProductVariantStock(variant_detail, type, idComercial, code) async {
+  updateProductVariantStock(
+      variant_detail, type, idComercial, idOrder, code) async {
     print(json.encode({
       // "sku_product": skuProduct,
       // "quantity": quantity,
       "type": type,
       "id_comercial": idComercial,
       "variant_detail": variant_detail,
+      "id": idOrder,
       "code": code,
     }));
     try {
@@ -8733,6 +8729,7 @@ class Connections {
                 "type": type,
                 "id_comercial": idComercial,
                 "variant_detail": variant_detail,
+                "id": idOrder,
                 "code": code,
               }));
 

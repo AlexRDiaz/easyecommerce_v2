@@ -68,7 +68,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
   int quantityTotal = 0;
 
   //
-  List<String> carriersTypeToSelect = [];
+  List<String> carriersTypeToSelect = ["Interno", "Externo"];
   // List<String> carriersTypeToSelect = ["Interno"];
   String? selectedCarrierExternal;
   List<String> provinciasToSelect = [];
@@ -104,11 +104,11 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
 
   @override
   void didChangeDependencies() {
-    if (idUser == 2 || idMaster == 188 || idMaster == 189) {
-      carriersTypeToSelect = ["Interno", "Externo"];
-    } else {
-      carriersTypeToSelect = ["Interno"];
-    }
+    // if (idUser == 2 || idMaster == 188 || idMaster == 189) {
+    //   carriersTypeToSelect = ["Interno", "Externo"];
+    // } else {
+    //   carriersTypeToSelect = ["Interno"];
+    // }
     getRoutes();
     getCarriersExternals();
 
@@ -563,7 +563,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                             runSpacing: 8.0,
                             children:
                                 variantsDetailsList.map<Widget>((variant) {
-                              String chipLabel = "${variant['variant_title']}";
+                              String chipLabel =
+                                  "${variant['variant_title'].toString() != "null" && variant['variant_title'].toString() != "" ? variant['variant_title'] : ""}";
 
                               chipLabel +=
                                   " - Cantidad: ${variant['quantity']}";
@@ -1592,18 +1593,26 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
     double priceT = (int.parse(quantity.toString()) *
         double.parse(widget.product.price.toString()));
 
+    int idGen = int.parse(generateCombination());
+
     Map<String, dynamic> variant = {
-      "id": widget.product.productId,
-      "name": 1101,
+      "id": idGen,
+      "name": widget.product.productId,
       "quantity": quantity,
       "price": priceT,
       "title": _producto.text,
-      "variant_title":
-          widget.product.isvariable == 1 ? variantTitle : variantFound?['sku'],
+      "variant_title": widget.product.isvariable == 1 ? variantTitle : null,
       "sku": "${variantFound?['sku']}C${widget.product.productId}",
     };
 
     return variant;
+  }
+
+  String generateCombination() {
+    const fixedNumber = 1301;
+    final random = Random();
+    final randomNumber = random.nextInt(900000000) + 100000000;
+    return '$fixedNumber$randomNumber';
   }
 
   void updatePriceBySku(String sku, double newPrice) {

@@ -16,6 +16,7 @@ import 'package:frontend/ui/sellers/print_guides/controllers/controllers.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 
 import 'package:frontend/ui/widgets/loading.dart';
+import 'package:frontend/ui/widgets/logistic/report_manifiesto.dart';
 import 'package:frontend/ui/widgets/routes/routes.dart';
 import 'package:frontend/ui/widgets/routes/routes_v2.dart';
 import 'package:provider/provider.dart';
@@ -97,6 +98,8 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
   bool showExternalCarriers = false;
   List relationsToInclude = [];
   List relationsToExclude = [];
+
+  var getReport = ReportManifiesto();
 
   @override
   void didChangeDependencies() {
@@ -462,8 +465,13 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
                                       "product":
                                           data[index]['producto_p'].toString(),
                                       "extraProduct": data[index]
-                                              ['producto_extra']
-                                          .toString(),
+                                                      ['producto_extra'] ==
+                                                  null ||
+                                              data[index]['producto_extra'] ==
+                                                  "null"
+                                          ? ""
+                                          : data[index]['producto_extra']
+                                              .toString(),
                                       "quantity": data[index]['cantidad_total']
                                           .toString(),
                                       "phone": data[index]['telefono_shipping']
@@ -783,6 +791,9 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
                   const double cm = inch / 2.54;
                   const double mm = inch / 25.4;
                   getLoadingModal(context, false);
+
+                  getReport.generateExcelReport(selectedCheckBox);
+
                   final doc = pw.Document();
 
                   for (var i = 0; i < selectedCheckBox.length; i++) {
@@ -888,6 +899,8 @@ class _PrintGuidesStateProvider extends State<PrintGuidesProvider> {
   void generateDocumentExternal() async {
     try {
       getLoadingModal(context, false);
+      getReport.generateExcelReport(selectedCheckBox);
+
       Stopwatch stopwatch = Stopwatch();
       stopwatch.start();
 

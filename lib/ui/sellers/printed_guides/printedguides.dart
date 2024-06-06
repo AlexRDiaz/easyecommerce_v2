@@ -498,8 +498,14 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
                                         optionsCheckBox[index]['product'] =
                                             data[index]['producto_p']
                                                 .toString();
-                                        optionsCheckBox[index]['extraProduct'] =
-                                            data[index]['producto_extra']
+                                        optionsCheckBox[index]
+                                            ['extraProduct'] = data[index]
+                                                        ['producto_extra'] ==
+                                                    null ||
+                                                data[index]['producto_extra'] ==
+                                                    "null"
+                                            ? ""
+                                            : data[index]['producto_extra']
                                                 .toString();
                                         optionsCheckBox[index]['quantity'] =
                                             data[index]['cantidad_total']
@@ -1019,7 +1025,10 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
             optionsCheckBox[i]['city'] = data[i]['ciudad_shipping'].toString();
             optionsCheckBox[i]['product'] = data[i]['producto_p'].toString();
             optionsCheckBox[i]['extraProduct'] =
-                data[i]['producto_extra'].toString();
+                data[i]['producto_extra'] == null ||
+                        data[i]['producto_extra'] == "null"
+                    ? ""
+                    : data[i]['producto_extra'].toString();
             optionsCheckBox[i]['quantity'] =
                 data[i]['cantidad_total'].toString();
             optionsCheckBox[i]['phone'] =

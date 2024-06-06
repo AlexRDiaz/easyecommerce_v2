@@ -90,6 +90,7 @@ class _ScannerPrintedState extends State<ScannerPrinted> {
                               responseOrder['variant_details'],
                               0,
                               responseOrder['id_comercial'],
+                              responseOrder['id'],
                               "${responseOrder['users'] != null ? responseOrder['users'][0]['vendedores'][0]['nombre_comercial'] : responseOrder['tienda_temporal'].toString()}-${responseOrder['numero_orden']}");
 
                       if (responsereduceStock == 0) {

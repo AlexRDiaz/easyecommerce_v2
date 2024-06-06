@@ -519,8 +519,14 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                                       optionsCheckBox[index]['product'] =
                                           data[index]['producto_p'].toString();
                                       optionsCheckBox[index]['extraProduct'] =
-                                          data[index]['producto_extra']
-                                              .toString();
+                                          data[index]['producto_extra'] ==
+                                                      null ||
+                                                  data[index]
+                                                          ['producto_extra'] ==
+                                                      "null"
+                                              ? ""
+                                              : data[index]['producto_extra']
+                                                  .toString();
                                       optionsCheckBox[index]['quantity'] =
                                           data[index]['cantidad_total']
                                               .toString();
@@ -977,6 +983,7 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                             optionsCheckBox[i]['variant_details'],
                             0,
                             optionsCheckBox[i]['id_comercial'],
+                            optionsCheckBox[i]['id'],
                             optionsCheckBox[i]['numPedido']);
 
                     if (responsereduceStock == 0) {

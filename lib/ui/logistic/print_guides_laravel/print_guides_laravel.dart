@@ -20,6 +20,7 @@ import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
 
 import 'package:frontend/ui/widgets/loading.dart';
+import 'package:frontend/ui/widgets/logistic/report_manifiesto.dart';
 import 'package:frontend/ui/widgets/routes/routes.dart';
 import 'package:frontend/ui/widgets/routes/routes_v2.dart';
 // import 'package:provider/provider.dart';
@@ -27,6 +28,7 @@ import 'package:screenshot/screenshot.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'package:excel/excel.dart';
 
 class PrintGuidesLaravel extends StatefulWidget {
   const PrintGuidesLaravel({super.key});
@@ -93,6 +95,8 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
   // List relationsToExclude = ['pedidoCarrier'];
   List relationsToInclude = [];
   List relationsToExclude = [];
+
+  var getReport = ReportManifiesto();
 
   @override
   void didChangeDependencies() {
@@ -446,7 +450,7 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
             padding: const EdgeInsets.all(15.0),
             child: Container(
               decoration: BoxDecoration(
-                  border: Border.all(width: 1, color: Colors.grey),
+                  // border: Border.all(width: 1, color: Colors.grey),
                   borderRadius: BorderRadius.circular(10.0)),
               child: dataT(),
             ),
@@ -662,7 +666,7 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                         });
 
                         if (value!) {
-                          print(data[index]);
+                          // print(data[index]);
                           optionsCheckBox.add({
                             "check": false,
                             "id": data[index]['id'].toString(),
@@ -681,7 +685,10 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
                                     : "",
                             "product": data[index]['producto_p'].toString(),
                             "extraProduct":
-                                data[index]['producto_extra'].toString(),
+                                data[index]['producto_extra'] == null ||
+                                        data[index]['producto_extra'] == "null"
+                                    ? ""
+                                    : data[index]['producto_extra'].toString(),
                             "quantity":
                                 data[index]['cantidad_total'].toString(),
                             "phone":
@@ -934,6 +941,8 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
         },
       );
 
+      getReport.generateExcelReport(optionsCheckBox);
+
       final doc = pw.Document();
 
       await Future.forEach(optionsCheckBox, (checkBox) async {
@@ -1059,6 +1068,8 @@ class _PrintGuidesLaravelState extends State<PrintGuidesLaravel> {
   void generateDocumentExternal() async {
     try {
       getLoadingModal(context, false);
+      getReport.generateExcelReport(optionsCheckBox);
+
       Stopwatch stopwatch = Stopwatch();
       stopwatch.start();
 
