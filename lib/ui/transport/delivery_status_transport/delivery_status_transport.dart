@@ -157,7 +157,6 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
         listOperators.add(transportadora);
       }
     }
-
     try {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         getLoadingModal(context, false);
@@ -1956,7 +1955,8 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                     //  print(value);
                   }
 
-                  paginateData();
+                  // paginateData();
+                  loadData(context);
                 });
               },
               decoration: InputDecoration(

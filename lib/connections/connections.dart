@@ -1655,6 +1655,16 @@ class Connections {
 
     filtersAndAll.addAll(defaultAnd);
 
+    print(json.encode({
+          "from": from,
+          "date_filter": dateFilter,
+          "start": dateStart,
+          "end": dateEnd,
+          "or": or,
+          "and": filtersAndAll,
+          "not": []
+        }));
+        
     var request = await http.post(
         Uri.parse(
             "$serverLaravel/api/pedidos-shopify/products/values/transport"),
