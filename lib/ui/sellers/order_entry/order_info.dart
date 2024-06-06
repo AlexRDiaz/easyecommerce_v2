@@ -130,6 +130,8 @@ class _OrderInfoState extends State<OrderInfo> {
   String productFirstName = "";
   String productFirstPrice = "";
 
+  bool editProductP = true;
+
   @override
   void didChangeDependencies() {
     getRoutes();
@@ -182,6 +184,8 @@ class _OrderInfoState extends State<OrderInfo> {
         data['variant_details'] != null &&
         data['variant_details'].toString() != "[]" &&
         data['variant_details'].isNotEmpty) {
+      editProductP = false;
+      print("editProductP :$editProductP");
       productFirstId = data['product']['product_id'].toString();
       productFirstName = data['product']['product_name'].toString();
       productFirstPrice = data['product']['price'].toString();
@@ -600,6 +604,8 @@ class _OrderInfoState extends State<OrderInfo> {
                                               if (formKey.currentState!
                                                   .validate()) {
                                                 getLoadingModal(context, false);
+
+                                                //btnGuardar
                                                 print("**********************");
 
                                                 String labelProducto = "";
@@ -688,10 +694,13 @@ class _OrderInfoState extends State<OrderInfo> {
                                                   //
                                                   print(
                                                       "NO tiene variants_details");
+                                                  labelProducto = _controllers
+                                                      .productoEditController
+                                                      .text;
                                                 }
 
-                                                // print(
-                                                //     "labelProducto: $labelProducto");
+                                                print(
+                                                    "labelProducto: $labelProducto");
 
                                                 await _controllers.updateInfo(
                                                     id: widget.order["id"],
@@ -773,6 +782,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                     // labelStyle: TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                   enabled: !isCarrierExternal,
+                                  // readOnly: isCarrierExternal,
                                   // enabled: (isCarrierInternal &&
                                   //         estadoLogistic == "PENDIENTE") ||
                                   //     (!isCarrierExternal &&
@@ -793,7 +803,8 @@ class _OrderInfoState extends State<OrderInfo> {
                                     labelText: "Nombre Cliente",
                                     // labelStyle: TextStyle(fontWeight: FontWeight.bold),
                                   ),
-                                  enabled: !isCarrierExternal,
+                                  // enabled: !isCarrierExternal,
+                                  readOnly: isCarrierExternal,
                                   keyboardType: TextInputType.text,
                                   validator: (String? value) {
                                     if (value == null || value.isEmpty) {
@@ -811,7 +822,8 @@ class _OrderInfoState extends State<OrderInfo> {
                                     labelText: "Dirección",
                                     // labelStyle: TextStyle(fontWeight: FontWeight.bold),
                                   ),
-                                  enabled: !isCarrierExternal,
+                                  // enabled: !isCarrierExternal,
+                                  readOnly: isCarrierExternal,
                                   validator: (String? value) {
                                     if (value == null || value.isEmpty) {
                                       return "Campo requerido";
@@ -828,7 +840,8 @@ class _OrderInfoState extends State<OrderInfo> {
                                     labelText: "Teléfono",
                                     // labelStyle: TextStyle(fontWeight: FontWeight.bold),
                                   ),
-                                  enabled: !isCarrierExternal,
+                                  // enabled: !isCarrierExternal,
+                                  readOnly: isCarrierExternal,
                                   inputFormatters: [
                                     FilteringTextInputFormatter.allow(
                                         RegExp(r'[0-9+]')),
@@ -843,20 +856,19 @@ class _OrderInfoState extends State<OrderInfo> {
                                 Text(
                                   "ID Producto: ${data['id_product'] != null && data['id_product'] != 0 ? data['id_product'].toString() : ""}",
                                 ),
-                                const SizedBox(height: 10),
-                                const Text(
-                                  "Producto",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  productPname,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                /*
+                                // const SizedBox(height: 10),
+                                // const Text(
+                                //   "Producto",
+                                //   style: TextStyle(
+                                //     fontWeight: FontWeight.bold,
+                                //   ),
+                                // ),
+                                // Text(
+                                //   productPname,
+                                //   style: const TextStyle(
+                                //     fontSize: 16,
+                                //   ),
+                                // ),
                                 TextFormField(
                                   style: const TextStyle(
                                       fontWeight: FontWeight.bold),
@@ -865,16 +877,16 @@ class _OrderInfoState extends State<OrderInfo> {
                                   maxLines: null,
                                   decoration: const InputDecoration(
                                     labelText: "Producto",
-                                    // labelStyle: TextStyle(fontWeight: FontWeight.bold),
                                   ),
-                                  enabled: !isCarrierExternal,
+                                  // enabled: !isCarrierExternal && editProductP,
+                                  readOnly: (isCarrierExternal) ||
+                                      (!isCarrierExternal && !editProductP),
                                   validator: (String? value) {
                                     if (value == null || value.isEmpty) {
                                       return "Campo requerido";
                                     }
                                   },
                                 ),
-                                */
                                 Visibility(
                                   visible: (isCarrierInternal &&
                                           estadoLogistic == "PENDIENTE" &&
@@ -1202,12 +1214,17 @@ class _OrderInfoState extends State<OrderInfo> {
                                       _controllers.cantidadEditController,
                                   enabled:
                                       (isvariable == 0 && !isCarrierExternal),
+                                  // readOnly:
+                                  //     isvariable == 1 && isCarrierExternal,
                                   maxLines: null,
                                   decoration: const InputDecoration(
                                     labelText: "Cantidad",
                                     labelStyle:
                                         TextStyle(fontWeight: FontWeight.bold),
                                   ),
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.digitsOnly
+                                  ],
                                   validator: (String? value) {
                                     if (value == null || value.isEmpty) {
                                       return "Campo requerido";
@@ -1227,7 +1244,8 @@ class _OrderInfoState extends State<OrderInfo> {
                                       labelStyle: TextStyle(
                                           fontWeight: FontWeight.bold),
                                     ),
-                                    enabled: !isCarrierExternal,
+                                    // enabled: !isCarrierExternal,
+                                    readOnly: isCarrierExternal,
                                     inputFormatters: <TextInputFormatter>[
                                       FilteringTextInputFormatter.allow(
                                           RegExp(r'^\d+\.?\d{0,2}$')),
@@ -1244,7 +1262,8 @@ class _OrderInfoState extends State<OrderInfo> {
                                       fontWeight: FontWeight.bold),
                                   controller:
                                       _controllers.productoExtraEditController,
-                                  enabled: !isCarrierExternal,
+                                  // enabled: !isCarrierExternal,
+                                  readOnly: isCarrierExternal,
                                   decoration: const InputDecoration(
                                     labelText: "Producto Extra",
                                     labelStyle:
@@ -1257,7 +1276,8 @@ class _OrderInfoState extends State<OrderInfo> {
                                       fontWeight: FontWeight.bold),
                                   controller:
                                       _controllers.observacionEditController,
-                                  enabled: !isCarrierExternal,
+                                  // enabled: !isCarrierExternal,
+                                  readOnly: isCarrierExternal,
                                   decoration: const InputDecoration(
                                     labelText: "Observación",
                                     labelStyle:
@@ -1923,6 +1943,7 @@ class _OrderInfoState extends State<OrderInfo> {
                         }
                       }
                     }
+                    //btnAceptar
                     //check stock
                     if (readySent) {
                       getLoadingModal(context, false);
@@ -1980,9 +2001,14 @@ class _OrderInfoState extends State<OrderInfo> {
                         } else {
                           //
                           print("NO tiene id_product");
+                          labelProducto =
+                              _controllers.productoEditController.text;
                         }
                       } else {
                         //
+                        labelProducto =
+                            _controllers.productoEditController.text;
+
                         print("NO tiene variants_details");
                         await Connections().updatenueva(data['id'], {
                           "cantidad_total": _controllers

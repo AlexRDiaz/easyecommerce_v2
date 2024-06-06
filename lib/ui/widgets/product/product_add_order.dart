@@ -1537,7 +1537,7 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                           ),
                         ),
                         child: const Text(
-                          "GUARDAR",
+                          "ACEPTAR",
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
