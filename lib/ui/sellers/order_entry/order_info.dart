@@ -689,6 +689,9 @@ class _OrderInfoState extends State<OrderInfo> {
                                                     //
                                                     print(
                                                         "NO tiene id_product");
+                                                    labelProducto = _controllers
+                                                        .productoEditController
+                                                        .text;
                                                   }
                                                 } else {
                                                   //
@@ -770,7 +773,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                   "Código: ${sharedPrefs!.getString("NameComercialSeller").toString()}-${data['numero_orden'].toString()}",
                                 ),
                                 Text(
-                                  "Fecha Ingreso: ${data['marca_t_i'].toString()}",
+                                  "Fecha de Ingreso: ${data['marca_t_i'].toString()}",
                                 ),
                                 const SizedBox(height: 5),
                                 TextFormField(
