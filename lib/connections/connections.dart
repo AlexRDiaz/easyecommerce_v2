@@ -4207,8 +4207,15 @@ class Connections {
     filtersAndAll.addAll(filtersAnd);
 
     filtersAndAll.addAll(defaultAnd);
-    // print(json.encode(
-    //     {"and": filtersAndAll, "or": filtersOr, "searchValue": searchValue}));
+    // print(json.encode({
+    //   "and": filtersAndAll,
+    //   "or": filtersOr,
+    //   "searchValue": searchValue,
+    //   "sort": {
+    //     "field": "operadores.transportadoras.transportadora_id",
+    //     "direction": "DESC"
+    //   }
+    // }));
     try {
       var response =
           await http.post(Uri.parse("$serverLaravel/api/operadoresoftransport"),
@@ -6675,14 +6682,30 @@ class Connections {
   }
 
   //  *
-  getTransactionsByProvider(idProvider, populate, page_size, current_page, or,
-      and, sort, search) async {
+  getTransactionsByProvider(startDate, endDate, populate, page_size,
+      current_page, or, and, sort, search) async {
+    if (search != null && search != "") {
+      startDate = "2023-01-01";
+      endDate = "2123-01-01";
+    }
+    // print(json.encode({
+    //   "start": startDate,
+    //   "end": endDate,
+    //   "populate": populate,
+    //   "page_size": page_size,
+    //   "page_number": current_page,
+    //   "or": or,
+    //   "and": and,
+    //   "sort": sort,
+    //   "search": search
+    // }));
     try {
       var response = await http.post(
-          Uri.parse(
-              "$serverLaravel/api/providertransaction/provider/$idProvider"),
+          Uri.parse("$serverLaravel/api/providertransaction/provider"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
+            "start": startDate,
+            "end": endDate,
             "populate": populate,
             "page_size": page_size,
             "page_number": current_page,
@@ -7625,6 +7648,27 @@ class Connections {
     }
   }
 
+  //*
+  getTotalRetiros(idProvider) async {
+    try {
+      var request = await http.get(
+        Uri.parse("$serverLaravel/api/providertransaction/retiros/$idProvider"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      var response = await request.body;
+
+      if (request.statusCode == 200) {
+        var decodeData = json.decode(request.body);
+        return decodeData['total_amount'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      print("Error getTotalRetiros: $error");
+      return 2;
+    }
+  }
+
   //TEST
 
   Future getOrdersTest1() async {
@@ -7675,19 +7719,27 @@ class Connections {
     return decodeData['saldo'];
   }
 
-  getSaldoProvider() async {
-    print("${sharedPrefs!.getString("idProviderUserMaster").toString()}");
-    print(
-        "$serverLaravel/api/proveedores/saldo/${sharedPrefs!.getString("idProviderUserMaster").toString()}");
-    var request = await http.get(
-      Uri.parse(
-          "$serverLaravel/api/proveedores/saldo/${sharedPrefs!.getString("idProviderUserMaster").toString()}"),
-      headers: {'Content-Type': 'application/json'},
-    );
-    var response = await request.body;
-    var decodeData = json.decode(response);
+  getSaldoProvider(idProviderUserMaster) async {
+    // print("idProviderUserMaster: $idProviderUserMaster");
+    // print(
+    //     "$serverLaravel/api/proveedores/saldo/${sharedPrefs!.getString("idProviderUserMaster").toString()}");
+    try {
+      var request = await http.get(
+        Uri.parse("$serverLaravel/api/proveedores/saldo/$idProviderUserMaster"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      var response = await request.body;
 
-    return decodeData['saldo'];
+      if (request.statusCode == 200) {
+        var decodeData = json.decode(request.body);
+        return decodeData['saldo'];
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      print("Error getSaldo: $error");
+      return 2;
+    }
   }
 
   getTransactionsBySeller(start, end, List populate, List and, List defaultAnd,

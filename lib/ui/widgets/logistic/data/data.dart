@@ -17,9 +17,14 @@ List optionsLogistic = [
   {"name": "Comprobantes de Pago", "icon": Icons.calendar_today_sharp},
 
   {"name": "Comprobantes de Pago2", "icon": Icons.calendar_today_sharp},
-  {"name": "Facturacion Transportadora Externa", "icon": Icons.fire_truck_outlined},
-  {"name": "Estados de entrega transportadora externa", "icon": Icons.query_stats_outlined},
-
+  {
+    "name": "Facturacion Transportadora Externa",
+    "icon": Icons.fire_truck_outlined
+  },
+  {
+    "name": "Estados de entrega transportadora externa",
+    "icon": Icons.query_stats_outlined
+  },
 
   {"name": "Saldo Contable", "icon": Icons.monetization_on_outlined},
   {"name": "Saldo Logística", "icon": Icons.monetization_on_outlined},
@@ -49,6 +54,7 @@ List optionsLogistic = [
     "icon": Icons.emoji_transportation
   },
   {"name": "Transportistas Externos", "icon": Icons.local_shipping_outlined},
+  {"name": "Saldo Proveedores", "icon": Icons.payment},
 
   {"name": "Cerrar Sesión", "icon": Icons.logout_outlined},
 ];

@@ -5,11 +5,11 @@ import 'package:mvc_pattern/mvc_pattern.dart';
 class TransactionsController extends ControllerMVC {
   List<ProviderTransactionsModel> transactions = [];
 
-  Future<Map<String, dynamic>> loadTransactionsByProvider(idProvider, populate,
-      pageSize, currentPage, or, and, sort, search) async {
+  Future<Map<String, dynamic>> loadTransactionsByProvider(startDate, endDate,
+      populate, pageSize, currentPage, or, and, sort, search) async {
     try {
-      var response = await Connections().getTransactionsByProvider(
-          idProvider, populate, pageSize, currentPage, or, and, sort, search);
+      var response = await Connections().getTransactionsByProvider(startDate,
+          endDate, populate, pageSize, currentPage, or, and, sort, search);
       if (response == 1) {
         print('Error: Status Code 1');
       } else if (response == 2) {

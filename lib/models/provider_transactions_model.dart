@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:frontend/models/orden_retiro.dart';
 import 'package:frontend/models/pedido_shopify_model.dart';
+import 'package:frontend/models/provider_model.dart';
 
 class ProviderTransactionsModel {
   int? id;
@@ -20,23 +21,26 @@ class ProviderTransactionsModel {
 
   PedidoShopifyModel? pedidoShopify;
   OrdenRetiroModel? ordenRetiro;
+  ProviderModel? provider;
 
-  ProviderTransactionsModel(
-      {this.id,
-      this.transactionType,
-      this.amount,
-      this.previousValue,
-      this.currentValue,
-      this.timestamp,
-      this.originId,
-      this.originCode,
-      this.providerId,
-      this.comment,
-      this.generatedBy,
-      this.status,
-      this.description,
-      this.pedidoShopify,
-      this.ordenRetiro});
+  ProviderTransactionsModel({
+    this.id,
+    this.transactionType,
+    this.amount,
+    this.previousValue,
+    this.currentValue,
+    this.timestamp,
+    this.originId,
+    this.originCode,
+    this.providerId,
+    this.comment,
+    this.generatedBy,
+    this.status,
+    this.description,
+    this.pedidoShopify,
+    this.ordenRetiro,
+    this.provider,
+  });
 
   factory ProviderTransactionsModel.fromJson(Map<String, dynamic> json) {
     return ProviderTransactionsModel(
@@ -59,6 +63,9 @@ class ProviderTransactionsModel {
       ordenRetiro: json['orden_retiro'] == null
           ? null
           : OrdenRetiroModel.fromJson(json['orden_retiro']),
+      provider: json['provider'] == null
+          ? null
+          : ProviderModel.fromJson(json['provider']),
     );
   }
 
@@ -79,6 +86,7 @@ class ProviderTransactionsModel {
       'description': description,
       'pedido': pedidoShopify?.toJson(),
       'orden_retiro': ordenRetiro?.toJson(),
+      'provider': provider?.toJson(),
     };
   }
 }
