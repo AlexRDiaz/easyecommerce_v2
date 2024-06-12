@@ -157,7 +157,6 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
         listOperators.add(transportadora);
       }
     }
-
     try {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         getLoadingModal(context, false);
@@ -290,6 +289,18 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
               _controllers.searchController.text,
               // sortField.toString());
               sortFieldDefaultValue.toString());
+
+      // var responseValues = await Connections().getValuesTrasporter(
+      //     "carrier",
+      //     selectedDateFilter,
+      //     sharedPrefs!.getString("dateDesdeTransportadora"),
+      //     sharedPrefs!.getString("dateHastaTransportadora"),
+      //     populate,
+      //     arrayFiltersAnd,
+      //     arrayFiltersDefaultAnd,
+      //     arrayFiltersOr);
+
+      // valuesTransporter = responseValues;
 
       setState(() {
         data = [];
@@ -1956,7 +1967,8 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
                     //  print(value);
                   }
 
-                  paginateData();
+                  // paginateData();
+                  loadData(context);
                 });
               },
               decoration: InputDecoration(
