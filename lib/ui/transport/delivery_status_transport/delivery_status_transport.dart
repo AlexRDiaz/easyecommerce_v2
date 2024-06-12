@@ -290,6 +290,18 @@ class _DeliveryStatusTransportState extends State<DeliveryStatusTransport> {
               // sortField.toString());
               sortFieldDefaultValue.toString());
 
+      // var responseValues = await Connections().getValuesTrasporter(
+      //     "carrier",
+      //     selectedDateFilter,
+      //     sharedPrefs!.getString("dateDesdeTransportadora"),
+      //     sharedPrefs!.getString("dateHastaTransportadora"),
+      //     populate,
+      //     arrayFiltersAnd,
+      //     arrayFiltersDefaultAnd,
+      //     arrayFiltersOr);
+
+      // valuesTransporter = responseValues;
+
       setState(() {
         data = [];
         data = response['data'];

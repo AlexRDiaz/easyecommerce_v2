@@ -14,6 +14,7 @@ import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
 import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
+import 'package:frontend/ui/logistic/delivery_status_carrier_external/create_report.dart';
 import 'package:frontend/ui/provider/delivery_status_provider/DeliveryStatusSellerInfo.dart';
 import 'package:frontend/ui/provider/delivery_status_provider/create_report.dart';
 // import 'package:frontend/ui/sellers/delivery_status/DeliveryStatusSellerInfo.dart';
@@ -137,7 +138,7 @@ class _DeliveryStatusExternalCarrierState
 
   List arrayFiltersNotEq = [
     //{'status': 'PEDIDO PROGRAMADO'}
-    {'carrier_external_id': ""}
+    {'pedidoCarrier.carrier_id': ""}
   ];
   List populateC = [
     'transportadora',
@@ -149,7 +150,8 @@ class _DeliveryStatusExternalCarrierState
     'operadore.user',
     'novedades',
     'product.warehouse.provider',
-    'carrierExternal'
+    'carrierExternal',
+    'pedidoCarrier'
   ];
 
   List filtersOrCont = [
@@ -222,7 +224,7 @@ class _DeliveryStatusExternalCarrierState
   List arrayFiltersAnd2 = [];
 
   NumberPaginatorController paginatorController = NumberPaginatorController();
-  var getReport = CreateReportProvider();
+  var getReport = CreateReportExternal();
   List selectedStatus = [];
   List selectedInternal = [];
   List<String> selectedChips = [];
@@ -235,7 +237,8 @@ class _DeliveryStatusExternalCarrierState
     'ruta',
     'subRuta',
     'product.warehouse.provider',
-    'carrierExternal'
+    'carrierExternal',
+    'pedidoCarrier'
   ];
   //        $pedidos = PedidosShopify::with(['operadore.up_users', 'transportadora', 'users.vendedores', 'novedades', 'pedidoFecha', 'ruta', 'subRuta'])
 
@@ -306,7 +309,7 @@ class _DeliveryStatusExternalCarrierState
               _controllers.searchController.text,
               arrayFiltersNotEq,
               sortFieldDefaultValue);
-      // print("data> $responseLaravel");
+      print("counters> $responseCounters");
       dataCounters = responseCounters;
       valuesTransporter = responseValues['data'];
       data = responseLaravel['data'];
@@ -416,12 +419,13 @@ class _DeliveryStatusExternalCarrierState
       {'estado_logistico': "ENVIADO"}
     ];
     var responseAll = await Connections()
-        .getAllOrdersByDateRangeLaravel(DefaultAnd, status, internal);
+        .getAllOrdersByDateRangeExternalLaravel(
+            arrayFiltersNotEq, DefaultAnd, status, internal);
 
     allData = responseAll;
 
     if (allData.isNotEmpty) {
-      getReport.generateExcelFileWithDataProvider(allData);
+      getReport.generateExcelFileWithDataExternal(allData);
     } else {
       print("No existen datos con este filtro");
       showSuccessModal(context,
@@ -959,11 +963,7 @@ class _DeliveryStatusExternalCarrierState
                           //   size: ColumnSize.M,
                           // ),
                           DataColumn2(
-                            label: SelectFilter(
-                                'Transportadora Externa',
-                                'carrier_external_id',
-                                carrierExternalController,
-                                transportator),
+                            label: Text('Transportadora Externa'),
                             // label: Text('Status'),
                             size: ColumnSize.M,
                             onSort: (columnIndex, ascending) {
@@ -1132,8 +1132,9 @@ class _DeliveryStatusExternalCarrierState
                                   //             ['nombre']
                                   //         .toString()
                                   //     : '')
-                                  Text(data[index]["carrier_external"] != null
-                                      ? data[index]["carrier_external"]["name"]
+                                  Text(data[index]["pedido_carrier"] != null
+                                      ? data[index]["pedido_carrier"][0]
+                                              ["carrier"]['name']
                                           .toString()
                                       : ""), onTap: () {
                                 showInfo(context, index);

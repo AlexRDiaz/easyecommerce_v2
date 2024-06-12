@@ -4,18 +4,21 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:excel/excel.dart';
 import 'package:frontend/main.dart';
 
-class CreateReportProvider {
+class CreateReportExternal {
 //
 //   *
 //
-  Future<void> generateExcelFileWithDataProvider(dataOrders) async {
+  Future<void> generateExcelFileWithDataExternal(dataOrders) async {
+    var nombreComercial = "";
     try {
       final excel = Excel.createExcel();
       final sheet = excel.sheets[excel.getDefaultSheet() as String];
       sheet!.setColWidth(2, 50);
       sheet.setColAutoFit(3);
-      var nameComercial =
-          sharedPrefs!.getString("NameComercialSeller").toString();
+      // var nameComercial =
+      //     sharedPrefs!.getString("NameComercialSeller").toString();
+      // sharedPrefs!.getString("NameProvider").toString();
+
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0))
           .value = 'Fecha Envio';
@@ -72,6 +75,7 @@ class CreateReportProvider {
           .value = 'Costo Proveedor';
       for (int rowIndex = 0; rowIndex < dataOrders.length; rowIndex++) {
         final data = dataOrders[rowIndex];
+        nombreComercial = data['users'][0]['vendedores'][0]['nombre_comercial'];
 
         sheet
             .cell(CellIndex.indexByColumnRow(
@@ -82,10 +86,9 @@ class CreateReportProvider {
                 columnIndex: 1, rowIndex: rowIndex + 1))
             .value = data["fecha_entrega"];
         sheet
-                .cell(CellIndex.indexByColumnRow(
-                    columnIndex: 2, rowIndex: rowIndex + 1))
-                .value =
-            "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data["numero_orden"]}";
+            .cell(CellIndex.indexByColumnRow(
+                columnIndex: 2, rowIndex: rowIndex + 1))
+            .value = "$nombreComercial-${data["numero_orden"]}";
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 3, rowIndex: rowIndex + 1))
@@ -141,8 +144,7 @@ class CreateReportProvider {
 
         if (data['value_product_warehouse'] != null) {
           if (data['status'] == "ENTREGADO") {
-            var valuePw =
-                data['value_product_warehouse'].toString();
+            var valuePw = data['value_product_warehouse'].toString();
             sheet
                 .cell(CellIndex.indexByColumnRow(
                     columnIndex: 12, rowIndex: rowIndex + 1))
@@ -191,8 +193,8 @@ class CreateReportProvider {
       }
 
       var nombreFile =
-          "$nameComercial-EasyEcommerce-${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
-      excel.save(fileName: '${nombreFile}.xlsx');
+          "TransportadorasExternas-EasyEcommerce-${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
+      excel.save(fileName: '$nombreFile.xlsx');
     } catch (e) {
       print("Error en Generar el reporte!");
     }

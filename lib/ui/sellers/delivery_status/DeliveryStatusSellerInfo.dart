@@ -337,7 +337,8 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
             data['status'] != "NOVEDAD RESUELTA" &&
                     data['status'] != "NO ENTREGADO" &&
                     data['estado_devolucion'] == "PENDIENTE" &&
-                    data['status'] != "ENTREGADO"
+                    data['status'] != "ENTREGADO" &&
+                    data['pedido_carrier'].isEmpty
                 ? Container(
                     width: whidth * 0.15,
                     child: FilledButton.tonalIcon(
@@ -371,7 +372,8 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
               width: 10,
             ),
             data['status'] == 'NOVEDAD' &&
-                    data['estado_devolucion'] == 'PENDIENTE'
+                    data['estado_devolucion'] == 'PENDIENTE' &&
+                    data['pedido_carrier'].isEmpty
                 ? Container(
                     width: whidth * 0.15,
                     child: FilledButton.tonalIcon(

@@ -980,7 +980,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                       data[index]['status'] == 'NOVEDAD' &&
                                               data[index]
                                                       ['estado_devolucion'] ==
-                                                  'PENDIENTE'
+                                                  'PENDIENTE' &&
+                                              data[index]['pedido_carrier']
+                                                  .isEmpty
                                           ? IconButton(
                                               icon:
                                                   Icon(Icons.schedule_outlined),

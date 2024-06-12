@@ -1656,15 +1656,15 @@ class Connections {
     filtersAndAll.addAll(defaultAnd);
 
     print(json.encode({
-          "from": from,
-          "date_filter": dateFilter,
-          "start": dateStart,
-          "end": dateEnd,
-          "or": or,
-          "and": filtersAndAll,
-          "not": []
-        }));
-        
+      "from": from,
+      "date_filter": dateFilter,
+      "start": dateStart,
+      "end": dateEnd,
+      "or": or,
+      "and": filtersAndAll,
+      "not": []
+    }));
+
     var request = await http.post(
         Uri.parse(
             "$serverLaravel/api/pedidos-shopify/products/values/transport"),
@@ -3367,6 +3367,14 @@ class Connections {
     print('start: ${sharedPrefs!.getString("dateDesdeVendedor")}');
     print('end: ${sharedPrefs!.getString("dateDesdeVendedor")}');
 
+    print(json.encode({
+      "date_filter": dateFilter,
+      "start": sharedPrefs!.getString("dateDesdeVendedor"),
+      "end": sharedPrefs!.getString("dateHastaVendedor"),
+      "or": or,
+      "and": and,
+      "not": arrayFiltersNotEq
+    }));
     var request = await http.post(
         Uri.parse("$serverLaravel/api/pedidos-shopify/products/counters"),
         headers: {
@@ -5745,6 +5753,50 @@ class Connections {
     }
   }
 
+  getAllOrdersByDateRangeExternalLaravel(
+      not, andDefault, status, internal) async {
+    int res = 0;
+
+    print(sharedPrefs!.getString("dateDesdeVendedor"));
+    print(sharedPrefs!.getString("dateHastaVendedor"));
+    String urlnew = "$serverLaravel/api/pedidos-shopify/filterall/external";
+    print(json.encode({
+      "start": sharedPrefs!.getString("dateDesdeVendedor"),
+      "end": sharedPrefs!.getString("dateHastaVendedor"),
+      "and": andDefault,
+      "not": not,
+      "status": status,
+      "internal": internal,
+    }));
+    try {
+      var requestlaravel = await http.post(Uri.parse(urlnew),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "start": sharedPrefs!.getString("dateDesdeVendedor"),
+            "end": sharedPrefs!.getString("dateHastaVendedor"),
+            "and": andDefault,
+              "not": not,
+            "status": status,
+            "internal": internal,
+          }));
+
+      var responselaravel = await requestlaravel.body;
+      var decodeDataL = json.decode(responselaravel);
+
+      if (requestlaravel.statusCode != 200) {
+        res = 1;
+        print("" + res.toString());
+      }
+      print(res.toString());
+
+      return decodeDataL;
+    } catch (e) {
+      print("error!!!: $e");
+      res = 2;
+      print("" + res.toString());
+    }
+  }
+
   //--- Logistic: Comprobantes Pago 2
 // *
   Future getOrdersSCalendarLaravel(id, month, year) async {
@@ -8051,21 +8103,15 @@ class Connections {
     }
   }
 
-
-  programedOrder(idOrigen,comentario) async {
+  programedOrder(idOrigen, comentario) async {
     // String? generatedBy = sharedPrefs!.getString("id");
-    print(json.encode(
-        {"id_origen": idOrigen}));
+    print(json.encode({"id_origen": idOrigen}));
     try {
       var response = await http.post(
           Uri.parse(
             "$serverLaravel/api/transacciones/pedido-programado",
           ),
-          body: json.encode({
-            "id_origen": idOrigen,
-            "comentario": comentario
-            
-          }));
+          body: json.encode({"id_origen": idOrigen, "comentario": comentario}));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
         print(decodeData);
