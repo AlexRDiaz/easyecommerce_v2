@@ -349,6 +349,14 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
     }
   }
 
+  bool containsEmoji(String text) {
+    final emojiPattern = RegExp(
+        r'[\u2000-\u3300]|[\uD83C][\uDF00-\uDFFF]|[\uD83D][\uDC00-\uDE4F]'
+        r'|[\uD83D][\uDE80-\uDEFF]|[\uD83E][\uDD00-\uDDFF]|[\uD83E][\uDE00-\uDEFF]');
+    // r'|[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]');
+    return emojiPattern.hasMatch(text);
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -1049,82 +1057,121 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                               var dataIntegration;
 
                               if (selectedCarrierType == "Externo") {
-                                remitente_address =
-                                    prov_city_address.split('|')[2];
+                                bool readyDataSend = true;
+                                bool emojiNombre = containsEmoji(_nombre.text);
+                                bool emojiDireccion =
+                                    containsEmoji(_direccion.text);
+                                bool emojiContenidoProd =
+                                    containsEmoji(contenidoProd);
+                                bool emojiProductoe =
+                                    containsEmoji(_productoE.text);
+                                bool emojiObservacion =
+                                    containsEmoji(_observacion.text);
 
-                                var responseProvCityRem =
-                                    await Connections().getCoverage([
-                                  {
-                                    "/carriers_external_simple.id":
-                                        selectedCarrierExternal
-                                            .toString()
-                                            .split("-")[1]
+                                if (emojiNombre ||
+                                    emojiDireccion ||
+                                    emojiContenidoProd ||
+                                    emojiProductoe ||
+                                    emojiObservacion) {
+                                  readyDataSend = false;
+                                }
+                                if (readyDataSend) {
+                                  remitente_address =
+                                      prov_city_address.split('|')[2];
+
+                                  var responseProvCityRem =
+                                      await Connections().getCoverage([
+                                    {
+                                      "/carriers_external_simple.id":
+                                          selectedCarrierExternal
+                                              .toString()
+                                              .split("-")[1]
+                                    },
+                                    {
+                                      "/coverage_external.dpa_provincia.id":
+                                          prov_city_address.split('|')[0]
+                                    },
+                                    {
+                                      "/coverage_external.ciudad":
+                                          prov_city_address.split('|')[1]
+                                    }
+                                  ]);
+
+                                  // print(responseProvCityRem);
+                                  remitente_prov_ref =
+                                      responseProvCityRem['id_prov_ref'];
+                                  remitente_city_ref =
+                                      responseProvCityRem['id_ciudad_ref'];
+                                  // print("REMITENTE:");
+                                  // print(
+                                  //     "$origen_prov: $remitente_city_ref-${responseProvCityRem['coverage_external']['dpa_provincia']['provincia']}");
+                                  // print(
+                                  //     "${widget.product.warehouse!.city.toString()}: $remitente_city_ref");
+
+                                  destinatario_prov_ref =
+                                      selectedCity.toString().split("-")[3];
+                                  destinatario_city_ref =
+                                      selectedCity.toString().split("-")[4];
+
+                                  // print("DESTINATARIO:");
+                                  // print(
+                                  //     "${selectedProvincia.toString().split("-")[0]}: $destinatario_prov_ref");
+                                  // print(
+                                  //     "${selectedCity.toString().split("-")[0]}: $destinatario_city_ref");
+
+                                  DateTime now = DateTime.now();
+                                  String formattedDateTime =
+                                      DateFormat('yyyy-MM-dd HH:mm:ss')
+                                          .format(now);
+
+                                  dataIntegration = {
+                                    "remitente": {
+                                      "nombre":
+                                          "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()}",
+                                      "telefono": "",
+                                      // "telefono":
+                                      //     sharedPrefs!.getString("seller_telefono"),
+                                      "provincia": remitente_prov_ref,
+                                      "ciudad": remitente_city_ref,
+                                      "direccion": remitente_address
+                                    },
+                                    "destinatario": {
+                                      "nombre": _nombre.text,
+                                      "telefono": _telefono.text,
+                                      "provincia": destinatario_prov_ref,
+                                      "ciudad": destinatario_city_ref,
+                                      "direccion": _direccion.text
+                                    },
+                                    "cant_paquetes": "1",
+                                    "peso_total": "2.00",
+                                    "documento_venta": "",
+                                    "contenido":
+                                        "$contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}",
+                                    "observacion": _observacion.text,
+                                    "fecha": formattedDateTime,
+                                    "declarado": double.parse(priceTotal),
+                                    "con_recaudo": recaudo ? true : false
+                                  };
+                                }
+                                print("NOO, tiene emojis");
+                                Navigator.pop(context);
+
+                                // ignore: use_build_context_synchronously
+                                AwesomeDialog(
+                                  width: 500,
+                                  context: context,
+                                  dialogType: DialogType.info,
+                                  animType: AnimType.rightSlide,
+                                  title:
+                                      "Error: revise los datos, no se permiten emojis.",
+                                  btnCancel: Container(),
+                                  btnOkText: "Aceptar",
+                                  btnOkColor: Colors.green,
+                                  btnOkOnPress: () async {
+                                    Navigator.pop(context);
                                   },
-                                  {
-                                    "/coverage_external.dpa_provincia.id":
-                                        prov_city_address.split('|')[0]
-                                  },
-                                  {
-                                    "/coverage_external.ciudad":
-                                        prov_city_address.split('|')[1]
-                                  }
-                                ]);
-
-                                // print(responseProvCityRem);
-                                remitente_prov_ref =
-                                    responseProvCityRem['id_prov_ref'];
-                                remitente_city_ref =
-                                    responseProvCityRem['id_ciudad_ref'];
-                                // print("REMITENTE:");
-                                // print(
-                                //     "$origen_prov: $remitente_city_ref-${responseProvCityRem['coverage_external']['dpa_provincia']['provincia']}");
-                                // print(
-                                //     "${widget.product.warehouse!.city.toString()}: $remitente_city_ref");
-
-                                destinatario_prov_ref =
-                                    selectedCity.toString().split("-")[3];
-                                destinatario_city_ref =
-                                    selectedCity.toString().split("-")[4];
-
-                                // print("DESTINATARIO:");
-                                // print(
-                                //     "${selectedProvincia.toString().split("-")[0]}: $destinatario_prov_ref");
-                                // print(
-                                //     "${selectedCity.toString().split("-")[0]}: $destinatario_city_ref");
-
-                                DateTime now = DateTime.now();
-                                String formattedDateTime =
-                                    DateFormat('yyyy-MM-dd HH:mm:ss')
-                                        .format(now);
-
-                                dataIntegration = {
-                                  "remitente": {
-                                    "nombre":
-                                        "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()}",
-                                    "telefono": "",
-                                    // "telefono":
-                                    //     sharedPrefs!.getString("seller_telefono"),
-                                    "provincia": remitente_prov_ref,
-                                    "ciudad": remitente_city_ref,
-                                    "direccion": remitente_address
-                                  },
-                                  "destinatario": {
-                                    "nombre": _nombre.text,
-                                    "telefono": _telefono.text,
-                                    "provincia": destinatario_prov_ref,
-                                    "ciudad": destinatario_city_ref,
-                                    "direccion": _direccion.text
-                                  },
-                                  "cant_paquetes": "1",
-                                  "peso_total": "2.00",
-                                  "documento_venta": "",
-                                  "contenido":
-                                      "$contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}",
-                                  "observacion": _observacion.text,
-                                  "fecha": formattedDateTime,
-                                  "declarado": double.parse(priceTotal),
-                                  "con_recaudo": recaudo ? true : false
-                                };
+                                  btnCancelOnPress: () async {},
+                                ).show();
                               }
 
                               if (data['transportadora'].isEmpty &&
@@ -1189,61 +1236,87 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                                 data['id']);
 
                                     if (responseOrderCarrierExt == 1) {
-                                      print(
-                                          "enviar a gtm y crear un ordercarrier");
-                                      // /*
-                                      responseGintraNew = await Connections()
-                                          .postOrdersGintra(dataIntegration);
-                                      // // print("responseInteg");
-                                      print(responseGintraNew);
-
-                                      if (responseGintraNew != []) {
-                                        await Connections()
-                                            .updatenueva(data['id'], {
-                                          "id_externo":
-                                              responseGintraNew['guia'],
-                                          "recaudo": recaudo ? 1 : 0,
-                                          "precio_total": priceTotal.toString()
-                                        });
-
-                                        //crear un nuevo pedido_carrier_link
-                                        await Connections()
-                                            .createUpdateOrderCarrier(
-                                                data['id'],
-                                                selectedCarrierExternal
-                                                    .toString()
-                                                    .split("-")[1],
-                                                selectedCity
-                                                    .toString()
-                                                    .split("-")[1],
-                                                responseGintraNew['guia']);
-
-                                        print("created UpdateOrderCarrier");
-
-                                        var response3 = await Connections()
-                                            .updateOrderWithTime(
-                                                data['id'],
-                                                "estado_interno:CONFIRMADO",
-                                                sharedPrefs!.getString("id"),
-                                                "",
-                                                "");
+                                      if (dataIntegration != null) {
                                         print(
-                                            "updated estado_interno:CONFIRMADO with others");
+                                            "enviar a gtm y crear un ordercarrier");
+                                        // /*
+                                        responseGintraNew = await Connections()
+                                            .postOrdersGintra(dataIntegration);
+                                        // // print("responseInteg");
+                                        print(responseGintraNew);
 
-                                        var _url = Uri.parse(
-                                          """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_producto.text}${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
-                                          // """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
-                                        );
+                                        if (responseGintraNew != []) {
+                                          bool statusError =
+                                              responseGintraNew['error'];
 
-                                        if (!await launchUrl(_url)) {
-                                          throw Exception(
-                                              'Could not launch $_url');
+                                          if (statusError) {
+                                            Navigator.pop(context);
+
+                                            // ignore: use_build_context_synchronously
+                                            AwesomeDialog(
+                                              width: 500,
+                                              context: context,
+                                              dialogType: DialogType.info,
+                                              animType: AnimType.rightSlide,
+                                              title:
+                                                  "Error en la asignación de la transportadora externa.",
+                                              btnCancel: Container(),
+                                              btnOkText: "Aceptar",
+                                              btnOkColor: Colors.green,
+                                              btnOkOnPress: () async {},
+                                              btnCancelOnPress: () async {},
+                                            ).show();
+                                          } else {
+                                            await Connections()
+                                                .updatenueva(data['id'], {
+                                              "id_externo":
+                                                  responseGintraNew['guia'],
+                                              "recaudo": recaudo ? 1 : 0,
+                                              "precio_total":
+                                                  priceTotal.toString()
+                                            });
+
+                                            //crear un nuevo pedido_carrier_link
+                                            await Connections()
+                                                .createUpdateOrderCarrier(
+                                                    data['id'],
+                                                    selectedCarrierExternal
+                                                        .toString()
+                                                        .split("-")[1],
+                                                    selectedCity
+                                                        .toString()
+                                                        .split("-")[1],
+                                                    responseGintraNew['guia']);
+
+                                            print("created UpdateOrderCarrier");
+
+                                            var response3 = await Connections()
+                                                .updateOrderWithTime(
+                                                    data['id'],
+                                                    "estado_interno:CONFIRMADO",
+                                                    sharedPrefs!
+                                                        .getString("id"),
+                                                    "",
+                                                    "");
+                                            print(
+                                                "updated estado_interno:CONFIRMADO with others");
+
+                                            var _url = Uri.parse(
+                                              """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_producto.text}${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                              // """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                            );
+
+                                            if (!await launchUrl(_url)) {
+                                              throw Exception(
+                                                  'Could not launch $_url');
+                                            }
+
+                                            Navigator.pop(context);
+                                            Navigator.pop(context);
+                                          }
                                         }
-
-                                        Navigator.pop(context);
-                                        Navigator.pop(context);
+                                        // */
                                       }
-                                      // */
                                     } else if (responseOrderCarrierExt == 0) {
                                       //
 
@@ -1327,66 +1400,95 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                                   data['id']);
 
                                       if (responseOrderCarrierExt == 1) {
-                                        print(
-                                            "enviar a gtm y crear un ordercarrier");
-                                        // /*
-                                        responseGintraNew = await Connections()
-                                            .postOrdersGintra(dataIntegration);
-                                        // // print("responseInteg");
-                                        // // print(responseGintra);
-
-                                        if (responseGintraNew != []) {
-                                          await Connections()
-                                              .updatenueva(data['id'], {
-                                            "id_externo":
-                                                responseGintraNew['guia'],
-                                            "recaudo": recaudo ? 1 : 0,
-                                            "precio_total":
-                                                priceTotal.toString()
-                                          });
-
-                                          //crear un nuevo pedido_carrier_link
-                                          await Connections()
-                                              .createUpdateOrderCarrier(
-                                                  data['id'],
-                                                  selectedCarrierExternal
-                                                      .toString()
-                                                      .split("-")[1],
-                                                  selectedCity
-                                                      .toString()
-                                                      .split("-")[1],
-                                                  responseGintraNew['guia']);
-
-                                          print("created UpdateOrderCarrier");
-
-                                          var response3 = await Connections()
-                                              .updateOrderWithTime(
-                                                  data['id'],
-                                                  "estado_interno:CONFIRMADO",
-                                                  sharedPrefs!.getString("id"),
-                                                  "",
-                                                  "");
+                                        if (dataIntegration != null) {
                                           print(
-                                              "updated estado_interno:CONFIRMADO with others");
+                                              "enviar a gtm y crear un ordercarrier");
+                                          // /*
+                                          responseGintraNew =
+                                              await Connections()
+                                                  .postOrdersGintra(
+                                                      dataIntegration);
+                                          // // print("responseInteg");
+                                          // // print(responseGintra);
 
-                                          await Connections()
-                                              .deleteRutaTransportadora(
-                                                  data['id']);
+                                          if (responseGintraNew != []) {
+                                            bool statusError =
+                                                responseGintraNew['error'];
 
-                                          var _url = Uri.parse(
-                                            """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_producto.text}${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
-                                            // """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
-                                          );
+                                            if (statusError) {
+                                              Navigator.pop(context);
 
-                                          if (!await launchUrl(_url)) {
-                                            throw Exception(
-                                                'Could not launch $_url');
+                                              // ignore: use_build_context_synchronously
+                                              AwesomeDialog(
+                                                width: 500,
+                                                context: context,
+                                                dialogType: DialogType.info,
+                                                animType: AnimType.rightSlide,
+                                                title:
+                                                    "Pedido creado, pero hubo un error en la asignación de la transportadora externa.",
+                                                btnCancel: Container(),
+                                                btnOkText: "Aceptar",
+                                                btnOkColor: Colors.green,
+                                                btnOkOnPress: () async {},
+                                                btnCancelOnPress: () async {},
+                                              ).show();
+                                            } else {
+                                              await Connections()
+                                                  .updatenueva(data['id'], {
+                                                "id_externo":
+                                                    responseGintraNew['guia'],
+                                                "recaudo": recaudo ? 1 : 0,
+                                                "precio_total":
+                                                    priceTotal.toString()
+                                              });
+
+                                              //crear un nuevo pedido_carrier_link
+                                              await Connections()
+                                                  .createUpdateOrderCarrier(
+                                                      data['id'],
+                                                      selectedCarrierExternal
+                                                          .toString()
+                                                          .split("-")[1],
+                                                      selectedCity
+                                                          .toString()
+                                                          .split("-")[1],
+                                                      responseGintraNew[
+                                                          'guia']);
+
+                                              print(
+                                                  "created UpdateOrderCarrier");
+
+                                              var response3 = await Connections()
+                                                  .updateOrderWithTime(
+                                                      data['id'],
+                                                      "estado_interno:CONFIRMADO",
+                                                      sharedPrefs!
+                                                          .getString("id"),
+                                                      "",
+                                                      "");
+                                              print(
+                                                  "updated estado_interno:CONFIRMADO with others");
+
+                                              await Connections()
+                                                  .deleteRutaTransportadora(
+                                                      data['id']);
+
+                                              var _url = Uri.parse(
+                                                """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_producto.text}${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                                // """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                              );
+
+                                              if (!await launchUrl(_url)) {
+                                                throw Exception(
+                                                    'Could not launch $_url');
+                                              }
+
+                                              Navigator.pop(context);
+                                              Navigator.pop(context);
+                                            }
                                           }
-
-                                          Navigator.pop(context);
-                                          Navigator.pop(context);
+                                          // */
                                         }
-                                        // */
                                       } else if (responseOrderCarrierExt == 0) {
                                         //
 
@@ -1407,7 +1509,10 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                   //
 
                                   print("Actualizar carrier_external");
-
+                                  print("Not yet");
+                                  Navigator.pop(context);
+                                  Navigator.pop(context);
+                                  /*
                                   if (selectedCarrierType == "Interno") {
                                     //
                                     print("a Transport Interna");
@@ -1461,6 +1566,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                     Navigator.pop(context);
                                     Navigator.pop(context);
                                   }
+                                  */
                                 }
 
                                 //

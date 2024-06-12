@@ -2164,7 +2164,28 @@ class _OrderInfoState extends State<OrderInfo> {
                       String destinatario_city_ref = "";
                       var dataIntegration;
 
+                      bool readyDataSend = true;
+
                       if (selectedCarrierType == "Externo") {
+                        bool emojiNombre = containsEmoji(
+                            _controllers.nombreEditController.text);
+                        bool emojiDireccion = containsEmoji(
+                            _controllers.direccionEditController.text);
+                        bool emojiContenidoProd = containsEmoji(contenidoProd);
+                        bool emojiProductoe = containsEmoji(
+                            _controllers.productoExtraEditController.text);
+                        bool emojiObservacion = containsEmoji(
+                            _controllers.observacionEditController.text);
+
+                        if (emojiNombre ||
+                            emojiDireccion ||
+                            emojiContenidoProd ||
+                            emojiProductoe ||
+                            emojiObservacion) {
+                          readyDataSend = false;
+                        }
+                      }
+                      if (readyDataSend) {
                         remitente_address = prov_city_address.split('|')[2];
 
                         var responseProvCityRem =
@@ -2240,6 +2261,23 @@ class _OrderInfoState extends State<OrderInfo> {
                           "con_recaudo": recaudo ? true : false
                         };
                         print(dataIntegration);
+                      } else {
+                        Navigator.pop(context);
+
+                        // ignore: use_build_context_synchronously
+                        AwesomeDialog(
+                          width: 500,
+                          context: context,
+                          dialogType: DialogType.info,
+                          animType: AnimType.rightSlide,
+                          title:
+                              "Error: revise los datos, no se permiten emojis.",
+                          btnCancel: Container(),
+                          btnOkText: "Aceptar",
+                          btnOkColor: Colors.green,
+                          btnOkOnPress: () async {},
+                          btnCancelOnPress: () async {},
+                        ).show();
                       }
 
                       double costDelivery =
@@ -2293,6 +2331,8 @@ class _OrderInfoState extends State<OrderInfo> {
 
                           // print("recaudo: ${recaudo ? 1 : 0}");
                           // print(dataIntegration);
+                          // print(dataIntegration.runtimeType);
+
                           print("a Una Externa");
 
                           if (selectedCarrierExternal
@@ -2306,54 +2346,80 @@ class _OrderInfoState extends State<OrderInfo> {
                                 .getOrderCarrierExternal(data['id']);
 
                             if (responseOrderCarrierExt == 1) {
-                              print("enviar a gtm y crear un ordercarrier");
-                              // /*
-                              responseGintraNew = await Connections()
-                                  .postOrdersGintra(dataIntegration);
-                              // // print("responseInteg");
-                              // print(responseGintraNew);
+                              if (dataIntegration != null) {
+                                print("enviar a gtm y crear un ordercarrier");
 
-                              if (responseGintraNew != []) {
-                                await Connections().updatenueva(data['id'], {
-                                  "id_externo": responseGintraNew['guia'],
-                                  "recaudo": recaudo ? 1 : 0,
-                                  "precio_total": priceTotal.toString()
-                                });
+                                responseGintraNew = await Connections()
+                                    .postOrdersGintra(dataIntegration);
+                                // // print("responseInteg");
+                                // print(responseGintraNew);
 
-                                //crear un nuevo pedido_carrier_link
-                                await Connections().createUpdateOrderCarrier(
-                                    data['id'],
-                                    selectedCarrierExternal
-                                        .toString()
-                                        .split("-")[1],
-                                    selectedCity.toString().split("-")[1],
-                                    responseGintraNew['guia']);
+                                if (responseGintraNew != []) {
+                                  bool statusError = responseGintraNew['error'];
 
-                                print("created UpdateOrderCarrier");
+                                  if (statusError) {
+                                    Navigator.pop(context);
 
-                                var response3 = await Connections()
-                                    .updateOrderWithTime(
-                                        data['id'],
-                                        "estado_interno:CONFIRMADO",
-                                        sharedPrefs!.getString("id"),
-                                        "",
-                                        "");
-                                print(
-                                    "updated estado_interno:CONFIRMADO with others");
+                                    // ignore: use_build_context_synchronously
+                                    AwesomeDialog(
+                                      width: 500,
+                                      context: context,
+                                      dialogType: DialogType.info,
+                                      animType: AnimType.rightSlide,
+                                      title:
+                                          "Error en la asignación de la transportadora externa.",
+                                      btnCancel: Container(),
+                                      btnOkText: "Aceptar",
+                                      btnOkColor: Colors.green,
+                                      btnOkOnPress: () async {},
+                                      btnCancelOnPress: () async {},
+                                    ).show();
+                                  } else {
+                                    await Connections()
+                                        .updatenueva(data['id'], {
+                                      "id_externo": responseGintraNew['guia'],
+                                      "recaudo": recaudo ? 1 : 0,
+                                      "precio_total": priceTotal.toString()
+                                    });
 
-                                await updateData();
-                                Navigator.pop(context);
+                                    //crear un nuevo pedido_carrier_link
+                                    await Connections()
+                                        .createUpdateOrderCarrier(
+                                            data['id'],
+                                            selectedCarrierExternal
+                                                .toString()
+                                                .split("-")[1],
+                                            selectedCity
+                                                .toString()
+                                                .split("-")[1],
+                                            responseGintraNew['guia']);
 
-                                var _url = Uri.parse(
-                                  """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_controllers.productoEditController.text}${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
-                                  // """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
-                                );
+                                    print("created UpdateOrderCarrier");
 
-                                if (!await launchUrl(_url)) {
-                                  throw Exception('Could not launch $_url');
+                                    var response3 = await Connections()
+                                        .updateOrderWithTime(
+                                            data['id'],
+                                            "estado_interno:CONFIRMADO",
+                                            sharedPrefs!.getString("id"),
+                                            "",
+                                            "");
+                                    print(
+                                        "updated estado_interno:CONFIRMADO with others");
+
+                                    await updateData();
+                                    Navigator.pop(context);
+
+                                    var _url = Uri.parse(
+                                      """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_controllers.productoEditController.text}${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                      // """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                    );
+
+                                    if (!await launchUrl(_url)) {
+                                      throw Exception('Could not launch $_url');
+                                    }
+                                  }
                                 }
                               }
-                              // */
                             } else if (responseOrderCarrierExt == 0) {
                               //
                               await updateData();
@@ -2420,6 +2486,7 @@ class _OrderInfoState extends State<OrderInfo> {
                             //limpiar la relacion con transp_interna actual
                             // print("recaudo: ${recaudo ? 1 : 0}");
                             // print(dataIntegration);
+                            // print(dataIntegration.runtimeType);
 
                             if (selectedCarrierExternal
                                     .toString()
@@ -2432,57 +2499,85 @@ class _OrderInfoState extends State<OrderInfo> {
                                   .getOrderCarrierExternal(data['id']);
 
                               if (responseOrderCarrierExt == 1) {
-                                print("enviar a gtm y crear un ordercarrier");
-                                // /*
-                                responseGintraNew = await Connections()
-                                    .postOrdersGintra(dataIntegration);
-                                // // print("responseInteg");
-                                // // print(responseGintra);
+                                if (dataIntegration != null) {
+                                  print("enviar a gtm y crear un ordercarrier");
 
-                                if (responseGintraNew != []) {
-                                  await Connections().updatenueva(data['id'], {
-                                    "id_externo": responseGintraNew['guia'],
-                                    "recaudo": recaudo ? 1 : 0,
-                                    "precio_total": priceTotal.toString()
-                                  });
+                                  responseGintraNew = await Connections()
+                                      .postOrdersGintra(dataIntegration);
+                                  // // print("responseInteg");
+                                  // // print(responseGintra);
 
-                                  //crear un nuevo pedido_carrier_link
-                                  await Connections().createUpdateOrderCarrier(
-                                      data['id'],
-                                      selectedCarrierExternal
-                                          .toString()
-                                          .split("-")[1],
-                                      selectedCity.toString().split("-")[1],
-                                      responseGintraNew['guia']);
+                                  if (responseGintraNew != []) {
+                                    bool statusError =
+                                        responseGintraNew['error'];
 
-                                  print("created UpdateOrderCarrier");
+                                    if (statusError) {
+                                      Navigator.pop(context);
 
-                                  var response3 = await Connections()
-                                      .updateOrderWithTime(
-                                          data['id'],
-                                          "estado_interno:CONFIRMADO",
-                                          sharedPrefs!.getString("id"),
-                                          "",
-                                          "");
-                                  print(
-                                      "updated estado_interno:CONFIRMADO with others");
+                                      // ignore: use_build_context_synchronously
+                                      AwesomeDialog(
+                                        width: 500,
+                                        context: context,
+                                        dialogType: DialogType.info,
+                                        animType: AnimType.rightSlide,
+                                        title:
+                                            "Error en la asignación de la transportadora externa.",
+                                        btnCancel: Container(),
+                                        btnOkText: "Aceptar",
+                                        btnOkColor: Colors.green,
+                                        btnOkOnPress: () async {},
+                                        btnCancelOnPress: () async {},
+                                      ).show();
+                                    } else {
+                                      await Connections()
+                                          .updatenueva(data['id'], {
+                                        "id_externo": responseGintraNew['guia'],
+                                        "recaudo": recaudo ? 1 : 0,
+                                        "precio_total": priceTotal.toString()
+                                      });
 
-                                  await Connections()
-                                      .deleteRutaTransportadora(data['id']);
+                                      //crear un nuevo pedido_carrier_link
+                                      await Connections()
+                                          .createUpdateOrderCarrier(
+                                              data['id'],
+                                              selectedCarrierExternal
+                                                  .toString()
+                                                  .split("-")[1],
+                                              selectedCity
+                                                  .toString()
+                                                  .split("-")[1],
+                                              responseGintraNew['guia']);
 
-                                  await updateData();
-                                  Navigator.pop(context);
+                                      print("created UpdateOrderCarrier");
 
-                                  var _url = Uri.parse(
-                                    """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_controllers.productoEditController.text}${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
-                                    // """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
-                                  );
+                                      var response3 = await Connections()
+                                          .updateOrderWithTime(
+                                              data['id'],
+                                              "estado_interno:CONFIRMADO",
+                                              sharedPrefs!.getString("id"),
+                                              "",
+                                              "");
+                                      print(
+                                          "updated estado_interno:CONFIRMADO with others");
 
-                                  if (!await launchUrl(_url)) {
-                                    throw Exception('Could not launch $_url');
+                                      await Connections()
+                                          .deleteRutaTransportadora(data['id']);
+
+                                      await updateData();
+                                      Navigator.pop(context);
+
+                                      var _url = Uri.parse(
+                                        """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: ${_controllers.productoEditController.text}${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                        // """https://api.whatsapp.com/send?phone=${_controllers.telefonoEditController.text}&text=Hola ${_controllers.nombreEditController.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $contenidoProd${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_controllers.direccionEditController.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                      );
+
+                                      if (!await launchUrl(_url)) {
+                                        throw Exception(
+                                            'Could not launch $_url');
+                                      }
+                                    }
                                   }
                                 }
-                                // */
                               } else if (responseOrderCarrierExt == 0) {
                                 //
                                 await updateData();
@@ -2502,7 +2597,9 @@ class _OrderInfoState extends State<OrderInfo> {
                           //
 
                           print("Actualizar carrier_external");
-
+                          print("Not yet");
+                          Navigator.pop(context);
+                          /*
                           if (selectedCarrierType == "Interno") {
                             //
                             print("a Transport Interna");
@@ -2580,6 +2677,7 @@ class _OrderInfoState extends State<OrderInfo> {
                           } 
                           */
                           }
+                          */
                         }
 
                         //

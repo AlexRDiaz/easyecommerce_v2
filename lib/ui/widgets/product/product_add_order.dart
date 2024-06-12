@@ -1399,132 +1399,225 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                             taxCostShipping.toString());
 
                                     // print("$labelProducto");
+                                    bool readyDataSend = true;
 
-                                    var response =
-                                        await Connections().createOrderProduct(
-                                      sharedPrefs!
-                                          .getString("idComercialMasterSeller"),
-                                      sharedPrefs!
-                                          .getString("NameComercialSeller"),
-                                      _nombre.text,
-                                      _direccion.text,
-                                      _telefono.text,
-                                      selectedCarrierType == "Externo"
-                                          ? selectedCity
-                                              .toString()
-                                              .split("-")[0]
-                                          : selectedValueRoute
-                                              .toString()
-                                              .split("-")[0],
-                                      // _producto.text,
-                                      labelProducto,
-                                      _productoE.text,
-                                      // _cantidad.text,
-                                      quantityTotal,
-                                      priceTotal,
-                                      _observacion.text,
-                                      // sku,
-                                      idProd,
-                                      variantsDetailsList,
-                                      recaudo ? 1 : 0,
-                                      selectedCarrierType == "Externo"
-                                          ? costDelivery.toString()
-                                          : null,
-                                      selectedCarrierType == "Interno"
-                                          ? selectedValueRoute
-                                              .toString()
-                                              .split("-")[1]
-                                          : "0",
-                                      selectedCarrierType == "Interno"
-                                          ? selectedValueTransport
-                                              .toString()
-                                              .split("-")[1]
-                                          : "0",
-                                      selectedCarrierType == "Externo"
-                                          ? selectedCarrierExternal
-                                              .toString()
-                                              .split("-")[1]
-                                          : "0",
-                                      selectedCarrierType == "Externo"
-                                          ? selectedCity
-                                              .toString()
-                                              .split("-")[1]
-                                          : "0",
-                                    );
+                                    if (selectedCarrierType == "Externo") {
+                                      bool emojiNombre =
+                                          containsEmoji(_nombre.text);
+                                      bool emojiDireccion =
+                                          containsEmoji(_direccion.text);
+                                      bool emojiContenidoProd =
+                                          containsEmoji(contenidoProd);
+                                      bool emojiProductoe =
+                                          containsEmoji(_productoE.text);
+                                      bool emojiObservacion =
+                                          containsEmoji(_observacion.text);
 
-                                    // print(response);
+                                      if (emojiNombre ||
+                                          emojiDireccion ||
+                                          emojiContenidoProd ||
+                                          emojiProductoe ||
+                                          emojiObservacion) {
+                                        readyDataSend = false;
+                                      }
+                                    }
+                                    if (!readyDataSend) {
+                                      //
+                                      Navigator.pop(context);
 
-                                    if (selectedCarrierType == "Externo" &&
-                                        selectedCarrierExternal
+                                      // ignore: use_build_context_synchronously
+                                      AwesomeDialog(
+                                        width: 500,
+                                        context: context,
+                                        dialogType: DialogType.info,
+                                        animType: AnimType.rightSlide,
+                                        title:
+                                            "Error: revise los datos, no se permiten emojis.",
+                                        btnCancel: Container(),
+                                        btnOkText: "Aceptar",
+                                        btnOkColor: Colors.green,
+                                        btnOkOnPress: () async {},
+                                        btnCancelOnPress: () async {},
+                                      ).show();
+                                    }
+
+                                    if (readyDataSend) {
+                                      var response = await Connections()
+                                          .createOrderProduct(
+                                        sharedPrefs!.getString(
+                                            "idComercialMasterSeller"),
+                                        sharedPrefs!
+                                            .getString("NameComercialSeller"),
+                                        _nombre.text,
+                                        _direccion.text,
+                                        _telefono.text,
+                                        selectedCarrierType == "Externo"
+                                            ? selectedCity
+                                                .toString()
+                                                .split("-")[0]
+                                            : selectedValueRoute
+                                                .toString()
+                                                .split("-")[0],
+                                        // _producto.text,
+                                        labelProducto,
+                                        _productoE.text,
+                                        // _cantidad.text,
+                                        quantityTotal,
+                                        priceTotal,
+                                        _observacion.text,
+                                        // sku,
+                                        idProd,
+                                        variantsDetailsList,
+                                        recaudo ? 1 : 0,
+                                        selectedCarrierType == "Externo"
+                                            ? costDelivery.toString()
+                                            : null,
+                                        selectedCarrierType == "Interno"
+                                            ? selectedValueRoute
+                                                .toString()
+                                                .split("-")[1]
+                                            : "0",
+                                        selectedCarrierType == "Interno"
+                                            ? selectedValueTransport
+                                                .toString()
+                                                .split("-")[1]
+                                            : "0",
+                                        selectedCarrierType == "Externo"
+                                            ? selectedCarrierExternal
+                                                .toString()
+                                                .split("-")[1]
+                                            : "0",
+                                        selectedCarrierType == "Externo"
+                                            ? selectedCity
+                                                .toString()
+                                                .split("-")[1]
+                                            : "0",
+                                      );
+
+                                      // print(response);
+
+                                      if (selectedCarrierType == "Externo") {
+                                        if (selectedCarrierExternal
                                                 .toString()
                                                 .split("-")[1] ==
                                             "1") {
-                                      if (response != 1 || response != 2) {
-                                        DateTime now = DateTime.now();
+                                          if (response != 1 || response != 2) {
+                                            DateTime now = DateTime.now();
 
-                                        String formattedDateTime =
-                                            DateFormat('yyyy-MM-dd HH:mm:ss')
-                                                .format(now);
+                                            String formattedDateTime =
+                                                DateFormat(
+                                                        'yyyy-MM-dd HH:mm:ss')
+                                                    .format(now);
 
-                                        dataIntegration = {
-                                          "remitente": {
-                                            "nombre":
-                                                "${sharedPrefs!.getString("NameComercialSeller")}-${response['numero_orden'].toString()}",
-                                            "telefono": "",
-                                            // "telefono": sharedPrefs!
-                                            //     .getString("seller_telefono"),
-                                            "provincia": remitente_prov_ref,
-                                            "ciudad": remitente_city_ref,
-                                            "direccion": remitente_address
-                                          },
-                                          "destinatario": {
-                                            "nombre": _nombre.text,
-                                            "telefono": _telefono.text,
-                                            "provincia": destinatario_prov_ref,
-                                            "ciudad": destinatario_city_ref,
-                                            "direccion": _direccion.text
-                                          },
-                                          "cant_paquetes": "1",
-                                          "peso_total": "2.00",
-                                          "documento_venta": "",
-                                          "contenido":
-                                              "$contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}",
-                                          "observacion": _observacion.text,
-                                          "fecha": formattedDateTime,
-                                          "declarado": double.parse(priceTotal),
-                                          "con_recaudo": recaudo ? true : false
-                                        };
-                                        print(dataIntegration);
+                                            dataIntegration = {
+                                              "remitente": {
+                                                "nombre":
+                                                    "${sharedPrefs!.getString("NameComercialSeller")}-${response['numero_orden'].toString()}",
+                                                "telefono": "",
+                                                // "telefono": sharedPrefs!
+                                                //     .getString("seller_telefono"),
+                                                "provincia": remitente_prov_ref,
+                                                "ciudad": remitente_city_ref,
+                                                "direccion": remitente_address
+                                              },
+                                              "destinatario": {
+                                                "nombre": _nombre.text,
+                                                "telefono": _telefono.text,
+                                                "provincia":
+                                                    destinatario_prov_ref,
+                                                "ciudad": destinatario_city_ref,
+                                                "direccion": _direccion.text
+                                              },
+                                              "cant_paquetes": "1",
+                                              "peso_total": "2.00",
+                                              "documento_venta": "",
+                                              "contenido":
+                                                  "$contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}",
+                                              "observacion": _observacion.text,
+                                              "fecha": formattedDateTime,
+                                              "declarado":
+                                                  double.parse(priceTotal),
+                                              "con_recaudo":
+                                                  recaudo ? true : false
+                                            };
+                                            print(dataIntegration);
 
-                                        //send Gintra
-                                        print("send Gintra");
-                                        var responseGintra = await Connections()
-                                            .postOrdersGintra(dataIntegration);
-                                        print("responseInteg");
-                                        print(responseGintra);
+                                            //send Gintra
 
-                                        if (responseGintra != []) {
-                                          await Connections()
-                                              .UpdateOrderCarrierbyOrder(
-                                                  response['id'], {
-                                            "external_id":
-                                                responseGintra['guia']
-                                          });
+                                            print("send Gintra");
+                                            var responseGintra =
+                                                await Connections()
+                                                    .postOrdersGintra(
+                                                        dataIntegration);
+                                            print("responseInteg");
+                                            print(responseGintra);
+
+                                            if (responseGintra != []) {
+                                              bool statusError =
+                                                  responseGintra['error'];
+
+                                              if (statusError) {
+                                                //eliminar relacion de pedidoCarrier
+                                                await Connections()
+                                                    .deleteOrderCarrierExternal(
+                                                        response['id']);
+
+                                                Navigator.pop(context);
+                                                Navigator.pop(context);
+
+                                                // ignore: use_build_context_synchronously
+                                                AwesomeDialog(
+                                                  width: 500,
+                                                  context: context,
+                                                  dialogType: DialogType.info,
+                                                  animType: AnimType.rightSlide,
+                                                  title:
+                                                      "Pedido creado, pero hubo un error en la asignación de la transportadora externa.",
+                                                  btnCancel: Container(),
+                                                  btnOkText: "Aceptar",
+                                                  btnOkColor: Colors.green,
+                                                  btnOkOnPress: () async {},
+                                                  btnCancelOnPress: () async {},
+                                                ).show();
+                                              } else {
+                                                await Connections()
+                                                    .UpdateOrderCarrierbyOrder(
+                                                        response['id'], {
+                                                  "external_id":
+                                                      responseGintra['guia']
+                                                });
+
+                                                var _url = Uri.parse(
+                                                  """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $labelProducto${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                                );
+
+                                                if (!await launchUrl(_url)) {
+                                                  throw Exception(
+                                                      'Could not launch $_url');
+                                                }
+
+                                                Navigator.pop(context);
+                                                Navigator.pop(context);
+                                              }
+                                            }
+
+                                            //
+                                          }
                                         }
-                                        //
+                                      } else {
+                                        var _url = Uri.parse(
+                                          """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $labelProducto${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
+                                        );
+
+                                        if (!await launchUrl(_url)) {
+                                          throw Exception(
+                                              'Could not launch $_url');
+                                        }
+
+                                        Navigator.pop(context);
+                                        Navigator.pop(context);
                                       }
                                     }
-
-                                    var _url = Uri.parse(
-                                      """https://api.whatsapp.com/send?phone=${_telefono.text}&text=Hola ${_nombre.text}, le saludo de la tienda $comercial, Me comunico con usted para confirmar su pedido de compra de: $labelProducto${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}, por un valor total de: \$$priceTotal. Su dirección de entrega será: ${_direccion.text}. Es correcto...? ¿Quiere más información del producto?""",
-                                    );
-
-                                    if (!await launchUrl(_url)) {
-                                      throw Exception('Could not launch $_url');
-                                    }
-
-                                    Navigator.pop(context);
-                                    Navigator.pop(context);
                                   }
                                 }
                               }
