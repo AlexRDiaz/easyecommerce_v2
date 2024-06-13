@@ -5782,7 +5782,7 @@ class Connections {
             "start": sharedPrefs!.getString("dateDesdeVendedor"),
             "end": sharedPrefs!.getString("dateHastaVendedor"),
             "and": andDefault,
-              "not": not,
+            "not": not,
             "status": status,
             "internal": internal,
           }));
@@ -7727,6 +7727,25 @@ class Connections {
       }
     } catch (error) {
       print("Error getTotalRetiros: $error");
+      return 2;
+    }
+  }
+
+  // *
+  getProductsByIds(ids, populate) async {
+    try {
+      var response = await http.post(
+          Uri.parse("$serverLaravel/api/productsbyids"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"ids": ids, "populate": populate}));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      print(error);
       return 2;
     }
   }

@@ -97,12 +97,12 @@ class _OrderInfoState extends State<OrderInfo> {
   var responseCarriersGeneral;
 
   String quantity_variant = "";
-  int isvariable = 0;
+  int isvariableFirst = 0;
 
   //for edit variant and catidad
-  late Map<String, dynamic> features;
+  Map<String, dynamic> featuresFirstProduct = {};
   List<String> variantsToSelect = [];
-  List variantsListOriginal = [];
+  List variantsFirstProduct = [];
   List variantsCurrentList = [];
   String? chosenVariant;
   List<String> variantsCurrentToSelect = [];
@@ -131,6 +131,11 @@ class _OrderInfoState extends State<OrderInfo> {
   String productFirstPrice = "";
 
   bool editProductP = true;
+
+  List<int> idProdUniques = [];
+  String allIds = "";
+  List<Map<String, dynamic>> variantDetailsUniques = [];
+  List variantsListProducts = [];
 
   @override
   void didChangeDependencies() {
@@ -184,23 +189,40 @@ class _OrderInfoState extends State<OrderInfo> {
         data['variant_details'] != null &&
         data['variant_details'].toString() != "[]" &&
         data['variant_details'].isNotEmpty) {
+      //
+      carriersTypeToSelect = ["Interno", "Externo"];
+
       editProductP = false;
       print("editProductP :$editProductP");
+
       productFirstId = data['product']['product_id'].toString();
       productFirstName = data['product']['product_name'].toString();
       productFirstPrice = data['product']['price'].toString();
 
-      isvariable = data['product']['isvariable'];
-
-      priceWarehouseTotal = double.parse(data['product']['price'].toString());
+      isvariableFirst = data['product']['isvariable'];
 
       prov_city_address = getWarehouseAddress(data['product']['warehouses']);
 
       print("p_c_dir: $prov_city_address");
-      print("var: $isvariable");
+      print("var: $isvariableFirst");
 
-      features = jsonDecode(data['product']["features"]);
+      featuresFirstProduct = jsonDecode(data['product']["features"]);
+      variantsFirstProduct = featuresFirstProduct["variants"];
 
+      List<dynamic> variantDetails = jsonDecode(data['variant_details']);
+      variantDetailsUniques = mergeDuplicateSKUs(variantDetails);
+
+      idProdUniques =
+          await extractUniqueIds(jsonDecode(data['variant_details']));
+
+      var responseProducts =
+          await Connections().getProductsByIds(idProdUniques, []);
+      variantsListProducts = responseProducts;
+      // print("variantsListProducts: $variantsListProducts");
+      allIds = idProdUniques.map((e) => e.toString()).join('; ');
+      buildVariantsDetailsToSelect();
+
+      /*
       variantsListOriginal = features["variants"];
       variantsToSelect = [];
       for (var variant in variantsListOriginal) {
@@ -224,11 +246,13 @@ class _OrderInfoState extends State<OrderInfo> {
         // variantsToSelect.add(concatenatedValues);
         variantsToSelect.add('${variant["sku"]}|$concatenatedValues');
       }
+      */
       //
     } else {
       print("no id_p or var_det !!");
+      carriersTypeToSelect = ["Interno"];
     }
-
+/*
     var variants = data['variant_details'] != null &&
             data['variant_details'].toString() != "[]" &&
             data['variant_details'].isNotEmpty
@@ -261,7 +285,7 @@ class _OrderInfoState extends State<OrderInfo> {
       // quantity_variant = quantity_variant.trim();
       quantity_variant =
           quantity_variant.substring(0, quantity_variant.length - 3);
-      buildVariantsCurrentToSelect();
+      // buildVariantsCurrentToSelect();
     }
     // print("variantsCurrentList: $variantsCurrentList");
 
@@ -278,7 +302,7 @@ class _OrderInfoState extends State<OrderInfo> {
       carriersTypeToSelect = ["Interno"];
     }
     // recaudo = data['recaudo'].toString() == "1" ? true : false;
-
+*/
     setState(() {
       quantity_variant = quantity_variant;
     });
@@ -287,24 +311,133 @@ class _OrderInfoState extends State<OrderInfo> {
     });
   }
 
-  void buildVariantsCurrentToSelect() {
-    variantsCurrentToSelect = [];
-    for (var variant in variantsCurrentList) {
-      String sku = variant['sku'];
-      if (sku != "null" && sku != "") {
-        String variantTitle = variant['variant_title'] == null ||
-                variant['variant_title'].toString() == "null" ||
-                variant['variant_title'].toString() == ""
-            ? variant['title']
-            : variant['variant_title'];
-        // int quantity = variant['quantity'];
-        String variantString = '$sku|$variantTitle';
-        variantsCurrentToSelect.add(variantString);
+  List<Map<String, dynamic>> mergeDuplicateSKUs(List<dynamic> originalList) {
+    Map<String, Map<String, dynamic>> skuMap = {};
+    List<Map<String, dynamic>> mergedList = [];
+    List<Map<String, dynamic>> nullSKUs = [];
+
+    for (var item in originalList) {
+      String? sku = item['sku'];
+      if (sku != null) {
+        int quantity = item['quantity'] ?? 0;
+
+        if (skuMap.containsKey(sku)) {
+          skuMap[sku]!['quantity'] = (skuMap[sku]!['quantity'] ?? 0) + quantity;
+        } else {
+          skuMap[sku] = Map<String, dynamic>.from(item);
+        }
+      } else {
+        nullSKUs.add(Map<String, dynamic>.from(item));
       }
     }
-    setState(() {
-      variantsCurrentToSelect = variantsCurrentToSelect;
+
+    mergedList.addAll(skuMap.values);
+    mergedList.addAll(nullSKUs);
+
+    return mergedList;
+  }
+
+  void buildVariantsDetailsToSelect() {
+    variantsCurrentToSelect = [];
+
+    RegExp pattern = RegExp(r'^[a-zA-Z0-9]+C\d+$');
+    // print("variantDetailsOriginal: $variantDetailsUniques");
+    for (var variant in variantDetailsUniques) {
+      String? skuVariant = variant['sku'];
+      // String? id = variant['id'];
+
+      if (skuVariant != null &&
+          skuVariant != "" &&
+          pattern.hasMatch(skuVariant)) {
+        int indexOfC = skuVariant.lastIndexOf('C');
+        String onlySku = skuVariant.substring(0, indexOfC);
+        String onlyId = skuVariant.substring(indexOfC + 1);
+
+        for (var productData in variantsListProducts) {
+          String idProd = productData['product_id'].toString();
+
+          if (onlyId == idProd) {
+            String productName = productData['product_name'];
+            String variable = productData['isvariable'].toString();
+
+            var features = jsonDecode(productData["features"]);
+            if (variable == "0") {
+              if (onlySku == features["sku"].toString()) {
+                variantsCurrentToSelect
+                    .add("$skuVariant|$productName|$productName|0");
+              }
+            } else {
+              var featuresVariants = features["variants"];
+              // print("featuresVariants: $featuresVariants");
+              for (var element in featuresVariants) {
+                if (onlySku == element["sku"].toString()) {
+                  String elementString = buildVariantTitle(element);
+                  // print("onlySku: $onlySku");
+                  // print("armar variant/title con:");
+                  // print(elementString);
+                  variantsCurrentToSelect
+                      .add("$skuVariant|$elementString|$productName|1");
+                }
+              }
+            }
+            break;
+          }
+        }
+      }
+    }
+
+    print("variantsCurrentToSelect: $variantsCurrentToSelect");
+  }
+
+  String buildVariantTitle(Map<String, dynamic> element) {
+    List<String> excludeKeys = ['id', 'sku', 'inventory_quantity', 'price'];
+    List<String> elementDetails = [];
+
+    element.forEach((key, value) {
+      if (!excludeKeys.contains(key)) {
+        elementDetails.add("$value");
+      }
     });
+
+    return elementDetails.join("/");
+  }
+
+  List<int> extractUniqueIds(List variant_details) {
+    Set<String> uniqueSkus = {};
+    RegExp pattern = RegExp(r'^[a-zA-Z0-9]+C\d+$');
+
+    for (var item in variant_details) {
+      String? sku = item['sku'];
+
+      if (sku != null && sku != "" && pattern.hasMatch(sku)) {
+        uniqueSkus.add(item['sku']);
+      }
+    }
+
+    List<int> digitsList = [];
+
+    for (var sku in uniqueSkus) {
+      int indexOfC = sku.lastIndexOf('C');
+      if (indexOfC != -1 && indexOfC + 1 < sku.length) {
+        String digits = sku.substring(indexOfC + 1);
+        digitsList.add(int.parse(digits));
+      }
+    }
+
+    return digitsList;
+  }
+
+  void buildVariantsToSelect(List<dynamic> variantsProduct) {
+    //
+    try {
+      for (var variant in variantsProduct) {
+        String nameVariantTitle = buildVariantTitle(variant);
+        variantsToSelect.add('${variant['sku']}|$nameVariantTitle');
+      }
+      setState(() {});
+    } catch (e) {
+      print("buildVariantsToSelect $e");
+    }
   }
 
   updateData() async {
@@ -313,6 +446,7 @@ class _OrderInfoState extends State<OrderInfo> {
     //print(data);
     _controllers.editControllers(response);
     setState(() {
+      estadoInterno = data['estado_interno'].toString();
       estadoEntrega = data['status'].toString();
       estadoLogistic = data['estado_logistico'].toString();
       productPname = data['producto_p'].toString();
@@ -609,7 +743,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                                 print("**********************");
 
                                                 String labelProducto = "";
-
+                                                /*
                                                 if (data['variant_details'] !=
                                                     null) {
                                                   //
@@ -697,6 +831,61 @@ class _OrderInfoState extends State<OrderInfo> {
                                                   //
                                                   print(
                                                       "NO tiene variants_details");
+                                                  labelProducto = _controllers
+                                                      .productoEditController
+                                                      .text;
+                                                }
+                                                */
+
+                                                if (data['id_product'] !=
+                                                        null &&
+                                                    data['id_product'] != 0 &&
+                                                    data['variant_details'] !=
+                                                        null &&
+                                                    data['variant_details']
+                                                            .toString() !=
+                                                        "[]" &&
+                                                    data['variant_details']
+                                                        .isNotEmpty) {
+                                                  //
+
+                                                  //updt with local names
+                                                  renameProductVariantTitle();
+                                                  calculateTotalWPrice();
+                                                  // print(
+                                                  //     "actual variantDetailsUniques: $variantDetailsUniques");
+
+                                                  List<Map<String, dynamic>>
+                                                      groupedProducts =
+                                                      groupProducts(
+                                                          variantDetailsUniques);
+                                                  // print(
+                                                  //     "groupedProducts: $groupedProducts");
+                                                  //
+
+                                                  for (var product
+                                                      in groupedProducts) {
+                                                    labelProducto +=
+                                                        '${product['name']} ${product['variants']}; \n';
+                                                  }
+
+                                                  labelProducto =
+                                                      labelProducto.substring(
+                                                          0,
+                                                          labelProducto.length -
+                                                              3);
+
+                                                  var response2 =
+                                                      await Connections()
+                                                          .updatenueva(
+                                                              data['id'], {
+                                                    "variant_details":
+                                                        variantDetailsUniques,
+                                                  });
+                                                  //
+                                                } else {
+                                                  print(
+                                                      "NO tiene variants_details o productID es 0");
                                                   labelProducto = _controllers
                                                       .productoEditController
                                                       .text;
@@ -856,9 +1045,14 @@ class _OrderInfoState extends State<OrderInfo> {
                                   },
                                 ),
                                 const SizedBox(height: 10),
+                                // Text(
+                                //   "ID Producto: ${data['id_product'] != null && data['id_product'] != 0 ? data['id_product'].toString() : ""}",
+                                // ),
+                                //
                                 Text(
-                                  "ID Producto: ${data['id_product'] != null && data['id_product'] != 0 ? data['id_product'].toString() : ""}",
+                                  "ID Producto: $allIds",
                                 ),
+
                                 // const SizedBox(height: 10),
                                 // const Text(
                                 //   "Producto",
@@ -890,22 +1084,377 @@ class _OrderInfoState extends State<OrderInfo> {
                                     }
                                   },
                                 ),
+                                //new
+                                Visibility(
+                                  visible: (!editProductP &&
+                                          isCarrierInternal &&
+                                          estadoLogistic == "PENDIENTE") ||
+                                      (!editProductP &&
+                                          !isCarrierExternal &&
+                                          !isCarrierInternal),
+                                  child: const SizedBox(height: 15),
+                                ),
+                                Visibility(
+                                  // visible: (isCarrierInternal &&
+                                  //         estadoLogistic == "PENDIENTE" &&
+                                  //         isvariable == 0) ||
+                                  //     (!isCarrierExternal &&
+                                  //         !isCarrierInternal &&
+                                  //         isvariable == 0),
+                                  visible: (!editProductP &&
+                                          isCarrierInternal &&
+                                          estadoLogistic == "PENDIENTE") ||
+                                      (!editProductP &&
+                                          !isCarrierExternal &&
+                                          !isCarrierInternal),
+                                  child: Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 270,
+                                        child: DropdownButtonFormField<String>(
+                                          isExpanded: true,
+                                          hint: Text(
+                                            'Seleccione Producto Existente',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color:
+                                                  Theme.of(context).hintColor,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          items: variantsCurrentToSelect
+                                              .map((item) {
+                                            return DropdownMenuItem(
+                                              value: item,
+                                              child: Text(
+                                                item.split('|')[1],
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            );
+                                          }).toList(),
+                                          value: chosenCurrentVariant,
+                                          onChanged: !isCarrierExternal
+                                              ? (value) {
+                                                  setState(() {
+                                                    chosenCurrentVariant =
+                                                        value as String;
+                                                    print(chosenCurrentVariant!
+                                                        .split('|')[0]
+                                                        .toString());
+                                                    try {
+                                                      _quantityCurrent
+                                                          .text = getTotalQuantityBySku(
+                                                              variantDetailsUniques,
+                                                              chosenCurrentVariant!
+                                                                  .split('|')[0]
+                                                                  .toString())
+                                                          .toString();
+                                                    } catch (e) {
+                                                      print(e);
+                                                    }
+                                                  });
+                                                }
+                                              : null,
+                                          decoration: InputDecoration(
+                                            fillColor: Colors.white,
+                                            filled: true,
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(5.0),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      SizedBox(
+                                        width: 100,
+                                        child: TextFormField(
+                                          controller: _quantityCurrent,
+                                          maxLines: null,
+                                          decoration: const InputDecoration(
+                                            labelText: "Cantidad",
+                                            labelStyle: TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          keyboardType: TextInputType.number,
+                                          inputFormatters: <TextInputFormatter>[
+                                            FilteringTextInputFormatter
+                                                .digitsOnly
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: !isCarrierExternal
+                                            ? () {
+                                                print(chosenCurrentVariant);
+                                                if (chosenCurrentVariant !=
+                                                        null &&
+                                                    _quantityCurrent.text !=
+                                                        "") {
+                                                  //
+                                                  try {
+                                                    updateQuantityBySku(
+                                                        variantDetailsUniques,
+                                                        chosenCurrentVariant!,
+                                                        int.parse(
+                                                            _quantityCurrent
+                                                                .text));
+
+                                                    setState(() {});
+                                                  } catch (e) {
+                                                    print(e);
+                                                  }
+                                                }
+                                                print(
+                                                    "variantDetailsUniques_Utp: $variantDetailsUniques");
+                                              }
+                                            : null,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              Colors.indigo.shade300,
+                                        ),
+                                        child: const Text(
+                                          "Editar",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            // fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      Visibility(
+                                        visible: (isCarrierInternal &&
+                                                estadoLogistic == "PENDIENTE" &&
+                                                isvariableFirst == 1) ||
+                                            (!isCarrierExternal &&
+                                                !isCarrierInternal &&
+                                                isvariableFirst == 1),
+                                        child: ElevatedButton(
+                                          onPressed: !isCarrierExternal
+                                              ? () {
+                                                  newVariant = true;
+                                                  buildVariantsToSelect(
+                                                      variantsFirstProduct);
+
+                                                  setState(() {});
+                                                }
+                                              : null,
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                Colors.indigo.shade300,
+                                          ),
+                                          child: const Text(
+                                            "Nuevo",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              // fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Visibility(
+                                  visible: isvariableFirst == 1,
+                                  child: const SizedBox(height: 5),
+                                ),
+                                Visibility(
+                                  visible: newVariant,
+                                  child: Text("Nuevo"),
+                                ),
+                                Visibility(
+                                  visible: newVariant,
+                                  child: Row(
+                                    children: [
+                                      const SizedBox(height: 5),
+                                      SizedBox(
+                                        width: 250,
+                                        child: DropdownButtonFormField<String>(
+                                          isExpanded: true,
+                                          hint: Text(
+                                            'Seleccione Variante Nueva',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color:
+                                                  Theme.of(context).hintColor,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          items: variantsToSelect.map((item) {
+                                            return DropdownMenuItem(
+                                              value: item,
+                                              child: Text(
+                                                item.split('|')[1].toString(),
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            );
+                                          }).toList(),
+                                          value: chosenVariant,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              chosenVariant = value as String;
+                                            });
+                                          },
+                                          decoration: InputDecoration(
+                                            fillColor: Colors.white,
+                                            filled: true,
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(5.0),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      SizedBox(
+                                        width: 100,
+                                        child: TextFormField(
+                                          controller: _quantitySelectVariant,
+                                          maxLines: null,
+                                          decoration: const InputDecoration(
+                                            labelText: "Cantidad",
+                                            labelStyle: TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          keyboardType: TextInputType.number,
+                                          inputFormatters: <TextInputFormatter>[
+                                            FilteringTextInputFormatter
+                                                .digitsOnly
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () async {
+                                          chosenSku = chosenVariant!
+                                              .split('|')[0]
+                                              .toString();
+                                          //armar {} y añadir en variantsCurrentToSelect
+                                          print(chosenSku);
+                                          try {
+                                            var variantToUpdate =
+                                                variantDetailsUniques
+                                                    .firstWhere(
+                                              (variant) =>
+                                                  variant['sku'] ==
+                                                  "${chosenSku}C$productFirstId",
+                                              orElse: () => <String, dynamic>{},
+                                            );
+
+                                            if (variantToUpdate.isNotEmpty) {
+                                              // No es necesario parsear a int
+                                              print("Ya existe esta variante");
+                                            } else {
+                                              var variantResult =
+                                                  await generateVariantData(
+                                                      chosenSku);
+                                              variantDetailsUniques
+                                                  .add(variantResult);
+
+                                              print(
+                                                  "variantDetailsUniques actual:");
+                                              print(variantDetailsUniques);
+                                              buildVariantsDetailsToSelect();
+                                              getTotalQuantityVariantsUniques();
+                                              chosenVariant = null;
+                                              _quantitySelectVariant.clear();
+                                            }
+                                          } catch (e) {
+                                            print("Error: $e");
+                                          }
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              Colors.indigo.shade300,
+                                        ),
+                                        child: const Text(
+                                          "Añadir",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            // fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Wrap(
+                                  spacing: 8.0,
+                                  runSpacing: 8.0,
+                                  children: variantDetailsUniques
+                                      .map<Widget>((variable) {
+                                    String chipLabel =
+                                        "${variable['quantity']}*${variable['variant_title'].toString() != "null" && variable['variant_title'].toString() != "" ? variable['variant_title'] : variable['title']}";
+
+                                    return Chip(
+                                      label: Text(chipLabel),
+                                      onDeleted: (isCarrierInternal &&
+                                                  estadoLogistic ==
+                                                      "PENDIENTE") ||
+                                              (!isCarrierExternal &&
+                                                  !isCarrierInternal)
+                                          ? () {
+                                              if (variantDetailsUniques.length >
+                                                  1) {
+                                                setState(() {
+                                                  variantDetailsUniques
+                                                      .remove(variable);
+                                                });
+                                                print(
+                                                    "variantDetailsUniques actual:");
+                                                print(variantDetailsUniques);
+                                                buildVariantsDetailsToSelect();
+                                                getTotalQuantityVariantsUniques();
+                                              } else {
+                                                print(
+                                                    "No se puede eliminar el último elemento.");
+                                                showSuccessModal(
+                                                    context,
+                                                    "Error, No se puede eliminar el último elemento.",
+                                                    Icons8.alert);
+                                              }
+                                            }
+                                          : null,
+                                    );
+                                  }).toList(),
+                                ),
+                                /*
                                 Visibility(
                                   visible: (isCarrierInternal &&
                                           estadoLogistic == "PENDIENTE" &&
-                                          isvariable == 1) ||
+                                          isvariableFirst == 1) ||
                                       (!isCarrierExternal &&
                                           !isCarrierInternal &&
-                                          isvariable == 1),
+                                          isvariableFirst == 1),
                                   child: const SizedBox(height: 10),
                                 ),
                                 Visibility(
                                   visible: (isCarrierInternal &&
                                           estadoLogistic == "PENDIENTE" &&
-                                          isvariable == 1) ||
+                                          isvariableFirst == 1) ||
                                       (!isCarrierExternal &&
                                           !isCarrierInternal &&
-                                          isvariable == 1),
+                                          isvariableFirst == 1),
                                   // isvariable == 1 && !isCarrierExternal,
                                   child: Row(
                                     children: [
@@ -995,6 +1544,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                                     _quantityCurrent.text !=
                                                         "") {
                                                   updateQuantityBySku(
+                                                      variantsCurrentList,
                                                       chosenCurrentVariant!
                                                           .split('|')[0],
                                                       int.parse(_quantityCurrent
@@ -1044,7 +1594,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                   ),
                                 ),
                                 Visibility(
-                                  visible: isvariable == 1,
+                                  visible: isvariableFirst == 1,
                                   child: const SizedBox(height: 5),
                                 ),
                                 Visibility(
@@ -1174,7 +1724,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                   ),
                                 ),
                                 Visibility(
-                                  visible: isvariable == 1,
+                                  visible: isvariableFirst == 1,
                                   child: Wrap(
                                     spacing: 8.0,
                                     runSpacing: 8.0,
@@ -1188,10 +1738,10 @@ class _OrderInfoState extends State<OrderInfo> {
                                         onDeleted: (isCarrierInternal &&
                                                     estadoLogistic ==
                                                         "PENDIENTE" &&
-                                                    isvariable == 1) ||
+                                                    isvariableFirst == 1) ||
                                                 (!isCarrierExternal &&
                                                     !isCarrierInternal &&
-                                                    isvariable == 1)
+                                                    isvariableFirst == 1)
                                             ? () {
                                                 setState(() {
                                                   // Eliminar el elemento de variantsCurrentList
@@ -1209,14 +1759,16 @@ class _OrderInfoState extends State<OrderInfo> {
                                     }).toList(),
                                   ),
                                 ),
+                                */
                                 const SizedBox(height: 10),
                                 TextFormField(
                                   style: const TextStyle(
                                       fontWeight: FontWeight.bold),
                                   controller:
                                       _controllers.cantidadEditController,
-                                  enabled:
-                                      (isvariable == 0 && !isCarrierExternal),
+                                  enabled: (editProductP &&
+                                      isvariableFirst == 0 &&
+                                      !isCarrierExternal),
                                   // readOnly:
                                   //     isvariable == 1 && isCarrierExternal,
                                   maxLines: null,
@@ -1338,90 +1890,6 @@ class _OrderInfoState extends State<OrderInfo> {
     );
   }
 
-  String formatLabelProducto(List<dynamic> variantsList) {
-    Map<String, List<String>> products = {};
-
-    for (var variant in variantsList) {
-      String title = variant['title'];
-      int quantity = variant['quantity'];
-      String? variantTitle = variant['variant_title'];
-
-      if (!products.containsKey(title)) {
-        products[title] = [];
-      }
-
-      if (variantTitle != null && variantTitle.isNotEmpty) {
-        products[title]!.add('$quantity*$variantTitle');
-      } else {
-        products[title]!.add('$quantity');
-      }
-    }
-
-    List<String> productStrings = [];
-    products.forEach((title, variants) {
-      productStrings.add('$title ${variants.join("|")}');
-    });
-
-    return productStrings.join(' ; ');
-  }
-
-  List<Map<String, dynamic>> groupProducts(List<dynamic> variantsList) {
-    Map<String, Map<String, dynamic>> groupedProducts = {};
-
-    // Recorre cada variante en la lista
-    for (var variant in variantsList) {
-      String? sku = variant['sku'];
-      String title = variant['title'];
-      String name = variant['name'].toString();
-      int quantity = variant['quantity'];
-      String? variantTitle = variant['variant_title'];
-
-      // Generar una clave única para productos sin SKU
-      String uniqueKey = sku ?? name;
-
-      if (sku != null) {
-        // Verificar si el SKU contiene 'C'
-        if (sku.contains('C')) {
-          // Divide el SKU por la última 'C'
-          int lastCIndex = sku.lastIndexOf('C');
-          String skuRest = sku.substring(lastCIndex + 1); // "1638"
-          uniqueKey = skuRest;
-        } else {
-          uniqueKey = sku;
-        }
-      }
-
-      // Si la clave única no está en el mapa, se añade
-      if (!groupedProducts.containsKey(uniqueKey)) {
-        groupedProducts[uniqueKey] = {
-          'id': uniqueKey, // Usar uniqueKey como id
-          'name': title,
-          'variants': []
-        };
-      }
-
-      // Añade la variante al producto en el formato adecuado solo si variantTitle no es nulo
-      if (variantTitle != null && variantTitle.isNotEmpty) {
-        groupedProducts[uniqueKey]!['variants']!
-            .add('($quantity*$variantTitle)');
-      } else {
-        groupedProducts[uniqueKey]!['variants']!.add('($quantity)');
-      }
-    }
-
-    // Convierte el mapa a una lista de productos con el formato deseado
-    List<Map<String, dynamic>> productList = [];
-    groupedProducts.forEach((skuKey, product) {
-      productList.add({
-        'id': product['id'],
-        'name': product['name'],
-        'variants': product['variants'].join(' / ')
-      });
-    });
-
-    return productList;
-  }
-
   Column _sectionCarriers(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
@@ -1458,6 +1926,15 @@ class _OrderInfoState extends State<OrderInfo> {
               value: selectedCarrierType,
               onChanged: !isCarrierExternal
                   ? (value) async {
+                      if (data['id_product'] != null &&
+                          data['id_product'] != 0 &&
+                          data['variant_details'] != null &&
+                          data['variant_details'].toString() != "[]" &&
+                          data['variant_details'].isNotEmpty) {
+                        renameProductVariantTitle();
+                        calculateTotalWPrice();
+                      }
+
                       setState(() {
                         selectedCarrierType = value as String;
                       });
@@ -1779,6 +2256,8 @@ class _OrderInfoState extends State<OrderInfo> {
                           tipoCobertura = selectedCity.toString().split("-")[2];
                         } else if (isCarrierExternal) {
                           //
+                          calculateTotalWPrice();
+
                           idCarrierExternal = data['pedido_carrier'][0]
                                   ['carrier_id']
                               .toString();
@@ -1952,7 +2431,7 @@ class _OrderInfoState extends State<OrderInfo> {
                       getLoadingModal(context, false);
 
                       String labelProducto = "";
-
+                      /*
                       if (data['variant_details'] != null &&
                           data['variant_details'].toString() != "[]" &&
                           data['variant_details'].isNotEmpty) {
@@ -1968,7 +2447,7 @@ class _OrderInfoState extends State<OrderInfo> {
                               groupProducts(variantsCurrentList);
                           // print("groupedProducts: $groupedProducts");
 
-                          if (isvariable == 1) {
+                          if (isvariableFirst == 1) {
                             print("is variable upt ");
                             // print("variantsCurrentList: $variantsCurrentList");
 
@@ -2019,6 +2498,53 @@ class _OrderInfoState extends State<OrderInfo> {
                               .toString(),
                         });
                       }
+                      */
+                      if (data['id_product'] != null &&
+                          data['id_product'] != 0 &&
+                          data['variant_details'] != null &&
+                          data['variant_details'].toString() != "[]" &&
+                          data['variant_details'].isNotEmpty) {
+                        //
+
+                        //updt with local names
+                        // renameProductVariantTitle();
+                        // print(
+                        //     "actual variantDetailsUniques: $variantDetailsUniques");
+
+                        List<Map<String, dynamic>> groupedProducts =
+                            groupProducts(variantDetailsUniques);
+                        // print(
+                        //     "groupedProducts: $groupedProducts");
+                        //
+
+                        for (var product in groupedProducts) {
+                          labelProducto +=
+                              '${product['name']} ${product['variants']}; \n';
+                        }
+
+                        labelProducto = labelProducto.substring(
+                            0, labelProducto.length - 3);
+
+                        await Connections().updatenueva(data['id'], {
+                          "variant_details": variantDetailsUniques,
+                          "producto_p": labelProducto,
+                          "cantidad_total": _controllers
+                              .cantidadEditController.text
+                              .toString(),
+                        });
+
+                        //
+                      } else {
+                        print("NO tiene variants_details o productID es 0");
+                        labelProducto =
+                            _controllers.productoEditController.text;
+
+                        await Connections().updatenueva(data['id'], {
+                          "cantidad_total": _controllers
+                              .cantidadEditController.text
+                              .toString(),
+                        });
+                      }
 
                       await updateData();
                       Navigator.pop(context);
@@ -2035,7 +2561,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                 sharedPrefs!
                                     .getString("idComercialMasterSeller")
                                     .toString(),
-                                variantsCurrentList);
+                                variantDetailsUniques);
 
                         print("$responseCurrentStock");
                         bool $isAllAvailable = true;
@@ -2107,49 +2633,28 @@ class _OrderInfoState extends State<OrderInfo> {
                     }
 
                     if (readySent) {
-                      print("readySent");
+                      print("readySent after checkStock");
 
                       getLoadingModal(context, false);
-
-                      // if (widget.product.isvariable == 1 &&
-                      //     chosenVariant == null) {
 
                       String priceTotal =
                           "${_controllers.precioTotalEditController.text}";
 
-                      // String sku =
-                      //     "${chosenSku}C${widget.product.productId}";
-                      String idProd = "";
-                      if (data['id_product'] != null &&
-                          data['id_product'] != 0) {
-                        idProd = data['id_product'].toString();
-                      }
-
                       String contenidoProd = "";
-                      // print("variantsCurrentList: $variantsCurrentList");
                       if (data['id_product'] != null &&
-                          data['id_product'] != 0) {
-                        if (isvariable == 1) {
-                          for (var variant in variantsCurrentList) {
-                            contenidoProd +=
-                                '${variant['quantity']}*${variant['title']} ${variant['variant_title']} | ';
-                          }
-
-                          contenidoProd = contenidoProd.substring(
-                              0, contenidoProd.length - 3);
-                        } else {
-                          contenidoProd =
-                              '${variantsCurrentList[0]['quantity']}*${variantsCurrentList[0]['title']}';
-
-                          // contenidoProd +=
-                          //     "${_controllers.cantidadEditController.text}*${_controllers.productoEditController.text}";
-                          // '$quantityTotal*${_controllers.productoEditController.text}';
-                        }
+                          data['id_product'] != 0 &&
+                          data['variant_details'] != null &&
+                          data['variant_details'].toString() != "[]" &&
+                          data['variant_details'].isNotEmpty) {
+                        //
+                        contenidoProd =
+                            buildVariantsDetailsText(variantDetailsUniques);
                       } else {
                         //
                         contenidoProd +=
                             '${_controllers.cantidadEditController.text}*${_controllers.productoEditController.text}';
                       }
+                      print("contenidoProd: $contenidoProd");
 
                       var responseNewRouteTransp;
                       var responseGintraNew;
@@ -2184,100 +2689,104 @@ class _OrderInfoState extends State<OrderInfo> {
                             emojiObservacion) {
                           readyDataSend = false;
                         }
-                      }
-                      if (readyDataSend) {
-                        remitente_address = prov_city_address.split('|')[2];
 
-                        var responseProvCityRem =
-                            await Connections().getCoverage([
-                          {
-                            "equals/carriers_external_simple.id":
-                                selectedCarrierExternal.toString().split("-")[1]
-                          },
-                          {
-                            "equals/coverage_external.dpa_provincia.id":
-                                prov_city_address.split('|')[0]
-                          },
-                          {
-                            "equals/coverage_external.ciudad":
-                                prov_city_address.split('|')[1]
-                          }
-                        ]);
+                        if (readyDataSend) {
+                          remitente_address = prov_city_address.split('|')[2];
 
-                        // print(responseProvCityRem);
-                        remitente_prov_ref = responseProvCityRem['id_prov_ref'];
-                        remitente_city_ref =
-                            responseProvCityRem['id_ciudad_ref'];
-                        // print("REMITENTE:");
-                        // print(
-                        //     "$origen_prov: $remitente_city_ref-${responseProvCityRem['coverage_external']['dpa_provincia']['provincia']}");
-                        // print(
-                        //     "${widget.product.warehouse!.city.toString()}: $remitente_city_ref");
+                          var responseProvCityRem =
+                              await Connections().getCoverage([
+                            {
+                              "equals/carriers_external_simple.id":
+                                  selectedCarrierExternal
+                                      .toString()
+                                      .split("-")[1]
+                            },
+                            {
+                              "equals/coverage_external.dpa_provincia.id":
+                                  prov_city_address.split('|')[0]
+                            },
+                            {
+                              "equals/coverage_external.ciudad":
+                                  prov_city_address.split('|')[1]
+                            }
+                          ]);
 
-                        destinatario_prov_ref =
-                            selectedCity.toString().split("-")[3];
-                        destinatario_city_ref =
-                            selectedCity.toString().split("-")[4];
+                          // print(responseProvCityRem);
+                          remitente_prov_ref =
+                              responseProvCityRem['id_prov_ref'];
+                          remitente_city_ref =
+                              responseProvCityRem['id_ciudad_ref'];
+                          // print("REMITENTE:");
+                          // print(
+                          //     "$origen_prov: $remitente_city_ref-${responseProvCityRem['coverage_external']['dpa_provincia']['provincia']}");
+                          // print(
+                          //     "${widget.product.warehouse!.city.toString()}: $remitente_city_ref");
 
-                        // print("DESTINATARIO:");
-                        // print(
-                        //     "${selectedProvincia.toString().split("-")[0]}: $destinatario_prov_ref");
-                        // print(
-                        //     "${selectedCity.toString().split("-")[0]}: $destinatario_city_ref");
+                          destinatario_prov_ref =
+                              selectedCity.toString().split("-")[3];
+                          destinatario_city_ref =
+                              selectedCity.toString().split("-")[4];
 
-                        DateTime now = DateTime.now();
-                        String formattedDateTime =
-                            DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
-                        // print(
-                        //     "telefono_2: ${sharedPrefs!.getString("seller_telefono")}");
-                        dataIntegration = {
-                          "remitente": {
-                            "nombre":
-                                "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()}",
-                            "telefono": "",
-                            // "telefono": sharedPrefs!.getString("seller_telefono"),
-                            "provincia": remitente_prov_ref,
-                            "ciudad": remitente_city_ref,
-                            "direccion": remitente_address
-                          },
-                          "destinatario": {
-                            "nombre": _controllers.nombreEditController.text,
-                            "telefono":
-                                _controllers.telefonoEditController.text,
-                            "provincia": destinatario_prov_ref,
-                            "ciudad": destinatario_city_ref,
-                            "direccion":
-                                _controllers.direccionEditController.text
-                          },
-                          "cant_paquetes": "1",
-                          "peso_total": "2.00",
-                          "documento_venta": "",
-                          "contenido":
-                              "$contenidoProd${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}",
-                          "observacion":
-                              _controllers.observacionEditController.text,
-                          "fecha": formattedDateTime,
-                          "declarado": double.parse(priceTotal),
-                          "con_recaudo": recaudo ? true : false
-                        };
-                        print(dataIntegration);
-                      } else {
-                        Navigator.pop(context);
+                          // print("DESTINATARIO:");
+                          // print(
+                          //     "${selectedProvincia.toString().split("-")[0]}: $destinatario_prov_ref");
+                          // print(
+                          //     "${selectedCity.toString().split("-")[0]}: $destinatario_city_ref");
 
-                        // ignore: use_build_context_synchronously
-                        AwesomeDialog(
-                          width: 500,
-                          context: context,
-                          dialogType: DialogType.info,
-                          animType: AnimType.rightSlide,
-                          title:
-                              "Error: revise los datos, no se permiten emojis.",
-                          btnCancel: Container(),
-                          btnOkText: "Aceptar",
-                          btnOkColor: Colors.green,
-                          btnOkOnPress: () async {},
-                          btnCancelOnPress: () async {},
-                        ).show();
+                          DateTime now = DateTime.now();
+                          String formattedDateTime =
+                              DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+                          // print(
+                          //     "telefono_2: ${sharedPrefs!.getString("seller_telefono")}");
+                          dataIntegration = {
+                            "remitente": {
+                              "nombre":
+                                  "${sharedPrefs!.getString("NameComercialSeller")}-${data['numero_orden'].toString()}",
+                              "telefono": "",
+                              // "telefono": sharedPrefs!.getString("seller_telefono"),
+                              "provincia": remitente_prov_ref,
+                              "ciudad": remitente_city_ref,
+                              "direccion": remitente_address
+                            },
+                            "destinatario": {
+                              "nombre": _controllers.nombreEditController.text,
+                              "telefono":
+                                  _controllers.telefonoEditController.text,
+                              "provincia": destinatario_prov_ref,
+                              "ciudad": destinatario_city_ref,
+                              "direccion":
+                                  _controllers.direccionEditController.text
+                            },
+                            "cant_paquetes": "1",
+                            "peso_total": "2.00",
+                            "documento_venta": "",
+                            "contenido":
+                                "$contenidoProd${_controllers.productoExtraEditController.text.isNotEmpty ? " | ${_controllers.productoExtraEditController.text}" : ""}",
+                            "observacion":
+                                _controllers.observacionEditController.text,
+                            "fecha": formattedDateTime,
+                            "declarado": double.parse(priceTotal),
+                            "con_recaudo": recaudo ? true : false
+                          };
+                          print(dataIntegration);
+                        } else {
+                          Navigator.pop(context);
+
+                          // ignore: use_build_context_synchronously
+                          AwesomeDialog(
+                            width: 500,
+                            context: context,
+                            dialogType: DialogType.info,
+                            animType: AnimType.rightSlide,
+                            title:
+                                "Error: revise los datos, no se permiten emojis.",
+                            btnCancel: Container(),
+                            btnOkText: "Aceptar",
+                            btnOkColor: Colors.green,
+                            btnOkOnPress: () async {},
+                            btnCancelOnPress: () async {},
+                          ).show();
+                        }
                       }
 
                       double costDelivery =
@@ -2329,12 +2838,8 @@ class _OrderInfoState extends State<OrderInfo> {
                         } else {
                           //
 
-                          // print("recaudo: ${recaudo ? 1 : 0}");
-                          // print(dataIntegration);
-                          // print(dataIntegration.runtimeType);
-
                           print("a Una Externa");
-
+                          // /*
                           if (selectedCarrierExternal
                                   .toString()
                                   .split("-")[1] ==
@@ -2432,12 +2937,11 @@ class _OrderInfoState extends State<OrderInfo> {
                                   Icons8.alert);
                             }
                           }
-
+                          // */
                           //
                         }
                       } else {
                         print("Actualizar");
-                        //if exist carrierExternal solo puede actualizarse con otra externa
                         if (data['transportadora'].isNotEmpty) {
                           print("Actualizar Transport");
                           //
@@ -2483,11 +2987,8 @@ class _OrderInfoState extends State<OrderInfo> {
                           } else {
                             //
                             print("a un Externo");
-                            //limpiar la relacion con transp_interna actual
-                            // print("recaudo: ${recaudo ? 1 : 0}");
-                            // print(dataIntegration);
-                            // print(dataIntegration.runtimeType);
 
+                            // /*
                             if (selectedCarrierExternal
                                     .toString()
                                     .split("-")[1] ==
@@ -2504,8 +3005,6 @@ class _OrderInfoState extends State<OrderInfo> {
 
                                   responseGintraNew = await Connections()
                                       .postOrdersGintra(dataIntegration);
-                                  // // print("responseInteg");
-                                  // // print(responseGintra);
 
                                   if (responseGintraNew != []) {
                                     bool statusError =
@@ -2589,7 +3088,7 @@ class _OrderInfoState extends State<OrderInfo> {
                                     Icons8.alert);
                               }
                             }
-
+                            // */
                             //
                           }
                           //
@@ -2674,7 +3173,7 @@ class _OrderInfoState extends State<OrderInfo> {
                             }
                           }
 
-                          } 
+                          }
                           */
                           }
                           */
@@ -2703,6 +3202,110 @@ class _OrderInfoState extends State<OrderInfo> {
     );
   }
 
+  String formatLabelProducto(List<dynamic> variantsList) {
+    Map<String, List<String>> products = {};
+
+    for (var variant in variantsList) {
+      String title = variant['title'];
+      int quantity = variant['quantity'];
+      String? variantTitle = variant['variant_title'];
+
+      if (!products.containsKey(title)) {
+        products[title] = [];
+      }
+
+      if (variantTitle != null && variantTitle.isNotEmpty) {
+        products[title]!.add('$quantity*$variantTitle');
+      } else {
+        products[title]!.add('$quantity');
+      }
+    }
+
+    List<String> productStrings = [];
+    products.forEach((title, variants) {
+      productStrings.add('$title ${variants.join("|")}');
+    });
+
+    return productStrings.join(' ; ');
+  }
+
+  List<Map<String, dynamic>> groupProducts(List<dynamic> variantsList) {
+    Map<String, Map<String, dynamic>> groupedProducts = {};
+
+    // Recorre cada variante en la lista
+    for (var variant in variantsList) {
+      String? sku = variant['sku'];
+      String title = variant['title'];
+      String name = variant['name'].toString();
+      int quantity = variant['quantity'];
+      String? variantTitle = variant['variant_title'];
+
+      // Generar una clave única para productos sin SKU
+      String uniqueKey = sku ?? name;
+
+      if (sku != null) {
+        // Verificar si el SKU contiene 'C'
+        if (sku.contains('C')) {
+          // Divide el SKU por la última 'C'
+          int lastCIndex = sku.lastIndexOf('C');
+          String skuRest = sku.substring(lastCIndex + 1); // "1638"
+          uniqueKey = skuRest;
+        } else {
+          uniqueKey = sku;
+        }
+      }
+
+      // Si la clave única no está en el mapa, se añade
+      if (!groupedProducts.containsKey(uniqueKey)) {
+        groupedProducts[uniqueKey] = {
+          'id': uniqueKey, // Usar uniqueKey como id
+          'name': title,
+          'variants': []
+        };
+      }
+
+      // Añade la variante al producto en el formato adecuado solo si variantTitle no es nulo
+      if (variantTitle != null && variantTitle.isNotEmpty) {
+        groupedProducts[uniqueKey]!['variants']!
+            .add('($quantity*$variantTitle)');
+      } else {
+        groupedProducts[uniqueKey]!['variants']!.add('($quantity)');
+      }
+    }
+
+    // Convierte el mapa a una lista de productos con el formato deseado
+    List<Map<String, dynamic>> productList = [];
+    groupedProducts.forEach((skuKey, product) {
+      productList.add({
+        'id': product['id'],
+        'name': product['name'],
+        'variants': product['variants'].join(' / ')
+      });
+    });
+
+    return productList;
+  }
+
+  String buildVariantsDetailsText(
+      List<Map<String, dynamic>> dataVariantDetailsUniques) {
+    List<String> variantTexts = [];
+
+    for (var variant in dataVariantDetailsUniques) {
+      int quantity = variant['quantity'] ?? 0;
+      String title = variant['title'] ?? '';
+      String variantTitle = variant['variant_title'] ?? '';
+
+      String variantText = '${quantity.toString()}*$title';
+      if (variantTitle.isNotEmpty) {
+        variantText += ' $variantTitle';
+      }
+      variantTexts.add(variantText);
+    }
+
+    String result = variantTexts.join('|');
+    return result;
+  }
+
   String buscarTipoPorId(List<dynamic> dataTempCities, String id) {
     try {
       print(dataTempCities);
@@ -2711,6 +3314,54 @@ class _OrderInfoState extends State<OrderInfo> {
       return ciudad['type'];
     } catch (e) {
       return 'No encontrado';
+    }
+  }
+
+  void renameProductVariantTitle() {
+    print("renameProductVariantTitle");
+    RegExp pattern = RegExp(r'^[a-zA-Z0-9]+C\d+$');
+    // print("variantDetailsOriginal: $variantDetailsUniques");
+    for (var variant in variantDetailsUniques) {
+      String? skuVariant = variant['sku'];
+
+      if (skuVariant != null &&
+          skuVariant != "" &&
+          pattern.hasMatch(skuVariant)) {
+        //
+        int indexOfC = skuVariant.lastIndexOf('C');
+        String onlySku = skuVariant.substring(0, indexOfC);
+        String onlyId = skuVariant.substring(indexOfC + 1);
+
+        for (var productData in variantsListProducts) {
+          String idProd = productData['product_id'].toString();
+
+          if (onlyId == idProd) {
+            String productName = productData['product_name'];
+            String variable = productData['isvariable'].toString();
+            String price = productData['price'].toString();
+
+            variant['title'] = productName;
+            variant['price'] = price;
+
+            var features = jsonDecode(productData["features"]);
+            if (variable == "0") {
+              if (onlySku == features["sku"].toString()) {
+                variant['variant_title'] = null;
+              }
+            } else {
+              var featuresVariants = features["variants"];
+              // print("featuresVariants: $featuresVariants");
+              for (var element in featuresVariants) {
+                if (onlySku == element["sku"].toString()) {
+                  String nameVariantTitle = buildVariantTitle(element);
+                  variant['variant_title'] = nameVariantTitle;
+                }
+              }
+            }
+            break;
+          }
+        }
+      }
     }
   }
 
@@ -2906,18 +3557,46 @@ class _OrderInfoState extends State<OrderInfo> {
     }
   }
 
-  void updateQuantityBySku(String sku, int newQuantity) {
-    // Buscar el elemento en la lista con el SKU proporcionado
-    var variantToUpdate = variantsCurrentList
-        .firstWhere((variant) => variant['sku'] == sku, orElse: () => null);
+  int getTotalQuantityBySku(List<dynamic> variants, String sku) {
+    int totalQuantity = 0;
 
-    if (variantToUpdate != null) {
-      variantToUpdate['quantity'] = newQuantity;
-
-      getTotalQuantity();
-    } else {
-      print('No se encontró ningún elemento con el SKU $sku en la lista.');
+    for (var variant in variants) {
+      if (variant['sku'] == sku) {
+        totalQuantity = variant['quantity'];
+      }
     }
+
+    return totalQuantity;
+  }
+
+  void updateQuantityBySku(
+      List variants, String chosenProduct, int newQuantity) {
+    // var variantToUpdate = variantsCurrentList
+    String sku = chosenProduct.split('|')[0];
+    String productName = chosenProduct.split('|')[2];
+    String variantTitle = chosenProduct.split('|')[1];
+    String prodType = chosenProduct.split('|')[3];
+
+    for (var variant in variants) {
+      if (variant['sku'] == sku) {
+        variant['quantity'] = newQuantity;
+        //
+        /*
+        if (prodType == "0") {
+          variant['title'] = productName;
+          variant['variant_title'] = null;
+        } else {
+          variant['title'] = productName;
+          variant['variant_title'] = variantTitle;
+        }
+        */
+      } else {
+        print('No se encontró ningún elemento con el SKU $sku en la lista.');
+      }
+    }
+
+    getTotalQuantityVariantsUniques();
+    calculateTotalWPrice();
   }
 
   void getTotalQuantity() {
@@ -2930,9 +3609,19 @@ class _OrderInfoState extends State<OrderInfo> {
     });
   }
 
+  void getTotalQuantityVariantsUniques() {
+    int total_quantity = 0;
+    for (Map<String, dynamic> variant in variantDetailsUniques) {
+      total_quantity += int.parse(variant['quantity'].toString());
+    }
+    setState(() {
+      _controllers.cantidadEditController.text = total_quantity.toString();
+    });
+  }
+
   Map<String, dynamic>? findVariantBySku(String sku) {
     Map<String, dynamic>? varianteEncontrada;
-    for (var variante in variantsListOriginal) {
+    for (var variante in variantsFirstProduct) {
       if (variante['sku'] == sku) {
         varianteEncontrada = variante;
         break;
@@ -2950,14 +3639,12 @@ class _OrderInfoState extends State<OrderInfo> {
 
   Future<Map<String, dynamic>> generateVariantData(String sku) async {
     Map<String, dynamic>? variantFound = findVariantBySku(sku);
-    // Obtener las claves disponibles en el mapa variantFound
     List<String> availableKeys = variantFound?.keys
             .where((key) =>
                 !['id', 'sku', 'inventory_quantity', 'price'].contains(key))
             .toList() ??
         [];
 
-    // Formar el título de la variante utilizando las claves disponibles
     String variantTitle =
         availableKeys.map((key) => variantFound?[key]).join('/');
 
@@ -2972,7 +3659,7 @@ class _OrderInfoState extends State<OrderInfo> {
       "quantity": int.parse(_quantitySelectVariant.text),
       "price": priceT,
       "title": productFirstName,
-      "variant_title": isvariable == 1 ? variantTitle : null,
+      "variant_title": isvariableFirst == 1 ? variantTitle : null,
       "sku": "${variantFound?['sku']}C$productFirstId",
     };
 
@@ -2996,68 +3683,28 @@ class _OrderInfoState extends State<OrderInfo> {
     }
   }
 
-  _modelTextFormField2({
-    text,
-    controller,
-    TextInputType? keyboardType,
-    List<TextInputFormatter>? inputFormatters,
-    String? Function(String?)? validator,
-  }) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.0),
-        color: Color.fromARGB(255, 245, 244, 244),
-      ),
-      margin: EdgeInsets.only(bottom: 10),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              SizedBox(
-                width: 10,
-              ),
-              Text(
-                "$text: ",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
-              SizedBox(
-                width: 10,
-              ),
-              Expanded(
-                child: TextFormField(
-                  controller: controller,
-                  onChanged: (value) {
-                    setState(() {});
-                  },
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                  decoration: InputDecoration(
-                    hintText: text,
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                          width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                          width: 1, color: Color.fromRGBO(237, 241, 245, 1.0)),
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    focusColor: Colors.black,
-                    iconColor: Colors.black,
-                  ),
-                  keyboardType: keyboardType,
-                  inputFormatters: inputFormatters,
-                  validator: validator,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 10,
-          )
-        ],
-      ),
-    );
+  void calculateTotalWPrice() async {
+    double totalPriceWarehouse = 0;
+    RegExp pattern = RegExp(r'^[a-zA-Z0-9]+C\d+$');
+
+    for (var detalle in variantDetailsUniques) {
+      // print("variantDetailsOriginal: $variantDetailsUniques");
+      String? skuVariant = detalle['sku'];
+
+      if (skuVariant != null &&
+          skuVariant != "" &&
+          pattern.hasMatch(skuVariant)) {
+        if (detalle.containsKey('price')) {
+          double price = int.parse(detalle['quantity'].toString()) *
+              double.parse(detalle['price'].toString());
+          totalPriceWarehouse += price;
+        }
+      }
+    }
+
+    totalPriceWarehouse = double.parse(totalPriceWarehouse.toStringAsFixed(2));
+    setState(() {
+      priceWarehouseTotal = totalPriceWarehouse;
+    });
   }
 }

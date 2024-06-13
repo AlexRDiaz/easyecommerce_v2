@@ -103,6 +103,11 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
   String idProvExternal = "";
   String tipoCobertura = "";
 
+  bool editProductP = true;
+  List variantsListProducts = [];
+  List<int> idProdUniques = [];
+  List<Map<String, dynamic>> variantDetailsUniques = [];
+
   @override
   void didChangeDependencies() {
     getRoutes();
@@ -131,10 +136,6 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
         (data['observacion'] != null && data['observacion'] != "null")
             ? data['observacion'].toString()
             : "";
-    var variants = data['variant_details'] != null
-        ? data['variant_details'].toString()
-        : "";
-    variantDetails = [];
 
     isCarrierExternal = data['pedido_carrier'].isNotEmpty ? true : false;
     isCarrierInternal = data['transportadora'].isNotEmpty ? true : false;
@@ -145,6 +146,35 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
       selectedCarrierType = "Externo";
     }
 
+    if (data['id_product'] != null &&
+        data['id_product'] != 0 &&
+        data['variant_details'] != null &&
+        data['variant_details'].toString() != "[]" &&
+        data['variant_details'].isNotEmpty) {
+      carriersTypeToSelect = ["Interno", "Externo"];
+
+      prov_city_address = getWarehouseAddress(data['product']['warehouses']);
+
+      editProductP = false;
+      print("editProductP :$editProductP");
+
+      List<dynamic> variantDetails = jsonDecode(data['variant_details']);
+      variantDetailsUniques = mergeDuplicateSKUs(variantDetails);
+
+      idProdUniques =
+          await extractUniqueIds(jsonDecode(data['variant_details']));
+
+      var responseProducts =
+          await Connections().getProductsByIds(idProdUniques, []);
+      variantsListProducts = responseProducts;
+
+      recaudo = true;
+      getTotalQuantityVariantsUniques();
+    } else {
+      print("no id_p or var_det !!");
+      carriersTypeToSelect = ["Interno"];
+    }
+/*
     if (data['id_product'] != null &&
         data['id_product'] != 0 &&
         data['variant_details'] != null) {
@@ -180,8 +210,69 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
       carriersTypeToSelect = ["Interno"];
     }
     recaudo = data['recaudo'].toString() == "1" ? true : false;
-
+*/
     setState(() {});
+  }
+
+  List<Map<String, dynamic>> mergeDuplicateSKUs(List<dynamic> originalList) {
+    Map<String, Map<String, dynamic>> skuMap = {};
+    List<Map<String, dynamic>> mergedList = [];
+    List<Map<String, dynamic>> nullSKUs = [];
+
+    for (var item in originalList) {
+      String? sku = item['sku'];
+      if (sku != null) {
+        int quantity = item['quantity'] ?? 0;
+
+        if (skuMap.containsKey(sku)) {
+          skuMap[sku]!['quantity'] = (skuMap[sku]!['quantity'] ?? 0) + quantity;
+        } else {
+          skuMap[sku] = Map<String, dynamic>.from(item);
+        }
+      } else {
+        nullSKUs.add(Map<String, dynamic>.from(item));
+      }
+    }
+
+    mergedList.addAll(skuMap.values);
+    mergedList.addAll(nullSKUs);
+
+    return mergedList;
+  }
+
+  void getTotalQuantityVariantsUniques() {
+    int total_quantity = 0;
+    for (Map<String, dynamic> variant in variantDetailsUniques) {
+      total_quantity += int.parse(variant['quantity'].toString());
+    }
+    setState(() {
+      _cantidad.text = total_quantity.toString();
+    });
+  }
+
+  List<int> extractUniqueIds(List variant_details) {
+    Set<String> uniqueSkus = {};
+    RegExp pattern = RegExp(r'^[a-zA-Z0-9]+C\d+$');
+
+    for (var item in variant_details) {
+      String? sku = item['sku'];
+
+      if (sku != null && sku != "" && pattern.hasMatch(sku)) {
+        uniqueSkus.add(item['sku']);
+      }
+    }
+
+    List<int> digitsList = [];
+
+    for (var sku in uniqueSkus) {
+      int indexOfC = sku.lastIndexOf('C');
+      if (indexOfC != -1 && indexOfC + 1 < sku.length) {
+        String digits = sku.substring(indexOfC + 1);
+        digitsList.add(int.parse(digits));
+      }
+    }
+
+    return digitsList;
   }
 
   String getWarehouseAddress(dynamic warehouses) {
@@ -374,28 +465,10 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // const Text(
-              //   "DATOS",
-              //   style: TextStyle(fontWeight: FontWeight.bold),
-              // ),
-              // const SizedBox(height: 10),
               Text(
                 "Código: ${sharedPrefs!.getString("NameComercialSeller").toString()}-${data['numero_orden'].toString()}",
               ),
               const SizedBox(height: 5),
-              // Text(
-              //   "Nombre Cliente: ${data['nombre_shipping'].toString()}",
-              // ),
-              // const SizedBox(height: 5),
-              // Text(
-              //   "Producto: ${data['producto_p'].toString()}",
-              // ),
-              // Visibility(
-              //   visible: isvariable == 1,
-              //   child: Text(
-              //     quantity_variant,
-              //   ),
-              // ),
               const Text(
                 "TRANSPORTADORA",
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -425,6 +498,15 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                     value: selectedCarrierType,
                     onChanged: !isCarrierExternal
                         ? (value) async {
+                            if (data['id_product'] != null &&
+                                data['id_product'] != 0 &&
+                                data['variant_details'] != null &&
+                                data['variant_details'].toString() != "[]" &&
+                                data['variant_details'].isNotEmpty) {
+                              renameProductVariantTitle();
+                              calculateTotalWPrice();
+                            }
+
                             setState(() {
                               selectedCarrierType = value as String;
                             });
@@ -706,6 +788,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                         ? () async {
                             priceTotalProduct = double.parse(_precioTotal.text);
                             var resTotalProfit;
+
                             if (selectedCarrierType == "Externo") {
                               if (!isCarrierExternal) {
                                 idCarrierExternal = selectedCarrierExternal
@@ -717,6 +800,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                     selectedCity.toString().split("-")[2];
                               } else if (isCarrierExternal) {
                                 //
+                                calculateTotalWPrice();
                                 idCarrierExternal = data['pedido_carrier'][0]
                                         ['carrier_id']
                                     .toString();
@@ -924,6 +1008,44 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                               }
                             }
 
+                            //rename
+                            String labelProducto = "";
+
+                            if (data['id_product'] != null &&
+                                data['id_product'] != 0 &&
+                                data['variant_details'] != null &&
+                                data['variant_details'].toString() != "[]" &&
+                                data['variant_details'].isNotEmpty) {
+                              //
+
+                              List<Map<String, dynamic>> groupedProducts =
+                                  groupProducts(variantDetailsUniques);
+
+                              for (var product in groupedProducts) {
+                                labelProducto +=
+                                    '${product['name']} ${product['variants']}; \n';
+                              }
+
+                              labelProducto = labelProducto.substring(
+                                  0, labelProducto.length - 3);
+
+                              await Connections().updatenueva(data['id'], {
+                                "variant_details": variantDetailsUniques,
+                                "producto_p": labelProducto,
+                                "cantidad_total": _cantidad.text.toString(),
+                              });
+
+                              //
+                            } else {
+                              print(
+                                  "NO tiene variants_details o productID es 0");
+                              labelProducto = _producto.text;
+
+                              await Connections().updatenueva(data['id'], {
+                                "cantidad_total": _cantidad.text.toString(),
+                              });
+                            }
+
                             //check stock
 
                             if (data['id_product'] != null &&
@@ -938,7 +1060,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                       sharedPrefs!
                                           .getString("idComercialMasterSeller")
                                           .toString(),
-                                      variantDetails);
+                                      variantDetailsUniques);
 
                               // print("$responseCurrentStock");
                               bool $isAllAvailable = true;
@@ -1008,40 +1130,27 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                             }
 
                             if (readySent) {
-                              getLoadingModal(context, false);
+                              print("readySent after checkStock");
 
-                              // if (widget.product.isvariable == 1 &&
-                              //     chosenVariant == null) {
+                              getLoadingModal(context, false);
 
                               String priceTotal = "${_precioTotal.text}";
 
-                              // String sku =
-                              //     "${chosenSku}C${widget.product.productId}";
-                              String idProd = "";
-                              if (data['id_product'] != null) {
-                                idProd = data['id_product'].toString();
-                              }
-
                               String contenidoProd = "";
                               if (data['id_product'] != null &&
-                                  data['id_product'] != 0) {
-                                if (isvariable == 1) {
-                                  for (var variant in variantDetails) {
-                                    contenidoProd +=
-                                        '${variant['quantity']}*${_producto.text} ${variant['variant_title']} | ';
-                                  }
-
-                                  contenidoProd = contenidoProd.substring(
-                                      0, contenidoProd.length - 3);
-                                } else {
-                                  contenidoProd +=
-                                      '${_cantidad.text}*${_producto.text}';
-                                }
+                                  data['id_product'] != 0 &&
+                                  data['variant_details'] != null &&
+                                  data['variant_details'].toString() != "[]" &&
+                                  data['variant_details'].isNotEmpty) {
+                                //
+                                contenidoProd = buildVariantsDetailsText(
+                                    variantDetailsUniques);
                               } else {
                                 //
                                 contenidoProd +=
                                     '${_cantidad.text}*${_producto.text}';
                               }
+                              print("contenidoProd: $contenidoProd");
 
                               var responseNewRouteTransp;
                               var responseGintraNew;
@@ -1056,8 +1165,9 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                               String destinatario_city_ref = "";
                               var dataIntegration;
 
+                              bool readyDataSend = true;
+
                               if (selectedCarrierType == "Externo") {
-                                bool readyDataSend = true;
                                 bool emojiNombre = containsEmoji(_nombre.text);
                                 bool emojiDireccion =
                                     containsEmoji(_direccion.text);
@@ -1152,26 +1262,27 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                     "declarado": double.parse(priceTotal),
                                     "con_recaudo": recaudo ? true : false
                                   };
-                                }
-                                print("NOO, tiene emojis");
-                                Navigator.pop(context);
+                                  print(dataIntegration);
+                                } else {
+                                  Navigator.pop(context);
 
-                                // ignore: use_build_context_synchronously
-                                AwesomeDialog(
-                                  width: 500,
-                                  context: context,
-                                  dialogType: DialogType.info,
-                                  animType: AnimType.rightSlide,
-                                  title:
-                                      "Error: revise los datos, no se permiten emojis.",
-                                  btnCancel: Container(),
-                                  btnOkText: "Aceptar",
-                                  btnOkColor: Colors.green,
-                                  btnOkOnPress: () async {
-                                    Navigator.pop(context);
-                                  },
-                                  btnCancelOnPress: () async {},
-                                ).show();
+                                  // ignore: use_build_context_synchronously
+                                  AwesomeDialog(
+                                    width: 500,
+                                    context: context,
+                                    dialogType: DialogType.info,
+                                    animType: AnimType.rightSlide,
+                                    title:
+                                        "Error: revise los datos, no se permiten emojis.",
+                                    btnCancel: Container(),
+                                    btnOkText: "Aceptar",
+                                    btnOkColor: Colors.green,
+                                    btnOkOnPress: () async {
+                                      Navigator.pop(context);
+                                    },
+                                    btnCancelOnPress: () async {},
+                                  ).show();
+                                }
                               }
 
                               if (data['transportadora'].isEmpty &&
@@ -1218,11 +1329,8 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                   }
                                 } else {
                                   //
-
-                                  // print("recaudo: ${recaudo ? 1 : 0}");
-                                  // print(dataIntegration);
                                   print("a Una Externa");
-
+                                  // /*
                                   if (selectedCarrierExternal
                                           .toString()
                                           .split("-")[1] ==
@@ -1330,7 +1438,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                       Navigator.pop(context);
                                     }
                                   }
-
+                                  // */
                                   //
                                 }
                               } else {
@@ -1384,10 +1492,8 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                   } else {
                                     //
                                     print("a un Externo");
-                                    //limpiar la relacion con transp_interna actual
-                                    // print("recaudo: ${recaudo ? 1 : 0}");
-                                    print(dataIntegration);
 
+                                    // /*
                                     if (selectedCarrierExternal
                                             .toString()
                                             .split("-")[1] ==
@@ -1502,7 +1608,7 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                         Navigator.pop(context);
                                       }
                                     }
-
+                                    // */
                                     //
                                   }
                                 } else if (data['pedido_carrier'].isNotEmpty) {
@@ -1593,6 +1699,169 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
         ),
       ),
     );
+  }
+
+  List<Map<String, dynamic>> groupProducts(List<dynamic> variantsList) {
+    Map<String, Map<String, dynamic>> groupedProducts = {};
+
+    // Recorre cada variante en la lista
+    for (var variant in variantsList) {
+      String? sku = variant['sku'];
+      String title = variant['title'];
+      String name = variant['name'].toString();
+      int quantity = variant['quantity'];
+      String? variantTitle = variant['variant_title'];
+
+      // Generar una clave única para productos sin SKU
+      String uniqueKey = sku ?? name;
+
+      if (sku != null) {
+        // Verificar si el SKU contiene 'C'
+        if (sku.contains('C')) {
+          // Divide el SKU por la última 'C'
+          int lastCIndex = sku.lastIndexOf('C');
+          String skuRest = sku.substring(lastCIndex + 1); // "1638"
+          uniqueKey = skuRest;
+        } else {
+          uniqueKey = sku;
+        }
+      }
+
+      // Si la clave única no está en el mapa, se añade
+      if (!groupedProducts.containsKey(uniqueKey)) {
+        groupedProducts[uniqueKey] = {
+          'id': uniqueKey, // Usar uniqueKey como id
+          'name': title,
+          'variants': []
+        };
+      }
+
+      // Añade la variante al producto en el formato adecuado solo si variantTitle no es nulo
+      if (variantTitle != null && variantTitle.isNotEmpty) {
+        groupedProducts[uniqueKey]!['variants']!
+            .add('($quantity*$variantTitle)');
+      } else {
+        groupedProducts[uniqueKey]!['variants']!.add('($quantity)');
+      }
+    }
+
+    // Convierte el mapa a una lista de productos con el formato deseado
+    List<Map<String, dynamic>> productList = [];
+    groupedProducts.forEach((skuKey, product) {
+      productList.add({
+        'id': product['id'],
+        'name': product['name'],
+        'variants': product['variants'].join(' / ')
+      });
+    });
+
+    return productList;
+  }
+
+  String buildVariantsDetailsText(
+      List<Map<String, dynamic>> dataVariantDetailsUniques) {
+    List<String> variantTexts = [];
+
+    for (var variant in dataVariantDetailsUniques) {
+      int quantity = variant['quantity'] ?? 0;
+      String title = variant['title'] ?? '';
+      String variantTitle = variant['variant_title'] ?? '';
+
+      String variantText = '${quantity.toString()}*$title';
+      if (variantTitle.isNotEmpty) {
+        variantText += ' $variantTitle';
+      }
+      variantTexts.add(variantText);
+    }
+
+    String result = variantTexts.join('|');
+    return result;
+  }
+
+  void renameProductVariantTitle() {
+    print("renameProductVariantTitle");
+    RegExp pattern = RegExp(r'^[a-zA-Z0-9]+C\d+$');
+    // print("variantDetailsOriginal: $variantDetailsUniques");
+    for (var variant in variantDetailsUniques) {
+      String? skuVariant = variant['sku'];
+
+      if (skuVariant != null &&
+          skuVariant != "" &&
+          pattern.hasMatch(skuVariant)) {
+        //
+        int indexOfC = skuVariant.lastIndexOf('C');
+        String onlySku = skuVariant.substring(0, indexOfC);
+        String onlyId = skuVariant.substring(indexOfC + 1);
+
+        for (var productData in variantsListProducts) {
+          String idProd = productData['product_id'].toString();
+
+          if (onlyId == idProd) {
+            String productName = productData['product_name'];
+            String variable = productData['isvariable'].toString();
+            String price = productData['price'].toString();
+
+            variant['title'] = productName;
+            variant['price'] = price;
+
+            var features = jsonDecode(productData["features"]);
+            if (variable == "0") {
+              if (onlySku == features["sku"].toString()) {
+                variant['variant_title'] = null;
+              }
+            } else {
+              var featuresVariants = features["variants"];
+              // print("featuresVariants: $featuresVariants");
+              for (var element in featuresVariants) {
+                if (onlySku == element["sku"].toString()) {
+                  String nameVariantTitle = buildVariantTitle(element);
+                  variant['variant_title'] = nameVariantTitle;
+                }
+              }
+            }
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  String buildVariantTitle(Map<String, dynamic> element) {
+    List<String> excludeKeys = ['id', 'sku', 'inventory_quantity', 'price'];
+    List<String> elementDetails = [];
+
+    element.forEach((key, value) {
+      if (!excludeKeys.contains(key)) {
+        elementDetails.add("$value");
+      }
+    });
+
+    return elementDetails.join("/");
+  }
+
+  void calculateTotalWPrice() async {
+    double totalPriceWarehouse = 0;
+    RegExp pattern = RegExp(r'^[a-zA-Z0-9]+C\d+$');
+
+    for (var detalle in variantDetailsUniques) {
+      // print("variantDetailsOriginal: $variantDetailsUniques");
+      String? skuVariant = detalle['sku'];
+
+      if (skuVariant != null &&
+          skuVariant != "" &&
+          pattern.hasMatch(skuVariant)) {
+        if (detalle.containsKey('price')) {
+          double price = int.parse(detalle['quantity'].toString()) *
+              double.parse(detalle['price'].toString());
+          totalPriceWarehouse += price;
+        }
+      }
+    }
+
+    totalPriceWarehouse = double.parse(totalPriceWarehouse.toStringAsFixed(2));
+    setState(() {
+      priceWarehouseTotal = totalPriceWarehouse;
+    });
   }
 
   Future<double> calculateProfitCarrierExternal() async {
