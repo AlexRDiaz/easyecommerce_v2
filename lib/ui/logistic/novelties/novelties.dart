@@ -1293,7 +1293,9 @@ void _handleCheckboxChanged(bool? newValue, int index) async {
               var emojiSaludo = "\u{1F44B}"; // 👋
               var emojiCheck = "\u{2705}"; // ✅
               var emojiCruz = "\u{274C}"; // ❌
-              var shoppingBagsEmoji = "\u{1F6CD}";
+              var emojiCamion = "\u{1F69A}"; // 🛻
+              var emojiMoto = "\u{1F3CD}"; // 🏍️
+              // var shoppingBagsEmoji = "\u{1F6CD}";
               var personComputerEmoji = "\u{1F4BB}";
 
               var cliente = data[index]['nombre_shipping'].toString();
@@ -1315,22 +1317,22 @@ void _handleCheckboxChanged(bool? newValue, int index) async {
               var telefono = data[index]['telefono_shipping'].toString();
 
               var mensaje = """
-$emojiSaludo Un gusto Saludarle Estimad@ "$cliente"
-Lo Estamos saludando de la Tienda Virtual "$tienda" $shoppingBagsEmoji $personComputerEmoji
-Me confirma si recibió su pedido.
+$emojiSaludo Un gusto Saludarle
+Estimad@ "$cliente"
+Lo Estamos saludando de *SOPORTE DE NOVEDADES  DE ENTREGA* $personComputerEmoji $emojiCamion $emojiMoto
+Me confirma si  recibió su pedido con los siguientes datos.
 
-*Con los siguientes datos:* 
 *N° Guía:* $codigo
 *Producto:* $producto
 *Producto Extra:* $productoExtra
 
-Responda SI para registrar su recepción $emojiCheck.
-Responda NO para coordinar su entrega $emojiCruz.
+Responda *SI*, si recibió $emojiCheck.
+Responda *NO*, para coordinar su entrega $emojiCruz.
 
 Quedamos atentos a su respuesta Muchas gracias.
               
-*Saludos*
-*Tienda Virtual "$tienda"*
+Saludos.
+*MENSAJERÍA DE ENTREGAS* $personComputerEmoji $emojiCamion $emojiMoto
 """;
               var encodedMessage = Uri.encodeFull(mensaje);
               var whatsappUrl =

@@ -73,6 +73,12 @@ class CreateReportExternal {
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 12, rowIndex: 0))
           .value = 'Costo Proveedor';
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 13, rowIndex: 0))
+          .value = 'Costo Envio';
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 14, rowIndex: 0))
+          .value = 'Costo Devolucion';
       for (int rowIndex = 0; rowIndex < dataOrders.length; rowIndex++) {
         final data = dataOrders[rowIndex];
         nombreComercial = data['users'][0]['vendedores'][0]['nombre_comercial'];
@@ -161,6 +167,34 @@ class CreateReportExternal {
                   columnIndex: 12, rowIndex: rowIndex + 1))
               .value = "";
         }
+        // !
+        if (data['costo_transportadora'] != null) {
+        
+            var valuePw = data['costo_transportadora'].toString();
+            sheet
+                .cell(CellIndex.indexByColumnRow(
+                    columnIndex: 13, rowIndex: rowIndex + 1))
+                .value = valuePw;
+        } else {
+          sheet
+              .cell(CellIndex.indexByColumnRow(
+                  columnIndex: 13, rowIndex: rowIndex + 1))
+              .value = "";
+        }
+        // !
+          if (data["pedido_carrier"] != null) {
+            var valuePw =  data["pedido_carrier"][0]["cost_refound_external"].toString();
+            sheet
+                .cell(CellIndex.indexByColumnRow(
+                    columnIndex: 13, rowIndex: rowIndex + 1))
+                .value = valuePw;
+        } else {
+          sheet
+              .cell(CellIndex.indexByColumnRow(
+                  columnIndex: 13, rowIndex: rowIndex + 1))
+              .value = "";
+        }
+        // !
 
         // if (data['users'] != null) {
         //   if (data['status'] == "NOVEDAD") {
