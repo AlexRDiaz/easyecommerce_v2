@@ -103,6 +103,16 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                                 "Código",
                                 '${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data['numero_orden'].toString()}',
                                 context),
+                            Visibility(
+                              visible: data['pedido_carrier'].isNotEmpty,
+                              child: _buildRow(
+                                  "Guía Externa",
+                                  data['pedido_carrier'].isNotEmpty
+                                      ? data['pedido_carrier'][0]['external_id']
+                                          .toString()
+                                      : "",
+                                  context),
+                            ),
                           ],
                         ),
                         Divider(),

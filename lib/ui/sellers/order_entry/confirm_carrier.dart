@@ -1259,7 +1259,8 @@ class _ConfirmCarrierState extends State<ConfirmCarrier> {
                                         "$contenidoProd${_productoE.text.isNotEmpty ? " | ${_productoE.text}" : ""}",
                                     "observacion": _observacion.text,
                                     "fecha": formattedDateTime,
-                                    "declarado": double.parse(priceTotal),
+                                    "declarado":
+                                        double.parse(priceTotal).toString(),
                                     "con_recaudo": recaudo ? true : false
                                   };
                                   print(dataIntegration);

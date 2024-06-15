@@ -2765,7 +2765,7 @@ class _OrderInfoState extends State<OrderInfo> {
                             "observacion":
                                 _controllers.observacionEditController.text,
                             "fecha": formattedDateTime,
-                            "declarado": double.parse(priceTotal),
+                            "declarado": double.parse(priceTotal).toString(),
                             "con_recaudo": recaudo ? true : false
                           };
                           print(dataIntegration);

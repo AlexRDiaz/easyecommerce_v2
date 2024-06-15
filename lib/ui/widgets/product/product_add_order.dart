@@ -1536,7 +1536,8 @@ class _ProductAddOrderState extends State<ProductAddOrder> {
                                               "observacion": _observacion.text,
                                               "fecha": formattedDateTime,
                                               "declarado":
-                                                  double.parse(priceTotal),
+                                                  double.parse(priceTotal)
+                                                      .toString(),
                                               "con_recaudo":
                                                   recaudo ? true : false
                                             };
