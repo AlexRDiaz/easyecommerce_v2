@@ -408,8 +408,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       print("sub_provProv");
     }
 
-    var responseAll = await Connections()
-        .getAllOrdersByDateRangeLaravel(DefaultAnd, status, internal);
+    var responseAll = await Connections().getAllOrdersByDateRangeLaravel(
+        populate, DefaultAnd, status, internal, selectedDateFilter);
 
     allData = responseAll;
 
@@ -928,9 +928,12 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                 showInfo(context, index);
                               }),
                               DataCell(
-                                  Text(
-                                      data[index]['producto_extra'].toString()),
-                                  onTap: () {
+                                  Text(data[index]['producto_extra'] == null ||
+                                          data[index]['producto_extra'] ==
+                                              "null"
+                                      ? ""
+                                      : data[index]['producto_extra']
+                                          .toString()), onTap: () {
                                 showInfo(context, index);
                               }),
                               DataCell(
@@ -1616,7 +1619,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                               const Text(' - '),
                               Text(_controllers.endDateController.text),
                               const SizedBox(width: 10),
-                              const Text("Marca T.I.")
+                              Text(selectedDateFilter.toString())
                             ],
                           ),
                           const SizedBox(height: 10),

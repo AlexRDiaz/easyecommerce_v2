@@ -76,14 +76,13 @@ class _AuditState extends State<Audit> {
   ];
 
   List populate = [
-    'pedido_fecha',
+    'operadore.up_users',
+    'novedades',
+    'confirmedBy',
+    'statusLastModifiedBy',
     'transportadora',
-    'ruta',
-    'subRuta',
-    'operadore',
-    "operadore.user",
-    "users",
-    "users.vendedores"
+    'users.vendedores',
+    'pedidoCarrier'
   ];
 
   List defaultArrayFiltersAnd = [
@@ -1013,18 +1012,29 @@ class _AuditState extends State<Audit> {
           ), onTap: () {
         info(context, index);
       }),
+      // DataCell(
+      //     Text(
+      //       data[index]['transportadora'] != null &&
+      //               data[index]['transportadora'].toString() != "[]"
+      //           ? data[index]['transportadora'][0]['nombre'].toString()
+      //           : "",
+      //       style: TextStyle(
+      //         color: rowColor,
+      //       ),
+      //     ), onTap: () {
+      //   info(context, index);
+      // }),
       DataCell(
-          Text(
-            data[index]['transportadora'] != null &&
-                    data[index]['transportadora'].toString() != "[]"
-                ? data[index]['transportadora'][0]['nombre'].toString()
-                : "",
-            style: TextStyle(
-              color: rowColor,
-            ),
-          ), onTap: () {
-        info(context, index);
-      }),
+        Text(data[index]['transportadora'] != null &&
+                data[index]['transportadora'].isNotEmpty
+            ? data[index]['transportadora'][0]['nombre'].toString()
+            : data[index]['pedido_carrier'].isNotEmpty
+                ? data[index]['pedido_carrier'][0]['carrier']['name'].toString()
+                : ""),
+        onTap: () {
+          info(context, index);
+        },
+      ),
       DataCell(
           Text(
             data[index]['ruta'] != null &&
@@ -1064,7 +1074,9 @@ class _AuditState extends State<Audit> {
       }),
       DataCell(
           Text(
-            data[index]['observacion'].toString(),
+            data[index]['observacion'] == null
+                ? ""
+                : data[index]['observacion'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
@@ -1073,7 +1085,9 @@ class _AuditState extends State<Audit> {
       }),
       DataCell(
           Text(
-            '${data[index]['comentario'].toString()}',
+            data[index]['comentario'] == null
+                ? ""
+                : data[index]['comentario'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
@@ -1273,6 +1287,7 @@ class _AuditState extends State<Audit> {
                     try {
                       var response =
                           await Connections().getByDateRangeOrdersforAudit(
+                        populate,
                         defaultArrayFiltersAnd,
                         arrayFiltersAnd,
                         arrayFiltersOr,
@@ -1502,6 +1517,7 @@ class _AuditState extends State<Audit> {
                       try {
                         var response =
                             await Connections().getByDateRangeOrdersforAudit(
+                          populate,
                           defaultArrayFiltersAnd,
                           arrayFiltersAnd,
                           arrayFiltersOr,
