@@ -58,13 +58,13 @@ class _ResolvedNoveltiesState extends State<ResolvedNovelties> {
   ];
 
   List populate = [
-    'operadore.up_users',
-    'novedades',
-    'confirmedBy',
-    'statusLastModifiedBy',
+    'pedido_fecha',
     'transportadora',
-    'users.vendedores',
-    'pedidoCarrier'
+    'ruta',
+    'operadore',
+    "operadore.user",
+    "users",
+    "users.vendedores"
   ];
   // List defaultArrayFiltersAnd = [
   //   {"equals/estado_devolucion": "PENDIENTE"}

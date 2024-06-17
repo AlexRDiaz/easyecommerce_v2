@@ -192,7 +192,7 @@ class CreateReportStatusOrdersOperator {
           "EstadoEntregaTransporte-EasyEcommerce-${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
       excel.save(fileName: '$nombreFile.xlsx');
     } catch (e) {
-      print("Error en Generar el reporte!: $e");
+      print("Error en Generar el reporte!");
     }
   }
 

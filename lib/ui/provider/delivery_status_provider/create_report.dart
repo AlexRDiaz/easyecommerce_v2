@@ -12,14 +12,10 @@ class CreateReportProvider {
     try {
       final excel = Excel.createExcel();
       final sheet = excel.sheets[excel.getDefaultSheet() as String];
-      sheet!.setColWidth(1, 15);
-      sheet.setColAutoFit(0);
-      sheet.setColAutoFit(2);
+      sheet!.setColWidth(2, 50);
       sheet.setColAutoFit(3);
-      sheet.setColAutoFit(5);
-      sheet.setColWidth(6, 50);
-
-      var nameComercial = sharedPrefs!.getString("NameProvider").toString();
+      var nameComercial =
+          sharedPrefs!.getString("NameComercialSeller").toString();
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0))
           .value = 'Fecha Envio';
@@ -89,7 +85,7 @@ class CreateReportProvider {
                 .cell(CellIndex.indexByColumnRow(
                     columnIndex: 2, rowIndex: rowIndex + 1))
                 .value =
-            "${data['users'] != null && data['users'].isNotEmpty ? data['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data['numero_orden'].toString()}";
+            "${sharedPrefs!.getString("NameComercialSeller").toString()}-${data["numero_orden"]}";
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 3, rowIndex: rowIndex + 1))
@@ -145,7 +141,8 @@ class CreateReportProvider {
 
         if (data['value_product_warehouse'] != null) {
           if (data['status'] == "ENTREGADO") {
-            var valuePw = data['value_product_warehouse'].toString();
+            var valuePw =
+                data['value_product_warehouse'].toString();
             sheet
                 .cell(CellIndex.indexByColumnRow(
                     columnIndex: 12, rowIndex: rowIndex + 1))

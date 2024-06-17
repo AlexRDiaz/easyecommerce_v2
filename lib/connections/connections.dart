@@ -1413,17 +1413,8 @@ class Connections {
   }
 
   // ! ****************** pdf's
-  getByDateRangeOrdersforAudit(
-      List populate,
-      List defaultAnd,
-      List and,
-      List or,
-      List not,
-      currentPage,
-      search,
-      sortField,
-      String dateStart,
-      String dateEnd) async {
+  getByDateRangeOrdersforAudit(List defaultAnd, List and, List or, List not,
+      currentPage, search, sortField, String dateStart, String dateEnd) async {
     int res = 0;
     print("Create-Report ||→ → → →");
 
@@ -1436,7 +1427,6 @@ class Connections {
           await http.post(Uri.parse("$serverLaravel/api/logistic/orders-pdf"),
               headers: {'Content-Type': 'application/json'},
               body: json.encode({
-                "populate": populate,
                 "start": dateStart,
                 "end": dateEnd,
                 "or": or,
@@ -1488,7 +1478,6 @@ class Connections {
           Uri.parse("$serverLaravel/api/logistic/filter/novelties"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
-            "populate": populate,
             "start": dateStart,
             "end": dateEnd,
             // "start": sharedPrefs!.getString("dateDesdeLogistica"),
@@ -3482,19 +3471,19 @@ class Connections {
     // print("todo and: \n $filtersAndAll");
 
     String urlnew = "$serverLaravel/api/pedidos-shopify/filter";
-    // print(json.encode({
-    //   "populate": populate,
-    //   "date_filter": dateFilter,
-    //   "start": sharedPrefs!.getString("dateDesdeVendedor"),
-    //   "end": sharedPrefs!.getString("dateHastaVendedor"),
-    //   "page_size": sizePage,
-    //   "page_number": currentPage,
-    //   "or": arrayFiltersOrCont,
-    //   "not": not,
-    //   "sort": sortField,
-    //   "and": filtersAndAll,
-    //   "search": search
-    // }));
+    print(json.encode({
+      "populate": populate,
+      "date_filter": dateFilter,
+      "start": sharedPrefs!.getString("dateDesdeVendedor"),
+      "end": sharedPrefs!.getString("dateHastaVendedor"),
+      "page_size": sizePage,
+      "page_number": currentPage,
+      "or": arrayFiltersOrCont,
+      "not": not,
+      "sort": sortField,
+      "and": filtersAndAll,
+      "search": search
+    }));
     try {
       var requestlaravel = await http.post(Uri.parse(urlnew),
           headers: {'Content-Type': 'application/json'},
@@ -5730,32 +5719,28 @@ class Connections {
   }
 
   //  *
-  getAllOrdersByDateRangeLaravel(
-      populate, andDefault, status, internal, dateFilter) async {
+  getAllOrdersByDateRangeLaravel(andDefault, status, internal) async {
     int res = 0;
-    // print("getAllOrdersByDateRangeLaravel");
 
+    print(sharedPrefs!.getString("dateDesdeVendedor"));
+    print(sharedPrefs!.getString("dateHastaVendedor"));
     String urlnew = "$serverLaravel/api/pedidos-shopify/filterall";
-    // print(json.encode({
-    //   "populate": populate,
-    //   "start": sharedPrefs!.getString("dateDesdeVendedor"),
-    //   "end": sharedPrefs!.getString("dateHastaVendedor"),
-    //   "and": andDefault,
-    //   "status": status,
-    //   "internal": internal,
-    //   "date_filter": dateFilter,
-    // }));
+    print(json.encode({
+      "start": sharedPrefs!.getString("dateDesdeVendedor"),
+      "end": sharedPrefs!.getString("dateHastaVendedor"),
+      "and": andDefault,
+      "status": status,
+      "internal": internal,
+    }));
     try {
       var requestlaravel = await http.post(Uri.parse(urlnew),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
-            "populate": populate,
             "start": sharedPrefs!.getString("dateDesdeVendedor"),
             "end": sharedPrefs!.getString("dateHastaVendedor"),
             "and": andDefault,
             "status": status,
             "internal": internal,
-            "date_filter": dateFilter,
           }));
 
       var responselaravel = await requestlaravel.body;

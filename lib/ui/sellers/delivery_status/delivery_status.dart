@@ -370,8 +370,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
       // {'estado_interno': "CONFIRMADO"},
       // {'estado_logistico': "ENVIADO"}
     ];
-    var responseAll = await Connections().getAllOrdersByDateRangeLaravel(
-        populate, DefaultAnd, status, internal, selectedDateFilter);
+    var responseAll = await Connections()
+        .getAllOrdersByDateRangeLaravel(DefaultAnd, status, internal);
 
     allData = responseAll;
 
@@ -1037,10 +1037,9 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                                 showInfo(context, index);
                               }),
                               DataCell(
-                                  Text(data[index]['producto_extra'] == null
-                                      ? ""
-                                      : data[index]['producto_extra']
-                                          .toString()), onTap: () {
+                                  Text(
+                                      data[index]['producto_extra'].toString()),
+                                  onTap: () {
                                 showInfo(context, index);
                               }),
                               DataCell(
@@ -1093,10 +1092,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                               }),
                               DataCell(
                                   Text(data[index]['pedido_carrier'].isNotEmpty
-                                      ? data[index]['costo_envio'] == null
-                                          ? ""
-                                          : data[index]['costo_envio']
-                                              .toString()
+                                      ? data[index]['costo_envio'].toString()
                                       : data[index]['pedido_carrier'].isEmpty &&
                                               data[index]['users'] != null
                                           ? data[index]['status'].toString() ==
@@ -1115,11 +1111,8 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                               DataCell(
                                   Text(
                                     data[index]['pedido_carrier'].isNotEmpty
-                                        ? data[index]['costo_devolucion'] ==
-                                                null
-                                            ? ""
-                                            : data[index]['costo_devolucion']
-                                                .toString()
+                                        ? data[index]['costo_devolucion']
+                                            .toString()
                                         : data[index]['pedido_carrier'].isEmpty &&
                                                 data[index]['users'] != null
                                             ? data[index]['status']
@@ -1804,7 +1797,7 @@ class _DeliveryStatusState extends State<DeliveryStatus> {
                               const Text(' - '),
                               Text(_controllers.endDateController.text),
                               const SizedBox(width: 10),
-                              Text(selectedDateFilter.toString())
+                              const Text("Marca T.I.")
                             ],
                           ),
                           const SizedBox(height: 10),

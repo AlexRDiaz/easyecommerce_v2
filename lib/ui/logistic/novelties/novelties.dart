@@ -93,13 +93,14 @@ class _NoveltiesLState extends State<NoveltiesL> {
   ];
 
   List populate = [
-    'operadore.up_users',
-    'novedades',
-    'confirmedBy',
-    'statusLastModifiedBy',
+    'pedido_fecha',
     'transportadora',
-    'users.vendedores',
-    'pedidoCarrier'
+    'ruta',
+    'operadore',
+    "operadore.user",
+    "users",
+    "users.vendedores",
+    "statusLastModifiedBy"
   ];
   List defaultArrayFiltersAnd = [
     // {"equals/estado_devolucion": "PENDIENTE"},
@@ -820,31 +821,30 @@ class _NoveltiesLState extends State<NoveltiesL> {
     );
   }
 
-  void _handleCheckboxChanged(bool? newValue, int index) async {
-    var dataAtIndex = data[index];
-    if (dataAtIndex != null) {
-      var gestionedNovelty = dataAtIndex['gestioned_novelty'];
-      Map<String, dynamic> updatedGestionedNovelty;
+void _handleCheckboxChanged(bool? newValue, int index) async {
+  var dataAtIndex = data[index];
+  if (dataAtIndex != null) {
+    var gestionedNovelty = dataAtIndex['gestioned_novelty'];
+    Map<String, dynamic> updatedGestionedNovelty;
 
-      if (gestionedNovelty != null) {
-        if (gestionedNovelty is String) {
-          gestionedNovelty = json.decode(gestionedNovelty);
-        }
-        updatedGestionedNovelty = gestionedNovelty as Map<String, dynamic>;
-      } else {
-        updatedGestionedNovelty = {};
+    if (gestionedNovelty != null) {
+      if (gestionedNovelty is String) {
+        gestionedNovelty = json.decode(gestionedNovelty);
       }
-
-      updatedGestionedNovelty['verified'] = newValue ?? false;
-      dataAtIndex['gestioned_novelty'] = updatedGestionedNovelty;
-
-      await Connections().updateOrCreateGestionedNovelty(
-          dataAtIndex['id'].toString(), "verified:${newValue.toString()}");
-
-      loadData();
+      updatedGestionedNovelty = gestionedNovelty as Map<String, dynamic>;
+    } else {
+      updatedGestionedNovelty = {};
     }
-  }
 
+    updatedGestionedNovelty['verified'] = newValue ?? false;
+    dataAtIndex['gestioned_novelty'] = updatedGestionedNovelty;
+
+    await Connections().updateOrCreateGestionedNovelty(
+        dataAtIndex['id'].toString(), "verified:${newValue.toString()}");
+
+    loadData();
+  }
+}
   Checkbox checkboxPersonalizado(int index) {
     bool valorActual = false;
     String resp = getStateFromJson(
@@ -1420,9 +1420,7 @@ Saludos.
       }),
       DataCell(
           Text(
-            data[index]['producto_extra'] == null
-                ? ""
-                : data[index]['producto_extra'].toString(),
+            data[index]['producto_extra'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
@@ -1440,9 +1438,7 @@ Saludos.
       }),
       DataCell(
           Text(
-            data[index]['observacion'] == null
-                ? ""
-                : data[index]['observacion'].toString(),
+            data[index]['observacion'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
@@ -1451,9 +1447,7 @@ Saludos.
       }),
       DataCell(
           Text(
-            data[index]['comentario'] == null
-                ? ""
-                : data[index]['comentario'].toString(),
+            '${data[index]['comentario'].toString()}',
             style: TextStyle(
               color: rowColor,
             ),
@@ -1517,29 +1511,18 @@ Saludos.
           ), onTap: () {
         info(context, index);
       }),
-      // DataCell(
-      //     Text(
-      //       data[index]['transportadora'] != null &&
-      //               data[index]['transportadora'].toString() != "[]"
-      //           ? data[index]['transportadora'][0]['nombre'].toString()
-      //           : "",
-      //       style: TextStyle(
-      //         color: rowColor,
-      //       ),
-      //     ), onTap: () {
-      //   info(context, index);
-      // }),
       DataCell(
-        Text(data[index]['transportadora'] != null &&
-                data[index]['transportadora'].isNotEmpty
-            ? data[index]['transportadora'][0]['nombre'].toString()
-            : data[index]['pedido_carrier'].isNotEmpty
-                ? data[index]['pedido_carrier'][0]['carrier']['name'].toString()
-                : ""),
-        onTap: () {
-          info(context, index);
-        },
-      ),
+          Text(
+            data[index]['transportadora'] != null &&
+                    data[index]['transportadora'].toString() != "[]"
+                ? data[index]['transportadora'][0]['nombre'].toString()
+                : "",
+            style: TextStyle(
+              color: rowColor,
+            ),
+          ), onTap: () {
+        info(context, index);
+      }),
       DataCell(
           Text(
             data[index]['operadore'] != null &&
@@ -1564,10 +1547,7 @@ Saludos.
       }),
       DataCell(
           Text(
-            data[index]['marca_tiempo_envio']
-                .toString()
-                .split(' ')[0]
-                .toString(),
+            data[index]['marca_tiempo_envio'].toString().split(' ')[0].toString(),
             style: TextStyle(
               color: rowColor,
             ),

@@ -103,28 +103,6 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                                 "Código",
                                 '${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data['numero_orden'].toString()}',
                                 context),
-                            Visibility(
-                              visible: data['pedido_carrier'].isNotEmpty,
-                              child: _buildRow(
-                                  "Guía Externa",
-                                  data['pedido_carrier'].isNotEmpty
-                                      ? data['pedido_carrier'][0]['external_id']
-                                          .toString()
-                                      : "",
-                                  context),
-                            ),
-                            _buildRow(
-                                "Transportadora",
-                                data['transportadora'] != null &&
-                                        data['transportadora'].isNotEmpty
-                                    ? data['transportadora'][0]['nombre']
-                                        .toString()
-                                    : data['pedido_carrier'].isNotEmpty
-                                        ? data['pedido_carrier'][0]['carrier']
-                                                ['name']
-                                            .toString()
-                                        : 'No disponible',
-                                context),
                           ],
                         ),
                         Divider(),
@@ -177,36 +155,22 @@ class _DeliveryStatusSellerInfo2State extends State<DeliveryStatusSellerInfo2> {
                                 data['estado_devolucion'].toString(), context),
                             _buildRow(
                                 "Costo Entrega",
-                                data['pedido_carrier'].isNotEmpty
-                                    ? data['costo_envio'] == null
-                                        ? ""
-                                        : data['costo_envio'].toString()
-                                    : data['pedido_carrier'].isEmpty &&
-                                            data['users'] != null
-                                        ? data['status'].toString() ==
-                                                    "ENTREGADO" ||
-                                                data['status'].toString() ==
-                                                    "NO ENTREGADO"
-                                            ? data['users'][0]['vendedores'][0]
-                                                    ['costo_envio']
-                                                .toString()
-                                            : ""
-                                        : "",
+                                data['users'] != null
+                                    ? data['users'][0]['vendedores'][0]
+                                            ['costo_envio']
+                                        .toString()
+                                    : "",
                                 context),
                             _buildRow(
                                 "Costo Devolución",
-                                data['pedido_carrier'].isNotEmpty
-                                    ? data['costo_devolucion'] == null
-                                        ? ""
-                                        : data['costo_devolucion'].toString()
-                                    : data['estado_devolucion'].toString() !=
-                                            "PENDIENTE"
-                                        ? data['users'] != null
-                                            ? data['users'][0]['vendedores'][0]
-                                                    ['costo_devolucion']
-                                                .toString()
-                                            : ""
-                                        : "",
+                                data['estado_devolucion'].toString() !=
+                                        "PENDIENTE"
+                                    ? data['users'] != null
+                                        ? data['users'][0]['vendedores'][0]
+                                                ['costo_devolucion']
+                                            .toString()
+                                        : ""
+                                    : "",
                                 context),
                             _buildRow("Fecha Ingreso",
                                 data['marca_t_i'].toString(), context),

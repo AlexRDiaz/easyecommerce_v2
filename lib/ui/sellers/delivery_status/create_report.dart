@@ -12,17 +12,8 @@ class CreateReport {
     try {
       final excel = Excel.createExcel();
       final sheet = excel.sheets[excel.getDefaultSheet() as String];
-      sheet!.setColWidth(2, 15);
-      sheet.setColAutoFit(0);
-      sheet.setColAutoFit(2);
+      sheet!.setColWidth(2, 50);
       sheet.setColAutoFit(3);
-      sheet.setColAutoFit(7);
-      sheet!.setColWidth(8, 50);
-      sheet!.setColWidth(9, 50);
-      sheet!.setColWidth(11, 30);
-
-      // sheet!.setColWidth(2, 50);
-      // sheet.setColAutoFit(3);
       var nameComercial =
           sharedPrefs!.getString("NameComercialSeller").toString();
       sheet
@@ -148,19 +139,6 @@ class CreateReport {
                 columnIndex: 15, rowIndex: rowIndex + 1))
             .value = data["estado_devolucion"];
 
-        sheet.cell(CellIndex.indexByColumnRow(columnIndex: 16, rowIndex: rowIndex + 1)).value =
-            data['pedido_carrier'].isNotEmpty
-                ? data['costo_envio'] == null
-                    ? ""
-                    : data['costo_envio'].toString()
-                : data['pedido_carrier'].isEmpty && data['users'] != null
-                    ? data['status'].toString() == "ENTREGADO" ||
-                            data['status'].toString() == "NO ENTREGADO"
-                        ? data['users'][0]['vendedores'][0]['costo_envio']
-                            .toString()
-                        : ""
-                    : "";
-        /*
         if (data['users'] != null) {
           if (data['status'] == "ENTREGADO" ||
               data['status'] == "NO ENTREGADO") {
@@ -182,19 +160,7 @@ class CreateReport {
                   columnIndex: 16, rowIndex: rowIndex + 1))
               .value = "";
         }
-        */
-        sheet.cell(CellIndex.indexByColumnRow(columnIndex: 17, rowIndex: rowIndex + 1)).value =
-            data['pedido_carrier'].isNotEmpty
-                ? data['costo_devolucion'] == null
-                    ? ""
-                    : data['costo_devolucion'].toString()
-                : data['estado_devolucion'].toString() != "PENDIENTE"
-                    ? data['users'] != null
-                        ? data['users'][0]['vendedores'][0]['costo_devolucion']
-                            .toString()
-                        : ""
-                    : "";
-        /*
+
         if (data['users'] != null) {
           if (data['status'] == "NOVEDAD") {
             if (data['estado_devolucion'] == "ENTREGADO EN OFICINA" ||
@@ -221,7 +187,7 @@ class CreateReport {
                   columnIndex: 17, rowIndex: rowIndex + 1))
               .value = "";
         }
-        */
+
         //
       }
 
