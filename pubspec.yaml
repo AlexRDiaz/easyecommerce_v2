@@ -88,6 +88,10 @@ dependencies:
   csv: ^5.1.1
   file_saver: ^0.2.11
   flutter_typeahead: ^5.0.1
+  flutter_map: ^6.0.1
+  latlong2: ^0.9.1
+  flutter_map_cancellable_tile_provider: ^2.0.0
+  geolocator: ^11.1.0
 
 dev_dependencies:
   flutter_test:

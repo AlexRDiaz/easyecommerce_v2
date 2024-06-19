@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/providers/operator/navigation_provider.dart';
 import 'package:frontend/ui/operator/my_operator_account/my_operator_account.dart';
+import 'package:frontend/ui/operator/orders_map/orders_map_view.dart';
 import 'package:frontend/ui/operator/orders_operator/orders_operator.dart';
 import 'package:frontend/ui/operator/received_values.dart/received_values.dart';
 import 'package:frontend/ui/operator/resolved_novelties/resolved_novelties.dart';
@@ -42,6 +43,7 @@ class _LayoutOperatorPageState extends State<LayoutOperatorPage> {
     ReceivedValues(),
     ReturnsOperator(),
     ResolvedNovelties(idRolInvokeClass: 4),
+    OrdersMapView(),
     UpdatePasswordOperator(),
     Container(),
   ];

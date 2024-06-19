@@ -7750,6 +7750,24 @@ class Connections {
     }
   }
 
+  // *
+  getOrderById(id, populate) async {
+    try {
+      var response = await http.post(Uri.parse("$serverLaravel/api/pedidobyid"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({"id": id, "populate": populate}));
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      print(error);
+      return 2;
+    }
+  }
+
   //TEST
 
   Future getOrdersTest1() async {

@@ -117,6 +117,7 @@ List optionsOperator = [
   {"name": "Valores Recibidos", "icon": Icons.monetization_on_outlined},
   {"name": "Devoluciones", "icon": Icons.list_alt_outlined},
   {"name": "Novedades Resueltas", "icon": Icons.done_all},
+  {"name": "Mapa de Pedidos", "icon": Icons.map_rounded},
   {"name": "Actualizar Contraseña", "icon": Icons.security_outlined},
   {"name": "Cerrar Sesión", "icon": Icons.logout_outlined},
 ];
