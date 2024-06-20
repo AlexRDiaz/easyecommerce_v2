@@ -1049,8 +1049,8 @@ class _PrintedGuidesStateSeller extends State<PrintedGuidesSeller> {
             optionsCheckBox[i]['qrLink'] =
                 data[i]['users'][0]['vendedores'][0]['url_tienda'].toString();
             optionsCheckBox[i]["idExteralOrder"] =
-                data[i]['id_externo'] != null && data[i]['id_externo'] != 0
-                    ? data[i]['id_externo'].toString()
+                data[i]['pedido_carrier'].isNotEmpty
+                    ? data[i]['pedido_carrier'][0]['external_id'].toString()
                     : "";
             counterChecks += 1;
           }

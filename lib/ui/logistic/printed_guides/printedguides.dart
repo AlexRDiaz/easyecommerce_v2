@@ -1211,7 +1211,10 @@ class _PrintedGuidesState extends State<PrintedGuides> {
             // data[i]['ciudad_shipping'].toString();
             optionsCheckBox[i]['product'] = data[i]['producto_p'].toString();
             optionsCheckBox[i]['extraProduct'] =
-                data[i]['producto_extra'].toString();
+                data[i]['producto_extra'] == null ||
+                        data[i]['producto_extra'] == "null"
+                    ? ""
+                    : data[i]['producto_extra'].toString();
             optionsCheckBox[i]['quantity'] =
                 data[i]['cantidad_total'].toString();
             optionsCheckBox[i]['phone'] =
@@ -1236,8 +1239,8 @@ class _PrintedGuidesState extends State<PrintedGuides> {
                     ? getFirstProviderName(data[i]['product_s']['warehouses'])
                     : "";
             optionsCheckBox[i]["idExteralOrder"] =
-                data[i]['id_externo'] != null && data[i]['id_externo'] != 0
-                    ? data[i]['id_externo'].toString()
+                data[i]['pedido_carrier'].isNotEmpty
+                    ? data[i]['pedido_carrier'][0]['external_id'].toString()
                     : "";
             optionsCheckBox[i]['variant_details'] =
                 data[i]['variant_details'].toString();
