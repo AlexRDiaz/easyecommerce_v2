@@ -84,8 +84,10 @@ class _NoveltiesInfoOnlyNovelties extends State<NoveltiesInfoOnlyNovelties> {
   Widget build(BuildContext context) {
     String transportadoraNombre =
         data['transportadora'] != null && data['transportadora'].isNotEmpty
-            ? data['transportadora'][0]['nombre']
-            : 'No disponible';
+            ? data['transportadora'][0]['nombre'].toString()
+            : data['pedido_carrier'].isNotEmpty
+                ? data['pedido_carrier'][0]['carrier']['name'].toString()
+                : 'No disponible';
     String operadorUsername = data['operadore'] != null &&
             data['operadore'].isNotEmpty &&
             data['operadore'][0]['up_users'] != null &&
@@ -122,6 +124,26 @@ class _NoveltiesInfoOnlyNovelties extends State<NoveltiesInfoOnlyNovelties> {
                         ),
                         Text(
                           "  Código: ${data['users'][0]['vendedores'][0]['nombre_comercial']}-${safeValue(data['numero_orden'].toString())}",
+                          style: TextStyle(
+                              fontWeight: FontWeight.normal, fontSize: 18),
+                        ),
+                        Visibility(
+                          visible: data['pedido_carrier'].isNotEmpty,
+                          child: const SizedBox(height: 10),
+                        ),
+                        Visibility(
+                          visible: data['pedido_carrier'].isNotEmpty,
+                          child: Text(
+                            "  Guía Externa: ${data['pedido_carrier'].isNotEmpty ? data['pedido_carrier'][0]['external_id'].toString() : ""}",
+                            style: const TextStyle(
+                                fontWeight: FontWeight.normal, fontSize: 18),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          "  Transportadora: ${safeValue(transportadoraNombre)}",
                           style: TextStyle(
                               fontWeight: FontWeight.normal, fontSize: 18),
                         ),
@@ -252,7 +274,7 @@ class _NoveltiesInfoOnlyNovelties extends State<NoveltiesInfoOnlyNovelties> {
                           height: 20,
                         ),
                         Text(
-                          "  Producto Extra: ${safeValue(data['producto_extra'])}",
+                          "  Producto Extra: ${safeValue(data['producto_extra'] == null ? "" : data['producto_extra'].toString())}",
                           style: TextStyle(
                               fontWeight: FontWeight.normal, fontSize: 18),
                         ),
@@ -268,7 +290,7 @@ class _NoveltiesInfoOnlyNovelties extends State<NoveltiesInfoOnlyNovelties> {
                           height: 20,
                         ),
                         Text(
-                          "  Observación: ${safeValue(data['observacion'].toString())}",
+                          "  Observación: ${safeValue(data['observacion'] == null ? "" : data['observacion'].toString())}",
                           style: TextStyle(
                               fontWeight: FontWeight.normal, fontSize: 18),
                         ),
@@ -276,7 +298,7 @@ class _NoveltiesInfoOnlyNovelties extends State<NoveltiesInfoOnlyNovelties> {
                           height: 20,
                         ),
                         Text(
-                          "  Comentario: ${safeValue(data['comentario'].toString())}",
+                          "  Comentario: ${safeValue(data['comentario'] == null ? "" : data['comentario'].toString())}",
                           style: TextStyle(
                               fontWeight: FontWeight.normal, fontSize: 18),
                         ),
@@ -325,14 +347,6 @@ class _NoveltiesInfoOnlyNovelties extends State<NoveltiesInfoOnlyNovelties> {
                         ),
                         Text(
                           "  Vendedor: ${safeValue(data['tienda_temporal'].toString())}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal, fontSize: 18),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "  Transportadora: ${safeValue(transportadoraNombre)}",
                           style: TextStyle(
                               fontWeight: FontWeight.normal, fontSize: 18),
                         ),

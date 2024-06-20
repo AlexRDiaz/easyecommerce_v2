@@ -83,7 +83,8 @@ class _AuditState extends State<Audit> {
     'operadore',
     "operadore.user",
     "users",
-    "users.vendedores"
+    "users.vendedores",
+    'pedidoCarrier'
   ];
 
   List defaultArrayFiltersAnd = [
@@ -192,7 +193,7 @@ class _AuditState extends State<Audit> {
         search = false;
       });
       var response = await Connections().getOrdersForNoveltiesByDatesLaravel(
-          populate,
+          populate, //no se aplica
           defaultArrayFiltersAnd,
           arrayFiltersAnd,
           arrayFiltersOr,
@@ -1015,10 +1016,17 @@ class _AuditState extends State<Audit> {
       }),
       DataCell(
           Text(
+            // data[index]['transportadora'] != null &&
+            //         data[index]['transportadora'].toString() != "[]"
+            //     ? data[index]['transportadora'][0]['nombre'].toString()
+            //     : "",
             data[index]['transportadora'] != null &&
-                    data[index]['transportadora'].toString() != "[]"
+                    data[index]['transportadora'].isNotEmpty
                 ? data[index]['transportadora'][0]['nombre'].toString()
-                : "",
+                : data[index]['pedido_carrier'].isNotEmpty
+                    ? data[index]['pedido_carrier'][0]['carrier']['name']
+                        .toString()
+                    : "",
             style: TextStyle(
               color: rowColor,
             ),
@@ -1064,7 +1072,9 @@ class _AuditState extends State<Audit> {
       }),
       DataCell(
           Text(
-            data[index]['observacion'].toString(),
+            data[index]['observacion'] == null
+                ? ""
+                : data[index]['observacion'].toString(),
             style: TextStyle(
               color: rowColor,
             ),
@@ -1073,7 +1083,9 @@ class _AuditState extends State<Audit> {
       }),
       DataCell(
           Text(
-            '${data[index]['comentario'].toString()}',
+            data[index]['comentario'] == null
+                ? ""
+                : data[index]['comentario'].toString(),
             style: TextStyle(
               color: rowColor,
             ),

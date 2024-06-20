@@ -8,8 +8,7 @@ class CreateReportNovelties {
 //
 //   *
 //
-  var tittleStyle = CellStyle(
-      bold: true, backgroundColorHex: "#D3D3D3");
+  var tittleStyle = CellStyle(bold: true, backgroundColorHex: "#D3D3D3");
   var headerStyle = CellStyle(
       bold: true, backgroundColorHex: "#D3D3D3", fontColorHex: "#1976D2");
   Future<void> generateExcelFileWithData(dataOrders) async {
@@ -124,12 +123,14 @@ class CreateReportNovelties {
                 columnIndex: 13, rowIndex: excelRowIndex))
             .value = data['users'][0]['vendedores'][0]['nombre_comercial'];
         sheet
-            .cell(CellIndex.indexByColumnRow(
-                columnIndex: 14, rowIndex: excelRowIndex))
-            .value = data['transportadora'] != null &&
-                data['transportadora'].toString() != "[]"
-            ? data['transportadora'][0]['nombre'].toString()
-            : "";
+                .cell(CellIndex.indexByColumnRow(
+                    columnIndex: 14, rowIndex: excelRowIndex))
+                .value =
+            data['transportadora'] != null && data['transportadora'].isNotEmpty
+                ? data['transportadora'][0]['nombre'].toString()
+                : data['pedido_carrier'].isNotEmpty
+                    ? data['pedido_carrier'][0]['carrier']['name'].toString()
+                    : "";
 
         sheet
                 .cell(CellIndex.indexByColumnRow(
