@@ -328,7 +328,7 @@ class _CatalogState extends State<Catalog> {
             children: [
               Container(
                 width: screenWidth * 0.95,
-                height: screenHeight * 0.48,
+                height: screenHeight * 0.50,
                 color: Colors.white,
                 // padding: const EdgeInsets.all(10.0),
                 child: CustomProgressModal(
@@ -678,7 +678,7 @@ class _CatalogState extends State<Catalog> {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 15),
           Row(
             children: [
               Expanded(
@@ -751,26 +751,14 @@ class _CatalogState extends State<Catalog> {
           // _priceRange(),
           Row(
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [_buttonFavorites()],
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [_buttonOnSale()],
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [_buttonOwnProducts()],
-                ),
-              )
+              _buttonFavorites(),
+              const SizedBox(width: 10),
+              _buttonOnSale(),
+              const SizedBox(width: 10),
+              _buttonOwnProducts()
             ],
           ),
+          const SizedBox(height: 10),
         ],
       ),
     );
@@ -1126,183 +1114,213 @@ class _CatalogState extends State<Catalog> {
 
   ElevatedButton _buttonFavorites() {
     return ElevatedButton(
-      onPressed: () {
-        setState(() {
-          isSelectedFavorites = !isSelectedFavorites;
+        onPressed: () {
+          setState(() {
+            isSelectedFavorites = !isSelectedFavorites;
 
-          if (isSelectedFavorites) {
-            selectedKeyList.add("favorite");
-          } else {
-            selectedKeyList.remove("favorite");
-          }
+            if (isSelectedFavorites) {
+              selectedKeyList.add("favorite");
+            } else {
+              selectedKeyList.remove("favorite");
+            }
 
-          filterps.add({
-            "id_master": int.parse(
-                sharedPrefs!.getString("idComercialMasterSeller").toString())
+            filterps.add({
+              "id_master": int.parse(
+                  sharedPrefs!.getString("idComercialMasterSeller").toString())
+            });
+
+            filterps.add({"key": selectedKeyList});
+            _getProductModelCatalog();
           });
-
-          filterps.add({"key": selectedKeyList});
-          _getProductModelCatalog();
-        });
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isSelectedFavorites ? Colors.indigo[50] : Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(50),
-          side: const BorderSide(
-            width: 1,
-            color: Colors.indigo,
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor:
+              isSelectedFavorites ? Colors.indigo[50] : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(50),
+            side: const BorderSide(
+              width: 1,
+              color: Colors.indigo,
+            ),
           ),
         ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isSelectedFavorites ? Colors.indigo[50] : Colors.white,
+        child: responsive(
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color:
+                        isSelectedFavorites ? Colors.indigo[50] : Colors.white,
+                  ),
+                  child: Icon(
+                    isSelectedFavorites
+                        ? Icons.favorite
+                        : Icons.favorite_border,
+                    color: Colors.indigo[900],
+                  ),
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  'Favoritos',
+                  style: GoogleFonts.robotoCondensed(
+                    fontSize: 16,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
             ),
-            child: Icon(
-              isSelectedFavorites ? Icons.favorite : Icons.favorite_border,
-              color: Colors.indigo[900],
+            Text(
+              'Favoritos',
+              style: GoogleFonts.robotoCondensed(
+                fontSize: 16,
+                color: Colors.black,
+              ),
             ),
-          ),
-          const SizedBox(width: 5),
-          Text(
-            'Favoritos',
-            style: GoogleFonts.robotoCondensed(
-              fontSize: 16,
-              color: Colors.black,
-            ),
-          ),
-        ],
-      ),
-    );
+            context));
   }
 
   ElevatedButton _buttonOnSale() {
     return ElevatedButton(
-      onPressed: () {
-        setState(() {
-          isSelectedOnSale = !isSelectedOnSale;
-          if (isSelectedOnSale) {
-            selectedKeyList.add("onsale");
-          } else {
-            selectedKeyList.remove("onsale");
-          }
+        onPressed: () {
+          setState(() {
+            isSelectedOnSale = !isSelectedOnSale;
+            if (isSelectedOnSale) {
+              selectedKeyList.add("onsale");
+            } else {
+              selectedKeyList.remove("onsale");
+            }
 
-          filterps.add({
-            "id_master": int.parse(
-                sharedPrefs!.getString("idComercialMasterSeller").toString())
+            filterps.add({
+              "id_master": int.parse(
+                  sharedPrefs!.getString("idComercialMasterSeller").toString())
+            });
+
+            filterps.add({"key": selectedKeyList});
+            _getProductModelCatalog();
           });
-
-          filterps.add({"key": selectedKeyList});
-          _getProductModelCatalog();
-        });
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isSelectedOnSale ? Colors.indigo[50] : Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(50),
-          side: const BorderSide(
-            width: 1,
-            color: Colors.indigo,
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: isSelectedOnSale ? Colors.indigo[50] : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(50),
+            side: const BorderSide(
+              width: 1,
+              color: Colors.indigo,
+            ),
           ),
         ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isSelectedOnSale ? Colors.indigo[50] : Colors.white,
+        child: responsive(
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isSelectedOnSale ? Colors.indigo[50] : Colors.white,
+                  ),
+                  child: Icon(
+                    isSelectedOnSale
+                        ? Icons.local_offer
+                        : Icons.local_offer_outlined,
+                    color: Colors.indigo[900],
+                  ),
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  'En Venta',
+                  style: GoogleFonts.robotoCondensed(
+                    fontSize: 16,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
             ),
-            child: Icon(
-              isSelectedOnSale ? Icons.local_offer : Icons.local_offer_outlined,
-              color: Colors.indigo[900],
+            Text(
+              'En Venta',
+              style: GoogleFonts.robotoCondensed(
+                fontSize: 16,
+                color: Colors.black,
+              ),
             ),
-          ),
-          const SizedBox(width: 5),
-          Text(
-            'En Venta',
-            style: GoogleFonts.robotoCondensed(
-              fontSize: 16,
-              color: Colors.black,
-            ),
-          ),
-        ],
-      ),
-    );
+            context));
   }
 
   ElevatedButton _buttonOwnProducts() {
     return ElevatedButton(
-      onPressed: () {
-        setState(() {
-          isSelectedOwn = !isSelectedOwn;
-          // print("$isSelectedOwn");
-          if (isSelectedOwn) {
-            var idMaster =
-                sharedPrefs!.getString("idComercialMasterSeller").toString();
-            print("add seller_owned");
-            arrayFiltersAnd.removeWhere(
-                (filter) => filter.containsKey("equals/seller_owned"));
-            arrayFiltersAnd.add({"equals/seller_owned": idMaster});
-            setState(() {
-              _getProductModelCatalog();
-            });
-          } else {
-            print("remove seller_owned");
+        onPressed: () {
+          setState(() {
+            isSelectedOwn = !isSelectedOwn;
+            // print("$isSelectedOwn");
+            if (isSelectedOwn) {
+              var idMaster =
+                  sharedPrefs!.getString("idComercialMasterSeller").toString();
+              print("add seller_owned");
+              arrayFiltersAnd.removeWhere(
+                  (filter) => filter.containsKey("equals/seller_owned"));
+              arrayFiltersAnd.add({"equals/seller_owned": idMaster});
+              setState(() {
+                _getProductModelCatalog();
+              });
+            } else {
+              print("remove seller_owned");
 
-            arrayFiltersAnd.removeWhere(
-                (filter) => filter.containsKey("equals/seller_owned"));
-            arrayFiltersAnd.add({"equals/seller_owned": null});
-            setState(() {
-              _getProductModelCatalog();
-            });
-          }
-          // print(arrayFiltersAnd);
-        });
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isSelectedOwn ? Colors.indigo[50] : Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(50),
-          side: const BorderSide(
-            width: 1,
-            color: Colors.indigo,
+              arrayFiltersAnd.removeWhere(
+                  (filter) => filter.containsKey("equals/seller_owned"));
+              arrayFiltersAnd.add({"equals/seller_owned": null});
+              setState(() {
+                _getProductModelCatalog();
+              });
+            }
+            // print(arrayFiltersAnd);
+          });
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: isSelectedOwn ? Colors.indigo[50] : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(50),
+            side: const BorderSide(
+              width: 1,
+              color: Colors.indigo,
+            ),
           ),
         ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isSelectedOwn ? Colors.indigo[50] : Colors.white,
+        child: responsive(
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isSelectedOwn ? Colors.indigo[50] : Colors.white,
+                  ),
+                  child: Icon(
+                    isSelectedOwn ? Icons.home : Icons.home_outlined,
+                    color: Colors.indigo[900],
+                  ),
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  'Mis Productos',
+                  style: GoogleFonts.robotoCondensed(
+                    fontSize: 16,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
             ),
-            child: Icon(
-              isSelectedOwn ? Icons.home : Icons.home_outlined,
-              color: Colors.indigo[900],
+            Text(
+              'Mis Productos',
+              style: GoogleFonts.robotoCondensed(
+                fontSize: 16,
+                color: Colors.black,
+              ),
             ),
-          ),
-          const SizedBox(width: 5),
-          Text(
-            'Mis Productos',
-            style: GoogleFonts.robotoCondensed(
-              fontSize: 16,
-              color: Colors.black,
-            ),
-          ),
-        ],
-      ),
-    );
+            context));
   }
 
   _resetFilter() {

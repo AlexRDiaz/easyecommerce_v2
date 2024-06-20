@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animated_icons/icons8.dart';
 import 'package:frontend/config/exports.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:frontend/models/user_model.dart';
@@ -85,7 +86,7 @@ class _AddSubProviderState extends StateMVC<AddSubProvider> {
         });
       }
     }
-    print(warehousesToSelect);
+    // print(warehousesToSelect);
   }
 
   @override
@@ -139,6 +140,7 @@ class _AddSubProviderState extends StateMVC<AddSubProvider> {
                 child: Form(
               key: _formKey,
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   SizedBox(height: 10),
                   // TextFormField(
@@ -205,91 +207,150 @@ class _AddSubProviderState extends StateMVC<AddSubProvider> {
                   Visibility(
                     visible: int.parse(idUser.toString()) ==
                         int.parse(idProvMaster.toString()),
-                    child: Row(
-                      children: [
-                        const Text(
-                          "Bodega",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 15),
-                        ),
-                        const SizedBox(width: 10),
-                        SizedBox(
-                          width: 250,
-                          child: DropdownButtonFormField<String>(
-                            isExpanded: true,
-                            hint: Text(
-                              'Seleccione Bodega',
+                    child: responsive(
+                        Row(
+                          children: [
+                            const Text(
+                              "Bodega",
                               style: TextStyle(
-                                fontSize: 14,
-                                color: Theme.of(context).hintColor,
-                                fontWeight: FontWeight.bold,
-                              ),
+                                  fontWeight: FontWeight.bold, fontSize: 15),
                             ),
-                            items: warehousesToSelect.map((item) {
-                              var parts = item.split('-');
-                              var branchName = parts[1];
-                              var city = parts[2];
-                              return DropdownMenuItem(
-                                value: item,
-                                child: Text(
-                                  '$branchName - $city',
-                                  style: const TextStyle(
+                            const SizedBox(width: 10),
+                            SizedBox(
+                              width: 250,
+                              child: DropdownButtonFormField<String>(
+                                isExpanded: true,
+                                hint: Text(
+                                  'Seleccione Bodega',
+                                  style: TextStyle(
                                     fontSize: 14,
+                                    color: Theme.of(context).hintColor,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                              );
-                            }).toList(),
-                            value: selectedWarehouse,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedWarehouse = value as String;
-                                selectedWarehouses.add({
-                                  "id": selectedWarehouse
-                                      .toString()
-                                      .split("-")[0]
-                                      .toString(),
-                                  "name": selectedWarehouse
-                                      .toString()
-                                      .split("-")[1]
-                                      .toString(),
-                                });
-                              });
-                            },
-                            decoration: InputDecoration(
-                              fillColor: Colors.white,
-                              filled: true,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5.0),
+                                items: warehousesToSelect.map((item) {
+                                  var parts = item.split('-');
+                                  var branchName = parts[1];
+                                  var city = parts[2];
+                                  return DropdownMenuItem(
+                                    value: item,
+                                    child: Text(
+                                      '$branchName - $city',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                                value: selectedWarehouse,
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedWarehouse = value as String;
+                                    selectedWarehouses.add({
+                                      "id": selectedWarehouse
+                                          .toString()
+                                          .split("-")[0]
+                                          .toString(),
+                                      "name": selectedWarehouse
+                                          .toString()
+                                          .split("-")[1]
+                                          .toString(),
+                                    });
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(5.0),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
+                        Column(
+                          children: [
+                            const Text(
+                              "Bodega",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 15),
+                            ),
+                            SizedBox(
+                              width: 250,
+                              child: DropdownButtonFormField<String>(
+                                isExpanded: true,
+                                hint: Text(
+                                  'Seleccione Bodega',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Theme.of(context).hintColor,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                items: warehousesToSelect.map((item) {
+                                  var parts = item.split('-');
+                                  var branchName = parts[1];
+                                  var city = parts[2];
+                                  return DropdownMenuItem(
+                                    value: item,
+                                    child: Text(
+                                      '$branchName - $city',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                                value: selectedWarehouse,
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedWarehouse = value as String;
+                                    selectedWarehouses.add({
+                                      "id": selectedWarehouse
+                                          .toString()
+                                          .split("-")[0]
+                                          .toString(),
+                                      "name": selectedWarehouse
+                                          .toString()
+                                          .split("-")[1]
+                                          .toString(),
+                                    });
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(5.0),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        context),
                   ),
-                  Row(
-                    children: [
-                      Wrap(
-                        spacing: 8.0,
-                        runSpacing: 8.0,
-                        children:
-                            List.generate(selectedWarehouses.length, (index) {
-                          String categoryName =
-                              selectedWarehouses[index]["name"] ?? "";
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8.0,
+                    runSpacing: 8.0,
+                    children: List.generate(selectedWarehouses.length, (index) {
+                      String categoryName =
+                          selectedWarehouses[index]["name"] ?? "";
 
-                          return Chip(
-                            label: Text(categoryName),
-                            onDeleted: () {
-                              setState(() {
-                                selectedWarehouses.removeAt(index);
-                                // print("catAct: $selectedCategoriesMap");
-                              });
-                            },
-                          );
-                        }),
-                      ),
-                    ],
+                      return Chip(
+                        label: Text(categoryName),
+                        onDeleted: () {
+                          setState(() {
+                            selectedWarehouses.removeAt(index);
+                            // print("catAct: $selectedCategoriesMap");
+                          });
+                        },
+                      );
+                    }),
                   ),
                   const SizedBox(height: 10),
                   const Text(

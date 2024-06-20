@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/models/provider_model.dart';
 import 'package:frontend/models/user_model.dart';
@@ -319,13 +320,22 @@ class _SubProviderViewState extends State<SubProviderView> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            content: Container(
-              width: MediaQuery.of(context).size.width * 0.5,
-              height: MediaQuery.of(context).size.height * 0.85,
-              child: AddSubProvider(
-                accessTemp: accessTemp,
-              ),
-            ),
+            content: responsive(
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.5,
+                  height: MediaQuery.of(context).size.height * 0.85,
+                  child: AddSubProvider(
+                    accessTemp: accessTemp,
+                  ),
+                ),
+                Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  child: AddSubProvider(
+                    accessTemp: accessTemp,
+                  ),
+                ),
+                context),
           );
         }).then((value) => setState(() {
           _getSubProviderModelData();

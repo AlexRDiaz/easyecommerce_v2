@@ -226,17 +226,14 @@ class ProductCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Producto:',
+                          'Producto: ',
                           style: GoogleFonts.dmSerifDisplay(
                             // fontWeight: FontWeight.bold,
                             fontSize: textSize,
                             color: Colors.grey[600],
                           ),
                         ),
-                        const SizedBox(
-                          width: 3,
-                        ),
-                        Expanded(
+                        Flexible(
                           child: Text(
                             '${product.productName}',
                             style: GoogleFonts.dmSans(
@@ -253,15 +250,12 @@ class ProductCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Precio:',
+                          'Precio: ',
                           style: GoogleFonts.dmSerifDisplay(
                             // fontWeight: FontWeight.bold,
                             fontSize: textSize,
                             color: Colors.grey[600],
                           ),
-                        ),
-                        const SizedBox(
-                          width: 3,
                         ),
                         Text(
                           '\$${product.price}',
@@ -278,15 +272,12 @@ class ProductCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Precio Sugerido:',
+                          'Precio Sugerido: ',
                           style: GoogleFonts.dmSerifDisplay(
                             // fontWeight: FontWeight.bold,
                             fontSize: textSize,
                             color: Colors.grey[600],
                           ),
-                        ),
-                        const SizedBox(
-                          width: 3,
                         ),
                         Text(
                           '\$$priceSuggested',
@@ -303,15 +294,12 @@ class ProductCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Stock:',
+                          'Stock: ',
                           style: GoogleFonts.dmSerifDisplay(
                             // fontWeight: FontWeight.bold,
                             fontSize: textSize,
                             color: Colors.grey[600],
                           ),
-                        ),
-                        const SizedBox(
-                          width: 3,
                         ),
                         Text(
                           product.sellerOwnedId == 0 ||
@@ -330,22 +318,21 @@ class ProductCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Bodega:',
+                          'Bodega: ',
                           style: GoogleFonts.dmSerifDisplay(
                             // fontWeight: FontWeight.bold,
                             fontSize: textSize,
                             color: Colors.grey[600],
                           ),
                         ),
-                        const SizedBox(
-                          width: 3,
-                        ),
-                        Text(
-                          getFirstWarehouseNameModel(product.warehouses),
-                          // product.warehouse!.branchName.toString(),
-                          style: GoogleFonts.dmSans(
-                            fontSize: textSize,
-                            color: Colors.black,
+                        Flexible(
+                          child: Text(
+                            getFirstWarehouseNameModel(product.warehouses),
+                            // product.warehouse!.branchName.toString(),
+                            style: GoogleFonts.dmSans(
+                              fontSize: textSize,
+                              color: Colors.black,
+                            ),
                           ),
                         ),
                       ],

@@ -92,7 +92,7 @@ class _OrderInfoState extends State<OrderInfo> {
 
   double priceTotalProduct = 0;
   double taxCostShipping = 0;
-  double costEasy = 2;
+  double costEasy = 2.3;
   String prov_city_address = "";
   var responseCarriersGeneral;
 
@@ -2340,22 +2340,22 @@ class _OrderInfoState extends State<OrderInfo> {
             ),
           ],
         ),
-        const SizedBox(height: 5),
-        Row(
-          children: [
-            Text(
-              "Iva 15%: \$ ${taxCostShipping.toString()}",
-            ),
-          ],
-        ),
-        const SizedBox(height: 5),
-        Row(
-          children: [
-            Text(
-              "Total Flete: \$ ${totalCost.toString()}",
-            ),
-          ],
-        ),
+        // const SizedBox(height: 5),
+        // Row(
+        //   children: [
+        //     Text(
+        //       "Iva 15%: \$ ${taxCostShipping.toString()}",
+        //     ),
+        //   ],
+        // ),
+        // const SizedBox(height: 5),
+        // Row(
+        //   children: [
+        //     Text(
+        //       "Total Flete: \$ ${totalCost.toString()}",
+        //     ),
+        //   ],
+        // ),
         const SizedBox(height: 5),
         Row(
           children: [
@@ -3424,43 +3424,47 @@ class _OrderInfoState extends State<OrderInfo> {
   Future<double> calculateProfitCarrierExternal() async {
     String origen_prov = prov_city_address.split('|')[0].toString();
 
-    var costs = getCostsByIdCarrier(idCarrierExternal);
+    var costs =
+        getCostsByIdCarrier(selectedCarrierExternal.toString().split("-")[1]);
     // print(costs);
 
+    String tipoCobertura = selectedCity.toString().split("-")[2];
     double deliveryPrice = 0;
-    if (idProvExternal == origen_prov) {
+    if (selectedProvincia.toString().split("-")[1] == origen_prov) {
       print("Provincial");
       // print("${selectedCity.toString()}");
       if (tipoCobertura == "Normal") {
         deliveryPrice = double.parse(costs["normal1"].toString());
-        print("normal1: $deliveryPrice");
+        // print("normal1: $deliveryPrice");
       } else {
         deliveryPrice = double.parse(costs["especial1"].toString());
-        print("especial1: $deliveryPrice");
+        // print("especial1: $deliveryPrice");
       }
     } else {
       print("Nacional");
       // print("${selectedCity.toString()}");
       if (tipoCobertura == "Normal") {
         deliveryPrice = double.parse(costs["normal2"].toString());
-        print("normal2: $deliveryPrice");
+        // print("normal2: $deliveryPrice");
       } else {
         deliveryPrice = double.parse(costs["especial2"].toString());
-        print("especial2: $deliveryPrice");
+        // print("especial2: $deliveryPrice");
       }
     }
     deliveryPrice = deliveryPrice + (deliveryPrice * iva);
     deliveryPrice = (deliveryPrice * 100).roundToDouble() / 100;
-    print("after type + iva: $deliveryPrice");
+    // print("after type + iva: $deliveryPrice");
 
     double costoSeguro =
         (priceTotalProduct * (double.parse(costs["costo_seguro"]))) / 100;
     costoSeguro = (costoSeguro * 100).roundToDouble() / 100;
     costoSeguro = costoSeguro + (costoSeguro * iva);
     costoSeguro = (costoSeguro * 100).roundToDouble() / 100;
-    print("costo_seguro: $costoSeguro");
+    // print("costo_seguro: $costoSeguro");
 
     deliveryPrice += costoSeguro;
+    deliveryPrice = (deliveryPrice * 100).roundToDouble() / 100;
+    // print("after costo_seguro: $deliveryPrice");
 
     var costo_rec = (costs["costo_recaudo"]);
     double costo_recaudo = 0;
@@ -3473,7 +3477,7 @@ class _OrderInfoState extends State<OrderInfo> {
         base = base + (base * iva);
         base = (base * 100).roundToDouble() / 100;
         costo_recaudo = base;
-        print("costo_recaudo base: $costo_recaudo");
+        // print("costo_recaudo base: $costo_recaudo");
       } else {
         double incremental =
             (priceTotalProduct * double.parse(costo_rec['incremental'])) / 100;
@@ -3481,29 +3485,34 @@ class _OrderInfoState extends State<OrderInfo> {
         incremental = incremental + (incremental * iva);
         incremental = (incremental * 100).roundToDouble() / 100;
         costo_recaudo = incremental;
-        print("costo_recaudo incremental: $costo_recaudo");
+        // print("costo_recaudo incremental: $costo_recaudo");
       }
     }
 
     deliveryPrice += costo_recaudo;
+
     deliveryPrice = (deliveryPrice * 100).roundToDouble() / 100;
-    print("costo entrega after recaudo: $deliveryPrice");
+    // print("after costo_recaudo: $deliveryPrice");
 
     deliveryPrice = costEasy + deliveryPrice;
-    double deliveryPriceTax = deliveryPrice * iva;
-    deliveryPriceTax = (deliveryPriceTax * 100).roundToDouble() / 100;
+    // double deliveryPriceTax = deliveryPrice * iva;
+    // deliveryPriceTax = (deliveryPriceTax * 100).roundToDouble() / 100;
 
-    print("costo deliveryPriceSeller: ${deliveryPrice + deliveryPriceTax}");
-    totalCost = deliveryPrice + deliveryPriceTax;
+    // print("costo deliveryPriceSeller: ${deliveryPrice + deliveryPriceTax}");
+    // totalCost = deliveryPrice + deliveryPriceTax;
+    deliveryPrice = (deliveryPrice * 100).roundToDouble() / 100;
+    totalCost = deliveryPrice;
 
     //
     setState(() {
       costShippingSeller = deliveryPrice;
-      taxCostShipping = deliveryPriceTax;
-      totalCost = (totalCost * 100).roundToDouble() / 100;
+      // taxCostShipping = deliveryPriceTax;
+      totalCost = totalCost;
     });
-    double totalProfit = priceTotalProduct -
-        (priceWarehouseTotal + deliveryPrice + deliveryPriceTax);
+    // double totalProfit = priceTotalProduct -
+    // (priceWarehouseTotal + deliveryPrice + deliveryPriceTax);
+    double totalProfit =
+        priceTotalProduct - (priceWarehouseTotal + deliveryPrice);
 
     totalProfit = (totalProfit * 100).roundToDouble() / 100;
 
@@ -3526,13 +3535,13 @@ class _OrderInfoState extends State<OrderInfo> {
   Future<double> calculateProfit() async {
     costShippingSeller =
         double.parse(sharedPrefs!.getString("seller_costo_envio").toString());
-    double deliveryPriceTax = costShippingSeller * iva;
-    deliveryPriceTax = (deliveryPriceTax * 100).roundToDouble() / 100;
-    totalCost = costShippingSeller + deliveryPriceTax;
-
+    // double deliveryPriceTax = costShippingSeller * iva;
+    // deliveryPriceTax = (deliveryPriceTax * 100).roundToDouble() / 100;
+    // totalCost = costShippingSeller + deliveryPriceTax;
+    totalCost = costShippingSeller;
     setState(() {
       costShippingSeller = costShippingSeller;
-      taxCostShipping = deliveryPriceTax;
+      // taxCostShipping = deliveryPriceTax;
       totalCost = (totalCost * 100).roundToDouble() / 100;
     });
 

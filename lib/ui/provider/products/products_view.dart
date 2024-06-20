@@ -383,7 +383,9 @@ class _ProductsViewState extends State<ProductsView> {
 
   @override
   Widget build(BuildContext context) {
-    // return const Text("hola mundo");
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -459,7 +461,9 @@ class _ProductsViewState extends State<ProductsView> {
                 Row(
                   children: [
                     SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.2,
+                      width: screenWidth < 600
+                          ? 250
+                          : MediaQuery.of(context).size.width * 0.2,
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: DropdownButtonFormField<String>(
@@ -489,7 +493,7 @@ class _ProductsViewState extends State<ProductsView> {
                             setState(() {
                               selectedWarehouse = value;
                             });
-                            print(selectedWarehouse);
+                            // print(selectedWarehouse);
                             if (value != 'TODO') {
                               if (value is String) {
                                 arrayFiltersAnd = [];
