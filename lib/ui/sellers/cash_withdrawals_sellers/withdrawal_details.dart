@@ -26,10 +26,17 @@ class SellerWithdrawalDetails extends StatefulWidget {
 class _SellerWithdrawalDetailsState extends State<SellerWithdrawalDetails> {
   late CashWithdrawalsSellersControllers _controllers =
       CashWithdrawalsSellersControllers();
+  String saldo = "";
 
   @override
   void initState() {
+    getSaldo();
     super.initState();
+  }
+
+  getSaldo() async {
+    saldo = await Connections().getSaldo();
+    setState(() {});
   }
 
   @override
@@ -61,13 +68,20 @@ class _SellerWithdrawalDetailsState extends State<SellerWithdrawalDetails> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SizedBox(
-                  height: 10,
+                Center(
+                  child: Text(
+                    "Saldo disponible: $saldo",
+                  ),
                 ),
                 SizedBox(
                   height: 20,
                 ),
-                Center(child: Text("Usar . (punto) para los valores con decimales, si el valor no contiene decimales no usar . (punto)",style: TextStyle(color: Colors.red),),),
+                Center(
+                  child: Text(
+                    "Usar . (punto) para los valores con decimales, si el valor no contiene decimales no usar . (punto)",
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
                 // InputRow(
                 //     controller: _controllers.montoController,
                 //     title: 'Monto a Retirar'),
@@ -125,31 +139,46 @@ class _SellerWithdrawalDetailsState extends State<SellerWithdrawalDetails> {
                       ),
                       onPressed: () async {
                         getLoadingModal(context, false);
-                        // var saldo = await Connections().getSaldo();
-                        // if (double.parse(saldo) >=
-                        //     double.parse(_controllers.montoController.text)) {
-                        var response = await Connections()
-                            .withdrawalPost(_controllers.montoController.text);
+                        if (double.parse(saldo) >=
+                            double.parse(_controllers.montoController.text)) {
+                          var response = await Connections().withdrawalPost(
+                              _controllers.montoController.text);
 
-                        if (response) {
-                          Navigator.pop(context);
+                          if (response) {
+                            Navigator.pop(context);
 
-                          AwesomeDialog(
-                            width: 500,
-                            context: context,
-                            dialogType: DialogType.success,
-                            animType: AnimType.rightSlide,
-                            title: 'Completado',
-                            desc: '',
-                            btnCancel: Container(),
-                            btnOkText: "Aceptar",
-                            btnOkColor: colors.colorGreen,
-                            btnCancelOnPress: () {},
-                            btnOkOnPress: () {
-                              Navigators().pushNamedAndRemoveUntil(
-                                  context, "/layout/sellers");
-                            },
-                          ).show();
+                            AwesomeDialog(
+                              width: 500,
+                              context: context,
+                              dialogType: DialogType.success,
+                              animType: AnimType.rightSlide,
+                              title: 'Completado',
+                              desc: '',
+                              btnCancel: Container(),
+                              btnOkText: "Aceptar",
+                              btnOkColor: colors.colorGreen,
+                              btnCancelOnPress: () {},
+                              btnOkOnPress: () {
+                                Navigators().pushNamedAndRemoveUntil(
+                                    context, "/layout/sellers");
+                              },
+                            ).show();
+                          } else {
+                            Navigator.pop(context);
+                            AwesomeDialog(
+                              width: 500,
+                              context: context,
+                              dialogType: DialogType.error,
+                              animType: AnimType.rightSlide,
+                              title: 'Error',
+                              desc: 'Vuelve a intentarlo',
+                              btnCancel: Container(),
+                              btnOkText: "Aceptar",
+                              btnOkColor: colors.colorGreen,
+                              btnCancelOnPress: () {},
+                              btnOkOnPress: () {},
+                            ).show();
+                          }
                         } else {
                           Navigator.pop(context);
                           AwesomeDialog(
@@ -158,7 +187,8 @@ class _SellerWithdrawalDetailsState extends State<SellerWithdrawalDetails> {
                             dialogType: DialogType.error,
                             animType: AnimType.rightSlide,
                             title: 'Error',
-                            desc: 'Vuelve a intentarlo',
+                            desc:
+                                'No tienes saldo suficiente para realizar esta transaccion',
                             btnCancel: Container(),
                             btnOkText: "Aceptar",
                             btnOkColor: colors.colorGreen,
@@ -166,23 +196,6 @@ class _SellerWithdrawalDetailsState extends State<SellerWithdrawalDetails> {
                             btnOkOnPress: () {},
                           ).show();
                         }
-                        // } else {
-                        //   Navigator.pop(context);
-                        //   AwesomeDialog(
-                        //     width: 500,
-                        //     context: context,
-                        //     dialogType: DialogType.error,
-                        //     animType: AnimType.rightSlide,
-                        //     title: 'Error',
-                        //     desc:
-                        //         'No tienes saldo suficiente para realizar esta transaccion',
-                        //     btnCancel: Container(),
-                        //     btnOkText: "Aceptar",
-                        //     btnOkColor: colors.colorGreen,
-                        //     btnCancelOnPress: () {},
-                        //     btnOkOnPress: () {},
-                        //   ).show();
-                        // }
                       },
                     )),
                 SizedBox(
