@@ -927,26 +927,27 @@ class _PrintedGuidesStateProvider extends State<PrintedGuidesProvider> {
             width: 20,
           ),
           ElevatedButton(
-              onPressed: !showExternalCarriers
-                  ? () async {
-                      getLoadingModal(context, false);
+              // onPressed: !showExternalCarriers
+              //     ? () async {
+              onPressed: () async {
+                getLoadingModal(context, false);
 
-                      for (var i = 0; i < optionsCheckBox.length; i++) {
-                        if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
-                            optionsCheckBox[i]['id'].toString() != '' &&
-                            optionsCheckBox[i]['check'] == true) {
-                          var response = await Connections().updatenueva(
-                              optionsCheckBox[i]['id'],
-                              {"estado_interno": "RECHAZADO"});
-                        }
-                      }
-                      Navigator.pop(context);
+                for (var i = 0; i < optionsCheckBox.length; i++) {
+                  if (optionsCheckBox[i]['id'].toString().isNotEmpty &&
+                      optionsCheckBox[i]['id'].toString() != '' &&
+                      optionsCheckBox[i]['check'] == true) {
+                    var response = await Connections().updatenueva(
+                        optionsCheckBox[i]['id'],
+                        {"estado_interno": "RECHAZADO"});
+                  }
+                }
+                Navigator.pop(context);
 
-                      setState(() {});
+                setState(() {});
 
-                      await loadData();
-                    }
-                  : null,
+                await loadData();
+              },
+              // : null,
               child: const Text(
                 "RECHAZADO",
                 style: TextStyle(fontWeight: FontWeight.bold),

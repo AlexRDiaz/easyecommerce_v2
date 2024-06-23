@@ -134,6 +134,9 @@ class _EditProductState extends State<EditProduct> {
   List variantsListNoChanges = [];
   List<String> variantOriginLabels = [];
 
+  String selectedImage = "";
+  bool selectedTemp = false;
+
   @override
   void initState() {
     super.initState();
@@ -376,6 +379,7 @@ class _EditProductState extends State<EditProduct> {
       stock = reserveStock.toString();
     }
 
+    selectedImage = (urlsImgsList.isNotEmpty ? urlsImgsList[0] : null)!;
     setState(() {});
   }
 
@@ -424,7 +428,7 @@ class _EditProductState extends State<EditProduct> {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidthDialog = MediaQuery.of(context).size.width * 0.50;
+    double screenWidth = MediaQuery.of(context).size.width * 0.50;
     double screenHeight = MediaQuery.of(context).size.height;
     double fontSizeTitle = 16;
     double fontSizeText = 14;
@@ -448,7 +452,7 @@ class _EditProductState extends State<EditProduct> {
       ),
       content: Container(
         child: SizedBox(
-          width: screenWidthDialog,
+          width: screenWidth,
           // width: 700,
           height: MediaQuery.of(context).size.height,
           child: ListView(
@@ -766,7 +770,7 @@ class _EditProductState extends State<EditProduct> {
                                   const Text('Variantes'),
                                   const SizedBox(height: 3),
                                   SizedBox(
-                                    width: (screenWidthDialog / 2) - 10,
+                                    width: (screenWidth / 2) - 10,
                                     child: DropdownButtonFormField<String>(
                                       isExpanded: true,
                                       hint: Text(
@@ -1086,7 +1090,7 @@ class _EditProductState extends State<EditProduct> {
                                 ),
                                 const SizedBox(height: 5),
                                 SizedBox(
-                                  width: (screenWidthDialog / 1.5) - 10,
+                                  width: (screenWidth / 1.5) - 10,
                                   child: DropdownButtonFormField<String>(
                                     hint:
                                         const Text("Seleccione una categoría"),
@@ -1169,7 +1173,7 @@ class _EditProductState extends State<EditProduct> {
                       Row(
                         children: [
                           SizedBox(
-                            width: (screenWidthDialog / 2) - 10,
+                            width: (screenWidth / 2) - 10,
                             child: DropdownButtonFormField<String>(
                               isExpanded: true,
                               hint: Text(
@@ -1240,6 +1244,7 @@ class _EditProductState extends State<EditProduct> {
                         ],
                       ),
                       const SizedBox(height: 15),
+                      /*
                       Container(
                         margin: const EdgeInsets.symmetric(vertical: 10),
                         padding: const EdgeInsets.all(15),
@@ -1248,7 +1253,7 @@ class _EditProductState extends State<EditProduct> {
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
                             color: Colors.green,
-                            width: 1.0, // Ancho del borde
+                            width: 1.0,
                           ),
                         ),
                         child: Column(
@@ -1294,35 +1299,31 @@ class _EditProductState extends State<EditProduct> {
                                     children: [
                                       Icon(Icons.image),
                                       SizedBox(width: 10),
-                                      Text('Cambiar Imagen/es'),
+                                      Text('Subir Imagen/es'),
                                     ],
                                   ),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 15),
-                            Visibility(
-                              visible: imgsTemporales.isEmpty,
-                              child: SizedBox(
-                                height: 300,
-                                child: GridView.builder(
-                                  shrinkWrap: true,
-                                  gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
-                                    crossAxisSpacing: 10,
-                                    mainAxisSpacing: 10,
-                                    childAspectRatio: 1,
-                                  ),
-                                  itemCount: urlsImgsList.length,
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    return Image.network(
-                                      "$generalServer${urlsImgsList[index].toString()}",
-                                      fit: BoxFit.fill,
-                                    );
-                                  },
+                            SizedBox(
+                              height: 300,
+                              child: GridView.builder(
+                                shrinkWrap: true,
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  crossAxisSpacing: 20,
+                                  mainAxisSpacing: 10,
+                                  childAspectRatio: 1,
                                 ),
+                                itemCount: urlsImgsList.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return Image.network(
+                                    "$generalServer${urlsImgsList[index].toString()}",
+                                    fit: BoxFit.fill,
+                                  );
+                                },
                               ),
                             ),
                             Visibility(
@@ -1350,7 +1351,317 @@ class _EditProductState extends State<EditProduct> {
                           ],
                         ),
                       ),
+                      */
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        height: screenHeight * 0.5,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: Colors.green,
+                            width: 1.0,
+                          ),
+                        ),
+                        child: ListView(
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    TextButton(
+                                      onPressed: () async {
+                                        final ImagePicker picker =
+                                            ImagePicker();
+                                        // imgsTemporales = [];
+                                        List<XFile>? imagenes =
+                                            await picker.pickMultiImage();
+
+                                        int totalImgs = urlsImgsList.length +
+                                            imagenes.length;
+                                        if (imagenes != null &&
+                                            imagenes.isNotEmpty) {
+                                          if (totalImgs > 4) {
+                                            // ignore: use_build_context_synchronously
+                                            AwesomeDialog(
+                                              width: 500,
+                                              context: context,
+                                              dialogType: DialogType.error,
+                                              animType: AnimType.rightSlide,
+                                              title: 'Error',
+                                              desc:
+                                                  'El número máximo de imagenes es 4.',
+                                              btnCancel: Container(),
+                                              btnOkText: "Aceptar",
+                                              btnOkColor: colors.colorGreen,
+                                              btnCancelOnPress: () {},
+                                              btnOkOnPress: () {},
+                                            ).show();
+                                            // print(
+                                            //     "Error, Seleccione maximo 4 imagenes");
+                                          } else {
+                                            setState(() {
+                                              imgsTemporales.addAll(imagenes);
+                                            });
+                                          }
+                                        }
+                                      },
+                                      child: const Row(
+                                        children: [
+                                          Icon(Icons.image),
+                                          SizedBox(width: 10),
+                                          Text('Subir Imagen/es'),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Column(
+                                      children: [
+                                        // Agrega las imágenes permanentes
+                                        for (int i = 0;
+                                            i < urlsImgsList.length;
+                                            i++)
+                                          Stack(
+                                            children: [
+                                              GestureDetector(
+                                                onTap: () {
+                                                  setState(() {
+                                                    selectedTemp = false;
+                                                    selectedImage =
+                                                        urlsImgsList[i];
+                                                  });
+                                                },
+                                                child: Container(
+                                                  width: screenWidth * 0.08,
+                                                  height: screenHeight * 0.10,
+                                                  margin:
+                                                      const EdgeInsets.all(5),
+                                                  child: Image.network(
+                                                    "$generalServer${urlsImgsList[i]}",
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                ),
+                                              ),
+                                              Positioned(
+                                                top: 5,
+                                                right: 5,
+                                                child: GestureDetector(
+                                                  onTap: () {
+                                                    //
+                                                    int totalImgs = urlsImgsList
+                                                            .length +
+                                                        imgsTemporales.length;
+                                                    print(
+                                                        "Total images before delete: $totalImgs"); // Línea de depuración
+
+                                                    if (totalImgs == 1) {
+                                                      print(
+                                                          "Should show modal for last image"); // Línea de depuración
+                                                      showSuccessModal(
+                                                          context,
+                                                          "Error, El producto tiene que tener al menos una imagen",
+                                                          Icons8.warning_1);
+                                                    } else {
+                                                      AwesomeDialog(
+                                                        width: 500,
+                                                        context: context,
+                                                        dialogType:
+                                                            DialogType.info,
+                                                        animType:
+                                                            AnimType.rightSlide,
+                                                        title:
+                                                            '¿Está seguro de eliminar la imagen?',
+                                                        btnOkText: "Confirmar",
+                                                        btnCancelText:
+                                                            "Cancelar",
+                                                        btnOkColor:
+                                                            Colors.blueAccent,
+                                                        btnCancelOnPress: () {},
+                                                        btnOkOnPress: () {
+                                                          urlsImgsList
+                                                              .removeAt(i);
+
+                                                          // print(
+                                                          //     "urlsImgsList: $urlsImgsList");
+                                                          // print(
+                                                          //     "imgsTemporales: $imgsTemporales");
+                                                          if (!selectedTemp &&
+                                                              urlsImgsList
+                                                                  .isNotEmpty) {
+                                                            selectedImage =
+                                                                urlsImgsList[0];
+                                                          }
+                                                          if (urlsImgsList
+                                                              .isEmpty) {
+                                                            selectedTemp = true;
+                                                            selectedImage =
+                                                                imgsTemporales[
+                                                                        0]
+                                                                    .path;
+                                                          }
+                                                          setState(() {});
+                                                        },
+                                                      ).show();
+                                                    }
+                                                  },
+                                                  child: Container(
+                                                    padding:
+                                                        const EdgeInsets.all(2),
+                                                    decoration:
+                                                        const BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      color: Colors.red,
+                                                    ),
+                                                    child: const Icon(
+                                                      Icons.close,
+                                                      color: Colors.white,
+                                                      size: 16,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+
+                                        // Agrega las imágenes temporales
+                                        for (int i = 0;
+                                            i < imgsTemporales.length;
+                                            i++)
+                                          Stack(
+                                            children: [
+                                              GestureDetector(
+                                                onTap: () {
+                                                  setState(() {
+                                                    selectedTemp = true;
+                                                    selectedImage =
+                                                        imgsTemporales[i].path;
+                                                  });
+                                                },
+                                                child: Container(
+                                                  width: screenWidth * 0.08,
+                                                  height: screenHeight * 0.10,
+                                                  margin:
+                                                      const EdgeInsets.all(5),
+                                                  child: Image.network(
+                                                    imgsTemporales[i].path,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                ),
+                                              ),
+                                              Positioned(
+                                                top: 5,
+                                                right: 5,
+                                                child: GestureDetector(
+                                                  onTap: () {
+                                                    int totalImgs = urlsImgsList
+                                                            .length +
+                                                        imgsTemporales.length;
+
+                                                    if (totalImgs == 1) {
+                                                      showSuccessModal(
+                                                          context,
+                                                          "Error, El producto tiene que tener al menos una imagen",
+                                                          Icons8.warning_1);
+                                                    } else {
+                                                      AwesomeDialog(
+                                                        width: 500,
+                                                        context: context,
+                                                        dialogType:
+                                                            DialogType.info,
+                                                        animType:
+                                                            AnimType.rightSlide,
+                                                        title:
+                                                            '¿Está seguro de eliminar la imagen?',
+                                                        btnOkText: "Confirmar",
+                                                        btnCancelText:
+                                                            "Cancelar",
+                                                        btnOkColor:
+                                                            Colors.blueAccent,
+                                                        btnCancelOnPress: () {},
+                                                        btnOkOnPress: () {
+                                                          imgsTemporales
+                                                              .removeAt(i);
+
+                                                          // print(
+                                                          //     "urlsImgsList: $urlsImgsList");
+                                                          // print(
+                                                          //     "imgsTemporales: $imgsTemporales");
+                                                          if (urlsImgsList
+                                                              .isEmpty) {
+                                                            selectedTemp = true;
+                                                            selectedImage =
+                                                                imgsTemporales[
+                                                                        0]
+                                                                    .path;
+                                                          }
+                                                          setState(() {});
+                                                        },
+                                                      ).show();
+                                                    }
+                                                  },
+                                                  child: Container(
+                                                    padding:
+                                                        const EdgeInsets.all(2),
+                                                    decoration:
+                                                        const BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      color: Colors.red,
+                                                    ),
+                                                    child: const Icon(
+                                                      Icons.close,
+                                                      color: Colors.white,
+                                                      size: 16,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                      ],
+                                    ),
+                                    const SizedBox(width: 30),
+                                    Visibility(
+                                      visible: !selectedTemp,
+                                      child: SizedBox(
+                                        width: screenWidth * 0.37,
+                                        height: screenHeight * 0.40,
+                                        child: selectedImage != ""
+                                            ? Image.network(
+                                                "$generalServer$selectedImage",
+                                                fit: BoxFit.fill,
+                                              )
+                                            : Container(),
+                                      ),
+                                    ),
+                                    Visibility(
+                                      visible: selectedTemp,
+                                      child: SizedBox(
+                                        width: screenWidth * 0.37,
+                                        height: screenHeight * 0.40,
+                                        child: selectedImage != ""
+                                            ? Image.network(
+                                                selectedImage,
+                                                fit: BoxFit.fill,
+                                              )
+                                            : Container(),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
                       const SizedBox(height: 20),
+                      //
                       Row(
                         children: [
                           Expanded(
@@ -1432,6 +1743,17 @@ class _EditProductState extends State<EditProduct> {
                                       "options": optionsTypesOriginal
                                     };
 
+                                    List<String> totalUrlsImgsList = [];
+
+                                    if (imgsTemporales.isNotEmpty) {
+                                      totalUrlsImgsList = [
+                                        ...urlsImgsList,
+                                        ...urlsImgsListToSend
+                                      ];
+                                    } else {
+                                      totalUrlsImgsList = urlsImgsList;
+                                    }
+
                                     _productController.editProduct(ProductModel(
                                       productId: widget.data['product_id'],
                                       productName: _nameController.text,
@@ -1440,9 +1762,10 @@ class _EditProductState extends State<EditProduct> {
                                           : stockOriginal,
                                       price:
                                           double.parse(_priceController.text),
-                                      urlImg: imgsTemporales.isNotEmpty
-                                          ? urlsImgsListToSend
-                                          : urlsImgsList,
+                                      // urlImg: imgsTemporales.isNotEmpty
+                                      //     ? urlsImgsListToSend
+                                      //     : urlsImgsList,
+                                      urlImg: urlsImgsList,
                                       isvariable: isVariable,
                                       features: featuresToSend,
                                       warehouseId: int.parse(warehouseValue
