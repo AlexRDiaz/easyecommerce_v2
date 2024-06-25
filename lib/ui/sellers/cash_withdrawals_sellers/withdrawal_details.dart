@@ -30,12 +30,20 @@ class _SellerWithdrawalDetailsState extends State<SellerWithdrawalDetails> {
 
   @override
   void initState() {
-    getSaldo();
+    // getSaldo();
+    getSaldoVersion1();
     super.initState();
   }
 
   getSaldo() async {
     saldo = await Connections().getSaldo();
+    setState(() {});
+  }
+
+  getSaldoVersion1() async {
+    var response = await Connections().getWalletValueLaravel();
+    var tempWallet2 = double.parse(response.toString());
+    saldo = tempWallet2.toStringAsFixed(2);
     setState(() {});
   }
 
