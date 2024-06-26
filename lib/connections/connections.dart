@@ -6546,7 +6546,7 @@ class Connections {
             "url_img": json.encode(product.urlImg),
             "isvariable": product.isvariable,
             "features": json.encode(product.features),
-            "warehouse_id": product.warehouseId
+            // "warehouse_id": product.warehouseId
           }));
 
       if (response.statusCode == 200) {

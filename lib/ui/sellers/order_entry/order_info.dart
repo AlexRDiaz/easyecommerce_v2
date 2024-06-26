@@ -150,6 +150,8 @@ class _OrderInfoState extends State<OrderInfo> {
     data = widget.order;
     // print(data);
     _controllers.editControllers(widget.order);
+    _controllers.precioTotalEditController.text =
+        data['precio_total'].toString();
     setState(() {
       estadoEntrega = data['status'].toString();
       estadoLogistic = data['estado_logistico'].toString();
@@ -450,6 +452,8 @@ class _OrderInfoState extends State<OrderInfo> {
       estadoEntrega = data['status'].toString();
       estadoLogistic = data['estado_logistico'].toString();
       productPname = data['producto_p'].toString();
+      _controllers.precioTotalEditController.text =
+          data['precio_total'].toString();
       // route = data['ruta'] != null && data['ruta'].toString() != "[]"
       //     ? data['ruta'][0]['titulo'].toString()
       //     : "";
@@ -2545,7 +2549,12 @@ class _OrderInfoState extends State<OrderInfo> {
                               .toString(),
                         });
                       }
-
+                      // print("${_controllers.precioTotalEditController.text}");
+                      await Connections().updatenueva(data['id'], {
+                        "precio_total": _controllers
+                            .precioTotalEditController.text
+                            .toString(),
+                      });
                       await updateData();
                       Navigator.pop(context);
 
