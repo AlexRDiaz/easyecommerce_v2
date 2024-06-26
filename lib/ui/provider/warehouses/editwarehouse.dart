@@ -847,478 +847,473 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
             ),
           ],
         ),
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: EdgeInsets.all(8.0),
-              height: 600,
-              child: SingleChildScrollView(
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Row(
-                        children: [
-                          const Text(
-                            'Editar Bodega',
-                            style: TextStyle(fontSize: 20),
-                          ),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          widget.warehouse.active == 1
-                              ? Tooltip(
-                                  message: "Desactivar Bodega",
-                                  child: IconButton(
-                                    icon: const Icon(Icons.lock,
-                                        color: Colors.red),
-                                    onPressed: () {
-                                      _controller
-                                          .deleteWarehouse(widget.warehouse.id!)
-                                          .then((_) {
-                                        Navigator.of(context).pop();
-                                        setState(() {
-                                          _futureWarehouseData =
-                                              _loadWarehouses();
-                                          SnackBarHelper.showOkSnackBar(
-                                              context, "BODEGA INACTIVA.");
-                                        });
-                                      });
-                                    },
-                                  ),
-                                )
-                              : Tooltip(
-                                  message: "Activar Bodega",
-                                  child: IconButton(
-                                    icon:
-                                        Icon(Icons.check, color: Colors.green),
-                                    onPressed: () {
-                                      _controller
-                                          .activateWarehouse(
-                                              widget.warehouse.id!)
-                                          .then((_) {
-                                        Navigator.of(context).pop();
-                                        setState(() {
-                                          _futureWarehouseData =
-                                              _loadWarehouses();
-                                          SnackBarHelper.showOkSnackBar(
-                                              context, "BODEGA ACTIVA.");
-                                        });
-                                      });
-                                    },
-                                  ),
-                                )
-                        ],
+        Container(
+          padding: EdgeInsets.all(8.0),
+          height: 600,
+          child: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Row(
+                    children: [
+                      const Text(
+                        'Editar Bodega',
+                        style: TextStyle(fontSize: 20),
                       ),
                       SizedBox(
-                        height: 30,
+                        width: 5,
                       ),
-                      // content:
-                      SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            TextFieldWithIcon(
-                              controller: _nameSucursalController,
-                              labelText: 'Nombre de bodega',
-                              icon: Icons.store_mall_directory,
-                            ),
-                            SizedBox(height: 10),
-                            TextFieldWithIcon(
-                              controller: _addressController,
-                              labelText: 'Dirección',
-                              icon: Icons.place,
-                            ),
-                            SizedBox(height: 10),
-                            TextFieldWithIcon(
-                              controller: _referenceController,
-                              labelText: 'Referencia',
-                              icon: Icons.bookmark_border,
-                            ),
-                            SizedBox(height: 10),
-                            TextFieldWithIcon(
-                              labelText: 'Número Atención al Cliente',
-                              controller: _customerServiceController,
-                              icon: Icons.phone,
-                            ),
-                            SizedBox(height: 10),
-                            TextFieldWithIcon(
-                              controller: _descriptionController,
-                              labelText: 'Descripción',
-                              icon: Icons.description,
-                            ),
-                            SizedBox(height: 20),
-                            Row(children: [
-                              Column(
-                                children: [
-                                  Container(
-                                      padding: EdgeInsets.only(top: 15.0),
-                                      height: 100,
-                                      child: ImagePickerExample(
-                                        onImageSelected: (XFile? image) {
-                                          setState(() {
-                                            pickedImage = image;
-                                          });
-                                        },
-                                        label: 'Seleccione Nueva Imagen',
-                                        widgetWidth: 200,
-                                      )),
-                                ],
-                              ),
-                            ]),
-                            SizedBox(height: 10),
-                            Text("Seleccione si desea cambiar estas opciones: ",
-                                style: TextStyle(
-                                    color: ColorsSystem().colorRedPassword)),
-                            SizedBox(height: 20),
-                            Container(
-                              padding: EdgeInsets.all(5.0),
-                              decoration: BoxDecoration(
-                                  border: Border.all(
-                                      width: 1,
-                                      color: Color.fromARGB(255, 95, 95, 95)),
-                                  borderRadius: BorderRadius.circular(10.0)),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text("Provincia: ",
-                                          style: TextStyle(
-                                              color: ColorsSystem()
-                                                  .colorSelectMenu,
-                                              fontSize: 14)),
-                                      Text(
-                                        "$provnam",
-                                        style: TextStyle(fontSize: 14),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Text("Ciudad: ",
-                                          style: TextStyle(
-                                              color: ColorsSystem()
-                                                  .colorSelectMenu,
-                                              fontSize: 14)),
-                                      Text(
-                                        "${_cityControllerdb.text}",
-                                        style: TextStyle(fontSize: 14),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        "Transporte de R: ",
-                                        style: TextStyle(
-                                            color:
-                                                ColorsSystem().colorSelectMenu,
-                                            fontSize: 14),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        "$collectionTransport",
-                                        style: TextStyle(fontSize: 14),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 10.0,
-                                  ),
-                                  Row(
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text("Horario de R: ",
-                                              style: TextStyle(
-                                                  color: ColorsSystem()
-                                                      .colorSelectMenu,
-                                                  fontSize: 14)),
-                                          Text(
-                                            "${collectionSchedule}",
-                                            style: TextStyle(fontSize: 14),
-                                          )
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 10),
-                                  Row(
-                                    children: [
-                                      Text("Días de R: ",
-                                          style: TextStyle(
-                                              color: ColorsSystem()
-                                                  .colorSelectMenu,
-                                              fontSize: 14)),
-                                    ],
-                                  ),
-                                  SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      Flexible(
-                                        child: Text(
-                                          "${mapNumbersToDays(collectionDays)}",
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: 20),
-                            Row(
-                              children: [
-                                Container(
-                                  width: 210,
-                                  child: SelectFilterProvincia(
-                                      'Provincia', provnam, provincias),
-                                  // _provinciaController, provincias),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 20),
-                            Row(
-                              children: [
-                                Container(
-                                  width: 210,
-                                  child: SelectFilterN('Ciudad',
-                                      _cityControllerdb, activeRoutes),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 20),
-                            Row(
-                              children: [
-                                Container(
-                                  width: 210,
-                                  child: SelectFilterTrans(
-                                      'Transporte de Recolección',
-                                      _trnsportController,
-                                      formattedList),
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Días de Recolección",
-                                    style: TextStyle(
-                                        color: Color.fromARGB(
-                                            255, 107, 105, 105))),
-                                Container(
-                                  // width: 300,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: const Color.fromARGB(
-                                            255, 105, 104, 104)),
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                  // padding: EdgeInsets.all(5.0),
-                                  height: 50,
-                                  child: DiasSeleccionadosWidget(
-                                    initialSelectedDays: listaDeEnteros,
-                                    onSelectionChanged: (selectedDaysInter) {
-                                      setState(() {
-                                        listaDeEnterosX = selectedDaysInter;
-                                      });
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 20),
-                            Text("Horario de Recolección",
-                                style: TextStyle(
-                                    color: Color.fromARGB(255, 107, 105, 105))),
-                            SizedBox(height: 10),
-
-                            Container(
-                              // width: 300,
-                              decoration: BoxDecoration(
-                                  border: Border.all(
-                                      color: const Color.fromARGB(
-                                          255, 105, 104, 104)),
-                                  borderRadius: BorderRadius.circular(10.0)),
-                              padding: EdgeInsets.all(10.0),
-                              child: Column(children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: _buildTimePicker(
-                                          "Desde", startTime, (time) {
-                                        setState(() {
-                                          startTime = time;
-                                          _timeStartController.text =
-                                              "${startTime.hour}:${startTime.minute}";
-                                        });
-                                      }, _timeStartControllerdb.text),
-                                    ),
-                                    // SizedBox(width: 10),
-                                  ],
-                                ),
-                                SizedBox(height: 10),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: _buildTimePicker("Hasta", endTime,
-                                          (time) {
-                                        setState(() {
-                                          endTime = time;
-                                          _timeEndController.text =
-                                              "${endTime.hour}:${endTime.minute}";
-                                        });
-                                      }, _timeEndControllerdb.text),
-                                    ),
-                                  ],
-                                ),
-                              ]),
-                            )
-                            // SizedBox(height: 20),
-
-                            // ... Agrega más TextFields para cada campo editable
-                          ],
-                        ),
-                      ),
-                      // actions: <Widget>[
-                      SizedBox(height: 40),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: ElevatedButton(
-                                onPressed: () async {
-                                  // Implementa la lógica de actualización aquí
-
-                                  if (_trnasportController.text == "") {
-                                    _trnasportController =
-                                        TextEditingController(
-                                            text: collectionTransport);
-                                  }
-                                  if (selectedDays.isEmpty) {
-                                    selectedDays = listaDeEnteros;
-                                  }
-                                  // ! LAS FECHAS DA PROBLEMA CAMBIA EN EL FRONT PERO LAS VARIABLES NO CAMBIAN DE VALOR
-                                  if (_timeStartController.text != "" &&
-                                      _timeEndController.text != "") {
-                                    _timeStartControllerdb =
-                                        TextEditingController(
-                                            text: _timeStartController.text);
-                                    _timeEndControllerdb =
-                                        TextEditingController(
-                                            text: _timeEndController.text);
-
-                                    collectionSchedule =
-                                        " ${_timeStartControllerdb.text} - ${_timeEndControllerdb.text}";
-                                  }
-                                  if (_cityController.text == "") {
-                                    _cityController = TextEditingController(
-                                        text: _cityControllerdb.text);
-                                  }
-
-                                  if (listaDeEnterosX.isEmpty) {
-                                    listaDeEnterosX = listaDeEnteros;
-                                  }
-                                  var responseChargeImage;
-
-                                  if (pickedImage != null &&
-                                      pickedImage!.name.isNotEmpty) {
-                                    responseChargeImage = await Connections()
-                                        .postDoc(pickedImage!);
-                                    if (responseChargeImage[1] != "") {
-                                      _urlImageController.text =
-                                          responseChargeImage[1];
-                                    }
-                                  }
+                      widget.warehouse.active == 1
+                          ? Tooltip(
+                              message: "Desactivar Bodega",
+                              child: IconButton(
+                                icon: const Icon(Icons.lock,
+                                    color: Colors.red),
+                                onPressed: () {
                                   _controller
-                                      .updateWarehouse(
-                                          widget.warehouse.id!,
-                                          _nameSucursalController.text,
-                                          _addressController.text,
-                                          _customerServiceController.text,
-                                          _referenceController.text,
-                                          _descriptionController.text,
-                                          _urlImageController.text,
-                                          _cityController.text,
-                                          {
-                                            "collectionDays": listaDeEnterosX,
-                                            "collectionSchedule":
-                                                collectionSchedule,
-                                            "collectionTransport":
-                                                _trnasportController.text
-                                          },
-                                          int.parse(_provinciaController.text))
+                                      .deleteWarehouse(widget.warehouse.id!)
                                       .then((_) {
                                     Navigator.of(context).pop();
                                     setState(() {
-                                      // Esto forzará la reconstrucción de la vista con los datos actualizados
-                                      _futureWarehouseData = _loadWarehouses();
+                                      _futureWarehouseData =
+                                          _loadWarehouses();
                                       SnackBarHelper.showOkSnackBar(
-                                          context, "DATOS ACTUALIZADOS.");
+                                          context, "BODEGA INACTIVA.");
                                     });
                                   });
                                 },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: ColorsSystem()
-                                      .colorSelectMenu, // Color del botón 'Aceptar'
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                child: const Text('Aceptar',
-                                    style: TextStyle(fontSize: 12)),
                               ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: ElevatedButton(
+                            )
+                          : Tooltip(
+                              message: "Activar Bodega",
+                              child: IconButton(
+                                icon:
+                                    Icon(Icons.check, color: Colors.green),
                                 onPressed: () {
-                                  Navigator.of(context)
-                                      .pop(); // Cierra el diálogo
+                                  _controller
+                                      .activateWarehouse(
+                                          widget.warehouse.id!)
+                                      .then((_) {
+                                    Navigator.of(context).pop();
+                                    setState(() {
+                                      _futureWarehouseData =
+                                          _loadWarehouses();
+                                      SnackBarHelper.showOkSnackBar(
+                                          context, "BODEGA ACTIVA.");
+                                    });
+                                  });
                                 },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: ColorsSystem()
-                                      .colorBlack, // Color del botón 'Cancelar'
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
+                              ),
+                            )
+                    ],
+                  ),
+                  SizedBox(
+                    height: 30,
+                  ),
+                  // content:
+                  SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        TextFieldWithIcon(
+                          controller: _nameSucursalController,
+                          labelText: 'Nombre de bodega',
+                          icon: Icons.store_mall_directory,
+                        ),
+                        SizedBox(height: 10),
+                        TextFieldWithIcon(
+                          controller: _addressController,
+                          labelText: 'Dirección',
+                          icon: Icons.place,
+                        ),
+                        SizedBox(height: 10),
+                        TextFieldWithIcon(
+                          controller: _referenceController,
+                          labelText: 'Referencia',
+                          icon: Icons.bookmark_border,
+                        ),
+                        SizedBox(height: 10),
+                        TextFieldWithIcon(
+                          labelText: 'Número Atención al Cliente',
+                          controller: _customerServiceController,
+                          icon: Icons.phone,
+                        ),
+                        SizedBox(height: 10),
+                        TextFieldWithIcon(
+                          controller: _descriptionController,
+                          labelText: 'Descripción',
+                          icon: Icons.description,
+                        ),
+                        SizedBox(height: 20),
+                        Row(children: [
+                          Column(
+                            children: [
+                              Container(
+                                  padding: EdgeInsets.only(top: 15.0),
+                                  height: 100,
+                                  child: ImagePickerExample(
+                                    onImageSelected: (XFile? image) {
+                                      setState(() {
+                                        pickedImage = image;
+                                      });
+                                    },
+                                    label: 'Seleccione Nueva Imagen',
+                                    widgetWidth: 200,
+                                  )),
+                            ],
+                          ),
+                        ]),
+                        SizedBox(height: 10),
+                        Text("Seleccione si desea cambiar estas opciones: ",
+                            style: TextStyle(
+                                color: ColorsSystem().colorRedPassword)),
+                        SizedBox(height: 20),
+                        Container(
+                          padding: EdgeInsets.all(5.0),
+                          decoration: BoxDecoration(
+                              border: Border.all(
+                                  width: 1,
+                                  color: Color.fromARGB(255, 95, 95, 95)),
+                              borderRadius: BorderRadius.circular(10.0)),
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Text("Provincia: ",
+                                      style: TextStyle(
+                                          color: ColorsSystem()
+                                              .colorSelectMenu,
+                                          fontSize: 14)),
+                                  Text(
+                                    "$provnam",
+                                    style: TextStyle(fontSize: 14),
                                   ),
-                                ),
-                                child: const Text(
-                                  'Cancelar',
-                                  style: TextStyle(fontSize: 12),
-                                ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text("Ciudad: ",
+                                      style: TextStyle(
+                                          color: ColorsSystem()
+                                              .colorSelectMenu,
+                                          fontSize: 14)),
+                                  Text(
+                                    "${_cityControllerdb.text}",
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    "Transporte de R: ",
+                                    style: TextStyle(
+                                        color:
+                                            ColorsSystem().colorSelectMenu,
+                                        fontSize: 14),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    "$collectionTransport",
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 10.0,
+                              ),
+                              Row(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text("Horario de R: ",
+                                          style: TextStyle(
+                                              color: ColorsSystem()
+                                                  .colorSelectMenu,
+                                              fontSize: 14)),
+                                      Text(
+                                        "${collectionSchedule}",
+                                        style: TextStyle(fontSize: 14),
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Text("Días de R: ",
+                                      style: TextStyle(
+                                          color: ColorsSystem()
+                                              .colorSelectMenu,
+                                          fontSize: 14)),
+                                ],
+                              ),
+                              SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      "${mapNumbersToDays(collectionDays)}",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Container(
+                              width: 210,
+                              child: SelectFilterProvincia(
+                                  'Provincia', provnam, provincias),
+                              // _provinciaController, provincias),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Container(
+                              width: 210,
+                              child: SelectFilterN('Ciudad',
+                                  _cityControllerdb, activeRoutes),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Container(
+                              width: 210,
+                              child: SelectFilterTrans(
+                                  'Transporte de Recolección',
+                                  _trnsportController,
+                                  formattedList),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Días de Recolección",
+                                style: TextStyle(
+                                    color: Color.fromARGB(
+                                        255, 107, 105, 105))),
+                            Container(
+                              // width: 300,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                    color: const Color.fromARGB(
+                                        255, 105, 104, 104)),
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              // padding: EdgeInsets.all(5.0),
+                              height: 50,
+                              child: DiasSeleccionadosWidget(
+                                initialSelectedDays: listaDeEnteros,
+                                onSelectionChanged: (selectedDaysInter) {
+                                  setState(() {
+                                    listaDeEnterosX = selectedDaysInter;
+                                  });
+                                },
                               ),
                             ),
+                          ],
+                        ),
+                        SizedBox(height: 20),
+                        Text("Horario de Recolección",
+                            style: TextStyle(
+                                color: Color.fromARGB(255, 107, 105, 105))),
+                        SizedBox(height: 10),
+        
+                        Container(
+                          // width: 300,
+                          decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: const Color.fromARGB(
+                                      255, 105, 104, 104)),
+                              borderRadius: BorderRadius.circular(10.0)),
+                          padding: EdgeInsets.all(10.0),
+                          child: Column(children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildTimePicker(
+                                      "Desde", startTime, (time) {
+                                    setState(() {
+                                      startTime = time;
+                                      _timeStartController.text =
+                                          "${startTime.hour}:${startTime.minute}";
+                                    });
+                                  }, _timeStartControllerdb.text),
+                                ),
+                                // SizedBox(width: 10),
+                              ],
+                            ),
+                            SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildTimePicker("Hasta", endTime,
+                                      (time) {
+                                    setState(() {
+                                      endTime = time;
+                                      _timeEndController.text =
+                                          "${endTime.hour}:${endTime.minute}";
+                                    });
+                                  }, _timeEndControllerdb.text),
+                                ),
+                              ],
+                            ),
+                          ]),
+                        )
+                        // SizedBox(height: 20),
+        
+                        // ... Agrega más TextFields para cada campo editable
+                      ],
+                    ),
+                  ),
+                  // actions: <Widget>[
+                  SizedBox(height: 40),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              // Implementa la lógica de actualización aquí
+        
+                              if (_trnasportController.text == "") {
+                                _trnasportController =
+                                    TextEditingController(
+                                        text: collectionTransport);
+                              }
+                              if (selectedDays.isEmpty) {
+                                selectedDays = listaDeEnteros;
+                              }
+                              // ! LAS FECHAS DA PROBLEMA CAMBIA EN EL FRONT PERO LAS VARIABLES NO CAMBIAN DE VALOR
+                              if (_timeStartController.text != "" &&
+                                  _timeEndController.text != "") {
+                                _timeStartControllerdb =
+                                    TextEditingController(
+                                        text: _timeStartController.text);
+                                _timeEndControllerdb =
+                                    TextEditingController(
+                                        text: _timeEndController.text);
+        
+                                collectionSchedule =
+                                    " ${_timeStartControllerdb.text} - ${_timeEndControllerdb.text}";
+                              }
+                              if (_cityController.text == "") {
+                                _cityController = TextEditingController(
+                                    text: _cityControllerdb.text);
+                              }
+        
+                              if (listaDeEnterosX.isEmpty) {
+                                listaDeEnterosX = listaDeEnteros;
+                              }
+                              var responseChargeImage;
+        
+                              if (pickedImage != null &&
+                                  pickedImage!.name.isNotEmpty) {
+                                responseChargeImage = await Connections()
+                                    .postDoc(pickedImage!);
+                                if (responseChargeImage[1] != "") {
+                                  _urlImageController.text =
+                                      responseChargeImage[1];
+                                }
+                              }
+                              _controller
+                                  .updateWarehouse(
+                                      widget.warehouse.id!,
+                                      _nameSucursalController.text,
+                                      _addressController.text,
+                                      _customerServiceController.text,
+                                      _referenceController.text,
+                                      _descriptionController.text,
+                                      _urlImageController.text,
+                                      _cityController.text,
+                                      {
+                                        "collectionDays": listaDeEnterosX,
+                                        "collectionSchedule":
+                                            collectionSchedule,
+                                        "collectionTransport":
+                                            _trnasportController.text
+                                      },
+                                      int.parse(_provinciaController.text))
+                                  .then((_) {
+                                Navigator.of(context).pop();
+                                setState(() {
+                                  // Esto forzará la reconstrucción de la vista con los datos actualizados
+                                  _futureWarehouseData = _loadWarehouses();
+                                  SnackBarHelper.showOkSnackBar(
+                                      context, "DATOS ACTUALIZADOS.");
+                                });
+                              });
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: ColorsSystem()
+                                  .colorSelectMenu, // Color del botón 'Aceptar'
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: const Text('Aceptar',
+                                style: TextStyle(fontSize: 12)),
                           ),
-                        ],
+                        ),
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.of(context)
+                                  .pop(); // Cierra el diálogo
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: ColorsSystem()
+                                  .colorBlack, // Color del botón 'Cancelar'
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: const Text(
+                              'Cancelar',
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
         context);
   }

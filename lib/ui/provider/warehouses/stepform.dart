@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/config/colors.dart';
 import 'package:frontend/connections/connections.dart';
@@ -608,27 +609,55 @@ class _StepFormExampleState extends State<StepFormExample> {
   }
 
   void _submitForm() async {
-    var responseChargeImage = await Connections().postDoc(pickedImage!);
-    // ! cambiar  segun lo que diga el modelo de warehouses
-    _controller.addWarehouse(WarehouseModel(
-        branchName: _nameSucursalController.text,
-        address: _addressController.text,
-        customerphoneNumber: _customerServiceController.text,
-        reference: _referenceController.text,
-        description: _decriptionController.text,
-        url_image: responseChargeImage[1],
-        id_provincia: int.parse(selectedProvincia.toString().split('-')[1]),
-        city: _cityController.text,
-        collection: {
-          "collectionDays": selectedDays,
-          "collectionSchedule":
-              "${_timeStartController.text} - ${_timeEndController.text}",
-          "collectionTransport": _trnasportController.text
+    if (_nameSucursalController.text == " " ||
+        _addressController.text == "" ||
+        _customerServiceController.text == "" ||
+        _referenceController.text == "" ||
+        _decriptionController.text == "" ||
+        _cityController.text == "" ||
+        _timeStartController.text == "" ||
+        _timeEndController.text == "" ||
+        _trnasportController.text == "" ||
+        pickedImage!.name.toString() == " " ||
+        selectedProvincia.toString().split('-')[1] == " " ||
+        selectedDays.isEmpty) {
+      AwesomeDialog(
+        width: 500,
+        context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.rightSlide,
+        title: 'Error',
+        desc: 'Complete todos los campos',
+        btnOkText: "Aceptar",
+        btnOkColor: Colors.green,
+        btnOkOnPress: () async {
+          Navigator.pop(context);
+          await loadData();
         },
-        providerId:
-            int.parse(sharedPrefs!.getString("idProvider").toString())));
+      ).show();
+    } else {
+      var responseChargeImage = await Connections().postDoc(pickedImage!);
+      // ! cambiar  segun lo que diga el modelo de warehouses
+      _controller.addWarehouse(WarehouseModel(
+          branchName: _nameSucursalController.text,
+          address: _addressController.text,
+          customerphoneNumber: _customerServiceController.text,
+          reference: _referenceController.text,
+          description: _decriptionController.text,
+          url_image: responseChargeImage[1],
+          id_provincia: int.parse(selectedProvincia.toString().split('-')[1]),
+          city: _cityController.text,
+          collection: {
+            "collectionDays": selectedDays,
+            "collectionSchedule":
+                "${_timeStartController.text} - ${_timeEndController.text}",
+            "collectionTransport": _trnasportController.text
+          },
+          providerId:
+              int.parse(sharedPrefs!.getString("idProvider").toString())));
 
-    Navigator.pop(context);
+      Navigator.pop(context);
+    }
   }
 
   @override
