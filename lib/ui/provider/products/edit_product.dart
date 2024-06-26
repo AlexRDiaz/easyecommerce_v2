@@ -1768,10 +1768,10 @@ class _EditProductState extends State<EditProduct> {
                                       urlImg: urlsImgsList,
                                       isvariable: isVariable,
                                       features: featuresToSend,
-                                      warehouseId: int.parse(warehouseValue
-                                          .toString()
-                                          .split("-")[0]
-                                          .toString()),
+                                      // warehouseId: int.parse(warehouseValue
+                                      //     .toString()
+                                      //     .split("-")[0]
+                                      //     .toString()),
                                     ));
 
                                     // print("variantsStockToUpt can:");
@@ -1834,6 +1834,10 @@ class _EditProductState extends State<EditProduct> {
                                       //
                                       print(
                                           "Cambios de Bodega!! Need update ProductWarehouseLink");
+                                      // print(
+                                      //     "${warehouseValueOriginal.toString().split("-")[0].toString()}");
+                                      // print(
+                                      //     "${warehouseValue.toString().split("-")[0].toString()}");
                                       var responseUptPW = await Connections()
                                           .updateProductWarehouse(
                                               widget.data['product_id'],
