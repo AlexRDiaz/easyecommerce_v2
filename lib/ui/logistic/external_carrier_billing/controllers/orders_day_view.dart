@@ -373,14 +373,16 @@ class _OrdersDayViewExtenalCarrierState
         borderRadius: BorderRadius.circular(15),
         color: Colors.white,
       ),
-      child: ordersDay.length > 0
-          ? DataTableModelPrincipal(
+      child: 
+      // ordersDay.length > 0
+          // ? 
+          DataTableModelPrincipal(
               columnWidth: 200,
               columns: getColumns(),
               rows: buildDataRows(ordersDay))
-          : const Center(
-              child: Text("Sin datos"),
-            ),
+          // : const Center(
+          //     child: Text("Sin datos"),
+          //   ),
     );
   }
 
@@ -461,7 +463,7 @@ class _OrdersDayViewExtenalCarrierState
       // ),
       DataColumn2(
         label: SelectFilterStatus(
-            'Estado de entrega', 'status', statusController, listStatus),
+            'Estado de entrega', '/status', statusController, listStatus),
         size: ColumnSize.L,
         // onSort: (columnIndex, ascending) {
         //   sortFunc("status", changevalue);
@@ -472,7 +474,7 @@ class _OrdersDayViewExtenalCarrierState
       //   size: ColumnSize.L,
       // ),
       DataColumn2(
-        label: SelectFilter('Operador', 'operadore.up_users.operadore_id',
+        label: SelectFilter('Operador', '/operadore.up_users.operadore_id',
             operadorController, listOperators),
         size: ColumnSize.L,
         // onSort: (columnIndex, ascending) {},

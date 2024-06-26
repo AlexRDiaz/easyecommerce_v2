@@ -46,7 +46,7 @@ class CreateReportProof {
 
       for (int rowIndex = 0; rowIndex < orders.length; rowIndex++) {
         final data = orders[rowIndex];
-
+        print(data);
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 0, rowIndex: rowIndex + 1))
@@ -55,19 +55,20 @@ class CreateReportProof {
                 .cell(CellIndex.indexByColumnRow(
                     columnIndex: 1, rowIndex: rowIndex + 1))
                 .value =
-            "${data["pedidos_shopify"]["name_comercial"]}-${data["pedidos_shopify"]["numero_orden"]}";
+            "${data['users'][0]['vendedores'][0]['nombre_comercial'].toString()}-${data["numero_orden"].toString()}";
+            // "${data["numero_orden"]}";
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 2, rowIndex: rowIndex + 1))
-            .value = data["pedidos_shopify"]["producto_p"];
+            .value = data["producto_p"];
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 3, rowIndex: rowIndex + 1))
-            .value = data["pedidos_shopify"]["cantidad_total"];
+            .value = data["cantidad_total"];
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 4, rowIndex: rowIndex + 1))
-            .value = data["pedidos_shopify"]["precio_total"];
+            .value = data["precio_total"];
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 5, rowIndex: rowIndex + 1))
@@ -75,8 +76,10 @@ class CreateReportProof {
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 6, rowIndex: rowIndex + 1))
-            .value = data["transportadora"]["nombre"];
-        name_transportadora = data["transportadora"]["nombre"];
+            .value = data["pedido_carrier"][0]["carrier"]["name"];
+            // .value = "";
+        name_transportadora = data["pedido_carrier"][0]["carrier"]["name"];
+        // name_transportadora = "";
         sheet
             .cell(CellIndex.indexByColumnRow(
                 columnIndex: 7, rowIndex: rowIndex + 1))

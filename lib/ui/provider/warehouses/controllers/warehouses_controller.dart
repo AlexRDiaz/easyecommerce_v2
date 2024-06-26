@@ -25,7 +25,8 @@ class WrehouseController extends ControllerMVC {
       String description,
       String url_image,
       String city,
-      var collection) async {
+      var collection,
+      int provincia) async {
     await Connections().updateWarehouse(
         warehouseId,
         nameSucursal,
@@ -35,7 +36,8 @@ class WrehouseController extends ControllerMVC {
         description,
         url_image,
         city,
-        collection);
+        collection,
+        provincia);
     setState(() {});
   }
 

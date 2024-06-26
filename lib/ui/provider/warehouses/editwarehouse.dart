@@ -33,11 +33,14 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
   TextEditingController _trnasportController;
   TextEditingController _timeStartController;
   TextEditingController _timeEndController;
+  TextEditingController _provinciaController;
 
   List<int> selectedDays = [];
 
   List<dynamic> activeRoutes = [];
   List<dynamic> secondDropdownOptions = [];
+  List<dynamic> provincias = [];
+  String provnam = "";
   List<String> formattedList = [];
 
   XFile? pickedImage;
@@ -52,8 +55,8 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
       : _cityController = TextEditingController(),
         _trnasportController = TextEditingController(),
         _timeStartController = TextEditingController(),
-        _timeEndController = TextEditingController();
-
+        _timeEndController = TextEditingController(),
+        _provinciaController = TextEditingController();
   @override
   void initState() {
     _controller = WrehouseController();
@@ -69,8 +72,21 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
   }
 
   Future loadData() async {
-    if (activeRoutes.isEmpty) {
-      activeRoutes = await Connections().getActiveRoutes();
+    try {
+      if (provincias.isEmpty) {
+        provincias = await Connections().getProvincias();
+        for (String provincia in provincias) {
+          String id = provincia.toString().split('-')[1];
+          if (int.parse(id) == widget.warehouse.id_provincia) {
+            provnam = provincia.toString().split('-')[0];
+          }
+        }
+      }
+      if (activeRoutes.isEmpty) {
+        activeRoutes = await Connections().getActiveRoutes();
+      }
+    } catch (e) {
+      print(" Load Data Error: $e " );
     }
   }
 
@@ -289,6 +305,73 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
     );
   }
 
+  Column SelectFilterProvincia<T>(
+    String title,
+    String provName,
+    // TextEditingController controller,
+    List<T> listOptions,
+  ) {
+    T? selectedValue;
+
+    // Buscar el valor en la lista de opciones
+    for (T option in listOptions) {
+      String onlyName = option.toString().split('-')[0];
+      if (onlyName == provName) {
+        selectedValue = option;
+        break;
+      }
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(color: Color.fromARGB(255, 107, 105, 105)),
+        ),
+        Container(
+          margin: EdgeInsets.only(bottom: 4.5, top: 4.5),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5.0),
+            border: Border.all(color: Color.fromRGBO(6, 6, 6, 1)),
+          ),
+          height: 50,
+          child: DropdownButtonFormField<T>(
+            isExpanded: true,
+            value: selectedValue,
+            onChanged: (T? newValue) {
+              setState(() {
+                // Actualiza el controlador con el nombre de la provincia
+                provName = newValue?.toString().split('-')[0] ?? "";
+                _provinciaController.text = newValue!.toString().split('-')[1];
+                // Aquí puedes actualizar otros controladores o variables según sea necesario
+              });
+            },
+            decoration: InputDecoration(
+              border: UnderlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            items: listOptions.map<DropdownMenuItem<T>>((T value) {
+              String onlyName = value.toString().split('-')[0];
+              String onlyId = value.toString().split('-')[1];
+              return DropdownMenuItem<T>(
+                value: value,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Text(
+                    onlyName,
+                    style: const TextStyle(fontSize: 15),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     TextEditingController _nameSucursalController =
@@ -307,6 +390,8 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
         TextEditingController(text: widget.warehouse.city);
     TextEditingController _urlImageController =
         TextEditingController(text: widget.warehouse.url_image);
+    TextEditingController _provinciaControllerdb =
+        TextEditingController(text: widget.warehouse.id_provincia.toString());
 
     // Decodificar el JSON
     Map<String, dynamic> warehouseJson =
@@ -666,6 +751,11 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                                     _cityController = TextEditingController(
                                         text: _cityControllerdb.text);
                                   }
+                                  if (_provinciaController.text == "") {
+                                    _provinciaController =
+                                        TextEditingController(
+                                            text: _provinciaControllerdb.text);
+                                  }
 
                                   if (listaDeEnterosX.isEmpty) {
                                     listaDeEnterosX = listaDeEnteros;
@@ -681,21 +771,26 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                                           responseChargeImage[1];
                                     }
                                   }
-                                  _controller.updateWarehouse(
-                                      widget.warehouse.id!,
-                                      _nameSucursalController.text,
-                                      _addressController.text,
-                                      _customerServiceController.text,
-                                      _referenceController.text,
-                                      _descriptionController.text,
-                                      _urlImageController.text,
-                                      _cityController.text, {
-                                    "collectionDays": listaDeEnterosX,
-                                    "collectionSchedule": collectionSchedule,
-                                    //       "${_timeStartController.text} - ${_timeEndController.text}",
-                                    "collectionTransport":
-                                        _trnasportController.text
-                                  }).then((_) {
+                                  _controller
+                                      .updateWarehouse(
+                                          widget.warehouse.id!,
+                                          _nameSucursalController.text,
+                                          _addressController.text,
+                                          _customerServiceController.text,
+                                          _referenceController.text,
+                                          _descriptionController.text,
+                                          _urlImageController.text,
+                                          _cityController.text,
+                                          {
+                                            "collectionDays": listaDeEnterosX,
+                                            "collectionSchedule":
+                                                collectionSchedule,
+                                            //       "${_timeStartController.text} - ${_timeEndController.text}",
+                                            "collectionTransport":
+                                                _trnasportController.text
+                                          },
+                                          _provinciaController.text as int)
+                                      .then((_) {
                                     Navigator.of(context).pop();
                                     setState(() {
                                       // Esto forzará la reconstrucción de la vista con los datos actualizados
@@ -889,6 +984,19 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                                 children: [
                                   Row(
                                     children: [
+                                      Text("Provincia: ",
+                                          style: TextStyle(
+                                              color: ColorsSystem()
+                                                  .colorSelectMenu,
+                                              fontSize: 14)),
+                                      Text(
+                                        "$provnam",
+                                        style: TextStyle(fontSize: 14),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
                                       Text("Ciudad: ",
                                           style: TextStyle(
                                               color: ColorsSystem()
@@ -958,13 +1066,30 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                                   SizedBox(height: 5),
                                   Row(
                                     children: [
-                                      Text(
+                                      Flexible(
+                                        child: Text(
                                           "${mapNumbersToDays(collectionDays)}",
-                                          style: TextStyle(fontSize: 14))
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ],
                               ),
+                            ),
+                            SizedBox(height: 20),
+                            Row(
+                              children: [
+                                Container(
+                                  width: 210,
+                                  child: SelectFilterProvincia(
+                                      'Provincia', provnam, provincias),
+                                  // _provinciaController, provincias),
+                                ),
+                              ],
                             ),
                             SizedBox(height: 20),
                             Row(
@@ -1124,20 +1249,25 @@ class _EditWarehouseState extends StateMVC<EditWarehouse> {
                                           responseChargeImage[1];
                                     }
                                   }
-                                  _controller.updateWarehouse(
-                                      widget.warehouse.id!,
-                                      _nameSucursalController.text,
-                                      _addressController.text,
-                                      _customerServiceController.text,
-                                      _referenceController.text,
-                                      _descriptionController.text,
-                                      _urlImageController.text,
-                                      _cityController.text, {
-                                    "collectionDays": listaDeEnterosX,
-                                    "collectionSchedule": collectionSchedule,
-                                    "collectionTransport":
-                                        _trnasportController.text
-                                  }).then((_) {
+                                  _controller
+                                      .updateWarehouse(
+                                          widget.warehouse.id!,
+                                          _nameSucursalController.text,
+                                          _addressController.text,
+                                          _customerServiceController.text,
+                                          _referenceController.text,
+                                          _descriptionController.text,
+                                          _urlImageController.text,
+                                          _cityController.text,
+                                          {
+                                            "collectionDays": listaDeEnterosX,
+                                            "collectionSchedule":
+                                                collectionSchedule,
+                                            "collectionTransport":
+                                                _trnasportController.text
+                                          },
+                                          int.parse(_provinciaController.text))
+                                      .then((_) {
                                     Navigator.of(context).pop();
                                     setState(() {
                                       // Esto forzará la reconstrucción de la vista con los datos actualizados

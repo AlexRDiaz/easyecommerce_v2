@@ -6071,6 +6071,34 @@ class Connections {
     }
   }
 
+
+Future getTransaccionesOrdersByTransportadorasDatesExternal(
+      id_transportadora, dates) async {
+    // print(json.encode(
+    //     {"id_transportadora": id_transportadora, "fechas_entrega": dates}));
+    try {
+      var request = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/transaccionespedidotransportadora/bydates-external"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            "id_transportadora": id_transportadora,
+            "fechas_entrega": dates
+          }));
+      var response = await request.body;
+      // var decodeData = json.decode(response);
+      // return decodeData;
+      if (request.statusCode == 204) {
+        return [];
+      } else if (request.statusCode == 200) {
+        var decodeData = json.decode(response);
+        return decodeData;
+      }
+    } catch (e) {
+      print("error: $e");
+    }
+  }
+
   //  *
   // Future getTrasportadoraShippingCostByDate(id_transportadora, fecha) async {
   Future getTrasportadoraShippingCostByDate(id_transportadora, fecha) async {
@@ -8514,7 +8542,8 @@ class Connections {
       String description,
       String url_image,
       String city,
-      var collection) async {
+      var collection,
+      int provincia) async {
     try {
       var response =
           await http.put(Uri.parse("$serverLaravel/api/warehouses/$id"),
@@ -8528,6 +8557,7 @@ class Connections {
                 'url_image': url_image,
                 "city": city,
                 "collection": json.encode(collection),
+                "id_provincia": provincia,
               }));
       if (response.statusCode == 200) {
         var decodeData = json.decode(response.body);
