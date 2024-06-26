@@ -450,94 +450,43 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
   ];
 
   Widget _buildPhoneLayout() {
-    double screenWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
-      key: _key,
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        // toolbarHeight: heigth * 0.060,
-        leadingWidth: screenWidth * 0.6,
+        title: Text('Phone Layout'),
         actions: getActions,
-        leading: Row(
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
           children: [
-            IconButton(
-              icon: Icon(Icons.menu),
-              onPressed: () {
-                setState(() {
-                  _key.currentState!.openDrawer();
-                });
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text('Drawer Header'),
+            ),
+            ListTile(
+              title: Text('Change Password'),
+              onTap: () {
+                // Manejar la selección del cambio de contraseña
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: Text('Security Questions'),
+              onTap: () {
+                // Manejar la selección de las preguntas de seguridad
+                Navigator.pop(context);
               },
             ),
           ],
         ),
       ),
-      drawer: Drawer(
-        backgroundColor: Colors.white,
-        child: Material(
-          elevation: 5,
-          child: Container(
-            color: Colors.white,
-            height: double.infinity,
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Center(
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                            left: 40, right: 40, top: 20, bottom: 20),
-                        child: Image.asset(images.logoEasyEcommercce,
-                            fit: BoxFit.fill),
-                      ),
-                    ),
-                    // Separación entre el encabezado y el menú
-                    const Divider(),
-                    _buildMenu(
-                        'Crear', Icon(Icons.person, color: colorlabels), [
-                      _buildMenuItem('Agregar proveedor', 'Sub Proveedores',
-                          Icon(Icons.supervisor_account, color: colorlabels)),
-                      _buildMenuItem('Agregar bodegas', 'Bodegas',
-                          Icon(Icons.warehouse, color: colorlabels)),
-                      _buildMenuItem('Agregar productos', 'Productos',
-                          Icon(Icons.shopping_bag_rounded, color: colorlabels)),
-                    ]),
-                    const Divider(
-                      endIndent: 10,
-                      indent: 10,
-                    ),
-                    _buildMenu(
-                        'Reportes', Icon(Icons.report, color: colorlabels), [
-                      _buildMenuItem('Mis Transacciones', 'Mis Transacciones',
-                          Icon(Icons.wallet, color: colorlabels)),
-                      _buildMenuItem('Estado de Entregas', 'Estado de Entregas',
-                          Icon(Icons.emoji_transportation, color: colorlabels)),
-                    ]),
-                    const Divider(
-                      endIndent: 10,
-                      indent: 10,
-                    ),
-                    _buildMenu(
-                        'Imprimir', Icon(Icons.print, color: colorlabels), [
-                      _buildMenuItem('Imprimir Guías', 'Imprimir Guías',
-                          Icon(Icons.print_outlined, color: colorlabels)),
-                      _buildMenuItem('Guías Impresas', 'Guías Impresas',
-                          Icon(Icons.picture_as_pdf, color: colorlabels)),
-                      _buildMenuItem('Guías Enviadas', 'Guías Enviadas',
-                          Icon(Icons.send, color: colorlabels)),
-                    ])
-                  ],
-                ),
-              ),
-            ),
-          ),
+      body: Center(
+        child: Text(
+          'Phone Layout',
+          style: TextStyle(fontSize: 24),
         ),
-      ),
-      body: Stack(
-        children: [
-          currentView["view"],
-        ],
       ),
     );
   }
@@ -860,8 +809,6 @@ class _LayoutProvidersPageState extends State<LayoutProvidersPage> {
 
                 Provider.of<NavigationProviderProvider>(context, listen: false)
                     .changeIndex(selectedIndex, selectedView['page']);
-
-                Navigator.pop(context);
               },
             ),
           )
