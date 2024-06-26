@@ -67,7 +67,7 @@ class _ImagePickerExampleState extends State<ImagePickerExample> {
           SizedBox(height: 10),
           ElevatedButton(
             onPressed: _pickImage,
-            child: Text('Seleccionar Imagen'),
+            child: Icon(Icons.image),
           ),
         ],
       ),

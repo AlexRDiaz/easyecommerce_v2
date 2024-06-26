@@ -755,7 +755,8 @@ class _ExternalCarrierBilling2 extends State<ExternalCarrierBilling> {
       }
     }
     var orders = await Connections()
-        .getTransaccionesOrdersByTransportadorasDates(transportadora, dayDates);
+        // .getTransaccionesOrdersByTransportadorasDates(transportadora, dayDates);
+        .getTransaccionesOrdersByTransportadorasDatesExternal(transportadora, dayDates);
     if (dataDay != null && orders.isNotEmpty) {
       getReport.generateExcelFileWithData(orders);
     } else {
@@ -1139,21 +1140,21 @@ class _ExternalCarrierBilling2 extends State<ExternalCarrierBilling> {
 
                                   var responseI =
                                       await Connections().postDoc(image);
-                                  // print("responseILaravel: $responseI[1]");
+                                  print("responseILaravel: $responseI[1]");
 
                                   // var responseIL =
                                   //     await Connections().postDocLaravel(image);
                                   // print("responseILaravel: $responseIL");
                                   //create o update EN LA NUEVA TABLA
                                   if (id == "new123id") {
-                                    //createTraspShippingCost
+                                    // createTraspShippingCost
                                     // print("createTraspShippingCost");
 
                                     // var response = await Connections()
                                     //     .createTraspShippingCost(
-                                    //         idTransp,
-                                    //         totalShippingCost,
-                                    //         totalProceeds,
+                                    //         widget.idTransp,
+                                    //         widget.totalShippingCost,
+                                    //         widget.totalProceeds,
                                     //         total,
                                     //         responseI[1]
                                     //         // responseIL,
@@ -1162,19 +1163,19 @@ class _ExternalCarrierBilling2 extends State<ExternalCarrierBilling> {
                                     //update
                                     // print("TSC to update");
                                     // print(
-                                    //     "totalShippingCost: $totalShippingCost; totalProceeds: $totalProceeds; total: $total");
-                                    // var responseUpt = await Connections()
-                                    //     .updateGeneralTransportadoraShippingCostLaravel(
-                                    //         id, {
-                                    //   "status": "PAGADO",
-                                    //   "daily_shipping_cost": totalShippingCost,
-                                    //   "daily_proceeds": totalProceeds,
-                                    //   "daily_total": total,
-                                    //   "rejected_reason": "",
-                                    //   "url_proof_payment": responseI[1]
-                                    //   // "url_proof_payment": responseIL
-                                    // });
-                                    //
+                                        // "totalShippingCost: $totalShippingCost; totalProceeds: $totalProceeds; total: $total");
+                                    var responseUpt = await Connections()
+                                        .updateGeneralTransportadoraShippingCostLaravel(
+                                            id, {  
+                                      "status": "PAGADO",
+                                      // "daily_shipping_cost": totalShippingCost,
+                                      // "daily_proceeds": totalProceeds,
+                                      "daily_total": total,
+                                      "rejected_reason": "",
+                                      "url_proof_payment": responseI[1]
+                                      // "url_proof_payment": responseIL
+                                    });
+                                    
                                   }
 
                                   // updateOrdersPerDay(idTransp, fechaSelect,

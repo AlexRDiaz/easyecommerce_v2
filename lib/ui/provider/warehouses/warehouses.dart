@@ -4,6 +4,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/config/colors.dart';
 import 'package:frontend/connections/connections.dart';
+import 'package:frontend/helpers/responsive.dart';
 import 'package:frontend/helpers/server.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/models/provider_model.dart';
@@ -76,13 +77,13 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
     }
   }
 
-  Future<dynamic> openDialog(BuildContext context) {
+  Future<dynamic> openDialog(BuildContext context, width) {
     return showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
             content: Container(
-              width: MediaQuery.of(context).size.width * 0.5,
+              width: MediaQuery.of(context).size.width * width,
               child: const AddWarehouse(),
             ),
           );
@@ -91,13 +92,13 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
         }));
   }
 
-  Future<dynamic> openDialogE(BuildContext context, WarehouseModel warehousen) {
+  Future<dynamic> openDialogE(BuildContext context, WarehouseModel warehousen,double width) {
     return showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
             content: Container(
-              width: MediaQuery.of(context).size.width * 0.5,
+              width: MediaQuery.of(context).size.width * width,
               child: EditWarehouse(
                 warehouse: warehousen,
               ),
@@ -133,209 +134,416 @@ class _WarehousesViewState extends StateMVC<WarehousesView> {
     double iconSize =
         screenWidth > 600 ? 70 : 25; // Ejemplo de ajuste basado en el ancho
 
-    return Scaffold(
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      labelText: 'Buscar bodega',
-                      prefixIcon: Icon(Icons.search,
-                          color: ColorsSystem().colorSelectMenu),
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                    ),
-                    style: const TextStyle(
-                      fontFamily: 'Arial',
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-                SizedBox(width: 8),
-                ConstrainedBox(
-                  constraints: BoxConstraints.tightFor(
-                    height:
-                        50, // Altura del botón (ajusta según la altura de tu TextField)
-                  ),
-                  child: ElevatedButton.icon(
-                    onPressed: () => openDialog(context),
-                    icon: Icon(Icons.add, color: Colors.white),
-                    label: Text(
-                      "Agregar Bodega",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: ColorsSystem().colorSelectMenu,
-                      padding: EdgeInsets.symmetric(horizontal: 20),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: FutureBuilder(
-              future: _futureWarehouseData,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error al cargar bodegas'));
-                } else {
-                  List<WarehouseModel> warehouses = snapshot.data ?? [];
-                  return Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: GridView.builder(
-                      itemCount: warehouses.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 5,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 10,
-                        childAspectRatio: 1.8,
-                      ),
-                      itemBuilder: (context, index) {
-                        WarehouseModel warehouse = warehouses[index];
-                        return Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+    return responsive(
+        Scaffold(
+          body: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          labelText: 'Buscar bodega',
+                          prefixIcon: Icon(Icons.search,
+                              color: ColorsSystem().colorSelectMenu),
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
                           ),
-                          elevation: 10,
-                          color: ColorsSystem().colorBlack,
-                          child: InkWell(
-                            onTap: () => openDialogE(context, warehouse),
-                            child: Stack(
-                              children: [
-                                // Imagen o icono principal
-                                Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: warehouses[index].url_image != null
-                                      ? ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(20.0),
-                                          child: Image.network(
-                                            "$generalServer${warehouses[index].url_image}",
-                                            fit: BoxFit.cover,
-                                            width: double.infinity,
-                                            height: double.infinity,
-                                            loadingBuilder:
-                                                (BuildContext context,
-                                                    Widget child,
-                                                    ImageChunkEvent?
-                                                        loadingProgress) {
-                                              if (loadingProgress == null) {
-                                                return child;
-                                              } else {
-                                                return Center(
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                    value: loadingProgress
-                                                                .expectedTotalBytes !=
-                                                            null
-                                                        ? loadingProgress
-                                                                .cumulativeBytesLoaded /
-                                                            (loadingProgress
-                                                                    .expectedTotalBytes ??
-                                                                1)
-                                                        : null,
-                                                  ),
-                                                );
-                                              }
-                                            },
-                                          ),
-                                        )
-                                      : Icon(Icons.store,
-                                          size: iconSize, color: Colors.white),
-                                ),
-                                // Icono de check verde en la esquina superior izquierda
-                                Positioned(
-                                  top: 8,
-                                  left: 8,
-                                  child: warehouses[index].active == 1
-                                      ? Icon(
-                                          Icons.check,
-                                          color: const Color.fromARGB(
-                                              255, 45, 228, 51),
-                                          size: 20,
-                                        )
-                                      : Icon(
-                                          Icons.lock,
-                                          color: Colors.red,
-                                          size: 20,
-                                        ),
-                                ),
-                                Positioned(
-                                    top: 8,
-                                    right: 10,
-                                    child: warehouses[index].approved == 1
-                                        ? const Text(
-                                            'Aprobada',
-                                            style: TextStyle(
-                                                color: Color.fromARGB(
-                                                    255, 45, 228, 51),
-                                                fontWeight: FontWeight.bold),
-                                          )
-                                        : warehouses[index].approved == 2
-                                            ? Text(
-                                                'Pendiente',
+                        ),
+                        style: const TextStyle(
+                          fontFamily: 'Arial',
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    ConstrainedBox(
+                      constraints: BoxConstraints.tightFor(
+                        height:
+                            50, // Altura del botón (ajusta según la altura de tu TextField)
+                      ),
+                      child: ElevatedButton.icon(
+                        onPressed: () => openDialog(context,0.5),
+                        icon: Icon(Icons.add, color: Colors.white),
+                        label: Text(
+                          "Agregar Bodega",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ColorsSystem().colorSelectMenu,
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: FutureBuilder(
+                  future: _futureWarehouseData,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error al cargar bodegas'));
+                    } else {
+                      List<WarehouseModel> warehouses = snapshot.data ?? [];
+                      return Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: GridView.builder(
+                          itemCount: warehouses.length,
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 5,
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 10,
+                            childAspectRatio: 1.8,
+                          ),
+                          itemBuilder: (context, index) {
+                            WarehouseModel warehouse = warehouses[index];
+                            return Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              elevation: 10,
+                              color: ColorsSystem().colorBlack,
+                              child: InkWell(
+                                onTap: () => openDialogE(context, warehouse,0.5),
+                                child: Stack(
+                                  children: [
+                                    // Imagen o icono principal
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: warehouses[index].url_image != null
+                                          ? ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(20.0),
+                                              child: Image.network(
+                                                "$generalServer${warehouses[index].url_image}",
+                                                fit: BoxFit.cover,
+                                                width: double.infinity,
+                                                height: double.infinity,
+                                                loadingBuilder:
+                                                    (BuildContext context,
+                                                        Widget child,
+                                                        ImageChunkEvent?
+                                                            loadingProgress) {
+                                                  if (loadingProgress == null) {
+                                                    return child;
+                                                  } else {
+                                                    return Center(
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                        value: loadingProgress
+                                                                    .expectedTotalBytes !=
+                                                                null
+                                                            ? loadingProgress
+                                                                    .cumulativeBytesLoaded /
+                                                                (loadingProgress
+                                                                        .expectedTotalBytes ??
+                                                                    1)
+                                                            : null,
+                                                      ),
+                                                    );
+                                                  }
+                                                },
+                                              ),
+                                            )
+                                          : Icon(Icons.store,
+                                              size: iconSize,
+                                              color: Colors.white),
+                                    ),
+                                    // Icono de check verde en la esquina superior izquierda
+                                    Positioned(
+                                      top: 8,
+                                      left: 8,
+                                      child: warehouses[index].active == 1
+                                          ? Icon(
+                                              Icons.check,
+                                              color: const Color.fromARGB(
+                                                  255, 45, 228, 51),
+                                              size: 20,
+                                            )
+                                          : Icon(
+                                              Icons.lock,
+                                              color: Colors.red,
+                                              size: 20,
+                                            ),
+                                    ),
+                                    Positioned(
+                                        top: 8,
+                                        right: 10,
+                                        child: warehouses[index].approved == 1
+                                            ? const Text(
+                                                'Aprobada',
                                                 style: TextStyle(
-                                                    color: Color.fromARGB(255, 224, 221, 14),
-                                                    fontWeight: FontWeight.bold),
+                                                    color: Color.fromARGB(
+                                                        255, 45, 228, 51),
+                                                    fontWeight:
+                                                        FontWeight.bold),
                                               )
-                                            : const Text(
-                                                'Rechazada',
-                                                style: TextStyle(
-                                                    color: Colors.red,
-                                                    fontWeight: FontWeight.bold),
-                                              )),
-                                Align(
-                                  alignment: Alignment.bottomCenter,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: warehouses[index].active == 1
-                                          ? Color.fromARGB(255, 45, 228, 51)
-                                          : Colors.red,
-                                      borderRadius: BorderRadius.only(
-                                        bottomLeft: Radius.circular(20),
-                                        bottomRight: Radius.circular(20.0),
+                                            : warehouses[index].approved == 2
+                                                ? Text(
+                                                    'Pendiente',
+                                                    style: TextStyle(
+                                                        color: Color.fromARGB(
+                                                            255, 224, 221, 14),
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  )
+                                                : const Text(
+                                                    'Rechazada',
+                                                    style: TextStyle(
+                                                        color: Colors.red,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  )),
+                                    Align(
+                                      alignment: Alignment.bottomCenter,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: warehouses[index].active == 1
+                                              ? Color.fromARGB(255, 45, 228, 51)
+                                              : Colors.red,
+                                          borderRadius: BorderRadius.only(
+                                            bottomLeft: Radius.circular(20),
+                                            bottomRight: Radius.circular(20.0),
+                                          ),
+                                        ),
+                                        width: double.infinity,
+                                        child: Text(
+                                          warehouse.branchName ?? 'Sin nombre',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.normal,
+                                            fontSize: textSize,
+                                            fontFamily: 'Arial',
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
                                       ),
                                     ),
-                                    width: double.infinity,
-                                    child: Text(
-                                      warehouse.branchName ?? 'Sin nombre',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.normal,
-                                        fontSize: textSize,
-                                        fontFamily: 'Arial',
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                }
-              },
-            ),
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        ),
+        Scaffold(
+          body: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 40, // Establece la altura deseada
+                        child: TextField(
+                          controller: _searchController,
+                          decoration: InputDecoration(
+                            labelText: 'Buscar bodega',
+                            prefixIcon: Icon(Icons.search,
+                                color: ColorsSystem().colorSelectMenu),
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 10),
+                          ),
+                          style: const TextStyle(
+                            fontFamily: 'Arial',
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: FutureBuilder(
+                  future: _futureWarehouseData,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error al cargar bodegas'));
+                    } else {
+                      List<WarehouseModel> warehouses = snapshot.data ?? [];
+                      return Padding(
+                        padding: const EdgeInsets.all(18.0),
+                        child: ListView.builder(
+                          itemCount: warehouses.length,
+                          itemBuilder: (context, index) {
+                            WarehouseModel warehouse = warehouses[index];
+                            return Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              elevation: 10,
+                              color: ColorsSystem().colorBlack,
+                              child: InkWell(
+                                onTap: () => openDialogE(context, warehouse,0.9),
+                                child: Stack(
+                                  children: [
+                                    // Imagen o icono principal
+                                    Container(
+                                      height:
+                                          150, // Altura fija para las tarjetas
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: warehouses[index].url_image != null
+                                          ? ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(20.0),
+                                              child: Image.network(
+                                                "$generalServer${warehouses[index].url_image}",
+                                                fit: BoxFit.cover,
+                                                width: double.infinity,
+                                                height: double.infinity,
+                                                loadingBuilder:
+                                                    (BuildContext context,
+                                                        Widget child,
+                                                        ImageChunkEvent?
+                                                            loadingProgress) {
+                                                  if (loadingProgress == null) {
+                                                    return child;
+                                                  } else {
+                                                    return Center(
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                        value: loadingProgress
+                                                                    .expectedTotalBytes !=
+                                                                null
+                                                            ? loadingProgress
+                                                                    .cumulativeBytesLoaded /
+                                                                (loadingProgress
+                                                                        .expectedTotalBytes ??
+                                                                    1)
+                                                            : null,
+                                                      ),
+                                                    );
+                                                  }
+                                                },
+                                              ),
+                                            )
+                                          : Icon(Icons.store,
+                                              size: iconSize,
+                                              color: Colors.white),
+                                    ),
+                                    // Icono de check verde en la esquina superior izquierda
+                                    Positioned(
+                                      top: 8,
+                                      left: 8,
+                                      child: warehouses[index].active == 1
+                                          ? Icon(
+                                              Icons.check,
+                                              color: const Color.fromARGB(
+                                                  255, 45, 228, 51),
+                                              size: 20,
+                                            )
+                                          : Icon(
+                                              Icons.lock,
+                                              color: Colors.red,
+                                              size: 20,
+                                            ),
+                                    ),
+                                    Positioned(
+                                        top: 8,
+                                        right: 10,
+                                        child: warehouses[index].approved == 1
+                                            ? const Text(
+                                                'Aprobada',
+                                                style: TextStyle(
+                                                    color: Color.fromARGB(
+                                                        255, 45, 228, 51),
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              )
+                                            : warehouses[index].approved == 2
+                                                ? Text(
+                                                    'Pendiente',
+                                                    style: TextStyle(
+                                                        color: Color.fromARGB(
+                                                            255, 224, 221, 14),
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  )
+                                                : const Text(
+                                                    'Rechazada',
+                                                    style: TextStyle(
+                                                        color: Colors.red,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  )),
+                                    Positioned(
+                                      bottom: 0,
+                                      left: 0,
+                                      right: 0,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: warehouses[index].active == 1
+                                              ? Color.fromARGB(255, 45, 228, 51)
+                                              : Colors.red,
+                                          borderRadius: BorderRadius.only(
+                                            bottomLeft: Radius.circular(20),
+                                            bottomRight: Radius.circular(20.0),
+                                          ),
+                                        ),
+                                        width: double.infinity,
+                                        child: Text(
+                                          warehouse.branchName ?? 'Sin nombre',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.normal,
+                                            fontSize: textSize,
+                                            fontFamily: 'Arial',
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () => openDialog(context,0.9),
+            child: Icon(Icons.add,color: Colors.white,),
+            backgroundColor: ColorsSystem().colorPrincipalBrand,
+          ),
+          floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        ),
+        context);
   }
 }
 

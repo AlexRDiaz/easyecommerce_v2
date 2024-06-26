@@ -10,6 +10,7 @@ import 'package:frontend/main.dart';
 import 'package:frontend/ui/transport/payment_vouchers_transport/payment_vouchers_transport_new.dart';
 import 'package:frontend/ui/widgets/blurry_modal_progress_indicator.dart';
 import 'package:frontend/ui/widgets/transport/data_table_model.dart';
+import 'package:intl/intl.dart';
 
 class OrdersDayViewExtenalCarrier extends StatefulWidget {
   final String chozenDate;
@@ -41,13 +42,18 @@ class _OrdersDayViewExtenalCarrierState
   int pageCount = 0;
   bool isLoading = false;
   List populate = [
-    "pedidos_shopify.carrierExternal",
-    "transportadora",
+    "carrierExternal",
+    "pedidoCarrier",
     "operadore.up_users",
-    "transportadora_externa"
   ];
-  List arrayFiltersAnd = [];
-  List arrayFiltersNot = [];
+  List arrayFiltersAnd = [
+    {"/status": "ENTREGADO"},
+    {"/estado_interno": "CONFIRMADO"},
+    {"/estado_logistico": "ENVIADO"}
+  ];
+  List arrayFiltersNot = [
+    // {'pedidoCarrier.carrier_id': ""}
+  ];
   List arrayFiltersOr = [];
 
   String sortFieldDefaultValue = "id:DESC";
@@ -84,19 +90,22 @@ class _OrdersDayViewExtenalCarrierState
     });
 
     try {
-      // if (listOperators.length == 1) {
-      // var responsetransportadoras = await Connections()
-      //     .getOperatoresbyTransport(
-      //         sharedPrefs!.getString("idTransportadora").toString());
-      // List<dynamic> transportadorasList =
-      //     responsetransportadoras['operadores'];
-      // for (var transportadora in transportadorasList) {
-      //   listOperators.add(transportadora);
-      // }
-      // }
+      if (listOperators.length == 1) {
+        var responsetransportadoras = await Connections()
+            .getOperatorsAvailables();
+        List<dynamic> transportadorasList =
+            responsetransportadoras;
+        for (var transportadora in transportadorasList) {
+          listOperators.add(transportadora);
+        }
+      }
 
-      arrayFiltersAnd.add(
-          {"/pedidos_shopify.carrier_external_id": widget.idExternalCarrier});
+      print(widget.dailyProceeds);
+      print(widget.dailyShippingCost);
+      print(widget.dailyTotal);
+
+      arrayFiltersAnd
+          .add({"equals/pedidoCarrier.carrier_id": widget.idExternalCarrier});
 
       // var response = await Connections().getOrdersPerDayByCarrier(
       //     sharedPrefs!.getString("idTransportadora"),
@@ -108,6 +117,9 @@ class _OrdersDayViewExtenalCarrierState
       //     sortFieldDefaultValue,
       //     searchController.text);
 
+      DateTime parsedDate = DateTime.parse(widget.chozenDate);
+      String formattedDate = DateFormat('d/M/yyyy').format(parsedDate);
+
       var response = await Connections().generalData(
           pageSize,
           pageCount,
@@ -118,13 +130,13 @@ class _OrdersDayViewExtenalCarrierState
           [],
           [],
           "",
-          "TransaccionPedidoTransportadora",
+          // "TransaccionPedidoTransportadora",
+          "PedidosShopify",
+          "FECHA ENTREGA",
+          formattedDate,
+          formattedDate,
           // "",
-          // widget.chozenDate,
-          // widget.chozenDate,
-          "",
-          "",
-          "",
+          // "",
           "");
 
       if (response['data'] == null) {
@@ -135,7 +147,6 @@ class _OrdersDayViewExtenalCarrierState
         });
       } else {
         setState(() {
-          print(response["data"]);
           ordersDay = response["data"];
           pageCount = response['last_page'];
           total = response['total'];
@@ -147,6 +158,13 @@ class _OrdersDayViewExtenalCarrierState
           //     double.parse((response['shipping_total']).toStringAsFixed(2));
           // dailyTotalC =
           //     double.parse((response['total_day']).toStringAsFixed(2));
+
+          dailyProceedsC =
+              double.parse((widget.dailyProceeds).toStringAsFixed(2));
+          dailyShippingCostC =
+              double.parse((widget.dailyShippingCost).toStringAsFixed(2));
+          dailyTotalC =
+              double.parse((widget.dailyTotal).toStringAsFixed(2));
 
           // //  ****
           // String costOperador = ordersDay[0]["operadore"] == null
@@ -355,14 +373,16 @@ class _OrdersDayViewExtenalCarrierState
         borderRadius: BorderRadius.circular(15),
         color: Colors.white,
       ),
-      child: ordersDay.length > 0
-          ? DataTableModelPrincipal(
+      child: 
+      // ordersDay.length > 0
+          // ? 
+          DataTableModelPrincipal(
               columnWidth: 200,
               columns: getColumns(),
               rows: buildDataRows(ordersDay))
-          : const Center(
-              child: Text("Sin datos"),
-            ),
+          // : const Center(
+          //     child: Text("Sin datos"),
+          //   ),
     );
   }
 
@@ -443,7 +463,7 @@ class _OrdersDayViewExtenalCarrierState
       // ),
       DataColumn2(
         label: SelectFilterStatus(
-            'Estado de entrega', 'status', statusController, listStatus),
+            'Estado de entrega', '/status', statusController, listStatus),
         size: ColumnSize.L,
         // onSort: (columnIndex, ascending) {
         //   sortFunc("status", changevalue);
@@ -454,7 +474,7 @@ class _OrdersDayViewExtenalCarrierState
       //   size: ColumnSize.L,
       // ),
       DataColumn2(
-        label: SelectFilter('Operador', 'operadore.up_users.operadore_id',
+        label: SelectFilter('Operador', '/operadore.up_users.operadore_id',
             operadorController, listOperators),
         size: ColumnSize.L,
         // onSort: (columnIndex, ascending) {},
@@ -488,11 +508,9 @@ class _OrdersDayViewExtenalCarrierState
           DataCell(
             InkWell(
               child: Text(
-                ordersDay[index]["pedidos_shopify"]['marca_tiempo_envio'] ==
-                        null
+                ordersDay[index]['marca_tiempo_envio'] == null
                     ? ""
-                    : ordersDay[index]["pedidos_shopify"]['marca_tiempo_envio']
-                        .toString(),
+                    : ordersDay[index]['marca_tiempo_envio'].toString(),
               ),
             ),
           ),
@@ -501,62 +519,47 @@ class _OrdersDayViewExtenalCarrierState
           ),
           DataCell(
             // Text(
-            //     '${ordersDay[index]["pedidos_shopify"]["name_comercial"] != null && ordersDay[index]["pedidos_shopify"]["name_comercial"].isNotEmpty ? ordersDay[index]["pedidos_shopify"]["name_comercial"] : "NaN"}-${ordersDay[index]["pedidos_shopify"]['numero_orden'].toString()}'),
+            //     '${ordersDay[index]["name_comercial"] != null && ordersDay[index]["name_comercial"].isNotEmpty ? ordersDay[index]["name_comercial"] : "NaN"}-${ordersDay[index]['numero_orden'].toString()}'),
             InkWell(
               child: Text(
-                  //  '${ordersDay[index]["pedidos_shopify"]['users'] != null && ordersDay[index]["pedidos_shopify"]['users'].isNotEmpty ? ordersDay[index]["pedidos_shopify"]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${ordersDay[index]["pedidos_shopify"]['numero_orden'].toString()}',
-                  '${ordersDay[index]["pedidos_shopify"]["name_comercial"] != null && ordersDay[index]["pedidos_shopify"]["name_comercial"].isNotEmpty ? ordersDay[index]["pedidos_shopify"]["name_comercial"] : "NaN"}-${ordersDay[index]["pedidos_shopify"]['numero_orden'].toString()}',
+                  //  '${ordersDay[index]['users'] != null && ordersDay[index]['users'].isNotEmpty ? ordersDay[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${ordersDay[index]['numero_orden'].toString()}',
+                  '${ordersDay[index]["name_comercial"] != null && ordersDay[index]["name_comercial"].isNotEmpty ? ordersDay[index]["name_comercial"] : "NaN"}-${ordersDay[index]['numero_orden'].toString()}',
                   style: TextStyle(
-                      color: setColor(ordersDay[index]["pedidos_shopify"]
-                              ['status']
-                          .toString()))),
+                      color: setColor(ordersDay[index]['status'].toString()))),
             ),
           ),
           DataCell(
-            Text(ordersDay[index]["pedidos_shopify"]['nombre_shipping']
-                .toString()),
+            Text(ordersDay[index]['nombre_shipping'].toString()),
           ),
           DataCell(
-            Text(ordersDay[index]["pedidos_shopify"]['ciudad_shipping']
-                .toString()),
+            Text(ordersDay[index]['ciudad_shipping'].toString()),
           ),
           DataCell(
-            Text(ordersDay[index]["pedidos_shopify"]['direccion_shipping']
-                .toString()),
+            Text(ordersDay[index]['direccion_shipping'].toString()),
           ),
           DataCell(
-            Text(ordersDay[index]["pedidos_shopify"]['telefono_shipping']
-                .toString()),
+            Text(ordersDay[index]['telefono_shipping'].toString()),
           ),
           DataCell(
-            Text(ordersDay[index]["pedidos_shopify"]['cantidad_total']
-                .toString()),
+            Text(ordersDay[index]['cantidad_total'].toString()),
           ),
           DataCell(
-            Text(ordersDay[index]["pedidos_shopify"]['producto_p'].toString()),
+            Text(ordersDay[index]['producto_p'].toString()),
           ),
           DataCell(
-            Text(
-                ordersDay[index]["pedidos_shopify"]['producto_extra'] == null ||
-                        ordersDay[index]["pedidos_shopify"]['producto_extra']
-                                .toString() ==
-                            "null"
-                    ? ""
-                    : ordersDay[index]["pedidos_shopify"]['producto_extra']
-                        .toString()),
-          ),
-          DataCell(
-            Text(
-                "\$ ${ordersDay[index]["pedidos_shopify"]['precio_total'].toString()}"),
-          ),
-          DataCell(
-            Text(ordersDay[index]["pedidos_shopify"]['status'].toString()),
-          ),
-          DataCell(
-            Text(ordersDay[index]["operadore"] == null
+            Text(ordersDay[index]['producto_extra'] == null ||
+                    ordersDay[index]['producto_extra'].toString() == "null"
                 ? ""
-                : ordersDay[index]['operadore']['up_users'][0]['username']
-                    .toString()),
+                : ordersDay[index]['producto_extra'].toString()),
+          ),
+          DataCell(
+            Text("\$ ${ordersDay[index]['precio_total'].toString()}"),
+          ),
+          DataCell(
+            Text(ordersDay[index]['status'].toString()),
+          ),
+          DataCell(
+            Text(ordersDay[index]["operadore"] == null ? "" : ""),
           ),
           // DataCell(
           //   Text(ordersDay[index]["operadore"] == null
@@ -564,16 +567,13 @@ class _OrdersDayViewExtenalCarrierState
           //       : ordersDay[index]['operadore']['costo_operador'].toString()),
           // ),
           DataCell(
-            Text(ordersDay[index]["pedidos_shopify"]['estado_devolucion']
-                .toString()),
+            Text(ordersDay[index]['estado_devolucion'].toString()),
           ),
           DataCell(
-            Text(ordersDay[index]["pedidos_shopify"]['estado_pagado']
-                .toString()),
+            Text(ordersDay[index]['estado_pagado'].toString()),
           ),
           DataCell(
-            Text(ordersDay[index]["pedidos_shopify"]['estado_pago_logistica']
-                .toString()),
+            Text(ordersDay[index]['estado_pago_logistica'].toString()),
           ),
         ],
       );
