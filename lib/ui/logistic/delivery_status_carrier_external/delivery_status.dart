@@ -54,6 +54,7 @@ class _DeliveryStatusExternalCarrierState
   List<DateTime?> _dates = [];
   Map dataCounters = {};
   Map valuesTransporter = {};
+  Map valuesTransporterR = {};
   bool sort = false;
   String currentValue = "";
   int totallast = 0;
@@ -67,6 +68,7 @@ class _DeliveryStatusExternalCarrierState
   int enOficina = 0;
   double costoDeEntregas = 0;
   double devoluciones = 0;
+  double totalResultadoFinal = 0;
   double utilidad = 0;
   double totalValoresRecibidos = 0;
   double costoTransportadora = 0;
@@ -77,8 +79,16 @@ class _DeliveryStatusExternalCarrierState
   int pageSize = 70;
   int pageCount = 100;
   bool isLoading = false;
+
+  double totalValoresRecibidosR = 0;
+  double costoDeEntregasR = 0;
+  double devolucionesR = 0;
+  double totalResultadoFinalR = 0;
+
+  DateTime now = DateTime.now();
+  String formattedDate = "";
   List<String> listOperators = [];
-  var sortFieldDefaultValue = "id:DESC";
+  var sortFieldDefaultValue = "fecha_entrega:DESC";
   Color currentColor = Color.fromARGB(255, 108, 108, 109);
   List<Map<dynamic, dynamic>> arrayFiltersAndEq = [];
   var arrayDateRanges = [];
@@ -105,6 +115,8 @@ class _DeliveryStatusExternalCarrierState
   TextEditingController comentarioController = TextEditingController(text: "");
   TextEditingController marcaTiController = TextEditingController(text: "");
   TextEditingController statusController = TextEditingController(text: "TODO");
+  TextEditingController pagoCostoEntregaController =
+      TextEditingController(text: "TODO");
   TextEditingController estadoInternoController =
       TextEditingController(text: "TODO");
   TextEditingController estadoLogisticoController =
@@ -134,6 +146,12 @@ class _DeliveryStatusExternalCarrierState
     // },
     {'estado_interno': "CONFIRMADO"},
     {'estado_logistico': "ENVIADO"}
+  ];
+
+  var arrayfiltersDefaultAndR = [
+    {'estado_interno': "CONFIRMADO"},
+    {'estado_logistico': "ENVIADO"},
+    {'gestioned_payment_cost_delivery': 1}
   ];
 
   List arrayFiltersNotEq = [
@@ -220,6 +238,12 @@ class _DeliveryStatusExternalCarrierState
     'EN BODEGA PROVEEDOR',
   ];
 
+  List<String> listPagoCostoEntrega = [
+    'TODO',
+    'PENDIENTE-0',
+    'RECIBIDO-1',
+  ];
+
   List arrayFiltersAnd = [];
   List arrayFiltersAnd2 = [];
 
@@ -253,7 +277,8 @@ class _DeliveryStatusExternalCarrierState
   getOldValue(Arrayrestoration) {
     if (Arrayrestoration) {
       setState(() {
-        sortFieldDefaultValue = "id:DESC";
+        // sortFieldDefaultValue = "id:DESC";
+        sortFieldDefaultValue = "fecha_entrega:DESC";
       });
     }
   }
@@ -263,6 +288,8 @@ class _DeliveryStatusExternalCarrierState
       setState(() {
         isLoading = true;
       });
+
+      formattedDate = DateFormat('d/M/yyyy HH:mm:ss').format(now);
 
       var responseCounters = await Connections().getOrdersCountersSeller(
           populateC,
@@ -279,7 +306,13 @@ class _DeliveryStatusExternalCarrierState
           selectedDateFilter,
           selectedExt.split('-')[1]);
 
-      print("ak-> $responseValues");
+      var responseValuesR = await Connections().getValuesExternalCarrierLaravel(
+          arrayfiltersDefaultAndR,
+          selectedDateFilter,
+          selectedExt.split('-')[1]);
+
+      print(responseValuesR);
+
       var responsetransportadoras =
           await Connections().getCarrierExternalActive();
       // ! *********************************
@@ -309,9 +342,9 @@ class _DeliveryStatusExternalCarrierState
               _controllers.searchController.text,
               arrayFiltersNotEq,
               sortFieldDefaultValue);
-      print("counters> $responseCounters");
       dataCounters = responseCounters;
       valuesTransporter = responseValues['data'];
+      valuesTransporterR = responseValuesR['data'];
       data = responseLaravel['data'];
 
       // totallast = responseLaravel['total'];
@@ -322,6 +355,7 @@ class _DeliveryStatusExternalCarrierState
 
       updateCounters();
       calculateValues();
+      calculateValuesReceived();
 
       print("datos cargados correctamente");
 
@@ -448,7 +482,10 @@ class _DeliveryStatusExternalCarrierState
   }
 
   Future<void> sendSelectedIds() async {
-    await Connections().updatePaymentCostDelivery(selectedIds, true);
+    // await Connections().updatePaymentCostDelivery(selectedIds, true);
+
+    var result = await Connections().postGestinodPayment(
+        selectedIds, sharedPrefs!.getString("id"), 1, formattedDate);
     selectedIds.clear();
   }
 
@@ -533,40 +570,56 @@ class _DeliveryStatusExternalCarrierState
                       width: double.infinity,
                       color: Colors.white,
                       child: responsive(
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.only(
-                                          left: 15, right: 5),
-                                      child: responsive(
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: fechaFinFechaIni(),
-                                          ),
-                                          Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: fechaFinFechaIni(),
-                                          ),
-                                          context),
-                                    ),
-                                  ],
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Container(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.only(
+                                            left: 15, right: 5),
+                                        child: responsive(
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: fechaFinFechaIni(),
+                                            ),
+                                            Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: fechaFinFechaIni(),
+                                            ),
+                                            context),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.all(10),
-                                child: boxValuesExternalCarrier(
-                                    totalValoresRecibidos:
-                                        totalValoresRecibidos,
-                                    costoEntrega: costoDeEntregas,
-                                    costoDevolucion: devoluciones),
-                              ),
-                            ],
+                                Container(
+                                  padding: EdgeInsets.all(10),
+                                  child: boxValuesExternalCarrier(
+                                      tittle: "FACTURACIÓN TOTAL",
+                                      totalValoresRecibidos:
+                                          totalValoresRecibidos,
+                                      costoEntrega: costoDeEntregas,
+                                      costoDevolucion: devoluciones,
+                                      resultadoFinal: totalResultadoFinal),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.all(10),
+                                  child: boxValuesExternalCarrier(
+                                      tittle: "FACTURACIÓN RECIBIDA",
+                                      totalValoresRecibidos:
+                                          totalValoresRecibidosR,
+                                      costoEntrega: costoDeEntregasR,
+                                      costoDevolucion: devolucionesR,
+                                      resultadoFinal: totalResultadoFinalR),
+                                ),
+                              ],
+                            ),
                           ),
                           Column(
                             children: [
@@ -591,13 +644,17 @@ class _DeliveryStatusExternalCarrierState
                                   ),
                                 ],
                               ),
+                              // ! FALTA AGREGAR LA FACTURACION RECIBIDA
+                              // ! PARA LA VERSION DE MOVIL
                               Container(
                                 padding: EdgeInsets.all(10),
                                 child: boxValuesExternalCarrier(
+                                    tittle: "FACTURACIÓN TOTAL",
                                     totalValoresRecibidos:
                                         totalValoresRecibidos,
                                     costoEntrega: costoDeEntregas,
-                                    costoDevolucion: devoluciones),
+                                    costoDevolucion: devoluciones,
+                                    resultadoFinal: totalResultadoFinal),
                               ),
                             ],
                           ),
@@ -807,14 +864,40 @@ class _DeliveryStatusExternalCarrierState
                               sortFunc2("fecha_entrega", changevalue);
                             },
                           ),
+                          // listPagoCostoEntrega
                           DataColumn2(
-                            label: Text('Pago Costo Entrega'),
+                            label: SelectFilter(
+                                'Pago Costo Entrega',
+                                'gestioned_payment_cost_delivery',
+                                pagoCostoEntregaController,
+                                listPagoCostoEntrega),
+                            // Text('Pago Costo Entrega'),
                             //label: Text('Fecha de Entrega'),
                             size: ColumnSize.S,
                             onSort: (columnIndex, ascending) {
                               // sortFunc2("fecha_entrega", changevalue);
                             },
                           ),
+                          // ! -----------------
+                          // *******************
+                          // DataColumBest(
+                              // "Test P.C.E.", ColorsSystem().colorSelectMenu),
+                          // *******************
+                          DataColumBest("Pago Recibido por",
+                              ColorsSystem().colorSelectMenu),
+                          DataColumBest("Fecha P. T. Externa",
+                              ColorsSystem().colorSelectMenu),
+                          // DataColumn2(
+                          //   // label: InputFilter(
+                          //   // 'Fecha de P. Trans. Externa', codigoController, 'numero_orden'),
+                          //   label: const Text('Fecha de P. Trans. Externa'),
+                          //   size: ColumnSize.S,
+                          //   onSort: (columnIndex, ascending) {
+                          //     // sortFunc("NumeroOrden");
+                          //   },
+                          // ),
+
+                          // ! -----------------
                           DataColumn2(
                             label: InputFilter(
                                 'Código', codigoController, 'numero_orden'),
@@ -880,24 +963,24 @@ class _DeliveryStatusExternalCarrierState
                               // sortFunc("PrecioTotal");
                             },
                           ),
-                          DataColumn2(
-                            label: InputFilter('Comentario',
-                                comentarioController, 'comentario'),
-                            // label: Text('Comentario'),
-                            size: ColumnSize.M,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("Comentario");
-                            },
-                          ),
-                          DataColumn2(
-                            // label: InputFilter('Comentario Novedad',
-                            //     comentarioController, 'comentario'),
-                            label: Text('Comentario Novedad'),
-                            size: ColumnSize.M,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("Comentario");
-                            },
-                          ),
+                          // DataColumn2(
+                          //   label: InputFilter('Comentario',
+                          //       comentarioController, 'comentario'),
+                          //   // label: Text('Comentario'),
+                          //   size: ColumnSize.M,
+                          //   onSort: (columnIndex, ascending) {
+                          //     // sortFunc("Comentario");
+                          //   },
+                          // ),
+                          // DataColumn2(
+                          //   // label: InputFilter('Comentario Novedad',
+                          //   //     comentarioController, 'comentario'),
+                          //   label: Text('Comentario Novedad'),
+                          //   size: ColumnSize.M,
+                          //   onSort: (columnIndex, ascending) {
+                          //     // sortFunc("Comentario");
+                          //   },
+                          // ),
                           DataColumn2(
                             label: SelectFilter2('Estado de Entrega', 'status',
                                 statusController, listStatus),
@@ -994,8 +1077,55 @@ class _DeliveryStatusExternalCarrierState
                                   onTap: () {
                                 showInfo(context, index);
                               }),
+                              // DataCell(
+                              //   data[index]['payment_cost_delivery'] == 0
+                              //       ? Checkbox(
+                              //           value: selectedIds
+                              //               .contains(data[index]['id']),
+                              //           onChanged: (bool? newValue) {
+                              //             toggleSelection(data[index]['id'],
+                              //                 newValue ?? false);
+                              //           },
+                              //         )
+                              //       : GestureDetector(
+                              //           child: Row(
+                              //             mainAxisSize: MainAxisSize.min,
+                              //             children: [
+                              //               Text('OK'),
+                              //               SizedBox(width: 8),
+                              //               Icon(Icons.sync,
+                              //                   color: Colors.blue),
+                              //             ],
+                              //           ),
+                              //           onTap: () async {
+                              //             // print(
+                              //             // 'Cambiar estado para ID: ${data[index]['id']}');
+                              //             var result = await Connections().postGestinodPaymentU(
+                              //                 // .updatePaymentCostDeliveryInd(
+                              //                 data[index]['id'],
+                              //                 sharedPrefs!.getString("id"),
+                              //                 0,
+                              //                 formattedDate);
+                              //             loadData();
+                              //           },
+                              //         ),
+                              // ),
+                              // ! -----------------------
+                              // *******************
                               DataCell(
-                                data[index]['payment_cost_delivery'] == 0
+                                getStateFromJson(
+                                                data[index][
+                                                        'gestioned_payment_cost_delivery']
+                                                    ?.toString(),
+                                                'state') ==
+                                            "" ||
+                                        getStateFromJson(
+                                                data[index][
+                                                        'gestioned_payment_cost_delivery']
+                                                    ?.toString(),
+                                                'state') ==
+                                            "0"
+                                    // data[index]['payment_cost_delivery'] == 0
                                     ? Checkbox(
                                         value: selectedIds
                                             .contains(data[index]['id']),
@@ -1015,15 +1145,38 @@ class _DeliveryStatusExternalCarrierState
                                           ],
                                         ),
                                         onTap: () async {
-                                          // print(
-                                          // 'Cambiar estado para ID: ${data[index]['id']}');
-                                          await Connections()
-                                              .updatePaymentCostDeliveryInd(
-                                                  data[index]['id']);
+                                          var result = await Connections()
+                                              .postGestinodPaymentU(
+                                                  data[index]['id'],
+                                                  sharedPrefs!.getString("id"),
+                                                  0,
+                                                  formattedDate);
                                           loadData();
                                         },
                                       ),
                               ),
+                              // *******************
+                              DataCell(
+                                  Text(
+                                    getStateFromJson(
+                                        data[index][
+                                                'gestioned_payment_cost_delivery']
+                                            ?.toString(),
+                                        'id_user'),
+                                  ), onTap: () {
+                                showInfo(context, index);
+                              }),
+                              DataCell(
+                                  Text(
+                                    getStateFromJson(
+                                        data[index][
+                                                'gestioned_payment_cost_delivery']
+                                            ?.toString(),
+                                        'm_t_g'),
+                                  ), onTap: () {
+                                showInfo(context, index);
+                              }),
+                              // ! -----------------------
                               DataCell(
                                   Text(
                                       style: TextStyle(
@@ -1065,24 +1218,24 @@ class _DeliveryStatusExternalCarrierState
                                   onTap: () {
                                 showInfo(context, index);
                               }),
-                              DataCell(
-                                  Text(data[index]['comentario'] == null ||
-                                          data[index]['comentario'] == "null"
-                                      ? ""
-                                      : data[index]['comentario'].toString()),
-                                  // Text(data[index]['comentario'].toString()),
-                                  onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(
-                                    getStateFromJson(
-                                        data[index]['gestioned_novelty']
-                                            ?.toString(),
-                                        'comment'),
-                                  ), onTap: () {
-                                showInfo(context, index);
-                              }),
+                              // DataCell(
+                              //     Text(data[index]['comentario'] == null ||
+                              //             data[index]['comentario'] == "null"
+                              //         ? ""
+                              //         : data[index]['comentario'].toString()),
+                              //     // Text(data[index]['comentario'].toString()),
+                              //     onTap: () {
+                              //   showInfo(context, index);
+                              // }),
+                              // DataCell(
+                              //     Text(
+                              //       getStateFromJson(
+                              //           data[index]['gestioned_novelty']
+                              //               ?.toString(),
+                              //           'comment'),
+                              //     ), onTap: () {
+                              //   showInfo(context, index);
+                              // }),
                               DataCell(
                                   Text(
                                       style: TextStyle(
@@ -1148,7 +1301,6 @@ class _DeliveryStatusExternalCarrierState
                                 showInfo(context, index);
                               }),
                               DataCell(
-                                
                                   Text(data[index]["pedido_carrier"] != null
                                       ? data[index]["pedido_carrier"][0]
                                               ["cost_refound_external"]
@@ -1167,6 +1319,22 @@ class _DeliveryStatusExternalCarrierState
               )
             ])),
       ),
+    );
+  }
+
+  DataColumn2 DataColumBest(String label, Color color) {
+    return DataColumn2(
+      // label: InputFilter(
+      // 'Pago Recibido por', codigoController, 'numero_orden'),
+      // label: const Text('Pago Recibido por'),
+      label: Text(
+        label,
+        style: TextStyle(color: color, fontWeight: FontWeight.bold),
+      ),
+      size: ColumnSize.S,
+      onSort: (columnIndex, ascending) {
+        // sortFunc("NumeroOrden");
+      },
     );
   }
 
@@ -1238,7 +1406,6 @@ class _DeliveryStatusExternalCarrierState
                       reemplazarValor(filter, newValue!);
                       arrayFiltersAnd.add(filter);
                     }
-                    print(filter);
                   } else {}
 
                   paginateData();
@@ -1277,6 +1444,7 @@ class _DeliveryStatusExternalCarrierState
     costoEntregaController.clear();
     costoDevolucionController.clear();
     statusController.text = "TODO";
+    pagoCostoEntregaController.text = "TODO";
     estadoInternoController.text = "TODO";
     estadoLogisticoController.text = "TODO";
     estadoDevolucionController.text = "TODO";
@@ -1291,6 +1459,7 @@ class _DeliveryStatusExternalCarrierState
     totalValoresRecibidos = 0;
     costoDeEntregas = 0;
     devoluciones = 0;
+    totalResultadoFinal = 0;
 
     setState(() {
       totalValoresRecibidos =
@@ -1299,9 +1468,26 @@ class _DeliveryStatusExternalCarrierState
           double.parse(valuesTransporter['totalCostoEntrega'].toString());
       devoluciones =
           double.parse(valuesTransporter['totalCostoDevolucion'].toString());
-      // utilidad = (valuesTransporter['totalValoresRecibidos'] -
-      //     valuesTransporter['totalRetirosEfectivo']);
-      // utilidad = double.parse(utilidad.toString());
+      totalResultadoFinal =
+          double.parse(valuesTransporter['totalResultadoFinal'].toString());
+    });
+  }
+
+  calculateValuesReceived() {
+    totalValoresRecibidosR = 0;
+    costoDeEntregasR = 0;
+    devolucionesR = 0;
+    totalResultadoFinalR = 0;
+
+    setState(() {
+      totalValoresRecibidosR =
+          double.parse(valuesTransporterR['totalValoresRecibidos'].toString());
+      costoDeEntregasR =
+          double.parse(valuesTransporterR['totalCostoEntrega'].toString());
+      devolucionesR =
+          double.parse(valuesTransporterR['totalCostoDevolucion'].toString());
+      totalResultadoFinalR =
+          double.parse(valuesTransporterR['totalResultadoFinal'].toString());
     });
   }
 
@@ -1605,34 +1791,34 @@ class _DeliveryStatusExternalCarrierState
                       }).toList(),
                     ),
                   ),
-                  // ! *****************
-                  Container(
-                    padding: EdgeInsets.only(left: 10),
-                    width: 230,
-                    child: DropdownButtonFormField<String>(
-                      isExpanded: true,
-                      value: selectedExt,
-                      onChanged: (String? newValue) async {
-                        // String filter = "carrier_external_id";
-                        setState(() {
-                          selectedExt = newValue ?? "";
-                        });
-                      },
-                      decoration: InputDecoration(
-                          border: UnderlineInputBorder(
-                              borderRadius: BorderRadius.circular(10))),
-                      items:
-                          listExt.map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value, style: TextStyle(fontSize: 15)),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  // SelectFilter('test', 'carrier_external_id',
-                  //     externalCarrierController, listExt),
-                  // ! *****************
+                  // // ! *****************
+                  // Container(
+                  //   padding: EdgeInsets.only(left: 10),
+                  //   width: 230,
+                  //   child: DropdownButtonFormField<String>(
+                  //     isExpanded: true,
+                  //     value: selectedExt,
+                  //     onChanged: (String? newValue) async {
+                  //       // String filter = "carrier_external_id";
+                  //       setState(() {
+                  //         selectedExt = newValue ?? "";
+                  //       });
+                  //     },
+                  //     decoration: InputDecoration(
+                  //         border: UnderlineInputBorder(
+                  //             borderRadius: BorderRadius.circular(10))),
+                  //     items:
+                  //         listExt.map<DropdownMenuItem<String>>((String value) {
+                  //       return DropdownMenuItem<String>(
+                  //         value: value,
+                  //         child: Text(value, style: TextStyle(fontSize: 15)),
+                  //       );
+                  //     }).toList(),
+                  //   ),
+                  // ),
+                  // // SelectFilter('test', 'carrier_external_id',
+                  // //     externalCarrierController, listExt),
+                  // // ! *****************
                   // Container(
                   //   padding: EdgeInsets.only(left: 10),
                   //   width: 230,
@@ -1698,7 +1884,35 @@ class _DeliveryStatusExternalCarrierState
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  const SizedBox(width: 10),
+                  // ! *****************
+                  Container(
+                    padding: EdgeInsets.only(left: 10, top: 10, bottom: 10),
+                    width: 260,
+                    child: DropdownButtonFormField<String>(
+                      isExpanded: true,
+                      value: selectedExt,
+                      onChanged: (String? newValue) async {
+                        // String filter = "carrier_external_id";
+                        setState(() {
+                          selectedExt = newValue ?? "";
+                        });
+                      },
+                      decoration: InputDecoration(
+                          border: UnderlineInputBorder(
+                              borderRadius: BorderRadius.circular(10))),
+                      items:
+                          listExt.map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value, style: TextStyle(fontSize: 15)),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  // SelectFilter('test', 'carrier_external_id',
+                  //     externalCarrierController, listExt),
+                  // ! *****************
+                  const SizedBox(width: 40),
                   ElevatedButton(
                     onPressed: () {
                       showSelectFilterReportDialog(context);
@@ -1817,6 +2031,7 @@ class _DeliveryStatusExternalCarrierState
     });
     await loadData();
     calculateValues();
+    calculateValuesReceived();
     isFirst = false;
   }
 
@@ -2328,7 +2543,7 @@ class _DeliveryStatusExternalCarrierState
 
                   if (newValue != 'TODO') {
                     if (filter is String) {
-                      arrayFiltersAnd.add({filter: newValue?.split('-')[1]});
+                      arrayFiltersAnd.add({filter: int.parse(newValue!.split('-')[1].toString())});
                     } else {
                       reemplazarValor(filter, newValue!);
                       //print(filter);

@@ -9453,6 +9453,71 @@ Future getTransaccionesOrdersByTransportadorasDatesExternal(
     }
   }
 
+  postGestinodPayment(ids, idUser, noveltyState, String dateStart) async {
+    try {
+      print("gestionedpayment --->  ${json.encode({
+            "ids" : ids,
+            "id_user": idUser,
+            "payment_state": noveltyState,
+            "start": dateStart
+          })}");
+      var request = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/pedidos-shopify/update-gestioned-payment-cost-delivery"),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode({
+            "ids" : ids,
+            "id_user": idUser,
+            "payment_state": noveltyState,
+            "start": dateStart
+          }));
+
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return decodeData;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
+  postGestinodPaymentU(id, idUser, noveltyState, String dateStart) async {
+    try {
+      print(id);
+      print("gestionedpaymentU --->  ${json.encode({
+            "id_user": idUser,
+            "payment_state": noveltyState,
+            "start": dateStart
+          })}");
+      var request = await http.post(
+          Uri.parse(
+              "$serverLaravel/api/pedidos-shopify/update-gestioned-payment-cost-delivery-unique/$id"),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode({
+            "id_user": idUser,
+            "payment_state": noveltyState,
+            "start": dateStart
+          }));
+
+      var response = await request.body;
+      var decodeData = json.decode(response);
+      if (request.statusCode != 200) {
+        return 1;
+      } else {
+        return decodeData;
+      }
+    } catch (e) {
+      return 2;
+    }
+  }
+
   updateOrCreateGestionedNovelty(idOrder, property) async {
     try {
       var request = await http.post(
