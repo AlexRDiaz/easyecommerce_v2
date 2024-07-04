@@ -18,6 +18,8 @@ import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_sna
 import 'package:frontend/ui/provider/products/add_product.dart';
 import 'package:frontend/ui/provider/products/controllers/product_controller.dart';
 import 'package:frontend/ui/provider/products/edit_product.dart';
+import 'package:frontend/ui/provider/products/filter_report.dart';
+import 'package:frontend/ui/provider/products/report_product.dart';
 import 'package:frontend/ui/provider/warehouses/controllers/warehouses_controller.dart';
 import 'package:frontend/ui/utils/utils.dart';
 import 'package:frontend/ui/widgets/custom_succes_modal.dart';
@@ -109,8 +111,8 @@ class _ProductsViewState extends State<ProductsView> {
     _warehouseController = WrehouseController();
 
     loadData();
-    super.initState();
     getSpecialsWarehouses();
+    super.initState();
 
     //mvc
 
@@ -198,7 +200,7 @@ class _ProductsViewState extends State<ProductsView> {
           arrayFiltersOr,
           arrayFiltersAnd,
           sortFieldDefaultValue.toString(),
-          _search.text);
+          _search.text, []);
       data = response['data'];
       // print(data[0]);
       // total = response['total'];
@@ -333,7 +335,7 @@ class _ProductsViewState extends State<ProductsView> {
           arrayFiltersOr,
           arrayFiltersAnd,
           sortFieldDefaultValue.toString(),
-          _search.text);
+          _search.text, []);
       data = response['data'];
       setState(() {
         // dataHistory = response['data'];
@@ -434,25 +436,42 @@ class _ProductsViewState extends State<ProductsView> {
                         ],
                       ),
                     ),
-                    const SizedBox(width: 5),
-                    ElevatedButton.icon(
+                    const SizedBox(width: 20),
+                    ElevatedButton(
                       onPressed: () async {
-                        resetFilters();
-                        await loadData();
+                        //
+                        showFilterReport(context);
                       },
-                      icon: const Icon(
-                        Icons.replay_circle_filled_sharp,
-                        color: Colors.white,
-                      ),
-                      label: const Text(
-                        "",
-                        style: TextStyle(
-                          decoration: TextDecoration.underline,
-                          color: Colors.white,
-                        ),
-                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.insert_drive_file,
+                            color: Colors.white,
+                          ),
+                          Text(
+                            "Reporte",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    IconButton(
+                      onPressed: () async {
+                        resetFilters();
+                        loadData();
+                      },
+                      icon: const Icon(
+                        Icons.autorenew_rounded,
+                        // size: 35,
+                        color: Colors.green,
                       ),
                     ),
                   ],
@@ -1239,6 +1258,27 @@ class _ProductsViewState extends State<ProductsView> {
       }
     }
     return reserveStock.toString();
+  }
+
+  Future<dynamic> showFilterReport(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            //
+            return const AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(20.0))),
+              contentPadding: EdgeInsets.all(0),
+              content: FilterReport(),
+            );
+          },
+        );
+      },
+    ).then((value) => setState(() {
+          loadData();
+        }));
   }
 
   Future<dynamic> showDialogInfoData(data, isown) {

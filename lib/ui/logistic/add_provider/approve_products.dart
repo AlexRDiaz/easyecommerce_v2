@@ -104,7 +104,7 @@ class _ApproveProductsState extends State<ApproveProducts> {
         arrayFiltersOr,
         arrayFiltersAnd,
         sortFieldDefaultValue.toString(),
-        _search.text);
+        _search.text, []);
     return _productController.products;
   }
 
