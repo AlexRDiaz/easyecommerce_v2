@@ -318,30 +318,33 @@ class _ReceivedValuesState extends State<ReceivedValues> {
             // _filters(context),
             Expanded(
               child: DataTable2(
-                  headingTextStyle: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-                  dataTextStyle:
-                      TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black),
+                  headingTextStyle: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.black),
+                  dataTextStyle: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black),
                   columnSpacing: 12,
                   horizontalMargin: 12,
                   minWidth: 2500,
                   columns: [
                     DataColumn2(
                       label: Text('Fecha'),
-                      size: ColumnSize.M,
+                      size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
                         sortFuncDate("Marca_Tiempo_Envio");
                       },
                     ),
                     DataColumn2(
-                      label: Text('Fecha de Entrega'),
-                      size: ColumnSize.M,
+                      label: Text('Fecha de\nEntrega'),
+                      size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
                         sortFuncDate("Fecha_Entrega");
                       },
                     ),
                     DataColumn2(
                       label: Text('Código'),
-                      size: ColumnSize.S,
+                      size: ColumnSize.M,
                       onSort: (columnIndex, ascending) {
                         sortFunc("NumeroOrden");
                       },
@@ -376,7 +379,7 @@ class _ReceivedValuesState extends State<ReceivedValues> {
                     ),
                     DataColumn2(
                         label: Text('Cantidad'),
-                        size: ColumnSize.M,
+                        size: ColumnSize.S,
                         onSort: (columnIndex, ascending) {
                           sortFunc("Cantidad_Total");
                         },
@@ -397,7 +400,7 @@ class _ReceivedValuesState extends State<ReceivedValues> {
                     ),
                     DataColumn2(
                         label: Text('Precio Total'),
-                        size: ColumnSize.M,
+                        size: ColumnSize.S,
                         onSort: (columnIndex, ascending) {
                           sortFunc("PrecioTotal");
                         },
@@ -442,7 +445,7 @@ class _ReceivedValuesState extends State<ReceivedValues> {
                       data.isNotEmpty ? data.length : [].length,
                       (index) => DataRow(
                               onSelectChanged: (value) {
-                                 info(context, index);
+                                info(context, index);
                               },
                               cells: [
                                 DataCell(Text(data[index]['attributes']
@@ -453,7 +456,7 @@ class _ReceivedValuesState extends State<ReceivedValues> {
                                         ['Fecha_Entrega']
                                     .toString())),
                                 DataCell(Text(
-                                    '${data[index]['attributes']['Name_Comercial'].toString()}-${data[index]['attributes']['NumeroOrden'].toString()}')),
+                                    '${data[index]['attributes']['users']['data'] != null ? data[index]['attributes']['users']['data'][0]['attributes']['vendedores']['data'][0]['attributes']['Nombre_Comercial'] : data[index]['attributes']['Tienda_Temporal'].toString()}-${data[index]['attributes']['NumeroOrden'].toString()}')),
                                 DataCell(Text(data[index]['attributes']
                                         ['NombreShipping']
                                     .toString())),
@@ -473,23 +476,35 @@ class _ReceivedValuesState extends State<ReceivedValues> {
                                         ['ProductoP']
                                     .toString())),
                                 DataCell(Text(data[index]['attributes']
-                                        ['ProductoExtra']
-                                    .toString())),
+                                            ['ProductoExtra'] ==
+                                        null
+                                    ? ""
+                                    : data[index]['attributes']['ProductoExtra']
+                                        .toString())),
                                 DataCell(Text(data[index]['attributes']
                                         ['PrecioTotal']
                                     .toString())),
                                 DataCell(Text(data[index]['attributes']
-                                        ['Observacion']
-                                    .toString())),
+                                            ['Observacion'] ==
+                                        null
+                                    ? ""
+                                    : data[index]['attributes']['Observacion']
+                                        .toString())),
                                 DataCell(Text(data[index]['attributes']
-                                        ['Comentario']
-                                    .toString())),
+                                            ['Comentario'] ==
+                                        null
+                                    ? ""
+                                    : data[index]['attributes']['Comentario']
+                                        .toString())),
                                 DataCell(Text(data[index]['attributes']
                                         ['Status']
                                     .toString())),
                                 DataCell(Text(data[index]['attributes']
-                                        ['TipoPago']
-                                    .toString())),
+                                            ['TipoPago'] ==
+                                        null
+                                    ? ""
+                                    : data[index]['attributes']['TipoPago']
+                                        .toString())),
                                 DataCell(Text(data[index]['attributes']
                                         ['Estado_Pagado']
                                     .toString())),
@@ -985,7 +1000,8 @@ class _ReceivedValuesState extends State<ReceivedValues> {
       });
     }
   }
-    Future<dynamic> info(BuildContext context, int index) {
+
+  Future<dynamic> info(BuildContext context, int index) {
     return showDialog(
         context: context,
         builder: (context) {

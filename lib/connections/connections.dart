@@ -3229,7 +3229,7 @@ class Connections {
   getOrdersForOperatorState(code) async {
     var request = await http.get(
       Uri.parse(
-          "$server/api/pedidos-shopifies?populate=transportadora&populate=pedido_fecha&populate=sub_ruta&populate=operadore&populate=operadore.user&populate=novedades&filters[\$and][0][operadore][user][id][\$eq]=${sharedPrefs!.getString("id").toString()}&filters[\$and][1][NumeroOrden][\$contains]=$code&filters[\$or][2][Status][\$ne]=PEDIDO PROGRAMADO&filters[\$and][3][Fecha_Entrega][\$eq]=${sharedPrefs!.getString("dateOperatorState")}&pagination[limit]=-1"),
+          "$server/api/pedidos-shopifies?populate=transportadora&populate=pedido_fecha&populate=sub_ruta&populate=operadore&populate=operadore.user&populate=novedades&populate=users.vendedores&filters[\$and][0][operadore][user][id][\$eq]=${sharedPrefs!.getString("id").toString()}&filters[\$and][1][NumeroOrden][\$contains]=$code&filters[\$or][2][Status][\$ne]=PEDIDO PROGRAMADO&filters[\$and][3][Fecha_Entrega][\$eq]=${sharedPrefs!.getString("dateOperatorState")}&pagination[limit]=-1"),
       headers: {'Content-Type': 'application/json'},
     );
     var response = await request.body;
@@ -6071,8 +6071,7 @@ class Connections {
     }
   }
 
-
-Future getTransaccionesOrdersByTransportadorasDatesExternal(
+  Future getTransaccionesOrdersByTransportadorasDatesExternal(
       id_transportadora, dates) async {
     // print(json.encode(
     //     {"id_transportadora": id_transportadora, "fechas_entrega": dates}));

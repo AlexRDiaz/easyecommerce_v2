@@ -149,14 +149,14 @@ class _OrdersOperatorState extends State<OrdersOperator> {
                   columns: [
                     DataColumn2(
                       label: Text('Fecha'),
-                      size: ColumnSize.M,
+                      size: ColumnSize.S,
                       onSort: (columnIndex, ascending) {
                         sortFuncDate("Marca_Tiempo_Envio");
                       },
                     ),
                     DataColumn2(
                       label: Text('Código'),
-                      size: ColumnSize.S,
+                      size: ColumnSize.M,
                     ),
                     DataColumn2(
                       label: Text(''),
@@ -192,7 +192,7 @@ class _OrdersOperatorState extends State<OrdersOperator> {
                     ),
                     DataColumn2(
                       label: Text('Cantidad'),
-                      size: ColumnSize.M,
+                      size: ColumnSize.S,
                       numeric: true,
                       onSort: (columnIndex, ascending) {
                         sortFunc("Cantidad_Total");
@@ -214,7 +214,7 @@ class _OrdersOperatorState extends State<OrdersOperator> {
                     ),
                     DataColumn2(
                       label: Text('Precio Total'),
-                      size: ColumnSize.M,
+                      size: ColumnSize.S,
                       numeric: true,
                       onSort: (columnIndex, ascending) {
                         sortFunc("PrecioTotal");
@@ -326,8 +326,12 @@ class _OrdersOperatorState extends State<OrdersOperator> {
                             DataCell(onTap: () {
                               info(context, index);
                             },
-                                Text(data[index]['attributes']['ProductoExtra']
-                                    .toString())),
+                                Text(data[index]['attributes']
+                                            ['ProductoExtra'] ==
+                                        null
+                                    ? ""
+                                    : data[index]['attributes']['ProductoExtra']
+                                        .toString())),
                             DataCell(onTap: () {
                               info(context, index);
                             },
@@ -336,13 +340,19 @@ class _OrdersOperatorState extends State<OrdersOperator> {
                             DataCell(onTap: () {
                               info(context, index);
                             },
-                                Text(data[index]['attributes']['Observacion']
-                                    .toString())),
+                                Text(data[index]['attributes']['Observacion'] ==
+                                        null
+                                    ? ""
+                                    : data[index]['attributes']['Observacion']
+                                        .toString())),
                             DataCell(onTap: () {
                               info(context, index);
                             },
-                                Text(data[index]['attributes']['Comentario']
-                                    .toString())),
+                                Text(data[index]['attributes']['Comentario'] ==
+                                        null
+                                    ? ""
+                                    : data[index]['attributes']['Comentario']
+                                        .toString())),
                             DataCell(onTap: () {
                               info(context, index);
                             },
