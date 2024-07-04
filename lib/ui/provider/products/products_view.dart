@@ -18,6 +18,7 @@ import 'package:frontend/ui/logistic/transport_delivery_historial/show_error_sna
 import 'package:frontend/ui/provider/products/add_product.dart';
 import 'package:frontend/ui/provider/products/controllers/product_controller.dart';
 import 'package:frontend/ui/provider/products/edit_product.dart';
+import 'package:frontend/ui/provider/products/filter_report.dart';
 import 'package:frontend/ui/provider/products/report_product.dart';
 import 'package:frontend/ui/provider/warehouses/controllers/warehouses_controller.dart';
 import 'package:frontend/ui/utils/utils.dart';
@@ -93,15 +94,6 @@ class _ProductsViewState extends State<ProductsView> {
   List<String> specialsToSelect = [];
   String? selectedSpecial;
 
-  var getReport = ReportProductos();
-  List<String> ownersToSelect = [];
-  String? selectedOwner;
-  List<dynamic> andReport = [];
-  List<String> warehousesToSelectRep = [];
-  String? selectedWarehouseReport;
-  List<dynamic> ownersSelectedRep = [];
-  List<dynamic> warehousesSelectedRep = [];
-
   @override
   void initState() {
     print("idProv-prin: $idProv-$idProvUser");
@@ -120,7 +112,6 @@ class _ProductsViewState extends State<ProductsView> {
 
     loadData();
     getSpecialsWarehouses();
-    getOwners();
     super.initState();
 
     //mvc
@@ -169,8 +160,6 @@ class _ProductsViewState extends State<ProductsView> {
 
       for (var warehouse in warehousesList) {
         warehousesToSelect
-            .add('${warehouse.branchName}/${warehouse.city}-${warehouse.id}');
-        warehousesToSelectRep
             .add('${warehouse.branchName}/${warehouse.city}-${warehouse.id}');
 
         if (warehouse.approved == 1 && warehouse.active == 1) {
@@ -394,17 +383,6 @@ class _ProductsViewState extends State<ProductsView> {
     });
   }
 
-  getOwners() async {
-    var responseOwners = await Connections().getOwnersByProv(idProv);
-    // print(responseOwners);
-    for (var element in responseOwners) {
-      //   print(element['id']);
-      //   print(element['vendedores'][0]['nombre_comercial']);
-      ownersToSelect.add(
-          "${element['id']}|${element['vendedores'][0]['nombre_comercial']}");
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -458,39 +436,11 @@ class _ProductsViewState extends State<ProductsView> {
                         ],
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 20),
                     ElevatedButton(
                       onPressed: () async {
+                        //
                         showFilterReport(context);
-                        /*
-                        try {
-                          List<dynamic> and = arrayFiltersAnd;
-                          if (provType == 1) {
-                            //prov principal
-                            if (int.parse(specialProv.toString()) == 1) {
-                              and.removeWhere((element) =>
-                                  element.containsKey("equals/approved"));
-                              arrayFiltersAnd.add(
-                                  {"equals/warehouses.provider_id": idProv});
-                            }
-                          }
-
-                          /*
-                          var dataProducts = await Connections()
-                              .getProductsBySubProvider(
-                                  populate,
-                                  null,
-                                  currentPage,
-                                  arrayFiltersOr,
-                                  and,
-                                  sortFieldDefaultValue.toString(),
-                                  _search.text);
-                          getReport.generateExcelReport(dataProducts['data']);
-                          */
-                        } catch (e) {
-                          print(e);
-                        }
-                        */
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
@@ -1308,6 +1258,27 @@ class _ProductsViewState extends State<ProductsView> {
       }
     }
     return reserveStock.toString();
+  }
+
+  Future<dynamic> showFilterReport(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            //
+            return const AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(20.0))),
+              contentPadding: EdgeInsets.all(0),
+              content: FilterReport(),
+            );
+          },
+        );
+      },
+    ).then((value) => setState(() {
+          loadData();
+        }));
   }
 
   Future<dynamic> showDialogInfoData(data, isown) {
@@ -2507,245 +2478,6 @@ class _ProductsViewState extends State<ProductsView> {
           ],
         ),
       ),
-    );
-  }
-
-  Future<dynamic> showFilterReport(BuildContext context) {
-    ownersSelectedRep = [];
-    warehousesSelectedRep = [];
-
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(20.0)),
-              ),
-              contentPadding: const EdgeInsets.all(0),
-              content: Container(
-                padding: const EdgeInsets.all(20),
-                width: 500,
-                height: 500,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      "Añadir a bodega",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    DropdownButtonFormField<String>(
-                      isExpanded: true,
-                      hint: Text(
-                        'Propietario',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Theme.of(context).hintColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      items: ownersToSelect
-                          .map((item) => DropdownMenuItem(
-                                value: item,
-                                child: Text(
-                                  item.split("|")[1].toString(),
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ))
-                          .toList(),
-                      value: selectedOwner,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedOwner = value as String;
-                          if (!ownersSelectedRep.contains(selectedOwner)) {
-                            ownersSelectedRep.add(selectedOwner);
-                          }
-                        });
-                      },
-                      decoration: InputDecoration(
-                        fillColor: Colors.white,
-                        filled: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Wrap(
-                      spacing: 8.0,
-                      runSpacing: 8.0,
-                      children:
-                          List.generate(ownersSelectedRep.length, (index) {
-                        String owner = ownersSelectedRep[index];
-                        String ownerName = owner.split("|")[1];
-
-                        return Chip(
-                          label: Text(ownerName),
-                          onDeleted: () {
-                            setState(() {
-                              ownersSelectedRep.removeAt(index);
-                            });
-                          },
-                        );
-                      }),
-                    ),
-                    const SizedBox(height: 10),
-                    DropdownButtonFormField<String>(
-                      isExpanded: true,
-                      hint: Text(
-                        'Bodega',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Theme.of(context).hintColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      items: warehousesToSelectRep
-                          .map((item) => DropdownMenuItem(
-                                value: item,
-                                child: Text(
-                                  item.split("-")[0].toString(),
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ))
-                          .toList(),
-                      value: selectedWarehouseReport,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedWarehouseReport = value as String;
-                          if (!warehousesSelectedRep
-                              .contains(selectedWarehouseReport)) {
-                            warehousesSelectedRep.add(selectedWarehouseReport);
-                          }
-                        });
-                        // andReport.add({
-                        //   "equals/warehouses.warehouse_id":
-                        //       selectedWarehouseReport.toString().split('-')[1]
-                        // });
-                      },
-                      decoration: InputDecoration(
-                        fillColor: Colors.white,
-                        filled: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Wrap(
-                      spacing: 8.0,
-                      runSpacing: 8.0,
-                      children:
-                          List.generate(warehousesSelectedRep.length, (index) {
-                        String warehouse = warehousesSelectedRep[index];
-                        String warehouseName = warehouse.split("-")[0];
-
-                        return Chip(
-                          label: Text(warehouseName),
-                          onDeleted: () {
-                            setState(() {
-                              warehousesSelectedRep.removeAt(index);
-                            });
-                          },
-                        );
-                      }),
-                    ),
-                    const SizedBox(height: 30),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () async {
-                            try {
-                              // if (provType == 1) {
-                              //   //prov principal
-                              //   if (int.parse(specialProv.toString()) == 1) {
-                              //     and.removeWhere(
-                              //         (element) => element.containsKey("equals/approved"));
-                              //     arrayFiltersAnd
-                              //         .add({"equals/warehouses.provider_id": idProv});
-                              //   }
-                              // }
-                              andReport = [];
-                              if (provType == 1) {
-                                andReport.add(
-                                    {"equals/warehouses.provider_id": idProv});
-                              } else if (provType == 2) {
-                                andReport.add({
-                                  "equals/warehouses.up_users.id_user": idUser
-                                });
-                              }
-
-                              List<dynamic> multifilter = [];
-
-                              for (var owner in ownersSelectedRep) {
-                                multifilter.add({
-                                  "seller_owned": owner.toString().split('|')[0]
-                                });
-                              }
-                              for (var warehouse in warehousesSelectedRep) {
-                                multifilter.add({
-                                  "warehouse_id":
-                                      warehouse.toString().split('-')[1]
-                                });
-                              }
-
-                              var dataProducts = await Connections()
-                                  .getProductsBySubProvider(
-                                      populate,
-                                      null,
-                                      currentPage,
-                                      arrayFiltersOr,
-                                      andReport,
-                                      sortFieldDefaultValue.toString(),
-                                      _search.text,
-                                      multifilter);
-                              getReport
-                                  .generateExcelReport(dataProducts['data']);
-                            } catch (e) {
-                              print(e);
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.download,
-                                color: Colors.white,
-                              ),
-                              Text(
-                                "Descargar",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
     );
   }
 

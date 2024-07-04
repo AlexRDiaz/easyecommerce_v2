@@ -108,8 +108,8 @@ class ProductController extends ControllerMVC {
   Future<Map<String, dynamic>> loadBySubProvider(populate, pageSize,
       currentPage, or, and, sort, search, multifilter) async {
     try {
-      var response = await Connections().getProductsBySubProvider(
-          populate, pageSize, currentPage, or, and, sort, search, multifilter);
+      var response = await Connections().getProductsBySubProvider(populate,
+          pageSize, currentPage, or, and, sort, search, [], multifilter);
       // print(response);
       if (response == 1) {
         print('Error: Status Code 1');

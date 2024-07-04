@@ -7367,17 +7367,18 @@ class Connections {
 
   //  *
   getProductsBySubProvider(populate, page_size, current_page, or, and, sort,
-      search, multifilter) async {
-    print(json.encode({
-      "populate": populate,
-      "page_size": page_size,
-      "page_number": current_page,
-      "or": or,
-      "and": and,
-      "sort": sort,
-      "search": search,
-      "multifilter": multifilter,
-    }));
+      search, not, multifilter) async {
+    // print(json.encode({
+    //   "populate": populate,
+    //   "page_size": page_size,
+    //   "page_number": current_page,
+    //   "or": or,
+    //   "and": and,
+    //   "sort": sort,
+    //   "search": search,
+    //   "not": not,
+    //   "multifilter": multifilter,
+    // }));
     try {
       var response =
           await http.post(Uri.parse("$serverLaravel/api/allbysubprov"),
@@ -7390,6 +7391,7 @@ class Connections {
                 "and": and,
                 "sort": sort,
                 "search": search,
+                "not": not,
                 "multifilter": multifilter
               }));
       if (response.statusCode == 200) {
@@ -7766,6 +7768,42 @@ class Connections {
       }
     } catch (error) {
       print(error);
+      return 2;
+    }
+  }
+
+  // *
+  getWarehousesByProv(idProv) async {
+    try {
+      var response = await http.get(
+          Uri.parse("$serverLaravel/api/prodwarehouses/$idProv"),
+          headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+      print(error);
+      return 2;
+    }
+  }
+
+  // *
+  getWarehousesSubProv(idSubProv) async {
+    try {
+      var response = await http.get(
+        Uri.parse("$serverLaravel/api/warehousessubprov/$idSubProv"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        var decodeData = json.decode(response.body);
+        return decodeData;
+      } else {
+        return 1;
+      }
+    } catch (error) {
       return 2;
     }
   }
