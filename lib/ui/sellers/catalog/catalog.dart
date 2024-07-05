@@ -52,7 +52,7 @@ class _CatalogState extends State<Catalog> {
   List<ProviderModel> providersList = [];
   //
   int currentPage = 1;
-  int pageSize = 70;
+  int pageSize = 1300;
   int pageCount = 100;
   bool isLoading = false;
   bool isFirst = false;
