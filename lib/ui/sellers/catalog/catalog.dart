@@ -52,7 +52,7 @@ class _CatalogState extends State<Catalog> {
   List<ProviderModel> providersList = [];
   //
   int currentPage = 1;
-  int pageSize = 1300;
+  int pageSize = 1500;
   int pageCount = 100;
   bool isLoading = false;
   bool isFirst = false;
@@ -259,6 +259,8 @@ class _CatalogState extends State<Catalog> {
                         controller: _search,
                       ),
                     ),
+                    const SizedBox(width: 20),
+                    Text("Registros: ${products.length.toString()}"),
                   ],
                 ),
               ),
@@ -321,6 +323,8 @@ class _CatalogState extends State<Catalog> {
                   controller: _search,
                 ),
               ),
+              const SizedBox(width: 20),
+              Text("Registros: ${products.length.toString()}"),
             ],
           ),
           const SizedBox(height: 10),

@@ -34,7 +34,7 @@ class _ApproveProductsState extends State<ApproveProducts> {
   String? selectedWarehouse;
 
   int currentPage = 1;
-  int pageSize = 500;
+  int pageSize = 1500;
   int pageCount = 100;
   bool isLoading = false;
   bool isFirst = false;
@@ -47,6 +47,7 @@ class _ApproveProductsState extends State<ApproveProducts> {
 
   List<String> specialsToSelect = [];
   String? selectedSpecial;
+  int total = 0;
 
   @override
   void initState() {
@@ -55,6 +56,7 @@ class _ApproveProductsState extends State<ApproveProducts> {
     getWarehouses();
     getSpecialsWarehouses();
     _productController = ProductController();
+    _getProductModelData();
   }
 
   Future<List<WarehouseModel>> _getWarehousesData() async {
@@ -76,7 +78,7 @@ class _ApproveProductsState extends State<ApproveProducts> {
     }
   }
 
-  Future<List<ProductModel>> _getProductModelData() async {
+  _getProductModelData() async {
     //prov principal y especial
     // arrayFiltersAnd.add({"/approved": 2});
     arrayFiltersAnd.add({"/warehouses.provider_id": widget.provider.id});
@@ -97,6 +99,9 @@ class _ApproveProductsState extends State<ApproveProducts> {
     // return filteredProducts;
 
     //new version
+    setState(() {
+      isLoading = true;
+    });
     await _productController.loadBySubProvider(
         populate,
         pageSize,
@@ -105,7 +110,11 @@ class _ApproveProductsState extends State<ApproveProducts> {
         arrayFiltersAnd,
         sortFieldDefaultValue.toString(),
         _search.text, []);
-    return _productController.products;
+    // return _productController.products;
+    setState(() {
+      products = _productController.products;
+      isLoading = false;
+    });
   }
 
   //SpecialsWarehouses
@@ -141,93 +150,80 @@ class _ApproveProductsState extends State<ApproveProducts> {
       body: Padding(
         padding: EdgeInsets.all(20),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.provider.name.toString(),
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+            Text(
+              widget.provider.name.toString(),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Bodega:",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+            const Text(
+              "Bodega:",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            Row(
-              children: [
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.2,
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: DropdownButtonFormField<String>(
-                      isExpanded: true,
-                      hint: Text(
-                        'TODO',
-                        style: TextStyle(
+            const SizedBox(height: 10),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.2,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: DropdownButtonFormField<String>(
+                  isExpanded: true,
+                  hint: Text(
+                    'TODO',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).hintColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  items: warehousesToSelect.map((item) {
+                    var parts = item.split('-');
+                    var branchName = parts[1];
+                    return DropdownMenuItem(
+                      value: item,
+                      child: Text(
+                        '$branchName',
+                        style: const TextStyle(
                           fontSize: 14,
-                          color: Theme.of(context).hintColor,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      items: warehousesToSelect.map((item) {
-                        var parts = item.split('-');
-                        var branchName = parts[1];
-                        return DropdownMenuItem(
-                          value: item,
-                          child: Text(
-                            '$branchName',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                      value: selectedWarehouse,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedWarehouse = value;
+                    );
+                  }).toList(),
+                  value: selectedWarehouse,
+                  onChanged: (value) {
+                    setState(() {
+                      selectedWarehouse = value;
+                    });
+
+                    if (value != 'TODO') {
+                      if (value is String) {
+                        arrayFiltersAnd = [];
+                        arrayFiltersAnd.add({
+                          "/warehouses.warehouse_id": selectedWarehouse
+                              .toString()
+                              .split("-")[0]
+                              .toString()
                         });
+                      }
+                    } else {
+                      arrayFiltersAnd = [];
+                    }
 
-                        if (value != 'TODO') {
-                          if (value is String) {
-                            arrayFiltersAnd = [];
-                            arrayFiltersAnd.add({
-                              "/warehouses.warehouse_id": selectedWarehouse
-                                  .toString()
-                                  .split("-")[0]
-                                  .toString()
-                            });
-                          }
-                        } else {
-                          arrayFiltersAnd = [];
-                        }
-
-                        setState(() {});
-                      },
-                      decoration: InputDecoration(
-                        fillColor: Colors.white,
-                        filled: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                      ),
+                    setState(() {});
+                  },
+                  decoration: InputDecoration(
+                    fillColor: Colors.white,
+                    filled: true,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5.0),
                     ),
                   ),
                 ),
-                Expanded(child: Container()),
-              ],
+              ),
             ),
             const SizedBox(height: 15),
             Container(
@@ -236,14 +232,310 @@ class _ApproveProductsState extends State<ApproveProducts> {
               padding: const EdgeInsets.all(5),
               child: Row(
                 children: [
-                  Expanded(
+                  SizedBox(
+                    width: screenWidth * 0.6,
                     child:
                         _modelTextField(text: "Busqueda", controller: _search),
                   ),
+                  const SizedBox(width: 20),
+                  Text("Regitros: ${products.length.toString()}"),
                 ],
               ),
             ),
             const SizedBox(height: 10),
+            Expanded(
+              child: DataTable2(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: const BorderRadius.all(Radius.circular(4)),
+                  border: Border.all(color: Colors.blueGrey),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      blurRadius: 4,
+                      spreadRadius: 2,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                dataRowColor: MaterialStateColor.resolveWith((states) {
+                  return Colors.white;
+                }),
+                headingTextStyle: const TextStyle(
+                    // fontWeight: FontWeight.bold,
+                    color: Colors.black),
+                dataTextStyle: const TextStyle(
+                    fontSize: 13,
+                    // fontWeight: FontWeight.bold,
+                    color: Colors.black),
+                columnSpacing: 12,
+                columns: [
+                  const DataColumn2(
+                    label: Text('Creado'),
+                    size: ColumnSize.M,
+                  ),
+                  DataColumn2(
+                    label: const Text('ID'),
+                    size: ColumnSize.S,
+                    onSort: (columnIndex, ascending) {
+                      // Lógica para ordenar
+                    },
+                  ),
+                  DataColumn2(
+                    label: const Text('Bodega'),
+                    size: ColumnSize.L,
+                    onSort: (columnIndex, ascending) {
+                      // Lógica para ordenar
+                    },
+                  ),
+                  DataColumn2(
+                    label: const Text('Nombre'),
+                    size: ColumnSize.L,
+                    onSort: (columnIndex, ascending) {
+                      // Lógica para ordenar
+                    },
+                  ),
+                  DataColumn2(
+                    label: const Text('Aprobado'),
+                    size: ColumnSize.S,
+                    onSort: (columnIndex, ascending) {
+                      // Lógica para ordenar
+                    },
+                  ),
+                  DataColumn2(
+                    label: const Text(''), //btn
+                    size: ColumnSize.M,
+                    onSort: (columnIndex, ascending) {
+                      // Lógica para ordenar
+                    },
+                  ),
+                  DataColumn2(
+                    label: const Text(''), //btn
+                    size: ColumnSize.M,
+                    onSort: (columnIndex, ascending) {
+                      // Lógica para ordenar
+                    },
+                  ),
+                ],
+                rows: List<DataRow>.generate(
+                  products.length,
+                  (index) => DataRow(
+                    cells: [
+                      DataCell(
+                        Text(UIUtils.formatDate(
+                            products[index].createdAt.toString())),
+                      ),
+                      DataCell(
+                        Text(products[index].productId.toString()),
+                        onTap: () {
+                          showProductInfoDialog(products[index]);
+                        },
+                      ),
+                      DataCell(
+                        Text(getWarehousesNamesModel(products[index].warehouses)
+//                                 products[index]
+//                                   .warehouse!
+//                                   .branchName
+//                                   .toString(),
+                            ),
+                        onTap: () {
+                          showProductInfoDialog(products[index]);
+                        },
+                      ),
+                      DataCell(
+                        Text(products[index].productName.toString()),
+                        onTap: () {
+                          showProductInfoDialog(products[index]);
+                        },
+                      ),
+                      DataCell(
+                        Text(
+                          products[index].approved == 1
+                              ? 'Aprobado'
+                              : products[index].approved == 2
+                                  ? 'Pendiente'
+                                  : products[index].approved == 3
+                                      ? 'Suspendido'
+                                      : 'Rechazado',
+                          style: TextStyle(
+                            color: products[index].approved == 1
+                                ? Colors.green
+                                : products[index].approved == 2
+                                    ? Colors.indigo.shade600
+                                    : products[index].approved == 3
+                                        ? Colors.orange
+                                        : Colors.red,
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        PopupMenuButton<String>(
+                          padding: EdgeInsets.zero,
+                          elevation: 10,
+                          child: Row(
+                            children: [
+                              Text(
+                                "Cambiar Estado",
+                                style: TextStyle(
+                                    decoration: TextDecoration.underline,
+                                    color: Colors.blue.shade700),
+                              ),
+                            ],
+                          ),
+                          itemBuilder: (BuildContext context) {
+                            return [
+                              PopupMenuItem<String>(
+                                child: Text(
+                                  "Aprobar",
+                                ),
+                                value: "approve",
+                              ),
+                              PopupMenuItem<String>(
+                                child: Row(
+                                  children: [
+                                    Text("Rechazar"),
+                                  ],
+                                ),
+                                value: "reject",
+                              ),
+                              PopupMenuItem<String>(
+                                child: Row(
+                                  children: [
+                                    Text("Suspender"),
+                                  ],
+                                ),
+                                value: "suspend",
+                              ),
+                            ];
+                          },
+                          onSelected: (value) async {
+                            //
+                            if (value == "approve") {
+                              _productController.upate(
+                                  int.parse(
+                                      products[index].productId.toString()),
+                                  {"approved": 1});
+
+                              Navigator.pop(context);
+                            } else if (value == "reject") {
+                              _productController.upate(
+                                  int.parse(
+                                      products[index].productId.toString()),
+                                  {"approved": 0});
+
+                              Navigator.pop(context);
+                            } else if (value == "suspend") {
+                              _productController.upate(
+                                  int.parse(
+                                      products[index].productId.toString()),
+                                  {"approved": 3});
+
+                              Navigator.pop(context);
+                            }
+
+                            return showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return Dialog(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(0.0),
+                                    ),
+                                    child: Container(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.95,
+                                      child: LayoutApprovePage(
+                                          provider: widget.provider,
+                                          currentV: "Productos"),
+                                    ),
+                                  );
+                                }).then((value) {});
+                            //
+                          },
+                        ),
+
+                        /*
+                              ElevatedButton(
+                                onPressed: () async {
+                                  //
+                                  _productController.upate(
+                                      int.parse(
+                                          products[index].productId.toString()),
+                                      {
+                                        "approved":
+                                            products[index].approved != 1
+                                                ? 1
+                                                : 0
+                                      });
+                                  Navigator.pop(context);
+
+                                  return showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return Dialog(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                                0.0), // Establece el radio del borde a 0
+                                          ),
+                                          child: Container(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.95,
+                                            child: LayoutApprovePage(
+                                              provider: widget.provider,
+                                              currentV: "Productos",
+                                            ),
+                                          ),
+                                        );
+                                      }).then((value) {}); //
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: products[index].approved != 1
+                                      ? Colors.green
+                                      : Colors.red[400],
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      products[index].approved != 1
+                                          ? "Aprobar"
+                                          : "Rechazar",
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            */
+                      ),
+                      DataCell(
+                        Center(
+                          child: TextButton(
+                            onPressed: () {
+                              //
+                              showAddToWarehouse(context, products[index]);
+                            },
+                            child: Text(
+                              "Añadir a Bodega",
+                              style: TextStyle(
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ),
+                        onTap: () {
+                          // showProductInfoDialog(products[index]);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            /*
             Expanded(
               child: FutureBuilder(
                 future: _getProductModelData(),
@@ -557,6 +849,8 @@ class _ApproveProductsState extends State<ApproveProducts> {
                 },
               ),
             ),
+          
+          */
           ],
         ),
       ),
