@@ -264,8 +264,14 @@ class _DeliveryStatusExternalCarrierState
     'carrierExternal',
     'pedidoCarrier'
   ];
+
+  List<Opcion> opciones = [];
   //        $pedidos = PedidosShopify::with(['operadore.up_users', 'transportadora', 'users.vendedores', 'novedades', 'pedidoFecha', 'ruta', 'subRuta'])
 
+// ! movil ↓↓↓
+  bool _isExpanded = false;
+  bool _isExpandedV = false;
+//  ! *****************
   @override
   void didChangeDependencies() {
     initializeDates();
@@ -495,7 +501,7 @@ class _DeliveryStatusExternalCarrierState
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
 
-    List<Opcion> opciones = [
+    opciones = [
       Opcion(
           icono: Icon(Icons.all_inbox),
           titulo: 'Total',
@@ -563,765 +569,1635 @@ class _DeliveryStatusExternalCarrierState
             color: Colors.grey[100],
             child:
                 ListView(padding: const EdgeInsets.all(8), children: <Widget>[
-              Container(
-                child: Column(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      color: Colors.white,
-                      child: responsive(
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Container(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
+              responsive(
+                  Container(
+                    child: Column(
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          color: Colors.white,
+                          child: responsive(
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Container(
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.only(
+                                                left: 15, right: 5),
+                                            child: responsive(
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: fechaFinFechaIni(),
+                                                ),
+                                                Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: fechaFinFechaIni(),
+                                                ),
+                                                context),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: EdgeInsets.all(10),
+                                      child: boxValuesExternalCarrier(
+                                          tittle: "FACTURACIÓN TOTAL",
+                                          totalValoresRecibidos:
+                                              totalValoresRecibidos,
+                                          costoEntrega: costoDeEntregas,
+                                          costoDevolucion: devoluciones,
+                                          resultadoFinal: totalResultadoFinal),
+                                    ),
+                                    Container(
+                                      padding: EdgeInsets.all(10),
+                                      child: boxValuesExternalCarrier(
+                                          tittle: "FACTURACIÓN RECIBIDA",
+                                          totalValoresRecibidos:
+                                              totalValoresRecibidosR,
+                                          costoEntrega: costoDeEntregasR,
+                                          costoDevolucion: devolucionesR,
+                                          resultadoFinal: totalResultadoFinalR),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Column(
+                                children: [
+                                  Row(
                                     children: [
                                       Container(
                                         padding: const EdgeInsets.only(
                                             left: 15, right: 5),
                                         child: responsive(
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: fechaFinFechaIni(),
-                                            ),
-                                            Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: fechaFinFechaIni(),
-                                            ),
-                                            context),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: fechaFinFechaIni(),
+                                          ),
+                                          Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: fechaFinFechaIni(),
+                                          ),
+                                          context,
+                                        ),
                                       ),
                                     ],
                                   ),
+                                  // ! FALTA AGREGAR LA FACTURACION RECIBIDA
+                                  // ! PARA LA VERSION DE MOVIL
+                                  Container(
+                                    padding: EdgeInsets.all(10),
+                                    child: boxValuesExternalCarrier(
+                                        tittle: "FACTURACIÓN TOTAL",
+                                        totalValoresRecibidos:
+                                            totalValoresRecibidos,
+                                        costoEntrega: costoDeEntregas,
+                                        costoDevolucion: devoluciones,
+                                        resultadoFinal: totalResultadoFinal),
+                                  ),
+                                ],
+                              ),
+                              context),
+                        ),
+                        //
+                        responsive(
+                            Container(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.10,
+                                child: OptionsWidget(
+                                    function: addFilter,
+                                    options: opciones,
+                                    currentValue: currentValue)),
+                            Container(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.16,
+                                child: OptionsWidget(
+                                    function: addFilter,
+                                    options: opciones,
+                                    currentValue: currentValue)),
+                            context),
+                        // Row(children: [Text("Marcar como pagado: XXX ")]),
+                        Container(
+                          width: double.infinity,
+                          color: currentColor.withOpacity(0.3),
+                          padding: EdgeInsets.all(2),
+                          child: responsive(
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 300,
+                                    child: _modelTextField(
+                                        text: "Buscar",
+                                        controller:
+                                            _controllers.searchController),
+                                  ),
+                                  SizedBox(
+                                    width: 20.0,
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      if (selectedIds.isNotEmpty) {
+                                        sendSelectedIds();
+                                        loadData();
+                                      } else {
+                                        AwesomeDialog(
+                                          width: 500,
+                                          context: context,
+                                          dialogType: DialogType.error,
+                                          animType: AnimType.rightSlide,
+                                          title: 'Error',
+                                          desc:
+                                              'Debe seleccionar Pedidos Previamente',
+                                          btnOkText: "Aceptar",
+                                          btnOkColor: colors.colorGreen,
+                                          btnOkOnPress: () {},
+                                        ).show();
+                                      }
+
+                                      // resetFilters();
+                                      // paginatorController.navigateToPage(0);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          ColorsSystem().colorSelectMenu,
+                                    ),
+                                    child: const Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          'Marcar como Pagado ',
+                                          style: TextStyle(color: Colors.white),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 10.0,
+                                  ),
+                                  Text(' : (${selectedIds.length})'),
+                                  const SizedBox(width: 20),
+                                  Tooltip(
+                                    message: 'Limpiar filtros',
+                                    textStyle: const TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                    ),
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        resetFilters();
+                                        paginatorController.navigateToPage(0);
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.red,
+                                      ),
+                                      child: const Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.filter_list_off),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 50),
+                                  Expanded(child: numberPaginator()),
+                                ],
+                              ),
+                              Column(
+                                children: [
+                                  Container(
+                                    child: Row(children: [
+                                      Expanded(
+                                          child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                            _modelTextField(
+                                                text: "Buscar",
+                                                controller: _controllers
+                                                    .searchController),
+                                          ]))
+                                    ]),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Container(
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Tooltip(
+                                                message: 'Limpiar filtros',
+                                                textStyle: const TextStyle(
+                                                  fontSize: 14,
+                                                  color: Colors.white,
+                                                ),
+                                                child: ElevatedButton(
+                                                  onPressed: () {
+                                                    resetFilters();
+                                                    paginatorController
+                                                        .navigateToPage(0);
+                                                  },
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    backgroundColor: Colors.red,
+                                                  ),
+                                                  child: const Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      Icon(Icons
+                                                          .filter_list_off),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  numberPaginator()
+                                ],
+                              ),
+                              context),
+                        ),
+
+                        Container(
+                          height: MediaQuery.of(context).size.height * 0.58,
+                          child: DataTable2(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(4)),
+                              border: Border.all(color: Colors.blueGrey),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.3),
+                                  blurRadius: 4,
+                                  spreadRadius: 2,
+                                  offset: Offset(0, 2),
                                 ),
-                                Container(
-                                  padding: EdgeInsets.all(10),
-                                  child: boxValuesExternalCarrier(
-                                      tittle: "FACTURACIÓN TOTAL",
-                                      totalValoresRecibidos:
-                                          totalValoresRecibidos,
-                                      costoEntrega: costoDeEntregas,
-                                      costoDevolucion: devoluciones,
-                                      resultadoFinal: totalResultadoFinal),
-                                ),
-                                Container(
-                                  padding: EdgeInsets.all(10),
-                                  child: boxValuesExternalCarrier(
-                                      tittle: "FACTURACIÓN RECIBIDA",
-                                      totalValoresRecibidos:
-                                          totalValoresRecibidosR,
-                                      costoEntrega: costoDeEntregasR,
-                                      costoDevolucion: devolucionesR,
-                                      resultadoFinal: totalResultadoFinalR),
+                              ],
+                            ),
+                            dividerThickness: 1,
+                            dataRowColor:
+                                MaterialStateColor.resolveWith((states) {
+                              if (states.contains(MaterialState.selected)) {
+                                return Colors.blue.withOpacity(
+                                    0.5); // Color para fila seleccionada
+                              } else if (states
+                                  .contains(MaterialState.hovered)) {
+                                return const Color.fromARGB(255, 234, 241, 251);
+                              }
+                              return const Color.fromARGB(0, 173, 233, 231);
+                            }),
+                            headingTextStyle:
+                                Theme.of(context).textTheme.bodyMedium,
+                            dataTextStyle:
+                                Theme.of(context).textTheme.bodySmall,
+                            columnSpacing: 12,
+                            headingRowHeight: 80,
+                            horizontalMargin: 12,
+                            minWidth: 4500,
+                            columns: [
+                              DataColumn2(
+                                label: InputFilter('Fecha Entrega',
+                                    fechaEntregaController, 'fecha_entrega'),
+                                //label: Text('Fecha de Entrega'),
+                                size: ColumnSize.S,
+                                onSort: (columnIndex, ascending) {
+                                  sortFunc2("fecha_entrega", changevalue);
+                                },
+                              ),
+                              // listPagoCostoEntrega
+                              DataColumn2(
+                                label: SelectFilter(
+                                    'Pago Costo Entrega',
+                                    'gestioned_payment_cost_delivery',
+                                    pagoCostoEntregaController,
+                                    listPagoCostoEntrega),
+                                // Text('Pago Costo Entrega'),
+                                //label: Text('Fecha de Entrega'),
+                                size: ColumnSize.S,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFunc2("fecha_entrega", changevalue);
+                                },
+                              ),
+                              // ! -----------------
+                              // *******************
+                              // DataColumBest(
+                              // "Test P.C.E.", ColorsSystem().colorSelectMenu),
+                              // *******************
+                              DataColumBest("Pago Recibido por",
+                                  ColorsSystem().colorSelectMenu),
+                              DataColumBest("Fecha P. T. Externa",
+                                  ColorsSystem().colorSelectMenu),
+                              // DataColumn2(
+                              //   // label: InputFilter(
+                              //   // 'Fecha de P. Trans. Externa', codigoController, 'numero_orden'),
+                              //   label: const Text('Fecha de P. Trans. Externa'),
+                              //   size: ColumnSize.S,
+                              //   onSort: (columnIndex, ascending) {
+                              //     // sortFunc("NumeroOrden");
+                              //   },
+                              // ),
+
+                              // ! -----------------
+                              DataColumn2(
+                                label: InputFilter(
+                                    'Código', codigoController, 'numero_orden'),
+                                //label: const Text('Código'),
+                                size: ColumnSize.S,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFunc("NumeroOrden");
+                                },
+                              ),
+                              DataColumn2(
+                                label: InputFilter(
+                                    'Ciudad',
+                                    ciudadShippingController,
+                                    'ciudad_shipping'),
+                                //label: const Text('Ciudad'),
+                                size: ColumnSize.M,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFunc("CiudadShipping");
+                                },
+                              ),
+                              DataColumn2(
+                                label: InputFilter(
+                                    'Nombre Cliente',
+                                    nombreShippingController,
+                                    'nombre_shipping'),
+                                //label: Text('Nombre Cliente'),
+                                size: ColumnSize.M,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFunc("NombreShipping");
+                                },
+                              ),
+                              DataColumn2(
+                                label: InputFilter('Cantidad',
+                                    cantidadTotalController, 'cantidad_total'),
+                                //label: Text('Cantidad'),
+                                size: ColumnSize.S,
+                                numeric: true,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFunc("Cantidad_Total");
+                                },
+                              ),
+                              DataColumn2(
+                                label: InputFilter('Producto',
+                                    productoPController, 'producto_p'),
+                                // label: Text('Producto'),
+                                size: ColumnSize.M,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFunc("ProductoP");
+                                },
+                              ),
+                              DataColumn2(
+                                label: InputFilter('Producto Extra',
+                                    productoExtraController, 'producto_extra'),
+                                // label: Text('Producto Extra'),
+                                size: ColumnSize.M,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFunc("ProductoExtra");
+                                },
+                              ),
+                              DataColumn2(
+                                label: InputFilter('Precio Total',
+                                    precioTotalController, 'precio_total'),
+                                //label: Text('Precio Total'),
+                                size: ColumnSize.S,
+                                numeric: true,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFunc("PrecioTotal");
+                                },
+                              ),
+                              // DataColumn2(
+                              //   label: InputFilter('Comentario',
+                              //       comentarioController, 'comentario'),
+                              //   // label: Text('Comentario'),
+                              //   size: ColumnSize.M,
+                              //   onSort: (columnIndex, ascending) {
+                              //     // sortFunc("Comentario");
+                              //   },
+                              // ),
+                              // DataColumn2(
+                              //   // label: InputFilter('Comentario Novedad',
+                              //   //     comentarioController, 'comentario'),
+                              //   label: Text('Comentario Novedad'),
+                              //   size: ColumnSize.M,
+                              //   onSort: (columnIndex, ascending) {
+                              //     // sortFunc("Comentario");
+                              //   },
+                              // ),
+                              DataColumn2(
+                                label: SelectFilter2('Estado de Entrega',
+                                    'status', statusController, listStatus),
+                                // label: Text('Status'),
+                                size: ColumnSize.M,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFunc("Status");
+                                },
+                              ),
+                              DataColumn2(
+                                label: SelectFilter2(
+                                    'Confirmado',
+                                    'estado_interno',
+                                    estadoInternoController,
+                                    listEstadoInterno),
+                                //label: Text('Confirmado'),
+                                size: ColumnSize.S,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFunc("Estado_Interno");
+                                },
+                              ),
+                              DataColumn2(
+                                label: SelectFilter2(
+                                    'Estado Logístico',
+                                    'estado_logistico',
+                                    estadoLogisticoController,
+                                    listEstadoLogistico),
+                                //label: Text('Estado Logístico'),
+                                size: ColumnSize.S,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFunc("Estado_Logistico");
+                                },
+                              ),
+                              DataColumn2(
+                                label: InputFilter(
+                                    'Costo Proveedor',
+                                    marcaTiController,
+                                    'value_product_warehouse'),
+                                //label: Text('Fecha Ingreso'),
+                                size: ColumnSize.M,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFuncDate("Marca_T_I");
+                                },
+                              ),
+                              DataColumn2(
+                                label: SelectFilter2(
+                                    'Estado Devolución',
+                                    'estado_devolucion',
+                                    estadoDevolucionController,
+                                    listEstadoDevolucion),
+                                //label: Text('Estado Devolución'),
+                                size: ColumnSize.M,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFunc("Estado_Devolucion");
+                                },
+                              ),
+                              DataColumn2(
+                                label: InputFilter('Fecha Envío',
+                                    marcaTiController, 'sent_at'),
+                                //label: Text('Fecha Ingreso'),
+                                size: ColumnSize.S,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFuncDate("Marca_T_I");
+                                },
+                              ),
+                              // const DataColumn2(
+                              //   label: Text('Transportadora'),
+                              //   size: ColumnSize.M,
+                              // ),
+                              DataColumn2(
+                                label: Text('Transportadora Externa'),
+                                // label: Text('Status'),
+                                size: ColumnSize.M,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFunc("Status");
+                                },
+                              ),
+
+                              const DataColumn2(
+                                label: Text('Costo Envío'),
+                                size: ColumnSize.M,
+                              ),
+                              const DataColumn2(
+                                label: Text('Costo Devolución'),
+                                size: ColumnSize.M,
+                              ),
+                            ],
+                            border: const TableBorder(
+                              top: BorderSide(color: Colors.grey),
+                              horizontalInside: BorderSide(color: Colors.grey),
+                              verticalInside: BorderSide(color: Colors.grey),
+                            ),
+                            rows: List<DataRow>.generate(
+                              data.isNotEmpty ? data.length : [].length,
+                              (index) => DataRow(
+                                cells: [
+                                  DataCell(
+                                      Text(data[index]['fecha_entrega']
+                                          .toString()), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  // DataCell(
+                                  //   data[index]['payment_cost_delivery'] == 0
+                                  //       ? Checkbox(
+                                  //           value: selectedIds
+                                  //               .contains(data[index]['id']),
+                                  //           onChanged: (bool? newValue) {
+                                  //             toggleSelection(data[index]['id'],
+                                  //                 newValue ?? false);
+                                  //           },
+                                  //         )
+                                  //       : GestureDetector(
+                                  //           child: Row(
+                                  //             mainAxisSize: MainAxisSize.min,
+                                  //             children: [
+                                  //               Text('OK'),
+                                  //               SizedBox(width: 8),
+                                  //               Icon(Icons.sync,
+                                  //                   color: Colors.blue),
+                                  //             ],
+                                  //           ),
+                                  //           onTap: () async {
+                                  //             // print(
+                                  //             // 'Cambiar estado para ID: ${data[index]['id']}');
+                                  //             var result = await Connections().postGestinodPaymentU(
+                                  //                 // .updatePaymentCostDeliveryInd(
+                                  //                 data[index]['id'],
+                                  //                 sharedPrefs!.getString("id"),
+                                  //                 0,
+                                  //                 formattedDate);
+                                  //             loadData();
+                                  //           },
+                                  //         ),
+                                  // ),
+                                  // ! -----------------------
+                                  // *******************
+                                  DataCell(
+                                    getStateFromJson(
+                                                    data[index][
+                                                            'gestioned_payment_cost_delivery']
+                                                        ?.toString(),
+                                                    'state') ==
+                                                "" ||
+                                            getStateFromJson(
+                                                    data[index][
+                                                            'gestioned_payment_cost_delivery']
+                                                        ?.toString(),
+                                                    'state') ==
+                                                "0"
+                                        // data[index]['payment_cost_delivery'] == 0
+                                        ? Checkbox(
+                                            value: selectedIds
+                                                .contains(data[index]['id']),
+                                            onChanged: (bool? newValue) {
+                                              toggleSelection(data[index]['id'],
+                                                  newValue ?? false);
+                                            },
+                                          )
+                                        : GestureDetector(
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Text('OK'),
+                                                SizedBox(width: 8),
+                                                Icon(Icons.sync,
+                                                    color: Colors.blue),
+                                              ],
+                                            ),
+                                            onTap: () async {
+                                              var result = await Connections()
+                                                  .postGestinodPaymentU(
+                                                      data[index]['id'],
+                                                      sharedPrefs!
+                                                          .getString("id"),
+                                                      0,
+                                                      formattedDate);
+                                              loadData();
+                                            },
+                                          ),
+                                  ),
+                                  // *******************
+                                  DataCell(
+                                      Text(
+                                        getStateFromJson(
+                                            data[index][
+                                                    'gestioned_payment_cost_delivery']
+                                                ?.toString(),
+                                            'id_user'),
+                                      ), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(
+                                        getStateFromJson(
+                                            data[index][
+                                                    'gestioned_payment_cost_delivery']
+                                                ?.toString(),
+                                            'm_t_g'),
+                                      ), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  // ! -----------------------
+                                  DataCell(
+                                      Text(
+                                          style: TextStyle(
+                                              color: GetColor(data[index]
+                                                      ['status']
+                                                  .toString())!),
+                                          '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
+                                      onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(data[index]['ciudad_shipping']
+                                          .toString()), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(data[index]['nombre_shipping']
+                                          .toString()), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(data[index]['cantidad_total']
+                                          .toString()), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(
+                                          data[index]['producto_p'].toString()),
+                                      onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(data[index]['producto_extra']
+                                          .toString()), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(data[index]['precio_total']
+                                          .toString()), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  // DataCell(
+                                  //     Text(data[index]['comentario'] == null ||
+                                  //             data[index]['comentario'] == "null"
+                                  //         ? ""
+                                  //         : data[index]['comentario'].toString()),
+                                  //     // Text(data[index]['comentario'].toString()),
+                                  //     onTap: () {
+                                  //   showInfo(context, index);
+                                  // }),
+                                  // DataCell(
+                                  //     Text(
+                                  //       getStateFromJson(
+                                  //           data[index]['gestioned_novelty']
+                                  //               ?.toString(),
+                                  //           'comment'),
+                                  //     ), onTap: () {
+                                  //   showInfo(context, index);
+                                  // }),
+                                  DataCell(
+                                      Text(
+                                          style: TextStyle(
+                                              color: GetColor(data[index]
+                                                      ['status']
+                                                  .toString())!),
+                                          data[index]['status'].toString()),
+                                      onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(data[index]['estado_interno']
+                                          .toString()), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(data[index]['estado_logistico']
+                                          .toString()), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(data[index]
+                                                  ['value_product_warehouse'] !=
+                                              null
+                                          ? data[index]
+                                                  ['value_product_warehouse']
+                                              .toString()
+                                          : ""), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(data[index]['estado_devolucion']
+                                          .toString()), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(data[index]['sent_at'] == null
+                                          ? ""
+                                          : UIUtils.formatDate(data[index]
+                                                  ['sent_at']
+                                              .toString())), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      // Text(data[index]['transportadora'] != null &&
+                                      //         data[index]['transportadora']
+                                      //             .isNotEmpty
+                                      //     ? data[index]['transportadora'][0]
+                                      //             ['nombre']
+                                      //         .toString()
+                                      //     : '')
+                                      Text(data[index]["pedido_carrier"] != null
+                                          ? data[index]["pedido_carrier"][0]
+                                                  ["carrier"]['name']
+                                              .toString()
+                                          : ""), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(data[index]
+                                                  ['costo_transportadora'] !=
+                                              null
+                                          ? data[index]['costo_transportadora']
+                                              .toString()
+                                          : ""), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(data[index]["pedido_carrier"] != null
+                                          ? data[index]["pedido_carrier"][0]
+                                                  ["cost_refound_external"]
+                                              .toString()
+                                          : ""), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        //
+                      ],
+                    ),
+                  ),
+                  // !movil ↓↓↓
+                  Container(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        InkWell(
+                          onTap: () => _toggleDropdown(setState),
+                          child: Container(
+                            padding: EdgeInsets.all(5.0),
+                            decoration: BoxDecoration(color: Colors.grey[350]),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('FILTROS'),
+                                Icon(
+                                  _isExpanded
+                                      ? Icons.arrow_drop_up
+                                      : Icons.arrow_drop_down,
                                 ),
                               ],
                             ),
                           ),
-                          Column(
-                            children: [
+                        ),
+                        AnimatedSwitcher(
+                          duration: Duration(milliseconds: 300),
+                          transitionBuilder:
+                              (Widget child, Animation<double> animation) {
+                            return FadeTransition(
+                              opacity: animation,
+                              child: SizeTransition(
+                                sizeFactor: animation,
+                                axisAlignment: -1.0,
+                                child: child,
+                              ),
+                            );
+                          },
+                          child: _isExpanded
+                              ? _buildDropdownContent()
+                              : SizedBox.shrink(),
+                        ),
+                        // ***************************
+                        SizedBox(
+                          height: 10.0,
+                        ),
+                        InkWell(
+                          onTap: () => _toggleDropdownV(setState),
+                          child: Container(
+                            padding: EdgeInsets.all(5.0),
+                            decoration: BoxDecoration(color: Colors.grey[350]),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('VALORES'),
+                                Icon(
+                                  _isExpandedV
+                                      ? Icons.arrow_drop_up
+                                      : Icons.arrow_drop_down,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        AnimatedSwitcher(
+                          duration: Duration(milliseconds: 300),
+                          transitionBuilder:
+                              (Widget child, Animation<double> animation) {
+                            return FadeTransition(
+                              opacity: animation,
+                              child: SizeTransition(
+                                sizeFactor: animation,
+                                axisAlignment: -1.0,
+                                child: child,
+                              ),
+                            );
+                          },
+                          child: _isExpandedV
+                              ? _buildDropdownContentV()
+                              : SizedBox.shrink(),
+                        ),
+                        SizedBox(
+                          height: 10.0,
+                        ),
+
+                        // responsive(
+                        //     SingleChildScrollView(
+                        //       scrollDirection: Axis.horizontal,
+                        //       child: Row(
+                        //         mainAxisAlignment:
+                        //             MainAxisAlignment.spaceEvenly,
+                        //         children: [
+                        //           Container(
+                        //             child: Row(
+                        //               mainAxisAlignment:
+                        //                   MainAxisAlignment.start,
+                        //               children: [
+                        //                 Container(
+                        //                   padding: const EdgeInsets.only(
+                        //                       left: 15, right: 5),
+                        //                   child: responsive(
+                        //                       Row(
+                        //                         mainAxisAlignment:
+                        //                             MainAxisAlignment.center,
+                        //                         children: fechaFinFechaIni(),
+                        //                       ),
+                        //                       Column(
+                        //                         mainAxisAlignment:
+                        //                             MainAxisAlignment.center,
+                        //                         children: fechaFinFechaIni(),
+                        //                       ),
+                        //                       context),
+                        //                 ),
+                        //               ],
+                        //             ),
+                        //           ),
+                        //           Container(
+                        //             padding: EdgeInsets.all(10),
+                        //             child: boxValuesExternalCarrier(
+                        //                 tittle: "FACTURACIÓN TOTAL",
+                        //                 totalValoresRecibidos:
+                        //                     totalValoresRecibidos,
+                        //                 costoEntrega: costoDeEntregas,
+                        //                 costoDevolucion: devoluciones,
+                        //                 resultadoFinal: totalResultadoFinal),
+                        //           ),
+                        //           Container(
+                        //             padding: EdgeInsets.all(10),
+                        //             child: boxValuesExternalCarrier(
+                        //                 tittle: "FACTURACIÓN RECIBIDA",
+                        //                 totalValoresRecibidos:
+                        //                     totalValoresRecibidosR,
+                        //                 costoEntrega: costoDeEntregasR,
+                        //                 costoDevolucion: devolucionesR,
+                        //                 resultadoFinal: totalResultadoFinalR),
+                        //           ),
+                        //         ],
+                        //       ),
+                        //     ),
+                        //     Column(
+                        //       children: [
+                        //         Row(
+                        //           children: [
+                        //             Container(
+                        //               padding: const EdgeInsets.only(
+                        //                   left: 15, right: 5),
+                        //               child: responsive(
+                        //                 Row(
+                        //                   mainAxisAlignment:
+                        //                       MainAxisAlignment.start,
+                        //                   children: fechaFinFechaIni(),
+                        //                 ),
+                        //                 Column(
+                        //                   mainAxisAlignment:
+                        //                       MainAxisAlignment.start,
+                        //                   children: fechaFinFechaIni(),
+                        //                 ),
+                        //                 context,
+                        //               ),
+                        //             ),
+                        //           ],
+                        //         ),
+                        //         // ! FALTA AGREGAR LA FACTURACION RECIBIDA
+                        //         // ! PARA LA VERSION DE MOVIL
+                        //         Container(
+                        //           padding: EdgeInsets.all(10),
+                        //           child: boxValuesExternalCarrier(
+                        //               tittle: "FACTURACIÓN TOTAL",
+                        //               totalValoresRecibidos:
+                        //                   totalValoresRecibidos,
+                        //               costoEntrega: costoDeEntregas,
+                        //               costoDevolucion: devoluciones,
+                        //               resultadoFinal: totalResultadoFinal),
+                        //         ),
+                        //       ],
+                        //     ),
+                        //     context),
+
+                        // ),
+                        //
+                        // responsive(
+                        //     Container(
+                        //         height:
+                        //             MediaQuery.of(context).size.height * 0.10,
+                        //         child: OptionsWidget(
+                        //             function: addFilter,
+                        //             options: opciones,
+                        //             currentValue: currentValue)),
+                        // Container(
+                        //     height:
+                        //         MediaQuery.of(context).size.height * 0.16,
+                        //     child: OptionsWidget(
+                        //         function: addFilter,
+                        //         options: opciones,
+                        //         currentValue: currentValue)),
+                        // context),
+                        // Row(children: [Text("Marcar como pagado: XXX ")]),
+                        Container(
+                          width: double.infinity,
+                          color: currentColor.withOpacity(0.3),
+                          padding: EdgeInsets.all(2),
+                          child: responsive(
                               Row(
                                 children: [
                                   Container(
-                                    padding: const EdgeInsets.only(
-                                        left: 15, right: 5),
-                                    child: responsive(
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: fechaFinFechaIni(),
-                                      ),
-                                      Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: fechaFinFechaIni(),
-                                      ),
-                                      context,
-                                    ),
+                                    width: 300,
+                                    child: _modelTextField(
+                                        text: "Buscar",
+                                        controller:
+                                            _controllers.searchController),
                                   ),
-                                ],
-                              ),
-                              // ! FALTA AGREGAR LA FACTURACION RECIBIDA
-                              // ! PARA LA VERSION DE MOVIL
-                              Container(
-                                padding: EdgeInsets.all(10),
-                                child: boxValuesExternalCarrier(
-                                    tittle: "FACTURACIÓN TOTAL",
-                                    totalValoresRecibidos:
-                                        totalValoresRecibidos,
-                                    costoEntrega: costoDeEntregas,
-                                    costoDevolucion: devoluciones,
-                                    resultadoFinal: totalResultadoFinal),
-                              ),
-                            ],
-                          ),
-                          context),
-                    ),
-                    //
-                    responsive(
-                        Container(
-                            height: MediaQuery.of(context).size.height * 0.10,
-                            child: OptionsWidget(
-                                function: addFilter,
-                                options: opciones,
-                                currentValue: currentValue)),
-                        Container(
-                            height: MediaQuery.of(context).size.height * 0.16,
-                            child: OptionsWidget(
-                                function: addFilter,
-                                options: opciones,
-                                currentValue: currentValue)),
-                        context),
-                    // Row(children: [Text("Marcar como pagado: XXX ")]),
-                    Container(
-                      width: double.infinity,
-                      color: currentColor.withOpacity(0.3),
-                      padding: EdgeInsets.all(2),
-                      child: responsive(
-                          Row(
-                            children: [
-                              Container(
-                                width: 300,
-                                child: _modelTextField(
-                                    text: "Buscar",
-                                    controller: _controllers.searchController),
-                              ),
-                              SizedBox(
-                                width: 20.0,
-                              ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  if (selectedIds.isNotEmpty) {
-                                    sendSelectedIds();
-                                    loadData();
-                                  } else {
-                                    AwesomeDialog(
-                                      width: 500,
-                                      context: context,
-                                      dialogType: DialogType.error,
-                                      animType: AnimType.rightSlide,
-                                      title: 'Error',
-                                      desc:
-                                          'Debe seleccionar Pedidos Previamente',
-                                      btnOkText: "Aceptar",
-                                      btnOkColor: colors.colorGreen,
-                                      btnOkOnPress: () {},
-                                    ).show();
-                                  }
+                                  SizedBox(
+                                    width: 20.0,
+                                  ),
+                                  // ElevatedButton(
+                                  //   onPressed: () {
+                                  //     if (selectedIds.isNotEmpty) {
+                                  //       sendSelectedIds();
+                                  //       loadData();
+                                  //     } else {
+                                  //       AwesomeDialog(
+                                  //         width: 500,
+                                  //         context: context,
+                                  //         dialogType: DialogType.error,
+                                  //         animType: AnimType.rightSlide,
+                                  //         title: 'Error',
+                                  //         desc:
+                                  //             'Debe seleccionar Pedidos Previamente',
+                                  //         btnOkText: "Aceptar",
+                                  //         btnOkColor: colors.colorGreen,
+                                  //         btnOkOnPress: () {},
+                                  //       ).show();
+                                  //     }
 
-                                  // resetFilters();
-                                  // paginatorController.navigateToPage(0);
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      ColorsSystem().colorSelectMenu,
-                                ),
-                                child: const Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      'Marcar como Pagado ',
-                                      style: TextStyle(color: Colors.white),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              SizedBox(
-                                width: 10.0,
-                              ),
-                              Text(' : (${selectedIds.length})'),
-                              const SizedBox(width: 20),
-                              Tooltip(
-                                message: 'Limpiar filtros',
-                                textStyle: const TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.white,
-                                ),
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    resetFilters();
-                                    paginatorController.navigateToPage(0);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red,
+                                  //     // resetFilters();
+                                  //     // paginatorController.navigateToPage(0);
+                                  //   },
+                                  //   style: ElevatedButton.styleFrom(
+                                  //     backgroundColor:
+                                  //         ColorsSystem().colorSelectMenu,
+                                  //   ),
+                                  //   child: const Row(
+                                  //     mainAxisSize: MainAxisSize.min,
+                                  //     children: [
+                                  //       Text(
+                                  //         'Marcar como Pagado ',
+                                  //         style: TextStyle(color: Colors.white),
+                                  //       )
+                                  //     ],
+                                  //   ),
+                                  // ),
+
+                                  SizedBox(
+                                    width: 10.0,
                                   ),
-                                  child: const Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(Icons.filter_list_off),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 50),
-                              Expanded(child: numberPaginator()),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              Container(
-                                child: Row(children: [
-                                  Expanded(
-                                      child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                        _modelTextField(
-                                            text: "Buscar",
-                                            controller:
-                                                _controllers.searchController),
-                                      ]))
-                                ]),
-                              ),
-                              const SizedBox(height: 10),
-                              Container(
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                  Text(' : (${selectedIds.length})'),
+                                  const SizedBox(width: 20),
+                                  Tooltip(
+                                    message: 'Limpiar filtros',
+                                    textStyle: const TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                    ),
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        resetFilters();
+                                        paginatorController.navigateToPage(0);
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.red,
+                                      ),
+                                      child: const Row(
+                                        mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Tooltip(
-                                            message: 'Limpiar filtros',
-                                            textStyle: const TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.white,
-                                            ),
-                                            child: ElevatedButton(
-                                              onPressed: () {
-                                                resetFilters();
-                                                paginatorController
-                                                    .navigateToPage(0);
-                                              },
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: Colors.red,
-                                              ),
-                                              child: const Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Icon(Icons.filter_list_off),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
+                                          Icon(Icons.filter_list_off),
                                         ],
                                       ),
                                     ),
-                                  ],
+                                  ),
+                                  const SizedBox(width: 50),
+                                  Expanded(child: numberPaginator()),
+                                ],
+                              ),
+                              Column(
+                                children: [
+                                  Container(
+                                    child: Row(children: [
+                                      Expanded(
+                                          child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                            _modelTextField(
+                                                text: "Buscar",
+                                                controller: _controllers
+                                                    .searchController),
+                                          ]))
+                                    ]),
+                                  ),
+                                  // const SizedBox(height: 10),
+                                  // Container(
+                                  //   child: Row(
+                                  //     children: [
+                                  //       Expanded(
+                                  //         child: Column(
+                                  //           crossAxisAlignment:
+                                  //               CrossAxisAlignment.start,
+                                  //           children: [
+                                  //             Tooltip(
+                                  //               message: 'Limpiar filtros',
+                                  //               textStyle: const TextStyle(
+                                  //                 fontSize: 14,
+                                  //                 color: Colors.white,
+                                  //               ),
+                                  //               child: ElevatedButton(
+                                  //                 onPressed: () {
+                                  //                   resetFilters();
+                                  //                   paginatorController
+                                  //                       .navigateToPage(0);
+                                  //                 },
+                                  //                 style:
+                                  //                     ElevatedButton.styleFrom(
+                                  //                   backgroundColor: Colors.red,
+                                  //                 ),
+                                  //                 child: const Row(
+                                  //                   mainAxisSize:
+                                  //                       MainAxisSize.min,
+                                  //                   children: [
+                                  //                     Icon(Icons
+                                  //                         .filter_list_off),
+                                  //                   ],
+                                  //                 ),
+                                  //               ),
+                                  //             ),
+                                  //           ],
+                                  //         ),
+                                  //       ),
+                                  //     ],
+                                  //   ),
+                                  // ),
+                                  const SizedBox(height: 10),
+                                  numberPaginator()
+                                ],
+                              ),
+                              context),
+                        ),
+
+                        Container(
+                          height: MediaQuery.of(context).size.height * 0.65,
+                          child: DataTable2(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(4)),
+                              border: Border.all(color: Colors.blueGrey),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.3),
+                                  blurRadius: 4,
+                                  spreadRadius: 2,
+                                  offset: Offset(0, 2),
                                 ),
-                              ),
-                              const SizedBox(height: 10),
-                              numberPaginator()
-                            ],
-                          ),
-                          context),
-                    ),
-
-                    Container(
-                      height: MediaQuery.of(context).size.height * 0.58,
-                      child: DataTable2(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(4)),
-                          border: Border.all(color: Colors.blueGrey),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.3),
-                              blurRadius: 4,
-                              spreadRadius: 2,
-                              offset: Offset(0, 2),
+                              ],
                             ),
-                          ],
-                        ),
-                        dividerThickness: 1,
-                        dataRowColor: MaterialStateColor.resolveWith((states) {
-                          if (states.contains(MaterialState.selected)) {
-                            return Colors.blue.withOpacity(
-                                0.5); // Color para fila seleccionada
-                          } else if (states.contains(MaterialState.hovered)) {
-                            return const Color.fromARGB(255, 234, 241, 251);
-                          }
-                          return const Color.fromARGB(0, 173, 233, 231);
-                        }),
-                        headingTextStyle:
-                            Theme.of(context).textTheme.bodyMedium,
-                        dataTextStyle: Theme.of(context).textTheme.bodySmall,
-                        columnSpacing: 12,
-                        headingRowHeight: 80,
-                        horizontalMargin: 12,
-                        minWidth: 4500,
-                        columns: [
-                          DataColumn2(
-                            label: InputFilter('Fecha Entrega',
-                                fechaEntregaController, 'fecha_entrega'),
-                            //label: Text('Fecha de Entrega'),
-                            size: ColumnSize.S,
-                            onSort: (columnIndex, ascending) {
-                              sortFunc2("fecha_entrega", changevalue);
-                            },
-                          ),
-                          // listPagoCostoEntrega
-                          DataColumn2(
-                            label: SelectFilter(
-                                'Pago Costo Entrega',
-                                'gestioned_payment_cost_delivery',
-                                pagoCostoEntregaController,
-                                listPagoCostoEntrega),
-                            // Text('Pago Costo Entrega'),
-                            //label: Text('Fecha de Entrega'),
-                            size: ColumnSize.S,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc2("fecha_entrega", changevalue);
-                            },
-                          ),
-                          // ! -----------------
-                          // *******************
-                          // DataColumBest(
-                              // "Test P.C.E.", ColorsSystem().colorSelectMenu),
-                          // *******************
-                          DataColumBest("Pago Recibido por",
-                              ColorsSystem().colorSelectMenu),
-                          DataColumBest("Fecha P. T. Externa",
-                              ColorsSystem().colorSelectMenu),
-                          // DataColumn2(
-                          //   // label: InputFilter(
-                          //   // 'Fecha de P. Trans. Externa', codigoController, 'numero_orden'),
-                          //   label: const Text('Fecha de P. Trans. Externa'),
-                          //   size: ColumnSize.S,
-                          //   onSort: (columnIndex, ascending) {
-                          //     // sortFunc("NumeroOrden");
-                          //   },
-                          // ),
-
-                          // ! -----------------
-                          DataColumn2(
-                            label: InputFilter(
-                                'Código', codigoController, 'numero_orden'),
-                            //label: const Text('Código'),
-                            size: ColumnSize.S,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("NumeroOrden");
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter('Ciudad',
-                                ciudadShippingController, 'ciudad_shipping'),
-                            //label: const Text('Ciudad'),
-                            size: ColumnSize.M,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("CiudadShipping");
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter('Nombre Cliente',
-                                nombreShippingController, 'nombre_shipping'),
-                            //label: Text('Nombre Cliente'),
-                            size: ColumnSize.M,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("NombreShipping");
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter('Cantidad',
-                                cantidadTotalController, 'cantidad_total'),
-                            //label: Text('Cantidad'),
-                            size: ColumnSize.S,
-                            numeric: true,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("Cantidad_Total");
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter(
-                                'Producto', productoPController, 'producto_p'),
-                            // label: Text('Producto'),
-                            size: ColumnSize.M,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("ProductoP");
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter('Producto Extra',
-                                productoExtraController, 'producto_extra'),
-                            // label: Text('Producto Extra'),
-                            size: ColumnSize.M,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("ProductoExtra");
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter('Precio Total',
-                                precioTotalController, 'precio_total'),
-                            //label: Text('Precio Total'),
-                            size: ColumnSize.S,
-                            numeric: true,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("PrecioTotal");
-                            },
-                          ),
-                          // DataColumn2(
-                          //   label: InputFilter('Comentario',
-                          //       comentarioController, 'comentario'),
-                          //   // label: Text('Comentario'),
-                          //   size: ColumnSize.M,
-                          //   onSort: (columnIndex, ascending) {
-                          //     // sortFunc("Comentario");
-                          //   },
-                          // ),
-                          // DataColumn2(
-                          //   // label: InputFilter('Comentario Novedad',
-                          //   //     comentarioController, 'comentario'),
-                          //   label: Text('Comentario Novedad'),
-                          //   size: ColumnSize.M,
-                          //   onSort: (columnIndex, ascending) {
-                          //     // sortFunc("Comentario");
-                          //   },
-                          // ),
-                          DataColumn2(
-                            label: SelectFilter2('Estado de Entrega', 'status',
-                                statusController, listStatus),
-                            // label: Text('Status'),
-                            size: ColumnSize.M,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("Status");
-                            },
-                          ),
-                          DataColumn2(
-                            label: SelectFilter2('Confirmado', 'estado_interno',
-                                estadoInternoController, listEstadoInterno),
-                            //label: Text('Confirmado'),
-                            size: ColumnSize.S,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("Estado_Interno");
-                            },
-                          ),
-                          DataColumn2(
-                            label: SelectFilter2(
-                                'Estado Logístico',
-                                'estado_logistico',
-                                estadoLogisticoController,
-                                listEstadoLogistico),
-                            //label: Text('Estado Logístico'),
-                            size: ColumnSize.S,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("Estado_Logistico");
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter('Costo Proveedor',
-                                marcaTiController, 'value_product_warehouse'),
-                            //label: Text('Fecha Ingreso'),
-                            size: ColumnSize.M,
-                            onSort: (columnIndex, ascending) {
-                              // sortFuncDate("Marca_T_I");
-                            },
-                          ),
-                          DataColumn2(
-                            label: SelectFilter2(
-                                'Estado Devolución',
-                                'estado_devolucion',
-                                estadoDevolucionController,
-                                listEstadoDevolucion),
-                            //label: Text('Estado Devolución'),
-                            size: ColumnSize.M,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("Estado_Devolucion");
-                            },
-                          ),
-                          DataColumn2(
-                            label: InputFilter(
-                                'Fecha Envío', marcaTiController, 'sent_at'),
-                            //label: Text('Fecha Ingreso'),
-                            size: ColumnSize.S,
-                            onSort: (columnIndex, ascending) {
-                              // sortFuncDate("Marca_T_I");
-                            },
-                          ),
-                          // const DataColumn2(
-                          //   label: Text('Transportadora'),
-                          //   size: ColumnSize.M,
-                          // ),
-                          DataColumn2(
-                            label: Text('Transportadora Externa'),
-                            // label: Text('Status'),
-                            size: ColumnSize.M,
-                            onSort: (columnIndex, ascending) {
-                              // sortFunc("Status");
-                            },
-                          ),
-
-                          const DataColumn2(
-                            label: Text('Costo Envío'),
-                            size: ColumnSize.M,
-                          ),
-                          const DataColumn2(
-                            label: Text('Costo Devolución'),
-                            size: ColumnSize.M,
-                          ),
-                        ],
-                        border: const TableBorder(
-                          top: BorderSide(color: Colors.grey),
-                          horizontalInside: BorderSide(color: Colors.grey),
-                          verticalInside: BorderSide(color: Colors.grey),
-                        ),
-                        rows: List<DataRow>.generate(
-                          data.isNotEmpty ? data.length : [].length,
-                          (index) => DataRow(
-                            cells: [
-                              DataCell(
-                                  Text(data[index]['fecha_entrega'].toString()),
-                                  onTap: () {
-                                showInfo(context, index);
-                              }),
-                              // DataCell(
-                              //   data[index]['payment_cost_delivery'] == 0
-                              //       ? Checkbox(
-                              //           value: selectedIds
-                              //               .contains(data[index]['id']),
-                              //           onChanged: (bool? newValue) {
-                              //             toggleSelection(data[index]['id'],
-                              //                 newValue ?? false);
-                              //           },
-                              //         )
-                              //       : GestureDetector(
-                              //           child: Row(
-                              //             mainAxisSize: MainAxisSize.min,
-                              //             children: [
-                              //               Text('OK'),
-                              //               SizedBox(width: 8),
-                              //               Icon(Icons.sync,
-                              //                   color: Colors.blue),
-                              //             ],
-                              //           ),
-                              //           onTap: () async {
-                              //             // print(
-                              //             // 'Cambiar estado para ID: ${data[index]['id']}');
-                              //             var result = await Connections().postGestinodPaymentU(
-                              //                 // .updatePaymentCostDeliveryInd(
-                              //                 data[index]['id'],
-                              //                 sharedPrefs!.getString("id"),
-                              //                 0,
-                              //                 formattedDate);
-                              //             loadData();
-                              //           },
-                              //         ),
-                              // ),
-                              // ! -----------------------
-                              // *******************
-                              DataCell(
-                                getStateFromJson(
-                                                data[index][
-                                                        'gestioned_payment_cost_delivery']
-                                                    ?.toString(),
-                                                'state') ==
-                                            "" ||
-                                        getStateFromJson(
-                                                data[index][
-                                                        'gestioned_payment_cost_delivery']
-                                                    ?.toString(),
-                                                'state') ==
-                                            "0"
-                                    // data[index]['payment_cost_delivery'] == 0
-                                    ? Checkbox(
-                                        value: selectedIds
-                                            .contains(data[index]['id']),
-                                        onChanged: (bool? newValue) {
-                                          toggleSelection(data[index]['id'],
-                                              newValue ?? false);
-                                        },
-                                      )
-                                    : GestureDetector(
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Text('OK'),
-                                            SizedBox(width: 8),
-                                            Icon(Icons.sync,
-                                                color: Colors.blue),
-                                          ],
-                                        ),
-                                        onTap: () async {
-                                          var result = await Connections()
-                                              .postGestinodPaymentU(
-                                                  data[index]['id'],
-                                                  sharedPrefs!.getString("id"),
-                                                  0,
-                                                  formattedDate);
-                                          loadData();
-                                        },
-                                      ),
+                            dividerThickness: 1,
+                            dataRowColor:
+                                MaterialStateColor.resolveWith((states) {
+                              if (states.contains(MaterialState.selected)) {
+                                return Colors.blue.withOpacity(
+                                    0.5); // Color para fila seleccionada
+                              } else if (states
+                                  .contains(MaterialState.hovered)) {
+                                return const Color.fromARGB(255, 234, 241, 251);
+                              }
+                              return const Color.fromARGB(0, 173, 233, 231);
+                            }),
+                            headingTextStyle:
+                                Theme.of(context).textTheme.bodySmall,
+                            dataTextStyle:
+                                Theme.of(context).textTheme.bodySmall,
+                            // columnSpacing: 12,
+                            headingRowHeight: 80,
+                            // horizontalMargin: 12,
+                            minWidth: 4500,
+                            columns: [
+                              DataColumn2(
+                                label: InputFilter('Fecha Entrega',
+                                    fechaEntregaController, 'fecha_entrega'),
+                                //label: Text('Fecha de Entrega'),
+                                size: ColumnSize.S,
+                                onSort: (columnIndex, ascending) {
+                                  sortFunc2("fecha_entrega", changevalue);
+                                },
                               ),
+                              // listPagoCostoEntrega
+                              DataColumn2(
+                                label: SelectFilter(
+                                    'Pago Costo Entrega',
+                                    'gestioned_payment_cost_delivery',
+                                    pagoCostoEntregaController,
+                                    listPagoCostoEntrega),
+                                // Text('Pago Costo Entrega'),
+                                //label: Text('Fecha de Entrega'),
+                                size: ColumnSize.S,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFunc2("fecha_entrega", changevalue);
+                                },
+                              ),
+                              // ! -----------------
                               // *******************
-                              DataCell(
-                                  Text(
-                                    getStateFromJson(
-                                        data[index][
-                                                'gestioned_payment_cost_delivery']
-                                            ?.toString(),
-                                        'id_user'),
-                                  ), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(
-                                    getStateFromJson(
-                                        data[index][
-                                                'gestioned_payment_cost_delivery']
-                                            ?.toString(),
-                                        'm_t_g'),
-                                  ), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              // ! -----------------------
-                              DataCell(
-                                  Text(
-                                      style: TextStyle(
-                                          color: GetColor(data[index]['status']
-                                              .toString())!),
-                                      '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
-                                  onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['ciudad_shipping']
-                                      .toString()), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['nombre_shipping']
-                                      .toString()), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(
-                                      data[index]['cantidad_total'].toString()),
-                                  onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['producto_p'].toString()),
-                                  onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(
-                                      data[index]['producto_extra'].toString()),
-                                  onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['precio_total'].toString()),
-                                  onTap: () {
-                                showInfo(context, index);
-                              }),
-                              // DataCell(
-                              //     Text(data[index]['comentario'] == null ||
-                              //             data[index]['comentario'] == "null"
-                              //         ? ""
-                              //         : data[index]['comentario'].toString()),
-                              //     // Text(data[index]['comentario'].toString()),
-                              //     onTap: () {
-                              //   showInfo(context, index);
-                              // }),
-                              // DataCell(
-                              //     Text(
-                              //       getStateFromJson(
-                              //           data[index]['gestioned_novelty']
-                              //               ?.toString(),
-                              //           'comment'),
-                              //     ), onTap: () {
-                              //   showInfo(context, index);
-                              // }),
-                              DataCell(
-                                  Text(
-                                      style: TextStyle(
-                                          color: GetColor(data[index]['status']
-                                              .toString())!),
-                                      data[index]['status'].toString()),
-                                  onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(
-                                      data[index]['estado_interno'].toString()),
-                                  onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['estado_logistico']
-                                      .toString()), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['value_product_warehouse'] !=
-                                          null
-                                      ? data[index]['value_product_warehouse']
-                                          .toString()
-                                      : ""), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['estado_devolucion']
-                                      .toString()), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['sent_at'] == null
-                                      ? ""
-                                      : UIUtils.formatDate(
-                                          data[index]['sent_at'].toString())),
-                                  onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  // Text(data[index]['transportadora'] != null &&
-                                  //         data[index]['transportadora']
-                                  //             .isNotEmpty
-                                  //     ? data[index]['transportadora'][0]
-                                  //             ['nombre']
-                                  //         .toString()
-                                  //     : '')
-                                  Text(data[index]["pedido_carrier"] != null
-                                      ? data[index]["pedido_carrier"][0]
-                                              ["carrier"]['name']
-                                          .toString()
-                                      : ""), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]['costo_transportadora'] !=
-                                          null
-                                      ? data[index]['costo_transportadora']
-                                          .toString()
-                                      : ""), onTap: () {
-                                showInfo(context, index);
-                              }),
-                              DataCell(
-                                  Text(data[index]["pedido_carrier"] != null
-                                      ? data[index]["pedido_carrier"][0]
-                                              ["cost_refound_external"]
-                                          .toString()
-                                      : ""), onTap: () {
-                                showInfo(context, index);
-                              }),
+                              // DataColumBest(
+                              // "Test P.C.E.", ColorsSystem().colorSelectMenu),
+                              // *******************
+                              DataColumBest("Pago Recibido por",
+                                  ColorsSystem().colorSelectMenu),
+                              DataColumBest("Fecha P. T. Externa",
+                                  ColorsSystem().colorSelectMenu),
+                              // ! -----------------
+                              DataColumn2(
+                                label: InputFilter(
+                                    'Código', codigoController, 'numero_orden'),
+                                //label: const Text('Código'),
+                                size: ColumnSize.S,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFunc("NumeroOrden");
+                                },
+                              ),
+                              DataColumn2(
+                                label: InputFilter(
+                                    'Ciudad',
+                                    ciudadShippingController,
+                                    'ciudad_shipping'),
+                                //label: const Text('Ciudad'),
+                                size: ColumnSize.M,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFunc("CiudadShipping");
+                                },
+                              ),
+                              DataColumn2(
+                                label: InputFilter(
+                                    'Nombre Cliente',
+                                    nombreShippingController,
+                                    'nombre_shipping'),
+                                //label: Text('Nombre Cliente'),
+                                size: ColumnSize.M,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFunc("NombreShipping");
+                                },
+                              ),
+                              DataColumn2(
+                                label: InputFilter('Cantidad',
+                                    cantidadTotalController, 'cantidad_total'),
+                                //label: Text('Cantidad'),
+                                size: ColumnSize.S,
+                                numeric: true,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFunc("Cantidad_Total");
+                                },
+                              ),
+                              DataColumn2(
+                                label: InputFilter('Producto',
+                                    productoPController, 'producto_p'),
+                                // label: Text('Producto'),
+                                size: ColumnSize.M,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFunc("ProductoP");
+                                },
+                              ),
+                              DataColumn2(
+                                label: InputFilter('Producto Extra',
+                                    productoExtraController, 'producto_extra'),
+                                // label: Text('Producto Extra'),
+                                size: ColumnSize.M,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFunc("ProductoExtra");
+                                },
+                              ),
+                              DataColumn2(
+                                label: InputFilter('Precio Total',
+                                    precioTotalController, 'precio_total'),
+                                //label: Text('Precio Total'),
+                                size: ColumnSize.S,
+                                numeric: true,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFunc("PrecioTotal");
+                                },
+                              ),
+                              DataColumn2(
+                                label: SelectFilter2('Estado de Entrega',
+                                    'status', statusController, listStatus),
+                                // label: Text('Status'),
+                                size: ColumnSize.M,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFunc("Status");
+                                },
+                              ),
+                              DataColumn2(
+                                label: SelectFilter2(
+                                    'Confirmado',
+                                    'estado_interno',
+                                    estadoInternoController,
+                                    listEstadoInterno),
+                                //label: Text('Confirmado'),
+                                size: ColumnSize.S,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFunc("Estado_Interno");
+                                },
+                              ),
+                              DataColumn2(
+                                label: SelectFilter2(
+                                    'Estado Logístico',
+                                    'estado_logistico',
+                                    estadoLogisticoController,
+                                    listEstadoLogistico),
+                                //label: Text('Estado Logístico'),
+                                size: ColumnSize.S,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFunc("Estado_Logistico");
+                                },
+                              ),
+                              DataColumn2(
+                                label: InputFilter(
+                                    'Costo Proveedor',
+                                    marcaTiController,
+                                    'value_product_warehouse'),
+                                //label: Text('Fecha Ingreso'),
+                                size: ColumnSize.M,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFuncDate("Marca_T_I");
+                                },
+                              ),
+                              DataColumn2(
+                                label: SelectFilter2(
+                                    'Estado Devolución',
+                                    'estado_devolucion',
+                                    estadoDevolucionController,
+                                    listEstadoDevolucion),
+                                //label: Text('Estado Devolución'),
+                                size: ColumnSize.M,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFunc("Estado_Devolucion");
+                                },
+                              ),
+                              DataColumn2(
+                                label: InputFilter('Fecha Envío',
+                                    marcaTiController, 'sent_at'),
+                                //label: Text('Fecha Ingreso'),
+                                size: ColumnSize.S,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFuncDate("Marca_T_I");
+                                },
+                              ),
+                              DataColumn2(
+                                label: Text('Transportadora Externa'),
+                                // label: Text('Status'),
+                                size: ColumnSize.M,
+                                onSort: (columnIndex, ascending) {
+                                  // sortFunc("Status");
+                                },
+                              ),
+
+                              const DataColumn2(
+                                label: Text('Costo Envío'),
+                                size: ColumnSize.M,
+                              ),
+                              const DataColumn2(
+                                label: Text('Costo Devolución'),
+                                size: ColumnSize.M,
+                              ),
                             ],
+                            border: const TableBorder(
+                              top: BorderSide(color: Colors.grey),
+                              horizontalInside: BorderSide(color: Colors.grey),
+                              verticalInside: BorderSide(color: Colors.grey),
+                            ),
+                            rows: List<DataRow>.generate(
+                              data.isNotEmpty ? data.length : [].length,
+                              (index) => DataRow(
+                                cells: [
+                                  DataCell(
+                                      Text(data[index]['fecha_entrega']
+                                          .toString()), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  // ! -----------------------
+                                  // *******************
+                                  DataCell(
+                                    getStateFromJson(
+                                                    data[index][
+                                                            'gestioned_payment_cost_delivery']
+                                                        ?.toString(),
+                                                    'state') ==
+                                                "" ||
+                                            getStateFromJson(
+                                                    data[index][
+                                                            'gestioned_payment_cost_delivery']
+                                                        ?.toString(),
+                                                    'state') ==
+                                                "0"
+                                        // data[index]['payment_cost_delivery'] == 0
+                                        ? Checkbox(
+                                            value: selectedIds
+                                                .contains(data[index]['id']),
+                                            onChanged: (bool? newValue) {
+                                              toggleSelection(data[index]['id'],
+                                                  newValue ?? false);
+                                            },
+                                          )
+                                        : GestureDetector(
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Text('OK'),
+                                                SizedBox(width: 8),
+                                                Icon(Icons.sync,
+                                                    color: Colors.blue),
+                                              ],
+                                            ),
+                                            onTap: () async {
+                                              var result = await Connections()
+                                                  .postGestinodPaymentU(
+                                                      data[index]['id'],
+                                                      sharedPrefs!
+                                                          .getString("id"),
+                                                      0,
+                                                      formattedDate);
+                                              loadData();
+                                            },
+                                          ),
+                                  ),
+                                  // *******************
+                                  DataCell(
+                                      Text(
+                                        getStateFromJson(
+                                            data[index][
+                                                    'gestioned_payment_cost_delivery']
+                                                ?.toString(),
+                                            'id_user'),
+                                      ), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(
+                                        getStateFromJson(
+                                            data[index][
+                                                    'gestioned_payment_cost_delivery']
+                                                ?.toString(),
+                                            'm_t_g'),
+                                      ), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  // ! -----------------------
+                                  DataCell(
+                                      Text(
+                                          style: TextStyle(
+                                              color: GetColor(data[index]
+                                                      ['status']
+                                                  .toString())!),
+                                          '${data[index]['users'] != null && data[index]['users'].isNotEmpty ? data[index]['users'][0]['vendedores'][0]['nombre_comercial'] : "NaN"}-${data[index]['numero_orden'].toString()}'),
+                                      onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(data[index]['ciudad_shipping']
+                                          .toString()), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(data[index]['nombre_shipping']
+                                          .toString()), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(data[index]['cantidad_total']
+                                          .toString()), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(
+                                          data[index]['producto_p'].toString()),
+                                      onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(data[index]['producto_extra']
+                                          .toString()), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(data[index]['precio_total']
+                                          .toString()), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(
+                                          style: TextStyle(
+                                              color: GetColor(data[index]
+                                                      ['status']
+                                                  .toString())!),
+                                          data[index]['status'].toString()),
+                                      onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(data[index]['estado_interno']
+                                          .toString()), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(data[index]['estado_logistico']
+                                          .toString()), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(data[index]
+                                                  ['value_product_warehouse'] !=
+                                              null
+                                          ? data[index]
+                                                  ['value_product_warehouse']
+                                              .toString()
+                                          : ""), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(data[index]['estado_devolucion']
+                                          .toString()), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(data[index]['sent_at'] == null
+                                          ? ""
+                                          : UIUtils.formatDate(data[index]
+                                                  ['sent_at']
+                                              .toString())), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      // Text(data[index]['transportadora'] != null &&
+                                      //         data[index]['transportadora']
+                                      //             .isNotEmpty
+                                      //     ? data[index]['transportadora'][0]
+                                      //             ['nombre']
+                                      //         .toString()
+                                      //     : '')
+                                      Text(data[index]["pedido_carrier"] != null
+                                          ? data[index]["pedido_carrier"][0]
+                                                  ["carrier"]['name']
+                                              .toString()
+                                          : ""), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(data[index]
+                                                  ['costo_transportadora'] !=
+                                              null
+                                          ? data[index]['costo_transportadora']
+                                              .toString()
+                                          : ""), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                  DataCell(
+                                      Text(data[index]["pedido_carrier"] != null
+                                          ? data[index]["pedido_carrier"][0]
+                                                  ["cost_refound_external"]
+                                              .toString()
+                                          : ""), onTap: () {
+                                    showInfo(context, index);
+                                  }),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                        //
+                      ],
                     ),
-                    //
-                  ],
-                ),
-              )
+                  ),
+                  context)
             ])),
       ),
     );
   }
 
+// ! movil ↓↓ ****************
+  void _toggleDropdown(StateSetter setState) {
+    setState(() {
+      _isExpanded = !_isExpanded;
+    });
+  }
+
+  void _toggleDropdownV(StateSetter setState) {
+    setState(() {
+      _isExpandedV = !_isExpandedV;
+    });
+  }
+
+  Widget _buildDropdownContent() {
+    return Container(
+      padding: EdgeInsets.all(5.0),
+      decoration: BoxDecoration(
+        color: Colors.grey[350],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: fechaFinFechaIniNueva(),
+      ),
+    );
+  }
+
+  Widget _buildDropdownContentV() {
+    return Container(
+      // padding: EdgeInsets.all(19.0),
+      decoration: BoxDecoration(
+        color: Colors.grey[350],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: EdgeInsets.all(10),
+            child: boxValuesExternalCarrier(
+                tittle: "FACTURACIÓN TOTAL",
+                totalValoresRecibidos: totalValoresRecibidos,
+                costoEntrega: costoDeEntregas,
+                costoDevolucion: devoluciones,
+                resultadoFinal: totalResultadoFinal),
+          ),
+          Container(
+            padding: EdgeInsets.all(10),
+            child: boxValuesExternalCarrier(
+                tittle: "FACTURACIÓN RECIBIDA",
+                totalValoresRecibidos: totalValoresRecibidosR,
+                costoEntrega: costoDeEntregasR,
+                costoDevolucion: devolucionesR,
+                resultadoFinal: totalResultadoFinalR),
+          ),
+          Divider(
+            thickness: 5.0,
+          ),
+          Container(
+              height: MediaQuery.of(context).size.height * 0.16,
+              child: OptionsWidget(
+                  function: addFilter,
+                  options: opciones,
+                  currentValue: currentValue)),
+        ],
+      ),
+    );
+  }
+
+// ! *************************
   DataColumn2 DataColumBest(String label, Color color) {
     return DataColumn2(
       // label: InputFilter(
@@ -1454,7 +2330,6 @@ class _DeliveryStatusExternalCarrierState
     // paginatorController.navigateToPage(0);
   }
 
-//money
   calculateValues() {
     totalValoresRecibidos = 0;
     costoDeEntregas = 0;
@@ -1735,6 +2610,7 @@ class _DeliveryStatusExternalCarrierState
 
   fechaFinFechaIni() {
     return [
+      // responsive(
       Row(
         children: [
           Column(
@@ -1791,103 +2667,10 @@ class _DeliveryStatusExternalCarrierState
                       }).toList(),
                     ),
                   ),
-                  // // ! *****************
-                  // Container(
-                  //   padding: EdgeInsets.only(left: 10),
-                  //   width: 230,
-                  //   child: DropdownButtonFormField<String>(
-                  //     isExpanded: true,
-                  //     value: selectedExt,
-                  //     onChanged: (String? newValue) async {
-                  //       // String filter = "carrier_external_id";
-                  //       setState(() {
-                  //         selectedExt = newValue ?? "";
-                  //       });
-                  //     },
-                  //     decoration: InputDecoration(
-                  //         border: UnderlineInputBorder(
-                  //             borderRadius: BorderRadius.circular(10))),
-                  //     items:
-                  //         listExt.map<DropdownMenuItem<String>>((String value) {
-                  //       return DropdownMenuItem<String>(
-                  //         value: value,
-                  //         child: Text(value, style: TextStyle(fontSize: 15)),
-                  //       );
-                  //     }).toList(),
-                  //   ),
-                  // ),
-                  // // SelectFilter('test', 'carrier_external_id',
-                  // //     externalCarrierController, listExt),
-                  // // ! *****************
-                  // Container(
-                  //   padding: EdgeInsets.only(left: 10),
-                  //   width: 230,
-                  //   decoration: BoxDecoration(
-                  //       color: Colors.white,
-                  //       border: Border.all(width: 1.0),
-                  //       borderRadius: BorderRadius.circular(5.0)),
-                  //   child: DropdownButtonHideUnderline(
-                  //     child: DropdownButton2<String>(
-                  //       isExpanded: true,
-                  //       hint: Text(
-                  //         'TRANSPORTADORA',
-                  //         style: TextStyle(
-                  //             fontSize: 14,
-                  //             color: Theme.of(context).hintColor,
-                  //             fontWeight: FontWeight.bold),
-                  //       ),
-                  //       items: transportator
-                  //           .map((item) => DropdownMenuItem(
-                  //                 value: item,
-                  //                 child: Text(
-                  //                   item.split('-')[0],
-                  //                   style: const TextStyle(
-                  //                       fontSize: 14,
-                  //                       fontWeight: FontWeight.bold),
-                  //                 ),
-                  //               ))
-                  //           .toList(),
-                  //       value: selectedValueTransportator,
-                  //       onChanged: (value) async {
-                  //         setState(() {
-                  //           selectedValueTransportator = value as String;
-                  //         });
-                  //          arrayFiltersAndEq = arrayFiltersAndEq
-                  //     .where((element) => element['carrier_external_id'] !=  value?.split('-')[1],)
-                  //     .toList();
-
-                  // // for (Map element in arrayFiltersAndEq) {
-                  // //   if (element['filter'] == filter) {
-                  // //     arrayFiltersAndEq.remove(element);
-                  // //   }
-                  // // }
-                  // if (value != 'TRANSPORTADORA') {
-                  //   // reemplazarValor(arrayFiltersAndEq, newValue!);
-                  //   //  print(value);
-                  //   // ! pendiente funcionalidad
-                  //   arrayFiltersAndEq.add({'filter': 'carrier_external_id', 'value':  value?.split('-')[1]});
-                  // }
-
-                  // loadData();
-
-                  //       },
-                  //       //This to clear the search value when you close the menu
-                  //       onMenuStateChange: (isOpen) {
-                  //         if (!isOpen) {}
-                  //       },
-                  //     ),
-                  //   ),
-                  // ),
-                  // ! *****************
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
                   // ! *****************
                   Container(
-                    padding: EdgeInsets.only(left: 10, top: 10, bottom: 10),
-                    width: 260,
+                    padding: EdgeInsets.only(left: 10),
+                    width: 230,
                     child: DropdownButtonFormField<String>(
                       isExpanded: true,
                       value: selectedExt,
@@ -1909,10 +2692,12 @@ class _DeliveryStatusExternalCarrierState
                       }).toList(),
                     ),
                   ),
-                  // SelectFilter('test', 'carrier_external_id',
-                  //     externalCarrierController, listExt),
-                  // ! *****************
-                  const SizedBox(width: 40),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  const SizedBox(width: 10),
                   ElevatedButton(
                     onPressed: () {
                       showSelectFilterReportDialog(context);
@@ -1942,6 +2727,342 @@ class _DeliveryStatusExternalCarrierState
           const SizedBox(height: 10),
         ],
       ),
+
+      // Column(
+      //   children: [
+      //     Row(
+      //       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      //       children: [
+      //         Text(_controllers.startDateController.text),
+      //         IconButton(
+      //           icon: const Icon(Icons.calendar_month),
+      //           onPressed: () async {
+      //             _controllers.startDateController.text =
+      //                 await OpenCalendar();
+      //           },
+      //         ),
+      //         const Text(' - '),
+      //         Text(_controllers.endDateController.text),
+      //         IconButton(
+      //           icon: Icon(Icons.calendar_month),
+      //           onPressed: () async {
+      //             _controllers.endDateController.text =
+      //                 await OpenCalendar();
+      //           },
+      //         ),
+      //         ElevatedButton(
+      //           style: const ButtonStyle(
+      //               backgroundColor: MaterialStatePropertyAll(
+      //                   Color.fromARGB(255, 67, 67, 67))),
+      //           onPressed: () async {
+      //             await applyDateFilter();
+      //           },
+      //           child: Text('Filtrar'),
+      //         ),
+      //       ],
+      //     ),
+      //     Divider(
+      //       thickness: 5.0,
+      //     ),
+      //     Row(
+      //       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      //       children: [
+      //         Container(
+      //           padding: EdgeInsets.only(left: 10),
+      //           width: 230,
+      //           child: DropdownButtonFormField<String>(
+      //             isExpanded: true,
+      //             value: selectedDateFilter,
+      //             onChanged: (String? newValue) {
+      //               setState(() {
+      //                 selectedDateFilter = newValue ?? "";
+      //               });
+      //             },
+      //             decoration: InputDecoration(
+      //                 border: UnderlineInputBorder(
+      //                     borderRadius: BorderRadius.circular(10))),
+      //             items: listDateFilter
+      //                 .map<DropdownMenuItem<String>>((String value) {
+      //               return DropdownMenuItem<String>(
+      //                 value: value,
+      //                 child: Text(value, style: TextStyle(fontSize: 15)),
+      //               );
+      //             }).toList(),
+      //           ),
+      //         ),
+      //         // ! *****************
+      //         Container(
+      //           padding: EdgeInsets.only(left: 10, top: 10, bottom: 10),
+      //           width: 260,
+      //           child: DropdownButtonFormField<String>(
+      //             isExpanded: true,
+      //             value: selectedExt,
+      //             onChanged: (String? newValue) async {
+      //               // String filter = "carrier_external_id";
+      //               setState(() {
+      //                 selectedExt = newValue ?? "";
+      //               });
+      //             },
+      //             decoration: InputDecoration(
+      //                 border: UnderlineInputBorder(
+      //                     borderRadius: BorderRadius.circular(10))),
+      //             items:
+      //                 listExt.map<DropdownMenuItem<String>>((String value) {
+      //               return DropdownMenuItem<String>(
+      //                 value: value,
+      //                 child: Text(value, style: TextStyle(fontSize: 15)),
+      //               );
+      //             }).toList(),
+      //           ),
+      //         ),
+      //         Divider(
+      //           thickness: 5.0,
+      //         ),
+      //       ],
+      //     ),
+      //     Divider(
+      //       thickness: 5.0,
+      //     ),
+      //     Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+      //       ElevatedButton(
+      //         onPressed: () {
+      //           resetFilters();
+      //           paginatorController.navigateToPage(0);
+      //         },
+      //         style: ElevatedButton.styleFrom(
+      //           backgroundColor: Colors.red,
+      //         ),
+      //         child: const Row(
+      //           mainAxisSize: MainAxisSize.min,
+      //           children: [
+      //             Icon(Icons.filter_list_off),
+      //           ],
+      //         ),
+      //       ),
+      //       ElevatedButton(
+      //         onPressed: () {
+      //           showSelectFilterReportDialog(context);
+      //         },
+      //         style: ElevatedButton.styleFrom(
+      //           backgroundColor: const Color.fromARGB(255, 58, 163, 81),
+      //         ),
+      //         child: const Row(
+      //           mainAxisAlignment: MainAxisAlignment.end,
+      //           children: [
+      //             Icon(
+      //               IconData(0xf6df, fontFamily: 'MaterialIcons'),
+      //               size: 24,
+      //               color: Colors.white,
+      //             ),
+      //             Text(
+      //               "Descargar reporte",
+      //               style: TextStyle(fontWeight: FontWeight.bold),
+      //             ),
+      //           ],
+      //         ),
+      //       ),
+      //     ])
+      //   ],
+      // ),
+
+      // context)
+    ];
+  }
+
+  // ! *******************************
+  fechaFinFechaIniNueva() {
+    return [
+      Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(_controllers.startDateController.text),
+              IconButton(
+                icon: const Icon(Icons.calendar_month),
+                onPressed: () async {
+                  _controllers.startDateController.text = await OpenCalendar();
+                },
+              ),
+              const Text(' - '),
+              Text(_controllers.endDateController.text),
+              IconButton(
+                icon: Icon(Icons.calendar_month),
+                onPressed: () async {
+                  _controllers.endDateController.text = await OpenCalendar();
+                },
+              ),
+              ElevatedButton(
+                style: const ButtonStyle(
+                    backgroundColor: MaterialStatePropertyAll(
+                        Color.fromARGB(255, 67, 67, 67))),
+                onPressed: () async {
+                  await applyDateFilter();
+                },
+                child: Text('Filtrar'),
+              ),
+            ],
+          ),
+          Divider(
+            thickness: 5.0,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Container(
+                padding: EdgeInsets.only(left: 10),
+                width: 200,
+                child: DropdownButtonFormField<String>(
+                  isExpanded: true,
+                  value: selectedDateFilter,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedDateFilter = newValue ?? "";
+                    });
+                  },
+                  decoration: InputDecoration(
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.black26),
+                    ),
+                  ),
+                  dropdownColor: Colors.white,
+                  items: listDateFilter
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Row(
+                        children: [
+                          Icon(Icons.date_range,
+                              color: Colors.black54, size: 20),
+                          SizedBox(width: 10),
+                          Text(value, style: TextStyle(fontSize: 10)),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+              SizedBox(height: 5),
+              Container(
+                padding: EdgeInsets.only(left: 10),
+                width: 160,
+                child: DropdownButtonFormField<String>(
+                  isExpanded: true,
+                  value: selectedExt,
+                  onChanged: (String? newValue) async {
+                    setState(() {
+                      selectedExt = newValue ?? "";
+                    });
+                  },
+                  decoration: InputDecoration(
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.black26),
+                    ),
+                  ),
+                  dropdownColor: Colors.white,
+                  items: listExt.map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Row(
+                        children: [
+                          Icon(Icons.extension,
+                              color: Colors.black54, size: 20),
+                          SizedBox(width: 10),
+                          Text(value, style: TextStyle(fontSize: 12)),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+          Divider(
+            thickness: 5.0,
+          ),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            ElevatedButton(
+              onPressed: () {
+                resetFilters();
+                paginatorController.navigateToPage(0);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.filter_list_off),
+                ],
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (selectedIds.isNotEmpty) {
+                  sendSelectedIds();
+                  loadData();
+                } else {
+                  AwesomeDialog(
+                    width: 500,
+                    context: context,
+                    dialogType: DialogType.error,
+                    animType: AnimType.rightSlide,
+                    title: 'Error',
+                    desc: 'Debe seleccionar Pedidos Previamente',
+                    btnOkText: "Aceptar",
+                    btnOkColor: colors.colorGreen,
+                    btnOkOnPress: () {},
+                  ).show();
+                }
+
+                // resetFilters();
+                // paginatorController.navigateToPage(0);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: ColorsSystem().colorSelectMenu,
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Marcar como Pagado ',
+                    style: TextStyle(color: Colors.white),
+                  )
+                ],
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                showSelectFilterReportDialog(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 58, 163, 81),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Icon(
+                    IconData(0xf6df, fontFamily: 'MaterialIcons'),
+                    size: 24,
+                    color: Colors.white,
+                  ),
+                  Text(
+                    "Reporte",
+                    // style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+          ])
+        ],
+      ),
+      const SizedBox(height: 10),
     ];
   }
 
@@ -2543,7 +3664,9 @@ class _DeliveryStatusExternalCarrierState
 
                   if (newValue != 'TODO') {
                     if (filter is String) {
-                      arrayFiltersAnd.add({filter: int.parse(newValue!.split('-')[1].toString())});
+                      arrayFiltersAnd.add({
+                        filter: int.parse(newValue!.split('-')[1].toString())
+                      });
                     } else {
                       reemplazarValor(filter, newValue!);
                       //print(filter);

@@ -23,7 +23,12 @@ class boxValuesExternalCarrier extends StatelessWidget {
     return responsive(
       Column(
         children: [
-          Row(children: [Text(tittle)]),
+          Row(children: [
+            Text(
+              tittle,
+              style: TextStyle(color: Colors.black),
+            )
+          ]),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -49,30 +54,47 @@ class boxValuesExternalCarrier extends StatelessWidget {
           ),
         ],
       ),
-      Container(
-        height: 55.0, // Ajusta la altura según tus necesidades
-        child: ListView(
-          scrollDirection: Axis.horizontal,
-          children: [
-            BuildInfoContainer(
-                title: 'Valores recibidos',
-                value: '\$${totalValoresRecibidos.toStringAsFixed(2)}'),
-            const SizedBox(width: 5),
-            BuildInfoContainer(
-                title: 'Costo Entrega',
-                value: '\$${costoEntrega.toStringAsFixed(2)}'),
-            const SizedBox(width: 5),
-            BuildInfoContainer(
-              title: 'Costo Devolución',
-              value: '\$${costoDevolucion.toStringAsFixed(2)}',
-            ),
-            BuildInfoContainer(
-                title: 'Total a Recibir',
-                value: '\$${resultadoFinal.toStringAsFixed(2)}',
+      Column(
+        children: [
+          Row(children: [
+            Text(
+              tittle,
+              style: TextStyle(color: Colors.black),
+            )
+          ]),
+          Row(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      BuildInfoContainer(
+                          title: 'Valores recibidos',
+                          value:
+                              '\$${totalValoresRecibidos.toStringAsFixed(2)}'),
+                      const SizedBox(width: 5),
+                      BuildInfoContainer(
+                          title: 'Costo Entrega',
+                          value: '\$${costoEntrega.toStringAsFixed(2)}'),
+                      const SizedBox(width: 5),
+                      BuildInfoContainer(
+                        title: 'Costo Devolución',
+                        value: '\$${costoDevolucion.toStringAsFixed(2)}',
+                      ),
+                      const SizedBox(width: 5),
+                      BuildInfoContainer(
+                        title: 'Total a Recibir',
+                        value: '\$${resultadoFinal.toStringAsFixed(2)}',
+                      ),
+                      const SizedBox(width: 5),
+                    ],
+                  ),
+                ),
               ),
-              const SizedBox(width: 5),
-          ],
-        ),
+            ],
+          ),
+        ],
       ),
 
       /*
