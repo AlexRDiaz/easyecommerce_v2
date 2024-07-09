@@ -902,10 +902,8 @@ class _DeliveryStatusExternalCarrierState
                               // DataColumBest(
                               // "Test P.C.E.", ColorsSystem().colorSelectMenu),
                               // *******************
-                              DataColumBest("Pago Recibido por",
-                                  ColorsSystem().colorSelectMenu),
-                              DataColumBest("Fecha P. T. Externa",
-                                  ColorsSystem().colorSelectMenu),
+                              DataColumBest("Pago Recibido por"),
+                              DataColumBest("Fecha P. T. Externa"),
                               // DataColumn2(
                               //   // label: InputFilter(
                               //   // 'Fecha de P. Trans. Externa', codigoController, 'numero_orden'),
@@ -1760,10 +1758,8 @@ class _DeliveryStatusExternalCarrierState
                               // DataColumBest(
                               // "Test P.C.E.", ColorsSystem().colorSelectMenu),
                               // *******************
-                              DataColumBest("Pago Recibido por",
-                                  ColorsSystem().colorSelectMenu),
-                              DataColumBest("Fecha P. T. Externa",
-                                  ColorsSystem().colorSelectMenu),
+                              DataColumBest("Pago Recibido por"),
+                              DataColumBest("Fecha P. T. Externa"),
                               // ! -----------------
                               DataColumn2(
                                 label: InputFilter(
@@ -2198,14 +2194,13 @@ class _DeliveryStatusExternalCarrierState
   }
 
 // ! *************************
-  DataColumn2 DataColumBest(String label, Color color) {
+  DataColumn2 DataColumBest(String label) {
     return DataColumn2(
       // label: InputFilter(
       // 'Pago Recibido por', codigoController, 'numero_orden'),
       // label: const Text('Pago Recibido por'),
       label: Text(
         label,
-        style: TextStyle(color: color, fontWeight: FontWeight.bold),
       ),
       size: ColumnSize.S,
       onSort: (columnIndex, ascending) {
