@@ -863,6 +863,17 @@ class _TransportDeliveryHistorialState
                       ),
                       DataColumn2(
                         label: InputFilter(
+                            'Costo Op. Real',
+                            {
+                              'costo_operador': {'\$contains': 'valor'}
+                            },
+                            costoOperadorController,
+                            '/costo_operador'),
+                        size: ColumnSize.M,
+                        numeric: true,
+                      ),
+                      DataColumn2(
+                        label: InputFilter(
                             'Costo Entraga Real',
                             {
                               'users': {
@@ -1892,6 +1903,20 @@ class _TransportDeliveryHistorialState
           ), onTap: () {
         showDialogInfoData(data[index]);
       }),
+      DataCell(
+        Text(
+          data[index]['costo_operador'] != null &&
+                  data[index]['costo_operador'].toString() != ""
+              ? data[index]['costo_operador'].toString()
+              : "",
+          style: TextStyle(
+            color: rowColor,
+          ),
+        ),
+        onTap: () {
+          showDialogInfoData(data[index]);
+        },
+      ),
       DataCell(
           Text(data[index]['costo_envio'] != null
               ? data[index]['costo_envio'].toString()

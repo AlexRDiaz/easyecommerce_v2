@@ -180,10 +180,12 @@ class _TransportationBillingState extends State<TransportationBilling> {
             //             .replaceAll(",", "."))
             //         : 0
             //     : 0;
-            var costo = data[i]['operadore'][0]['costo_operador']
-                .toString()
-                .replaceAll(",", ".");
-            dailyShippingCostC += double.parse(costo);
+            // var costo = data[i]['operadore'][0]['costo_operador']
+            //     .toString()
+            //     .replaceAll(",", ".");
+            // dailyShippingCostC += double.parse(costo);
+            var costo = data[i]['costo_operador'];
+            dailyShippingCostC += costo;
           }
         }
         dailyProceedsC = double.parse(dailyProceedsC.toStringAsFixed(2));
